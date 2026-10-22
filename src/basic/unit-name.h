@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 #define UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+प्रकारव्याख्या गणना UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(स्थिरांक अक्षर *n, UnitNameFlags flags) _pure_;
+bool unit_prefix_is_valid(स्थिरांक अक्षर *p) _pure_;
+bool unit_instance_is_valid(स्थिरांक अक्षर *i) _pure_;
+bool unit_suffix_is_valid(स्थिरांक अक्षर *s) _pure_;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+पूर्णांक unit_name_to_prefix(स्थिरांक अक्षर *n, अक्षर **ret);
+UnitNameFlags unit_name_to_instance(स्थिरांक अक्षर *n, अक्षर **ret);
+स्थिर ओळीत UnitNameFlags unit_name_classify(स्थिरांक अक्षर *n) {
+        परत unit_name_to_instance(n, रिक्त);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+पूर्णांक unit_name_to_prefix_and_instance(स्थिरांक अक्षर *n, अक्षर **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_to_type(स्थिरांक अक्षर *n) _pure_;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+पूर्णांक unit_name_change_suffix(स्थिरांक अक्षर *n, स्थिरांक अक्षर *suffix, अक्षर **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+पूर्णांक unit_name_build(स्थिरांक अक्षर *prefix, स्थिरांक अक्षर *instance, स्थिरांक अक्षर *suffix, अक्षर **ret);
+पूर्णांक unit_name_build_from_type(स्थिरांक अक्षर *prefix, स्थिरांक अक्षर *instance, UnitType type, अक्षर **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+अक्षर* unit_name_escape(स्थिरांक अक्षर *f);
+पूर्णांक unit_name_unescape(स्थिरांक अक्षर *f, अक्षर **ret);
+पूर्णांक unit_name_path_escape(स्थिरांक अक्षर *f, अक्षर **ret);
+पूर्णांक unit_name_path_unescape(स्थिरांक अक्षर *f, अक्षर **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+पूर्णांक unit_name_replace_instance_full(
+                स्थिरांक अक्षर *original,
+                स्थिरांक अक्षर *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                अक्षर **ret);
+स्थिर ओळीत पूर्णांक unit_name_replace_instance(स्थिरांक अक्षर *original, स्थिरांक अक्षर *instance, अक्षर **ret) {
+        परत unit_name_replace_instance_full(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+पूर्णांक unit_name_template(स्थिरांक अक्षर *f, अक्षर **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+पूर्णांक unit_name_hash_long(स्थिरांक अक्षर *name, अक्षर **ret);
+bool unit_name_is_hashed(स्थिरांक अक्षर *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+पूर्णांक unit_name_from_path(स्थिरांक अक्षर *path, स्थिरांक अक्षर *suffix, अक्षर **ret);
+पूर्णांक unit_name_from_path_instance(स्थिरांक अक्षर *prefix, स्थिरांक अक्षर *path, स्थिरांक अक्षर *suffix, अक्षर **ret);
+पूर्णांक unit_name_to_path(स्थिरांक अक्षर *name, अक्षर **ret);
 
-typedef enum UnitNameMangle {
+प्रकारव्याख्या गणना UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+पूर्णांक unit_name_mangle_with_suffix(स्थिरांक अक्षर *name, स्थिरांक अक्षर *operation, UnitNameMangle flags, स्थिरांक अक्षर *suffix, अक्षर **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+स्थिर ओळीत पूर्णांक unit_name_mangle(स्थिरांक अक्षर *name, UnitNameMangle flags, अक्षर **ret) {
+        परत unit_name_mangle_with_suffix(name, रिक्त, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+पूर्णांक slice_build_parent_slice(स्थिरांक अक्षर *slice, अक्षर **ret);
+पूर्णांक slice_build_subslice(स्थिरांक अक्षर *slice, स्थिरांक अक्षर *name, अक्षर **ret);
+bool slice_name_is_valid(स्थिरांक अक्षर *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_prefix_equal(स्थिरांक अक्षर *a, स्थिरांक अक्षर *b);

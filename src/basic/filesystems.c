@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "filesystems-gperf.h"
-#include "stat-util.h"
-#include "string-util.h"
+#अन्तर्भाव "filesystems-gperf.h"
+#अन्तर्भाव "stat-util.h"
+#अन्तर्भाव "string-util.h"
 
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret) {
-        const struct FilesystemMagic *fs_magic;
+पूर्णांक fs_type_from_string(स्थिरांक अक्षर *name, स्थिरांक statfs_f_type_t **ret) {
+        स्थिरांक संरचना FilesystemMagic *fs_magic;
 
-        assert(name);
-        assert(ret);
+        प्रतिज्ञा(name);
+        प्रतिज्ञा(ret);
 
-        fs_magic = filesystems_gperf_lookup(name, strlen(name));
-        if (!fs_magic)
-                return -EINVAL;
+        fs_magic = filesystems_gperf_lookup(name, म_माप(name));
+        जर (!fs_magic)
+                परत -EINVAL;
 
         *ret = fs_magic->magic;
-        return 0;
+        परत 0;
 }
 
-const FilesystemSet* filesystem_set_find(const char *name) {
-        if (isempty(name) || name[0] != '@')
-                return NULL;
+स्थिरांक FilesystemSet* filesystem_set_find(स्थिरांक अक्षर *name) {
+        जर (isempty(name) || name[0] != '@')
+                परत रिक्त;
 
-        for (FilesystemGroups i = 0; i < _FILESYSTEM_SET_MAX; i++)
-                if (streq(filesystem_sets[i].name, name))
-                        return filesystem_sets + i;
+        साठी (FilesystemGroups i = 0; i < _FILESYSTEM_SET_MAX; i++)
+                जर (streq(filesystem_sets[i].name, name))
+                        परत filesystem_sets + i;
 
-        return NULL;
+        परत रिक्त;
 }

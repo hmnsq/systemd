@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#अन्तर्भाव <linux/if_arp.h>
+#अन्तर्भाव <linux/if_infiniband.h>
+#अन्तर्भाव <netinet/in.h>
+#अन्तर्भाव <string.h>
 
-#include "arphrd-util.h"
+#अन्तर्भाव "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+स्थिर स्थिरांक संरचना arphrd_name* lookup_arphrd(नोंदणी स्थिरांक अक्षर *str, नोंदणी GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#अन्तर्भाव "arphrd-from-name.inc"
+#अन्तर्भाव "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+पूर्णांक arphrd_from_name(स्थिरांक अक्षर *name) {
+        स्थिरांक संरचना arphrd_name *sc;
 
-        assert(name);
+        प्रतिज्ञा(name);
 
-        sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_arphrd(name, म_माप(name));
+        जर (!sc)
+                परत -EINVAL;
 
-        return sc->id;
+        परत sc->id;
 }
 
-size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+माप_प्रकार arphrd_to_hw_addr_len(uint16_t arphrd) {
+        निवड (arphrd) {
+        स्थिती ARPHRD_ETHER:
+                परत ETH_ALEN;
+        स्थिती ARPHRD_INFINIBAND:
+                परत INFINIBAND_ALEN;
+        स्थिती ARPHRD_TUNNEL:
+        स्थिती ARPHRD_SIT:
+        स्थिती ARPHRD_IPGRE:
+                परत आकार(संरचना in_addr);
+        स्थिती ARPHRD_TUNNEL6:
+        स्थिती ARPHRD_IP6GRE:
+                परत आकार(संरचना in6_addr);
+        पूर्वनिर्धारित:
+                परत 0;
         }
 }

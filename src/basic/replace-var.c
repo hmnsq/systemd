@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "replace-var.h"
+#अन्तर्भाव "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
-        size_t k;
-        char *t;
+स्थिर पूर्णांक get_variable(स्थिरांक अक्षर *b, अक्षर **r) {
+        माप_प्रकार k;
+        अक्षर *t;
 
-        assert(b);
-        assert(r);
+        प्रतिज्ञा(b);
+        प्रतिज्ञा(r);
 
-        if (*b != '@')
-                return 0;
+        जर (*b != '@')
+                परत 0;
 
-        k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        k = म_अखोज(b + 1, UPPERCASE_LETTERS "_");
+        जर (k <= 0 || b[k+1] != '@')
+                परत 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        जर (!t)
+                परत -ENOMEM;
 
         *r = t;
-        return 1;
+        परत 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
-        size_t l;
+अक्षर* replace_var(स्थिरांक अक्षर *text, अक्षर *(*lookup)(स्थिरांक अक्षर *variable, शून्य *userdata), शून्य *userdata) {
+        अक्षर *r, *t;
+        स्थिरांक अक्षर *f;
+        माप_प्रकार l;
 
-        assert(text);
-        assert(lookup);
+        प्रतिज्ञा(text);
+        प्रतिज्ञा(lookup);
 
-        l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        l = म_माप(text);
+        r = new(अक्षर, l+1);
+        जर (!r)
+                परत रिक्त;
 
         f = text;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
-                size_t skip, d, nl;
+        पर्यंत (*f) {
+                _cleanup_free_ अक्षर *v = रिक्त, *n = रिक्त;
+                अक्षर *a;
+                पूर्णांक k;
+                माप_प्रकार skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                जर (k < 0)
+                        जा oom;
+                जर (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        सुरूठेवा;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                जर (!n)
+                        जा oom;
 
-                skip = strlen(v) + 2;
+                skip = म_माप(v) + 2;
 
                 d = t - r;
-                nl = l - skip + strlen(n);
-                a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                nl = l - skip + म_माप(n);
+                a = पुनः_स्मृति(r, nl + 1);
+                जर (!a)
+                        जा oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        परत r;
 
 oom:
-        return mfree(r);
+        परत mfree(r);
 }

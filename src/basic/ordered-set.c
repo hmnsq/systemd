@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "ordered-set.h"
+#अन्तर्भाव "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+पूर्णांक ordered_set_ensure_allocated(OrderedSet **s, स्थिरांक संरचना hash_ops *ops) {
+        प्रतिज्ञा(s);
 
-        if (*s)
-                return 0;
+        जर (*s)
+                परत 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        जर (!*s)
+                परत -ENOMEM;
 
-        return 0;
+        परत 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+पूर्णांक ordered_set_ensure_put(OrderedSet **s, स्थिरांक संरचना hash_ops *ops, शून्य *p) {
+        पूर्णांक r;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
-        return ordered_set_put(*s, p);
+        परत ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+पूर्णांक ordered_set_consume(OrderedSet *s, शून्य *p) {
+        पूर्णांक r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        जर (r <= 0)
+                मुक्त(p);
 
-        return r;
+        परत r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+पूर्णांक ordered_set_put_strdup_full(OrderedSet **s, स्थिरांक संरचना hash_ops *hash_ops, स्थिरांक अक्षर *p) {
+        अक्षर *c;
+        पूर्णांक r;
 
-        assert(s);
-        assert(p);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        जर (ordered_set_contains(*s, p))
+                परत 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        जर (!c)
+                परत -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        परत ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+पूर्णांक ordered_set_put_strdupv_full(OrderedSet **s, स्थिरांक संरचना hash_ops *hash_ops, अक्षर **l) {
+        पूर्णांक r, ret = 0;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                जर (r < 0)
+                        परत r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        परत ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+पूर्णांक ordered_set_put_string_set_full(OrderedSet **s, स्थिरांक संरचना hash_ops *hash_ops, OrderedSet *l) {
+        पूर्णांक r, ret = 0;
+        अक्षर *p;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                जर (r < 0)
+                        परत r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        परत ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+शून्य ordered_set_print(खाता *f, स्थिरांक अक्षर *field, OrderedSet *s) {
         bool space = false;
-        char *p;
+        अक्षर *p;
 
-        assert(f);
-        assert(field);
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        जर (ordered_set_isempty(s))
+                परत;
 
-        fputs(field, f);
+        ख_माला_दो(field, f);
 
         ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+                fputs_with_separator(f, p, रिक्त, &space);
 
-        fputc('\n', f);
+        ख_अक्षर_दो('\n', f);
 }

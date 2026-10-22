@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "label-util.h"
+#अन्तर्भाव "label-util.h"
 
-static const LabelOps *label_ops = NULL;
+स्थिर स्थिरांक LabelOps *label_ops = रिक्त;
 
-int label_ops_set(const LabelOps *ops) {
-        assert(ops);
+पूर्णांक label_ops_set(स्थिरांक LabelOps *ops) {
+        प्रतिज्ञा(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        जर (label_ops)
+                परत -EBUSY;
 
         label_ops = ops;
-        return 0;
+        परत 0;
 }
 
-void label_ops_reset(void) {
-        label_ops = NULL;
+शून्य label_ops_reset(शून्य) {
+        label_ops = रिक्त;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+पूर्णांक label_ops_pre(पूर्णांक dir_fd, स्थिरांक अक्षर *path, mode_t mode, LabelContext *label_context) {
+        जर (!label_ops || !label_ops->pre)
+                परत 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        परत label_ops->pre(dir_fd, path, mode, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+पूर्णांक label_ops_post(पूर्णांक dir_fd, स्थिरांक अक्षर *path, bool created, LabelContext *label_context) {
+        जर (!label_ops || !label_ops->post)
+                परत 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        परत label_ops->post(dir_fd, path, created, label_context);
 }

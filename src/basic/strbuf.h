@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-struct strbuf {
-        char *buf;
-        size_t len;
-        struct strbuf_node *root;
+संरचना strbuf {
+        अक्षर *buf;
+        माप_प्रकार len;
+        संरचना strbuf_गाठ *मूळ;
 
-        size_t nodes_count;
-        size_t in_count;
-        size_t in_len;
-        size_t dedup_len;
-        size_t dedup_count;
+        माप_प्रकार nodes_मोजणी;
+        माप_प्रकार in_मोजणी;
+        माप_प्रकार in_len;
+        माप_प्रकार dedup_len;
+        माप_प्रकार dedup_मोजणी;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+संरचना strbuf_गाठ {
+        माप_प्रकार मूल्य_off;
+        माप_प्रकार मूल्य_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        संरचना strbuf_child_entry *children;
+        uint8_t children_मोजणी;
 };
 
-struct strbuf_child_entry {
+संरचना strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        संरचना strbuf_गाठ *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+संरचना strbuf* strbuf_new(शून्य);
+ssize_t strbuf_add_string_full(संरचना strbuf *str, स्थिरांक अक्षर *s, माप_प्रकार len);
+स्थिर ओळीत ssize_t strbuf_add_string(संरचना strbuf *str, स्थिरांक अक्षर *s) {
+        परत strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+शून्य strbuf_complete(संरचना strbuf *str);
+संरचना strbuf* strbuf_free(संरचना strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(संरचना strbuf*, strbuf_free);

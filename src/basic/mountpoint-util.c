@@ -1,23 +1,23 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/mount.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <sys/mount.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "filesystems.h"
-#include "fs-util.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "nulstr-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "unaligned.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "chase.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "filesystems.h"
+#अन्तर्भाव "fs-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "mountpoint-util.h"
+#अन्तर्भाव "nulstr-util.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "stat-util.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "unaligned.h"
 
 /* This is the original MAX_HANDLE_SZ definition from the kernel, when the API was introduced. We use that in place of
  * any more currently defined value to future-proof things: if the size is increased in the API headers, and our code
@@ -27,7 +27,7 @@
  * with large file handles anyway. */
 #define ORIGINAL_MAX_HANDLE_SZ 128
 
-bool is_name_to_handle_at_fatal_error(int err) {
+bool is_name_to_handle_at_fatal_error(पूर्णांक err) {
         /* name_to_handle_at() can return "acceptable" errors that are due to the context. For example
          * the file system does not support name_to_handle_at() (EOPNOTSUPP), or the syscall was blocked
          * (EACCES/EPERM; maybe through seccomp, because we are running inside of a container), or
@@ -35,28 +35,28 @@ bool is_name_to_handle_at_fatal_error(int err) {
          * flakiness (EINVAL). However other errors are not supposed to happen and therefore are considered
          * fatal ones. */
 
-        assert(err < 0);
+        प्रतिज्ञा(err < 0);
 
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(err))
-                return false;
-        if (ERRNO_IS_NEG_PRIVILEGE(err))
-                return false;
+        जर (ERRNO_IS_NEG_NOT_SUPPORTED(err))
+                परत false;
+        जर (ERRNO_IS_NEG_PRIVILEGE(err))
+                परत false;
 
-        return !IN_SET(err, -EOVERFLOW, -EINVAL);
+        परत !IN_SET(err, -EOVERFLOW, -EINVAL);
 }
 
-int name_to_handle_at_loop(
-                int fd,
-                const char *path,
-                struct file_handle **ret_handle,
-                int *ret_mnt_id,
+पूर्णांक name_to_handle_at_loop(
+                पूर्णांक fd,
+                स्थिरांक अक्षर *path,
+                संरचना file_handle **ret_handle,
+                पूर्णांक *ret_mnt_id,
                 uint64_t *ret_unique_mnt_id,
-                int flags) {
+                पूर्णांक flags) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH|AT_HANDLE_FID)) == 0);
+        प्रतिज्ञा(fd >= 0 || fd == AT_FDCWD);
+        प्रतिज्ञा((flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH|AT_HANDLE_FID)) == 0);
 
         /* We need to invoke name_to_handle_at() in a loop, given that it might return EOVERFLOW when the specified
          * buffer is too small. Note that in contrast to what the docs might suggest, MAX_HANDLE_SZ is only good as a
@@ -69,21 +69,21 @@ int name_to_handle_at_loop(
          * (needs kernel v6.12), and fall back to statx() if not supported. If neither worked, and caller
          * also specifies ret_mnt_id, then the old-style mount id is returned, -EUNATCH otherwise. */
 
-        if (isempty(path)) {
+        जर (isempty(path)) {
                 flags |= AT_EMPTY_PATH;
                 path = "";
         }
 
-        for (size_t n = ORIGINAL_MAX_HANDLE_SZ;;) {
-                _cleanup_free_ struct file_handle *h = NULL;
+        साठी (माप_प्रकार n = ORIGINAL_MAX_HANDLE_SZ;;) {
+                _cleanup_free_ संरचना file_handle *h = रिक्त;
 
-                h = malloc0(offsetof(struct file_handle, f_handle) + n);
-                if (!h)
-                        return -ENOMEM;
+                h = malloc0(दुरत्व(संरचना file_handle, f_handle) + n);
+                जर (!h)
+                        परत -ENOMEM;
 
                 h->handle_bytes = n;
 
-                if (ret_unique_mnt_id) {
+                जर (ret_unique_mnt_id) {
                         /* Here, explicitly initialize mnt_id, otherwise valgrind complains:
                          *
                          * ==175708== Conditional jump or move depends on uninitialised value(s)
@@ -93,165 +93,165 @@ int name_to_handle_at_loop(
                         uint64_t mnt_id = 0;
 
                         /* The kernel will still use this as uint64_t pointer */
-                        r = name_to_handle_at(fd, path, h, (int *) &mnt_id, flags|AT_HANDLE_MNT_ID_UNIQUE);
-                        if (r >= 0) {
-                                if (ret_handle)
+                        r = name_to_handle_at(fd, path, h, (पूर्णांक *) &mnt_id, flags|AT_HANDLE_MNT_ID_UNIQUE);
+                        जर (r >= 0) {
+                                जर (ret_handle)
                                         *ret_handle = TAKE_PTR(h);
 
                                 *ret_unique_mnt_id = mnt_id;
 
-                                if (ret_mnt_id)
+                                जर (ret_mnt_id)
                                         *ret_mnt_id = -1;
 
-                                return 1;
+                                परत 1;
                         }
-                        if (errno == EOVERFLOW)
-                                goto grow;
-                        if (errno != EINVAL)
-                                return -errno;
+                        जर (त्रुटि_सं == EOVERFLOW)
+                                जा grow;
+                        जर (त्रुटि_सं != EINVAL)
+                                परत -त्रुटि_सं;
                 }
 
-                int mnt_id;
+                पूर्णांक mnt_id;
                 r = name_to_handle_at(fd, path, h, &mnt_id, flags);
-                if (r >= 0) {
-                        if (ret_unique_mnt_id) {
+                जर (r >= 0) {
+                        जर (ret_unique_mnt_id) {
                                 /* Hmm, AT_HANDLE_MNT_ID_UNIQUE is not supported? Let's try to acquire
                                  * the unique mount id from statx() then, which has a slightly lower
                                  * kernel version requirement (6.8 vs 6.12). */
 
-                                struct statx sx;
+                                संरचना statx sx;
                                 r = xstatx(fd, path,
                                            at_flags_normalize_nofollow(flags & (AT_SYMLINK_FOLLOW|AT_EMPTY_PATH))|AT_STATX_DONT_SYNC,
                                            STATX_MNT_ID_UNIQUE,
                                            &sx);
-                                if (r >= 0) {
-                                        if (ret_handle)
+                                जर (r >= 0) {
+                                        जर (ret_handle)
                                                 *ret_handle = TAKE_PTR(h);
 
                                         *ret_unique_mnt_id = sx.stx_mnt_id;
 
-                                        if (ret_mnt_id)
+                                        जर (ret_mnt_id)
                                                 *ret_mnt_id = -1;
 
-                                        return 1;
+                                        परत 1;
                                 }
-                                if (r != -EUNATCH || !ret_mnt_id)
-                                        return r;
+                                जर (r != -EUNATCH || !ret_mnt_id)
+                                        परत r;
 
                                 *ret_unique_mnt_id = 0;
                         }
 
-                        if (ret_handle)
+                        जर (ret_handle)
                                 *ret_handle = TAKE_PTR(h);
 
-                        if (ret_mnt_id)
+                        जर (ret_mnt_id)
                                 *ret_mnt_id = mnt_id;
 
-                        return 0;
+                        परत 0;
                 }
-                if (errno != EOVERFLOW)
-                        return -errno;
+                जर (त्रुटि_सं != EOVERFLOW)
+                        परत -त्रुटि_सं;
 
         grow:
                 /* If name_to_handle_at() didn't increase the byte size, then this EOVERFLOW is caused by
                  * something else (apparently EOVERFLOW is returned for untriggered nfs4 autofs mounts
                  * sometimes), not by the too small buffer. In that case propagate EOVERFLOW */
-                if (h->handle_bytes <= n)
-                        return -EOVERFLOW;
+                जर (h->handle_bytes <= n)
+                        परत -EOVERFLOW;
 
                 /* The buffer was too small. Size the new buffer by what name_to_handle_at() returned. */
                 n = h->handle_bytes;
 
                 /* paranoia: check for overflow (note that .handle_bytes is unsigned only) */
-                if (n > UINT_MAX - offsetof(struct file_handle, f_handle))
-                        return -EOVERFLOW;
+                जर (n > अच_पूर्णांक_उच्च - दुरत्व(संरचना file_handle, f_handle))
+                        परत -EOVERFLOW;
         }
 }
 
-int name_to_handle_at_try_fid(
-                int fd,
-                const char *path,
-                struct file_handle **ret_handle,
-                int *ret_mnt_id,
+पूर्णांक name_to_handle_at_try_fid(
+                पूर्णांक fd,
+                स्थिरांक अक्षर *path,
+                संरचना file_handle **ret_handle,
+                पूर्णांक *ret_mnt_id,
                 uint64_t *ret_unique_mnt_id,
-                int flags) {
+                पूर्णांक flags) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
+        प्रतिज्ञा(fd >= 0 || fd == AT_FDCWD);
 
         /* First issues name_to_handle_at() with AT_HANDLE_FID. If this fails and this is not a fatal error
          * we'll try without the flag, in order to support older kernels that didn't have AT_HANDLE_FID
          * (i.e. older than Linux 6.5). */
 
         r = name_to_handle_at_loop(fd, path, ret_handle, ret_mnt_id, ret_unique_mnt_id, flags | AT_HANDLE_FID);
-        if (r >= 0 || is_name_to_handle_at_fatal_error(r))
-                return r;
+        जर (r >= 0 || is_name_to_handle_at_fatal_error(r))
+                परत r;
 
-        return name_to_handle_at_loop(fd, path, ret_handle, ret_mnt_id, ret_unique_mnt_id, flags & ~AT_HANDLE_FID);
+        परत name_to_handle_at_loop(fd, path, ret_handle, ret_mnt_id, ret_unique_mnt_id, flags & ~AT_HANDLE_FID);
 }
 
-int name_to_handle_at_u64(int fd, const char *path, uint64_t *ret) {
-        _cleanup_free_ struct file_handle *h = NULL;
-        int r;
+पूर्णांक name_to_handle_at_u64(पूर्णांक fd, स्थिरांक अक्षर *path, uint64_t *ret) {
+        _cleanup_free_ संरचना file_handle *h = रिक्त;
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
+        प्रतिज्ञा(fd >= 0 || fd == AT_FDCWD);
 
         /* This provides the first 64bit of the file handle. */
 
-        r = name_to_handle_at_loop(fd, path, &h, /* ret_mnt_id= */ NULL, /* ret_unique_mnt_id= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (h->handle_bytes < sizeof(uint64_t))
-                return -EBADMSG;
+        r = name_to_handle_at_loop(fd, path, &h, /* ret_mnt_id= */ रिक्त, /* ret_unique_mnt_id= */ रिक्त, /* flags= */ 0);
+        जर (r < 0)
+                परत r;
+        जर (h->handle_bytes < आकार(uint64_t))
+                परत -EBADMSG;
 
-        if (ret)
+        जर (ret)
                 /* Note, "struct file_handle" is 32bit aligned usually, but we need to read a 64bit value from it */
                 *ret = unaligned_read_ne64(h->f_handle);
 
-        return 0;
+        परत 0;
 }
 
-bool file_handle_equal(const struct file_handle *a, const struct file_handle *b) {
-        if (a == b)
-                return true;
-        if (!a != !b)
-                return false;
-        if (a->handle_type != b->handle_type)
-                return false;
+bool file_handle_equal(स्थिरांक संरचना file_handle *a, स्थिरांक संरचना file_handle *b) {
+        जर (a == b)
+                परत true;
+        जर (!a != !b)
+                परत false;
+        जर (a->handle_type != b->handle_type)
+                परत false;
 
-        return memcmp_nn(a->f_handle, a->handle_bytes, b->f_handle, b->handle_bytes) == 0;
+        परत memcmp_nn(a->f_handle, a->handle_bytes, b->f_handle, b->handle_bytes) == 0;
 }
 
-struct file_handle* file_handle_dup(const struct file_handle *fh) {
-        _cleanup_free_ struct file_handle *fh_copy = NULL;
+संरचना file_handle* file_handle_dup(स्थिरांक संरचना file_handle *fh) {
+        _cleanup_free_ संरचना file_handle *fh_copy = रिक्त;
 
-        assert(fh);
+        प्रतिज्ञा(fh);
 
-        fh_copy = malloc0(offsetof(struct file_handle, f_handle) + fh->handle_bytes);
-        if (!fh_copy)
-                return NULL;
+        fh_copy = malloc0(दुरत्व(संरचना file_handle, f_handle) + fh->handle_bytes);
+        जर (!fh_copy)
+                परत रिक्त;
 
         fh_copy->handle_bytes = fh->handle_bytes;
         fh_copy->handle_type = fh->handle_type;
-        memcpy(fh_copy->f_handle, fh->f_handle, fh->handle_bytes);
+        स_नकल(fh_copy->f_handle, fh->f_handle, fh->handle_bytes);
 
-        return TAKE_PTR(fh_copy);
+        परत TAKE_PTR(fh_copy);
 }
 
-int is_mount_point_at(int dir_fd, const char *path, int flags) {
-        int r;
+पूर्णांक is_mount_point_at(पूर्णांक dir_fd, स्थिरांक अक्षर *path, पूर्णांक flags) {
+        पूर्णांक r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert((flags & ~AT_SYMLINK_FOLLOW) == 0);
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा((flags & ~AT_SYMLINK_FOLLOW) == 0);
 
-        if (path_equal(path, "/"))
-                return true;
+        जर (path_equal(path, "/"))
+                परत true;
 
-        if (dir_fd == XAT_FDROOT && isempty(path))
-                return true;
+        जर (dir_fd == XAT_FDROOT && isempty(path))
+                परत true;
 
-        struct statx sx;
+        संरचना statx sx;
         r = xstatx_full(dir_fd, path,
                         at_flags_normalize_nofollow(flags) |
                         AT_NO_AUTOMOUNT |            /* don't trigger automounts – mounts are a local concept, hence no need to trigger automounts to determine STATX_ATTR_MOUNT_ROOT */
@@ -259,55 +259,55 @@ int is_mount_point_at(int dir_fd, const char *path, int flags) {
                         /* xstatx_flags = */ 0,
                         STATX_TYPE|STATX_INO,
                         /* optional_mask = */ 0,
-                        STATX_ATTR_MOUNT_ROOT,
+                        STATX_ATTR_MOUNT_मूळ,
                         &sx);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
-        if (FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_ROOT))
-                return true;
+        जर (FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_मूळ))
+                परत true;
 
         /* When running on chroot environment, the root may not be a mount point, but we unconditionally
          * return true when the input is "/" in the above, but the shortcut may not work e.g. when the path
          * is relative. */
-        struct statx sx2;
+        संरचना statx sx2;
         r = xstatx(AT_FDCWD,
                    "/",
                    AT_STATX_DONT_SYNC,
                    STATX_TYPE|STATX_INO,
                    &sx2);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
-        return statx_inode_same(&sx, &sx2);
+        परत statx_inode_same(&sx, &sx2);
 }
 
 /* flags can be AT_SYMLINK_FOLLOW or 0 */
-int path_is_mount_point_full(const char *path, const char *root, int flags) {
-        _cleanup_close_ int dir_fd = -EBADF;
-        int r;
+पूर्णांक path_is_mount_point_full(स्थिरांक अक्षर *path, स्थिरांक अक्षर *मूळ, पूर्णांक flags) {
+        _cleanup_close_ पूर्णांक dir_fd = -EBADF;
+        पूर्णांक r;
 
-        assert(path);
-        assert((flags & ~AT_SYMLINK_FOLLOW) == 0);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा((flags & ~AT_SYMLINK_FOLLOW) == 0);
 
-        if (empty_or_root(root))
-                return is_mount_point_at(AT_FDCWD, path, flags);
+        जर (empty_or_मूळ(मूळ))
+                परत is_mount_point_at(AT_FDCWD, path, flags);
 
-        r = chase(path, root,
+        r = chase(path, मूळ,
                   FLAGS_SET(flags, AT_SYMLINK_FOLLOW) ? 0 : CHASE_NOFOLLOW,
-                  /* ret_path= */ NULL, &dir_fd);
-        if (r < 0)
-                return r;
+                  /* ret_path= */ रिक्त, &dir_fd);
+        जर (r < 0)
+                परत r;
 
-        return is_mount_point_at(dir_fd, /* path= */ NULL, flags);
+        परत is_mount_point_at(dir_fd, /* path= */ रिक्त, flags);
 }
 
-static int path_get_mnt_id_at_internal(int dir_fd, const char *path, bool unique, uint64_t *ret) {
-        struct statx sx;
-        int r;
+स्थिर पूर्णांक path_get_mnt_id_at_internal(पूर्णांक dir_fd, स्थिरांक अक्षर *path, bool unique, uint64_t *ret) {
+        संरचना statx sx;
+        पूर्णांक r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा(ret);
 
         r = xstatx(dir_fd, path,
                    AT_SYMLINK_NOFOLLOW |
@@ -315,51 +315,51 @@ static int path_get_mnt_id_at_internal(int dir_fd, const char *path, bool unique
                    AT_STATX_DONT_SYNC,  /* don't go to the network, mnt_id is a local concept */
                    unique ? STATX_MNT_ID_UNIQUE : STATX_MNT_ID,
                    &sx);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
         *ret = sx.stx_mnt_id;
-        return 0;
+        परत 0;
 }
 
-int path_get_mnt_id_at(int dir_fd, const char *path, int *ret) {
+पूर्णांक path_get_mnt_id_at(पूर्णांक dir_fd, स्थिरांक अक्षर *path, पूर्णांक *ret) {
         uint64_t mnt_id;
-        int r;
+        पूर्णांक r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = path_get_mnt_id_at_internal(dir_fd, path, /* unique = */ false, &mnt_id);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
-        assert(mnt_id <= INT_MAX);
-        *ret = (int) mnt_id;
-        return 0;
+        प्रतिज्ञा(mnt_id <= पूर्णांक_उच्च);
+        *ret = (पूर्णांक) mnt_id;
+        परत 0;
 }
 
-int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret) {
-        return path_get_mnt_id_at_internal(dir_fd, path, /* unique = */ true, ret);
+पूर्णांक path_get_unique_mnt_id_at(पूर्णांक dir_fd, स्थिरांक अक्षर *path, uint64_t *ret) {
+        परत path_get_mnt_id_at_internal(dir_fd, path, /* unique = */ true, ret);
 }
 
-bool fstype_is_network(const char *fstype) {
-        const char *x;
+bool fstype_is_network(स्थिरांक अक्षर *fstype) {
+        स्थिरांक अक्षर *x;
 
         x = startswith(fstype, "fuse.");
-        if (x)
+        जर (x)
                 fstype = x;
 
-        if (nulstr_contains(filesystem_sets[FILESYSTEM_SET_NETWORK].value, fstype))
-                return true;
+        जर (nulstr_contains(filesystem_sets[FILESYSTEM_SET_NETWORK].मूल्य, fstype))
+                परत true;
 
         /* Filesystems not present in the internal database */
-        return STR_IN_SET(fstype,
+        परत STR_IN_SET(fstype,
                           "davfs",
                           "glusterfs",
                           "lustre",
                           "sshfs");
 }
 
-bool fstype_needs_quota(const char *fstype) {
+bool fstype_needs_quota(स्थिरांक अक्षर *fstype) {
        /* 1. quotacheck needs to be run for some filesystems after they are mounted
         *    if the filesystem was not unmounted cleanly.
         * 2. You may need to run quotaon to enable quota usage tracking and/or
@@ -376,7 +376,7 @@ bool fstype_needs_quota(const char *fstype) {
         * ocfs2    - nothing needed
         * btrfs    - nothing needed
         * for reference see filesystem and quota manpages */
-        return STR_IN_SET(fstype,
+        परत STR_IN_SET(fstype,
                           "ext2",
                           "ext3",
                           "ext4",
@@ -385,48 +385,48 @@ bool fstype_needs_quota(const char *fstype) {
                           "f2fs");
 }
 
-bool fstype_has_internal_quota(const char *fstype) {
+bool fstype_has_internal_quota(स्थिरांक अक्षर *fstype) {
         /* These filesystems have built-in quota support and do not need
          * external quotacheck/quotaon services - see the "nothing needed"
          * entries in fstype_needs_quota() above. */
-        return STR_IN_SET(fstype,
+        परत STR_IN_SET(fstype,
                           "xfs",
                           "gfs2",
                           "ocfs2",
                           "btrfs");
 }
 
-bool fstype_is_api_vfs(const char *fstype) {
-        assert(fstype);
+bool fstype_is_api_vfs(स्थिरांक अक्षर *fstype) {
+        प्रतिज्ञा(fstype);
 
-        const FilesystemSet *fs;
+        स्थिरांक FilesystemSet *fs;
         FOREACH_ARGUMENT(fs,
                          filesystem_sets + FILESYSTEM_SET_BASIC_API,
                          filesystem_sets + FILESYSTEM_SET_AUXILIARY_API,
                          filesystem_sets + FILESYSTEM_SET_PRIVILEGED_API,
                          filesystem_sets + FILESYSTEM_SET_TEMPORARY)
-                if (nulstr_contains(fs->value, fstype))
-                    return true;
+                जर (nulstr_contains(fs->मूल्य, fstype))
+                    परत true;
 
         /* Filesystems not present in the internal database */
-        return STR_IN_SET(fstype,
+        परत STR_IN_SET(fstype,
                           "autofs",
                           "cpuset");
 }
 
-bool fstype_is_blockdev_backed(const char *fstype) {
-        const char *x;
+bool fstype_is_blockdev_backed(स्थिरांक अक्षर *fstype) {
+        स्थिरांक अक्षर *x;
 
         x = startswith(fstype, "fuse.");
-        if (x)
+        जर (x)
                 fstype = x;
 
-        return !STR_IN_SET(fstype, "9p", "overlay") && !fstype_is_network(fstype) && !fstype_is_api_vfs(fstype);
+        परत !STR_IN_SET(fstype, "9p", "overlay") && !fstype_is_network(fstype) && !fstype_is_api_vfs(fstype);
 }
 
-bool fstype_is_ro(const char *fstype) {
+bool fstype_is_ro(स्थिरांक अक्षर *fstype) {
         /* All Linux file systems that are necessarily read-only */
-        return STR_IN_SET(fstype,
+        परत STR_IN_SET(fstype,
                           "DM_verity_hash",
                           "cramfs",
                           "erofs",
@@ -434,63 +434,63 @@ bool fstype_is_ro(const char *fstype) {
                           "squashfs");
 }
 
-bool fstype_can_discard(const char *fstype) {
-        assert(fstype);
+bool fstype_can_discard(स्थिरांक अक्षर *fstype) {
+        प्रतिज्ञा(fstype);
 
         /* Use a curated list as first check, to avoid calling fsopen() which might load kmods, which might
          * not be allowed in our MAC context. */
-        if (STR_IN_SET(fstype, "btrfs", "f2fs", "ext4", "vfat", "xfs"))
-                return true;
+        जर (STR_IN_SET(fstype, "btrfs", "f2fs", "ext4", "vfat", "xfs"))
+                परत true;
 
         /* On new kernels we can just ask the kernel */
-        return mount_option_supported(fstype, "discard", NULL) > 0;
+        परत mount_option_supported(fstype, "discard", रिक्त) > 0;
 }
 
-const char* fstype_norecovery_option(const char *fstype) {
-        int r;
+स्थिरांक अक्षर* fstype_norecovery_option(स्थिरांक अक्षर *fstype) {
+        पूर्णांक r;
 
-        assert(fstype);
+        प्रतिज्ञा(fstype);
 
         /* Use a curated list as first check, to avoid calling fsopen() which might load kmods, which might
          * not be allowed in our MAC context. */
-        if (STR_IN_SET(fstype, "ext3", "ext4", "xfs"))
-                return "norecovery";
+        जर (STR_IN_SET(fstype, "ext3", "ext4", "xfs"))
+                परत "norecovery";
 
         /* btrfs dropped support for the "norecovery" option in 6.8
          * (https://github.com/torvalds/linux/commit/a1912f712188291f9d7d434fba155461f1ebef66) and replaced
          * it with rescue=nologreplay, so we check for the new name first and fall back to checking for the
          * old name if the new name doesn't work. */
-        if (streq(fstype, "btrfs")) {
-                r = mount_option_supported(fstype, "rescue=nologreplay", NULL);
-                if (r == -EAGAIN) {
+        जर (streq(fstype, "btrfs")) {
+                r = mount_option_supported(fstype, "rescue=nologreplay", रिक्त);
+                जर (r == -EAGAIN) {
                         log_debug_errno(r, "Failed to check for btrfs 'rescue=nologreplay' option, assuming old kernel with 'norecovery': %m");
-                        return "norecovery";
+                        परत "norecovery";
                 }
-                if (r < 0)
+                जर (r < 0)
                         log_debug_errno(r, "Failed to check for btrfs 'rescue=nologreplay' option, assuming it is not supported: %m");
-                if (r > 0)
-                        return "rescue=nologreplay";
+                जर (r > 0)
+                        परत "rescue=nologreplay";
         }
 
         /* On new kernels we can just ask the kernel */
-        return mount_option_supported(fstype, "norecovery", NULL) > 0 ? "norecovery" : NULL;
+        परत mount_option_supported(fstype, "norecovery", रिक्त) > 0 ? "norecovery" : रिक्त;
 }
 
-bool fstype_can_fmask_dmask(const char *fstype) {
-        assert(fstype);
+bool fstype_can_fmask_dmask(स्थिरांक अक्षर *fstype) {
+        प्रतिज्ञा(fstype);
 
         /* Use a curated list as first check, to avoid calling fsopen() which might load kmods, which might
          * not be allowed in our MAC context. If we don't know ourselves, on new kernels we can just ask the
          * kernel. */
-        return streq(fstype, "vfat") || (mount_option_supported(fstype, "fmask", "0177") > 0 && mount_option_supported(fstype, "dmask", "0077") > 0);
+        परत streq(fstype, "vfat") || (mount_option_supported(fstype, "fmask", "0177") > 0 && mount_option_supported(fstype, "dmask", "0077") > 0);
 }
 
-bool fstype_can_ownership(const char *fstype) {
+bool fstype_can_ownership(स्थिरांक अक्षर *fstype) {
         /* File systems which are not known to not support uid/gid ownership.
          * For some types, this can be a bit murky. So just exclude the ones that for sure
          * don't support with the current implementations in Linux. */
 
-        return !STR_IN_SET(ASSERT_PTR(fstype),
+        परत !STR_IN_SET(ASSERT_PTR(fstype),
                            "adfs",
                            "exfat",
                            "fat",
@@ -501,14 +501,14 @@ bool fstype_can_ownership(const char *fstype) {
                            "vfat");
 }
 
-bool fstype_can_uid_gid(const char *fstype) {
+bool fstype_can_uid_gid(स्थिरांक अक्षर *fstype) {
         /* All file systems that have a uid=/gid= mount option that fixates the owners of all files and
          * directories, current and future. Note that this does *not* ask the kernel via
          * mount_option_supported() here because the uid=/gid= setting of various file systems mean different
          * things: some apply it only to the root dir inode, others to all inodes in the file system. Thus we
          * maintain the curated list below. 😢 */
 
-        return STR_IN_SET(fstype,
+        परत STR_IN_SET(fstype,
                           "adfs",
                           "exfat",
                           "fat",
@@ -520,83 +520,83 @@ bool fstype_can_uid_gid(const char *fstype) {
                           "vfat");
 }
 
-int dev_is_devtmpfs(void) {
-        _cleanup_fclose_ FILE *proc_self_mountinfo = NULL;
-        int mount_id, r;
-        char *e;
+पूर्णांक dev_is_devtmpfs(शून्य) {
+        _cleanup_fclose_ खाता *proc_self_mountinfo = रिक्त;
+        पूर्णांक mount_id, r;
+        अक्षर *e;
 
         r = path_get_mnt_id("/dev", &mount_id);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
         r = fopen_unlocked("/proc/self/mountinfo", "re", &proc_self_mountinfo);
-        if (r == -ENOENT)
-                return proc_mounted() > 0 ? -ENOENT : -ENOSYS;
-        if (r < 0)
-                return r;
+        जर (r == -ENOENT)
+                परत proc_mounted() > 0 ? -ENOENT : -ENOSYS;
+        जर (r < 0)
+                परत r;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                int mid;
+        साठी (;;) {
+                _cleanup_free_ अक्षर *ओळ = रिक्त;
+                पूर्णांक mid;
 
-                r = read_line(proc_self_mountinfo, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_ओळ(proc_self_mountinfo, LONG_ओळ_MAX, &ओळ);
+                जर (r < 0)
+                        परत r;
+                जर (r == 0)
+                        थांबा;
 
-                if (sscanf(line, "%i", &mid) != 1)
-                        continue;
+                जर (माला_पूछो(ओळ, "%i", &mid) != 1)
+                        सुरूठेवा;
 
-                if (mid != mount_id)
-                        continue;
+                जर (mid != mount_id)
+                        सुरूठेवा;
 
-                e = strstrafter(line, " - ");
-                if (!e)
-                        continue;
+                e = strstrafter(ओळ, " - ");
+                जर (!e)
+                        सुरूठेवा;
 
                 /* accept any name that starts with the currently expected type */
-                if (startswith(e, "devtmpfs"))
-                        return true;
+                जर (startswith(e, "devtmpfs"))
+                        परत true;
         }
 
-        return false;
+        परत false;
 }
 
-static int mount_fd(
-                const char *source,
-                int target_fd,
-                const char *filesystemtype,
-                unsigned long mountflags,
-                const void *data) {
+स्थिर पूर्णांक mount_fd(
+                स्थिरांक अक्षर *source,
+                पूर्णांक target_fd,
+                स्थिरांक अक्षर *filesystemtype,
+                अचिन्हित दीर्घ mountflags,
+                स्थिरांक शून्य *data) {
 
-        assert(target_fd >= 0);
+        प्रतिज्ञा(target_fd >= 0);
 
-        if (mount(source, FORMAT_PROC_FD_PATH(target_fd), filesystemtype, mountflags, data) < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        जर (mount(source, FORMAT_PROC_FD_PATH(target_fd), filesystemtype, mountflags, data) < 0) {
+                जर (त्रुटि_सं != ENOENT)
+                        परत -त्रुटि_सं;
 
                 /* ENOENT can mean two things: either that the source is missing, or that /proc/ isn't
                  * mounted. Check for the latter to generate better error messages. */
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+                जर (proc_mounted() == 0)
+                        परत -ENOSYS;
 
-                return -ENOENT;
+                परत -ENOENT;
         }
 
-        return 0;
+        परत 0;
 }
 
-int mount_nofollow(
-                const char *source,
-                const char *target,
-                const char *filesystemtype,
-                unsigned long mountflags,
-                const void *data) {
+पूर्णांक mount_nofollow(
+                स्थिरांक अक्षर *source,
+                स्थिरांक अक्षर *target,
+                स्थिरांक अक्षर *filesystemtype,
+                अचिन्हित दीर्घ mountflags,
+                स्थिरांक शून्य *data) {
 
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ पूर्णांक fd = -EBADF;
 
-        assert(target);
+        प्रतिज्ञा(target);
 
         /* In almost all cases we want to manipulate the mount table without following symlinks, hence
          * mount_nofollow() is usually the way to go. The only exceptions are environments where /proc/ is
@@ -607,120 +607,120 @@ int mount_nofollow(
          * Note that this disables following only for the final component of the target, i.e symlinks within
          * the path of the target are honoured, as are symlinks in the source path everywhere. */
 
-        fd = open(target, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-        if (fd < 0)
-                return -errno;
+        fd = खोलो(target, O_PATH|O_CLOEXEC|O_NOFOLLOW);
+        जर (fd < 0)
+                परत -त्रुटि_सं;
 
-        return mount_fd(source, fd, filesystemtype, mountflags, data);
+        परत mount_fd(source, fd, filesystemtype, mountflags, data);
 }
 
-const char* mount_propagation_flag_to_string(unsigned long flags) {
+स्थिरांक अक्षर* mount_propagation_flag_to_string(अचिन्हित दीर्घ flags) {
 
-        switch (flags & (MS_SHARED|MS_SLAVE|MS_PRIVATE)) {
-        case 0:
-                return "";
-        case MS_SHARED:
-                return "shared";
-        case MS_SLAVE:
-                return "slave";
-        case MS_PRIVATE:
-                return "private";
+        निवड (flags & (MS_SHARED|MS_SLAVE|MS_PRIVATE)) {
+        स्थिती 0:
+                परत "";
+        स्थिती MS_SHARED:
+                परत "shared";
+        स्थिती MS_SLAVE:
+                परत "slave";
+        स्थिती MS_PRIVATE:
+                परत "private";
         }
 
-        return NULL;
+        परत रिक्त;
 }
 
-int mount_propagation_flag_from_string(const char *name, unsigned long *ret) {
+पूर्णांक mount_propagation_flag_from_string(स्थिरांक अक्षर *name, अचिन्हित दीर्घ *ret) {
 
         POINTER_MAY_BE_NULL(name);
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        if (isempty(name))
+        जर (isempty(name))
                 *ret = 0;
-        else if (streq(name, "shared"))
+        अन्यथा जर (streq(name, "shared"))
                 *ret = MS_SHARED;
-        else if (streq(name, "slave"))
+        अन्यथा जर (streq(name, "slave"))
                 *ret = MS_SLAVE;
-        else if (streq(name, "private"))
+        अन्यथा जर (streq(name, "private"))
                 *ret = MS_PRIVATE;
-        else
-                return -EINVAL;
-        return 0;
+        अन्यथा
+                परत -EINVAL;
+        परत 0;
 }
 
-bool mount_propagation_flag_is_valid(unsigned long flag) {
-        return IN_SET(flag, 0, MS_SHARED, MS_PRIVATE, MS_SLAVE);
+bool mount_propagation_flag_is_valid(अचिन्हित दीर्घ flag) {
+        परत IN_SET(flag, 0, MS_SHARED, MS_PRIVATE, MS_SLAVE);
 }
 
-bool mount_new_api_supported(void) {
-        static int cache = -1;
-        int r;
+bool mount_new_api_supported(शून्य) {
+        स्थिर पूर्णांक cache = -1;
+        पूर्णांक r;
 
-        if (cache >= 0)
-                return cache;
+        जर (cache >= 0)
+                परत cache;
 
         /* This is the newest API among the ones we use, so use it as boundary */
-        r = RET_NERRNO(mount_setattr(-EBADF, NULL, 0, NULL, 0));
-        if (r == 0 || ERRNO_IS_NOT_SUPPORTED(r)) /* This should return an error if it is working properly */
-                return (cache = false);
+        r = RET_NERRNO(mount_setattr(-EBADF, रिक्त, 0, रिक्त, 0));
+        जर (r == 0 || ERRNO_IS_NOT_SUPPORTED(r)) /* This should return an error if it is working properly */
+                परत (cache = false);
 
-        return (cache = true);
+        परत (cache = true);
 }
 
-int mount_option_supported(const char *fstype, const char *key, const char *value) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+पूर्णांक mount_option_supported(स्थिरांक अक्षर *fstype, स्थिरांक अक्षर *किल्ली, स्थिरांक अक्षर *मूल्य) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
+        पूर्णांक r;
 
         /* Checks if the specified file system supports a mount option. Returns > 0 if it supports it, == 0 if
          * it does not. Return -EAGAIN if we can't determine it. And any other error otherwise. */
 
-        assert(fstype);
-        assert(key);
+        प्रतिज्ञा(fstype);
+        प्रतिज्ञा(किल्ली);
 
         fd = fsopen(fstype, FSOPEN_CLOEXEC);
-        if (fd < 0) {
-                if (errno == ENODEV)
-                        return log_debug_errno(errno, "Kernel does not support file system type '%s'.", fstype);
+        जर (fd < 0) {
+                जर (त्रुटि_सं == ENODEV)
+                        परत log_debug_errno(त्रुटि_सं, "Kernel does not support file system type '%s'.", fstype);
 
-                return log_debug_errno(errno, "Failed to open superblock context for '%s': %m", fstype);
+                परत log_debug_errno(त्रुटि_सं, "Failed to open superblock context for '%s': %m", fstype);
         }
 
         /* Various file systems support fs context only in recent kernels (e.g. btrfs). For older kernels
          * fsconfig() with FSCONFIG_SET_STRING/FSCONFIG_SET_FLAG never fail. Which sucks, because we want to
          * use it for testing support, after all. Let's hence do a check if the file system got converted yet
          * first. */
-        if (fsconfig(fd, FSCONFIG_SET_FD, "adefinitelynotexistingmountoption", NULL, fd) < 0) {
+        जर (fsconfig(fd, FSCONFIG_SET_FD, "adefinitelynotexistingmountoption", रिक्त, fd) < 0) {
                 /* If FSCONFIG_SET_FD is not supported for the fs, then the file system was not converted to
                  * the new mount API yet. If it returns EINVAL the mount option doesn't exist, but the fstype
                  * is converted. */
-                if (errno == EOPNOTSUPP)
-                        return -EAGAIN; /* fs not converted to new mount API → don't know */
-                if (errno != EINVAL)
-                        return log_debug_errno(errno, "Failed to check if file system '%s' has been converted to new mount API: %m", fstype);
+                जर (त्रुटि_सं == EOPNOTSUPP)
+                        परत -EAGAIN; /* fs not converted to new mount API → don't know */
+                जर (त्रुटि_सं != EINVAL)
+                        परत log_debug_errno(त्रुटि_सं, "Failed to check if file system '%s' has been converted to new mount API: %m", fstype);
 
                 /* So FSCONFIG_SET_FD worked, but the option didn't exist (we got EINVAL), this means the fs
                  * is converted. Let's now ask the actual question we wonder about. */
-        } else
-                return log_debug_errno(SYNTHETIC_ERRNO(EAGAIN), "FSCONFIG_SET_FD worked unexpectedly for '%s', whoa!", fstype);
+        } अन्यथा
+                परत log_debug_errno(SYNTHETIC_ERRNO(EAGAIN), "FSCONFIG_SET_FD worked unexpectedly for '%s', whoa!", fstype);
 
-        if (value)
-                r = fsconfig(fd, FSCONFIG_SET_STRING, key, value, 0);
-        else
-                r = fsconfig(fd, FSCONFIG_SET_FLAG, key, NULL, 0);
-        if (r < 0) {
-                if (errno == EINVAL)
-                        return false; /* EINVAL means option not supported. */
+        जर (मूल्य)
+                r = fsconfig(fd, FSCONFIG_SET_STRING, किल्ली, मूल्य, 0);
+        अन्यथा
+                r = fsconfig(fd, FSCONFIG_SET_FLAG, किल्ली, रिक्त, 0);
+        जर (r < 0) {
+                जर (त्रुटि_सं == EINVAL)
+                        परत false; /* EINVAL means option not supported. */
 
-                return log_debug_errno(errno, "Failed to set '%s%s%s' on '%s' superblock context: %m",
-                                       key, value ? "=" : "", strempty(value), fstype);
+                परत log_debug_errno(त्रुटि_सं, "Failed to set '%s%s%s' on '%s' superblock context: %m",
+                                       किल्ली, मूल्य ? "=" : "", strempty(मूल्य), fstype);
         }
 
-        return true; /* works! */
+        परत true; /* works! */
 }
 
-bool path_below_api_vfs(const char *p) {
-        assert(p);
+bool path_below_api_vfs(स्थिरांक अक्षर *p) {
+        प्रतिज्ञा(p);
 
         /* API VFS are either directly mounted on any of these three paths, or below it. */
-        return PATH_STARTSWITH_SET(p, "/dev", "/sys", "/proc");
+        परत PATH_STARTSWITH_SET(p, "/dev", "/sys", "/proc");
 }

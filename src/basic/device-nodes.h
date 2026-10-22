@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len);
-int allow_listed_char_for_devnode(char c, const char *additional);
+पूर्णांक encode_devnode_name(स्थिरांक अक्षर *str, अक्षर *str_enc, माप_प्रकार len);
+पूर्णांक allow_listed_char_for_devnode(अक्षर c, स्थिरांक अक्षर *additional);
 
-int devnode_same(const char *a, const char *b);
+पूर्णांक devnode_same(स्थिरांक अक्षर *a, स्थिरांक अक्षर *b);

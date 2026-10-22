@@ -1,660 +1,660 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "env-file.h"
+#अन्तर्भाव "env-util.h"
+#अन्तर्भाव "escape.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "fs-util.h"
+#अन्तर्भाव "label-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "tmpfile-util.h"
+#अन्तर्भाव "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+प्रकारव्याख्या पूर्णांक (*ढकला_env_func_t)(
+                स्थिरांक अक्षर *filename,
+                अचिन्हित ओळ,
+                स्थिरांक अक्षर *किल्ली,
+                अक्षर *मूल्य,
+                शून्य *userdata);
 
-static int parse_env_file_internal(
-                FILE *f,
-                const char *fname,
-                push_env_func_t push,
-                void *userdata) {
+स्थिर पूर्णांक parse_env_file_internal(
+                खाता *f,
+                स्थिरांक अक्षर *fname,
+                ढकला_env_func_t ढकला,
+                शून्य *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
-        int r;
+        माप_प्रकार n_किल्ली = 0, n_मूल्य = 0, last_मूल्य_whitespace = SIZE_MAX, last_किल्ली_whitespace = SIZE_MAX;
+        _cleanup_free_ अक्षर *contents = रिक्त, *किल्ली = रिक्त, *मूल्य = रिक्त;
+        अचिन्हित ओळ = 1;
+        पूर्णांक r;
 
-        enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+        गणना {
+                PRE_किल्ली,
+                किल्ली_2,
+                PRE_मूल्य,
+                मूल्य_2,
+                मूल्य_ESCAPE,
+                SINGLE_QUOTE_मूल्य,
+                DOUBLE_QUOTE_मूल्य,
+                DOUBLE_QUOTE_मूल्य_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_किल्ली;
 
-        assert(f || fname);
-        assert(push);
+        प्रतिज्ञा(f || fname);
+        प्रतिज्ञा(ढकला);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        जर (f)
+                r = read_full_stream(f, &contents, रिक्त);
+        अन्यथा
+                r = read_full_file(fname, &contents, रिक्त);
+        जर (r < 0)
+                परत r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        साठी (अक्षर *p = contents; *p; p++) {
+                अक्षर c = *p;
 
-                switch (state) {
+                निवड (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                स्थिती PRE_किल्ली:
+                        जर (म_अक्षर(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                        अन्यथा जर (!म_अक्षर(WHITESPACE, c)) {
+                                state = किल्ली_2;
+                                last_किल्ली_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                जर (!GREEDY_REALLOC(किल्ली, n_किल्ली+2))
+                                        परत -ENOMEM;
 
-                                key[n_key++] = c;
+                                किल्ली[n_किल्ली++] = c;
                         }
-                        break;
+                        थांबा;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
-                        } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                स्थिती किल्ली_2:
+                        जर (म_अक्षर(NEWLINE, c)) {
+                                state = PRE_किल्ली;
+                                ओळ++;
+                                n_किल्ली = 0;
+                        } अन्यथा जर (c == '=') {
+                                state = PRE_मूल्य;
+                                last_मूल्य_whitespace = SIZE_MAX;
+                        } अन्यथा {
+                                जर (!म_अक्षर(WHITESPACE, c))
+                                        last_किल्ली_whitespace = SIZE_MAX;
+                                अन्यथा जर (last_किल्ली_whitespace == SIZE_MAX)
+                                         last_किल्ली_whitespace = n_किल्ली;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                जर (!GREEDY_REALLOC(किल्ली, n_किल्ली+2))
+                                        परत -ENOMEM;
 
-                                key[n_key++] = c;
+                                किल्ली[n_किल्ली++] = c;
                         }
 
-                        break;
+                        थांबा;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                स्थिती PRE_मूल्य:
+                        जर (म_अक्षर(NEWLINE, c)) {
+                                state = PRE_किल्ली;
+                                ओळ++;
+                                किल्ली[n_किल्ली] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                जर (मूल्य)
+                                        मूल्य[n_मूल्य] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                जर (last_किल्ली_whitespace != SIZE_MAX)
+                                        किल्ली[last_किल्ली_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = ढकला(fname, ओळ, किल्ली, मूल्य, userdata);
+                                जर (r < 0)
+                                        परत r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_किल्ली = 0;
+                                मूल्य = रिक्त;
+                                n_मूल्य = 0;
 
-                        } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
-                                state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                        } अन्यथा जर (c == '\'')
+                                state = SINGLE_QUOTE_मूल्य;
+                        अन्यथा जर (c == '"')
+                                state = DOUBLE_QUOTE_मूल्य;
+                        अन्यथा जर (c == '\\')
+                                state = मूल्य_ESCAPE;
+                        अन्यथा जर (!म_अक्षर(WHITESPACE, c)) {
+                                state = मूल्य_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                जर (!GREEDY_REALLOC(मूल्य, n_मूल्य+2))
+                                        परत -ENOMEM;
 
-                                value[n_value++] = c;
+                                मूल्य[n_मूल्य++] = c;
                         }
 
-                        break;
+                        थांबा;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                स्थिती मूल्य_2:
+                        जर (म_अक्षर(NEWLINE, c)) {
+                                state = PRE_किल्ली;
+                                ओळ++;
 
-                                key[n_key] = 0;
+                                किल्ली[n_किल्ली] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                जर (मूल्य)
+                                        मूल्य[n_मूल्य] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                जर (last_मूल्य_whitespace != SIZE_MAX)
+                                        मूल्य[last_मूल्य_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                जर (last_किल्ली_whitespace != SIZE_MAX)
+                                        किल्ली[last_किल्ली_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = ढकला(fname, ओळ, किल्ली, मूल्य, userdata);
+                                जर (r < 0)
+                                        परत r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_किल्ली = 0;
+                                मूल्य = रिक्त;
+                                n_मूल्य = 0;
 
-                        } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                        } अन्यथा जर (c == '\\') {
+                                state = मूल्य_ESCAPE;
+                                last_मूल्य_whitespace = SIZE_MAX;
+                        } अन्यथा {
+                                जर (!म_अक्षर(WHITESPACE, c))
+                                        last_मूल्य_whitespace = SIZE_MAX;
+                                अन्यथा जर (last_मूल्य_whitespace == SIZE_MAX)
+                                        last_मूल्य_whitespace = n_मूल्य;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                जर (!GREEDY_REALLOC(मूल्य, n_मूल्य+2))
+                                        परत -ENOMEM;
 
-                                value[n_value++] = c;
+                                मूल्य[n_मूल्य++] = c;
                         }
 
-                        break;
+                        थांबा;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                स्थिती मूल्य_ESCAPE:
+                        state = मूल्य_2;
 
-                        if (!strchr(NEWLINE, c)) {
+                        जर (!म_अक्षर(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                जर (!GREEDY_REALLOC(मूल्य, n_मूल्य+2))
+                                        परत -ENOMEM;
 
-                                value[n_value++] = c;
+                                मूल्य[n_मूल्य++] = c;
                         }
-                        break;
+                        थांबा;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
-                                state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                स्थिती SINGLE_QUOTE_मूल्य:
+                        जर (c == '\'')
+                                state = PRE_मूल्य;
+                        अन्यथा {
+                                जर (!GREEDY_REALLOC(मूल्य, n_मूल्य+2))
+                                        परत -ENOMEM;
 
-                                value[n_value++] = c;
-                        }
-
-                        break;
-
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
-                                state = PRE_VALUE;
-                        else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-
-                                value[n_value++] = c;
+                                मूल्य[n_मूल्य++] = c;
                         }
 
-                        break;
+                        थांबा;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                स्थिती DOUBLE_QUOTE_मूल्य:
+                        जर (c == '"')
+                                state = PRE_मूल्य;
+                        अन्यथा जर (c == '\\')
+                                state = DOUBLE_QUOTE_मूल्य_ESCAPE;
+                        अन्यथा {
+                                जर (!GREEDY_REALLOC(मूल्य, n_मूल्य+2))
+                                        परत -ENOMEM;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                                मूल्य[n_मूल्य++] = c;
+                        }
+
+                        थांबा;
+
+                स्थिती DOUBLE_QUOTE_मूल्य_ESCAPE:
+                        state = DOUBLE_QUOTE_मूल्य;
+
+                        जर (म_अक्षर(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-                                value[n_value++] = c;
-                        } else if (c != '\n') {
+                                जर (!GREEDY_REALLOC(मूल्य, n_मूल्य+2))
+                                        परत -ENOMEM;
+                                मूल्य[n_मूल्य++] = c;
+                        } अन्यथा जर (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                जर (!GREEDY_REALLOC(मूल्य, n_मूल्य+3))
+                                        परत -ENOMEM;
+                                मूल्य[n_मूल्य++] = '\\';
+                                मूल्य[n_मूल्य++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        थांबा;
 
-                case COMMENT:
-                        if (c == '\\')
+                स्थिती COMMENT:
+                        जर (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                        अन्यथा जर (म_अक्षर(NEWLINE, c)) {
+                                state = PRE_किल्ली;
+                                ओळ++;
                         }
-                        break;
+                        थांबा;
 
-                case COMMENT_ESCAPE:
+                स्थिती COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                        } else
+                        जर (म_अक्षर(NEWLINE, c)) {
+                                state = PRE_किल्ली;
+                                ओळ++;
+                        } अन्यथा
                                 state = COMMENT;
-                        break;
+                        थांबा;
                 }
         }
 
-        if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+        जर (IN_SET(state,
+                   PRE_मूल्य,
+                   मूल्य_2,
+                   मूल्य_ESCAPE,
+                   SINGLE_QUOTE_मूल्य,
+                   DOUBLE_QUOTE_मूल्य,
+                   DOUBLE_QUOTE_मूल्य_ESCAPE)) {
 
-                key[n_key] = 0;
+                किल्ली[n_किल्ली] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                जर (मूल्य)
+                        मूल्य[n_मूल्य] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                जर (state == मूल्य_2)
+                        जर (last_मूल्य_whitespace != SIZE_MAX)
+                                मूल्य[last_मूल्य_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                जर (last_किल्ली_whitespace != SIZE_MAX)
+                        किल्ली[last_किल्ली_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                r = ढकला(fname, ओळ, किल्ली, मूल्य, userdata);
+                जर (r < 0)
+                        परत r;
 
-                value = NULL;
+                मूल्य = रिक्त;
         }
 
-        return 0;
+        परत 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+स्थिर पूर्णांक check_utf8ness_and_warn(
+                स्थिरांक अक्षर *filename, अचिन्हित ओळ,
+                स्थिरांक अक्षर *किल्ली, अक्षर *मूल्य) {
 
-        assert(key);
+        प्रतिज्ञा(किल्ली);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        जर (!utf8_is_valid(किल्ली)) {
+                _cleanup_free_ अक्षर *p = रिक्त;
 
-                p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(किल्ली);
+                परत log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), ओळ, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        जर (मूल्य && !utf8_is_valid(मूल्य)) {
+                _cleanup_free_ अक्षर *p = रिक्त;
 
-                p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(मूल्य);
+                परत log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), ओळ, किल्ली, p);
         }
 
-        return 0;
+        परत 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+स्थिर पूर्णांक parse_env_file_ढकला(
+                स्थिरांक अक्षर *filename, अचिन्हित ओळ,
+                स्थिरांक अक्षर *किल्ली, अक्षर *मूल्य,
+                शून्य *userdata) {
 
-        const char *k;
-        va_list aq, *ap = userdata;
-        int r;
+        स्थिरांक अक्षर *k;
+        बहु_सूची aq, *ap = userdata;
+        पूर्णांक r;
 
-        assert(key);
+        प्रतिज्ञा(किल्ली);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, ओळ, किल्ली, मूल्य);
+        जर (r < 0)
+                परत r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        पर्यंत ((k = बहु_तर्क(aq, स्थिरांक अक्षर *))) {
+                अक्षर **v;
 
-                v = va_arg(aq, char **);
+                v = बहु_तर्क(aq, अक्षर **);
 
-                if (streq(key, k)) {
-                        va_end(aq);
-                        free_and_replace(*v, value);
+                जर (streq(किल्ली, k)) {
+                        बहु_पूर्ण(aq);
+                        free_and_replace(*v, मूल्य);
 
-                        return 1;
+                        परत 1;
                 }
         }
 
-        va_end(aq);
-        free(value);
+        बहु_पूर्ण(aq);
+        मुक्त(मूल्य);
 
-        return 0;
+        परत 0;
 }
 
-int parse_env_filev(
-                FILE *f,
-                const char *fname,
-                va_list ap) {
+पूर्णांक parse_env_filev(
+                खाता *f,
+                स्थिरांक अक्षर *fname,
+                बहु_सूची ap) {
 
-        int r;
-        va_list aq;
+        पूर्णांक r;
+        बहु_सूची aq;
 
-        assert(f || fname);
+        प्रतिज्ञा(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
-        va_end(aq);
-        return r;
+        r = parse_env_file_internal(f, fname, parse_env_file_ढकला, &aq);
+        बहु_पूर्ण(aq);
+        परत r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
-        va_list aq;
-        int r;
+पूर्णांक parse_env_file_fdv(पूर्णांक fd, स्थिरांक अक्षर *fname, बहु_सूची ap) {
+        _cleanup_fclose_ खाता *f = रिक्त;
+        बहु_सूची aq;
+        पूर्णांक r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
-        va_end(aq);
-        return r;
+        r = parse_env_file_internal(f, fname, parse_env_file_ढकला, &aq);
+        बहु_पूर्ण(aq);
+        परत r;
 }
 
-int parse_env_file_sentinel(
-                FILE *f,
-                const char *fname,
+पूर्णांक parse_env_file_sentinel(
+                खाता *f,
+                स्थिरांक अक्षर *fname,
                 ...) {
 
-        va_list ap;
-        int r;
+        बहु_सूची ap;
+        पूर्णांक r;
 
-        assert(f || fname);
+        प्रतिज्ञा(f || fname);
 
-        va_start(ap, fname);
+        बहु_शुरू(ap, fname);
         r = parse_env_filev(f, fname, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        return r;
+        परत r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+पूर्णांक parse_env_file_fd_sentinel(
+                पूर्णांक fd,
+                स्थिरांक अक्षर *fname, /* only used for logging */
                 ...) {
 
-        va_list ap;
-        int r;
+        बहु_सूची ap;
+        पूर्णांक r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
-        va_start(ap, fname);
+        बहु_शुरू(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        return r;
+        परत r;
 }
 
-int parse_env_datav(
-                const char *data,
-                size_t size,
-                const char *fname, /* only used for logging */
-                va_list ap) {
+पूर्णांक parse_env_datav(
+                स्थिरांक अक्षर *data,
+                माप_प्रकार size,
+                स्थिरांक अक्षर *fname, /* only used for logging */
+                बहु_सूची ap) {
 
-        assert(data);
+        प्रतिज्ञा(data);
 
-        if (size == SIZE_MAX)
+        जर (size == SIZE_MAX)
                 size = strlen_ptr(data);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ खाता *f = fmemopen_unlocked((शून्य*) data, size, "r");
+        जर (!f)
+                परत -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        परत parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
-                size_t size,
-                const char *fname, /* only used for logging */
+पूर्णांक parse_env_data_sentinel(
+                स्थिरांक अक्षर *data,
+                माप_प्रकार size,
+                स्थिरांक अक्षर *fname, /* only used for logging */
                 ...) {
 
-        va_list ap;
-        int r;
+        बहु_सूची ap;
+        पूर्णांक r;
 
-        va_start(ap, fname);
+        बहु_शुरू(ap, fname);
         r = parse_env_datav(data, size, fname, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        return r;
+        परत r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+स्थिर पूर्णांक load_env_file_ढकला(
+                स्थिरांक अक्षर *filename, अचिन्हित ओळ,
+                स्थिरांक अक्षर *किल्ली, अक्षर *मूल्य,
+                शून्य *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        अक्षर ***m = userdata;
+        अक्षर *p;
+        पूर्णांक r;
 
-        assert(key);
+        प्रतिज्ञा(किल्ली);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, ओळ, किल्ली, मूल्य);
+        जर (r < 0)
+                परत r;
 
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        p = strjoin(किल्ली, "=", मूल्य);
+        जर (!p)
+                परत -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
-        free(value);
-        return 0;
+        मुक्त(मूल्य);
+        परत 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+पूर्णांक load_env_file(खाता *f, स्थिरांक अक्षर *fname, अक्षर ***ret) {
+        _cleanup_strv_free_ अक्षर **m = रिक्त;
+        पूर्णांक r;
 
-        assert(f || fname);
-        assert(ret);
+        प्रतिज्ञा(f || fname);
+        प्रतिज्ञा(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_ढकला, &m);
+        जर (r < 0)
+                परत r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        परत 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+स्थिर पूर्णांक load_env_file_ढकला_pairs(
+                स्थिरांक अक्षर *filename, अचिन्हित ओळ,
+                स्थिरांक अक्षर *किल्ली, अक्षर *मूल्य,
+                शून्य *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        अक्षर ***m = ASSERT_PTR(userdata);
+        पूर्णांक r;
 
-        assert(key);
+        प्रतिज्ञा(किल्ली);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, ओळ, किल्ली, मूल्य);
+        जर (r < 0)
+                परत r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        साठी (अक्षर **t = *m; t && *t; t += 2)
+                जर (streq(t[0], किल्ली)) {
+                        जर (मूल्य)
+                                परत free_and_replace(t[1], मूल्य);
+                        अन्यथा
+                                परत free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        r = strv_extend(m, किल्ली);
+        जर (r < 0)
+                परत r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        जर (मूल्य)
+                परत strv_ढकला(m, मूल्य);
+        अन्यथा
+                परत strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+पूर्णांक load_env_file_pairs(खाता *f, स्थिरांक अक्षर *fname, अक्षर ***ret) {
+        _cleanup_strv_free_ अक्षर **m = रिक्त;
+        पूर्णांक r;
 
-        assert(f || fname);
-        assert(ret);
+        प्रतिज्ञा(f || fname);
+        प्रतिज्ञा(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_ढकला_pairs, &m);
+        जर (r < 0)
+                परत r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        परत 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+पूर्णांक load_env_file_pairs_fd(पूर्णांक fd, स्थिरांक अक्षर *fname, अक्षर ***ret) {
+        _cleanup_fclose_ खाता *f = रिक्त;
+        पूर्णांक r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
-        return load_env_file_pairs(f, fname, ret);
+        परत load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+स्थिर पूर्णांक merge_env_file_ढकला(
+                स्थिरांक अक्षर *filename, अचिन्हित ओळ,
+                स्थिरांक अक्षर *किल्ली, अक्षर *मूल्य,
+                शून्य *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        अक्षर ***env = ASSERT_PTR(userdata);
+        अक्षर *expanded_मूल्य;
+        पूर्णांक r;
 
-        assert(key);
+        प्रतिज्ञा(किल्ली);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+        जर (!मूल्य) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), ओळ, किल्ली);
+                परत 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+        जर (!env_name_is_valid(किल्ली)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), ओळ, किल्ली);
+                मुक्त(मूल्य);
+                परत 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(मूल्य,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                        &expanded_मूल्य);
+        जर (r < 0)
+                परत log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), ओळ, मूल्य);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(मूल्य, expanded_मूल्य);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, ओळ, किल्ली, मूल्य);
 
-        return load_env_file_push(filename, line, key, value, env);
+        परत load_env_file_ढकला(filename, ओळ, किल्ली, मूल्य, env);
 }
 
-int merge_env_file(
-                char ***env,
-                FILE *f,
-                const char *fname) {
+पूर्णांक merge_env_file(
+                अक्षर ***env,
+                खाता *f,
+                स्थिरांक अक्षर *fname) {
 
-        assert(env);
-        assert(f || fname);
+        प्रतिज्ञा(env);
+        प्रतिज्ञा(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        परत parse_env_file_internal(f, fname, merge_env_file_ढकला, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+स्थिर शून्य env_file_fputs_escaped(खाता *f, स्थिरांक अक्षर *p) {
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        जर (string_has_cc(p, रिक्त) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                साठी (; *p; p++) {
+                        जर (म_अक्षर(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } अन्यथा
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+शून्य env_file_fputs_assignment(खाता *f, स्थिरांक अक्षर *k, स्थिरांक अक्षर *v) {
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(k);
 
-        if (!v)
-                return;
+        जर (!v)
+                परत;
 
-        fputs(k, f);
+        ख_माला_दो(k, f);
         env_file_fputs_escaped(f, v);
-        fputc('\n', f);
+        ख_अक्षर_दो('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+स्थिर शून्य write_env_var(खाता *f, स्थिरांक अक्षर *v) {
+        स्थिरांक अक्षर *p;
 
-        assert(f);
-        assert(v);
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(v);
 
-        p = strchr(v, '=');
-        if (!p) {
+        p = म_अक्षर(v, '=');
+        जर (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                परत;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+पूर्णांक write_env_file_label(पूर्णांक dir_fd, स्थिरांक अक्षर *fname, अक्षर **headers, अक्षर **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        पूर्णांक r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        प्रतिज्ञा(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        प्रतिज्ञा(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        जर (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                जर (r < 0)
+                        परत r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ खाता *f = रिक्त;
+        _cleanup_free_ अक्षर *p = रिक्त;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        जर (r < 0) {
+                जर (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+                        (शून्य) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                परत r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        जर (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ रिक्त, /* created= */ true, label_context);
+                जर (r < 0)
+                        परत r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
         STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+                प्रतिज्ञा(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        जर (r < 0)
+                परत r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        परत 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+पूर्णांक write_vconsole_conf(पूर्णांक dir_fd, स्थिरांक अक्षर *fname, अक्षर **l) {
+        अक्षर **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        परत write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ रिक्त);
 }

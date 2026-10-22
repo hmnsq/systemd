@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <string.h>
 
-#include "errno-list.h"
+#अन्तर्भाव "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+स्थिर स्थिरांक संरचना errno_name* lookup_errno(नोंदणी स्थिरांक अक्षर *str,
+                                             नोंदणी GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#अन्तर्भाव "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+पूर्णांक errno_from_name(स्थिरांक अक्षर *name) {
+        स्थिरांक संरचना errno_name *sc;
 
-        assert(name);
+        प्रतिज्ञा(name);
 
-        sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_errno(name, म_माप(name));
+        जर (!sc)
+                परत -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        प्रतिज्ञा(sc->id > 0);
+        परत sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+स्थिरांक अक्षर* errno_name_no_fallback(पूर्णांक id) {
+        जर (id == 0) /* To stay in line with our implementation below.  */
+                परत रिक्त;
 
-        return strerrorname_np(ABS(id));
+        परत strerrorname_np(ABS(id));
 }
-#else
+#अन्यथा
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+स्थिरांक अक्षर* errno_name_no_fallback(पूर्णांक id) {
+        जर (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        जर ((माप_प्रकार) id >= ELEMENTSOF(errno_names))
+                परत रिक्त;
 
-        return errno_names[id];
+        परत errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
-        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+स्थिरांक अक्षर* errno_name(पूर्णांक id, अक्षर buf[स्थिर ERRNO_NAME_BUF_LEN]) {
+        स्थिरांक अक्षर *a = errno_name_no_fallback(id);
+        जर (a)
+                परत a;
+        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", असल(id));
+        परत buf;
 }

@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
-#include <syslog.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
+#अन्तर्भाव <syslog.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-typedef enum LogTarget{
+प्रकारव्याख्या गणना LogTarget{
         LOG_TARGET_CONSOLE,
         LOG_TARGET_KMSG,
         LOG_TARGET_JOURNAL,
@@ -27,175 +27,175 @@ typedef enum LogTarget{
 #define LOG_NULL (LOG_EMERG - 1)
 assert_cc(LOG_NULL == -1);
 
-#define SYNTHETIC_ERRNO(num)                (ABS(num) | (1 << 30))
+#define SYNTHETIC_ERRNO(अंक)                (ABS(अंक) | (1 << 30))
 #define IS_SYNTHETIC_ERRNO(val)             (((val) >> 30) == 1)
-#define ERRNO_VALUE(val)                    (ABS(val) & ~(1 << 30))
+#define ERRNO_मूल्य(val)                    (ABS(val) & ~(1 << 30))
 
 /* The callback function to be invoked when syntax warnings are seen
  * in the unit files. */
-typedef void (*log_syntax_callback_t)(const char *unit, int level, void *userdata);
-void set_log_syntax_callback(log_syntax_callback_t cb, void *userdata);
+प्रकारव्याख्या शून्य (*log_syntax_callback_t)(स्थिरांक अक्षर *unit, पूर्णांक level, शून्य *userdata);
+शून्य set_log_syntax_callback(log_syntax_callback_t cb, शून्य *userdata);
 
-static inline void clear_log_syntax_callback(dummy_t *dummy) {
-          set_log_syntax_callback(/* cb= */ NULL, /* userdata= */ NULL);
+स्थिर ओळीत शून्य clear_log_syntax_callback(dummy_t *dummy) {
+          set_log_syntax_callback(/* cb= */ रिक्त, /* userdata= */ रिक्त);
 }
 
 DECLARE_STRING_TABLE_LOOKUP(log_target, LogTarget);
-void log_set_target(LogTarget target);
-void log_set_target_and_open(LogTarget target);
-int log_set_target_from_string(const char *e);
-LogTarget log_get_target(void) _pure_;
-void log_settle_target(void);
+शून्य log_set_target(LogTarget target);
+शून्य log_set_target_and_open(LogTarget target);
+पूर्णांक log_set_target_from_string(स्थिरांक अक्षर *e);
+LogTarget log_get_target(शून्य) _pure_;
+शून्य log_settle_target(शून्य);
 
-int log_set_max_level(int level);
-int log_set_max_level_from_string(const char *e);
-int log_get_max_level(void) _pure_;
-int log_get_target_max_level(LogTarget target);
-int log_max_levels_to_string(int level, char **ret);
+पूर्णांक log_set_max_level(पूर्णांक level);
+पूर्णांक log_set_max_level_from_string(स्थिरांक अक्षर *e);
+पूर्णांक log_get_max_level(शून्य) _pure_;
+पूर्णांक log_get_target_max_level(LogTarget target);
+पूर्णांक log_max_levels_to_string(पूर्णांक level, अक्षर **ret);
 
-void log_set_facility(int facility);
+शून्य log_set_facility(पूर्णांक facility);
 
-void log_show_color(bool b);
-bool log_get_show_color(void) _pure_;
-void log_show_location(bool b);
-bool log_get_show_location(void) _pure_;
-void log_show_time(bool b);
-bool log_get_show_time(void) _pure_;
-void log_show_tid(bool b);
-bool log_get_show_tid(void) _pure_;
-void log_show_executable(bool b);
-bool log_get_show_executable(void) _pure_;
+शून्य log_show_color(bool b);
+bool log_get_show_color(शून्य) _pure_;
+शून्य log_show_location(bool b);
+bool log_get_show_location(शून्य) _pure_;
+शून्य log_show_time(bool b);
+bool log_get_show_time(शून्य) _pure_;
+शून्य log_show_tid(bool b);
+bool log_get_show_tid(शून्य) _pure_;
+शून्य log_show_executable(bool b);
+bool log_get_show_executable(शून्य) _pure_;
 
-int log_show_color_from_string(const char *e);
-int log_show_location_from_string(const char *e);
-int log_show_time_from_string(const char *e);
-int log_show_tid_from_string(const char *e);
-int log_show_executable_from_string(const char *e);
+पूर्णांक log_show_color_from_string(स्थिरांक अक्षर *e);
+पूर्णांक log_show_location_from_string(स्थिरांक अक्षर *e);
+पूर्णांक log_show_time_from_string(स्थिरांक अक्षर *e);
+पूर्णांक log_show_tid_from_string(स्थिरांक अक्षर *e);
+पूर्णांक log_show_executable_from_string(स्थिरांक अक्षर *e);
 
 /* Functions below that open and close logs or configure logging based on the
  * environment should not be called from library code — this is always a job
  * for the application itself. */
 
-bool stderr_is_journal(void);
-int log_open(void);
-void log_close(void);
-void log_forget_fds(void);
+bool stderr_is_journal(शून्य);
+पूर्णांक log_open(शून्य);
+शून्य log_close(शून्य);
+शून्य log_forget_fds(शून्य);
 
-void log_parse_environment_variables(void);
-void log_parse_environment(void);
+शून्य log_parse_environment_variables(शून्य);
+शून्य log_parse_environment(शून्य);
 
-int log_dispatch_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                char *buffer);
+पूर्णांक log_dispatch_internal(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *object_field,
+                स्थिरांक अक्षर *object,
+                स्थिरांक अक्षर *extra_field,
+                स्थिरांक अक्षर *extra,
+                अक्षर *buffer);
 
-int log_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(6,7);
+पूर्णांक log_internal(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *format, ...) _printf_(6,7);
 
-int log_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format,
-                va_list ap) _printf_(6,0);
+पूर्णांक log_internalv(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *format,
+                बहु_सूची ap) _printf_(6,0);
 
-int log_object_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format,
-                va_list ap) _printf_(10,0);
+पूर्णांक log_object_internalv(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *object_field,
+                स्थिरांक अक्षर *object,
+                स्थिरांक अक्षर *extra_field,
+                स्थिरांक अक्षर *extra,
+                स्थिरांक अक्षर *format,
+                बहु_सूची ap) _printf_(10,0);
 
-int log_object_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format, ...) _printf_(10,11);
+पूर्णांक log_object_internal(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *object_field,
+                स्थिरांक अक्षर *object,
+                स्थिरांक अक्षर *extra_field,
+                स्थिरांक अक्षर *extra,
+                स्थिरांक अक्षर *format, ...) _printf_(10,11);
 
-int log_struct_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _sentinel_;
+पूर्णांक log_struct_internal(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *format, ...) _sentinel_;
 
-int log_oom_internal(
-                int level,
-                const char *file,
-                int line,
-                const char *func);
+पूर्णांक log_oom_internal(
+                पूर्णांक level,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func);
 
-int log_format_iovec(
-                struct iovec *iovec,
-                size_t iovec_len,
-                size_t *n,
+पूर्णांक log_format_iovec(
+                संरचना iovec *iovec,
+                माप_प्रकार iovec_len,
+                माप_प्रकार *n,
                 bool newline_separator,
-                int error,
-                const char *format,
-                va_list ap) _printf_(6, 0);
+                पूर्णांक error,
+                स्थिरांक अक्षर *format,
+                बहु_सूची ap) _printf_(6, 0);
 
-int log_struct_iovec_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const struct iovec *input_iovec,
-                size_t n_input_iovec);
+पूर्णांक log_struct_iovec_internal(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक संरचना iovec *आदान_iovec,
+                माप_प्रकार n_आदान_iovec);
 
 /* This modifies the buffer passed! */
-int log_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                char *buffer);
+पूर्णांक log_dump_internal(
+                पूर्णांक level,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                अक्षर *buffer);
 
 #define log_dispatch(level, error, buffer)                              \
-        log_dispatch_internal(level, error, PROJECT_FILE, __LINE__, __func__, NULL, NULL, NULL, NULL, buffer)
+        log_dispatch_internal(level, error, PROJECT_FILE, __LINE__, __func__, रिक्त, रिक्त, रिक्त, रिक्त, buffer)
 
 /* Logging with level */
 #define log_full_errno_zerook(level, error, ...)                        \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                पूर्णांक _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_internal(_level, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        : -ERRNO_मूल्य(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 
-#if BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
-#  define ASSERT_NON_ZERO(x) assert((x) != 0)
-#  define ASSERT_UNDERFLOW(x) assert((x) >= INT_MIN)
-#else
+#जर BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
+#  define ASSERT_NON_ZERO(x) प्रतिज्ञा((x) != 0)
+#  define ASSERT_UNDERFLOW(x) प्रतिज्ञा((x) >= पूर्णांक_न्यून)
+#अन्यथा
 #  define ASSERT_NON_ZERO(x)
 #  define ASSERT_UNDERFLOW(x)
 #endif
@@ -208,17 +208,17 @@ int log_dump_internal(
                 int64_t _error = (error);                               \
                 ASSERT_UNDERFLOW(_error);                               \
                 ASSERT_NON_ZERO(_error);                                \
-                log_full_errno_zerook(level, (int)_error, __VA_ARGS__); \
+                log_full_errno_zerook(level, (पूर्णांक)_error, __VA_ARGS__); \
         })
 
 #define log_full(level, fmt, ...)                                      \
         ({                                                             \
-                if (BUILD_MODE_DEVELOPER)                              \
-                        assert(!strstr(fmt, "%m"));                    \
-                (void) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
+                जर (BUILD_MODE_DEVELOPER)                              \
+                        प्रतिज्ञा(!म_माला(fmt, "%m"));                    \
+                (शून्य) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
         })
 
-int log_emergency_level(void);
+पूर्णांक log_emergency_level(शून्य);
 
 /* Normal logging */
 #define log_debug(...)     log_full(LOG_DEBUG,   __VA_ARGS__)
@@ -241,35 +241,35 @@ int log_emergency_level(void);
  * time it is called. */
 #define log_once(level, ...)                                             \
         ({                                                               \
-                if (ONCE)                                                \
+                जर (ONCE)                                                \
                         log_full(level, __VA_ARGS__);                    \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                अन्यथा जर (LOG_PRI(level) != LOG_DEBUG)                    \
                         log_debug(__VA_ARGS__);                          \
         })
 
 #define log_once_errno(level, error, ...)                                \
         ({                                                               \
-                int _err = (error);                                      \
-                if (ONCE)                                                \
+                पूर्णांक _err = (error);                                      \
+                जर (ONCE)                                                \
                         _err = log_full_errno(level, _err, __VA_ARGS__); \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                अन्यथा जर (LOG_PRI(level) != LOG_DEBUG)                    \
                         _err = log_debug_errno(_err, __VA_ARGS__);       \
-                else                                                     \
-                        _err = -ERRNO_VALUE(_err);                       \
+                अन्यथा                                                     \
+                        _err = -ERRNO_मूल्य(_err);                       \
                 _err;                                                    \
         })
 
-#if LOG_TRACE
+#जर LOG_TRACE
 #  define log_trace(...)          log_debug(__VA_ARGS__)
 #  define log_trace_errno(...)    log_debug_errno(__VA_ARGS__)
-#else
-#  define log_trace(...)          do {} while (0)
-#  define log_trace_errno(e, ...) (-ERRNO_VALUE(e))
+#अन्यथा
+#  define log_trace(...)          करा {} पर्यंत (0)
+#  define log_trace_errno(e, ...) (-ERRNO_मूल्य(e))
 #endif
 
 /* Structured logging */
 #define log_struct_errno(level, error, ...)                             \
-        log_struct_internal(level, error, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__, NULL)
+        log_struct_internal(level, error, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__, रिक्त)
 #define log_struct(level, ...) log_struct_errno(level, 0, __VA_ARGS__)
 
 #define log_struct_iovec_errno(level, error, iovec, n_iovec)            \
@@ -279,9 +279,9 @@ int log_emergency_level(void);
 /* Like log_struct(), but with log_once() semantics */
 #define log_struct_once(level, ...)                                     \
         ({                                                              \
-                if (ONCE)                                               \
+                जर (ONCE)                                               \
                         log_struct(level, __VA_ARGS__);                 \
-                else if (LOG_PRI(level) != LOG_DEBUG)                   \
+                अन्यथा जर (LOG_PRI(level) != LOG_DEBUG)                   \
                         log_struct(LOG_DEBUG, __VA_ARGS__);             \
         })
 
@@ -294,111 +294,111 @@ int log_emergency_level(void);
 #define log_oom_debug()     log_oom_full(LOG_DEBUG)
 #define log_oom_warning()   log_oom_full(LOG_WARNING)
 
-bool log_on_console(void) _pure_;
+bool log_on_console(शून्य) _pure_;
 
 /* Helper to wrap the main message in structured logging. The macro doesn't do much,
  * except to provide visual grouping of the format string and its arguments. */
 #ifdef __COVERITY__
 /* Coverity does not like the concatenation of multiple formats and arguments. Let's replace each format
  * string with a dummy string. The validity of the formats is hopefully checked by other CIs. */
-#  define LOG_ITEM(fmt, ...)    "dummy", NULL, ##__VA_ARGS__
-#elif LOG_MESSAGE_VERIFICATION
+#  define LOG_ITEM(fmt, ...)    "dummy", रिक्त, ##__VA_ARGS__
+#किंवाजर LOG_MESSAGE_VERIFICATION
 /* Do a fake formatting of the message string to let the scanner verify the arguments against the format
  * message. The variable will never be set to true, but we don't tell the compiler that :) */
-extern bool _log_message_dummy;
-#  define LOG_ITEM(fmt, ...) "%.0d" fmt, (_log_message_dummy && printf(fmt, ##__VA_ARGS__)), ##__VA_ARGS__
-#else
+बाह्य bool _log_message_dummy;
+#  define LOG_ITEM(fmt, ...) "%.0d" fmt, (_log_message_dummy && म_लिखो(fmt, ##__VA_ARGS__)), ##__VA_ARGS__
+#अन्यथा
 #  define LOG_ITEM(fmt, ...) fmt, ##__VA_ARGS__
 #endif
 
 #define LOG_MESSAGE(fmt, ...) LOG_ITEM("MESSAGE=" fmt, ##__VA_ARGS__)
 #define LOG_MESSAGE_ID(id)    LOG_ITEM("MESSAGE_ID=" id)
 
-void log_received_signal(int level, const struct signalfd_siginfo *si);
+शून्य log_received_signal(पूर्णांक level, स्थिरांक संरचना signalfd_siginfo *si);
 
 /* If turned on, any requests for a log target involving "syslog" will be implicitly upgraded to the equivalent journal target */
-void log_set_upgrade_syslog_to_journal(bool b);
+शून्य log_set_upgrade_syslog_to_journal(bool b);
 
 /* If turned on, and log_open() is called, we'll not use STDERR_FILENO for logging ever, but rather open /dev/console */
-void log_set_always_reopen_console(bool b);
+शून्य log_set_always_reopen_console(bool b);
 
 /* If turned on, we'll open the log stream implicitly if needed on each individual log call. This is normally not
  * desired as we want to reuse our logging streams. It is useful however  */
-void log_set_open_when_needed(bool b);
+शून्य log_set_open_when_needed(bool b);
 
 /* If turned on, then we'll never use IPC-based logging, i.e. never log to syslog or the journal. We'll only log to
  * stderr, the console or kmsg */
-void log_set_prohibit_ipc(bool b);
+शून्य log_set_prohibit_ipc(bool b);
 
-int log_dup_console(void);
+पूर्णांक log_dup_console(शून्य);
 
-int log_syntax_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(9, 10);
+पूर्णांक log_syntax_internal(
+                स्थिरांक अक्षर *unit,
+                पूर्णांक level,
+                स्थिरांक अक्षर *config_file,
+                अचिन्हित config_ओळ,
+                पूर्णांक error,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *format, ...) _printf_(9, 10);
 
-int log_syntax_invalid_utf8_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                const char *file,
-                int line,
-                const char *func,
-                const char *rvalue);
+पूर्णांक log_syntax_invalid_utf8_internal(
+                स्थिरांक अक्षर *unit,
+                पूर्णांक level,
+                स्थिरांक अक्षर *config_file,
+                अचिन्हित config_ओळ,
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *rvalue);
 
-int log_syntax_parse_error_internal(
-                const char *unit,
-                const char *config_file,
-                unsigned config_line,
-                int error,
+पूर्णांक log_syntax_parse_error_internal(
+                स्थिरांक अक्षर *unit,
+                स्थिरांक अक्षर *config_file,
+                अचिन्हित config_ओळ,
+                पूर्णांक error,
                 bool critical, /* When true, propagate the passed error, otherwise this always returns 0. */
-                const char *file,
-                int line,
-                const char *func,
-                const char *lvalue,
-                const char *rvalue);
+                स्थिरांक अक्षर *file,
+                पूर्णांक ओळ,
+                स्थिरांक अक्षर *func,
+                स्थिरांक अक्षर *lvalue,
+                स्थिरांक अक्षर *rvalue);
 
-#define log_syntax(unit, level, config_file, config_line, error, ...)   \
+#define log_syntax(unit, level, config_file, config_ओळ, error, ...)   \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                पूर्णांक _level = (level), _e = (error);                     \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_internal(unit, _level, config_file, config_line, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        ? log_syntax_internal(unit, _level, config_file, config_ओळ, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
+                        : -ERRNO_मूल्य(_e);                             \
         })
 
-#define log_syntax_invalid_utf8(unit, level, config_file, config_line, rvalue) \
+#define log_syntax_invalid_utf8(unit, level, config_file, config_ओळ, rvalue) \
         ({                                                              \
-                int _level = (level);                                   \
+                पूर्णांक _level = (level);                                   \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_line, PROJECT_FILE, __LINE__, __func__, rvalue) \
+                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_ओळ, PROJECT_FILE, __LINE__, __func__, rvalue) \
                         : -EINVAL;                                      \
         })
 
-#define log_syntax_parse_error_full(unit, config_file, config_line, error, critical, lvalue, rvalue) \
-        log_syntax_parse_error_internal(unit, config_file, config_line, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
+#define log_syntax_parse_error_full(unit, config_file, config_ओळ, error, critical, lvalue, rvalue) \
+        log_syntax_parse_error_internal(unit, config_file, config_ओळ, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
 
-#define log_syntax_parse_error(unit, config_file, config_line, error, lvalue, rvalue) \
-        log_syntax_parse_error_full(unit, config_file, config_line, error, /* critical= */ false, lvalue, rvalue)
+#define log_syntax_parse_error(unit, config_file, config_ओळ, error, lvalue, rvalue) \
+        log_syntax_parse_error_full(unit, config_file, config_ओळ, error, /* critical= */ false, lvalue, rvalue)
 
 #define DEBUG_LOGGING _unlikely_(log_get_max_level() >= LOG_DEBUG)
 
-void log_setup(void);
+शून्य log_setup(शून्य);
 
-const char* _log_set_prefix(const char *prefix, bool force);
+स्थिरांक अक्षर* _log_set_prefix(स्थिरांक अक्षर *prefix, bool force);
 
-void log_prefix_swap(const char **prefix);
-static inline const char* _log_unset_prefixp(const char **p) {
-        assert(p);
+शून्य log_prefix_swap(स्थिरांक अक्षर **prefix);
+स्थिर ओळीत स्थिरांक अक्षर* _log_unset_prefixp(स्थिरांक अक्षर **p) {
+        प्रतिज्ञा(p);
         _log_set_prefix(*p, true);
-        return NULL;
+        परत रिक्त;
 }
 
 #define LOG_SET_PREFIX(prefix) \
-        _cleanup_(_log_unset_prefixp) _unused_ const char *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);
+        _cleanup_(_log_unset_prefixp) _unused_ स्थिरांक अक्षर *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);

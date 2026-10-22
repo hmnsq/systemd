@@ -1,312 +1,312 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#अन्तर्भाव <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "build.h"
-#include "env-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "version.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "ansi-color.h"
+#अन्तर्भाव "build.h"
+#अन्तर्भाव "env-util.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "version.h"
 
-const char* const systemd_features =
+स्थिरांक अक्षर* स्थिरांक systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#जर HAVE_PAM
         "+PAM"
-#else
+#अन्यथा
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#जर HAVE_AUDIT
         " +AUDIT"
-#else
+#अन्यथा
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#जर HAVE_SELINUX
         " +SELINUX"
-#else
+#अन्यथा
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#जर HAVE_APPARMOR
         " +APPARMOR"
-#else
+#अन्यथा
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#जर ENABLE_IMA
         " +IMA"
-#else
+#अन्यथा
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#जर ENABLE_IPE
         " +IPE"
-#else
+#अन्यथा
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#जर ENABLE_SMACK
         " +SMACK"
-#else
+#अन्यथा
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#जर HAVE_SECCOMP
         " +SECCOMP"
-#else
+#अन्यथा
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#जर HAVE_GNUTLS
         " +GNUTLS"
-#else
+#अन्यथा
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#जर HAVE_OPENSSL
         " +OPENSSL"
-#else
+#अन्यथा
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#जर HAVE_ACL
         " +ACL"
-#else
+#अन्यथा
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#जर HAVE_BLKID
         " +BLKID"
-#else
+#अन्यथा
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#जर HAVE_LIBCURL
         " +CURL"
-#else
+#अन्यथा
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#जर HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#अन्यथा
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#जर HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#अन्यथा
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#जर HAVE_LIBIDN2
         " +IDN2"
-#else
+#अन्यथा
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#जर HAVE_KMOD
         " +KMOD"
-#else
+#अन्यथा
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#जर HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#अन्यथा
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#जर HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#अन्यथा
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#जर HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#अन्यथा
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#जर HAVE_PCRE2
         " +PCRE2"
-#else
+#अन्यथा
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#जर HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#अन्यथा
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#जर HAVE_P11KIT
         " +P11KIT"
-#else
+#अन्यथा
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#जर HAVE_QRENCODE
         " +QRENCODE"
-#else
+#अन्यथा
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#जर HAVE_TPM2
         " +TPM2"
-#else
+#अन्यथा
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#जर HAVE_BZIP2
         " +BZIP2"
-#else
+#अन्यथा
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#जर HAVE_LZ4
         " +LZ4"
-#else
+#अन्यथा
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#जर HAVE_XZ
         " +XZ"
-#else
+#अन्यथा
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#जर HAVE_ZLIB
         " +ZLIB"
-#else
+#अन्यथा
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#जर HAVE_ZSTD
         " +ZSTD"
-#else
+#अन्यथा
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#जर BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#अन्यथा
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#जर HAVE_VMLINUX_H
         " +BTF"
-#else
+#अन्यथा
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#जर HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#अन्यथा
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#जर ENABLE_UTMP
         " +UTMP"
-#else
+#अन्यथा
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#जर HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#अन्यथा
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#जर EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
-#elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
+#किंवाजर EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#अन्यथा
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+स्थिर अक्षर* systemd_features_with_color(शून्य) {
+        स्थिरांक अक्षर *p = systemd_features;
+        _cleanup_free_ अक्षर *ret = रिक्त;
+        पूर्णांक r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        साठी (;;) {
+                _cleanup_free_ अक्षर *word = रिक्त;
+                अक्षर *q;
 
-                r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                r = extract_first_word(&p, &word, रिक्त, 0);
+                जर (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        परत रिक्त;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                जर (r == 0)
+                        परत TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                जर (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        परत रिक्त;
                 }
 
-                if (word[0] == '+')
+                जर (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                अन्यथा जर (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                अन्यथा
                         q = strextend(&ret, word);
-                if (!q) {
+                जर (!q) {
                         log_oom_warning();
-                        return NULL;
+                        परत रिक्त;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+पूर्णांक version(शून्य) {
+        _cleanup_free_ अक्षर *b = रिक्त;
 
-        if (colors_enabled())
+        जर (colors_enabled())
                 b = systemd_features_with_color();
 
-        printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
+        म_लिखो("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        परत 0;
 }
 
-int version_only(void) {
+पूर्णांक version_only(शून्य) {
         /* Used by udev. Dracut relies on the version being a single integer */
-        puts(PROJECT_VERSION_STR);
-        return 0;
+        माला_दो(PROJECT_VERSION_STR);
+        परत 0;
 }
 
-bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+bool experimental_enabled(शून्य) {
+#जर EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        परत false;
+#अन्यथा
+        पूर्णांक r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        जर (r >= 0)
+                परत r;
+        जर (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        परत EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }
