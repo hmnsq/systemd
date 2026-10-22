@@ -27,116 +27,116 @@ typedef uint64_t nsec_t;
 
 /* Libc/Linux forward declarations */
 
-struct __kernel_timespec;
-struct dirent;
-struct ether_addr;
-struct fiemap;
-struct file_handle;
-struct glob_t;
-struct group;
-struct icmp6_hdr;
-struct in_addr;
-struct in6_addr;
-struct inotify_event;
-struct iovec;
-struct mount_attr;
-struct msghdr;
-struct passwd;
-struct pollfd;
-struct rlimit;
-struct sgrp;
-struct shadow;
-struct signalfd_siginfo;
-struct siphash;
-struct sockaddr;
-struct spwd;
-struct stat;
-struct statfs;
-struct statx_timestamp;
-struct statx;
-struct termios;
-struct tm;
-struct ucred;
-struct unix_diag_msg;
+sa_nracanaa __kernel_timespec;
+sa_nracanaa dirent;
+sa_nracanaa ether_addr;
+sa_nracanaa fiemap;
+sa_nracanaa file_handle;
+sa_nracanaa glob_t;
+sa_nracanaa group;
+sa_nracanaa icmp6_hdr;
+sa_nracanaa in_addr;
+sa_nracanaa in6_addr;
+sa_nracanaa inotify_event;
+sa_nracanaa iovec;
+sa_nracanaa mount_attr;
+sa_nracanaa msghdr;
+sa_nracanaa passwd;
+sa_nracanaa pollfd;
+sa_nracanaa rlimit;
+sa_nracanaa sgrp;
+sa_nracanaa shadow;
+sa_nracanaa signalfd_siginfo;
+sa_nracanaa siphash;
+sa_nracanaa sockaddr;
+sa_nracanaa spwd;
+sa_nracanaa stat;
+sa_nracanaa statfs;
+sa_nracanaa statx_timestamp;
+sa_nracanaa statx;
+sa_nracanaa termios;
+sa_nracanaa tm;
+sa_nracanaa ucred;
+sa_nracanaa unix_diag_msg;
 
 /* To forward declare FILE and DIR, we have to declare the internal struct names for them. Since these are
  * used for C++ symbol name mangling, they're effectively part of the ABI and won't actually change. */
-typedef struct _IO_FILE FILE;
-typedef struct __dirstream DIR;
+typedef sa_nracanaa _IO_FILE FILE;
+typedef sa_nracanaa __dirstream DIR;
 
 /* 3rd-party library forward declarations */
 
-enum bpf_map_type;
+ga_nanaa bpf_map_type;
 
-struct fdisk_context;
-struct fdisk_table;
-struct crypt_device;
+sa_nracanaa fdisk_context;
+sa_nracanaa fdisk_table;
+sa_nracanaa crypt_device;
 
-typedef struct buf_mem_st BUF_MEM;
-typedef struct evp_pkey_st EVP_PKEY;
-typedef struct evp_md_st EVP_MD;
-typedef struct evp_md_ctx_st EVP_MD_CTX;
-typedef struct ssl_st SSL;
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct ssl_session_st SSL_SESSION;
-typedef struct x509_st X509;
+typedef sa_nracanaa buf_mem_st BUF_MEM;
+typedef sa_nracanaa evp_pkey_st EVP_PKEY;
+typedef sa_nracanaa evp_md_st EVP_MD;
+typedef sa_nracanaa evp_md_ctx_st EVP_MD_CTX;
+typedef sa_nracanaa ssl_st SSL;
+typedef sa_nracanaa ssl_ctx_st SSL_CTX;
+typedef sa_nracanaa ssl_session_st SSL_SESSION;
+typedef sa_nracanaa x509_st X509;
 
 /* basic/ forward declarations */
 
-typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
+typedef void (*hash_func_t)(const void *p, sa_nracanaa siphash *state);
+typedef ចំនួនគត់ (*compare_func_t)(const void *a, const void *b);
 typedef compare_func_t comparison_fn_t;
-typedef int (*comparison_userdata_fn_t)(const void *, const void *, void *);
+typedef ចំនួនគត់ (*comparison_userdata_fn_t)(const void *, const void *, void *);
 
-struct hash_ops;
-struct hw_addr_data;
-struct in_addr_data;
-struct iovec_wrapper;
-union in_addr_union;
-union sockaddr_union;
+sa_nracanaa hash_ops;
+sa_nracanaa hw_addr_data;
+sa_nracanaa in_addr_data;
+sa_nracanaa iovec_wrapper;
+sa_ngha in_addr_union;
+sa_ngha sockaddr_union;
 
-typedef enum Architecture Architecture;
-typedef enum CGroupFlags CGroupFlags;
-typedef enum CGroupMask CGroupMask;
-typedef enum ChaseFlags ChaseFlags;
-typedef enum ConfFilesFlags ConfFilesFlags;
-typedef enum ExtractFlags ExtractFlags;
-typedef enum ForkFlags ForkFlags;
-typedef enum Glyph Glyph;
-typedef enum ImageClass ImageClass;
-typedef enum JobMode JobMode;
-typedef enum NamespaceEnterFlags NamespaceEnterFlags;
-typedef enum RuntimeScope RuntimeScope;
-typedef enum StringSafeFlags StringSafeFlags;
-typedef enum TimestampStyle TimestampStyle;
-typedef enum UnitActiveState UnitActiveState;
-typedef enum UnitDependency UnitDependency;
-typedef enum UnitNameMangle UnitNameMangle;
-typedef enum UnitType UnitType;
-typedef enum WaitFlags WaitFlags;
-typedef enum XOpenFlags XOpenFlags;
+typedef ga_nanaa Architecture Architecture;
+typedef ga_nanaa CGroupFlags CGroupFlags;
+typedef ga_nanaa CGroupMask CGroupMask;
+typedef ga_nanaa ChaseFlags ChaseFlags;
+typedef ga_nanaa ConfFilesFlags ConfFilesFlags;
+typedef ga_nanaa ExtractFlags ExtractFlags;
+typedef ga_nanaa ForkFlags ForkFlags;
+typedef ga_nanaa Glyph Glyph;
+typedef ga_nanaa ImageClass ImageClass;
+typedef ga_nanaa JobMode JobMode;
+typedef ga_nanaa NamespaceEnterFlags NamespaceEnterFlags;
+typedef ga_nanaa RuntimeScope RuntimeScope;
+typedef ga_nanaa StringSafeFlags StringSafeFlags;
+typedef ga_nanaa TimestampStyle TimestampStyle;
+typedef ga_nanaa UnitActiveState UnitActiveState;
+typedef ga_nanaa UnitDependency UnitDependency;
+typedef ga_nanaa UnitNameMangle UnitNameMangle;
+typedef ga_nanaa UnitType UnitType;
+typedef ga_nanaa WaitFlags WaitFlags;
+typedef ga_nanaa XOpenFlags XOpenFlags;
 
-typedef struct Fiber Fiber;
-typedef struct FiberOps FiberOps;
-typedef struct Hashmap Hashmap;
-typedef struct HashmapBase HashmapBase;
-typedef struct IteratedCache IteratedCache;
-typedef struct Iterator Iterator;
-typedef struct LogContext LogContext;
-typedef struct OrderedHashmap OrderedHashmap;
-typedef struct OrderedSet OrderedSet;
-typedef struct Set Set;
+typedef sa_nracanaa Fiber Fiber;
+typedef sa_nracanaa FiberOps FiberOps;
+typedef sa_nracanaa Hashmap Hashmap;
+typedef sa_nracanaa HashmapBase HashmapBase;
+typedef sa_nracanaa IteratedCache IteratedCache;
+typedef sa_nracanaa Iterator Iterator;
+typedef sa_nracanaa LogContext LogContext;
+typedef sa_nracanaa OrderedHashmap OrderedHashmap;
+typedef sa_nracanaa OrderedSet OrderedSet;
+typedef sa_nracanaa Set Set;
 
-typedef struct dual_timestamp dual_timestamp;
-typedef struct triple_timestamp triple_timestamp;
-typedef struct Compressor Compressor;
-typedef struct ConfFile ConfFile;
-typedef struct LabelContext LabelContext;
-typedef struct LockFile LockFile;
-typedef struct PidRef PidRef;
-typedef struct Prioq Prioq;
-typedef struct RateLimit RateLimit;
-typedef struct SocketAddress SocketAddress;
+typedef sa_nracanaa dual_timestamp dual_timestamp;
+typedef sa_nracanaa triple_timestamp triple_timestamp;
+typedef sa_nracanaa Compressor Compressor;
+typedef sa_nracanaa ConfFile ConfFile;
+typedef sa_nracanaa LabelContext LabelContext;
+typedef sa_nracanaa LockFile LockFile;
+typedef sa_nracanaa PidRef PidRef;
+typedef sa_nracanaa Prioq Prioq;
+typedef sa_nracanaa RateLimit RateLimit;
+typedef sa_nracanaa SocketAddress SocketAddress;
 
 /* Constants */
 
@@ -146,7 +146,7 @@ typedef struct SocketAddress SocketAddress;
 /* glibc defines AT_FDCWD as -100, but musl defines it as (-100). */
 #ifdef __GLIBC__
 #define AT_FDCWD                -100
-#else
+#បើមិនដូច្នេះ
 #define AT_FDCWD                (-100)
 #endif
 #define AT_EMPTY_PATH           0x1000

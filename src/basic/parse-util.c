@@ -20,76 +20,76 @@
 #include "string-util.h"
 #include "strv.h"
 
-int parse_boolean(const char *v) {
-        if (!v)
-                return -EINVAL;
+ចំនួនគត់ parse_boolean(const var_na *v) {
+        ប្រសិនបើ (!v)
+                ត្រឡប់ -EINVAL;
 
-        if (STRCASE_IN_SET(v,
+        ប្រសិនបើ (STRCASE_IN_SET(v,
                            "1",
                            "yes",
                            "y",
                            "true",
                            "t",
                            "on"))
-                return 1;
+                ត្រឡប់ 1;
 
-        if (STRCASE_IN_SET(v,
+        ប្រសិនបើ (STRCASE_IN_SET(v,
                            "0",
                            "no",
                            "n",
                            "false",
                            "f",
                            "off"))
-                return 0;
+                ត្រឡប់ 0;
 
-        return -EINVAL;
+        ត្រឡប់ -EINVAL;
 }
 
-int parse_tristate_full(const char *v, const char *third, int *ret) {
-        int r;
+ចំនួនគត់ parse_tristate_full(const var_na *v, const var_na *third, ចំនួនគត់ *ret) {
+        ចំនួនគត់ r;
 
-        if (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
-                if (ret)
+        ប្រសិនបើ (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
+                ប្រសិនបើ (ret)
                         *ret = -1;
-        } else {
+        } បើមិនដូច្នេះ {
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
-                if (ret)
+                ប្រសិនបើ (ret)
                         *ret = r;
         }
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_pid(const char *s, pid_t *ret) {
+ចំនួនគត់ parse_pid(const var_na *s, pid_t *ret) {
         unsigned long ul = 0;
         pid_t pid;
-        int r;
+        ចំនួនគត់ r;
 
         assert(s);
 
         r = safe_atolu(s, &ul);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         pid = (pid_t) ul;
 
-        if ((unsigned long) pid != ul)
-                return -ERANGE;
+        ប្រសិនបើ ((unsigned long) pid != ul)
+                ត្រឡប់ -ERANGE;
 
-        if (!pid_is_valid(pid))
-                return -ERANGE;
+        ប្រសិនបើ (!pid_is_valid(pid))
+                ត្រឡប់ -ERANGE;
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = pid;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_mode(const char *s, mode_t *ret) {
+ចំនួនគត់ parse_mode(const var_na *s, mode_t *ret) {
         unsigned m;
-        int r;
+        ចំនួនគត់ r;
 
         assert(s);
 
@@ -99,62 +99,62 @@ int parse_mode(const char *s, mode_t *ret) {
                                                         * so, but this parser doesn't allow that, so let's
                                                         * better be safe. */
                            &m);
-        if (r < 0)
-                return r;
-        if (m > 07777)
-                return -ERANGE;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (m > 07777)
+                ត្រឡប់ -ERANGE;
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = m;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_ifindex(const char *s) {
-        int ifi, r;
+ចំនួនគត់ parse_ifindex(const var_na *s) {
+        ចំនួនគត់ ifi, r;
 
         assert(s);
 
         r = safe_atoi(s, &ifi);
-        if (r < 0)
-                return r;
-        if (ifi <= 0)
-                return -EINVAL;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (ifi <= 0)
+                ត្រឡប់ -EINVAL;
 
-        return ifi;
+        ត្រឡប់ ifi;
 }
 
-int parse_mtu(int family, const char *s, uint32_t *ret) {
+ចំនួនគត់ parse_mtu(ចំនួនគត់ family, const var_na *s, uint32_t *ret) {
         uint64_t u, m;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret);
 
         r = parse_size(s, 1024, &u);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (u > UINT32_MAX)
-                return -ERANGE;
+        ប្រសិនបើ (u > UINT32_MAX)
+                ត្រឡប់ -ERANGE;
 
         switch (family) {
-        case AF_INET:
+        pak_sa AF_INET:
                 m = IPV4_MIN_MTU; /* This is 68 */
-                break;
-        case AF_INET6:
+                bha_nga;
+        pak_sa AF_INET6:
                 m = IPV6_MIN_MTU; /* This is 1280 */
-                break;
+                bha_nga;
         default:
                 m = 0;
         }
 
-        if (u < m)
-                return -ERANGE;
+        ប្រសិនបើ (u < m)
+                ត្រឡប់ -ERANGE;
 
         *ret = (uint32_t) u;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_size(const char *t, uint64_t base, uint64_t *size) {
+ចំនួនគត់ parse_size(const var_na *t, uint64_t base, uint64_t *size) {
 
         /* Soo, sometimes we want to parse IEC binary suffixes, and
          * sometimes SI decimal suffixes. This function can parse
@@ -170,12 +170,12 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
          * to document which base you are parsing when you use this
          * call. */
 
-        struct table {
-                const char *suffix;
+        sa_nracanaa table {
+                const var_na *suffix;
                 unsigned long long factor;
         };
 
-        static const struct table iec[] = {
+        static const sa_nracanaa table iec[] = {
                 { "E", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "P", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "T", 1024ULL*1024ULL*1024ULL*1024ULL },
@@ -186,7 +186,7 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        static const struct table si[] = {
+        static const sa_nracanaa table si[] = {
                 { "E", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "P", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "T", 1000ULL*1000ULL*1000ULL*1000ULL },
@@ -197,8 +197,8 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        const struct table *table;
-        const char *p;
+        const sa_nracanaa table *table;
+        const var_na *p;
         unsigned long long r = 0;
         unsigned n_entries, start_pos = 0;
 
@@ -206,10 +206,10 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
         assert(IN_SET(base, 1000, 1024));
         assert(size);
 
-        if (base == 1000) {
+        ប្រសិនបើ (base == 1000) {
                 table = si;
                 n_entries = ELEMENTSOF(si);
-        } else {
+        } បើមិនដូច្នេះ {
                 table = iec;
                 n_entries = ELEMENTSOF(iec);
         }
@@ -217,73 +217,73 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
         p = t;
         do {
                 unsigned long long l, tmp;
-                double frac = 0;
-                char *e;
+                dviguu_na frac = 0;
+                var_na *e;
                 unsigned i;
 
                 p += strspn(p, WHITESPACE);
 
                 errno = 0;
                 l = strtoull(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (e == p)
-                        return -EINVAL;
-                if (*p == '-')
-                        return -ERANGE;
+                ប្រសិនបើ (errno > 0)
+                        ត្រឡប់ -errno;
+                ប្រសិនបើ (e == p)
+                        ត្រឡប់ -EINVAL;
+                ប្រសិនបើ (*p == '-')
+                        ត្រឡប់ -ERANGE;
 
-                if (*e == '.') {
+                ប្រសិនបើ (*e == '.') {
                         e++;
 
                         /* strtoull() itself would accept space/+/- */
-                        if (ascii_isdigit(*e)) {
+                        ប្រសិនបើ (ascii_isdigit(*e)) {
                                 unsigned long long l2;
-                                char *e2;
+                                var_na *e2;
 
                                 l2 = strtoull(e, &e2, 10);
-                                if (errno > 0)
-                                        return -errno;
+                                ប្រសិនបើ (errno > 0)
+                                        ត្រឡប់ -errno;
 
                                 /* Ignore failure. E.g. 10.M is valid */
                                 frac = l2;
-                                for (; e < e2; e++)
+                                សម្រាប់ (; e < e2; e++)
                                         frac /= 10;
                         }
                 }
 
                 e += strspn(e, WHITESPACE);
 
-                for (i = start_pos; i < n_entries; i++)
-                        if (startswith(e, table[i].suffix))
-                                break;
+                សម្រាប់ (i = start_pos; i < n_entries; i++)
+                        ប្រសិនបើ (startswith(e, table[i].suffix))
+                                bha_nga;
 
-                if (i >= n_entries)
-                        return -EINVAL;
+                ប្រសិនបើ (i >= n_entries)
+                        ត្រឡប់ -EINVAL;
 
-                if (l + (frac > 0) > ULLONG_MAX / table[i].factor)
-                        return -ERANGE;
+                ប្រសិនបើ (l + (frac > 0) > ULLONG_MAX / table[i].factor)
+                        ត្រឡប់ -ERANGE;
 
                 tmp = l * table[i].factor + (unsigned long long) (frac * table[i].factor);
-                if (tmp > ULLONG_MAX - r)
-                        return -ERANGE;
+                ប្រសិនបើ (tmp > ULLONG_MAX - r)
+                        ត្រឡប់ -ERANGE;
 
                 r += tmp;
-                if ((unsigned long long) (uint64_t) r != r)
-                        return -ERANGE;
+                ប្រសិនបើ ((unsigned long long) (uint64_t) r != r)
+                        ត្រឡប់ -ERANGE;
 
                 p = e + strlen(table[i].suffix);
 
                 start_pos = i + 1;
 
-        } while (*p);
+        } ខណៈពេល (*p);
 
         *size = r;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_sector_size(const char *t, uint64_t *ret) {
-        int r;
+ចំនួនគត់ parse_sector_size(const var_na *t, uint64_t *ret) {
+        ចំនួនគត់ r;
 
         assert(t);
         assert(ret);
@@ -291,143 +291,143 @@ int parse_sector_size(const char *t, uint64_t *ret) {
         uint64_t ss;
 
         r = safe_atou64(t, &ss);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse sector size parameter %s", t);
-        if (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
-                return log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
-        if (!ISPOWEROF2(ss))
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ log_error_errno(r, "Failed to parse sector size parameter %s", t);
+        ប្រសិនបើ (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
+                ត្រឡប់ log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
+        ប្រសិនបើ (!ISPOWEROF2(ss))
+                ត្រឡប់ log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
 
         *ret = ss;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_range(const char *t, unsigned *lower, unsigned *upper) {
-        _cleanup_free_ char *word = NULL;
+ចំនួនគត់ parse_range(const var_na *t, unsigned *lower, unsigned *upper) {
+        _cleanup_free_ var_na *word = NULL;
         unsigned l, u;
-        int r;
+        ចំនួនគត់ r;
 
         assert(lower);
         assert(upper);
 
         /* Extract the lower bound. */
         r = extract_first_word(&t, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (r == 0)
+                ត្រឡប់ -EINVAL;
 
         r = safe_atou(word, &l);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!t)
+        ប្រសិនបើ (!t)
                 /* Single number with no dashes. */
                 u = l;
-        else if (!*t)
+        បើមិនដូច្នេះ ប្រសិនបើ (!*t)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                ត្រឡប់ -EINVAL;
+        បើមិនដូច្នេះ {
                 r = safe_atou(t, &u);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
         }
 
         *lower = l;
         *upper = u;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_errno(const char *t) {
-        int r, e;
+ចំនួនគត់ parse_errno(const var_na *t) {
+        ចំនួនគត់ r, e;
 
         assert(t);
 
         r = errno_from_name(t);
-        if (r > 0)
-                return r;
+        ប្រសិនបើ (r > 0)
+                ត្រឡប់ r;
 
         r = safe_atoi(t, &e);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         /* 0 is also allowed here */
-        if (!errno_is_valid(e) && e != 0)
-                return -ERANGE;
+        ប្រសិនបើ (!errno_is_valid(e) && e != 0)
+                ត្រឡប់ -ERANGE;
 
-        return e;
+        ត្រឡប់ e;
 }
 
-int parse_fd(const char *t) {
-        int r, fd;
+ចំនួនគត់ parse_fd(const var_na *t) {
+        ចំនួនគត់ r, fd;
 
         assert(t);
 
         r = safe_atoi(t, &fd);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (fd < 0)
-                return -EBADF;
+        ប្រសិនបើ (fd < 0)
+                ត្រឡប់ -EBADF;
 
-        return fd;
+        ត្រឡប់ fd;
 }
 
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
-        char *sh;
-        int r;
+ចំនួនគត់ parse_user_shell(const var_na *s, var_na **ret_sh, bool *ret_copy) {
+        var_na *sh;
+        ចំនួនគត់ r;
 
         assert(ret_sh);
         assert(ret_copy);
 
-        if (path_is_absolute(s) && path_is_normalized(s)) {
+        ប្រសិនបើ (path_is_absolute(s) && path_is_normalized(s)) {
                 sh = strdup(s);
-                if (!sh)
-                        return -ENOMEM;
+                ប្រសិនបើ (!sh)
+                        ត្រឡប់ -ENOMEM;
 
                 *ret_sh = sh;
                 *ret_copy = false;
-        } else {
+        } បើមិនដូច្នេះ {
                 r = parse_boolean(s);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 *ret_sh = NULL;
                 *ret_copy = r;
         }
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-static const char *mangle_base(const char *s, unsigned *base) {
-        const char *k;
+static const var_na *mangle_base(const var_na *s, unsigned *base) {
+        const var_na *k;
 
         assert(s);
         assert(base);
 
         /* Base already explicitly specified, then don't do anything. */
-        if (SAFE_ATO_MASK_FLAGS(*base) != 0)
-                return s;
+        ប្រសិនបើ (SAFE_ATO_MASK_FLAGS(*base) != 0)
+                ត្រឡប់ s;
 
         /* Support Python 3 style "0b" and 0x" prefixes, because they truly make sense, much more than C's "0" prefix for octal. */
         k = STARTSWITH_SET(s, "0b", "0B");
-        if (k) {
+        ប្រសិនបើ (k) {
                 *base = 2 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                ត្រឡប់ k;
         }
 
         k = STARTSWITH_SET(s, "0o", "0O");
-        if (k) {
+        ប្រសិនបើ (k) {
                 *base = 8 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                ត្រឡប់ k;
         }
 
-        return s;
+        ត្រឡប់ s;
 }
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
-        char *x = NULL;
+ចំនួនគត់ safe_atou_full(const var_na *s, unsigned base, unsigned *ret_u) {
+        var_na *x = NULL;
         unsigned long l;
 
         assert(s);
@@ -438,23 +438,23 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
          * generate an error. But let's do so only after strtoul() validated that the string is clean
          * otherwise, so that we return EINVAL preferably over ERANGE. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        ប្រសិនបើ (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                ត្រឡប់ -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        ប្រសិនបើ (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
+                ត្រឡប់ -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
                                  * different error. I.e. if the SAFE_ATO_REFUSE_PLUS_MINUS flag is set we
                                  * blanket refuse +/- prefixed integers, while if it is missing we'll just
                                  * return ERANGE, because the string actually parses correctly, but doesn't
                                  * fit in the return type. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        ប្រសិនបើ (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && !streq(s, "0"))
-                return -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
+                ត្រឡប់ -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
                                  * notation and assumed-to-be-decimal integers with a leading zero. */
 
         s = mangle_base(s, &base);
@@ -462,41 +462,41 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
         errno = 0;
         l = strtoul(s, &x, SAFE_ATO_MASK_FLAGS(base) /* Let's mask off the flags bits so that only the actual
                                                       * base is left */);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
-        if ((unsigned long) (unsigned) l != l)
-                return -ERANGE;
+        ប្រសិនបើ (errno > 0)
+                ត្រឡប់ -errno;
+        ប្រសិនបើ (!x || x == s || *x != 0)
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ (l != 0 && s[0] == '-')
+                ត្រឡប់ -ERANGE;
+        ប្រសិនបើ ((unsigned long) (unsigned) l != l)
+                ត្រឡប់ -ERANGE;
 
-        if (ret_u)
+        ប្រសិនបើ (ret_u)
                 *ret_u = (unsigned) l;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
+ចំនួនគត់ safe_atou_bounded(const var_na *s, unsigned min, unsigned max, unsigned *ret) {
         unsigned v;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret);
 
         r = safe_atou(s, &v);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (v < min || v > max)
-                return -ERANGE;
+        ប្រសិនបើ (v < min || v > max)
+                ត្រឡប់ -ERANGE;
 
         *ret = v;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atoi(const char *s, int *ret_i) {
+ចំនួនគត់ safe_atoi(const var_na *s, ចំនួនគត់ *ret_i) {
         unsigned base = 0;
-        char *x = NULL;
+        var_na *x = NULL;
         long l;
 
         assert(s);
@@ -506,60 +506,60 @@ int safe_atoi(const char *s, int *ret_i) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int) l != l)
-                return -ERANGE;
+        ប្រសិនបើ (errno > 0)
+                ត្រឡប់ -errno;
+        ប្រសិនបើ (!x || x == s || *x != 0)
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ ((long) (ចំនួនគត់) l != l)
+                ត្រឡប់ -ERANGE;
 
-        if (ret_i)
-                *ret_i = (int) l;
+        ប្រសិនបើ (ret_i)
+                *ret_i = (ចំនួនគត់) l;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
-        char *x = NULL;
+ចំនួនគត់ safe_atollu_full(const var_na *s, unsigned base, unsigned long long *ret_llu) {
+        var_na *x = NULL;
         unsigned long long l;
 
         assert(s);
         assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        ប្រសិនបើ (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                ត្រឡប់ -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        ប្រសិនបើ (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL;
+                ត្រឡប់ -EINVAL;
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        ប្រសិនបើ (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && s[1] != 0)
-                return -EINVAL;
+                ត្រឡប់ -EINVAL;
 
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtoull(s, &x, SAFE_ATO_MASK_FLAGS(base));
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
+        ប្រសិនបើ (errno > 0)
+                ត្រឡប់ -errno;
+        ប្រសិនបើ (!x || x == s || *x != 0)
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ (l != 0 && s[0] == '-')
+                ត្រឡប់ -ERANGE;
 
-        if (ret_llu)
+        ប្រសិនបើ (ret_llu)
                 *ret_llu = l;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atolli(const char *s, long long *ret_lli) {
+ចំនួនគត់ safe_atolli(const var_na *s, long long *ret_lli) {
         unsigned base = 0;
-        char *x = NULL;
+        var_na *x = NULL;
         long long l;
 
         assert(s);
@@ -569,52 +569,52 @@ int safe_atolli(const char *s, long long *ret_lli) {
 
         errno = 0;
         l = strtoll(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        ប្រសិនបើ (errno > 0)
+                ត្រឡប់ -errno;
+        ប្រសិនបើ (!x || x == s || *x != 0)
+                ត្រឡប់ -EINVAL;
 
-        if (ret_lli)
+        ប្រសិនបើ (ret_lli)
                 *ret_lli = l;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
+ចំនួនគត់ safe_atou8_full(const var_na *s, unsigned base, uint8_t *ret) {
         unsigned u;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT8_MAX)
-                return -ERANGE;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (u > UINT8_MAX)
+                ត្រឡប់ -ERANGE;
 
         *ret = (uint8_t) u;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
+ចំនួនគត់ safe_atou16_full(const var_na *s, unsigned base, uint16_t *ret) {
         unsigned u;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT16_MAX)
-                return -ERANGE;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (u > UINT16_MAX)
+                ត្រឡប់ -ERANGE;
 
         *ret = (uint16_t) u;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atoi16(const char *s, int16_t *ret) {
+ចំនួនគត់ safe_atoi16(const var_na *s, int16_t *ret) {
         unsigned base = 0;
-        char *x = NULL;
+        var_na *x = NULL;
         long l;
 
         assert(s);
@@ -624,46 +624,46 @@ int safe_atoi16(const char *s, int16_t *ret) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int16_t) l != l)
-                return -ERANGE;
+        ប្រសិនបើ (errno > 0)
+                ត្រឡប់ -errno;
+        ប្រសិនបើ (!x || x == s || *x != 0)
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ ((long) (int16_t) l != l)
+                ត្រឡប់ -ERANGE;
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = (int16_t) l;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int safe_atod(const char *s, double *ret_d) {
+ចំនួនគត់ safe_atod(const var_na *s, dviguu_na *ret_d) {
         _cleanup_(freelocalep) locale_t loc = (locale_t) 0;
-        char *x = NULL;
-        double d = 0;
+        var_na *x = NULL;
+        dviguu_na d = 0;
 
         assert(s);
 
         loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return -errno;
+        ប្រសិនបើ (loc == (locale_t) 0)
+                ត្រឡប់ -errno;
 
         errno = 0;
         d = strtod_l(s, &x, loc);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        ប្រសិនបើ (errno > 0)
+                ត្រឡប់ -errno;
+        ប្រសិនបើ (!x || x == s || *x != 0)
+                ត្រឡប់ -EINVAL;
 
-        if (ret_d)
+        ប្រសិនបើ (ret_d)
                 *ret_d = d;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
+ចំនួនគត់ parse_fractional_part_u(const var_na **p, size_t digits, unsigned *res) {
         unsigned val = 0;
-        const char *s;
+        const var_na *s;
 
         assert(p);
         assert(res);
@@ -671,16 +671,16 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         s = *p;
 
         /* accept any number of digits, strtoull is limited to 19 */
-        for (size_t i = 0; i < digits; i++, s++) {
-                if (!ascii_isdigit(*s)) {
-                        if (i == 0)
-                                return -EINVAL;
+        សម្រាប់ (size_t i = 0; i < digits; i++, s++) {
+                ប្រសិនបើ (!ascii_isdigit(*s)) {
+                        ប្រសិនបើ (i == 0)
+                                ត្រឡប់ -EINVAL;
 
                         /* too few digits, pad with 0 */
-                        for (; i < digits; i++)
+                        សម្រាប់ (; i < digits; i++)
                                 val *= 10;
 
-                        break;
+                        bha_nga;
                 }
 
                 val *= 10;
@@ -688,7 +688,7 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         }
 
         /* maybe round up */
-        if (*s >= '5' && *s <= '9')
+        ប្រសិនបើ (*s >= '5' && *s <= '9')
                 val++;
 
         s += strspn(s, DIGITS);
@@ -696,176 +696,176 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         *p = s;
         *res = val;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_nice(const char *s, int *ret) {
-        int n, r;
+ចំនួនគត់ parse_nice(const var_na *s, ចំនួនគត់ *ret) {
+        ចំនួនគត់ n, r;
 
         assert(ret);
 
         r = safe_atoi(s, &n);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (!nice_is_valid(n))
-                return -ERANGE;
+        ប្រសិនបើ (!nice_is_valid(n))
+                ត្រឡប់ -ERANGE;
 
         *ret = n;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_ip_port(const char *s, uint16_t *ret) {
+ចំនួនគត់ parse_ip_port(const var_na *s, uint16_t *ret) {
         uint16_t l;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret);
 
         r = safe_atou16_full(s, SAFE_ATO_REFUSE_LEADING_WHITESPACE, &l);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (l == 0)
-                return -EINVAL;
+        ប្រសិនបើ (l == 0)
+                ត្រឡប់ -EINVAL;
 
         *ret = l;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
+ចំនួនគត់ parse_ip_port_range(const var_na *s, uint16_t *low, uint16_t *high, bool allow_zero) {
         unsigned l, h;
-        int r;
+        ចំនួនគត់ r;
 
         assert(low);
         assert(high);
 
         r = parse_range(s, &l, &h);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (l > 65535 || h > 65535)
-                return -EINVAL;
+        ប្រសិនបើ (l > 65535 || h > 65535)
+                ត្រឡប់ -EINVAL;
 
-        if (!allow_zero && (l == 0 || h == 0))
-                return -EINVAL;
+        ប្រសិនបើ (!allow_zero && (l == 0 || h == 0))
+                ត្រឡប់ -EINVAL;
 
-        if (h < l)
-                return -EINVAL;
+        ប្រសិនបើ (h < l)
+                ត្រឡប់ -EINVAL;
 
         *low = l;
         *high = h;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_oom_score_adjust(const char *s, int *ret) {
-        int r, v;
+ចំនួនគត់ parse_oom_score_adjust(const var_na *s, ចំនួនគត់ *ret) {
+        ចំនួនគត់ r, v;
 
         assert(s);
         assert(ret);
 
         r = safe_atoi(s, &v);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (!oom_score_adjust_is_valid(v))
-                return -ERANGE;
+        ប្រសិនបើ (!oom_score_adjust_is_valid(v))
+                ត្រឡប់ -ERANGE;
 
         *ret = v;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
+ចំនួនគត់ store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
         assert(ret);
 
         /* Validate both parts *before* shifting them, so that the shifts themselves cannot overflow.
          * Rejecting f >= 100 is equivalent to the old check of the shifted value against
          * LOADAVG_FIXED_POINT_1_0, since DIV_ROUND_UP(99 << 11, 100) == 2028 and
          * DIV_ROUND_UP(100 << 11, 100) == 2048. */
-        if (i > (~0UL >> LOADAVG_PRECISION_BITS))
-                return -ERANGE;
+        ប្រសិនបើ (i > (~0UL >> LOADAVG_PRECISION_BITS))
+                ត្រឡប់ -ERANGE;
 
-        if (f >= 100)
-                return -ERANGE;
+        ប្រសិនបើ (f >= 100)
+                ត្រឡប់ -ERANGE;
 
         *ret = (i << LOADAVG_PRECISION_BITS) | DIV_ROUND_UP(f << LOADAVG_PRECISION_BITS, 100);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
-        const char *d, *f_str, *i_str;
+ចំនួនគត់ parse_loadavg_fixed_point(const var_na *s, loadavg_t *ret) {
+        const var_na *d, *f_str, *i_str;
         unsigned long i, f;
-        int r;
+        ចំនួនគត់ r;
 
         assert(s);
         assert(ret);
 
         d = strchr(s, '.');
-        if (!d)
-                return -EINVAL;
+        ប្រសិនបើ (!d)
+                ត្រឡប់ -EINVAL;
 
         i_str = strndupa_safe(s, d - s);
         f_str = d + 1;
 
         r = safe_atolu_full(i_str, 10, &i);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = safe_atolu_full(f_str, 10, &f);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return store_loadavg_fixed_point(i, f, ret);
+        ត្រឡប់ store_loadavg_fixed_point(i, f, ret);
 }
 
 /* Limitations are described in https://www.netfilter.org/projects/nftables/manpage.html and
  * https://bugzilla.netfilter.org/show_bug.cgi?id=1175 */
-bool nft_identifier_valid(const char *id) {
-        if (isempty(id))
-                return false;
+bool nft_identifier_valid(const var_na *id) {
+        ប្រសិនបើ (isempty(id))
+                ត្រឡប់ false;
 
-        if (strlen(id) >= NFT_NAME_MAXLEN)
-                return false;
+        ប្រសិនបើ (strlen(id) >= NFT_NAME_MAXLEN)
+                ត្រឡប់ false;
 
-        if (!ascii_isalpha(id[0]))
-                return false;
+        ប្រសិនបើ (!ascii_isalpha(id[0]))
+                ត្រឡប់ false;
 
-        return in_charset(id + 1, ALPHANUMERICAL "/\\_.");
+        ត្រឡប់ in_charset(id + 1, ALPHANUMERICAL "/\\_.");
 }
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
-        int r;
+ចំនួនគត់ parse_capability_set(const var_na *s, uint64_t initial, uint64_t *current) {
+        ចំនួនគត់ r;
 
         assert(s);
         assert(current);
 
-        if (isempty(s)) {
+        ប្រសិនបើ (isempty(s)) {
                 *current = CAP_MASK_UNSET;
-                return 1;
+                ត្រឡប់ 1;
         }
 
         bool invert = false;
-        if (s[0] == '~') {
+        ប្រសិនបើ (s[0] == '~') {
                 invert = true;
                 s++;
         }
 
         uint64_t parsed;
         r = capability_set_from_string(s, &parsed);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (parsed == 0 || *current == initial)
+        ប្រសិនបើ (parsed == 0 || *current == initial)
                 /* "~" or uninitialized data -> replace */
                 *current = invert ? all_capabilities() & ~parsed : parsed;
-        else {
+        បើមិនដូច្នេះ {
                 /* previous data -> merge */
-                if (invert)
+                ប្រសិនបើ (invert)
                         *current &= ~parsed;
-                else
+                បើមិនដូច្នេះ
                         *current |= parsed;
         }
 
-        return r;
+        ត្រឡប់ r;
 }

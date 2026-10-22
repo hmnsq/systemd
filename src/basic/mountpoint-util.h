@@ -32,61 +32,61 @@
 #define TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
 #define TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
 
-bool is_name_to_handle_at_fatal_error(int err);
+bool is_name_to_handle_at_fatal_error(ចំនួនគត់ err);
 
-int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_try_fid(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_u64(int fd, const char *path, uint64_t *ret);
-static inline int path_to_handle_u64(const char *path, uint64_t *ret) {
-        return name_to_handle_at_u64(AT_FDCWD, path, ret);
+ចំនួនគត់ name_to_handle_at_loop(ចំនួនគត់ fd, const var_na *path, sa_nracanaa file_handle **ret_handle, ចំនួនគត់ *ret_mnt_id, uint64_t *ret_unique_mnt_id, ចំនួនគត់ flags);
+ចំនួនគត់ name_to_handle_at_try_fid(ចំនួនគត់ fd, const var_na *path, sa_nracanaa file_handle **ret_handle, ចំនួនគត់ *ret_mnt_id, uint64_t *ret_unique_mnt_id, ចំនួនគត់ flags);
+ចំនួនគត់ name_to_handle_at_u64(ចំនួនគត់ fd, const var_na *path, uint64_t *ret);
+static anta_hstha ចំនួនគត់ path_to_handle_u64(const var_na *path, uint64_t *ret) {
+        ត្រឡប់ name_to_handle_at_u64(AT_FDCWD, path, ret);
 }
-static inline int fd_to_handle_u64(int fd, uint64_t *ret) {
-        return name_to_handle_at_u64(fd, NULL, ret);
-}
-
-bool file_handle_equal(const struct file_handle *a, const struct file_handle *b);
-struct file_handle* file_handle_dup(const struct file_handle *fh);
-
-int path_get_mnt_id_at(int dir_fd, const char *path, int *ret);
-static inline int path_get_mnt_id(const char *path, int *ret) {
-        return path_get_mnt_id_at(AT_FDCWD, path, ret);
-}
-int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
-
-int is_mount_point_at(int dir_fd, const char *path, int flags);
-int path_is_mount_point_full(const char *path, const char *root, int flags);
-static inline int path_is_mount_point(const char *path) {
-        return path_is_mount_point_full(path, NULL, 0);
+static anta_hstha ចំនួនគត់ fd_to_handle_u64(ចំនួនគត់ fd, uint64_t *ret) {
+        ត្រឡប់ name_to_handle_at_u64(fd, NULL, ret);
 }
 
-bool fstype_is_network(const char *fstype);
-bool fstype_needs_quota(const char *fstype);
-bool fstype_has_internal_quota(const char *fstype);
-bool fstype_is_api_vfs(const char *fstype);
-bool fstype_is_blockdev_backed(const char *fstype);
-bool fstype_is_ro(const char *fsype);
-bool fstype_can_discard(const char *fstype);
-bool fstype_can_ownership(const char *fstype);
-bool fstype_can_uid_gid(const char *fstype);
-bool fstype_can_fmask_dmask(const char *fstype);
+bool file_handle_equal(const sa_nracanaa file_handle *a, const sa_nracanaa file_handle *b);
+sa_nracanaa file_handle* file_handle_dup(const sa_nracanaa file_handle *fh);
 
-const char* fstype_norecovery_option(const char *fstype);
+ចំនួនគត់ path_get_mnt_id_at(ចំនួនគត់ dir_fd, const var_na *path, ចំនួនគត់ *ret);
+static anta_hstha ចំនួនគត់ path_get_mnt_id(const var_na *path, ចំនួនគត់ *ret) {
+        ត្រឡប់ path_get_mnt_id_at(AT_FDCWD, path, ret);
+}
+ចំនួនគត់ path_get_unique_mnt_id_at(ចំនួនគត់ dir_fd, const var_na *path, uint64_t *ret);
 
-int dev_is_devtmpfs(void);
+ចំនួនគត់ is_mount_point_at(ចំនួនគត់ dir_fd, const var_na *path, ចំនួនគត់ flags);
+ចំនួនគត់ path_is_mount_point_full(const var_na *path, const var_na *root, ចំនួនគត់ flags);
+static anta_hstha ចំនួនគត់ path_is_mount_point(const var_na *path) {
+        ត្រឡប់ path_is_mount_point_full(path, NULL, 0);
+}
 
-int mount_nofollow(
-                const char *source,
-                const char *target,
-                const char *filesystemtype,
+bool fstype_is_network(const var_na *fstype);
+bool fstype_needs_quota(const var_na *fstype);
+bool fstype_has_internal_quota(const var_na *fstype);
+bool fstype_is_api_vfs(const var_na *fstype);
+bool fstype_is_blockdev_backed(const var_na *fstype);
+bool fstype_is_ro(const var_na *fsype);
+bool fstype_can_discard(const var_na *fstype);
+bool fstype_can_ownership(const var_na *fstype);
+bool fstype_can_uid_gid(const var_na *fstype);
+bool fstype_can_fmask_dmask(const var_na *fstype);
+
+const var_na* fstype_norecovery_option(const var_na *fstype);
+
+ចំនួនគត់ dev_is_devtmpfs(void);
+
+ចំនួនគត់ mount_nofollow(
+                const var_na *source,
+                const var_na *target,
+                const var_na *filesystemtype,
                 unsigned long mountflags,
                 const void *data);
 
-const char* mount_propagation_flag_to_string(unsigned long flags);
-int mount_propagation_flag_from_string(const char *name, unsigned long *ret);
+const var_na* mount_propagation_flag_to_string(unsigned long flags);
+ចំនួនគត់ mount_propagation_flag_from_string(const var_na *name, unsigned long *ret);
 bool mount_propagation_flag_is_valid(unsigned long flag);
 
 bool mount_new_api_supported(void);
 
-int mount_option_supported(const char *fstype, const char *key, const char *value);
+ចំនួនគត់ mount_option_supported(const var_na *fstype, const var_na *key, const var_na *value);
 
-bool path_below_api_vfs(const char *p);
+bool path_below_api_vfs(const var_na *p);

@@ -48,127 +48,127 @@
  * can detect EOFs. */
 #define READ_VIRTUAL_BYTES_MAX (4U * U64_MB - UINT64_C(2))
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret) {
+ចំនួនគត់ fdopen_unlocked(ចំនួនគត់ fd, const var_na *options, FILE **ret) {
         assert(ret);
 
         FILE *f = fdopen(fd, options);
-        if (!f)
-                return -errno;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ -errno;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret) {
-        int r;
+ចំនួនគត់ take_fdopen_unlocked(ចំនួនគត់ *fd, const var_na *options, FILE **ret) {
+        ចំនួនគត់ r;
 
         assert(fd);
 
         r = fdopen_unlocked(*fd, options, ret);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         *fd = -EBADF;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-FILE* take_fdopen(int *fd, const char *options) {
+FILE* take_fdopen(ចំនួនគត់ *fd, const var_na *options) {
         assert(fd);
 
         FILE *f = fdopen(*fd, options);
-        if (!f)
-                return NULL;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ NULL;
 
         *fd = -EBADF;
 
-        return f;
+        ត្រឡប់ f;
 }
 
-DIR* take_fdopendir(int *dfd) {
+DIR* take_fdopendir(ចំនួនគត់ *dfd) {
         assert(dfd);
 
         DIR *d = fdopendir(*dfd);
-        if (!d)
-                return NULL;
+        ប្រសិនបើ (!d)
+                ត្រឡប់ NULL;
 
         *dfd = -EBADF;
 
-        return d;
+        ត្រឡប់ d;
 }
 
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc) {
+FILE* open_memstream_unlocked(var_na **ptr, size_t *sizeloc) {
         FILE *f = open_memstream(ptr, sizeloc);
-        if (!f)
-                return NULL;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        ត្រឡប់ f;
 }
 
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
+FILE* fmemopen_unlocked(void *buf, size_t size, const var_na *mode) {
         FILE *f = fmemopen(buf, size, mode);
-        if (!f)
-                return NULL;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        ត្រឡប់ f;
 }
 
-int write_string_stream_full(
+ចំនួនគត់ write_string_stream_full(
                 FILE *f,
-                const char *line,
+                const var_na *line,
                 WriteStringFileFlags flags,
-                const struct timespec *ts) {
+                const sa_nracanaa timespec *ts) {
 
         bool needs_nl;
-        int r, fd = -EBADF;
+        ចំនួនគត់ r, fd = -EBADF;
 
         assert(f);
         assert(line);
 
-        if (ferror(f))
-                return -EIO;
+        ប្រសិនបើ (ferror(f))
+                ត្រឡប់ -EIO;
 
-        if (ts) {
+        ប្រសិនបើ (ts) {
                 /* If we shall set the timestamp we need the fd. But fmemopen() streams generally don't have
                  * an fd. Let's fail early in that case. */
                 fd = fileno(f);
-                if (fd < 0)
-                        return -EBADF;
+                ប្រសិនបើ (fd < 0)
+                        ត្រឡប់ -EBADF;
         }
 
-        if (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
-                _cleanup_free_ char *t = NULL;
+        ប្រសិនបើ (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
+                _cleanup_free_ var_na *t = NULL;
 
                 /* If value to be written is same as that of the existing value, then suppress the write. */
 
-                if (fd < 0) {
+                ប្រសិនបើ (fd < 0) {
                         fd = fileno(f);
-                        if (fd < 0)
-                                return -EBADF;
+                        ប្រសិនបើ (fd < 0)
+                                ត្រឡប់ -EBADF;
                 }
 
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
+                ប្រសិនបើ (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
                     streq_skip_trailing_chars(line, t, NEWLINE)) {
                         log_debug("No change in value '%s', suppressing write", line);
-                        return 0;
+                        ត្រឡប់ 0;
                 }
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                ប្រសិនបើ (lseek(fd, 0, SEEK_SET) < 0)
+                        ត្រឡប់ -errno;
         }
 
         needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
 
-        if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
+        ប្រសិនបើ (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
@@ -176,29 +176,29 @@ int write_string_stream_full(
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
-                return -errno;
+        ប្រសិនបើ (fputs(line, f) == EOF)
+                ត្រឡប់ -errno;
 
-        if (needs_nl)
-                if (fputc('\n', f) == EOF)
-                        return -errno;
+        ប្រសិនបើ (needs_nl)
+                ប្រសិនបើ (fputc('\n', f) == EOF)
+                        ត្រឡប់ -errno;
 
-        if (flags & WRITE_STRING_FILE_SYNC)
+        ប្រសិនបើ (flags & WRITE_STRING_FILE_SYNC)
                 r = fflush_sync_and_check(f);
-        else
+        បើមិនដូច្នេះ
                 r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (ts) {
-                const struct timespec twice[2] = {*ts, *ts};
+        ប្រសិនបើ (ts) {
+                const sa_nracanaa timespec twice[2] = {*ts, *ts};
 
                 assert(fd >= 0);
-                if (futimens(fd, twice) < 0)
-                        return -errno;
+                ប្រសិនបើ (futimens(fd, twice) < 0)
+                        ត្រឡប់ -errno;
         }
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
 static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
@@ -210,21 +210,21 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
          *     → 0644 (i.e. writable for root, readable for everyone else)
          */
 
-        return FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
+        ត្រឡប់ FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
                 FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0444) ? 0444 : 0644;
 }
 
-static int write_string_file_atomic_at(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+static ចំនួនគត់ write_string_file_atomic_at(
+                ចំនួនគត់ dir_fd,
+                const var_na *fn,
+                const var_na *line,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
+                const sa_nracanaa timespec *ts,
                 LabelContext *label_context) {
 
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_free_ var_na *p = NULL;
+        ចំនួនគត់ r;
 
         assert(fn);
         assert(line);
@@ -235,61 +235,61 @@ static int write_string_file_atomic_at(
         mode_t mode = write_string_file_flags_to_mode(flags);
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
+        ប្រសិនបើ (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fn, mode, label_context);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 call_label_ops_post = true;
         }
 
         r = fopen_temporary_at(dir_fd, fn, &f, &p);
-        int k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
+        ចំនួនគត់ k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
         /* If fopen_temporary_at() failed in the above, propagate the error code, and ignore failures in
          * label_ops_post(). */
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
         CLEANUP_TMPFILE_AT(dir_fd, p);
-        if (k < 0)
-                return k;
+        ប្រសិនបើ (k < 0)
+                ត្រឡប់ k;
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = fchmod_umask(fileno(f), mode);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = RET_NERRNO(renameat(dir_fd, p, dir_fd, fn));
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
+        ប្រសិនបើ (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
                 /* Sync the rename, too */
                 r = fsync_directory_of_file(fileno(f));
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
         }
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int write_string_file_full_label(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+ចំនួនគត់ write_string_file_full_label(
+                ចំនួនគត់ dir_fd,
+                const var_na *fn,
+                const var_na *line,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
-                const char *label_fn,
+                const sa_nracanaa timespec *ts,
+                const var_na *label_fn,
                 LabelContext *label_context) {
 
         bool made_file = false;
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ ចំនួនគត់ fd = -EBADF;
+        ចំនួនគត់ r;
 
         assert(dir_fd == AT_FDCWD || dir_fd >= 0);
         assert(line);
@@ -297,39 +297,39 @@ int write_string_file_full_label(
         /* We don't know how to verify whether the file contents was already on-disk. */
         assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
 
-        if (flags & WRITE_STRING_FILE_MKDIR_0755) {
+        ប្រសិនបើ (flags & WRITE_STRING_FILE_MKDIR_0755) {
                 assert(fn);
 
                 r = mkdirat_parents(dir_fd, fn, 0755);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
         }
 
-        if (flags & WRITE_STRING_FILE_ATOMIC) {
+        ប្រសិនបើ (flags & WRITE_STRING_FILE_ATOMIC) {
                 assert(fn);
                 assert(flags & WRITE_STRING_FILE_CREATE);
 
                 r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
-                if (r < 0)
+                ប្រសិនបើ (r < 0)
                         goto fail;
 
-                return r;
+                ត្រឡប់ r;
         }
 
         /* We manually build our own version of fopen(..., "we") that works without O_CREAT and with O_NOFOLLOW if needed. */
-        if (isempty(fn))
+        ប្រសិនបើ (isempty(fn))
                 r = fd = fd_reopen(
                                 ASSERT_FD(dir_fd), O_CLOEXEC | O_NOCTTY |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
-        else {
+        បើមិនដូច្នេះ {
                 mode_t mode = write_string_file_flags_to_mode(flags);
                 bool call_label_ops_post = false;
 
-                if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
+                ប្រសិនបើ (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
                         r = label_ops_pre(dir_fd, label_fn ?: fn, mode, label_context);
-                        if (r < 0)
+                        ប្រសិនបើ (r < 0)
                                 goto fail;
 
                         call_label_ops_post = true;
@@ -344,176 +344,176 @@ int write_string_file_full_label(
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
                                 mode,
                                 &made_file);
-                if (call_label_ops_post)
+                ប្រសិនបើ (call_label_ops_post)
                         /* If openat_report_new() failed in the above, propagate the error code, and ignore
                          * failures in label_ops_post(). */
                         RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : fn, made_file, label_context));
         }
-        if (r < 0)
+        ប្រសិនបើ (r < 0)
                 goto fail;
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0)
+        ប្រសិនបើ (r < 0)
                 goto fail;
 
-        if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
+        ប្រសិនបើ (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
                 setvbuf(f, NULL, _IONBF, 0);
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
+        ប្រសិនបើ (r < 0)
                 goto fail;
 
-        return 0;
+        ត្រឡប់ 0;
 
 fail:
-        if (made_file)
+        ប្រសិនបើ (made_file)
                 (void) unlinkat(dir_fd, fn, 0);
 
-        if (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
-                return r;
+        ប្រសិនបើ (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
+                ត្រឡប់ r;
 
         f = safe_fclose(f);
         fd = safe_close(fd);
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
-                return 0;
+        ប្រសិនបើ (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+                ត្រឡប់ 0;
 
-        return r;
+        ត្រឡប់ r;
 }
 
-int write_string_filef(
-                const char *fn,
+ចំនួនគត់ write_string_filef(
+                const var_na *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                const var_na *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ var_na *p = NULL;
         va_list ap;
-        int r;
+        ចំនួនគត់ r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ -ENOMEM;
 
-        return write_string_file(fn, p, flags);
+        ត្រឡប់ write_string_file(fn, p, flags);
 }
 
-int write_string_filef_at(
-                int dir_fd,
-                const char *fn,
+ចំនួនគត់ write_string_filef_at(
+                ចំនួនគត់ dir_fd,
+                const var_na *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                const var_na *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ var_na *p = NULL;
         va_list ap;
-        int r;
+        ចំនួនគត់ r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ -ENOMEM;
 
-        return write_string_file_at(dir_fd, fn, p, flags);
+        ត្រឡប់ write_string_file_at(dir_fd, fn, p, flags);
 }
 
-int write_base64_file_at(
-                int dir_fd,
-                const char *fn,
-                const struct iovec *data,
+ចំនួនគត់ write_base64_file_at(
+                ចំនួនគត់ dir_fd,
+                const var_na *fn,
+                const sa_nracanaa iovec *data,
                 WriteStringFileFlags flags) {
 
-        _cleanup_free_ char *encoded = NULL;
+        _cleanup_free_ var_na *encoded = NULL;
         ssize_t n;
 
         n = base64mem_full(data ? data->iov_base : NULL, data ? data->iov_len : 0, 79, &encoded);
-        if (n < 0)
-                return n;
+        ប្រសិនបើ (n < 0)
+                ត្រឡប់ n;
 
-        return write_string_file_at(dir_fd, fn, encoded, flags);
+        ត្រឡប់ write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
+ចំនួនគត់ read_one_line_file_at(ចំនួនគត់ dir_fd, const var_na *filename, var_na **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        ចំនួនគត់ r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
         assert(ret);
 
         r = fopen_unlocked_at(dir_fd, filename, "re", /* open_flags= */ 0, &f);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        ត្រឡប់ read_line(f, LONG_LINE_MAX, ret);
 }
 
-int read_boolean_file_at(int dir_fd, const char *filename) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ចំនួនគត់ read_boolean_file_at(ចំនួនគត់ dir_fd, const var_na *filename) {
+        _cleanup_free_ var_na *s = NULL;
+        ចំនួនគត់ r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
 
         r = read_one_line_file_at(dir_fd, filename, &s);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return parse_boolean(s);
+        ត្រឡប់ parse_boolean(s);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
+ចំនួនគត់ verify_file_at(ចំនួនគត់ dir_fd, const var_na *fn, const var_na *blob, bool accept_extra_nl) {
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ var_na *buf = NULL;
         size_t l, k;
-        int r;
+        ចំនួនគត់ r;
 
         assert(blob);
 
         l = strlen(blob);
 
-        if (accept_extra_nl && endswith(blob, "\n"))
+        ប្រសិនបើ (accept_extra_nl && endswith(blob, "\n"))
                 accept_extra_nl = false;
 
         buf = malloc(l + accept_extra_nl + 1);
-        if (!buf)
-                return -ENOMEM;
+        ប្រសិនបើ (!buf)
+                ត្រឡប់ -ENOMEM;
 
         r = fopen_unlocked_at(dir_fd, strempty(fn), "re", 0, &f);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         /* We try to read one byte more than we need, so that we know whether we hit eof */
         errno = 0;
         k = fread(buf, 1, l + accept_extra_nl + 1, f);
-        if (ferror(f))
-                return errno_or_else(EIO);
+        ប្រសិនបើ (ferror(f))
+                ត្រឡប់ errno_or_else(EIO);
 
-        if (k != l && k != l + accept_extra_nl)
-                return 0;
-        if (memcmp(buf, blob, l) != 0)
-                return 0;
-        if (k > l && buf[l] != '\n')
-                return 0;
+        ប្រសិនបើ (k != l && k != l + accept_extra_nl)
+                ត្រឡប់ 0;
+        ប្រសិនបើ (memcmp(buf, blob, l) != 0)
+                ត្រឡប់ 0;
+        ប្រសិនបើ (k > l && buf[l] != '\n')
+                ត្រឡប់ 0;
 
-        return 1;
+        ត្រឡប់ 1;
 }
 
-int read_virtual_file_at(
-                int dir_fd,
-                const char *filename,
+ចំនួនគត់ read_virtual_file_at(
+                ចំនួនគត់ dir_fd,
+                const var_na *filename,
                 size_t max_size,
-                char **ret_contents,
+                var_na **ret_contents,
                 size_t *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ var_na *buf = NULL;
         size_t n, size;
-        int n_retries;
+        ចំនួនគត់ n_retries;
         bool truncated = false;
 
         /* Virtual filesystems such as sysfs or procfs use kernfs, and kernfs can work with two sorts of
@@ -536,124 +536,124 @@ int read_virtual_file_at(
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
 
-        _cleanup_close_ int fd = -EBADF;
-        if (isempty(filename))
+        _cleanup_close_ ចំនួនគត់ fd = -EBADF;
+        ប្រសិនបើ (isempty(filename))
                 fd = fd_reopen(ASSERT_FD(dir_fd), O_RDONLY | O_NOCTTY | O_CLOEXEC);
-        else
+        បើមិនដូច្នេះ
                 fd = RET_NERRNO(openat(dir_fd, filename, O_RDONLY | O_NOCTTY | O_CLOEXEC));
-        if (fd < 0)
-                return fd;
+        ប្រសិនបើ (fd < 0)
+                ត្រឡប់ fd;
 
         /* Limit the number of attempts to read the number of bytes returned by fstat(). */
         n_retries = 3;
 
-        for (;;) {
-                struct stat st;
+        សម្រាប់ (;;) {
+                sa_nracanaa stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                ប្រសិនបើ (fstat(fd, &st) < 0)
+                        ត្រឡប់ -errno;
 
-                if (!S_ISREG(st.st_mode))
-                        return -EBADF;
+                ប្រសិនបើ (!S_ISREG(st.st_mode))
+                        ត្រឡប់ -EBADF;
 
                 /* Be prepared for files from /proc which generally report a file size of 0. */
                 assert_cc(READ_VIRTUAL_BYTES_MAX < SSIZE_MAX);
-                if (st.st_size > 0 && n_retries > 1) {
+                ប្រសិនបើ (st.st_size > 0 && n_retries > 1) {
                         /* Let's use the file size if we have more than 1 attempt left. On the last attempt
                          * we'll ignore the file size */
 
-                        if (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
+                        ប្រសិនបើ (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
 
-                                if (max_size == SIZE_MAX)
-                                        return -EFBIG;
+                                ប្រសិនបើ (max_size == SIZE_MAX)
+                                        ត្រឡប់ -EFBIG;
 
                                 size = max_size;
-                        } else {
+                        } បើមិនដូច្នេះ {
                                 size = MIN((size_t) st.st_size, max_size);
 
-                                if (size > READ_VIRTUAL_BYTES_MAX)
-                                        return -EFBIG;
+                                ប្រសិនបើ (size > READ_VIRTUAL_BYTES_MAX)
+                                        ត្រឡប់ -EFBIG;
                         }
 
                         n_retries--;
-                } else if (n_retries > 1) {
+                } បើមិនដូច្នេះ ប្រសិនបើ (n_retries > 1) {
                         /* Files in /proc are generally smaller than the page size so let's start with
                          * a page size buffer from malloc and only use the max buffer on the final try. */
                         size = MIN3(page_size() - 1, READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 1;
-                } else {
+                } បើមិនដូច្នេះ {
                         size = MIN(READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 0;
                 }
 
                 buf = malloc(size + 1);
-                if (!buf)
-                        return -ENOMEM;
+                ប្រសិនបើ (!buf)
+                        ត្រឡប់ -ENOMEM;
 
                 /* Use a bigger allocation if we got it anyway, but not more than the limit. */
                 size = MIN3(MALLOC_SIZEOF_SAFE(buf) - 1, max_size, READ_VIRTUAL_BYTES_MAX);
 
-                for (;;) {
+                សម្រាប់ (;;) {
                         ssize_t k;
 
                         /* Read one more byte so we can detect whether the content of the
                          * file has already changed or the guessed size for files from /proc
                          * wasn't large enough . */
                         k = read(fd, buf, size + 1);
-                        if (k >= 0) {
+                        ប្រសិនបើ (k >= 0) {
                                 n = k;
-                                break;
+                                bha_nga;
                         }
 
-                        if (errno != EINTR)
-                                return -errno;
+                        ប្រសិនបើ (errno != EINTR)
+                                ត្រឡប់ -errno;
                 }
 
                 /* Consider a short read as EOF */
-                if (n <= size)
-                        break;
+                ប្រសិនបើ (n <= size)
+                        bha_nga;
 
                 /* If a maximum size is specified and we already read more we know the file is larger, and
                  * can handle this as truncation case. Note that if the size of what we read equals the
                  * maximum size then this doesn't mean truncation, the file might or might not end on that
                  * byte. We need to rerun the loop in that case, with a larger buffer size, so that we read
                  * at least one more byte to be able to distinguish EOF from truncation. */
-                if (max_size != SIZE_MAX && n > max_size) {
+                ប្រសិនបើ (max_size != SIZE_MAX && n > max_size) {
                         n = size; /* Make sure we never use more than what we sized the buffer for (so that
                                    * we have one free byte in it for the trailing NUL we add below). */
                         truncated = true;
-                        break;
+                        bha_nga;
                 }
 
                 /* We have no further attempts left? Then the file is apparently larger than our limits. Give up. */
-                if (n_retries <= 0)
-                        return -EFBIG;
+                ប្រសិនបើ (n_retries <= 0)
+                        ត្រឡប់ -EFBIG;
 
                 /* Hmm... either we read too few bytes from /proc or less likely the content of the file
                  * might have been changed (and is now bigger) while we were processing, let's try again
                  * either with the new file size. */
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                ប្រសិនបើ (lseek(fd, 0, SEEK_SET) < 0)
+                        ត្រឡប់ -errno;
 
                 buf = mfree(buf);
         }
 
-        if (ret_contents) {
+        ប្រសិនបើ (ret_contents) {
 
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
-                if (!ret_size && memchr(buf, 0, n))
-                        return -EBADMSG;
+                ប្រសិនបើ (!ret_size && memchr(buf, 0, n))
+                        ត្រឡប់ -EBADMSG;
 
-                if (n < size) {
-                        char *p;
+                ប្រសិនបើ (n < size) {
+                        var_na *p;
 
                         /* Return rest of the buffer to libc */
                         p = realloc(buf, n + 1);
-                        if (!p)
-                                return -ENOMEM;
+                        ប្រសិនបើ (!p)
+                                ត្រឡប់ -ENOMEM;
                         buf = p;
                 }
 
@@ -661,55 +661,55 @@ int read_virtual_file_at(
                 *ret_contents = TAKE_PTR(buf);
         }
 
-        if (ret_size)
+        ប្រសិនបើ (ret_size)
                 *ret_size = n;
 
-        return !truncated;
+        ត្រឡប់ !truncated;
 }
 
-int read_full_stream_full(
+ចំនួនគត់ read_full_stream_full(
                 FILE *f,
-                const char *filename,
+                const var_na *filename,
                 uint64_t offset,
                 size_t size,
                 ReadFullFileFlags flags,
-                char **ret_contents,
+                var_na **ret_contents,
                 size_t *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ var_na *buf = NULL;
         size_t n, n_next = 0, l, expected_decoded_size = size;
-        int fd, r;
+        ចំនួនគត់ fd, r;
 
         assert(f);
         assert(ret_contents);
         assert(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
         assert(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
 
-        if (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
-                return -ERANGE;
+        ប្រសិនបើ (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
+                ត្រឡប់ -ERANGE;
 
-        if ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
-                if (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
+        ប្រសិនបើ ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
+                ប្រសិនបើ (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
                         size *= READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
-                else
+                បើមិនដូច្នេះ
                         size = SIZE_MAX;
         }
 
         fd = fileno(f);
-        if (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
+        ប្រសិនបើ (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
                         * fmemopen()), let's optimize our buffering */
-                struct stat st;
+                sa_nracanaa stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                ប្រសិនបើ (fstat(fd, &st) < 0)
+                        ត្រឡប់ -errno;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
+                ប្រសិនបើ (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return r;
+                        ប្រសិនបើ (r < 0)
+                                ត្រឡប់ r;
                 }
 
-                if (S_ISREG(st.st_mode)) {
+                ប្រសិនបើ (S_ISREG(st.st_mode)) {
 
                         /* Try to start with the right file size if we shall read the file in full. Note
                          * that we increase the size to read here by one, so that the first read attempt
@@ -717,59 +717,59 @@ int read_full_stream_full(
                          * avoid this logic however, since quite likely it might be a virtual file in procfs
                          * that all report a zero file size. */
 
-                        if (st.st_size > 0 &&
+                        ប្រសិនបើ (st.st_size > 0 &&
                             (size == SIZE_MAX || FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER))) {
 
                                 uint64_t rsize =
                                         LESS_BY((uint64_t) st.st_size, offset == UINT64_MAX ? 0 : offset);
 
-                                if (rsize < SIZE_MAX) /* overflow check */
+                                ប្រសិនបើ (rsize < SIZE_MAX) /* overflow check */
                                         n_next = rsize + 1;
                         }
 
-                        if (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
+                        ប្រសិនបើ (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
                                 (void) warn_file_is_world_accessible(filename, &st, NULL, 0);
                 }
-        } else if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
-                return -EBADFD;
+        } បើមិនដូច្នេះ ប្រសិនបើ (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
+                ត្រឡប់ -EBADFD;
 
         /* If we don't know how much to read, figure it out now. If we shall read a part of the file, then
          * allocate the requested size. If we shall load the full file start with LINE_MAX. Note that if
          * READ_FULL_FILE_FAIL_WHEN_LARGER we consider the specified size a safety limit, and thus also start
          * with LINE_MAX, under assumption the file is most likely much shorter. */
-        if (n_next == 0)
+        ប្រសិនបើ (n_next == 0)
                 n_next = size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) ? size : LINE_MAX;
 
         /* Never read more than we need to determine that our own limit is hit */
-        if (n_next > READ_FULL_BYTES_MAX)
+        ប្រសិនបើ (n_next > READ_FULL_BYTES_MAX)
                 n_next = READ_FULL_BYTES_MAX + 1;
 
-        if (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
-                return -errno;
+        ប្រសិនបើ (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
+                ត្រឡប់ -errno;
 
         n = l = 0;
-        for (;;) {
-                char *t;
+        សម្រាប់ (;;) {
+                var_na *t;
                 size_t k;
 
                 /* If we shall fail when reading overly large data, then read exactly one byte more than the
                  * specified size at max, since that'll tell us if there's anymore data beyond the limit. */
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
+                ប្រសិនបើ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
                         n_next = size + 1;
 
-                if (flags & READ_FULL_FILE_SECURE) {
+                ប្រសិនបើ (flags & READ_FULL_FILE_SECURE) {
                         t = malloc(n_next + 1);
-                        if (!t) {
+                        ប្រសិនបើ (!t) {
                                 r = -ENOMEM;
                                 goto finalize;
                         }
                         memcpy_safe(t, buf, n);
                         explicit_bzero_safe(buf, n);
                         free(buf);
-                } else {
+                } បើមិនដូច្នេះ {
                         t = realloc(buf, n_next + 1);
-                        if (!t)
-                                return -ENOMEM;
+                        ប្រសិនបើ (!t)
+                                ត្រឡប់ -ENOMEM;
                 }
 
                 buf = t;
@@ -783,28 +783,28 @@ int read_full_stream_full(
                 assert(k <= n - l);
                 l += k;
 
-                if (ferror(f)) {
+                ប្រសិនបើ (ferror(f)) {
                         r = errno_or_else(EIO);
                         goto finalize;
                 }
-                if (feof(f))
-                        break;
+                ប្រសិនបើ (feof(f))
+                        bha_nga;
 
-                if (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
+                ប្រសិនបើ (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
                         /* If we got asked to read some specific size, we already sized the buffer right,
                          * hence leave. */
                         assert(l == size);
-                        break;
+                        bha_nga;
                 }
 
                 assert(k > 0); /* we can't have read zero bytes because that would have been EOF */
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
+                ប្រសិនបើ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
                         r = -E2BIG;
                         goto finalize;
                 }
 
-                if (n >= READ_FULL_BYTES_MAX) {
+                ប្រសិនបើ (n >= READ_FULL_BYTES_MAX) {
                         r = -E2BIG;
                         goto finalize;
                 }
@@ -812,35 +812,35 @@ int read_full_stream_full(
                 n_next = MIN(n * 2, READ_FULL_BYTES_MAX);
         }
 
-        if (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
+        ប្រសិនបើ (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
                 _cleanup_free_ void *decoded = NULL;
                 size_t decoded_size;
 
                 buf[l++] = 0;
-                if (flags & READ_FULL_FILE_UNBASE64)
+                ប្រសិនបើ (flags & READ_FULL_FILE_UNBASE64)
                         r = unbase64mem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                else
+                បើមិនដូច្នេះ
                         r = unhexmem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                if (r < 0)
+                ប្រសិនបើ (r < 0)
                         goto finalize;
 
-                if (flags & READ_FULL_FILE_SECURE)
+                ប្រសិនបើ (flags & READ_FULL_FILE_SECURE)
                         explicit_bzero_safe(buf, n);
                 free_and_replace(buf, decoded);
                 n = l = decoded_size;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
+                ប្រសិនបើ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
                         r = -E2BIG;
                         goto finalize;
                 }
         }
 
-        if (!ret_size) {
+        ប្រសិនបើ (!ret_size) {
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
 
-                if (memchr(buf, 0, l)) {
+                ប្រសិនបើ (memchr(buf, 0, l)) {
                         r = -EBADMSG;
                         goto finalize;
                 }
@@ -849,93 +849,93 @@ int read_full_stream_full(
         buf[l] = 0;
         *ret_contents = TAKE_PTR(buf);
 
-        if (ret_size)
+        ប្រសិនបើ (ret_size)
                 *ret_size = l;
 
-        return 0;
+        ត្រឡប់ 0;
 
 finalize:
-        if (flags & READ_FULL_FILE_SECURE)
+        ប្រសិនបើ (flags & READ_FULL_FILE_SECURE)
                 explicit_bzero_safe(buf, n);
 
-        return r;
+        ត្រឡប់ r;
 }
 
-int read_full_file_full(
-                int dir_fd,
-                const char *filename,
+ចំនួនគត់ read_full_file_full(
+                ចំនួនគត់ dir_fd,
+                const var_na *filename,
                 uint64_t offset,
                 size_t size,
                 ReadFullFileFlags flags,
-                const char *bind_name,
-                char **ret_contents,
+                const var_na *bind_name,
+                var_na **ret_contents,
                 size_t *ret_size) {
 
         _cleanup_fclose_ FILE *f = NULL;
         XfopenFlags xflags = XFOPEN_UNLOCKED;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret_contents);
 
-        if (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
+        ប្រសិនបើ (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
             offset == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
                 xflags |= XFOPEN_SOCKET;
 
         r = xfopenat_full(dir_fd, filename, "re", 0, xflags, bind_name, &f);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
+        ត្រឡប់ read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
 }
 
-int script_get_shebang_interpreter(const char *path, char **ret) {
+ចំនួនគត់ script_get_shebang_interpreter(const var_na *path, var_na **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        ចំនួនគត់ r;
 
         assert(path);
 
         f = fopen(path, "re");
-        if (!f)
-                return -errno;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ -errno;
 
-        char c;
+        var_na c;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '#')
-                return -EMEDIUMTYPE;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (r == 0)
+                ត្រឡប់ -EBADMSG;
+        ប្រសិនបើ (c != '#')
+                ត្រឡប់ -EMEDIUMTYPE;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '!')
-                return -EMEDIUMTYPE;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (r == 0)
+                ត្រឡប់ -EBADMSG;
+        ប្រសិនបើ (c != '!')
+                ត្រឡប់ -EMEDIUMTYPE;
 
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ var_na *line = NULL;
         r = read_line(f, LONG_LINE_MAX, &line);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        _cleanup_free_ char *p = NULL;
-        const char *s = line;
+        _cleanup_free_ var_na *p = NULL;
+        const var_na *s = line;
 
         r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENOEXEC;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (r == 0)
+                ត្រឡប់ -ENOEXEC;
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = TAKE_PTR(p);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
+ចំនួនគត់ get_proc_field(const var_na *path, const var_na *key, var_na **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        ចំនួនគត់ r;
 
         /* Retrieve one field from a file like /proc/self/status. "key" matches the beginning of the line
          * and should not include whitespace or the delimiter (':').
@@ -946,104 +946,104 @@ int get_proc_field(const char *path, const char *key, char **ret) {
         assert(key);
 
         r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT && proc_mounted() == 0)
-                return -ENOSYS;
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r == -ENOENT && proc_mounted() == 0)
+                ត្រឡប់ -ENOSYS;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        for (;;) {
-                 _cleanup_free_ char *line = NULL;
+        សម្រាប់ (;;) {
+                 _cleanup_free_ var_na *line = NULL;
 
                  r = read_line(f, LONG_LINE_MAX, &line);
-                 if (r < 0)
-                         return r;
-                 if (r == 0)
-                         return -ENODATA;
+                 ប្រសិនបើ (r < 0)
+                         ត្រឡប់ r;
+                 ប្រសិនបើ (r == 0)
+                         ត្រឡប់ -ENODATA;
 
-                 char *l = startswith(line, key);
-                 if (l && *l == ':') {
-                         if (ret) {
-                                 char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
-                                 if (!s)
-                                         return -ENOMEM;
+                 var_na *l = startswith(line, key);
+                 ប្រសិនបើ (l && *l == ':') {
+                         ប្រសិនបើ (ret) {
+                                 var_na *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
+                                 ប្រសិនបើ (!s)
+                                         ត្រឡប់ -ENOMEM;
 
                                  *ret = s;
                          }
 
-                         return 0;
+                         ត្រឡប់ 0;
                  }
         }
 }
 
-DIR* xopendirat(int dir_fd, const char *path, int flags) {
-        _cleanup_close_ int fd = -EBADF;
+DIR* xopendirat(ចំនួនគត់ dir_fd, const var_na *path, ចំនួនគត់ flags) {
+        _cleanup_close_ ចំនួនគត់ fd = -EBADF;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(!(flags & (O_CREAT|O_TMPFILE)));
 
-        if ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
+        ប្រសិនបើ ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
             (flags &~ O_DIRECTORY) == 0)
-                return opendir(path);
+                ត្រឡប់ opendir(path);
 
-        if (isempty(path)) {
+        ប្រសិនបើ (isempty(path)) {
                 path = ".";
                 flags |= O_NOFOLLOW;
         }
 
         fd = openat(dir_fd, path, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
-        if (fd < 0)
-                return NULL;
+        ប្រសិនបើ (fd < 0)
+                ត្រឡប់ NULL;
 
-        return take_fdopendir(&fd);
+        ត្រឡប់ take_fdopendir(&fd);
 }
 
-int fopen_mode_to_flags(const char *mode) {
-        const char *p;
-        int flags;
+ចំនួនគត់ fopen_mode_to_flags(const var_na *mode) {
+        const var_na *p;
+        ចំនួនគត់ flags;
 
         assert(mode);
 
-        if ((p = startswith(mode, "r+")))
+        ប្រសិនបើ ((p = startswith(mode, "r+")))
                 flags = O_RDWR;
-        else if ((p = startswith(mode, "r")))
+        បើមិនដូច្នេះ ប្រសិនបើ ((p = startswith(mode, "r")))
                 flags = O_RDONLY;
-        else if ((p = startswith(mode, "w+")))
+        បើមិនដូច្នេះ ប្រសិនបើ ((p = startswith(mode, "w+")))
                 flags = O_RDWR|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "w")))
+        បើមិនដូច្នេះ ប្រសិនបើ ((p = startswith(mode, "w")))
                 flags = O_WRONLY|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "a+")))
+        បើមិនដូច្នេះ ប្រសិនបើ ((p = startswith(mode, "a+")))
                 flags = O_RDWR|O_CREAT|O_APPEND;
-        else if ((p = startswith(mode, "a")))
+        បើមិនដូច្នេះ ប្រសិនបើ ((p = startswith(mode, "a")))
                 flags = O_WRONLY|O_CREAT|O_APPEND;
-        else
-                return -EINVAL;
+        បើមិនដូច្នេះ
+                ត្រឡប់ -EINVAL;
 
-        for (; *p != 0; p++) {
+        សម្រាប់ (; *p != 0; p++) {
 
                 switch (*p) {
 
-                case 'e':
+                pak_sa 'e':
                         flags |= O_CLOEXEC;
-                        break;
+                        bha_nga;
 
-                case 'x':
+                pak_sa 'x':
                         flags |= O_EXCL;
-                        break;
+                        bha_nga;
 
-                case 'm':
+                pak_sa 'm':
                         /* ignore this here, fdopen() might care later though */
-                        break;
+                        bha_nga;
 
-                case 'c': /* not sure what to do about this one */
+                pak_sa 'c': /* not sure what to do about this one */
                 default:
-                        return -EINVAL;
+                        ត្រឡប់ -EINVAL;
                 }
         }
 
-        return flags;
+        ត្រឡប់ flags;
 }
 
-static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
+static ចំនួនគត់ xfopenat_regular(ចំនួនគត់ dir_fd, const var_na *path, const var_na *mode, ចំនួនគត់ open_flags, FILE **ret) {
         FILE *f;
 
         /* A combination of fopen() with openat() */
@@ -1052,122 +1052,122 @@ static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int 
         assert(mode);
         assert(ret);
 
-        if (dir_fd == AT_FDCWD && path && open_flags == 0)
+        ប្រសិនបើ (dir_fd == AT_FDCWD && path && open_flags == 0)
                 f = fopen(path, mode);
-        else if (dir_fd == XAT_FDROOT && path && open_flags == 0) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        បើមិនដូច្នេះ ប្រសិនបើ (dir_fd == XAT_FDROOT && path && open_flags == 0) {
+                _cleanup_free_ var_na *j = strjoin("/", path);
+                ប្រសិនបើ (!j)
+                        ត្រឡប់ -ENOMEM;
 
                 f = fopen(j, mode);
-        } else {
-                _cleanup_close_ int fd = -EBADF;
-                int mode_flags;
+        } បើមិនដូច្នេះ {
+                _cleanup_close_ ចំនួនគត់ fd = -EBADF;
+                ចំនួនគត់ mode_flags;
 
                 mode_flags = fopen_mode_to_flags(mode);
-                if (mode_flags < 0)
-                        return mode_flags;
+                ប្រសិនបើ (mode_flags < 0)
+                        ត្រឡប់ mode_flags;
 
-                if (path) {
+                ប្រសិនបើ (path) {
                         fd = openat(dir_fd, path, mode_flags | open_flags);
-                        if (fd < 0)
-                                return -errno;
-                } else {
-                        if (dir_fd == AT_FDCWD)
-                                return -EBADF;
+                        ប្រសិនបើ (fd < 0)
+                                ត្រឡប់ -errno;
+                } បើមិនដូច្នេះ {
+                        ប្រសិនបើ (dir_fd == AT_FDCWD)
+                                ត្រឡប់ -EBADF;
 
                         fd = fd_reopen(dir_fd, (mode_flags | open_flags) & ~O_NOFOLLOW);
-                        if (fd < 0)
-                                return fd;
+                        ប្រសិនបើ (fd < 0)
+                                ត្រឡប់ fd;
                 }
 
                 f = take_fdopen(&fd, mode);
         }
-        if (!f)
-                return -errno;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ -errno;
 
         *ret = f;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-static int xfopenat_unix_socket(int dir_fd, const char *path, const char *bind_name, FILE **ret) {
-        _cleanup_close_ int sk = -EBADF;
+static ចំនួនគត់ xfopenat_unix_socket(ចំនួនគត់ dir_fd, const var_na *path, const var_na *bind_name, FILE **ret) {
+        _cleanup_close_ ចំនួនគត់ sk = -EBADF;
         FILE *f;
-        int r;
+        ចំនួនគត់ r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(ret);
 
         sk = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-        if (sk < 0)
-                return -errno;
+        ប្រសិនបើ (sk < 0)
+                ត្រឡប់ -errno;
 
-        if (bind_name) {
+        ប្រសិនបើ (bind_name) {
                 /* If the caller specified a socket name to bind to, do so before connecting. This is
                  * useful to communicate some minor, short meta-information token from the client to
                  * the server. */
-                union sockaddr_union bsa;
+                sa_ngha sockaddr_union bsa;
 
                 r = sockaddr_un_set_path(&bsa.un, bind_name);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
-                if (bind(sk, &bsa.sa, r) < 0)
-                        return -errno;
+                ប្រសិនបើ (bind(sk, &bsa.sa, r) < 0)
+                        ត្រឡប់ -errno;
         }
 
         r = connect_unix_path(sk, dir_fd, path);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (shutdown(sk, SHUT_WR) < 0)
-                return -errno;
+        ប្រសិនបើ (shutdown(sk, SHUT_WR) < 0)
+                ត្រឡប់ -errno;
 
         f = take_fdopen(&sk, "r");
-        if (!f)
-                return -errno;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ -errno;
 
         *ret = f;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+ចំនួនគត់ xfopenat_full(
+                ចំនួនគត់ dir_fd,
+                const var_na *path,
+                const var_na *mode,
+                ចំនួនគត់ open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
+                const var_na *bind_name,
                 FILE **ret) {
 
         FILE *f = NULL;  /* avoid false maybe-uninitialized warning */
-        int r;
+        ចំនួនគត់ r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(mode);
         assert(ret);
 
         r = xfopenat_regular(dir_fd, path, mode, open_flags, &f);
-        if (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
+        ប្រសិនបើ (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
                 /* ENXIO is what Linux returns if we open a node that is an AF_UNIX socket */
                 r = xfopenat_unix_socket(dir_fd, path, bind_name, &f);
-                if (IN_SET(r, -ENOTSOCK, -EINVAL))
-                        return -ENXIO; /* propagate original error if this is not a socket after all */
+                ប្រសិនបើ (IN_SET(r, -ENOTSOCK, -EINVAL))
+                        ត្រឡប់ -ENXIO; /* propagate original error if this is not a socket after all */
         }
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (FLAGS_SET(flags, XFOPEN_UNLOCKED))
+        ប្រសិនបើ (FLAGS_SET(flags, XFOPEN_UNLOCKED))
                 (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int fdopen_independent(int fd, const char *mode, FILE **ret) {
-        _cleanup_close_ int copy_fd = -EBADF;
+ចំនួនគត់ fdopen_independent(ចំនួនគត់ fd, const var_na *mode, FILE **ret) {
+        _cleanup_close_ ចំនួនគត់ copy_fd = -EBADF;
         _cleanup_fclose_ FILE *f = NULL;
-        int mode_flags;
+        ចំនួនគត់ mode_flags;
 
         assert(fd >= 0);
         assert(mode);
@@ -1177,122 +1177,122 @@ int fdopen_independent(int fd, const char *mode, FILE **ret) {
          * returns a FILE* for it */
 
         mode_flags = fopen_mode_to_flags(mode);
-        if (mode_flags < 0)
-                return mode_flags;
+        ប្រសិនបើ (mode_flags < 0)
+                ត្រឡប់ mode_flags;
 
         /* Flags returned by fopen_mode_to_flags might contain O_CREAT, but it doesn't make sense for fd_reopen
          * since we're working on an existing fd anyway. Let's drop it here to avoid triggering assertion. */
         copy_fd = fd_reopen(fd, mode_flags & ~O_CREAT);
-        if (copy_fd < 0)
-                return copy_fd;
+        ប្រសិនបើ (copy_fd < 0)
+                ត្រឡប់ copy_fd;
 
         f = take_fdopen(&copy_fd, mode);
-        if (!f)
-                return -errno;
+        ប្រសិនបើ (!f)
+                ត្រឡប់ -errno;
 
         *ret = TAKE_PTR(f);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-static int search_and_open_internal(
-                const char *path,
-                int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+static ចំនួនគត់ search_and_open_internal(
+                const var_na *path,
+                ចំនួនគត់ mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
+                const var_na *root,
+                var_na **search,
+                ចំនួនគត់ *ret_fd,
+                var_na **ret_path) {
 
-        int r;
+        ចំនួនគត់ r;
 
         assert(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
         assert(path);
 
-        if (path_is_absolute(path)) {
-                _cleanup_close_ int fd = -EBADF;
+        ប្រសិនបើ (path_is_absolute(path)) {
+                _cleanup_close_ ចំនួនគត់ fd = -EBADF;
 
-                if (ret_fd)
+                ប្រសិនបើ (ret_fd)
                         /* We only specify 0777 here to appease static analyzers, it's never used since we
                          * don't support O_CREAT here */
                         r = fd = RET_NERRNO(open(path, mode, 0777));
-                else
+                បើមិនដូច្នេះ
                         r = RET_NERRNO(access(path, mode));
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
-                if (ret_path) {
+                ប្រសិនបើ (ret_path) {
                         r = path_simplify_alloc(path, ret_path);
-                        if (r < 0)
-                                return r;
+                        ប្រសិនបើ (r < 0)
+                                ត្រឡប់ r;
                 }
 
-                if (ret_fd)
+                ប្រសិនបើ (ret_fd)
                         *ret_fd = TAKE_FD(fd);
 
-                return 0;
+                ត្រឡប់ 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
-                return -ENOMEM;
+        ប្រសិនបើ (!path_strv_resolve_uniq(search, root))
+                ត្រឡប់ -ENOMEM;
 
         STRV_FOREACH(i, search) {
-                _cleanup_close_ int fd = -EBADF;
-                _cleanup_free_ char *p = NULL;
+                _cleanup_close_ ចំនួនគត់ fd = -EBADF;
+                _cleanup_free_ var_na *p = NULL;
 
                 p = path_join(root, *i, path);
-                if (!p)
-                        return -ENOMEM;
+                ប្រសិនបើ (!p)
+                        ត្រឡប់ -ENOMEM;
 
-                if (ret_fd)
+                ប្រសិនបើ (ret_fd)
                         /* as above, 0777 is static analyzer appeasement */
                         r = fd = RET_NERRNO(open(p, mode, 0777));
-                else
+                បើមិនដូច្នេះ
                         r = RET_NERRNO(access(p, F_OK));
-                if (r >= 0) {
-                        if (ret_path)
+                ប្រសិនបើ (r >= 0) {
+                        ប្រសិនបើ (ret_path)
                                 *ret_path = path_simplify(TAKE_PTR(p));
 
-                        if (ret_fd)
+                        ប្រសិនបើ (ret_fd)
                                 *ret_fd = TAKE_FD(fd);
 
-                        return 0;
+                        ត្រឡប់ 0;
                 }
-                if (r != -ENOENT)
-                        return r;
+                ប្រសិនបើ (r != -ENOENT)
+                        ត្រឡប់ r;
         }
 
-        return -ENOENT;
+        ត្រឡប់ -ENOENT;
 }
 
-int search_and_open(
-                const char *path,
-                int mode,
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+ចំនួនគត់ search_and_open(
+                const var_na *path,
+                ចំនួនគត់ mode,
+                const var_na *root,
+                var_na **search,
+                ចំនួនគត់ *ret_fd,
+                var_na **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ var_na **copy = NULL;
 
         assert(path);
 
         copy = strv_copy(search);
-        if (!copy)
-                return -ENOMEM;
+        ប្រសិនបើ (!copy)
+                ត្រឡប់ -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        ត្រឡប់ search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
 }
 
-static int search_and_fopen_internal(
-                const char *path,
-                const char *mode,
-                const char *root,
-                char **search,
+static ចំនួនគត់ search_and_fopen_internal(
+                const var_na *path,
+                const var_na *mode,
+                const var_na *root,
+                var_na **search,
                 FILE **ret_file,
-                char **ret_path) {
+                var_na **ret_path) {
 
-        _cleanup_free_ char *found_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_free_ var_na *found_path = NULL;
+        _cleanup_close_ ចំនួនគត់ fd = -EBADF;
+        ចំនួនគត់ r;
 
         assert(path);
         assert(mode || !ret_file);
@@ -1304,134 +1304,134 @@ static int search_and_fopen_internal(
                         search,
                         ret_file ? &fd : NULL,
                         ret_path ? &found_path : NULL);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (ret_file) {
+        ប្រសិនបើ (ret_file) {
                 FILE *f = take_fdopen(&fd, mode);
-                if (!f)
-                        return -errno;
+                ប្រសិនបើ (!f)
+                        ត្រឡប់ -errno;
 
                 *ret_file = f;
         }
 
-        if (ret_path)
+        ប្រសិនបើ (ret_path)
                 *ret_path = TAKE_PTR(found_path);
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int search_and_fopen(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char **search,
+ចំនួនគត់ search_and_fopen(
+                const var_na *path,
+                const var_na *mode,
+                const var_na *root,
+                const var_na **search,
                 FILE **ret_file,
-                char **ret_path) {
+                var_na **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ var_na **copy = NULL;
 
         assert(path);
         assert(mode || !ret_file);
 
-        copy = strv_copy((char**) search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy((var_na**) search);
+        ប្រសិនបើ (!copy)
+                ត្រឡប់ -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        ត្រឡប់ search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
 }
 
-int search_and_fopen_nulstr(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char *search,
+ចំនួនគត់ search_and_fopen_nulstr(
+                const var_na *path,
+                const var_na *mode,
+                const var_na *root,
+                const var_na *search,
                 FILE **ret_file,
-                char **ret_path) {
+                var_na **ret_path) {
 
-        _cleanup_strv_free_ char **l = NULL;
+        _cleanup_strv_free_ var_na **l = NULL;
 
         assert(path);
         assert(mode || !ret_file);
 
         l = strv_split_nulstr(search);
-        if (!l)
-                return -ENOMEM;
+        ប្រសិនបើ (!l)
+                ត្រឡប់ -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        ត្រឡប់ search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
 }
 
-int fflush_and_check(FILE *f) {
+ចំនួនគត់ fflush_and_check(FILE *f) {
         assert(f);
 
         errno = 0;
         fflush(f);
 
-        if (ferror(f))
-                return errno_or_else(EIO);
+        ប្រសិនបើ (ferror(f))
+                ត្រឡប់ errno_or_else(EIO);
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int fflush_sync_and_check(FILE *f) {
-        int r, fd;
+ចំនួនគត់ fflush_sync_and_check(FILE *f) {
+        ចំនួនគត់ r, fd;
 
         assert(f);
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         /* Not all file streams have an fd associated (think: fmemopen()), let's handle this gracefully and
          * assume that in that case we need no explicit syncing */
         fd = fileno(f);
-        if (fd < 0)
-                return 0;
+        ប្រសិនបើ (fd < 0)
+                ត្រឡប់ 0;
 
         r = fsync_full(fd);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int write_timestamp_file_atomic(const char *fn, usec_t n) {
-        char ln[DECIMAL_STR_MAX(n)+2];
+ចំនួនគត់ write_timestamp_file_atomic(const var_na *fn, usec_t n) {
+        var_na ln[DECIMAL_STR_MAX(n)+2];
 
         /* Creates a "timestamp" file, that contains nothing but a
          * usec_t timestamp, formatted in ASCII. */
 
-        if (!timestamp_is_set(n))
-                return -ERANGE;
+        ប្រសិនបើ (!timestamp_is_set(n))
+                ត្រឡប់ -ERANGE;
 
         xsprintf(ln, USEC_FMT "\n", n);
 
-        return write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
+        ត្រឡប់ write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
 }
 
-int read_timestamp_file(const char *fn, usec_t *ret) {
-        _cleanup_free_ char *ln = NULL;
+ចំនួនគត់ read_timestamp_file(const var_na *fn, usec_t *ret) {
+        _cleanup_free_ var_na *ln = NULL;
         uint64_t t;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret);
 
         r = read_one_line_file(fn, &ln);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = safe_atou64(ln, &t);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (!timestamp_is_set(t))
-                return -ERANGE;
+        ប្រសិនបើ (!timestamp_is_set(t))
+                ត្រឡប់ -ERANGE;
 
         *ret = (usec_t) t;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
+ចំនួនគត់ fputs_with_separator(FILE *f, const var_na *s, const var_na *separator, bool *space) {
         assert(s);
         assert(space);
 
@@ -1440,76 +1440,76 @@ int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *sp
          * to false. It is set to true after the first invocation. This call is supposed to be use in loops,
          * where a separator shall be inserted between each element, but not before the first one. */
 
-        if (!f)
+        ប្រសិនបើ (!f)
                 f = stdout;
 
-        if (!separator)
+        ប្រសិនបើ (!separator)
                 separator = " ";
 
-        if (*space)
-                if (fputs(separator, f) < 0)
-                        return -EIO;
+        ប្រសិនបើ (*space)
+                ប្រសិនបើ (fputs(separator, f) < 0)
+                        ត្រឡប់ -EIO;
 
         *space = true;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        ប្រសិនបើ (fputs(s, f) < 0)
+                ត្រឡប់ -EIO;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int fputs_with_newline(FILE *f, const char *s) {
+ចំនួនគត់ fputs_with_newline(FILE *f, const var_na *s) {
 
         /* This is like fputs() but outputs a trailing newline char, but only if the string isn't empty
          * and doesn't end in a newline already. Returns 0 in case we didn't append a newline, > 0 otherwise. */
 
-        if (isempty(s))
-                return 0;
+        ប្រសិនបើ (isempty(s))
+                ត្រឡប់ 0;
 
-        if (!f)
+        ប្រសិនបើ (!f)
                 f = stdout;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        ប្រសិនបើ (fputs(s, f) < 0)
+                ត្រឡប់ -EIO;
 
-        if (endswith(s, "\n"))
-                return 0;
+        ប្រសិនបើ (endswith(s, "\n"))
+                ត្រឡប់ 0;
 
-        if (fputc('\n', f) < 0)
-                return -EIO;
+        ប្រសិនបើ (fputc('\n', f) < 0)
+                ត្រឡប់ -EIO;
 
-        return 1;
+        ត្រឡប់ 1;
 }
 
 /* A bitmask of the EOL markers we know */
-typedef enum EndOfLineMarker {
+typedef ga_nanaa EndOfLineMarker {
         EOL_NONE     = 0,
         EOL_ZERO     = 1 << 0,  /* \0 (aka NUL) */
         EOL_TEN      = 1 << 1,  /* \n (aka NL, aka LF)  */
         EOL_THIRTEEN = 1 << 2,  /* \r (aka CR)  */
 } EndOfLineMarker;
 
-static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
+static EndOfLineMarker categorize_eol(var_na c, ReadLineFlags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
-                if (c == '\n')
-                        return EOL_TEN;
-                if (c == '\r')
-                        return EOL_THIRTEEN;
+        ប្រសិនបើ (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
+                ប្រសិនបើ (c == '\n')
+                        ត្រឡប់ EOL_TEN;
+                ប្រសិនបើ (c == '\r')
+                        ត្រឡប់ EOL_THIRTEEN;
         }
 
-        if (c == '\0')
-                return EOL_ZERO;
+        ប្រសិនបើ (c == '\0')
+                ត្រឡប់ EOL_ZERO;
 
-        return EOL_NONE;
+        ត្រឡប់ EOL_NONE;
 }
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
-        _cleanup_free_ char *buffer = NULL;
+ចំនួនគត់ read_line_full(FILE *f, size_t limit, ReadLineFlags flags, var_na **ret) {
+        _cleanup_free_ var_na *buffer = NULL;
         size_t n = 0, count = 0;
-        int r;
+        ចំនួនគត់ r;
 
         assert(f);
 
@@ -1537,9 +1537,9 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
          *
          * If a line shall be skipped ret may be initialized as NULL. */
 
-        if (ret) {
-                if (!GREEDY_REALLOC(buffer, 1))
-                        return -ENOMEM;
+        ប្រសិនបើ (ret) {
+                ប្រសិនបើ (!GREEDY_REALLOC(buffer, 1))
+                        ត្រឡប់ -ENOMEM;
         }
 
         {
@@ -1547,25 +1547,25 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 EndOfLineMarker previous_eol = EOL_NONE;
                 flockfile(f);
 
-                for (;;) {
+                សម្រាប់ (;;) {
                         EndOfLineMarker eol;
-                        char c;
+                        var_na c;
 
-                        if (n >= limit)
-                                return -ENOBUFS;
+                        ប្រសិនបើ (n >= limit)
+                                ត្រឡប់ -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
-                                return -ENOBUFS;
+                        ប្រសិនបើ (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
+                                ត្រឡប់ -ENOBUFS;
 
                         r = safe_fgetc(f, &c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) /* EOF is definitely EOL */
-                                break;
+                        ប្រសិនបើ (r < 0)
+                                ត្រឡប់ r;
+                        ប្រសិនបើ (r == 0) /* EOF is definitely EOL */
+                                bha_nga;
 
                         eol = categorize_eol(c, flags);
 
-                        if (FLAGS_SET(previous_eol, EOL_ZERO) ||
+                        ប្រសិនបើ (FLAGS_SET(previous_eol, EOL_ZERO) ||
                             (eol == EOL_NONE && previous_eol != EOL_NONE) ||
                             (eol != EOL_NONE && (previous_eol & eol) != 0)) {
                                 /* Previous char was a NUL? This is not an EOL, but the previous char was? This type of
@@ -1577,41 +1577,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                                  * actually happy with most negative characters and implicitly casts them back to
                                  * positive ones as needed, except for \xff (aka -1, aka EOF), which it refuses. What a
                                  * godawful API!) */
-                                assert_se(ungetc((unsigned char) c, f) != EOF);
-                                break;
+                                assert_se(ungetc((unsigned var_na) c, f) != EOF);
+                                bha_nga;
                         }
 
                         count++;
 
-                        if (eol != EOL_NONE) {
+                        ប្រសិនបើ (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
                                  * generally means waiting for the user, interactively. In the case of a TTY
                                  * we expect only \n as the single EOL marker, so we are in the lucky
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
-                                        int fd;
+                                ប្រសិនបើ ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
+                                        ចំនួនគត់ fd;
 
                                         fd = fileno(f);
-                                        if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
+                                        ប្រសិនបើ (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
                                                 flags |= READ_LINE_NOT_A_TTY;
-                                        else
+                                        បើមិនដូច្នេះ
                                                 flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
-                                        break;
+                                ប្រសិនបើ (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
+                                        bha_nga;
                         }
 
-                        if (eol != EOL_NONE) {
+                        ប្រសិនបើ (eol != EOL_NONE) {
                                 previous_eol |= eol;
                                 continue;
                         }
 
-                        if (ret) {
-                                if (!GREEDY_REALLOC(buffer, n + 2))
-                                        return -ENOMEM;
+                        ប្រសិនបើ (ret) {
+                                ប្រសិនបើ (!GREEDY_REALLOC(buffer, n + 2))
+                                        ត្រឡប់ -ENOMEM;
 
                                 buffer[n] = c;
                         }
@@ -1620,41 +1620,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 }
         }
 
-        if (ret) {
+        ប្រសិនបើ (ret) {
                 buffer[n] = 0;
 
                 *ret = TAKE_PTR(buffer);
         }
 
-        return (int) count;
+        ត្រឡប់ (ចំនួនគត់) count;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r, k;
+ចំនួនគត់ read_stripped_line(FILE *f, size_t limit, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
+        ចំនួនគត់ r, k;
 
         assert(f);
 
         r = read_line(f, limit, ret ? &s : NULL);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (ret) {
-                const char *p = strstrip(s);
-                if (p == s)
+        ប្រសិនបើ (ret) {
+                const var_na *p = strstrip(s);
+                ប្រសិនបើ (p == s)
                         *ret = TAKE_PTR(s);
-                else {
+                បើមិនដូច្នេះ {
                         k = strdup_to(ret, p);
-                        if (k < 0)
-                                return k;
+                        ប្រសិនបើ (k < 0)
+                                ត្រឡប់ k;
                 }
         }
 
-        return r > 0;          /* Return 1 if something was read. */
+        ត្រឡប់ r > 0;          /* Return 1 if something was read. */
 }
 
-int safe_fgetc(FILE *f, char *ret) {
-        int k;
+ចំនួនគត់ safe_fgetc(FILE *f, var_na *ret) {
+        ចំនួនគត់ k;
 
         assert(f);
 
@@ -1664,69 +1664,69 @@ int safe_fgetc(FILE *f, char *ret) {
 
         errno = 0;
         k = fgetc(f);
-        if (k == EOF) {
-                if (ferror(f))
-                        return errno_or_else(EIO);
+        ប្រសិនបើ (k == EOF) {
+                ប្រសិនបើ (ferror(f))
+                        ត្រឡប់ errno_or_else(EIO);
 
-                if (ret)
+                ប្រសិនបើ (ret)
                         *ret = 0;
 
-                return 0;
+                ត្រឡប់ 0;
         }
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = k;
 
-        return 1;
+        ត្រឡប់ 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
-        struct stat _st;
+ចំនួនគត់ warn_file_is_world_accessible(const var_na *filename, sa_nracanaa stat *st, const var_na *unit, unsigned line) {
+        sa_nracanaa stat _st;
 
-        if (!filename)
-                return 0;
+        ប្រសិនបើ (!filename)
+                ត្រឡប់ 0;
 
-        if (!st) {
-                if (stat(filename, &_st) < 0)
-                        return -errno;
+        ប្រសិនបើ (!st) {
+                ប្រសិនបើ (stat(filename, &_st) < 0)
+                        ត្រឡប់ -errno;
                 st = &_st;
         }
 
-        if ((st->st_mode & S_IRWXO) == 0)
-                return 0;
+        ប្រសិនបើ ((st->st_mode & S_IRWXO) == 0)
+                ត្រឡប់ 0;
 
-        if (unit)
+        ប្រសិនបើ (unit)
                 log_syntax(unit, LOG_WARNING, filename, line, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
-        else
+        បើមិនដូច្នេះ
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                             filename, st->st_mode & 07777);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int write_data_file_atomic_at(
-                int dir_fd,
-                const char *path,
-                const struct iovec *iovec,
+ចំនួនគត់ write_data_file_atomic_at(
+                ចំនួនគត់ dir_fd,
+                const var_na *path,
+                const sa_nracanaa iovec *iovec,
                 WriteDataFileFlags flags) {
 
-        int r;
+        ចំនួនគត់ r;
 
         assert(wildcard_fd_is_valid(dir_fd));
 
         /* This is a cousin of write_string_file_atomic(), but operates with arbitrary struct iovec binary
          * data (rather than strings), works without FILE* streams, and does direct syscalls instead. */
 
-        _cleanup_free_ char *dn = NULL, *fn = NULL;
+        _cleanup_free_ var_na *dn = NULL, *fn = NULL;
         r = path_split_prefix_filename(path, &dn, &fn);
-        if (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
-                return -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
+                ត្រឡប់ -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        _cleanup_close_ int mfd = -EBADF;
-        if (dn) {
+        _cleanup_close_ ចំនួនគត់ mfd = -EBADF;
+        ប្រសិនបើ (dn) {
                 /* If there's a directory component, readjust our position */
                 r = chaseat(XAT_FDROOT,
                             dir_fd,
@@ -1734,33 +1734,33 @@ int write_data_file_atomic_at(
                             FLAGS_SET(flags, WRITE_DATA_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
                             /* ret_path= */ NULL,
                             &mfd);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 dir_fd = mfd;
         }
 
-        _cleanup_free_ char *t = NULL;
-        _cleanup_close_ int fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
-        if (fd < 0)
-                return fd;
+        _cleanup_free_ var_na *t = NULL;
+        _cleanup_close_ ចំនួនគត់ fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
+        ប្រសិនបើ (fd < 0)
+                ត្រឡប់ fd;
 
         CLEANUP_TMPFILE_AT(dir_fd, t);
 
-        if (iovec_is_set(iovec)) {
+        ប្រសិនបើ (iovec_is_set(iovec)) {
                 r = loop_write(fd, iovec->iov_base, iovec->iov_len);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
         }
 
         r = fchmod_umask(fd, FLAGS_SET(flags, WRITE_DATA_FILE_MODE_0400) ? 0400 : 0644);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = link_tmpfile_at(fd, dir_fd, t, fn, LINK_TMPFILE_REPLACE);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         t = mfree(t); /* disarm CLEANUP_TMPFILE_AT */
-        return 0;
+        ត្រឡប់ 0;
 }

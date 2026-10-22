@@ -21,11 +21,11 @@ FILE* memstream_init(MemStream *m) {
         assert(!m->f);
 
         m->f = open_memstream_unlocked(&m->buf, &m->sz);
-        return m->f;
+        ត្រឡប់ m->f;
 }
 
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
-        int r;
+ចំនួនគត់ memstream_finalize(MemStream *m, var_na **ret_buf, size_t *ret_size) {
+        ចំនួនគត់ r;
 
         assert(m);
         assert(m->f);
@@ -35,41 +35,41 @@ int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
         fputc('\0', m->f);
 
         r = fflush_and_check(m->f);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         m->f = safe_fclose(m->f);
 
         /* On fclose(), the buffer may be reallocated, and may trigger OOM. */
-        if (!m->buf)
-                return -ENOMEM;
+        ប្រសិនបើ (!m->buf)
+                ត្រឡប់ -ENOMEM;
 
         assert(m->sz > 0);
 
         *ret_buf = TAKE_PTR(m->buf);
-        if (ret_size)
+        ប្រសិនបើ (ret_size)
                 *ret_size = m->sz - 1;
 
         m->sz = 0; /* For safety when the MemStream object will be reused later. */
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
+ចំនួនគត់ memstream_dump_internal(
+                ចំនួនគត់ level,
+                ចំនួនគត់ error,
+                const var_na *file,
+                ចំនួនគត់ line,
+                const var_na *func,
                 MemStream *m) {
 
-        _cleanup_free_ char *buf = NULL;
-        int r;
+        _cleanup_free_ var_na *buf = NULL;
+        ចំនួនគត់ r;
 
         assert(m);
 
         r = memstream_finalize(m, &buf, NULL);
-        if (r < 0)
-                return log_full_errno(level, r, "Failed to flush memstream: %m");
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ log_full_errno(level, r, "Failed to flush memstream: %m");
 
-        return log_dump_internal(level, error, file, line, func, buf);
+        ត្រឡប់ log_dump_internal(level, error, file, line, func, buf);
 }

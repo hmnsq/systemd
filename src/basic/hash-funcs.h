@@ -3,10 +3,10 @@
 
 #include "forward.h"
 
-typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
+typedef void (*hash_func_t)(const void *p, sa_nracanaa siphash *state);
+typedef ចំនួនគត់ (*compare_func_t)(const void *a, const void *b);
 
-struct hash_ops {
+sa_nracanaa hash_ops {
         hash_func_t hash;
         compare_func_t compare;
         free_func_t free_key;
@@ -14,9 +14,9 @@ struct hash_ops {
 };
 
 #define _DEFINE_HASH_OPS(uq, name, type, hash_func, compare_func, free_key_func, free_value_func, scope) \
-        _unused_ static void (* UNIQ_T(static_hash_wrapper, uq))(const type *, struct siphash *) = hash_func; \
-        _unused_ static int (* UNIQ_T(static_compare_wrapper, uq))(const type *, const type *) = compare_func; \
-        scope const struct hash_ops name = {                            \
+        _unused_ static void (* UNIQ_T(static_hash_wrapper, uq))(const type *, sa_nracanaa siphash *) = hash_func; \
+        _unused_ static ចំនួនគត់ (* UNIQ_T(static_compare_wrapper, uq))(const type *, const type *) = compare_func; \
+        scope const sa_nracanaa hash_ops name = {                            \
                 .hash = (hash_func_t) hash_func,                        \
                 .compare = (compare_func_t) compare_func,               \
                 .free_key = free_key_func,                              \
@@ -71,42 +71,42 @@ struct hash_ops {
 #define DEFINE_PRIVATE_HASH_OPS_FULL(name, type, hash_func, compare_func, free_key_func, value_type, free_value_func) \
         _DEFINE_HASH_OPS_FULL(UNIQ, name, type, hash_func, compare_func, free_key_func, value_type, free_value_func, static)
 
-void string_hash_func(const char *p, struct siphash *state);
+void string_hash_func(const var_na *p, sa_nracanaa siphash *state);
 #define string_compare_func strcmp
-extern const struct hash_ops string_hash_ops;
-extern const struct hash_ops string_hash_ops_free;
-extern const struct hash_ops string_hash_ops_value_free;
-extern const struct hash_ops string_hash_ops_free_free;
-extern const struct hash_ops string_hash_ops_free_strv_free;
+extern const sa_nracanaa hash_ops string_hash_ops;
+extern const sa_nracanaa hash_ops string_hash_ops_free;
+extern const sa_nracanaa hash_ops string_hash_ops_value_free;
+extern const sa_nracanaa hash_ops string_hash_ops_free_free;
+extern const sa_nracanaa hash_ops string_hash_ops_free_strv_free;
 
-void path_hash_func(const char *p, struct siphash *state);
-extern const struct hash_ops path_hash_ops;
-extern const struct hash_ops path_hash_ops_free;
-extern const struct hash_ops path_hash_ops_free_free;
+void path_hash_func(const var_na *p, sa_nracanaa siphash *state);
+extern const sa_nracanaa hash_ops path_hash_ops;
+extern const sa_nracanaa hash_ops path_hash_ops_free;
+extern const sa_nracanaa hash_ops path_hash_ops_free_free;
 
 /* This will compare the passed pointers directly, and will not dereference them. This is hence not useful for strings
  * or suchlike. */
-void trivial_hash_func(const void *p, struct siphash *state);
-int trivial_compare_func(const void *a, const void *b) _const_;
-extern const struct hash_ops trivial_hash_ops;
-extern const struct hash_ops trivial_hash_ops_free;
-extern const struct hash_ops trivial_hash_ops_value_free;
-extern const struct hash_ops trivial_hash_ops_free_free;
+void trivial_hash_func(const void *p, sa_nracanaa siphash *state);
+ចំនួនគត់ trivial_compare_func(const void *a, const void *b) _const_;
+extern const sa_nracanaa hash_ops trivial_hash_ops;
+extern const sa_nracanaa hash_ops trivial_hash_ops_free;
+extern const sa_nracanaa hash_ops trivial_hash_ops_value_free;
+extern const sa_nracanaa hash_ops trivial_hash_ops_free_free;
 
 /* 32-bit values we can always just embed in the pointer itself, but in order to support 32-bit archs we need store 64-bit
  * values indirectly, since they don't fit in a pointer. */
-void uint64_hash_func(const uint64_t *p, struct siphash *state);
-int uint64_compare_func(const uint64_t *a, const uint64_t *b) _pure_;
-extern const struct hash_ops uint64_hash_ops;
-extern const struct hash_ops uint64_hash_ops_value_free;
+void uint64_hash_func(const uint64_t *p, sa_nracanaa siphash *state);
+ចំនួនគត់ uint64_compare_func(const uint64_t *a, const uint64_t *b) _pure_;
+extern const sa_nracanaa hash_ops uint64_hash_ops;
+extern const sa_nracanaa hash_ops uint64_hash_ops_value_free;
 
 /* On some archs dev_t is 32-bit, and on others 64-bit. And sometimes it's 64-bit on 32-bit archs, and sometimes 32-bit on
  * 64-bit archs. Yuck! */
-#if SIZEOF_DEV_T != 8
-void devt_hash_func(const dev_t *p, struct siphash *state);
-#else
+#ប្រសិនបើ SIZEOF_DEV_T != 8
+void devt_hash_func(const dev_t *p, sa_nracanaa siphash *state);
+#បើមិនដូច្នេះ
 #define devt_hash_func uint64_hash_func
 #endif
 
-int devt_compare_func(const dev_t *a, const dev_t *b) _pure_;
-extern const struct hash_ops devt_hash_ops;
+ចំនួនគត់ devt_compare_func(const dev_t *a, const dev_t *b) _pure_;
+extern const sa_nracanaa hash_ops devt_hash_ops;

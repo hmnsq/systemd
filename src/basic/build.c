@@ -11,302 +11,302 @@
 #include "string-util.h"
 #include "version.h"
 
-const char* const systemd_features =
+const var_na* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#ប្រសិនបើ HAVE_PAM
         "+PAM"
-#else
+#បើមិនដូច្នេះ
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#ប្រសិនបើ HAVE_AUDIT
         " +AUDIT"
-#else
+#បើមិនដូច្នេះ
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#ប្រសិនបើ HAVE_SELINUX
         " +SELINUX"
-#else
+#បើមិនដូច្នេះ
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#ប្រសិនបើ HAVE_APPARMOR
         " +APPARMOR"
-#else
+#បើមិនដូច្នេះ
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#ប្រសិនបើ ENABLE_IMA
         " +IMA"
-#else
+#បើមិនដូច្នេះ
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#ប្រសិនបើ ENABLE_IPE
         " +IPE"
-#else
+#បើមិនដូច្នេះ
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#ប្រសិនបើ ENABLE_SMACK
         " +SMACK"
-#else
+#បើមិនដូច្នេះ
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#ប្រសិនបើ HAVE_SECCOMP
         " +SECCOMP"
-#else
+#បើមិនដូច្នេះ
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#ប្រសិនបើ HAVE_GNUTLS
         " +GNUTLS"
-#else
+#បើមិនដូច្នេះ
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#ប្រសិនបើ HAVE_OPENSSL
         " +OPENSSL"
-#else
+#បើមិនដូច្នេះ
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#ប្រសិនបើ HAVE_ACL
         " +ACL"
-#else
+#បើមិនដូច្នេះ
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#ប្រសិនបើ HAVE_BLKID
         " +BLKID"
-#else
+#បើមិនដូច្នេះ
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#ប្រសិនបើ HAVE_LIBCURL
         " +CURL"
-#else
+#បើមិនដូច្នេះ
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#ប្រសិនបើ HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#បើមិនដូច្នេះ
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#ប្រសិនបើ HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#បើមិនដូច្នេះ
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#ប្រសិនបើ HAVE_LIBIDN2
         " +IDN2"
-#else
+#បើមិនដូច្នេះ
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#ប្រសិនបើ HAVE_KMOD
         " +KMOD"
-#else
+#បើមិនដូច្នេះ
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#ប្រសិនបើ HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#បើមិនដូច្នេះ
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#ប្រសិនបើ HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#បើមិនដូច្នេះ
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#ប្រសិនបើ HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#បើមិនដូច្នេះ
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#ប្រសិនបើ HAVE_PCRE2
         " +PCRE2"
-#else
+#បើមិនដូច្នេះ
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#ប្រសិនបើ HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#បើមិនដូច្នេះ
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#ប្រសិនបើ HAVE_P11KIT
         " +P11KIT"
-#else
+#បើមិនដូច្នេះ
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#ប្រសិនបើ HAVE_QRENCODE
         " +QRENCODE"
-#else
+#បើមិនដូច្នេះ
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#ប្រសិនបើ HAVE_TPM2
         " +TPM2"
-#else
+#បើមិនដូច្នេះ
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#ប្រសិនបើ HAVE_BZIP2
         " +BZIP2"
-#else
+#បើមិនដូច្នេះ
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#ប្រសិនបើ HAVE_LZ4
         " +LZ4"
-#else
+#បើមិនដូច្នេះ
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#ប្រសិនបើ HAVE_XZ
         " +XZ"
-#else
+#បើមិនដូច្នេះ
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#ប្រសិនបើ HAVE_ZLIB
         " +ZLIB"
-#else
+#បើមិនដូច្នេះ
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#ប្រសិនបើ HAVE_ZSTD
         " +ZSTD"
-#else
+#បើមិនដូច្នេះ
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#ប្រសិនបើ BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#បើមិនដូច្នេះ
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#ប្រសិនបើ HAVE_VMLINUX_H
         " +BTF"
-#else
+#បើមិនដូច្នេះ
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#ប្រសិនបើ HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#បើមិនដូច្នេះ
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#ប្រសិនបើ ENABLE_UTMP
         " +UTMP"
-#else
+#បើមិនដូច្នេះ
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#ប្រសិនបើ HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#បើមិនដូច្នេះ
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#ប្រសិនបើ EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#បើមិនដូច្នេះ
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+static var_na* systemd_features_with_color(void) {
+        const var_na *p = systemd_features;
+        _cleanup_free_ var_na *ret = NULL;
+        ចំនួនគត់ r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        សម្រាប់ (;;) {
+                _cleanup_free_ var_na *word = NULL;
+                var_na *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                ប្រសិនបើ (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        ត្រឡប់ NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                ប្រសិនបើ (r == 0)
+                        ត្រឡប់ TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                ប្រសិនបើ (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        ត្រឡប់ NULL;
                 }
 
-                if (word[0] == '+')
+                ប្រសិនបើ (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                បើមិនដូច្នេះ ប្រសិនបើ (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                បើមិនដូច្នេះ
                         q = strextend(&ret, word);
-                if (!q) {
+                ប្រសិនបើ (!q) {
                         log_oom_warning();
-                        return NULL;
+                        ត្រឡប់ NULL;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+ចំនួនគត់ version(void) {
+        _cleanup_free_ var_na *b = NULL;
 
-        if (colors_enabled())
+        ប្រសិនបើ (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int version_only(void) {
+ចំនួនគត់ version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        ត្រឡប់ 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#ប្រសិនបើ EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        ត្រឡប់ false;
+#បើមិនដូច្នេះ
+        ចំនួនគត់ r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ប្រសិនបើ (r >= 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        ត្រឡប់ EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

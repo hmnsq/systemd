@@ -7,38 +7,38 @@
 #include "utf8.h"
 #include "web-util.h"
 
-bool http_url_is_valid(const char *url) {
-        const char *p;
+bool http_url_is_valid(const var_na *url) {
+        const var_na *p;
 
-        if (isempty(url))
-                return false;
+        ប្រសិនបើ (isempty(url))
+                ត្រឡប់ false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        ប្រសិនបើ (!p)
+                ត្រឡប់ false;
 
-        if (isempty(p))
-                return false;
+        ប្រសិនបើ (isempty(p))
+                ត្រឡប់ false;
 
-        return ascii_is_valid(p);
+        ត្រឡប់ ascii_is_valid(p);
 }
 
-bool file_url_is_valid(const char *url) {
-        const char *p;
+bool file_url_is_valid(const var_na *url) {
+        const var_na *p;
 
-        if (isempty(url))
-                return false;
+        ប្រសិនបើ (isempty(url))
+                ត្រឡប់ false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        ប្រសិនបើ (isempty(p))
+                ត្រឡប់ false;
 
-        return ascii_is_valid(p);
+        ត្រឡប់ ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
-        const char *p, *e;
-        int r;
+ចំនួនគត់ provider_url_parse(const var_na *url, var_na **ret_socket, var_na **ret_resource) {
+        const var_na *p, *e;
+        ចំនួនគត់ r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        ប្រសិនបើ (isempty(url))
+                ត្រឡប់ -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        ប្រសិនបើ (!p)
+                ត្រឡប់ -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        ប្រសិនបើ (!e || e == p)
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ (e[1] != '/')
+                ត្រឡប់ -EINVAL;
 
-        _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ var_na *s = strndup(p, e - p);
+        ប្រសិនបើ (!s)
+                ត្រឡប់ -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        ប្រសិនបើ (!path_is_absolute(s) || !path_is_normalized(s))
+                ត្រឡប់ -EINVAL;
 
-        const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        const var_na *resource = e + 2;
+        ប្រសិនបើ (isempty(resource))
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ (path_is_absolute(resource) || !path_is_normalized(resource))
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
+                ត្រឡប់ -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (ret_socket)
+        ប្រសិនបើ (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+bool provider_url_is_valid(const var_na *url) {
+        ត្រឡប់ provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
 }
 
-bool documentation_url_is_valid(const char *url) {
-        const char *p;
+bool documentation_url_is_valid(const var_na *url) {
+        const var_na *p;
 
-        if (isempty(url))
-                return false;
+        ប្រសិនបើ (isempty(url))
+                ត្រឡប់ false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        ប្រសិនបើ (http_url_is_valid(url) || file_url_is_valid(url))
+                ត្រឡប់ true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        ប្រសិនបើ (isempty(p))
+                ត្រឡប់ false;
 
-        return ascii_is_valid(p);
+        ត្រឡប់ ascii_is_valid(p);
 }
 
-bool http_header_valid(const char *header) {
-        return header &&
+bool http_header_valid(const var_na *header) {
+        ត្រឡប់ header &&
                 ascii_is_valid(header) &&
                 !string_has_cc(header, /* ok= */ NULL) &&
                 strchr(header, ':');
 }
 
-bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+bool http_etag_is_valid(const var_na *etag) {
+        ប្រសិនបើ (isempty(etag))
+                ត្រឡប់ false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        ប្រសិនបើ (!endswith(etag, "\""))
+                ត្រឡប់ false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        ប្រសិនបើ (!STARTSWITH_SET(etag, "\"", "W/\""))
+                ត្រឡប់ false;
 
-        return true;
+        ត្រឡប់ true;
 }

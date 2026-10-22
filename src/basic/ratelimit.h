@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-typedef struct RateLimit {
+typedef sa_nracanaa RateLimit {
         usec_t interval; /* Keep those two fields first so they can be initialized easily: */
         unsigned burst;  /* RateLimit rl = { INTERVAL, BURST }; */
         unsigned num;
@@ -12,12 +12,12 @@ typedef struct RateLimit {
 
 #define RATELIMIT_OFF (const RateLimit) { .interval = USEC_INFINITY, .burst = UINT_MAX }
 
-static inline void ratelimit_reset(RateLimit *rl) {
+static anta_hstha void ratelimit_reset(RateLimit *rl) {
         rl->num = rl->begin = 0;
 }
 
-static inline bool ratelimit_configured(const RateLimit *rl) {
-        return rl->interval > 0 && rl->burst > 0;
+static anta_hstha bool ratelimit_configured(const RateLimit *rl) {
+        ត្រឡប់ rl->interval > 0 && rl->burst > 0;
 }
 
 bool ratelimit_below(RateLimit *rl);

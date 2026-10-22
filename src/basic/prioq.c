@@ -13,57 +13,57 @@
 #include "alloc-util.h"
 #include "prioq.h"
 
-struct prioq_item {
+sa_nracanaa prioq_item {
         void *data;
         unsigned *idx;
 };
 
-struct Prioq {
+sa_nracanaa Prioq {
         compare_func_t compare_func;
         unsigned n_items;
-        struct prioq_item *items;
+        sa_nracanaa prioq_item *items;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        ប្រសិនបើ (!q)
+                ត្រឡប់ q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        ត្រឡប់ q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        ប្រសិនបើ (!q)
+                ត្រឡប់ NULL;
 
         /* Invalidate the index fields of any remaining objects */
         FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
+                ប្រសិនបើ (item->idx)
                         *(item->idx) = PRIOQ_IDX_NULL;
 
         free(q->items);
-        return mfree(q);
+        ត្រឡប់ mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+ចំនួនគត់ prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
         assert(q);
 
-        if (*q) {
+        ប្រសិនបើ (*q) {
                 assert((*q)->compare_func == compare_func);
-                return 0;
+                ត្រឡប់ 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        ប្រសិនបើ (!*q)
+                ត្រឡប់ -ENOMEM;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
 static void swap(Prioq *q, unsigned j, unsigned k) {
@@ -77,10 +77,10 @@ static void swap(Prioq *q, unsigned j, unsigned k) {
         SWAP_TWO(q->items[j].data, q->items[k].data);
         SWAP_TWO(q->items[j].idx, q->items[k].idx);
 
-        if (q->items[j].idx)
+        ប្រសិនបើ (q->items[j].idx)
                 *q->items[j].idx = j;
 
-        if (q->items[k].idx)
+        ប្រសិនបើ (q->items[k].idx)
                 *q->items[k].idx = k;
 }
 
@@ -88,42 +88,42 @@ static unsigned shuffle_up(Prioq *q, unsigned idx) {
         assert(q);
         assert(idx < q->n_items);
 
-        while (idx > 0) {
+        ខណៈពេល (idx > 0) {
                 unsigned k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                ប្រសិនបើ (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
+                        bha_nga;
 
                 swap(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        ត្រឡប់ idx;
 }
 
 static unsigned shuffle_down(Prioq *q, unsigned idx) {
         assert(q);
 
-        for (;;) {
+        សម្រាប់ (;;) {
                 unsigned j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                ប្រសិនបើ (j >= q->n_items)
+                        bha_nga;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                ប្រសិនបើ (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                បើមិនដូច្នេះ
                         s = idx;
 
-                if (k < q->n_items &&
+                ប្រសិនបើ (k < q->n_items &&
                     q->compare_func(q->items[k].data, q->items[s].data) < 0)
 
                         /* So our right child is smaller than we are, let's
@@ -132,68 +132,68 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                ប្រសិនបើ (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        bha_nga;
 
                 swap(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        ត្រឡប់ idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
+ចំនួនគត់ prioq_put(Prioq *q, void *data, unsigned *idx) {
         unsigned k;
 
         assert(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        ប្រសិនបើ (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
+                ត្រឡប់ -ENOMEM;
 
         k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
+        q->items[k] = (sa_nracanaa prioq_item) {
                 .data = data,
                 .idx = idx,
         };
 
-        if (idx)
+        ប្រសិនបើ (idx)
                 *idx = k;
 
         shuffle_up(q, k);
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+ចំនួនគត់ _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
+        ចំនួនគត់ r;
 
         assert(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return prioq_put(*q, data, idx);
+        ត្រឡប់ prioq_put(*q, data, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+static void remove_item(Prioq *q, sa_nracanaa prioq_item *i) {
+        sa_nracanaa prioq_item *l;
 
         assert(q);
         assert(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        ប្រសិនបើ (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
         l = q->items + q->n_items - 1;
 
-        if (i == l)
+        ប្រសិនបើ (i == l)
                 /* Last entry, let's just remove it */
                 q->n_items--;
-        else {
+        បើមិនដូច្នេះ {
                 unsigned k;
 
                 /* Not last entry, let's replace the last entry with
@@ -204,7 +204,7 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
 
                 i->data = l->data;
                 i->idx = l->idx;
-                if (i->idx)
+                ប្រសិនបើ (i->idx)
                         *i->idx = k;
                 q->n_items--;
 
@@ -213,55 +213,55 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+static sa_nracanaa prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
+        sa_nracanaa prioq_item *i;
 
         assert(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        ប្រសិនបើ (q->n_items <= 0)
+                ត្រឡប់ NULL;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
+        ប្រសិនបើ (idx) {
+                ប្រសិនបើ (*idx == PRIOQ_IDX_NULL ||
                     *idx >= q->n_items)
-                        return NULL;
+                        ត្រឡប់ NULL;
 
                 i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                ប្រសិនបើ (i->data != data)
+                        ត្រឡប់ NULL;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                ត្រឡប់ i;
+        } បើមិនដូច្នេះ {
+                សម្រាប់ (i = q->items; i < q->items + q->n_items; i++)
+                        ប្រសិនបើ (i->data == data)
+                                ត្រឡប់ i;
+                ត្រឡប់ NULL;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+ចំនួនគត់ prioq_remove(Prioq *q, void *data, unsigned *idx) {
+        sa_nracanaa prioq_item *i;
 
-        if (!q)
-                return 0;
+        ប្រសិនបើ (!q)
+                ត្រឡប់ 0;
 
         i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        ប្រសិនបើ (!i)
+                ត្រឡប់ 0;
 
         remove_item(q, i);
-        return 1;
+        ត្រឡប់ 1;
 }
 
 void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+        sa_nracanaa prioq_item *i;
         unsigned k;
 
         assert(q);
 
         i = find_item(q, data, idx);
-        if (!i)
-                return;
+        ប្រសិនបើ (!i)
+                ត្រឡប់;
 
         assert(i >= q->items);
         k = i - q->items;
@@ -270,41 +270,41 @@ void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
 }
 
 void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+        ប្រសិនបើ (!q)
+                ត្រឡប់ NULL;
 
-        if (idx >= q->n_items)
-                return NULL;
+        ប្រសិនបើ (idx >= q->n_items)
+                ត្រឡប់ NULL;
 
-        return q->items[idx].data;
+        ត្រឡប់ q->items[idx].data;
 }
 
 void* prioq_pop(Prioq *q) {
         void *data;
 
-        if (!q)
-                return NULL;
+        ប្រសិនបើ (!q)
+                ត្រឡប់ NULL;
 
-        if (q->n_items <= 0)
-                return NULL;
+        ប្រសិនបើ (q->n_items <= 0)
+                ត្រឡប់ NULL;
 
         data = q->items[0].data;
         remove_item(q, q->items);
-        return data;
+        ត្រឡប់ data;
 }
 
 unsigned prioq_size(Prioq *q) {
 
-        if (!q)
-                return 0;
+        ប្រសិនបើ (!q)
+                ត្រឡប់ 0;
 
-        return q->n_items;
+        ត្រឡប់ q->n_items;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        ប្រសិនបើ (!q)
+                ត្រឡប់ true;
 
-        return q->n_items <= 0;
+        ត្រឡប់ q->n_items <= 0;
 }

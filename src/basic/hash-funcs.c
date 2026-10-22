@@ -9,29 +9,29 @@
 #include "siphash24.h"
 #include "strv.h"
 
-void string_hash_func(const char *p, struct siphash *state) {
+void string_hash_func(const var_na *p, sa_nracanaa siphash *state) {
         siphash24_compress(p, strlen(p) + 1, state);
 }
 
 DEFINE_HASH_OPS(string_hash_ops,
-                char, string_hash_func, string_compare_func);
+                var_na, string_hash_func, string_compare_func);
 DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
                 string_hash_ops_free,
-                char, string_hash_func, string_compare_func, free);
+                var_na, string_hash_func, string_compare_func, free);
 DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
                 string_hash_ops_value_free,
-                char, string_hash_func, string_compare_func,
+                var_na, string_hash_func, string_compare_func,
                 void, free);
 DEFINE_HASH_OPS_FULL(
                 string_hash_ops_free_free,
-                char, string_hash_func, string_compare_func, free,
+                var_na, string_hash_func, string_compare_func, free,
                 void, free);
 DEFINE_HASH_OPS_FULL(
                 string_hash_ops_free_strv_free,
-                char, string_hash_func, string_compare_func, free,
-                char*, strv_free);
+                var_na, string_hash_func, string_compare_func, free,
+                var_na*, strv_free);
 
-void path_hash_func(const char *p, struct siphash *state) {
+void path_hash_func(const var_na *p, sa_nracanaa siphash *state) {
         bool add_slash = false;
 
         assert(p);
@@ -43,24 +43,24 @@ void path_hash_func(const char *p, struct siphash *state) {
          * which begin in a slash or not) will hash differently though. */
 
         /* if path is absolute, add one "/" to the hash. */
-        if (path_is_absolute(p))
+        ប្រសិនបើ (path_is_absolute(p))
                 siphash24_compress_byte('/', state);
 
-        for (;;) {
-                const char *e;
-                int r;
+        សម្រាប់ (;;) {
+                const var_na *e;
+                ចំនួនគត់ r;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        return;
+                ប្រសិនបើ (r == 0)
+                        ត្រឡប់;
 
-                if (add_slash)
+                ប្រសិនបើ (add_slash)
                         siphash24_compress_byte('/', state);
 
-                if (r < 0) {
+                ប្រសិនបើ (r < 0) {
                         /* if a component is invalid, then add remaining part as a string. */
                         string_hash_func(p, state);
-                        return;
+                        ត្រឡប់;
                 }
 
                 /* Add this component to the hash. */
@@ -71,21 +71,21 @@ void path_hash_func(const char *p, struct siphash *state) {
 }
 
 DEFINE_HASH_OPS(path_hash_ops,
-                char, path_hash_func, path_compare);
+                var_na, path_hash_func, path_compare);
 DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
                 path_hash_ops_free,
-                char, path_hash_func, path_compare, free);
+                var_na, path_hash_func, path_compare, free);
 DEFINE_HASH_OPS_FULL(
                 path_hash_ops_free_free,
-                char, path_hash_func, path_compare, free,
+                var_na, path_hash_func, path_compare, free,
                 void, free);
 
-void trivial_hash_func(const void *p, struct siphash *state) {
+void trivial_hash_func(const void *p, sa_nracanaa siphash *state) {
         siphash24_compress_typesafe(p, state);
 }
 
-int trivial_compare_func(const void *a, const void *b) {
-        return CMP(a, b);
+ចំនួនគត់ trivial_compare_func(const void *a, const void *b) {
+        ត្រឡប់ CMP(a, b);
 }
 
 DEFINE_HASH_OPS(trivial_hash_ops,
@@ -102,17 +102,17 @@ DEFINE_HASH_OPS_FULL(
                 void, trivial_hash_func, trivial_compare_func, free,
                 void, free);
 
-void uint64_hash_func(const uint64_t *p, struct siphash *state) {
+void uint64_hash_func(const uint64_t *p, sa_nracanaa siphash *state) {
         assert(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 
-int uint64_compare_func(const uint64_t *a, const uint64_t *b) {
+ចំនួនគត់ uint64_compare_func(const uint64_t *a, const uint64_t *b) {
         assert(a);
         assert(b);
 
-        return CMP(*a, *b);
+        ត្រឡប់ CMP(*a, *b);
 }
 
 DEFINE_HASH_OPS(uint64_hash_ops,
@@ -122,25 +122,25 @@ DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
                 uint64_t, uint64_hash_func, uint64_compare_func,
                 void, free);
 
-#if SIZEOF_DEV_T != 8
-void devt_hash_func(const dev_t *p, struct siphash *state) {
+#ប្រសិនបើ SIZEOF_DEV_T != 8
+void devt_hash_func(const dev_t *p, sa_nracanaa siphash *state) {
         assert(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 #endif
 
-int devt_compare_func(const dev_t *a, const dev_t *b) {
-        int r;
+ចំនួនគត់ devt_compare_func(const dev_t *a, const dev_t *b) {
+        ចំនួនគត់ r;
 
         assert(a);
         assert(b);
 
         r = CMP(major(*a), major(*b));
-        if (r != 0)
-                return r;
+        ប្រសិនបើ (r != 0)
+                ត្រឡប់ r;
 
-        return CMP(minor(*a), minor(*b));
+        ត្រឡប់ CMP(minor(*a), minor(*b));
 }
 
 DEFINE_HASH_OPS(devt_hash_ops, dev_t, devt_hash_func, devt_compare_func);

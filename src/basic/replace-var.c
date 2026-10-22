@@ -9,59 +9,59 @@
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+static ចំនួនគត់ get_variable(const var_na *b, var_na **r) {
         size_t k;
-        char *t;
+        var_na *t;
 
         assert(b);
         assert(r);
 
-        if (*b != '@')
-                return 0;
+        ប្រសិនបើ (*b != '@')
+                ត្រឡប់ 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        ប្រសិនបើ (k <= 0 || b[k+1] != '@')
+                ត្រឡប់ 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        ប្រសិនបើ (!t)
+                ត្រឡប់ -ENOMEM;
 
         *r = t;
-        return 1;
+        ត្រឡប់ 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
+var_na* replace_var(const var_na *text, var_na *(*lookup)(const var_na *variable, void *userdata), void *userdata) {
+        var_na *r, *t;
+        const var_na *f;
         size_t l;
 
         assert(text);
         assert(lookup);
 
         l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        r = new(var_na, l+1);
+        ប្រសិនបើ (!r)
+                ត្រឡប់ NULL;
 
         f = text;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
+        ខណៈពេល (*f) {
+                _cleanup_free_ var_na *v = NULL, *n = NULL;
+                var_na *a;
+                ចំនួនគត់ k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
+                ប្រសិនបើ (k < 0)
                         goto oom;
-                if (k == 0) {
+                ប្រសិនបើ (k == 0) {
                         *(t++) = *(f++);
                         continue;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
+                ប្រសិនបើ (!n)
                         goto oom;
 
                 skip = strlen(v) + 2;
@@ -69,7 +69,7 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
                 d = t - r;
                 nl = l - skip + strlen(n);
                 a = realloc(r, nl + 1);
-                if (!a)
+                ប្រសិនបើ (!a)
                         goto oom;
 
                 l = nl;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        ត្រឡប់ r;
 
 oom:
-        return mfree(r);
+        ត្រឡប់ mfree(r);
 }

@@ -2,9 +2,9 @@
 
 #include "format-util.h"
 
-char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
-        typedef struct {
-                const char *suffix;
+var_na* format_bytes_full(var_na *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
+        typedef sa_nracanaa {
+                const var_na *suffix;
                 uint64_t factor;
         } suffix_table;
         static const suffix_table table_iec[] = {
@@ -28,26 +28,26 @@ char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
         assert(buf);
         assert_cc(ELEMENTSOF(table_iec) == ELEMENTSOF(table_si));
 
-        if (t == UINT64_MAX)
-                return NULL;
+        ប្រសិនបើ (t == UINT64_MAX)
+                ត្រឡប់ NULL;
 
         table = flag & FORMAT_BYTES_USE_IEC ? table_iec : table_si;
         n = ELEMENTSOF(table_iec);
 
-        for (size_t i = 0; i < n; i++)
-                if (t >= table[i].factor) {
+        សម្រាប់ (size_t i = 0; i < n; i++)
+                ប្រសិនបើ (t >= table[i].factor) {
                         uint64_t remainder = i != n - 1 ?
                                 (t / table[i + 1].factor * 10 / table[n - 1].factor) % 10 :
                                 (t * 10 / table[i].factor) % 10;
 
-                        if (FLAGS_SET(flag, FORMAT_BYTES_ALWAYS_POINT) ||
+                        ប្រសិនបើ (FLAGS_SET(flag, FORMAT_BYTES_ALWAYS_POINT) ||
                             (FLAGS_SET(flag, FORMAT_BYTES_BELOW_POINT) && remainder > 0))
                                 (void) snprintf(buf, l,
                                                 "%" PRIu64 ".%" PRIu64 "%s",
                                                 t / table[i].factor,
                                                 remainder,
                                                 table[i].suffix);
-                        else
+                        បើមិនដូច្នេះ
                                 (void) snprintf(buf, l,
                                                 "%" PRIu64 "%s",
                                                 t / table[i].factor,
@@ -60,5 +60,5 @@ char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
 
 finish:
         buf[l-1] = 0;
-        return buf;
+        ត្រឡប់ buf;
 }

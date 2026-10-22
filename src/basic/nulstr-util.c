@@ -6,19 +6,19 @@
 #include "string-util.h"
 #include "strv.h"
 
-const char* nulstr_get(const char *nulstr, const char *needle) {
-        if (!nulstr)
-                return NULL;
+const var_na* nulstr_get(const var_na *nulstr, const var_na *needle) {
+        ប្រសិនបើ (!nulstr)
+                ត្រឡប់ NULL;
 
         NULSTR_FOREACH(i, nulstr)
-                if (streq(i, needle))
-                        return i;
+                ប្រសិនបើ (streq(i, needle))
+                        ត្រឡប់ i;
 
-        return NULL;
+        ត្រឡប់ NULL;
 }
 
-char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) {
-        _cleanup_strv_free_ char **v = NULL;
+var_na** strv_parse_nulstr_full(const var_na *s, size_t l, bool drop_trailing_nuls) {
+        _cleanup_strv_free_ var_na **v = NULL;
         size_t c = 0, i = 0;
 
         /* l is the length of the input data, which will be split at NULs into elements of the resulting
@@ -31,47 +31,47 @@ char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) 
 
         assert(s || l <= 0);
 
-        if (drop_trailing_nuls)
-                while (l > 0 && s[l-1] == '\0')
+        ប្រសិនបើ (drop_trailing_nuls)
+                ខណៈពេល (l > 0 && s[l-1] == '\0')
                         l--;
 
-        if (l <= 0)
-                return new0(char*, 1);
+        ប្រសិនបើ (l <= 0)
+                ត្រឡប់ new0(var_na*, 1);
 
-        for (const char *p = s; p < s + l; p++)
-                if (*p == 0)
+        សម្រាប់ (const var_na *p = s; p < s + l; p++)
+                ប្រសិនបើ (*p == 0)
                         c++;
 
-        if (s[l-1] != 0)
+        ប្រសិនបើ (s[l-1] != 0)
                 c++;
 
-        v = new0(char*, c+1);
-        if (!v)
-                return NULL;
+        v = new0(var_na*, c+1);
+        ប្រសិនបើ (!v)
+                ត្រឡប់ NULL;
 
-        for (const char *p = s; p < s + l;) {
-                const char *e;
+        សម្រាប់ (const var_na *p = s; p < s + l;) {
+                const var_na *e;
 
                 e = memchr(p, 0, s + l - p);
 
                 v[i] = memdup_suffix0(p, e ? e - p : s + l - p);
-                if (!v[i])
-                        return NULL;
+                ប្រសិនបើ (!v[i])
+                        ត្រឡប់ NULL;
                 i++;
 
-                if (!e)
-                        break;
+                ប្រសិនបើ (!e)
+                        bha_nga;
 
                 p = e + 1;
         }
 
         assert(i == c);
 
-        return TAKE_PTR(v);
+        ត្រឡប់ TAKE_PTR(v);
 }
 
-char** strv_split_nulstr(const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+var_na** strv_split_nulstr(const var_na *s) {
+        _cleanup_strv_free_ var_na **l = NULL;
 
         /* This parses a nulstr, without specification of size, and stops at an empty string. This cannot
          * parse nulstrs with embedded empty strings hence, as an empty string is an end marker. Use
@@ -79,14 +79,14 @@ char** strv_split_nulstr(const char *s) {
          * size to be specified) */
 
         NULSTR_FOREACH(i, s)
-                if (strv_extend(&l, i) < 0)
-                        return NULL;
+                ប្រសិនបើ (strv_extend(&l, i) < 0)
+                        ត្រឡប់ NULL;
 
-        return l ? TAKE_PTR(l) : strv_new(NULL);
+        ត្រឡប់ l ? TAKE_PTR(l) : strv_new(NULL);
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
-        _cleanup_free_ char *m = NULL;
+ចំនួនគត់ strv_make_nulstr(var_na * const *l, var_na **ret, size_t *ret_size) {
+        _cleanup_free_ var_na *m = NULL;
         size_t n = 0;
 
         /* Builds a nulstr and returns it together with the size. An extra NUL byte will be appended (⚠️ but
@@ -106,41 +106,41 @@ int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
 
                 z = strlen(*i) + 1;
 
-                if (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
-                        return -ENOMEM;
+                ប្រសិនបើ (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
+                        ត្រឡប់ -ENOMEM;
 
                 memcpy(m + n, *i, z);
                 n += z;
         }
 
-        if (!m) {
+        ប្រសិនបើ (!m) {
                 /* return a buffer with an extra NUL, so that the assumption that we always have two trailing NULs holds */
-                m = new0(char, 2);
-                if (!m)
-                        return -ENOMEM;
+                m = new0(var_na, 2);
+                ប្រសិនបើ (!m)
+                        ត្រឡប់ -ENOMEM;
 
                 n = 0;
-        } else
+        } បើមិនដូច្នេះ
                 /* Extra NUL is not counted in size returned */
                 m[n] = '\0';
 
         *ret = TAKE_PTR(m);
-        if (ret_size)
+        ប្រសិនបើ (ret_size)
                 *ret_size = n;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
+ចំនួនគត់ set_make_nulstr(Set *s, var_na **ret, size_t *ret_size) {
         /* Use _cleanup_free_ instead of _cleanup_strv_free_ because we need to clean the strv only, not
          * the strings owned by the set. */
-        _cleanup_free_ char **strv = NULL;
+        _cleanup_free_ var_na **strv = NULL;
 
         assert(ret);
 
         strv = set_get_strv(s);
-        if (!strv)
-                return -ENOMEM;
+        ប្រសិនបើ (!strv)
+                ត្រឡប់ -ENOMEM;
 
-        return strv_make_nulstr(strv, ret, ret_size);
+        ត្រឡប់ strv_make_nulstr(strv, ret, ret_size);
 }

@@ -6,49 +6,49 @@
 
 #include "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+static const sa_nracanaa errno_name* lookup_errno(pa_njikaa const var_na *str,
+                                             pa_njikaa GPERF_LEN_TYPE len);
 
 #include "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+ចំនួនគត់ errno_from_name(const var_na *name) {
+        const sa_nracanaa errno_name *sc;
 
         assert(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ប្រសិនបើ (!sc)
+                ត្រឡប់ -EINVAL;
 
         assert(sc->id > 0);
-        return sc->id;
+        ត្រឡប់ sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+const var_na* errno_name_no_fallback(ចំនួនគត់ id) {
+        ប្រសិនបើ (id == 0) /* To stay in line with our implementation below.  */
+                ត្រឡប់ NULL;
 
-        return strerrorname_np(ABS(id));
+        ត្រឡប់ strerrorname_np(ABS(id));
 }
-#else
+#បើមិនដូច្នេះ
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+const var_na* errno_name_no_fallback(ចំនួនគត់ id) {
+        ប្រសិនបើ (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        ប្រសិនបើ ((size_t) id >= ELEMENTSOF(errno_names))
+                ត្រឡប់ NULL;
 
-        return errno_names[id];
+        ត្រឡប់ errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+const var_na* errno_name(ចំនួនគត់ id, var_na buf[static ERRNO_NAME_BUF_LEN]) {
+        const var_na *a = errno_name_no_fallback(id);
+        ប្រសិនបើ (a)
+                ត្រឡប់ a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        ត្រឡប់ buf;
 }

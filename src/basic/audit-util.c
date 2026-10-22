@@ -10,78 +10,78 @@
 #include "user-util.h"
 #include "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+static ចំនួនគត់ audit_read_field(const PidRef *pid, const var_na *field, var_na **ret) {
+        ចំនួនគត់ r;
 
         assert(field);
         assert(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        ប្រសិនបើ (!pidref_is_set(pid))
+                ត្រឡប់ -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        ប្រសិនបើ (detect_container() > 0)
+                ត្រឡប់ -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        const var_na *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ var_na *s = NULL;
         bool enoent = false;
         r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        ប្រសិនបើ (r == -ENOENT) {
+                ប្រសិនបើ (proc_mounted() == 0)
+                        ត្រឡប់ -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } បើមិនដូច្នេះ ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        ប្រសិនបើ (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                ត្រឡប់ -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ចំនួនគត់ audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ var_na *s = NULL;
+        ចំនួនគត់ r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        ប្រសិនបើ (!audit_session_is_valid(u))
+                ត្រឡប់ -ENODATA;
 
-        if (ret_id)
+        ប្រសិនបើ (ret_id)
                 *ret_id = u;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ចំនួនគត់ audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ var_na *s = NULL;
+        ចំនួនគត់ r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        ប្រសិនបើ (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                ត្រឡប់ -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        ត្រឡប់ parse_uid(s, ret_uid);
 }

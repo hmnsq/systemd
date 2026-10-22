@@ -18,65 +18,65 @@
 #include "string-util.h"
 #include "strv.h"
 
-bool is_path(const char *p) {
-        if (!p) /* A NULL pointer is definitely not a path */
-                return false;
+bool is_path(const var_na *p) {
+        ប្រសិនបើ (!p) /* A NULL pointer is definitely not a path */
+                ត្រឡប់ false;
 
-        return strchr(p, '/');
+        ត្រឡប់ strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+ចំនួនគត់ path_split_and_make_absolute(const var_na *p, var_na ***ret) {
+        _cleanup_strv_free_ var_na **l = NULL;
+        ចំនួនគត់ r;
 
         assert(p);
         assert(ret);
 
         l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
+        ប្រសិនបើ (!l)
+                ត្រឡប់ -ENOMEM;
 
         r = path_strv_make_absolute_cwd(l);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         *ret = TAKE_PTR(l);
-        return r;
+        ត្រឡប់ r;
 }
 
-char* path_make_absolute(const char *p, const char *prefix) {
+var_na* path_make_absolute(const var_na *p, const var_na *prefix) {
         assert(p);
 
         /* Makes every item in the list an absolute path by prepending
          * the prefix, if specified and necessary */
 
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
+        ប្រសិនបើ (path_is_absolute(p) || isempty(prefix))
+                ត្រឡប់ strdup(p);
 
-        return path_join(prefix, p);
+        ត្រឡប់ path_join(prefix, p);
 }
 
-int safe_getcwd(char **ret) {
-        _cleanup_free_ char *cwd = NULL;
+ចំនួនគត់ safe_getcwd(var_na **ret) {
+        _cleanup_free_ var_na *cwd = NULL;
 
         cwd = get_current_dir_name();
-        if (!cwd)
-                return negative_errno();
+        ប្រសិនបើ (!cwd)
+                ត្រឡប់ negative_errno();
 
         /* Let's make sure the directory is really absolute, to protect us from the logic behind
          * CVE-2018-1000001 */
-        if (cwd[0] != '/')
-                return -ENOMEDIUM;
+        ប្រសិនបើ (cwd[0] != '/')
+                ត្រឡប់ -ENOMEDIUM;
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = TAKE_PTR(cwd);
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int path_make_absolute_cwd(const char *p, char **ret) {
-        char *c;
-        int r;
+ចំនួនគត់ path_make_absolute_cwd(const var_na *p, var_na **ret) {
+        var_na *c;
+        ចំនួនគត់ r;
 
         assert(p);
         assert(ret);
@@ -84,30 +84,30 @@ int path_make_absolute_cwd(const char *p, char **ret) {
         /* Similar to path_make_absolute(), but prefixes with the
          * current working directory. */
 
-        if (path_is_absolute(p))
+        ប្រសិនបើ (path_is_absolute(p))
                 c = strdup(p);
-        else {
-                _cleanup_free_ char *cwd = NULL;
+        បើមិនដូច្នេះ {
+                _cleanup_free_ var_na *cwd = NULL;
 
                 r = safe_getcwd(&cwd);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 c = path_join(cwd, p);
         }
-        if (!c)
-                return -ENOMEM;
+        ប្រសិនបើ (!c)
+                ត្រឡប់ -ENOMEM;
 
         *ret = c;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int path_make_relative(const char *from, const char *to, char **ret) {
-        _cleanup_free_ char *result = NULL;
+ចំនួនគត់ path_make_relative(const var_na *from, const var_na *to, var_na **ret) {
+        _cleanup_free_ var_na *result = NULL;
         unsigned n_parents;
-        const char *f, *t;
-        int r, k;
-        char *p;
+        const var_na *f, *t;
+        ចំនួនគត់ r, k;
+        var_na *p;
 
         assert(from);
         assert(to);
@@ -115,87 +115,87 @@ int path_make_relative(const char *from, const char *to, char **ret) {
 
         /* Strips the common part, and adds ".." elements as necessary. */
 
-        if (!path_is_absolute(from) || !path_is_absolute(to))
-                return -EINVAL;
+        ប្រសិនបើ (!path_is_absolute(from) || !path_is_absolute(to))
+                ត្រឡប់ -EINVAL;
 
-        for (;;) {
+        សម្រាប់ (;;) {
                 r = path_find_first_component(&from, true, &f);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 k = path_find_first_component(&to, true, &t);
-                if (k < 0)
-                        return k;
+                ប្រសិនបើ (k < 0)
+                        ត្រឡប់ k;
 
-                if (r == 0) {
+                ប្រសិនបើ (r == 0) {
                         /* end of 'from' */
-                        if (k == 0) {
+                        ប្រសិនបើ (k == 0) {
                                 /* from and to are equivalent. */
                                 result = strdup(".");
-                                if (!result)
-                                        return -ENOMEM;
-                        } else {
+                                ប្រសិនបើ (!result)
+                                        ត្រឡប់ -ENOMEM;
+                        } បើមិនដូច្នេះ {
                                 /* 'to' is inside of 'from'. */
                                 r = path_simplify_alloc(t, &result);
-                                if (r < 0)
-                                        return r;
+                                ប្រសិនបើ (r < 0)
+                                        ត្រឡប់ r;
 
-                                if (!path_is_valid(result))
-                                        return -EINVAL;
+                                ប្រសិនបើ (!path_is_valid(result))
+                                        ត្រឡប់ -EINVAL;
                         }
 
                         *ret = TAKE_PTR(result);
-                        return 0;
+                        ត្រឡប់ 0;
                 }
 
-                if (r != k || !strneq(f, t, r))
-                        break;
+                ប្រសិនបើ (r != k || !strneq(f, t, r))
+                        bha_nga;
         }
 
         /* If we're here, then "from_dir" has one or more elements that need to
          * be replaced with "..". */
 
-        for (n_parents = 1;; n_parents++) {
+        សម្រាប់ (n_parents = 1;; n_parents++) {
                 /* If this includes ".." we can't do a simple series of "..". */
                 r = path_find_first_component(&from, false, &f);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
+                ប្រសិនបើ (r == 0)
+                        bha_nga;
         }
 
-        if (isempty(t) && n_parents * 3 > PATH_MAX)
+        ប្រសិនបើ (isempty(t) && n_parents * 3 > PATH_MAX)
                 /* PATH_MAX is counted *with* the trailing NUL byte */
-                return -EINVAL;
+                ត្រឡប់ -EINVAL;
 
-        result = new(char, n_parents * 3 + !isempty(t) + strlen_ptr(t));
-        if (!result)
-                return -ENOMEM;
+        result = new(var_na, n_parents * 3 + !isempty(t) + strlen_ptr(t));
+        ប្រសិនបើ (!result)
+                ត្រឡប់ -ENOMEM;
 
-        for (p = result; n_parents > 0; n_parents--)
+        សម្រាប់ (p = result; n_parents > 0; n_parents--)
                 p = mempcpy(p, "../", 3);
 
-        if (isempty(t)) {
+        ប្រសិនបើ (isempty(t)) {
                 /* Remove trailing slash and terminate string. */
                 *(--p) = '\0';
                 *ret = TAKE_PTR(result);
-                return 0;
+                ត្រឡប់ 0;
         }
 
         strcpy(p, t);
 
         path_simplify(result);
 
-        if (!path_is_valid(result))
-                return -EINVAL;
+        ប្រសិនបើ (!path_is_valid(result))
+                ត្រឡប់ -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int path_make_relative_parent(const char *from_child, const char *to, char **ret) {
-        _cleanup_free_ char *from = NULL;
-        int r;
+ចំនួនគត់ path_make_relative_parent(const var_na *from_child, const var_na *to, var_na **ret) {
+        _cleanup_free_ var_na *from = NULL;
+        ចំនួនគត់ r;
 
         assert(from_child);
         assert(to);
@@ -215,64 +215,64 @@ int path_make_relative_parent(const char *from_child, const char *to, char **ret
          */
 
         r = path_extract_directory(from_child, &from);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return path_make_relative(from, to, ret);
+        ត្រឡប់ path_make_relative(from, to, ret);
 }
 
-char* path_startswith_strv(const char *p, char * const *strv) {
+var_na* path_startswith_strv(const var_na *p, var_na * const *strv) {
         assert(p);
 
         STRV_FOREACH(s, strv) {
-                char *t;
+                var_na *t;
 
                 t = path_startswith(p, *s);
-                if (t)
-                        return t;
+                ប្រសិនបើ (t)
+                        ត្រឡប់ t;
         }
 
-        return NULL;
+        ត្រឡប់ NULL;
 }
 
-int path_strv_make_absolute_cwd(char **l) {
-        int r;
+ចំនួនគត់ path_strv_make_absolute_cwd(var_na **l) {
+        ចំនួនគត់ r;
 
         /* Goes through every item in the string list and makes it
          * absolute. This works in place and won't rollback any
          * changes on failure. */
 
         STRV_FOREACH(s, l) {
-                char *t;
+                var_na *t;
 
                 r = path_make_absolute_cwd(*s, &t);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 path_simplify(t);
                 free_and_replace(*s, t);
         }
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-char** path_strv_resolve(char **l, const char *root) {
+var_na** path_strv_resolve(var_na **l, const var_na *root) {
         unsigned k = 0;
         bool enomem = false;
-        int r;
+        ចំនួនគត់ r;
 
-        if (strv_isempty(l))
-                return l;
+        ប្រសិនបើ (strv_isempty(l))
+                ត្រឡប់ l;
 
         /* Go through every item in the string list and canonicalize the path.
          * This works in place and doesn't roll back any changes on failure. */
 
         STRV_FOREACH(s, l) {
-                _cleanup_free_ char *orig = NULL;
-                char *t, *u;
+                _cleanup_free_ var_na *orig = NULL;
+                var_na *t, *u;
 
-                if (root) {
-                        if (!path_is_absolute(*s)) {
+                ប្រសិនបើ (root) {
+                        ប្រសិនបើ (!path_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
                                 free(*s);
                                 continue;
@@ -280,50 +280,50 @@ char** path_strv_resolve(char **l, const char *root) {
 
                         orig = *s;
                         t = path_join(root, orig);
-                        if (!t) {
+                        ប្រសិនបើ (!t) {
                                 enomem = true;
                                 continue;
                         }
-                } else
+                } បើមិនដូច្នេះ
                         t = *s;
 
                 r = chase(t, root, 0, &u, NULL);
-                if (r == -ENOENT) {
-                        if (root) {
+                ប្រសិនបើ (r == -ENOENT) {
+                        ប្រសិនបើ (root) {
                                 u = TAKE_PTR(orig);
                                 free(t);
-                        } else
+                        } បើមិនដូច្នេះ
                                 u = t;
-                } else if (r < 0) {
+                } បើមិនដូច្នេះ ប្រសិនបើ (r < 0) {
                         free(t);
 
-                        if (r == -ENOMEM)
+                        ប្រសិនបើ (r == -ENOMEM)
                                 enomem = true;
 
                         continue;
-                } else if (root) {
-                        char *x;
+                } បើមិនដូច្នេះ ប្រសិនបើ (root) {
+                        var_na *x;
 
                         free(t);
                         x = path_startswith(u, root);
-                        if (x) {
+                        ប្រសិនបើ (x) {
                                 /* restore the slash if it was lost */
-                                if (!startswith(x, "/"))
+                                ប្រសិនបើ (!startswith(x, "/"))
                                         *(--x) = '/';
 
                                 t = strdup(x);
                                 free(u);
-                                if (!t) {
+                                ប្រសិនបើ (!t) {
                                         enomem = true;
                                         continue;
                                 }
                                 u = t;
-                        } else {
+                        } បើមិនដូច្នេះ {
                                 /* canonicalized path goes outside of
                                  * prefix, keep the original path instead */
                                 free_and_replace(u, orig);
                         }
-                } else
+                } បើមិនដូច្នេះ
                         free(t);
 
                 l[k++] = u;
@@ -331,31 +331,31 @@ char** path_strv_resolve(char **l, const char *root) {
 
         l[k] = NULL;
 
-        if (enomem)
-                return NULL;
+        ប្រសិនបើ (enomem)
+                ត្រឡប់ NULL;
 
-        return l;
+        ត្រឡប់ l;
 }
 
-char** path_strv_resolve_uniq(char **l, const char *root) {
+var_na** path_strv_resolve_uniq(var_na **l, const var_na *root) {
 
-        if (strv_isempty(l))
-                return l;
+        ប្រសិនបើ (strv_isempty(l))
+                ត្រឡប់ l;
 
-        if (!path_strv_resolve(l, root))
-                return NULL;
+        ប្រសិនបើ (!path_strv_resolve(l, root))
+                ត្រឡប់ NULL;
 
-        return strv_uniq(l);
+        ត្រឡប់ strv_uniq(l);
 }
 
-char* skip_leading_slash(const char *p) {
-        return skip_leading_chars(p, "/");
+var_na* skip_leading_slash(const var_na *p) {
+        ត្រឡប់ skip_leading_chars(p, "/");
 }
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags) {
+var_na* path_simplify_full(var_na *path, PathSimplifyFlags flags) {
         bool add_slash = false, keep_trailing_slash, absolute, beginning = true;
-        char *f = path;
-        int r;
+        var_na *f = path;
+        ចំនួនគត់ r;
 
         /* Removes redundant inner and trailing slashes. Also removes unnecessary dots.
          * Modifies the passed string in-place.
@@ -366,34 +366,34 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
          * /../foo/bar/..    becomes /foo/bar/..
          */
 
-        if (isempty(path))
-                return path;
+        ប្រសិនបើ (isempty(path))
+                ត្រឡប់ path;
 
         keep_trailing_slash = FLAGS_SET(flags, PATH_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(path, "/");
 
         absolute = path_is_absolute(path);
         f += absolute;  /* Keep leading /, if present. */
 
-        for (const char *p = f;;) {
-                const char *e;
+        សម្រាប់ (const var_na *p = f;;) {
+                const var_na *e;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        break;
+                ប្រសិនបើ (r == 0)
+                        bha_nga;
 
-                if (r > 0 && absolute && beginning && path_startswith(e, ".."))
+                ប្រសិនបើ (r > 0 && absolute && beginning && path_startswith(e, ".."))
                         /* If we're at the beginning of an absolute path, we can safely skip ".." */
                         continue;
 
                 beginning = false;
 
-                if (add_slash)
+                ប្រសិនបើ (add_slash)
                         *f++ = '/';
 
-                if (r < 0) {
+                ប្រសិនបើ (r < 0) {
                         /* if path is invalid, then refuse to simplify the remaining part. */
                         memmove(f, p, strlen(p) + 1);
-                        return path;
+                        ត្រឡប់ path;
                 }
 
                 memmove(f, e, r);
@@ -403,33 +403,33 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         }
 
         /* Special rule, if we stripped everything, we need a "." for the current directory. */
-        if (f == path)
+        ប្រសិនបើ (f == path)
                 *f++ = '.';
 
-        if (*(f-1) != '/' && keep_trailing_slash)
+        ប្រសិនបើ (*(f-1) != '/' && keep_trailing_slash)
                 *f++ = '/';
 
         *f = '\0';
-        return path;
+        ត្រឡប់ path;
 }
 
-int path_simplify_alloc(const char *path, char **ret) {
+ចំនួនគត់ path_simplify_alloc(const var_na *path, var_na **ret) {
         assert(ret);
 
-        if (!path) {
+        ប្រសិនបើ (!path) {
                 *ret = NULL;
-                return 0;
+                ត្រឡប់ 0;
         }
 
-        char *t = strdup(path);
-        if (!t)
-                return -ENOMEM;
+        var_na *t = strdup(path);
+        ប្រសិនបើ (!t)
+                ត្រឡប់ -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-char* path_startswith_full(const char *original_path, const char *prefix, PathStartWithFlags flags) {
+var_na* path_startswith_full(const var_na *original_path, const var_na *prefix, PathStartWithFlags flags) {
         assert(original_path);
         assert(prefix);
 
@@ -443,147 +443,147 @@ char* path_startswith_full(const char *original_path, const char *prefix, PathSt
          * Returns NULL otherwise.
          */
 
-        const char *path = original_path;
+        const var_na *path = original_path;
 
-        if ((path[0] == '/') != (prefix[0] == '/'))
-                return NULL;
+        ប្រសិនបើ ((path[0] == '/') != (prefix[0] == '/'))
+                ត្រឡប់ NULL;
 
-        for (;;) {
-                const char *p, *q;
-                int m, n;
+        សម្រាប់ (;;) {
+                const var_na *p, *q;
+                ចំនួនគត់ m, n;
 
                 m = path_find_first_component(&path, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &p);
-                if (m < 0)
-                        return NULL;
+                ប្រសិនបើ (m < 0)
+                        ត្រឡប់ NULL;
 
                 n = path_find_first_component(&prefix, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &q);
-                if (n < 0)
-                        return NULL;
+                ប្រសិនបើ (n < 0)
+                        ត្រឡប់ NULL;
 
-                if (n == 0) {
-                        if (!p)
+                ប្រសិនបើ (n == 0) {
+                        ប្រសិនបើ (!p)
                                 p = path;
 
-                        if (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
+                        ប្រសិនបើ (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
 
-                                if (p <= original_path)
-                                        return NULL;
+                                ប្រសិនបើ (p <= original_path)
+                                        ត្រឡប់ NULL;
 
                                 p--;
 
-                                if (*p != '/')
-                                        return NULL;
+                                ប្រសិនបើ (*p != '/')
+                                        ត្រឡប់ NULL;
                         }
 
-                        return (char*) p;
+                        ត្រឡប់ (var_na*) p;
                 }
 
-                if (m != n)
-                        return NULL;
+                ប្រសិនបើ (m != n)
+                        ត្រឡប់ NULL;
 
-                if (!strneq(p, q, m))
-                        return NULL;
+                ប្រសិនបើ (!strneq(p, q, m))
+                        ត្រឡប់ NULL;
         }
 }
 
-int path_compare(const char *a, const char *b) {
-        int r;
+ចំនួនគត់ path_compare(const var_na *a, const var_na *b) {
+        ចំនួនគត់ r;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        ប្រសិនបើ (r != 0)
+                ត្រឡប់ r;
 
         /* A relative path and an absolute path must not compare as equal.
          * Which one is sorted before the other does not really matter.
          * Here a relative path is ordered before an absolute path. */
         r = CMP(path_is_absolute(a), path_is_absolute(b));
-        if (r != 0)
-                return r;
+        ប្រសិនបើ (r != 0)
+                ត្រឡប់ r;
 
-        for (;;) {
-                const char *aa, *bb;
-                int j, k;
+        សម្រាប់ (;;) {
+                const var_na *aa, *bb;
+                ចំនួនគត់ j, k;
 
                 j = path_find_first_component(&a, true, &aa);
                 k = path_find_first_component(&b, true, &bb);
 
-                if (j < 0 || k < 0) {
+                ប្រសិនបើ (j < 0 || k < 0) {
                         /* When one of paths is invalid, order invalid path after valid one. */
                         r = CMP(j < 0, k < 0);
-                        if (r != 0)
-                                return r;
+                        ប្រសិនបើ (r != 0)
+                                ត្រឡប់ r;
 
                         /* fallback to use strcmp() if both paths are invalid. */
-                        return strcmp(a, b);
+                        ត្រឡប់ strcmp(a, b);
                 }
 
                 /* Order prefixes first: "/foo" before "/foo/bar" */
-                if (j == 0) {
-                        if (k == 0)
-                                return 0;
-                        return -1;
+                ប្រសិនបើ (j == 0) {
+                        ប្រសិនបើ (k == 0)
+                                ត្រឡប់ 0;
+                        ត្រឡប់ -1;
                 }
-                if (k == 0)
-                        return 1;
+                ប្រសិនបើ (k == 0)
+                        ត្រឡប់ 1;
 
                 /* Alphabetical sort: "/foo/aaa" before "/foo/b" */
                 r = memcmp(aa, bb, MIN(j, k));
-                if (r != 0)
-                        return r;
+                ប្រសិនបើ (r != 0)
+                        ត្រឡប់ r;
 
                 /* Sort "/foo/a" before "/foo/aaa" */
                 r = CMP(j, k);
-                if (r != 0)
-                        return r;
+                ប្រសិនបើ (r != 0)
+                        ត្រឡប់ r;
         }
 }
 
-int path_compare_filename(const char *a, const char *b) {
-        _cleanup_free_ char *fa = NULL, *fb = NULL;
-        int r, j, k;
+ចំនួនគត់ path_compare_filename(const var_na *a, const var_na *b) {
+        _cleanup_free_ var_na *fa = NULL, *fb = NULL;
+        ចំនួនគត់ r, j, k;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        ប្រសិនបើ (r != 0)
+                ត្រឡប់ r;
 
         j = path_extract_filename(a, &fa);
         k = path_extract_filename(b, &fb);
 
         /* When one of paths is "." or root, then order it earlier. */
         r = CMP(j != -EADDRNOTAVAIL, k != -EADDRNOTAVAIL);
-        if (r != 0)
-                return r;
+        ប្រសិនបើ (r != 0)
+                ត្រឡប់ r;
 
         /* When one of paths is invalid (or we get OOM), order invalid path after valid one. */
         r = CMP(j < 0, k < 0);
-        if (r != 0)
-                return r;
+        ប្រសិនបើ (r != 0)
+                ត្រឡប់ r;
 
         /* fallback to use strcmp() if both paths are invalid. */
-        if (j < 0)
-                return strcmp(a, b);
+        ប្រសិនបើ (j < 0)
+                ត្រឡប់ strcmp(a, b);
 
-        return strcmp(fa, fb);
+        ត្រឡប់ strcmp(fa, fb);
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags) {
+ចំនួនគត់ path_equal_or_inode_same_full(const var_na *a, const var_na *b, ចំនួនគត់ flags) {
         /* Returns true if paths are of the same entry, false if not, <0 on error. */
 
-        if (path_equal(a, b))
-                return 1;
+        ប្រសិនបើ (path_equal(a, b))
+                ត្រឡប់ 1;
 
-        if (!a || !b)
-                return 0;
+        ប្រសិនបើ (!a || !b)
+                ត្រឡប់ 0;
 
-        return inode_same(a, b, flags);
+        ត្រឡប់ inode_same(a, b, flags);
 }
 
-char* path_extend_internal(char **x, ...) {
+var_na* path_extend_internal(var_na **x, ...) {
         size_t sz, old_sz;
-        char *q, *nx;
-        const char *p;
+        var_na *q, *nx;
+        const var_na *p;
         va_list ap;
         bool slash;
 
@@ -609,16 +609,16 @@ char* path_extend_internal(char **x, ...) {
 
         sz = old_sz = x ? strlen_ptr(*x) : 0;
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
+        ខណៈពេល ((p = va_arg(ap, var_na*)) != POINTER_MAX) {
                 size_t add;
 
-                if (isempty(p))
+                ប្រសិនបើ (isempty(p))
                         continue;
 
                 add = 1 + strlen(p);
-                if (sz > SIZE_MAX - add) { /* overflow check */
+                ប្រសិនបើ (sz > SIZE_MAX - add) { /* overflow check */
                         va_end(ap);
-                        return NULL;
+                        ត្រឡប់ NULL;
                 }
 
                 sz += add;
@@ -626,14 +626,14 @@ char* path_extend_internal(char **x, ...) {
         va_end(ap);
 
         nx = realloc(x ? *x : NULL, GREEDY_ALLOC_ROUND_UP(sz+1));
-        if (!nx)
-                return NULL;
-        if (x)
+        ប្រសិនបើ (!nx)
+                ត្រឡប់ NULL;
+        ប្រសិនបើ (x)
                 *x = nx;
 
-        if (old_sz > 0)
+        ប្រសិនបើ (old_sz > 0)
                 slash = nx[old_sz-1] == '/';
-        else {
+        បើមិនដូច្នេះ {
                 nx[old_sz] = 0;
                 slash = true; /* no need to generate a slash anymore */
         }
@@ -641,11 +641,11 @@ char* path_extend_internal(char **x, ...) {
         q = nx + old_sz;
 
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                if (isempty(p))
+        ខណៈពេល ((p = va_arg(ap, var_na*)) != POINTER_MAX) {
+                ប្រសិនបើ (isempty(p))
                         continue;
 
-                if (!slash && p[0] != '/')
+                ប្រសិនបើ (!slash && p[0] != '/')
                         *(q++) = '/';
 
                 q = stpcpy(q, p);
@@ -653,13 +653,13 @@ char* path_extend_internal(char **x, ...) {
         }
         va_end(ap);
 
-        return nx;
+        ត្រឡប់ nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *resolved = NULL;
-        int r;
+ចំនួនគត់ open_and_check_executable(const var_na *name, const var_na *root, var_na **ret_path, ចំនួនគត់ *ret_fd) {
+        _cleanup_close_ ចំនួនគត់ fd = -EBADF;
+        _cleanup_free_ var_na *resolved = NULL;
+        ចំនួនគត់ r;
 
         assert(name);
 
@@ -667,187 +667,187 @@ int open_and_check_executable(const char *name, const char *root, char **ret_pat
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        ប្រសិនបើ (root) {
                 /* prefix root to name in case full paths are not specified */
                 r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 name = resolved;
-        } else {
+        } បើមិនដូច្នេះ {
                 /* We need to use O_PATH because there may be executables for which we have only exec permissions,
                  * but not read (usually suid executables). */
                 fd = open(name, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
+                ប្រសិនបើ (fd < 0)
+                        ត្រឡប់ -errno;
         }
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = access_fd(fd, X_OK);
-        if (r == -ENOSYS)
+        ប្រសិនបើ (r == -ENOSYS)
                 /* /proc/ is not mounted. Fall back to access(). */
                 r = RET_NERRNO(access(name, X_OK));
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (ret_path) {
-                if (resolved)
+        ប្រសិនបើ (ret_path) {
+                ប្រសិនបើ (resolved)
                         *ret_path = TAKE_PTR(resolved);
-                else {
+                បើមិនដូច្នេះ {
                         r = path_make_absolute_cwd(name, ret_path);
-                        if (r < 0)
-                                return r;
+                        ប្រសិនបើ (r < 0)
+                                ត្រឡប់ r;
 
                         path_simplify(*ret_path);
                 }
         }
 
-        if (ret_fd)
+        ប្រសិនបើ (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
+ចំនួនគត់ find_executable_full(
+                const var_na *name,
+                const var_na *root,
+                var_na * const *exec_search_path,
                 bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd) {
+                var_na **ret_filename,
+                ចំនួនគត់ *ret_fd) {
 
-        int last_error = -ENOENT, r = 0;
+        ចំនួនគត់ last_error = -ENOENT, r = 0;
 
         assert(name);
 
-        if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+        ប្រសិនបើ (is_path(name))
+                ត្រឡប់ open_and_check_executable(name, root, ret_filename, ret_fd);
 
-        if (exec_search_path) {
+        ប្រសិនបើ (exec_search_path) {
                 STRV_FOREACH(element, exec_search_path) {
-                        _cleanup_free_ char *full_path = NULL;
+                        _cleanup_free_ var_na *full_path = NULL;
 
-                        if (!path_is_absolute(*element)) {
+                        ប្រសិនបើ (!path_is_absolute(*element)) {
                                 log_debug("Exec search path '%s' isn't absolute, ignoring.", *element);
                                 continue;
                         }
 
                         full_path = path_join(*element, name);
-                        if (!full_path)
-                                return -ENOMEM;
+                        ប្រសិនបើ (!full_path)
+                                ត្រឡប់ -ENOMEM;
 
                         r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
-                        if (r >= 0)
-                                return 0;
-                        if (r != -EACCES)
+                        ប្រសិនបើ (r >= 0)
+                                ត្រឡប់ 0;
+                        ប្រសិនបើ (r != -EACCES)
                                 last_error = r;
                 }
-                return last_error;
+                ត្រឡប់ last_error;
         }
 
-        const char *p = NULL;
+        const var_na *p = NULL;
 
-        if (use_path_envvar)
+        ប្រសិនបើ (use_path_envvar)
                 /* Plain getenv, not secure_getenv, because we want to actually allow the user to pick the
                  * binary. */
                 p = getenv("PATH");
-        if (!p)
+        ប្រសិនបើ (!p)
                 p = default_PATH();
 
         /* Resolve a single-component name to a full path */
-        for (;;) {
-                _cleanup_free_ char *element = NULL;
+        សម្រាប់ (;;) {
+                _cleanup_free_ var_na *element = NULL;
 
                 r = extract_first_word(&p, &element, ":", EXTRACT_RELAX|EXTRACT_DONT_COALESCE_SEPARATORS);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
+                ប្រសិនបើ (r == 0)
+                        bha_nga;
 
-                if (!path_is_absolute(element)) {
+                ប្រសិនបើ (!path_is_absolute(element)) {
                         log_debug("Exec search path '%s' isn't absolute, ignoring.", element);
                         continue;
                 }
 
-                if (!path_extend(&element, name))
-                        return -ENOMEM;
+                ប្រសិនបើ (!path_extend(&element, name))
+                        ត្រឡប់ -ENOMEM;
 
                 r = open_and_check_executable(element, root, ret_filename, ret_fd);
-                if (r >= 0) /* Found it! */
-                        return 0;
+                ប្រសិនបើ (r >= 0) /* Found it! */
+                        ត្រឡប់ 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
-                if (r != -EACCES)
+                ប្រសិនបើ (r != -EACCES)
                         last_error = r;
         }
 
-        return last_error;
+        ត្រឡប់ last_error;
 }
 
-static int executable_is_good(const char *executable) {
-        _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
+static ចំនួនគត់ executable_is_good(const var_na *executable) {
+        _cleanup_free_ var_na *p = NULL, *d = NULL;
+        ចំនួនគត់ r;
 
         r = find_executable(executable, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r == -ENOENT)
+                ត្រឡប់ 0;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         /* An fsck that is linked to /bin/true is a non-existent fsck */
 
         r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r == -EINVAL) /* not a symlink */
+                ត្រឡប់ 1;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return !PATH_IN_SET(d, "true",
+        ត្រឡប់ !PATH_IN_SET(d, "true",
                                "/bin/true",
                                "/usr/bin/true",
                                "/dev/null");
 }
 
-int fsck_exists(void) {
-        return executable_is_good("fsck");
+ចំនួនគត់ fsck_exists(void) {
+        ត្រឡប់ executable_is_good("fsck");
 }
 
-int fsck_exists_for_fstype(const char *fstype) {
-        const char *checker;
-        int r;
+ចំនួនគត់ fsck_exists_for_fstype(const var_na *fstype) {
+        const var_na *checker;
+        ចំនួនគត់ r;
 
         assert(fstype);
 
-        if (streq(fstype, "auto"))
-                return -EINVAL;
+        ប្រសិនបើ (streq(fstype, "auto"))
+                ត្រឡប់ -EINVAL;
 
         r = fsck_exists();
-        if (r <= 0)
-                return r;
+        ប្រសិនបើ (r <= 0)
+                ត្រឡប់ r;
 
         checker = strjoina("fsck.", fstype);
-        return executable_is_good(checker);
+        ត្រឡប់ executable_is_good(checker);
 }
 
-static const char* skip_slash_or_dot(const char *p) {
+static const var_na* skip_slash_or_dot(const var_na *p) {
         POINTER_MAY_BE_NULL(p);
 
-        for (; !isempty(p); p++) {
-                if (*p == '/')
+        សម្រាប់ (; !isempty(p); p++) {
+                ប្រសិនបើ (*p == '/')
                         continue;
-                if (startswith(p, "./")) {
+                ប្រសិនបើ (startswith(p, "./")) {
                         p++;
                         continue;
                 }
-                break;
+                bha_nga;
         }
-        return p;
+        ត្រឡប់ p;
 }
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
-        const char *q, *first, *end_first, *next;
+ចំនួនគត់ path_find_first_component(const var_na **p, bool accept_dot_dot, const var_na **ret) {
+        const var_na *q, *first, *end_first, *next;
         size_t len;
 
         assert(p);
@@ -888,53 +888,53 @@ int path_find_first_component(const char **p, bool accept_dot_dot, const char **
         q = *p;
 
         first = skip_slash_or_dot(q);
-        if (isempty(first)) {
+        ប្រសិនបើ (isempty(first)) {
                 *p = first;
-                if (ret)
+                ប្រសិនបើ (ret)
                         *ret = NULL;
-                return 0;
+                ត្រឡប់ 0;
         }
-        if (streq(first, ".")) {
+        ប្រសិនបើ (streq(first, ".")) {
                 *p = first + 1;
-                if (ret)
+                ប្រសិនបើ (ret)
                         *ret = NULL;
-                return 0;
+                ត្រឡប់ 0;
         }
 
         end_first = strchrnul(first, '/');
         len = end_first - first;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
-                return -EINVAL;
+        ប្រសិនបើ (len > NAME_MAX)
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
+                ត្រឡប់ -EINVAL;
 
         next = skip_slash_or_dot(end_first);
 
         *p = next + streq(next, ".");
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = first;
-        return len;
+        ត្រឡប់ len;
 }
 
-static const char* skip_slash_or_dot_backward(const char *path, const char *q) {
+static const var_na* skip_slash_or_dot_backward(const var_na *path, const var_na *q) {
         assert(path);
         assert(!q || q >= path);
 
-        for (; q; q = PTR_SUB1(q, path)) {
-                if (*q == '/')
+        សម្រាប់ (; q; q = PTR_SUB1(q, path)) {
+                ប្រសិនបើ (*q == '/')
                         continue;
-                if (q > path && strneq(q - 1, "/.", 2))
+                ប្រសិនបើ (q > path && strneq(q - 1, "/.", 2))
                         continue;
-                if (q == path && *q == '.')
+                ប្រសិនបើ (q == path && *q == '.')
                         continue;
-                break;
+                bha_nga;
         }
-        return q;
+        ត្រឡប់ q;
 }
 
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
-        const char *q, *last_end, *last_begin;
+ចំនួនគត់ path_find_last_component(const var_na *path, bool accept_dot_dot, const var_na **next, const var_na **ret) {
+        const var_na *q, *last_end, *last_begin;
         size_t len;
 
         POINTER_MAY_BE_NULL(next);
@@ -974,61 +974,61 @@ int path_find_last_component(const char *path, bool accept_dot_dot, const char *
         *   Output: return value: -EINVAL
         */
 
-        if (isempty(path)) {
-                if (next)
+        ប្រសិនបើ (isempty(path)) {
+                ប្រសិនបើ (next)
                         *next = path;
-                if (ret)
+                ប្រសិនបើ (ret)
                         *ret = NULL;
-                return 0;
+                ត្រឡប់ 0;
         }
 
-        if (next && *next) {
-                if (*next < path || *next > path + strlen(path))
-                        return -EINVAL;
-                if (*next == path) {
-                        if (ret)
+        ប្រសិនបើ (next && *next) {
+                ប្រសិនបើ (*next < path || *next > path + strlen(path))
+                        ត្រឡប់ -EINVAL;
+                ប្រសិនបើ (*next == path) {
+                        ប្រសិនបើ (ret)
                                 *ret = NULL;
-                        return 0;
+                        ត្រឡប់ 0;
                 }
-                if (!IN_SET(**next, '\0', '/'))
-                        return -EINVAL;
+                ប្រសិនបើ (!IN_SET(**next, '\0', '/'))
+                        ត្រឡប់ -EINVAL;
                 q = *next - 1;
-        } else
+        } បើមិនដូច្នេះ
                 q = path + strlen(path) - 1;
 
         q = skip_slash_or_dot_backward(path, q);
-        if (!q) { /* the root directory, "." or "./" */
-                if (next)
+        ប្រសិនបើ (!q) { /* the root directory, "." or "./" */
+                ប្រសិនបើ (next)
                         *next = path;
-                if (ret)
+                ប្រសិនបើ (ret)
                         *ret = NULL;
-                return 0;
+                ត្រឡប់ 0;
         }
 
         last_end = q + 1;
 
-        while (q && *q != '/')
+        ខណៈពេល (q && *q != '/')
                 q = PTR_SUB1(q, path);
 
         last_begin = q ? q + 1 : path;
         len = last_end - last_begin;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
-                return -EINVAL;
+        ប្រសិនបើ (len > NAME_MAX)
+                ត្រឡប់ -EINVAL;
+        ប្រសិនបើ (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
+                ត្រឡប់ -EINVAL;
 
-        if (next) {
+        ប្រសិនបើ (next) {
                 q = skip_slash_or_dot_backward(path, q);
                 *next = q ? q + 1 : path;
         }
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = last_begin;
-        return len;
+        ត្រឡប់ len;
 }
 
-const char* last_path_component(const char *path) {
+const var_na* last_path_component(const var_na *path) {
 
         /* Finds the last component of the path, preserving the optional trailing slash that signifies a directory.
          *
@@ -1052,29 +1052,29 @@ const char* last_path_component(const char *path) {
 
         unsigned l, k;
 
-        if (!path)
-                return NULL;
+        ប្រសិនបើ (!path)
+                ត្រឡប់ NULL;
 
         l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
+        ប្រសិនបើ (l == 0) /* special case — an empty string */
+                ត្រឡប់ path;
 
-        while (k > 0 && path[k-1] == '/')
+        ខណៈពេល (k > 0 && path[k-1] == '/')
                 k--;
 
-        if (k == 0) /* the root directory */
-                return path + l - 1;
+        ប្រសិនបើ (k == 0) /* the root directory */
+                ត្រឡប់ path + l - 1;
 
-        while (k > 0 && path[k-1] != '/')
+        ខណៈពេល (k > 0 && path[k-1] != '/')
                 k--;
 
-        return path + k;
+        ត្រឡប់ path + k;
 }
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
-        _cleanup_free_ char *d = NULL;
-        const char *c, *next = NULL;
-        int r;
+ចំនួនគត់ path_split_prefix_filename(const var_na *path, var_na **ret_dir, var_na **ret_filename) {
+        _cleanup_free_ var_na *d = NULL;
+        const var_na *c, *next = NULL;
+        ចំនួនគត់ r;
 
         POINTER_MAY_BE_NULL(path);
 
@@ -1092,119 +1092,119 @@ int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_file
          * This function guarantees to return a fully valid filename, i.e. one that passes
          * filename_is_valid() – this means "." and ".." are not accepted. */
 
-        if (isempty(path))
-                return -EINVAL;
+        ប្រសិនបើ (isempty(path))
+                ត្រឡប់ -EINVAL;
 
         r = path_find_last_component(path, /* accept_dot_dot = */ false, &next, &c);
-        if (r < 0)
-                return r;
-        if (r == 0) /* root directory or "." */
-                return -EADDRNOTAVAIL;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (r == 0) /* root directory or "." */
+                ត្រឡប់ -EADDRNOTAVAIL;
 
-        if (ret_dir) {
-                if (next == path) {
-                        if (*path != '/') { /* filename only */
-                                if (!ret_filename)
-                                        return -EDESTADDRREQ;
-                        } else {
+        ប្រសិនបើ (ret_dir) {
+                ប្រសិនបើ (next == path) {
+                        ប្រសិនបើ (*path != '/') { /* filename only */
+                                ប្រសិនបើ (!ret_filename)
+                                        ត្រឡប់ -EDESTADDRREQ;
+                        } បើមិនដូច្នេះ {
                                 d = strdup("/");
-                                if (!d)
-                                        return -ENOMEM;
+                                ប្រសិនបើ (!d)
+                                        ត្រឡប់ -ENOMEM;
                         }
-                } else {
+                } បើមិនដូច្នេះ {
                         d = strndup(path, next - path);
-                        if (!d)
-                                return -ENOMEM;
+                        ប្រសិនបើ (!d)
+                                ត្រឡប់ -ENOMEM;
 
                         path_simplify(d);
 
-                        if (!path_is_valid(d))
-                                return -EINVAL;
+                        ប្រសិនបើ (!path_is_valid(d))
+                                ត្រឡប់ -EINVAL;
                 }
 
-        } else if (!path_is_valid(path))
+        } បើមិនដូច្នេះ ប្រសិនបើ (!path_is_valid(path))
                 /* We didn't validate the dir prefix, hence check if the whole path is valid now */
-                return -EINVAL;
+                ត្រឡប់ -EINVAL;
 
-        if (ret_filename) {
-                char *fn = strndup(c, r);
-                if (!fn)
-                        return -ENOMEM;
+        ប្រសិនបើ (ret_filename) {
+                var_na *fn = strndup(c, r);
+                ប្រសិនបើ (!fn)
+                        ត្រឡប់ -ENOMEM;
 
                 *ret_filename = fn;
         }
 
-        if (ret_dir)
+        ប្រសិនបើ (ret_dir)
                 *ret_dir = TAKE_PTR(d);
 
-        return strlen(c) > (size_t) r ? O_DIRECTORY : 0;
+        ត្រឡប់ strlen(c) > (size_t) r ? O_DIRECTORY : 0;
 }
 
-bool filename_part_is_valid(const char *p) {
-        const char *e;
+bool filename_part_is_valid(const var_na *p) {
+        const var_na *e;
 
         /* Checks f the specified string is OK to be *part* of a filename. This is different from
          * filename_is_valid() as "." and ".." and "" are OK by this call, but not by filename_is_valid(). */
 
-        if (!p)
-                return false;
+        ប្រសិនបើ (!p)
+                ត្រឡប់ false;
 
         e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
+        ប្រសិនបើ (*e != 0)
+                ត្រឡប់ false;
 
-        if (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
-                return false;
+        ប្រសិនបើ (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
+                ត្រឡប់ false;
 
-        return true;
+        ត្រឡប់ true;
 }
 
-bool filename_is_valid(const char *p) {
+bool filename_is_valid(const var_na *p) {
 
-        if (isempty(p))
-                return false;
+        ប្រសិនបើ (isempty(p))
+                ត្រឡប់ false;
 
-        if (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
-                return false;
+        ប្រសិនបើ (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
+                ត្រឡប់ false;
 
-        return filename_part_is_valid(p);
+        ត្រឡប់ filename_part_is_valid(p);
 }
 
-bool path_is_valid_full(const char *p, bool accept_dot_dot) {
-        if (isempty(p))
-                return false;
+bool path_is_valid_full(const var_na *p, bool accept_dot_dot) {
+        ប្រសិនបើ (isempty(p))
+                ត្រឡប់ false;
 
-        for (const char *e = p;;) {
-                int r;
+        សម្រាប់ (const var_na *e = p;;) {
+                ចំនួនគត់ r;
 
                 r = path_find_first_component(&e, accept_dot_dot, NULL);
-                if (r < 0)
-                        return false;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ false;
 
-                if (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
+                ប្រសិនបើ (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
                                         * *with* the trailing NUL byte) */
-                        return false;
-                if (*e == 0)           /* End of string? Yay! */
-                        return true;
+                        ត្រឡប់ false;
+                ប្រសិនបើ (*e == 0)           /* End of string? Yay! */
+                        ត្រឡប់ true;
         }
 }
 
-bool path_is_normalized(const char *p) {
-        if (!path_is_safe(p))
-                return false;
+bool path_is_normalized(const var_na *p) {
+        ប្រសិនបើ (!path_is_safe(p))
+                ត្រឡប់ false;
 
-        if (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
+        ប្រសិនបើ (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
+                ត្រឡប់ false;
 
-        if (strstr(p, "//"))
-                return false;
+        ប្រសិនបើ (strstr(p, "//"))
+                ត្រឡប់ false;
 
-        return true;
+        ត្រឡប់ true;
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret) {
-        _cleanup_free_ char *b = NULL;
-        int r;
+ចំនួនគត់ file_in_same_dir(const var_na *path, const var_na *filename, var_na **ret) {
+        _cleanup_free_ var_na *b = NULL;
+        ចំនួនគត់ r;
 
         assert(path);
         assert(filename);
@@ -1213,40 +1213,40 @@ int file_in_same_dir(const char *path, const char *filename, char **ret) {
         /* This removes the last component of path and appends filename, unless the latter is absolute anyway
          * or the former isn't */
 
-        if (path_is_absolute(filename))
+        ប្រសិនបើ (path_is_absolute(filename))
                 b = strdup(filename);
-        else {
-                _cleanup_free_ char *dn = NULL;
+        បើមិនដូច្នេះ {
+                _cleanup_free_ var_na *dn = NULL;
 
                 r = path_extract_directory(path, &dn);
-                if (r == -EDESTADDRREQ) /* no path prefix */
+                ប្រសិនបើ (r == -EDESTADDRREQ) /* no path prefix */
                         b = strdup(filename);
-                else if (r < 0)
-                        return r;
-                else
+                បើមិនដូច្នេះ ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
+                បើមិនដូច្នេះ
                         b = path_join(dn, filename);
         }
-        if (!b)
-                return -ENOMEM;
+        ប្រសិនបើ (!b)
+                ត្រឡប់ -ENOMEM;
 
         *ret = TAKE_PTR(b);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-bool hidden_or_backup_file(const char *filename) {
+bool hidden_or_backup_file(const var_na *filename) {
         assert(filename);
 
-        if (filename[0] == '.' ||
+        ប្រសិនបើ (filename[0] == '.' ||
             STR_IN_SET(filename,
                        "lost+found",
                        "aquota.user",
                        "aquota.group") ||
             endswith(filename, "~"))
-                return true;
+                ត្រឡប់ true;
 
-        const char *dot = strrchr(filename, '.');
-        if (!dot)
-                return false;
+        const var_na *dot = strrchr(filename, '.');
+        ប្រសិនបើ (!dot)
+                ត្រឡប់ false;
 
         /* Please, let's not add more entries to the list below. If external projects think it's a good idea
          * to come up with always new suffixes and that everybody else should just adjust to that, then it
@@ -1262,7 +1262,7 @@ bool hidden_or_backup_file(const char *filename) {
          * ".foopkg.old" or ".foopkg~" instead.
          */
 
-        return STR_IN_SET(dot + 1,
+        ត្រឡប់ STR_IN_SET(dot + 1,
                           "ignore",
                           "rpmnew",
                           "rpmsave",
@@ -1283,7 +1283,7 @@ bool hidden_or_backup_file(const char *filename) {
                           "new");
 }
 
-bool is_device_path(const char *path) {
+bool is_device_path(const var_na *path) {
 
         /* Returns true for paths that likely refer to a device, either by path in sysfs or to something in
          * /dev. This accepts any path that starts with /dev/ or /sys/ and has something after that prefix.
@@ -1294,206 +1294,206 @@ bool is_device_path(const char *path) {
          * /../dev/sda, /dev, /sys, /usr/path, /usr/../dev/sda → no.
          */
 
-        const char *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
-        return !isempty(p);
+        const var_na *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
+        ត្រឡប់ !isempty(p);
 }
 
-bool valid_device_node_path(const char *path) {
+bool valid_device_node_path(const var_na *path) {
 
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
 
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
+        ប្រសិនបើ (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
+                ត្រឡប់ false;
 
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
+        ប្រសិនបើ (endswith(path, "/")) /* can't be a device node if it ends in a slash */
+                ត្រឡប់ false;
 
-        return path_is_normalized(path);
+        ត្រឡប់ path_is_normalized(path);
 }
 
-bool valid_device_allow_pattern(const char *path) {
+bool valid_device_allow_pattern(const var_na *path) {
         assert(path);
 
         /* Like valid_device_node_path(), but also allows full-subsystem expressions like those accepted by
          * DeviceAllow= and DeviceDeny=. */
 
-        if (STARTSWITH_SET(path, "block-", "char-"))
-                return true;
+        ប្រសិនបើ (STARTSWITH_SET(path, "block-", "char-"))
+                ត្រឡប់ true;
 
-        return valid_device_node_path(path);
+        ត្រឡប់ valid_device_node_path(path);
 }
 
-bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
+bool dot_or_dot_dot(const var_na *path) {
+        ប្រសិនបើ (!path)
+                ត្រឡប់ false;
+        ប្រសិនបើ (path[0] != '.')
+                ត្រឡប់ false;
+        ប្រសិនបើ (path[1] == 0)
+                ត្រឡប់ true;
+        ប្រសិនបើ (path[1] != '.')
+                ត្រឡប់ false;
 
-        return path[2] == 0;
+        ត្រឡប់ path[2] == 0;
 }
 
-bool path_implies_directory(const char *path) {
+bool path_implies_directory(const var_na *path) {
 
         /* Sometimes, if we look at a path we already know it must refer to a directory, because it is
          * suffixed with a slash, or its last component is "." or ".." */
 
-        if (!path)
-                return false;
+        ប្រសិនបើ (!path)
+                ត្រឡប់ false;
 
-        if (dot_or_dot_dot(path))
-                return true;
+        ប្រសិនបើ (dot_or_dot_dot(path))
+                ត្រឡប់ true;
 
-        return ENDSWITH_SET(path, "/", "/.", "/..");
+        ត្រឡប់ ENDSWITH_SET(path, "/", "/.", "/..");
 }
 
-bool empty_or_root(const char *path) {
+bool empty_or_root(const var_na *path) {
 
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
 
-        if (isempty(path))
-                return true;
+        ប្រសិនបើ (isempty(path))
+                ត្រឡប់ true;
 
-        return path_equal(path, "/");
+        ត្រឡប់ path_equal(path, "/");
 }
 
-const char* empty_to_root(const char *path) {
-        return isempty(path) ? "/" : path;
+const var_na* empty_to_root(const var_na *path) {
+        ត្រឡប់ isempty(path) ? "/" : path;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
-        int r;
+ចំនួនគត់ empty_or_root_harder_to_null(const var_na **path) {
+        ចំនួនគត់ r;
 
         assert(path);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
+        ប្រសិនបើ (empty_or_root(*path)) {
                 *path = NULL;
-                return 0;
+                ត្រឡប់ 0;
         }
 
         r = path_is_root(*path);
-        if (r < 0)
-                return r;
-        if (r > 0)
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
+        ប្រសិនបើ (r > 0)
                 *path = NULL;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-bool path_strv_contains(char * const *l, const char *path) {
+bool path_strv_contains(var_na * const *l, const var_na *path) {
         assert(path);
 
         STRV_FOREACH(i, l)
-                if (path_equal(*i, path))
-                        return true;
+                ប្រសិនបើ (path_equal(*i, path))
+                        ត្រឡប់ true;
 
-        return false;
+        ត្រឡប់ false;
 }
 
-bool prefixed_path_strv_contains(char * const *l, const char *path) {
+bool prefixed_path_strv_contains(var_na * const *l, const var_na *path) {
         assert(path);
 
         STRV_FOREACH(i, l) {
-                const char *j = *i;
+                const var_na *j = *i;
 
-                if (*j == '-')
+                ប្រសិនបើ (*j == '-')
                         j++;
-                if (*j == '+')
+                ប្រសិនបើ (*j == '+')
                         j++;
 
-                if (path_equal(j, path))
-                        return true;
+                ប្រសិនបើ (path_equal(j, path))
+                        ត្រឡប់ true;
         }
 
-        return false;
+        ត្រឡប់ false;
 }
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
+ចំនួនគត់ path_glob_can_match(const var_na *pattern, const var_na *prefix, var_na **ret) {
         assert(pattern);
         assert(prefix);
 
-        for (const char *a = pattern, *b = prefix;;) {
-                _cleanup_free_ char *g = NULL, *h = NULL;
-                const char *p, *q;
-                int r, s;
+        សម្រាប់ (const var_na *a = pattern, *b = prefix;;) {
+                _cleanup_free_ var_na *g = NULL, *h = NULL;
+                const var_na *p, *q;
+                ចំនួនគត់ r, s;
 
                 r = path_find_first_component(&a, /* accept_dot_dot= */ false, &p);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 s = path_find_first_component(&b, /* accept_dot_dot= */ false, &q);
-                if (s < 0)
-                        return s;
+                ប្រសិនបើ (s < 0)
+                        ត្រឡប់ s;
 
-                if (s == 0) {
+                ប្រសិនបើ (s == 0) {
                         /* The pattern matches the prefix. */
-                        if (ret) {
-                                char *t;
+                        ប្រសិនបើ (ret) {
+                                var_na *t;
 
                                 t = path_join(prefix, p);
-                                if (!t)
-                                        return -ENOMEM;
+                                ប្រសិនបើ (!t)
+                                        ត្រឡប់ -ENOMEM;
 
                                 *ret = t;
                         }
-                        return true;
+                        ត្រឡប់ true;
                 }
 
-                if (r == 0)
-                        break;
+                ប្រសិនបើ (r == 0)
+                        bha_nga;
 
-                if (r == s && strneq(p, q, r))
+                ប្រសិនបើ (r == s && strneq(p, q, r))
                         continue; /* common component. Check next. */
 
                 g = strndup(p, r);
-                if (!g)
-                        return -ENOMEM;
+                ប្រសិនបើ (!g)
+                        ត្រឡប់ -ENOMEM;
 
-                if (!string_is_glob(g))
-                        break;
+                ប្រសិនបើ (!string_is_glob(g))
+                        bha_nga;
 
                 /* We found a glob component. Check if the glob pattern matches the prefix component. */
 
                 h = strndup(q, s);
-                if (!h)
-                        return -ENOMEM;
+                ប្រសិនបើ (!h)
+                        ត្រឡប់ -ENOMEM;
 
                 r = fnmatch(g, h, 0);
-                if (r == FNM_NOMATCH)
-                        break;
-                if (r != 0) /* Failure to process pattern? */
-                        return -EINVAL;
+                ប្រសិនបើ (r == FNM_NOMATCH)
+                        bha_nga;
+                ប្រសិនបើ (r != 0) /* Failure to process pattern? */
+                        ត្រឡប់ -EINVAL;
         }
 
         /* The pattern does not match the prefix. */
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = NULL;
-        return false;
+        ត្រឡប់ false;
 }
 
-#if HAVE_SPLIT_BIN
-static bool dir_is_split(const char *a, const char *b) {
-        int r;
+#ប្រសិនបើ HAVE_SPLIT_BIN
+static bool dir_is_split(const var_na *a, const var_na *b) {
+        ចំនួនគត់ r;
 
         r = inode_same(a, b, AT_NO_AUTOMOUNT);
-        if (r < 0 && r != -ENOENT) {
+        ប្រសិនបើ (r < 0 && r != -ENOENT) {
                 log_debug_errno(r, "Failed to compare \"%s\" and \"%s\", assuming split directories: %m", a, b);
-                return true;
+                ត្រឡប់ true;
         }
-        return r == 0;
+        ត្រឡប់ r == 0;
 }
 #endif
 
-const char* default_PATH(void) {
-#if HAVE_SPLIT_BIN
-        static const char *default_path = NULL;
+const var_na* default_PATH(void) {
+#ប្រសិនបើ HAVE_SPLIT_BIN
+        static const var_na *default_path = NULL;
 
         /* Return one of the three sets of paths:
          * a) split /usr/s?bin, /usr/local/sbin doesn't matter.
@@ -1503,15 +1503,15 @@ const char* default_PATH(void) {
          * On error the fallback to the safe value with both directories as configured is returned.
          */
 
-        if (default_path)
-                return default_path;
+        ប្រសិនបើ (default_path)
+                ត្រឡប់ default_path;
 
-        if (dir_is_split("/usr/sbin", "/usr/bin"))
-                return (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
-        if (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
-                return (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
-        return (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
-#else
-        return DEFAULT_PATH_WITHOUT_SBIN;
+        ប្រសិនបើ (dir_is_split("/usr/sbin", "/usr/bin"))
+                ត្រឡប់ (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
+        ប្រសិនបើ (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
+                ត្រឡប់ (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
+        ត្រឡប់ (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
+#បើមិនដូច្នេះ
+        ត្រឡប់ DEFAULT_PATH_WITHOUT_SBIN;
 #endif
 }

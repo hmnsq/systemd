@@ -13,152 +13,152 @@
 #include "string-util.h"
 #include "sync-util.h"
 
-int fsync_directory_of_file(int fd) {
-        _cleanup_close_ int dfd = -EBADF;
-        struct stat st;
-        int r;
+ចំនួនគត់ fsync_directory_of_file(ចំនួនគត់ fd) {
+        _cleanup_close_ ចំនួនគត់ dfd = -EBADF;
+        sa_nracanaa stat st;
+        ចំនួនគត់ r;
 
         assert(fd >= 0);
 
         /* We only reasonably can do this for regular files and directories, or for O_PATH fds, hence check
          * for the inode type first */
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ប្រសិនបើ (fstat(fd, &st) < 0)
+                ត្រឡប់ -errno;
 
-        if (S_ISDIR(st.st_mode)) {
+        ប្រសិនបើ (S_ISDIR(st.st_mode)) {
                 dfd = openat(fd, "..", O_RDONLY|O_DIRECTORY|O_CLOEXEC, 0);
-                if (dfd < 0)
-                        return -errno;
+                ប្រសិនបើ (dfd < 0)
+                        ត្រឡប់ -errno;
 
-        } else if (!S_ISREG(st.st_mode)) { /* Regular files are OK regardless if O_PATH or not, for all other
+        } បើមិនដូច្នេះ ប្រសិនបើ (!S_ISREG(st.st_mode)) { /* Regular files are OK regardless if O_PATH or not, for all other
                                             * types check O_PATH flag */
                 r = fd_is_opath(fd);
-                if (r < 0)
-                        return r;
-                if (!r) /* If O_PATH this refers to the inode in the fs, in which case we can sensibly do
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
+                ប្រសិនបើ (!r) /* If O_PATH this refers to the inode in the fs, in which case we can sensibly do
                          * what is requested. Otherwise this refers to a socket, fifo or device node, where
                          * the concept of a containing directory doesn't make too much sense. */
-                        return -ENOTTY;
+                        ត្រឡប់ -ENOTTY;
         }
 
-        if (dfd < 0) {
-                _cleanup_free_ char *path = NULL;
+        ប្រសិនបើ (dfd < 0) {
+                _cleanup_free_ var_na *path = NULL;
 
                 r = fd_get_path(fd, &path);
-                if (r < 0) {
+                ប្រសិនបើ (r < 0) {
                         log_debug_errno(r, "Failed to query /proc/self/fd/%d%s: %m",
                                         fd,
                                         r == -ENOSYS ? ", ignoring" : "");
 
-                        if (r == -ENOSYS)
+                        ប្រសិនបើ (r == -ENOSYS)
                                 /* If /proc is not available, we're most likely running in some
                                  * chroot environment, and syncing the directory is not very
                                  * important in that case. Let's just silently do nothing. */
-                                return 0;
+                                ត្រឡប់ 0;
 
-                        return r;
+                        ត្រឡប់ r;
                 }
 
-                if (!path_is_absolute(path))
-                        return -EINVAL;
+                ប្រសិនបើ (!path_is_absolute(path))
+                        ត្រឡប់ -EINVAL;
 
                 dfd = open_parent(path, O_CLOEXEC|O_NOFOLLOW, 0);
-                if (dfd < 0)
-                        return dfd;
+                ប្រសិនបើ (dfd < 0)
+                        ត្រឡប់ dfd;
         }
 
-        return RET_NERRNO(fsync(dfd));
+        ត្រឡប់ RET_NERRNO(fsync(dfd));
 }
 
-int fsync_full(int fd) {
-        int r, q;
+ចំនួនគត់ fsync_full(ចំនួនគត់ fd) {
+        ចំនួនគត់ r, q;
 
         /* Sync both the file and the directory */
 
         r = RET_NERRNO(fsync(fd));
 
         q = fsync_directory_of_file(fd);
-        if (r < 0) /* Return earlier error */
-                return r;
-        if (q == -ENOTTY) /* Ignore if the 'fd' refers to a block device or so which doesn't really have a
+        ប្រសិនបើ (r < 0) /* Return earlier error */
+                ត្រឡប់ r;
+        ប្រសិនបើ (q == -ENOTTY) /* Ignore if the 'fd' refers to a block device or so which doesn't really have a
                            * parent dir */
-                return 0;
-        return q;
+                ត្រឡប់ 0;
+        ត្រឡប់ q;
 }
 
-int fsync_path_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int fd;
+ចំនួនគត់ fsync_path_at(ចំនួនគត់ at_fd, const var_na *path) {
+        _cleanup_close_ ចំនួនគត់ opened_fd = -EBADF;
+        ចំនួនគត់ fd;
 
-        if (isempty(path)) {
-                if (at_fd == AT_FDCWD) {
+        ប្រសិនបើ (isempty(path)) {
+                ប្រសិនបើ (at_fd == AT_FDCWD) {
                         opened_fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-                        if (opened_fd < 0)
-                                return -errno;
+                        ប្រសិនបើ (opened_fd < 0)
+                                ត្រឡប់ -errno;
 
                         fd = opened_fd;
-                } else
+                } បើមិនដូច្នេះ
                         fd = at_fd;
-        } else {
+        } បើមិនដូច្នេះ {
                 opened_fd = openat(at_fd, path, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
-                if (opened_fd < 0)
-                        return -errno;
+                ប្រសិនបើ (opened_fd < 0)
+                        ត្រឡប់ -errno;
 
                 fd = opened_fd;
         }
 
-        return RET_NERRNO(fsync(fd));
+        ត្រឡប់ RET_NERRNO(fsync(fd));
 }
 
-int fsync_parent_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
+ចំនួនគត់ fsync_parent_at(ចំនួនគត់ at_fd, const var_na *path) {
+        _cleanup_close_ ចំនួនគត់ opened_fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return fsync_directory_of_file(at_fd);
+        ប្រសិនបើ (isempty(path)) {
+                ប្រសិនបើ (at_fd != AT_FDCWD)
+                        ត្រឡប់ fsync_directory_of_file(at_fd);
 
                 opened_fd = open("..", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-                if (opened_fd < 0)
-                        return -errno;
+                ប្រសិនបើ (opened_fd < 0)
+                        ត្រឡប់ -errno;
 
-                return RET_NERRNO(fsync(opened_fd));
+                ត្រឡប់ RET_NERRNO(fsync(opened_fd));
         }
 
         opened_fd = openat(at_fd, path, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-        if (opened_fd < 0)
-                return -errno;
+        ប្រសិនបើ (opened_fd < 0)
+                ត្រឡប់ -errno;
 
-        return fsync_directory_of_file(opened_fd);
+        ត្រឡប់ fsync_directory_of_file(opened_fd);
 }
 
-int fsync_path_and_parent_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
+ចំនួនគត់ fsync_path_and_parent_at(ចំនួនគត់ at_fd, const var_na *path) {
+        _cleanup_close_ ចំនួនគត់ opened_fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return fsync_full(at_fd);
+        ប្រសិនបើ (isempty(path)) {
+                ប្រសិនបើ (at_fd != AT_FDCWD)
+                        ត្រឡប់ fsync_full(at_fd);
 
                 opened_fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-        } else
+        } បើមិនដូច្នេះ
                 opened_fd = openat(at_fd, path, O_RDONLY|O_NOFOLLOW|O_NONBLOCK|O_CLOEXEC);
-        if (opened_fd < 0)
-                return -errno;
+        ប្រសិនបើ (opened_fd < 0)
+                ត្រឡប់ -errno;
 
-        return fsync_full(opened_fd);
+        ត្រឡប់ fsync_full(opened_fd);
 }
 
-int syncfs_path(int at_fd, const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+ចំនួនគត់ syncfs_path(ចំនួនគត់ at_fd, const var_na *path) {
+        _cleanup_close_ ចំនួនគត់ fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return RET_NERRNO(syncfs(at_fd));
+        ប្រសិនបើ (isempty(path)) {
+                ប្រសិនបើ (at_fd != AT_FDCWD)
+                        ត្រឡប់ RET_NERRNO(syncfs(at_fd));
 
                 fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-        } else
+        } បើមិនដូច្នេះ
                 fd = openat(at_fd, path, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return -errno;
+        ប្រសិនបើ (fd < 0)
+                ត្រឡប់ -errno;
 
-        return RET_NERRNO(syncfs(fd));
+        ត្រឡប់ RET_NERRNO(syncfs(fd));
 }

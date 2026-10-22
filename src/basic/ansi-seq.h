@@ -10,7 +10,7 @@
  * sequences: for CSI and nF sequences that's the parameter, intermediate and final bytes, for "string"
  * sequences (OSC and friends) it's the string itself. */
 
-typedef enum AnsiSeqState {
+typedef ga_nanaa AnsiSeqState {
         ANSI_SEQ_STATE_GROUND,     /* regular characters */
         ANSI_SEQ_STATE_ESC,        /* ESC seen, or within an escape sequence that is neither CSI nor a string sequence */
         ANSI_SEQ_STATE_CSI,        /* within a CSI sequence */
@@ -21,7 +21,7 @@ typedef enum AnsiSeqState {
         _ANSI_SEQ_STATE_INVALID = -EINVAL,
 } AnsiSeqState;
 
-typedef enum AnsiSeqEvent {
+typedef ga_nanaa AnsiSeqEvent {
         ANSI_SEQ_EVENT_TEXT,       /* a regular character, not part of any sequence */
         ANSI_SEQ_EVENT_SEQUENCE,   /* a character belonging to a sequence that is not complete yet */
         ANSI_SEQ_EVENT_END,        /* the character completes a sequence, its payload may be queried */
@@ -34,10 +34,10 @@ typedef enum AnsiSeqEvent {
  * considered invalid and aborted. */
 #define ANSI_SEQ_STRING_MAX 192U
 
-typedef struct AnsiSeqParser {
+typedef sa_nracanaa AnsiSeqParser {
         AnsiSeqState state;
-        char introducer;    /* for string sequences: the character that introduced it, e.g. ']' for OSC */
-        char *string;       /* the accumulated payload of the most recent string sequence */
+        var_na introducer;    /* for string sequences: the character that introduced it, e.g. ']' for OSC */
+        var_na *string;       /* the accumulated payload of the most recent string sequence */
         size_t string_len;
         bool bad;           /* the current string sequence grew beyond ANSI_SEQ_STRING_MAX or is otherwise invalid */
         bool capture;       /* if true we'll capture the sequence */
@@ -46,11 +46,11 @@ typedef struct AnsiSeqParser {
 void ansi_seq_parser_done(AnsiSeqParser *p);
 
 /* Feeds a single character, returns an AnsiSeqEvent, or a negative errno on capture allocation failure */
-int ansi_seq_parser_feed(AnsiSeqParser *p, char c);
+ចំនួនគត់ ansi_seq_parser_feed(AnsiSeqParser *p, var_na c);
 
 /* Just like this, but eat up errors, and immediately submit character again */
-int ansi_seq_parser_feed_harder(AnsiSeqParser *p, char c);
+ចំនួនគត់ ansi_seq_parser_feed_harder(AnsiSeqParser *p, var_na c);
 
 /* After ANSI_SEQ_EVENT_END: the captured payload as NUL terminated string, or NULL if capturing is
  * off or the payload overflowed */
-const char* ansi_seq_parser_string(const AnsiSeqParser *p);
+const var_na* ansi_seq_parser_string(const AnsiSeqParser *p);

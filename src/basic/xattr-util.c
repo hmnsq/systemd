@@ -20,14 +20,14 @@
 /* Use a single cache for all of *xattrat syscalls (added in kernel 6.13) */
 static thread_local bool have_xattrat = true;
 
-static int normalize_and_maybe_pin_inode(
-                int *fd,
-                const char **path,
-                int *at_flags,
-                int *ret_tfd,
+static ចំនួនគត់ normalize_and_maybe_pin_inode(
+                ចំនួនគត់ *fd,
+                const var_na **path,
+                ចំនួនគត់ *at_flags,
+                ចំនួនគត់ *ret_tfd,
                 bool *ret_opath) {
 
-        int r;
+        ចំនួនគត់ r;
 
         assert(fd);
         assert(*fd >= 0 || *fd == AT_FDCWD);
@@ -38,46 +38,46 @@ static int normalize_and_maybe_pin_inode(
 
         *path = empty_to_null(*path); /* Normalize "" to NULL */
 
-        if (*fd == AT_FDCWD) {
-                if (!*path) /* Both unspecified? Then operate on current working directory */
+        ប្រសិនបើ (*fd == AT_FDCWD) {
+                ប្រសិនបើ (!*path) /* Both unspecified? Then operate on current working directory */
                         *path = ".";
 
                 *ret_tfd = -EBADF;
                 *ret_opath = false;
-                return 0;
+                ត្រឡប់ 0;
         }
 
         *at_flags |= AT_EMPTY_PATH;
 
-        if (!*path) {
+        ប្រសិនបើ (!*path) {
                 r = fd_is_opath(*fd);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
                 *ret_opath = r;
                 *ret_tfd = -EBADF;
-                return 0;
+                ត្រឡប់ 0;
         }
 
         /* If both have been specified, then we go via O_PATH */
 
-        int tfd = openat(*fd, *path, O_PATH|O_CLOEXEC|(FLAGS_SET(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
-        if (tfd < 0)
-                return -errno;
+        ចំនួនគត់ tfd = openat(*fd, *path, O_PATH|O_CLOEXEC|(FLAGS_SET(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
+        ប្រសិនបើ (tfd < 0)
+                ត្រឡប់ -errno;
 
         *fd = *ret_tfd = tfd;
         *path = NULL;
         *ret_opath = true;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
 static ssize_t getxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+                ចំនួនគត់ fd,
+                const var_na *path,
+                ចំនួនគត់ at_flags,
                 bool by_procfs,
-                const char *name,
-                char *buf,
+                const var_na *name,
+                var_na *buf,
                 size_t size) {
 
         ssize_t n;
@@ -88,30 +88,30 @@ static ssize_t getxattr_pinned_internal(
         assert(name);
         assert(buf || size == 0);
 
-        if (path)
+        ប្រសិនបើ (path)
                 n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? getxattr(path, name, buf, size)
                                                            : lgetxattr(path, name, buf, size);
-        else
+        បើមិនដូច្នេះ
                 n = by_procfs ? getxattr(FORMAT_PROC_FD_PATH(fd), name, buf, size)
                               : fgetxattr(fd, name, buf, size);
-        if (n < 0)
-                return -errno;
+        ប្រសិនបើ (n < 0)
+                ត្រឡប់ -errno;
 
         assert(size == 0 || (size_t) n <= size);
-        return n;
+        ត្រឡប់ n;
 }
 
-int getxattr_at_malloc(
-                int fd,
-                const char *path,
-                const char *name,
-                int at_flags,
-                char **ret,
+ចំនួនគត់ getxattr_at_malloc(
+                ចំនួនគត់ fd,
+                const var_na *path,
+                const var_na *name,
+                ចំនួនគត់ at_flags,
+                var_na **ret,
                 size_t *ret_size) {
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ ចំនួនគត់ opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        ចំនួនគត់ r;
 
         assert(fd >= 0 || fd == AT_FDCWD);
         assert(name);
@@ -128,87 +128,87 @@ int getxattr_at_malloc(
          */
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        សម្រាប់ (unsigned n_attempts = 7;;) {
+                _cleanup_free_ var_na *v = NULL;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                ប្រសិនបើ (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        ត្រឡប់ -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(var_na, l+1);
+                ប្រសិនបើ (!v)
+                        ត្រឡប់ -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
                 ssize_t n;
                 n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, v, l);
-                if (n >= 0) {
+                ប្រសិនបើ (n >= 0) {
                         /* Refuse extended attributes with embedded NUL bytes if the caller isn't interested
                          * in the size. After all this must mean the caller assumes we return a NUL
                          * terminated strings, but if there's a NUL byte embedded they are definitely not
                          * regular strings */
-                        if (!ret_size && n > 1 && memchr(v, 0, n - 1))
-                                return -EBADMSG;
+                        ប្រសិនបើ (!ret_size && n > 1 && memchr(v, 0, n - 1))
+                                ត្រឡប់ -EBADMSG;
 
                         v[n] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        if (ret_size)
+                        ប្រសិនបើ (ret_size)
                                 *ret_size = (size_t) n;
 
-                        return 0;
+                        ត្រឡប់ 0;
                 }
-                if (n != -ERANGE)
-                        return (int) n;
+                ប្រសិនបើ (n != -ERANGE)
+                        ត្រឡប់ (ចំនួនគត់) n;
 
                 n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, NULL, 0);
-                if (n < 0)
-                        return (int) n;
+                ប្រសិនបើ (n < 0)
+                        ត្រឡប់ (ចំនួនគត់) n;
 
                 l = (size_t) n;
         }
 }
 
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+ចំនួនគត់ getxattr_at_bool(ចំនួនគត់ fd, const var_na *path, const var_na *name, ចំនួនគត់ at_flags) {
+        _cleanup_free_ var_na *v = NULL;
+        ចំនួនគត់ r;
 
         r = getxattr_at_malloc(fd, path, name, at_flags, &v, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return parse_boolean(v);
+        ត្រឡប់ parse_boolean(v);
 }
 
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv) {
-        _cleanup_free_ char *nulstr = NULL;
+ចំនួនគត់ getxattr_at_strv(ចំនួនគត់ fd, const var_na *path, const var_na *name, ចំនួនគត់ at_flags, var_na ***ret_strv) {
+        _cleanup_free_ var_na *nulstr = NULL;
         size_t nulstr_size;
-        int r;
+        ចំនួនគត់ r;
 
         assert(ret_strv);
 
         r = getxattr_at_malloc(fd, path, name, at_flags, &nulstr, &nulstr_size);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        _cleanup_strv_free_ char **l = strv_parse_nulstr(nulstr, nulstr_size);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ var_na **l = strv_parse_nulstr(nulstr, nulstr_size);
+        ប្រសិនបើ (!l)
+                ត្រឡប់ -ENOMEM;
 
         *ret_strv = TAKE_PTR(l);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-static int listxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+static ចំនួនគត់ listxattr_pinned_internal(
+                ចំនួនគត់ fd,
+                const var_na *path,
+                ចំនួនគត់ at_flags,
                 bool by_procfs,
-                char *buf,
+                var_na *buf,
                 size_t size) {
 
         ssize_t n;
@@ -218,27 +218,27 @@ static int listxattr_pinned_internal(
         assert(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
         assert(buf || size == 0);
 
-        if (path)
+        ប្រសិនបើ (path)
                 n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? listxattr(path, buf, size)
                                                            : llistxattr(path, buf, size);
-        else
+        បើមិនដូច្នេះ
                 n = by_procfs ? listxattr(FORMAT_PROC_FD_PATH(fd), buf, size)
                               : flistxattr(fd, buf, size);
-        if (n < 0)
-                return -errno;
+        ប្រសិនបើ (n < 0)
+                ត្រឡប់ -errno;
 
         assert(size == 0 || (size_t) n <= size);
 
-        if (n > INT_MAX) /* We couldn't return this as 'int' anymore */
-                return -E2BIG;
+        ប្រសិនបើ (n > INT_MAX) /* We couldn't return this as 'int' anymore */
+                ត្រឡប់ -E2BIG;
 
-        return (int) n;
+        ត្រឡប់ (ចំនួនគត់) n;
 }
 
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret) {
-        _cleanup_close_ int opened_fd = -EBADF;
+ចំនួនគត់ listxattr_at_malloc(ចំនួនគត់ fd, const var_na *path, ចំនួនគត់ at_flags, var_na **ret) {
+        _cleanup_close_ ចំនួនគត់ opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        ចំនួនគត់ r;
 
         assert(fd >= 0 || fd == AT_FDCWD);
         assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
@@ -247,73 +247,73 @@ int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret) {
         /* This is to listxattr()/llistattr()/flistattr() what getxattr_at_malloc() is to getxattr()/… */
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        សម្រាប់ (unsigned n_attempts = 7;;) {
+                _cleanup_free_ var_na *v = NULL;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                ប្រសិនបើ (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        ត្រឡប់ -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(var_na, l+1);
+                ប្រសិនបើ (!v)
+                        ត្រឡប់ -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
                 r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, v, l);
-                if (r >= 0) {
+                ប្រសិនបើ (r >= 0) {
                         v[r] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        return r;
+                        ត្រឡប់ r;
                 }
-                if (r != -ERANGE)
-                        return r;
+                ប្រសិនបើ (r != -ERANGE)
+                        ត្រឡប់ r;
 
                 r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, NULL, 0);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
 
                 l = (size_t) r;
         }
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
+ចំនួនគត់ xsetxattr_full(
+                ចំនួនគត់ fd,
+                const var_na *path,
+                ចំនួនគត់ at_flags,
+                const var_na *name,
+                const var_na *value,
                 size_t size,
-                int xattr_flags) {
+                ចំនួនគត់ xattr_flags) {
 
-        int r;
+        ចំនួនគត់ r;
 
         assert(fd >= 0 || fd == AT_FDCWD);
         assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
         assert(name);
         assert(value || size == 0);
 
-        if (size == SIZE_MAX)
+        ប្រសិនបើ (size == SIZE_MAX)
                 size = strlen(value);
 
         /* Skip the write if the xattr already has the correct value, to avoid
          * unnecessary timestamp changes on the file. Only do this for plain
          * replace mode (xattr_flags == 0) — XATTR_CREATE callers expect
          * -EEXIST when the xattr already exists. */
-        _cleanup_free_ char *old_value = NULL;
+        _cleanup_free_ var_na *old_value = NULL;
         size_t old_size;
 
-        if (xattr_flags == 0 &&
+        ប្រសិនបើ (xattr_flags == 0 &&
             getxattr_at_malloc(fd, path, name, at_flags, &old_value, &old_size) >= 0 &&
             memcmp_nn(old_value, old_size, value, size) == 0)
-                return 0;
+                ត្រឡប់ 0;
 
-        if (have_xattrat && !isempty(path)) {
-                struct xattr_args args = {
+        ប្រសិនបើ (have_xattrat && !isempty(path)) {
+                sa_nracanaa xattr_args args = {
                         .value = PTR_TO_UINT64(value),
                         .size = size,
                         .flags = xattr_flags,
@@ -322,110 +322,110 @@ int xsetxattr_full(
                 r = RET_NERRNO(setxattrat(fd, path,
                                           at_flags_normalize_nofollow(at_flags),
                                           name,
-                                          &args, sizeof(args)));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                                          &args, parimaa_na(args)));
+                ប្រសិនបើ (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        ត្រឡប់ r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ ចំនួនគត់ opened_fd = -EBADF;
         bool by_procfs;
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (path)
+        ប្រសិនបើ (path)
                 r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(path, name, value, size, xattr_flags)
                                                            : lsetxattr(path, name, value, size, xattr_flags);
-        else
+        បើមិនដូច្នេះ
                 r = by_procfs ? setxattr(FORMAT_PROC_FD_PATH(fd), name, value, size, xattr_flags)
                               : fsetxattr(fd, name, value, size, xattr_flags);
-        if (r < 0)
-                return -errno;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ -errno;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l) {
-        _cleanup_free_ char *nulstr = NULL;
+ចំនួនគត់ xsetxattr_strv(ចំនួនគត់ fd, const var_na *path, ចំនួនគត់ at_flags, const var_na *name, var_na * const *l) {
+        _cleanup_free_ var_na *nulstr = NULL;
         size_t size;
-        int r;
+        ចំនួនគត់ r;
 
         assert(name);
 
         r = strv_make_nulstr(l, &nulstr, &size);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        return xsetxattr_full(fd, path, at_flags, name, nulstr, size, /* xattr_flags= */ 0);
+        ត្រឡប់ xsetxattr_full(fd, path, at_flags, name, nulstr, size, /* xattr_flags= */ 0);
 }
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name) {
-        int r;
+ចំនួនគត់ xremovexattr(ចំនួនគត់ fd, const var_na *path, ចំនួនគត់ at_flags, const var_na *name) {
+        ចំនួនគត់ r;
 
         assert(fd >= 0 || fd == AT_FDCWD);
         assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
         assert(name);
 
-        if (have_xattrat && !isempty(path)) {
+        ប្រសិនបើ (have_xattrat && !isempty(path)) {
                 r = RET_NERRNO(removexattrat(fd, path,
                                              at_flags_normalize_nofollow(at_flags),
                                              name));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                ប្រសិនបើ (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        ត្រឡប់ r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int tfd = -EBADF;
+        _cleanup_close_ ចំនួនគត់ tfd = -EBADF;
         bool by_procfs;
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &tfd, &by_procfs);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (path)
+        ប្រសិនបើ (path)
                 r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? removexattr(path, name)
                                                            : lremovexattr(path, name);
-        else
+        បើមិនដូច្នេះ
                 r = by_procfs ? removexattr(FORMAT_PROC_FD_PATH(fd), name)
                               : fremovexattr(fd, name);
-        if (r < 0)
-                return -errno;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ -errno;
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-static int parse_crtime(le64_t le, usec_t *ret) {
+static ចំនួនគត់ parse_crtime(le64_t le, usec_t *ret) {
         usec_t u;
 
         assert(ret);
 
-        assert_cc(sizeof(usec_t) == sizeof(uint64_t));
+        assert_cc(parimaa_na(usec_t) == parimaa_na(uint64_t));
         assert_cc((usec_t) UINT64_MAX == USEC_INFINITY);
 
         u = (usec_t) le64toh(le);
-        if (!timestamp_is_set(u))
-                return -EIO;
+        ប្រសិនបើ (!timestamp_is_set(u))
+                ត្រឡប់ -EIO;
 
         *ret = u;
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int getcrtime_at(
-                int fd,
-                const char *path,
-                int at_flags,
+ចំនួនគត់ getcrtime_at(
+                ចំនួនគត់ fd,
+                const var_na *path,
+                ចំនួនគត់ at_flags,
                 usec_t *ret) {
 
         _cleanup_free_ le64_t *le = NULL;
-        struct statx sx;
+        sa_nracanaa statx sx;
         usec_t a, b;
-        int r;
+        ចំនួនគត់ r;
 
         assert(fd >= 0 || fd == AT_FDCWD);
         assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
@@ -448,55 +448,55 @@ int getcrtime_at(
                         STATX_BTIME,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
+        ប្រសិនបើ (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
                 a = statx_timestamp_load(&sx.stx_btime);
-        else
+        បើមិនដូច្នេះ
                 a = USEC_INFINITY;
 
         size_t le_size;
-        r = getxattr_at_malloc(fd, path, "user.crtime_usec", at_flags, (char**) &le, &le_size);
-        if (r >= 0) {
-                if (le_size != sizeof(*le))
+        r = getxattr_at_malloc(fd, path, "user.crtime_usec", at_flags, (var_na**) &le, &le_size);
+        ប្រសិនបើ (r >= 0) {
+                ប្រសិនបើ (le_size != parimaa_na(*le))
                         r = -EIO;
-                else
+                បើមិនដូច្នេះ
                         r = parse_crtime(*le, &b);
         }
-        if (r < 0) {
-                if (a != USEC_INFINITY) {
-                        if (ret)
+        ប្រសិនបើ (r < 0) {
+                ប្រសិនបើ (a != USEC_INFINITY) {
+                        ប្រសិនបើ (ret)
                                 *ret = a;
-                        return 0;
+                        ត្រឡប់ 0;
                 }
 
-                return r;
+                ត្រឡប់ r;
         }
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = MIN(a, b);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int fd_setcrtime(int fd, usec_t usec) {
+ចំនួនគត់ fd_setcrtime(ចំនួនគត់ fd, usec_t usec) {
         le64_t le;
 
         assert(fd >= 0);
 
-        if (!timestamp_is_set(usec))
+        ប្រសិនបើ (!timestamp_is_set(usec))
                 usec = now(CLOCK_REALTIME);
 
         le = htole64((uint64_t) usec);
-        return xsetxattr_full(fd, /* path= */ NULL, AT_EMPTY_PATH,
-                              "user.crtime_usec", (const char*) &le, sizeof(le),
+        ត្រឡប់ xsetxattr_full(fd, /* path= */ NULL, AT_EMPTY_PATH,
+                              "user.crtime_usec", (const var_na*) &le, parimaa_na(le),
                               /* xattr_flags= */ 0);
 }
 
-bool xattr_is_acl(const char *name) {
-        return STR_IN_SET(
+bool xattr_is_acl(const var_na *name) {
+        ត្រឡប់ STR_IN_SET(
                         ASSERT_PTR(name),
                         "system.posix_acl_access",
                         "system.posix_acl_default");
 }
 
-bool xattr_is_selinux(const char *name) {
-        return streq(ASSERT_PTR(name), "security.selinux");
+bool xattr_is_selinux(const var_na *name) {
+        ត្រឡប់ streq(ASSERT_PTR(name), "security.selinux");
 }

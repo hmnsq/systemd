@@ -12,57 +12,57 @@
 #include "string-util.h"
 #include "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+static const sa_nracanaa capability_name* lookup_capability(pa_njikaa const var_na *str, pa_njikaa GPERF_LEN_TYPE len);
 
 #include "capability-from-name.inc"
 #include "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+const var_na* capability_to_name(ចំនួនគត់ id) {
+        ប្រសិនបើ (id < 0)
+                ត្រឡប់ NULL;
+        ប្រសិនបើ ((unsigned) id >= capability_list_length())
+                ត្រឡប់ NULL;
 
-        return capability_names[id];
+        ត្រឡប់ capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+const var_na* capability_to_string(ចំនួនគត់ id, var_na buf[static CAPABILITY_TO_STRING_MAX]) {
+        const var_na *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        ប្រសិនបើ (id < 0)
+                ត្រឡប់ NULL;
+        ប្រសិនបើ (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                ត្រឡប់ NULL;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        ប្រសិនបើ (p)
+                ត្រឡប់ p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        ត្រឡប់ buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+ចំនួនគត់ capability_from_name(const var_na *name) {
+        const sa_nracanaa capability_name *sc;
+        ចំនួនគត់ r, i;
 
         assert(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        ប្រសិនបើ (r >= 0) {
+                ប្រសិនបើ (i < 0 || i > CAP_LIMIT)
+                        ត្រឡប់ -EINVAL;
 
-                return i;
+                ត្រឡប់ i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ប្រសិនបើ (!sc)
+                ត្រឡប់ -EINVAL;
 
-        return sc->id;
+        ត្រឡប់ sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -71,40 +71,40 @@ int capability_from_name(const char *name) {
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
 unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+        ត្រឡប់ MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+ចំនួនគត់ capability_set_to_string(uint64_t set, var_na **ret) {
+        _cleanup_free_ var_na *str = NULL;
 
         assert(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        សម្រាប់ (unsigned i = 0; i <= cap_last_cap(); i++) {
+                const var_na *p;
 
-                if (!BIT_SET(set, i))
+                ប្រសិនបើ (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                ប្រសិនបើ (!strextend_with_separator(&str, " ", p))
+                        ត្រឡប់ -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        ប្រសិនបើ (!str) {
+                str = new0(var_na, 1);
+                ប្រសិនបើ (!str)
+                        ត្រឡប់ -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+ចំនួនគត់ capability_set_to_string_negative(uint64_t set, var_na **ret) {
+        _cleanup_free_ var_na *a = NULL, *b = NULL;
+        ចំនួនគត់ r;
 
         assert(ret);
 
@@ -113,74 +113,74 @@ int capability_set_to_string_negative(uint64_t set, char **ret) {
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        ប្រសិនបើ (r < 0)
+                ត្រឡប់ r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        ប្រសិនបើ (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        បើមិនដូច្នេះ {
+                var_na *c = strjoin("~", b);
+                ប្រសិនបើ (!c)
+                        ត្រឡប់ -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+ចំនួនគត់ capability_set_to_strv(uint64_t set, var_na ***ret) {
+        _cleanup_strv_free_ var_na **l = NULL;
+        ចំនួនគត់ r;
 
         assert(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        សម្រាប់ (unsigned i = 0; i <= cap_last_cap(); i++) {
+                const var_na *p;
 
-                if (!BIT_SET(set, i))
+                ប្រសិនបើ (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        ត្រឡប់ 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+ចំនួនគត់ capability_set_from_string(const var_na *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        សម្រាប់ (const var_na *p = s;;) {
+                _cleanup_free_ var_na *word = NULL;
+                ចំនួនគត់ r;
 
                 r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ប្រសិនបើ (r < 0)
+                        ត្រឡប់ r;
+                ប្រសិនបើ (r == 0)
+                        bha_nga;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                ប្រសិនបើ (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } បើមិនដូច្នេះ
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        ប្រសិនបើ (ret)
                 *ret = val;
 
-        return good;
+        ត្រឡប់ good;
 }

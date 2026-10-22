@@ -12,11 +12,11 @@
 #include "procfs-util.h"
 
 uint64_t physical_memory(void) {
-        _cleanup_free_ char *root = NULL, *value = NULL;
+        _cleanup_free_ var_na *root = NULL, *value = NULL;
         uint64_t mem, lim;
         size_t ps;
         long sc;
-        int r;
+        ចំនួនគត់ r;
 
         /* We return this as uint64_t in case we are running as 32-bit process on a 64-bit kernel with huge amounts of
          * memory.
@@ -33,48 +33,48 @@ uint64_t physical_memory(void) {
         assert_se(MUL_SAFE(&mem, (uint64_t) sc, (uint64_t) ps));
 
         r = cg_get_root_path(&root);
-        if (r < 0) {
+        ប្រសិនបើ (r < 0) {
                 log_debug_errno(r, "Failed to determine root cgroup, ignoring cgroup memory limit: %m");
-                return mem;
+                ត្រឡប់ mem;
         }
 
         r = cg_get_attribute(root, "memory.max", &value);
-        if (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
+        ប្រសិនបើ (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
                            * complain. (Note that it might exist on our own root though, if we live
                            * in a cgroup namespace, hence check anyway instead of not even
                            * trying.) */
-                return mem;
-        if (r < 0) {
+                ត្រឡប់ mem;
+        ប្រសិនបើ (r < 0) {
                 log_debug_errno(r, "Failed to read memory.max cgroup attribute, ignoring cgroup memory limit: %m");
-                return mem;
+                ត្រឡប់ mem;
         }
 
-        if (streq(value, "max"))
-                return mem;
+        ប្រសិនបើ (streq(value, "max"))
+                ត្រឡប់ mem;
 
         r = safe_atou64(value, &lim);
-        if (r < 0) {
+        ប្រសិនបើ (r < 0) {
                 log_debug_errno(r, "Failed to parse cgroup memory limit '%s', ignoring: %m", value);
-                return mem;
+                ត្រឡប់ mem;
         }
-        if (lim == UINT64_MAX)
-                return mem;
+        ប្រសិនបើ (lim == UINT64_MAX)
+                ត្រឡប់ mem;
 
         /* Make sure the limit is a multiple of our own page size */
         lim /= ps;
         lim *= ps;
 
-        return MIN(mem, lim);
+        ត្រឡប់ MIN(mem, lim);
 }
 
 uint64_t physical_memory_scale(uint64_t v, uint64_t max) {
         uint64_t p, m, ps;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return physical_memory();
+        ប្រសិនបើ (v == 0)
+                ត្រឡប់ 0;
+        ប្រសិនបើ (v == max)
+                ត្រឡប់ physical_memory();
 
         assert(max > 0);
 
@@ -87,22 +87,22 @@ uint64_t physical_memory_scale(uint64_t v, uint64_t max) {
         p = physical_memory() / ps;
         assert(p > 0);
 
-        if (v > UINT64_MAX / p)
-                return UINT64_MAX;
+        ប្រសិនបើ (v > UINT64_MAX / p)
+                ត្រឡប់ UINT64_MAX;
 
         m = p * v;
         m /= max;
 
-        if (m > UINT64_MAX / ps)
-                return UINT64_MAX;
+        ប្រសិនបើ (m > UINT64_MAX / ps)
+                ត្រឡប់ UINT64_MAX;
 
-        return m * ps;
+        ត្រឡប់ m * ps;
 }
 
 uint64_t system_tasks_max(void) {
         uint64_t a = TASKS_MAX, b = TASKS_MAX, c = TASKS_MAX;
-        _cleanup_free_ char *root = NULL;
-        int r;
+        _cleanup_free_ var_na *root = NULL;
+        ចំនួនគត់ r;
 
         /* Determine the maximum number of tasks that may run on this system. We check three sources to
          * determine this limit:
@@ -131,39 +131,39 @@ uint64_t system_tasks_max(void) {
          */
 
         r = procfs_get_threads_max(&a);
-        if (r < 0)
+        ប្រសិនបើ (r < 0)
                 log_debug_errno(r, "Failed to read kernel.threads-max, ignoring: %m");
 
         r = procfs_get_pid_max(&b);
-        if (r < 0)
+        ប្រសិនបើ (r < 0)
                 log_debug_errno(r, "Failed to read kernel.pid_max, ignoring: %m");
-        else if (b > 0)
+        បើមិនដូច្នេះ ប្រសិនបើ (b > 0)
                 /* Subtract one from pid_max, since PID 0 is not a valid PID */
                 b--;
 
         r = cg_get_root_path(&root);
-        if (r < 0)
+        ប្រសិនបើ (r < 0)
                 log_debug_errno(r, "Failed to determine cgroup root path, ignoring: %m");
-        else {
+        បើមិនដូច្នេះ {
                 /* We'll have the "pids.max" attribute on the our root cgroup only if we are in a
                  * CLONE_NEWCGROUP namespace. On the top-level namespace this attribute is missing, hence
                  * suppress any message about that */
                 r = cg_get_attribute_as_uint64(root, "pids.max", &c);
-                if (r < 0 && r != -ENODATA)
+                ប្រសិនបើ (r < 0 && r != -ENODATA)
                         log_debug_errno(r, "Failed to read pids.max attribute of root cgroup, ignoring: %m");
         }
 
-        return MIN3(a, b, c);
+        ត្រឡប់ MIN3(a, b, c);
 }
 
 uint64_t system_tasks_max_scale(uint64_t v, uint64_t max) {
         uint64_t t, m;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return system_tasks_max();
+        ប្រសិនបើ (v == 0)
+                ត្រឡប់ 0;
+        ប្រសិនបើ (v == max)
+                ត្រឡប់ system_tasks_max();
 
         assert(max > 0);
 
@@ -173,9 +173,9 @@ uint64_t system_tasks_max_scale(uint64_t v, uint64_t max) {
         t = system_tasks_max();
         assert(t > 0);
 
-        if (v > UINT64_MAX / t) /* overflow? */
-                return UINT64_MAX;
+        ប្រសិនបើ (v > UINT64_MAX / t) /* overflow? */
+                ត្រឡប់ UINT64_MAX;
 
         m = t * v;
-        return m / max;
+        ត្រឡប់ m / max;
 }

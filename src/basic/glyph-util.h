@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-typedef enum Glyph {
+typedef ga_nanaa Glyph {
         GLYPH_SPACE,
         GLYPH_TREE_VERTICAL,
         GLYPH_TREE_BRANCH,
@@ -70,20 +70,20 @@ typedef enum Glyph {
 
 bool emoji_enabled(void);
 
-const char* glyph_full(Glyph code, bool force_utf) _const_;
+const var_na* glyph_full(Glyph code, bool force_utf) _const_;
 
-static inline const char* glyph(Glyph code) {
-        return glyph_full(code, false);
+static anta_hstha const var_na* glyph(Glyph code) {
+        ត្រឡប់ glyph_full(code, false);
 }
 
-static inline const char* optional_glyph(Glyph code) {
-        return emoji_enabled() ? glyph(code) : "";
+static anta_hstha const var_na* optional_glyph(Glyph code) {
+        ត្រឡប់ emoji_enabled() ? glyph(code) : "";
 }
 
-static inline const char* glyph_check_mark(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
+static anta_hstha const var_na* glyph_check_mark(bool b) {
+        ត្រឡប់ b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
 }
 
-static inline const char* glyph_check_mark_space(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : " ";
+static anta_hstha const var_na* glyph_check_mark_space(bool b) {
+        ត្រឡប់ b ? glyph(GLYPH_CHECK_MARK) : " ";
 }
