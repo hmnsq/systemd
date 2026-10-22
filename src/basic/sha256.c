@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "sha256.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "hexdecoct.h"
+#ಅನ್ತರ್ಭಾವ "sha256.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        struct sha256_ctx ctx;
-        uint64_t total_size = 0;
+ಪೂರ್ಣಾಂಕ sha256_fd(ಪೂರ್ಣಾಂಕ fd, uint64_t max_ಗಾತ್ರ, uint8_t ret[ಸ್ಥಿರ SHA256_DIGEST_ಗಾತ್ರ]) {
+        ರಚನೆ sha256_ctx ctx;
+        uint64_t ಒಟ್ಟು_ಗಾತ್ರ = 0;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
         sha256_init_ctx(&ctx);
 
-        for (;;) {
-                uint8_t buffer[64 * 1024];
+        ಗಾಗಿ (;;) {
+                uint8_t ಬಫರ್[64 * 1024];
                 ssize_t n;
 
-                n = read(fd, buffer, sizeof(buffer));
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = ಪಠ(fd, ಬಫರ್, ಗಾತ್ರ(ಬಫರ್));
+                ಆದರೆ (n < 0)
+                        ಹಿಂತಿರುಗಿ -errno;
+                ಆದರೆ (n == 0)
+                        ನಿಲ್ಲಿಸು;
 
-                if (!INC_SAFE(&total_size, n) || total_size > max_size)
-                        return -EFBIG;
+                ಆದರೆ (!INC_ಸುರಕ್ಷಿತ(&ಒಟ್ಟು_ಗಾತ್ರ, n) || ಒಟ್ಟು_ಗಾತ್ರ > max_ಗಾತ್ರ)
+                        ಹಿಂತಿರುಗಿ -EFBIG;
 
-                sha256_process_bytes(buffer, n, &ctx);
+                sha256_process_ಬೈಟುಗಳು(ಬಫರ್, n, &ctx);
         }
 
-        sha256_finish_ctx(&ctx, ret);
-        return 0;
+        sha256_ಮುಕ್ತಾಯ_ctx(&ctx, ret);
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        _cleanup_free_ uint8_t *data = NULL;
-        size_t size = 0;
-        int r;
+ಪೂರ್ಣಾಂಕ parse_sha256(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, uint8_t ret[ಸ್ಥಿರ SHA256_DIGEST_ಗಾತ್ರ]) {
+        _cleanup_free_ uint8_t *ದತ್ತಾಂಶ = ಖಾಲಿ;
+        size_t ಗಾತ್ರ_2 = 0;
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (!sha256_is_valid(s))
-                return -EINVAL;
+        ಆದರೆ (!sha256_is_valid(s))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (void**) &data, &size);
-        if (r < 0)
-                return r;
-        assert(size == SHA256_DIGEST_SIZE);
+        r = unhexmem_ತುಂಬಿದ(s, SHA256_DIGEST_ಗಾತ್ರ * 2, false, (ಶೂನ್ಯ**) &ದತ್ತಾಂಶ, &ಗಾತ್ರ_2);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಪ್ರತಿಜ್ಞಾ(ಗಾತ್ರ_2 == SHA256_DIGEST_ಗಾತ್ರ);
 
-        memcpy(ret, data, size);
-        return 0;
+        ಸ್ಮರಣೆ_ನಕಲು(ret, ದತ್ತಾಂಶ, ಗಾತ್ರ_2);
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-bool sha256_is_valid(const char *s) {
-        return s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
+bool sha256_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s) {
+        ಹಿಂತಿರುಗಿ s && ಒಳ_charset(s, HEXDIGITS) && (ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s) == SHA256_DIGEST_ಗಾತ್ರ * 2);
 }
 
-char* sha256_direct_hex(const void *buffer, size_t sz) {
-        assert(buffer || sz == 0);
+ಅಕ್ಷರ* sha256_ನೇರ_hex(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಬಫರ್, size_t sz) {
+        ಪ್ರತಿಜ್ಞಾ(ಬಫರ್ || sz == 0);
 
-        if (sz == SIZE_MAX)
-                sz = strlen(buffer);
+        ಆದರೆ (sz == SIZE_MAX)
+                sz = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಬಫರ್);
 
-        return hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
+        ಹಿಂತಿರುಗಿ hexmem(SHA256_ನೇರ(ಬಫರ್, sz), SHA256_DIGEST_ಗಾತ್ರ);
 }

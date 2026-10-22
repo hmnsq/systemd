@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <string.h>
-#include <sys/sysmacros.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <sys/sysmacros.h>
 
-#include "hash-funcs.h"
-#include "path-util.h"
-#include "siphash24.h"
-#include "strv.h"
+#ಅನ್ತರ್ಭಾವ "hash-funcs.h"
+#ಅನ್ತರ್ಭಾವ "path-util.h"
+#ಅನ್ತರ್ಭಾವ "siphash24.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
 
-void string_hash_func(const char *p, struct siphash *state) {
-        siphash24_compress(p, strlen(p) + 1, state);
+ಶೂನ್ಯ string_hash_func(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ರಚನೆ siphash *state) {
+        siphash24_compress(p, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(p) + 1, state);
 }
 
 DEFINE_HASH_OPS(string_hash_ops,
-                char, string_hash_func, string_compare_func);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
+                ಅಕ್ಷರ, string_hash_func, string_compare_func);
+DEFINE_HASH_OPS_WITH_ಕೀಲಿ_DESTRUCTOR(
                 string_hash_ops_free,
-                char, string_hash_func, string_compare_func, free);
-DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
-                string_hash_ops_value_free,
-                char, string_hash_func, string_compare_func,
-                void, free);
-DEFINE_HASH_OPS_FULL(
+                ಅಕ್ಷರ, string_hash_func, string_compare_func, ಬಿಡುಗಡೆ);
+DEFINE_HASH_OPS_WITH_ಮೌಲ್ಯ_DESTRUCTOR(
+                string_hash_ops_ಮೌಲ್ಯ_free,
+                ಅಕ್ಷರ, string_hash_func, string_compare_func,
+                ಶೂನ್ಯ, ಬಿಡುಗಡೆ);
+DEFINE_HASH_OPS_ತುಂಬಿದ(
                 string_hash_ops_free_free,
-                char, string_hash_func, string_compare_func, free,
-                void, free);
-DEFINE_HASH_OPS_FULL(
+                ಅಕ್ಷರ, string_hash_func, string_compare_func, ಬಿಡುಗಡೆ,
+                ಶೂನ್ಯ, ಬಿಡುಗಡೆ);
+DEFINE_HASH_OPS_ತುಂಬಿದ(
                 string_hash_ops_free_strv_free,
-                char, string_hash_func, string_compare_func, free,
-                char*, strv_free);
+                ಅಕ್ಷರ, string_hash_func, string_compare_func, ಬಿಡುಗಡೆ,
+                ಅಕ್ಷರ*, strv_free);
 
-void path_hash_func(const char *p, struct siphash *state) {
-        bool add_slash = false;
+ಶೂನ್ಯ ಮಾರ್ಗ_hash_func(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ರಚನೆ siphash *state) {
+        bool ಕೂಡಿಸು_slash = false;
 
-        assert(p);
-        assert(state);
+        ಪ್ರತಿಜ್ಞಾ(p);
+        ಪ್ರತಿಜ್ಞಾ(state);
 
         /* Calculates a hash for a path in a way this duplicate inner slashes don't make a differences, and also
          * whether there's a trailing slash or not. This fits well with the semantics of path_compare(), which does
@@ -43,104 +43,104 @@ void path_hash_func(const char *p, struct siphash *state) {
          * which begin in a slash or not) will hash differently though. */
 
         /* if path is absolute, add one "/" to the hash. */
-        if (path_is_absolute(p))
+        ಆದರೆ (ಮಾರ್ಗ_is_absolute(p))
                 siphash24_compress_byte('/', state);
 
-        for (;;) {
-                const char *e;
-                int r;
+        ಗಾಗಿ (;;) {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e;
+                ಪೂರ್ಣಾಂಕ r;
 
-                r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        return;
+                r = ಮಾರ್ಗ_ಕಂಡುಹಿಡಿ_ಮೊದಲ_component(&p, true, &e);
+                ಆದರೆ (r == 0)
+                        ಹಿಂತಿರುಗಿ;
 
-                if (add_slash)
+                ಆದರೆ (ಕೂಡಿಸು_slash)
                         siphash24_compress_byte('/', state);
 
-                if (r < 0) {
+                ಆದರೆ (r < 0) {
                         /* if a component is invalid, then add remaining part as a string. */
                         string_hash_func(p, state);
-                        return;
+                        ಹಿಂತಿರುಗಿ;
                 }
 
                 /* Add this component to the hash. */
                 siphash24_compress(e, r, state);
 
-                add_slash = true;
+                ಕೂಡಿಸು_slash = true;
         }
 }
 
-DEFINE_HASH_OPS(path_hash_ops,
-                char, path_hash_func, path_compare);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
-                path_hash_ops_free,
-                char, path_hash_func, path_compare, free);
-DEFINE_HASH_OPS_FULL(
-                path_hash_ops_free_free,
-                char, path_hash_func, path_compare, free,
-                void, free);
+DEFINE_HASH_OPS(ಮಾರ್ಗ_hash_ops,
+                ಅಕ್ಷರ, ಮಾರ್ಗ_hash_func, ಮಾರ್ಗ_compare);
+DEFINE_HASH_OPS_WITH_ಕೀಲಿ_DESTRUCTOR(
+                ಮಾರ್ಗ_hash_ops_free,
+                ಅಕ್ಷರ, ಮಾರ್ಗ_hash_func, ಮಾರ್ಗ_compare, ಬಿಡುಗಡೆ);
+DEFINE_HASH_OPS_ತುಂಬಿದ(
+                ಮಾರ್ಗ_hash_ops_free_free,
+                ಅಕ್ಷರ, ಮಾರ್ಗ_hash_func, ಮಾರ್ಗ_compare, ಬಿಡುಗಡೆ,
+                ಶೂನ್ಯ, ಬಿಡುಗಡೆ);
 
-void trivial_hash_func(const void *p, struct siphash *state) {
+ಶೂನ್ಯ trivial_hash_func(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *p, ರಚನೆ siphash *state) {
         siphash24_compress_typesafe(p, state);
 }
 
-int trivial_compare_func(const void *a, const void *b) {
-        return CMP(a, b);
+ಪೂರ್ಣಾಂಕ trivial_compare_func(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *a, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *b) {
+        ಹಿಂತಿರುಗಿ CMP(a, b);
 }
 
 DEFINE_HASH_OPS(trivial_hash_ops,
-                void, trivial_hash_func, trivial_compare_func);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
+                ಶೂನ್ಯ, trivial_hash_func, trivial_compare_func);
+DEFINE_HASH_OPS_WITH_ಕೀಲಿ_DESTRUCTOR(
                 trivial_hash_ops_free,
-                void, trivial_hash_func, trivial_compare_func, free);
-DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
-                trivial_hash_ops_value_free,
-                void, trivial_hash_func, trivial_compare_func,
-                void, free);
-DEFINE_HASH_OPS_FULL(
+                ಶೂನ್ಯ, trivial_hash_func, trivial_compare_func, ಬಿಡುಗಡೆ);
+DEFINE_HASH_OPS_WITH_ಮೌಲ್ಯ_DESTRUCTOR(
+                trivial_hash_ops_ಮೌಲ್ಯ_free,
+                ಶೂನ್ಯ, trivial_hash_func, trivial_compare_func,
+                ಶೂನ್ಯ, ಬಿಡುಗಡೆ);
+DEFINE_HASH_OPS_ತುಂಬಿದ(
                 trivial_hash_ops_free_free,
-                void, trivial_hash_func, trivial_compare_func, free,
-                void, free);
+                ಶೂನ್ಯ, trivial_hash_func, trivial_compare_func, ಬಿಡುಗಡೆ,
+                ಶೂನ್ಯ, ಬಿಡುಗಡೆ);
 
-void uint64_hash_func(const uint64_t *p, struct siphash *state) {
-        assert(p);
+ಶೂನ್ಯ uint64_hash_func(ಸ್ಥಿರಾಂಕ uint64_t *p, ರಚನೆ siphash *state) {
+        ಪ್ರತಿಜ್ಞಾ(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 
-int uint64_compare_func(const uint64_t *a, const uint64_t *b) {
-        assert(a);
-        assert(b);
+ಪೂರ್ಣಾಂಕ uint64_compare_func(ಸ್ಥಿರಾಂಕ uint64_t *a, ಸ್ಥಿರಾಂಕ uint64_t *b) {
+        ಪ್ರತಿಜ್ಞಾ(a);
+        ಪ್ರತಿಜ್ಞಾ(b);
 
-        return CMP(*a, *b);
+        ಹಿಂತಿರುಗಿ CMP(*a, *b);
 }
 
 DEFINE_HASH_OPS(uint64_hash_ops,
                 uint64_t, uint64_hash_func, uint64_compare_func);
-DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
-                uint64_hash_ops_value_free,
+DEFINE_HASH_OPS_WITH_ಮೌಲ್ಯ_DESTRUCTOR(
+                uint64_hash_ops_ಮೌಲ್ಯ_free,
                 uint64_t, uint64_hash_func, uint64_compare_func,
-                void, free);
+                ಶೂನ್ಯ, ಬಿಡುಗಡೆ);
 
-#if SIZEOF_DEV_T != 8
-void devt_hash_func(const dev_t *p, struct siphash *state) {
-        assert(p);
+#ಆದರೆ SIZEOF_DEV_T != 8
+ಶೂನ್ಯ devt_hash_func(ಸ್ಥಿರಾಂಕ dev_t *p, ರಚನೆ siphash *state) {
+        ಪ್ರತಿಜ್ಞಾ(p);
 
         siphash24_compress_typesafe(*p, state);
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-int devt_compare_func(const dev_t *a, const dev_t *b) {
-        int r;
+ಪೂರ್ಣಾಂಕ devt_compare_func(ಸ್ಥಿರಾಂಕ dev_t *a, ಸ್ಥಿರಾಂಕ dev_t *b) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(a);
-        assert(b);
+        ಪ್ರತಿಜ್ಞಾ(a);
+        ಪ್ರತಿಜ್ಞಾ(b);
 
         r = CMP(major(*a), major(*b));
-        if (r != 0)
-                return r;
+        ಆದರೆ (r != 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return CMP(minor(*a), minor(*b));
+        ಹಿಂತಿರುಗಿ CMP(minor(*a), minor(*b));
 }
 
 DEFINE_HASH_OPS(devt_hash_ops, dev_t, devt_hash_func, devt_compare_func);

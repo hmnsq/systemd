@@ -1,34 +1,34 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include <sys/inotify.h>        /* IWYU pragma: export */
-#include <syslog.h>
+#ಅನ್ತರ್ಭಾವ <sys/inotify.h>        /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ <syslog.h>
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-#define INOTIFY_EVENT_MAX (offsetof(struct inotify_event, name) + NAME_MAX + 1)
+#ವ್ಯಾಖ್ಯಾನಿಸು INOTIFY_EVENT_MAX (offsetof(ರಚನೆ inotify_event, name) + NAME_MAX + 1)
 
 /* This evaluates arguments multiple times */
-#define FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, log_level)            \
-        for (struct inotify_event *e = NULL;                            \
-             inotify_event_next(&buffer, sz, &e, log_level); )
+#ವ್ಯಾಖ್ಯಾನಿಸು FOREACH_INOTIFY_EVENT_ತುಂಬಿದ(e, ಬಫರ್, sz, log_level)            \
+        ಗಾಗಿ (ರಚನೆ inotify_event *e = ಖಾಲಿ;                            \
+             inotify_event_ಮುಂದಿನ(&ಬಫರ್, sz, &e, log_level); )
 
-#define FOREACH_INOTIFY_EVENT(e, buffer, sz)                    \
-        FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, LOG_DEBUG)
+#ವ್ಯಾಖ್ಯಾನಿಸು FOREACH_INOTIFY_EVENT(e, ಬಫರ್, sz)                    \
+        FOREACH_INOTIFY_EVENT_ತುಂಬಿದ(e, ಬಫರ್, sz, LOG_DEBUG)
 
-#define FOREACH_INOTIFY_EVENT_WARN(e, buffer, sz)               \
-        FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, LOG_WARNING)
+#ವ್ಯಾಖ್ಯಾನಿಸು FOREACH_INOTIFY_EVENT_WARN(e, ಬಫರ್, sz)               \
+        FOREACH_INOTIFY_EVENT_ತುಂಬಿದ(e, ಬಫರ್, sz, LOG_WARNING)
 
-union inotify_event_buffer {
-        struct inotify_event ev;
+ಒಕ್ಕೂಟ inotify_event_ಬಫರ್ {
+        ರಚನೆ inotify_event ev;
         uint8_t raw[INOTIFY_EVENT_MAX];
 };
 
-bool inotify_event_next(
-                union inotify_event_buffer *buffer,
-                size_t size,
-                struct inotify_event **iterator,
-                int log_level);
+bool inotify_event_ಮುಂದಿನ(
+                ಒಕ್ಕೂಟ inotify_event_ಬಫರ್ *ಬಫರ್,
+                size_t ಗಾತ್ರ_2,
+                ರಚನೆ inotify_event **iterator,
+                ಪೂರ್ಣಾಂಕ log_level);
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask);
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask);
+ಪೂರ್ಣಾಂಕ inotify_ಕೂಡಿಸು_watch_fd(ಪೂರ್ಣಾಂಕ fd, ಪೂರ್ಣಾಂಕ what, uint32_t ಮುಖವಾಡ_3);
+ಪೂರ್ಣಾಂಕ inotify_ಕೂಡಿಸು_watch_and_warn(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pathname, uint32_t ಮುಖವಾಡ_3);

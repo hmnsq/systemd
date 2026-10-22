@@ -10,121 +10,121 @@
  * The underlying algorithm used in this implementation is a Heap.
  */
 
-#include "alloc-util.h"
-#include "prioq.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "prioq.h"
 
-struct prioq_item {
-        void *data;
-        unsigned *idx;
+ರಚನೆ prioq_ಅಂಶ {
+        ಶೂನ್ಯ *ದತ್ತಾಂಶ;
+        ಚಿಹ್ನೆರಹಿತ *idx;
 };
 
-struct Prioq {
+ರಚನೆ Prioq {
         compare_func_t compare_func;
-        unsigned n_items;
-        struct prioq_item *items;
+        ಚಿಹ್ನೆರಹಿತ n_ವಸ್ತುಗಳು;
+        ರಚನೆ prioq_ಅಂಶ *ವಸ್ತುಗಳು;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        ಆದರೆ (!q)
+                ಹಿಂತಿರುಗಿ q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        ಹಿಂತಿರುಗಿ q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        ಆದರೆ (!q)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
         /* Invalidate the index fields of any remaining objects */
-        FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
-                        *(item->idx) = PRIOQ_IDX_NULL;
+        FOREACH_ARRAY(ಅಂಶ, q->ವಸ್ತುಗಳು, q->n_ವಸ್ತುಗಳು)
+                ಆದರೆ (ಅಂಶ->idx)
+                        *(ಅಂಶ->idx) = PRIOQ_IDX_NULL;
 
-        free(q->items);
-        return mfree(q);
+        ಬಿಡುಗಡೆ(q->ವಸ್ತುಗಳು);
+        ಹಿಂತಿರುಗಿ mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
-        assert(q);
+ಪೂರ್ಣಾಂಕ prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+        ಪ್ರತಿಜ್ಞಾ(q);
 
-        if (*q) {
-                assert((*q)->compare_func == compare_func);
-                return 0;
+        ಆದರೆ (*q) {
+                ಪ್ರತಿಜ್ಞಾ((*q)->compare_func == compare_func);
+                ಹಿಂತಿರುಗಿ 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        ಆದರೆ (!*q)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-static void swap(Prioq *q, unsigned j, unsigned k) {
-        assert(q);
-        assert(j < q->n_items);
-        assert(k < q->n_items);
+ಸ್ಥಿರ ಶೂನ್ಯ ಅದಲುಬದಲು(Prioq *q, ಚಿಹ್ನೆರಹಿತ j, ಚಿಹ್ನೆರಹಿತ k) {
+        ಪ್ರತಿಜ್ಞಾ(q);
+        ಪ್ರತಿಜ್ಞಾ(j < q->n_ವಸ್ತುಗಳು);
+        ಪ್ರತಿಜ್ಞಾ(k < q->n_ವಸ್ತುಗಳು);
 
-        assert(!q->items[j].idx || *(q->items[j].idx) == j);
-        assert(!q->items[k].idx || *(q->items[k].idx) == k);
+        ಪ್ರತಿಜ್ಞಾ(!q->ವಸ್ತುಗಳು[j].idx || *(q->ವಸ್ತುಗಳು[j].idx) == j);
+        ಪ್ರತಿಜ್ಞಾ(!q->ವಸ್ತುಗಳು[k].idx || *(q->ವಸ್ತುಗಳು[k].idx) == k);
 
-        SWAP_TWO(q->items[j].data, q->items[k].data);
-        SWAP_TWO(q->items[j].idx, q->items[k].idx);
+        ಅದಲುಬದಲು_TWO(q->ವಸ್ತುಗಳು[j].ದತ್ತಾಂಶ, q->ವಸ್ತುಗಳು[k].ದತ್ತಾಂಶ);
+        ಅದಲುಬದಲು_TWO(q->ವಸ್ತುಗಳು[j].idx, q->ವಸ್ತುಗಳು[k].idx);
 
-        if (q->items[j].idx)
-                *q->items[j].idx = j;
+        ಆದರೆ (q->ವಸ್ತುಗಳು[j].idx)
+                *q->ವಸ್ತುಗಳು[j].idx = j;
 
-        if (q->items[k].idx)
-                *q->items[k].idx = k;
+        ಆದರೆ (q->ವಸ್ತುಗಳು[k].idx)
+                *q->ವಸ್ತುಗಳು[k].idx = k;
 }
 
-static unsigned shuffle_up(Prioq *q, unsigned idx) {
-        assert(q);
-        assert(idx < q->n_items);
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ shuffle_ಮೇಲೆ(Prioq *q, ಚಿಹ್ನೆರಹಿತ idx) {
+        ಪ್ರತಿಜ್ಞಾ(q);
+        ಪ್ರತಿಜ್ಞಾ(idx < q->n_ವಸ್ತುಗಳು);
 
-        while (idx > 0) {
-                unsigned k;
+        ಆಗ (idx > 0) {
+                ಚಿಹ್ನೆರಹಿತ k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                ಆದರೆ (q->compare_func(q->ವಸ್ತುಗಳು[k].ದತ್ತಾಂಶ, q->ವಸ್ತುಗಳು[idx].ದತ್ತಾಂಶ) <= 0)
+                        ನಿಲ್ಲಿಸು;
 
-                swap(q, idx, k);
+                ಅದಲುಬದಲು(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        ಹಿಂತಿರುಗಿ idx;
 }
 
-static unsigned shuffle_down(Prioq *q, unsigned idx) {
-        assert(q);
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ shuffle_ಕೆಳಕ್ಕೆ(Prioq *q, ಚಿಹ್ನೆರಹಿತ idx) {
+        ಪ್ರತಿಜ್ಞಾ(q);
 
-        for (;;) {
-                unsigned j, k, s;
+        ಗಾಗಿ (;;) {
+                ಚಿಹ್ನೆರಹಿತ j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                ಆದರೆ (j >= q->n_ವಸ್ತುಗಳು)
+                        ನಿಲ್ಲಿಸು;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                ಆದರೆ (q->compare_func(q->ವಸ್ತುಗಳು[j].ದತ್ತಾಂಶ, q->ವಸ್ತುಗಳು[idx].ದತ್ತಾಂಶ) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                ಇಲ್ಲದಿದ್ದರೆ
                         s = idx;
 
-                if (k < q->n_items &&
-                    q->compare_func(q->items[k].data, q->items[s].data) < 0)
+                ಆದರೆ (k < q->n_ವಸ್ತುಗಳು &&
+                    q->compare_func(q->ವಸ್ತುಗಳು[k].ದತ್ತಾಂಶ, q->ವಸ್ತುಗಳು[s].ದತ್ತಾಂಶ) < 0)
 
                         /* So our right child is smaller than we are, let's
                          * remember this fact */
@@ -132,179 +132,179 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                ಆದರೆ (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        ನಿಲ್ಲಿಸು;
 
-                swap(q, idx, s);
+                ಅದಲುಬದಲು(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        ಹಿಂತಿರುಗಿ idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
-        unsigned k;
+ಪೂರ್ಣಾಂಕ prioq_put(Prioq *q, ಶೂನ್ಯ *ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ *idx) {
+        ಚಿಹ್ನೆರಹಿತ k;
 
-        assert(q);
+        ಪ್ರತಿಜ್ಞಾ(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        ಆದರೆ (!GREEDY_REALLOC(q->ವಸ್ತುಗಳು, MAX(q->n_ವಸ್ತುಗಳು + 1, 16u)))
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
-                .data = data,
+        k = q->n_ವಸ್ತುಗಳು++;
+        q->ವಸ್ತುಗಳು[k] = (ರಚನೆ prioq_ಅಂಶ) {
+                .ದತ್ತಾಂಶ = ದತ್ತಾಂಶ,
                 .idx = idx,
         };
 
-        if (idx)
+        ಆದರೆ (idx)
                 *idx = k;
 
-        shuffle_up(q, k);
+        shuffle_ಮೇಲೆ(q, k);
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+ಪೂರ್ಣಾಂಕ _prioq_ensure_put(Prioq **q, compare_func_t compare_func, ಶೂನ್ಯ *ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ *idx) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(q);
+        ಪ್ರತಿಜ್ಞಾ(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return prioq_put(*q, data, idx);
+        ಹಿಂತಿರುಗಿ prioq_put(*q, ದತ್ತಾಂಶ, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+ಸ್ಥಿರ ಶೂನ್ಯ remove_ಅಂಶ(Prioq *q, ರಚನೆ prioq_ಅಂಶ *i) {
+        ರಚನೆ prioq_ಅಂಶ *l;
 
-        assert(q);
-        assert(i);
+        ಪ್ರತಿಜ್ಞಾ(q);
+        ಪ್ರತಿಜ್ಞಾ(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        ಆದರೆ (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
-        l = q->items + q->n_items - 1;
+        l = q->ವಸ್ತುಗಳು + q->n_ವಸ್ತುಗಳು - 1;
 
-        if (i == l)
+        ಆದರೆ (i == l)
                 /* Last entry, let's just remove it */
-                q->n_items--;
-        else {
-                unsigned k;
+                q->n_ವಸ್ತುಗಳು--;
+        ಇಲ್ಲದಿದ್ದರೆ {
+                ಚಿಹ್ನೆರಹಿತ k;
 
                 /* Not last entry, let's replace the last entry with
                  * this one, and reshuffle */
 
-                assert(i >= q->items);
-                k = i - q->items;
+                ಪ್ರತಿಜ್ಞಾ(i >= q->ವಸ್ತುಗಳು);
+                k = i - q->ವಸ್ತುಗಳು;
 
-                i->data = l->data;
+                i->ದತ್ತಾಂಶ = l->ದತ್ತಾಂಶ;
                 i->idx = l->idx;
-                if (i->idx)
+                ಆದರೆ (i->idx)
                         *i->idx = k;
-                q->n_items--;
+                q->n_ವಸ್ತುಗಳು--;
 
-                k = shuffle_down(q, k);
-                shuffle_up(q, k);
+                k = shuffle_ಕೆಳಕ್ಕೆ(q, k);
+                shuffle_ಮೇಲೆ(q, k);
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+ಸ್ಥಿರ ರಚನೆ prioq_ಅಂಶ* ಕಂಡುಹಿಡಿ_ಅಂಶ(Prioq *q, ಶೂನ್ಯ *ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ *idx) {
+        ರಚನೆ prioq_ಅಂಶ *i;
 
-        assert(q);
+        ಪ್ರತಿಜ್ಞಾ(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        ಆದರೆ (q->n_ವಸ್ತುಗಳು <= 0)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
-                    *idx >= q->n_items)
-                        return NULL;
+        ಆದರೆ (idx) {
+                ಆದರೆ (*idx == PRIOQ_IDX_NULL ||
+                    *idx >= q->n_ವಸ್ತುಗಳು)
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-                i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                i = q->ವಸ್ತುಗಳು + *idx;
+                ಆದರೆ (i->ದತ್ತಾಂಶ != ದತ್ತಾಂಶ)
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                ಹಿಂತಿರುಗಿ i;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+                ಗಾಗಿ (i = q->ವಸ್ತುಗಳು; i < q->ವಸ್ತುಗಳು + q->n_ವಸ್ತುಗಳು; i++)
+                        ಆದರೆ (i->ದತ್ತಾಂಶ == ದತ್ತಾಂಶ)
+                                ಹಿಂತಿರುಗಿ i;
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+ಪೂರ್ಣಾಂಕ prioq_remove(Prioq *q, ಶೂನ್ಯ *ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ *idx) {
+        ರಚನೆ prioq_ಅಂಶ *i;
 
-        if (!q)
-                return 0;
+        ಆದರೆ (!q)
+                ಹಿಂತಿರುಗಿ 0;
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        i = ಕಂಡುಹಿಡಿ_ಅಂಶ(q, ದತ್ತಾಂಶ, idx);
+        ಆದರೆ (!i)
+                ಹಿಂತಿರುಗಿ 0;
 
-        remove_item(q, i);
-        return 1;
+        remove_ಅಂಶ(q, i);
+        ಹಿಂತಿರುಗಿ 1;
 }
 
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
-        unsigned k;
+ಶೂನ್ಯ prioq_reshuffle(Prioq *q, ಶೂನ್ಯ *ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ *idx) {
+        ರಚನೆ prioq_ಅಂಶ *i;
+        ಚಿಹ್ನೆರಹಿತ k;
 
-        assert(q);
+        ಪ್ರತಿಜ್ಞಾ(q);
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return;
+        i = ಕಂಡುಹಿಡಿ_ಅಂಶ(q, ದತ್ತಾಂಶ, idx);
+        ಆದರೆ (!i)
+                ಹಿಂತಿರುಗಿ;
 
-        assert(i >= q->items);
-        k = i - q->items;
-        k = shuffle_down(q, k);
-        shuffle_up(q, k);
+        ಪ್ರತಿಜ್ಞಾ(i >= q->ವಸ್ತುಗಳು);
+        k = i - q->ವಸ್ತುಗಳು;
+        k = shuffle_ಕೆಳಕ್ಕೆ(q, k);
+        shuffle_ಮೇಲೆ(q, k);
 }
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+ಶೂನ್ಯ* prioq_peek_by_ಸೂಚ್ಯಂಕ(Prioq *q, ಚಿಹ್ನೆರಹಿತ idx) {
+        ಆದರೆ (!q)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        if (idx >= q->n_items)
-                return NULL;
+        ಆದರೆ (idx >= q->n_ವಸ್ತುಗಳು)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return q->items[idx].data;
+        ಹಿಂತಿರುಗಿ q->ವಸ್ತುಗಳು[idx].ದತ್ತಾಂಶ;
 }
 
-void* prioq_pop(Prioq *q) {
-        void *data;
+ಶೂನ್ಯ* prioq_ತೆಗೆ(Prioq *q) {
+        ಶೂನ್ಯ *ದತ್ತಾಂಶ;
 
-        if (!q)
-                return NULL;
+        ಆದರೆ (!q)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        if (q->n_items <= 0)
-                return NULL;
+        ಆದರೆ (q->n_ವಸ್ತುಗಳು <= 0)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        data = q->items[0].data;
-        remove_item(q, q->items);
-        return data;
+        ದತ್ತಾಂಶ = q->ವಸ್ತುಗಳು[0].ದತ್ತಾಂಶ;
+        remove_ಅಂಶ(q, q->ವಸ್ತುಗಳು);
+        ಹಿಂತಿರುಗಿ ದತ್ತಾಂಶ;
 }
 
-unsigned prioq_size(Prioq *q) {
+ಚಿಹ್ನೆರಹಿತ prioq_ಗಾತ್ರ(Prioq *q) {
 
-        if (!q)
-                return 0;
+        ಆದರೆ (!q)
+                ಹಿಂತಿರುಗಿ 0;
 
-        return q->n_items;
+        ಹಿಂತಿರುಗಿ q->n_ವಸ್ತುಗಳು;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        ಆದರೆ (!q)
+                ಹಿಂತಿರುಗಿ true;
 
-        return q->n_items <= 0;
+        ಹಿಂತಿರುಗಿ q->n_ವಸ್ತುಗಳು <= 0;
 }

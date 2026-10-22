@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-struct pool;
+ರಚನೆ pool;
 
-struct mempool {
-        struct pool *first_pool;
-        void *freelist;
-        size_t tile_size;
-        size_t at_least;
+ರಚನೆ mempool {
+        ರಚನೆ pool *ಮೊದಲ_pool;
+        ಶೂನ್ಯ *freelist;
+        size_t tile_ಗಾತ್ರ;
+        size_t at_ಕನಿಷ್ಠ;
 };
 
-void* mempool_alloc_tile(struct mempool *mp);
-void* mempool_alloc0_tile(struct mempool *mp);
-void* mempool_free_tile(struct mempool *mp, void *p);
+ಶೂನ್ಯ* mempool_alloc_tile(ರಚನೆ mempool *mp);
+ಶೂನ್ಯ* mempool_alloc0_tile(ರಚನೆ mempool *mp);
+ಶೂನ್ಯ* mempool_free_tile(ರಚನೆ mempool *mp, ಶೂನ್ಯ *p);
 
-#define DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_least) \
-static struct mempool pool_name = { \
-        .tile_size = sizeof(tile_type), \
-        .at_least = alloc_at_least, \
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_ಕನಿಷ್ಠ) \
+ಸ್ಥಿರ ರಚನೆ mempool pool_name = { \
+        .tile_ಗಾತ್ರ = ಗಾತ್ರ(tile_type), \
+        .at_ಕನಿಷ್ಠ = alloc_at_ಕನಿಷ್ಠ, \
 }
 
-bool mempool_enabled(void) _weak_ _pure_;
+bool mempool_enabled(ಶೂನ್ಯ) _weak_ ಶುದ್ಧ;
 
-void mempool_trim(struct mempool *mp);
+ಶೂನ್ಯ mempool_trim(ರಚನೆ mempool *mp);

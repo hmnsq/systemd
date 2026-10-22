@@ -1,77 +1,77 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-#define ENVIRONMENT_ASSIGNMENTS_MAX 16384U
+#ವ್ಯಾಖ್ಯಾನಿಸು ENVIRONMENT_ASSIGNMENTS_MAX 16384U
 
-size_t sc_arg_max(void);
+size_t sc_arg_max(ಶೂನ್ಯ);
 
-bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
-bool env_assignment_is_valid(const char *e);
+bool env_name_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e);
+bool env_ಮೌಲ್ಯ_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e);
+bool env_assignment_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e);
 
-typedef enum ReplaceEnvFlags {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ ReplaceEnvFlags {
         REPLACE_ENV_USE_ENVIRONMENT = 1 << 0,
         REPLACE_ENV_ALLOW_BRACELESS = 1 << 1,
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+ಪೂರ್ಣಾಂಕ replace_env_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, size_t length, ಅಕ್ಷರ **env, ReplaceEnvFlags flags, ಅಕ್ಷರ **ret, ಅಕ್ಷರ ***ret_unset_variables, ಅಕ್ಷರ ***ret_bad_variables);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ replace_env(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ಅಕ್ಷರ **env, ReplaceEnvFlags flags, ಅಕ್ಷರ **ret) {
+        ಹಿಂತಿರುಗಿ replace_env_ತುಂಬಿದ(format, SIZE_MAX, env, flags, ret, ಖಾಲಿ, ಖಾಲಿ);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+ಪೂರ್ಣಾಂಕ replace_env_argv(ಅಕ್ಷರ **argv, ಅಕ್ಷರ **env, ಅಕ್ಷರ ***ret, ಅಕ್ಷರ ***ret_unset_variables, ಅಕ್ಷರ ***ret_bad_variables);
 
-bool strv_env_is_valid(char * const *e);
-bool strv_env_name_is_valid(char * const *l);
-bool strv_env_name_or_assignment_is_valid(char * const *l);
+bool strv_env_is_valid(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *e);
+bool strv_env_name_is_valid(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l);
+bool strv_env_name_or_assignment_is_valid(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l);
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata);
-#define strv_env_clean(l) strv_env_clean_with_callback(l, NULL, NULL)
+ಅಕ್ಷರ** strv_env_clean_with_callback(ಅಕ್ಷರ **l, ಶೂನ್ಯ (*invalid_callback)(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಶೂನ್ಯ *userdata), ಶೂನ್ಯ *userdata);
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_env_clean(l) strv_env_clean_with_callback(l, ಖಾಲಿ, ಖಾಲಿ)
 
-char** _strv_env_merge(char **first, ...);
-#define strv_env_merge(first, ...) _strv_env_merge(first, __VA_ARGS__, POINTER_MAX)
-char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
+ಅಕ್ಷರ** strv_env_ವಿಲೀನ(ಅಕ್ಷರ **ಮೊದಲ, ...);
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_env_ವಿಲೀನ_2(ಮೊದಲ, ...) strv_env_ವಿಲೀನ(ಮೊದಲ, __VA_ARGS__, ಸೂಚಕ_MAX)
+ಅಕ್ಷರ** strv_env_delete(ಅಕ್ಷರ **x, size_t n_lists, ...); /* New copy */
 
-char** strv_env_unset(char **l, const char *p); /* In place ... */
-char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
-#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
-#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
+ಅಕ್ಷರ** strv_env_unset(ಅಕ್ಷರ **l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p); /* In place ... */
+ಅಕ್ಷರ** strv_env_unset_many_ಆಂತರಿಕ(ಅಕ್ಷರ **l, ...) _sentinel_;
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_env_unset_many(l, ...) strv_env_unset_many_ಆಂತರಿಕ(l, __VA_ARGS__, ಖಾಲಿ)
+ಪೂರ್ಣಾಂಕ strv_env_replace_consume(ಅಕ್ಷರ ***l, ಅಕ್ಷರ *p); /* In place ... */
+ಪೂರ್ಣಾಂಕ strv_env_replace_strdup(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *assignment);
+ಪೂರ್ಣಾಂಕ strv_env_replace_strdup_passthrough(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *assignment);
+ಪೂರ್ಣಾಂಕ strv_env_ನಿಯೋಜಿಸು(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಪೂರ್ಣಾಂಕ strv_env_assignf(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *valuef, ...) _printf_(3, 4);
+ಪೂರ್ಣಾಂಕ strv_env_ನಿಯೋಜಿಸು_many(ಅಕ್ಷರ ***l, ...) _sentinel_;
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_env_ನಿಯೋಜಿಸು_many_2(l, ...) strv_env_ನಿಯೋಜಿಸು_many(l, __VA_ARGS__, ಖಾಲಿ)
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
-static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+ಅಕ್ಷರ* strv_env_get_n(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, size_t k, ReplaceEnvFlags flags);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಅಕ್ಷರ* strv_env_get(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *x, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *n) {
+        ಹಿಂತಿರುಗಿ strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
-char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+ಅಕ್ಷರ* strv_env_ಜೋಡಿಗಳು_get(ಅಕ್ಷರ **l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) ಶುದ್ಧ;
+ಪೂರ್ಣಾಂಕ strv_env_get_merged(ಅಕ್ಷರ **l, ಅಕ್ಷರ ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+ಪೂರ್ಣಾಂಕ getenv_bool(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p);
+ಪೂರ್ಣಾಂಕ secure_getenv_bool(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+ಪೂರ್ಣಾಂಕ secure_getenv_uint64(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+ಪೂರ್ಣಾಂಕ ಗಣ_unset_env(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+ಪೂರ್ಣಾಂಕ putenv_dup(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+ಪೂರ್ಣಾಂಕ setenv_systemd_exec_pid(bool update_only);
+ಪೂರ್ಣಾಂಕ setenv_systemd_log_level(ಶೂನ್ಯ);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+ಪೂರ್ಣಾಂಕ getenv_ಮಾರ್ಗ_list(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಅಕ್ಷರ ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+ಪೂರ್ಣಾಂಕ getenv_steal_erase(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಅಕ್ಷರ **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+ಪೂರ್ಣಾಂಕ setenvf(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, bool overwrite, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *valuef, ...) _printf_(3,4);

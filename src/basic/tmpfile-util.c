@@ -1,138 +1,138 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "random-util.h"
-#include "string-util.h"
-#include "sync-util.h"
-#include "tmpfile-util.h"
-#include "umask-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "errno-util.h"
+#ಅನ್ತರ್ಭಾವ "fd-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "fs-util.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "path-util.h"
+#ಅನ್ತರ್ಭಾವ "random-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "sync-util.h"
+#ಅನ್ತರ್ಭಾವ "tmpfile-util.h"
+#ಅನ್ತರ್ಭಾವ "umask-util.h"
 
-static int fopen_temporary_internal(int dir_fd, const char *path, FILE **ret_file) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fopen_temporary_ಆಂತರಿಕ(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, FILE **ret_file) {
+        _cleanup_fclose_ FILE *f = ಖಾಲಿ;
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd = -EBADF;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        ಪ್ರತಿಜ್ಞಾ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ಪ್ರತಿಜ್ಞಾ(ಮಾರ್ಗ);
 
-        fd = openat(dir_fd, path, O_CLOEXEC|O_NOCTTY|O_RDWR|O_CREAT|O_EXCL, 0600);
-        if (fd < 0)
-                return -errno;
+        fd = openat(dir_fd, ಮಾರ್ಗ, O_CLOEXEC|O_NOCTTY|O_RDWR|O_CREAT|O_EXCL, 0600);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
         /* This assumes that returned FILE object is short-lived and used within the same single-threaded
          * context and never shared externally, hence locking is not necessary. */
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0) {
-                (void) unlinkat(dir_fd, path, 0);
-                return r;
+        ಆದರೆ (r < 0) {
+                (ಶೂನ್ಯ) unlinkat(dir_fd, ಮಾರ್ಗ, 0);
+                ಹಿಂತಿರುಗಿ r;
         }
 
-        if (ret_file)
+        ಆದರೆ (ret_file)
                 *ret_file = TAKE_PTR(f);
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ fopen_temporary_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, FILE **ret_file, ಅಕ್ಷರ **ret_ಮಾರ್ಗ) {
+        _cleanup_free_ ಅಕ್ಷರ *t = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        ಪ್ರತಿಜ್ಞಾ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ಪ್ರತಿಜ್ಞಾ(ಮಾರ್ಗ);
 
-        r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random(ಮಾರ್ಗ, ಖಾಲಿ, &t);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        r = fopen_temporary_ಆಂತರಿಕ(dir_fd, t, ret_file);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(t);
+        ಆದರೆ (ret_ಮಾರ್ಗ)
+                *ret_ಮಾರ್ಗ = TAKE_PTR(t);
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ fopen_temporary_ಮಗು_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, FILE **ret_file, ಅಕ್ಷರ **ret_ಮಾರ್ಗ) {
+        _cleanup_free_ ಅಕ್ಷರ *t = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ಪ್ರತಿಜ್ಞಾ(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        if (!path) {
-                r = tmp_dir(&path);
-                if (r < 0)
-                        return r;
+        ಆದರೆ (!ಮಾರ್ಗ) {
+                r = tmp_dir(&ಮಾರ್ಗ);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        r = tempfn_random_child(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random_ಮಗು(ಮಾರ್ಗ, ಖಾಲಿ, &t);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        r = fopen_temporary_ಆಂತರಿಕ(dir_fd, t, ret_file);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(t);
+        ಆದರೆ (ret_ಮಾರ್ಗ)
+                *ret_ಮಾರ್ಗ = TAKE_PTR(t);
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
 /* This is much like mkostemp() but is subject to umask(). */
-int mkostemp_safe(char *pattern) {
-        assert(pattern);
-        BLOCK_WITH_UMASK(0077);
-        return RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
+ಪೂರ್ಣಾಂಕ mkostemp_ಸುರಕ್ಷಿತ(ಅಕ್ಷರ *ನಮೂನೆ) {
+        ಪ್ರತಿಜ್ಞಾ(ನಮೂನೆ);
+        ಖಂಡ_WITH_UMASK(0077);
+        ಹಿಂತಿರುಗಿ RET_NERRNO(mkostemp(ನಮೂನೆ, O_CLOEXEC));
 }
 
-int fmkostemp_safe(char *pattern, const char *mode, FILE **ret_f) {
-        _cleanup_close_ int fd = -EBADF;
+ಪೂರ್ಣಾಂಕ fmkostemp_ಸುರಕ್ಷಿತ(ಅಕ್ಷರ *ನಮೂನೆ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ, FILE **ret_f) {
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd = -EBADF;
         FILE *f;
 
-        assert(ret_f);
+        ಪ್ರತಿಜ್ಞಾ(ret_f);
 
-        fd = mkostemp_safe(pattern);
-        if (fd < 0)
-                return fd;
+        fd = mkostemp_ಸುರಕ್ಷಿತ(ನಮೂನೆ);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
-        f = take_fdopen(&fd, mode);
-        if (!f)
-                return -errno;
+        f = take_fdopen(&fd, ಬಹುಲಕ);
+        ಆದರೆ (!f)
+                ಹಿಂತಿರುಗಿ -errno;
 
         *ret_f = f;
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-void unlink_tempfilep(char (*p)[]) {
-        assert(p);
+ಶೂನ್ಯ unlink_tempfilep(ಅಕ್ಷರ (*p)[]) {
+        ಪ್ರತಿಜ್ಞಾ(p);
 
         /* If the file is created with mkstemp(), it will (almost always) change the suffix.
          * Treat this as a sign that the file was successfully created. We ignore both the rare case
          * where the original suffix is used and unlink failures. */
 
-        if (!endswith(*p, ".XXXXXX"))
-                (void) unlink(*p);
+        ಆದರೆ (!endswith(*p, ".XXXXXX"))
+                (ಶೂನ್ಯ) unlink(*p);
 }
 
-static int tempfn_build(const char *p, const char *pre, const char *post, bool child, char **ret) {
-        _cleanup_free_ char *d = NULL, *fn = NULL, *nf = NULL, *result = NULL;
-        size_t len_pre, len_post, len_add;
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ tempfn_build(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pre, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *post, bool ಮಗು, ಅಕ್ಷರ **ret) {
+        _cleanup_free_ ಅಕ್ಷರ *d = ಖಾಲಿ, *fn = ಖಾಲಿ, *nf = ಖಾಲಿ, *ಫಲಿತಾಂಶ = ಖಾಲಿ;
+        size_t len_pre, len_post, len_ಕೂಡಿಸು;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(p);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(p);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /*
          * Turns this:
@@ -143,54 +143,54 @@ static int tempfn_build(const char *p, const char *pre, const char *post, bool c
          *         /foo/bar/.#<pre>waldo<post> (child == false)
          */
 
-        if (pre && strchr(pre, '/'))
-                return -EINVAL;
+        ಆದರೆ (pre && strchr(pre, '/'))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (post && strchr(post, '/'))
-                return -EINVAL;
+        ಆದರೆ (post && strchr(post, '/'))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         len_pre = strlen_ptr(pre);
         len_post = strlen_ptr(post);
         /* NAME_MAX is counted *without* the trailing NUL byte. */
-        if (len_pre > NAME_MAX - STRLEN(".#") ||
+        ಆದರೆ (len_pre > NAME_MAX - STRLEN(".#") ||
             len_post > NAME_MAX - STRLEN(".#") - len_pre)
-                return -EINVAL;
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        len_add = len_pre + len_post + STRLEN(".#");
+        len_ಕೂಡಿಸು = len_pre + len_post + STRLEN(".#");
 
-        if (child) {
+        ಆದರೆ (ಮಗು) {
                 d = strdup(p);
-                if (!d)
-                        return -ENOMEM;
-        } else {
-                r = path_split_prefix_filename(p, &d, &fn);
-                if (r < 0)
-                        return r;
+                ಆದರೆ (!d)
+                        ಹಿಂತಿರುಗಿ -ENOMEM;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+                r = ಮಾರ್ಗ_ವಿಭಜಿಸು_ಪೂರ್ವಪ್ರತ್ಯಯ_filename(p, &d, &fn);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
                 /* Truncate the filename if it would become too long after mangling. */
-                strshorten(fn, NAME_MAX - len_add);
+                strshorten(fn, NAME_MAX - len_ಕೂಡಿಸು);
         }
 
         nf = strjoin(".#", strempty(pre), strempty(fn), strempty(post));
-        if (!nf)
-                return -ENOMEM;
+        ಆದರೆ (!nf)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        if (d) {
-                if (!path_extend(&d, nf))
-                        return -ENOMEM;
+        ಆದರೆ (d) {
+                ಆದರೆ (!ಮಾರ್ಗ_extend(&d, nf))
+                        ಹಿಂತಿರುಗಿ -ENOMEM;
 
-                result = path_simplify(TAKE_PTR(d));
-        } else
-                result = TAKE_PTR(nf);
+                ಫಲಿತಾಂಶ = ಮಾರ್ಗ_simplify(TAKE_PTR(d));
+        } ಇಲ್ಲದಿದ್ದರೆ
+                ಫಲಿತಾಂಶ = TAKE_PTR(nf);
 
-        if (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
-                return -EINVAL;
+        ಆದರೆ (!ಮಾರ್ಗ_is_valid(ಫಲಿತಾಂಶ)) /* New path is not valid? (Maybe because too long?) Refuse. */
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        *ret = TAKE_PTR(result);
-        return 0;
+        *ret = TAKE_PTR(ಫಲಿತಾಂಶ);
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
+ಪೂರ್ಣಾಂಕ tempfn_xxxxxx(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *extra, ಅಕ್ಷರ **ret) {
         /*
          * Turns this:
          *         /foo/bar/waldo
@@ -199,14 +199,14 @@ int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldoXXXXXX
          */
 
-        return tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
+        ಹಿಂತಿರುಗಿ tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
 }
 
-int tempfn_random(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
+ಪೂರ್ಣಾಂಕ tempfn_random(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *extra, ಅಕ್ಷರ **ret) {
+        _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
 
-        assert(p);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(p);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /*
          * Turns this:
@@ -216,17 +216,17 @@ int tempfn_random(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldobaa2a261115984a9
          */
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        ಆದರೆ (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ false, ret);
+        ಹಿಂತಿರುಗಿ tempfn_build(p, extra, s, /* child= */ false, ret);
 }
 
-int tempfn_random_child(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ tempfn_random_ಮಗು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *extra, ಅಕ್ಷರ **ret) {
+        _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* Turns this:
          *         /foo/bar/waldo
@@ -234,220 +234,220 @@ int tempfn_random_child(const char *p, const char *extra, char **ret) {
          *         /foo/bar/waldo/.#<extra>3c2b6219aa75d7d0
          */
 
-        if (!p) {
+        ಆದರೆ (!p) {
                 r = tmp_dir(&p);
-                if (r < 0)
-                        return r;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        ಆದರೆ (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ true, ret);
+        ಹಿಂತಿರುಗಿ tempfn_build(p, extra, s, /* child= */ true, ret);
 }
 
-int open_tmpfile_unlinkable(const char *directory, int flags) {
-        int r;
+ಪೂರ್ಣಾಂಕ open_tmpfile_unlinkable(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *directory, ಪೂರ್ಣಾಂಕ flags) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (!directory) {
+        ಆದರೆ (!directory) {
                 r = tmp_dir(&directory);
-                if (r < 0)
-                        return r;
-        } else if (isempty(directory))
-                return -EINVAL;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (isempty(directory))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* Returns an unlinked temporary file that cannot be linked into the file system anymore */
 
         /* Try O_TMPFILE first, if it is supported */
-        int fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
-        if (fd >= 0)
-                return fd;
+        ಪೂರ್ಣಾಂಕ fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
+        ಆದರೆ (fd >= 0)
+                ಹಿಂತಿರುಗಿ fd;
 
         /* Fall back to unguessable name + unlinking */
-        _cleanup_free_ char *p = path_join(directory, "/systemd-tmp-XXXXXX");
-        if (!p)
-                return -ENOMEM;
+        _cleanup_free_ ಅಕ್ಷರ *p = ಮಾರ್ಗ_join(directory, "/systemd-tmp-XXXXXX");
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        fd = mkostemp_safe(p);
-        if (fd < 0)
-                return fd;
+        fd = mkostemp_ಸುರಕ್ಷಿತ(p);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
-        (void) unlink(p);
+        (ಶೂನ್ಯ) unlink(p);
 
-        return fd;
+        ಹಿಂತಿರುಗಿ fd;
 }
 
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path) {
-        int r;
+ಪೂರ್ಣಾಂಕ open_tmpfile_linkable_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_ಮಾರ್ಗ) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(target);
-        assert(ret_path);
+        ಪ್ರತಿಜ್ಞಾ(ಗುರಿ);
+        ಪ್ರತಿಜ್ಞಾ(ret_ಮಾರ್ಗ);
 
         /* Don't allow O_EXCL, as that has a special meaning for O_TMPFILE */
-        assert((flags & O_EXCL) == 0);
+        ಪ್ರತಿಜ್ಞಾ((flags & O_EXCL) == 0);
 
         /* Creates a temporary file, that shall be renamed to "target" later. If possible, this uses O_TMPFILE – in
          * which case "ret_path" will be returned as NULL. If not possible the temporary path name used is returned in
          * "ret_path". Use link_tmpfile() below to rename the result after writing the file in full. */
 
-        int fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
-        if (fd >= 0) {
-                *ret_path = NULL;
-                return fd;
+        ಪೂರ್ಣಾಂಕ fd = open_ಪೋಷಕ_at(dir_fd, ಗುರಿ, O_TMPFILE|flags, 0640);
+        ಆದರೆ (fd >= 0) {
+                *ret_ಮಾರ್ಗ = ಖಾಲಿ;
+                ಹಿಂತಿರುಗಿ fd;
         }
 
-        if (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
-                log_debug_errno(fd, "Failed to use O_TMPFILE for %s: %m", target);
+        ಆದರೆ (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
+                log_debug_errno(fd, "Failed to use O_TMPFILE for %s: %m", ಗುರಿ);
 
-        _cleanup_free_ char *tmp = NULL;
-        r = tempfn_random(target, NULL, &tmp);
-        if (r < 0)
-                return r;
+        _cleanup_free_ ಅಕ್ಷರ *tmp = ಖಾಲಿ;
+        r = tempfn_random(ಗುರಿ, ಖಾಲಿ, &tmp);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         fd = openat(dir_fd, tmp, O_CREAT|O_EXCL|O_NOFOLLOW|O_NOCTTY|flags, 0640);
-        if (fd < 0)
-                return -errno;
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        *ret_path = TAKE_PTR(tmp);
+        *ret_ಮಾರ್ಗ = TAKE_PTR(tmp);
 
-        return fd;
+        ಹಿಂತಿರುಗಿ fd;
 }
 
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file) {
-        _cleanup_free_ char *path = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
+ಪೂರ್ಣಾಂಕ fopen_tmpfile_linkable_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_ಮಾರ್ಗ, FILE **ret_file) {
+        _cleanup_free_ ಅಕ್ಷರ *ಮಾರ್ಗ = ಖಾಲಿ;
+        _cleanup_fclose_ FILE *f = ಖಾಲಿ;
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd = -EBADF;
 
-        assert(target);
-        assert(ret_file);
-        assert(ret_path);
+        ಪ್ರತಿಜ್ಞಾ(ಗುರಿ);
+        ಪ್ರತಿಜ್ಞಾ(ret_file);
+        ಪ್ರತಿಜ್ಞಾ(ret_ಮಾರ್ಗ);
 
-        fd = open_tmpfile_linkable_at(dir_fd, target, flags, &path);
-        if (fd < 0)
-                return fd;
+        fd = open_tmpfile_linkable_at(dir_fd, ಗುರಿ, flags, &ಮಾರ್ಗ);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
         f = take_fdopen(&fd, "w");
-        if (!f)
-                return -ENOMEM;
+        ಆದರೆ (!f)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        *ret_path = TAKE_PTR(path);
+        *ret_ಮಾರ್ಗ = TAKE_PTR(ಮಾರ್ಗ);
         *ret_file = TAKE_PTR(f);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int r;
+ಪೂರ್ಣಾಂಕ link_tmpfile_at(ಪೂರ್ಣಾಂಕ fd, ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, LinkTmpfileFlags flags) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(fd >= 0);
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(target);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ಪ್ರತಿಜ್ಞಾ(ಗುರಿ);
 
         /* Moves a temporary file created with open_tmpfile() above into its final place. If "path" is NULL
          * an fd created with O_TMPFILE is assumed, and linkat() is used. Otherwise it is assumed O_TMPFILE
          * is not supported on the directory, and renameat2() is used instead. */
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
-                return -errno;
+        ಆದರೆ (FLAGS_ಗಣ(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        if (path) {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
-                        r = RET_NERRNO(renameat(dir_fd, path, dir_fd, target));
-                else
-                        r = rename_noreplace(dir_fd, path, dir_fd, target);
-        } else {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
-                        r = linkat_replace(fd, /* oldpath= */ NULL, dir_fd, target);
-                else
-                        r = link_fd(fd, dir_fd, target);
+        ಆದರೆ (ಮಾರ್ಗ) {
+                ಆದರೆ (FLAGS_ಗಣ(flags, LINK_TMPFILE_REPLACE))
+                        r = RET_NERRNO(renameat(dir_fd, ಮಾರ್ಗ, dir_fd, ಗುರಿ));
+                ಇಲ್ಲದಿದ್ದರೆ
+                        r = rename_noreplace(dir_fd, ಮಾರ್ಗ, dir_fd, ಗುರಿ);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+                ಆದರೆ (FLAGS_ಗಣ(flags, LINK_TMPFILE_REPLACE))
+                        r = linkat_replace(fd, /* oldpath= */ ಖಾಲಿ, dir_fd, ಗುರಿ);
+                ಇಲ್ಲದಿದ್ದರೆ
+                        r = link_fd(fd, dir_fd, ಗುರಿ);
         }
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
-                r = fsync_full(fd);
-                if (r < 0)
-                        return r;
+        ಆದರೆ (FLAGS_ಗಣ(flags, LINK_TMPFILE_SYNC)) {
+                r = fsync_ತುಂಬಿದ(fd);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int fd, r;
+ಪೂರ್ಣಾಂಕ flink_tmpfile_at(FILE *f, ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, LinkTmpfileFlags flags) {
+        ಪೂರ್ಣಾಂಕ fd, r;
 
-        assert(f);
-        assert(target);
+        ಪ್ರತಿಜ್ಞಾ(f);
+        ಪ್ರತಿಜ್ಞಾ(ಗುರಿ);
 
         fd = fileno(f);
-        if (fd < 0) /* Not all FILE* objects encapsulate fds */
-                return -EBADF;
+        ಆದರೆ (fd < 0) /* Not all FILE* objects encapsulate fds */
+                ಹಿಂತಿರುಗಿ -EBADF;
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return link_tmpfile_at(fd, dir_fd, path, target, flags);
+        ಹಿಂತಿರುಗಿ link_tmpfile_at(fd, dir_fd, ಮಾರ್ಗ, ಗುರಿ, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ mkdtemp_malloc(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾದರಿ, ಅಕ್ಷರ **ret) {
+        _cleanup_free_ ಅಕ್ಷರ *p = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        if (template)
-                p = strdup(template);
-        else {
-                const char *tmp;
+        ಆದರೆ (ಮಾದರಿ)
+                p = strdup(ಮಾದರಿ);
+        ಇಲ್ಲದಿದ್ದರೆ {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tmp;
 
                 r = tmp_dir(&tmp);
-                if (r < 0)
-                        return r;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                p = path_join(tmp, "XXXXXX");
+                p = ಮಾರ್ಗ_join(tmp, "XXXXXX");
         }
-        if (!p)
-                return -ENOMEM;
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        if (!mkdtemp(p))
-                return -errno;
+        ಆದರೆ (!mkdtemp(p))
+                ಹಿಂತಿರುಗಿ -errno;
 
         *ret = TAKE_PTR(p);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int mkdtemp_open(const char *template, int flags, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int fd, r;
+ಪೂರ್ಣಾಂಕ mkdtemp_open(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾದರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret) {
+        _cleanup_free_ ಅಕ್ಷರ *p = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ fd, r;
 
-        r = mkdtemp_malloc(template, &p);
-        if (r < 0)
-                return r;
+        r = mkdtemp_malloc(ಮಾದರಿ, &p);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         fd = RET_NERRNO(open(p, O_DIRECTORY|O_CLOEXEC|flags));
-        if (fd < 0) {
-                (void) rmdir(p);
-                return fd;
+        ಆದರೆ (fd < 0) {
+                (ಶೂನ್ಯ) rmdir(p);
+                ಹಿಂತಿರುಗಿ fd;
         }
 
-        if (ret)
+        ಆದರೆ (ret)
                 *ret = TAKE_PTR(p);
 
-        return fd;
+        ಹಿಂತಿರುಗಿ fd;
 }
 
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d) {
-        assert(d);
+ಶೂನ್ಯ cleanup_tmpfile_ದತ್ತಾಂಶ_ಮುಗಿದ(ರಚನೆ cleanup_tmpfile_ದತ್ತಾಂಶ *d) {
+        ಪ್ರತಿಜ್ಞಾ(d);
 
-        if (!d->dir_fd ||
+        ಆದರೆ (!d->dir_fd ||
             (*d->dir_fd < 0 && *d->dir_fd != AT_FDCWD) ||
             !d->filename ||
             !*d->filename)
-                return;
+                ಹಿಂತಿರುಗಿ;
 
         PROTECT_ERRNO;
 
-        (void) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
-        d->dir_fd = NULL;
-        d->filename = NULL;
+        (ಶೂನ್ಯ) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
+        d->dir_fd = ಖಾಲಿ;
+        d->filename = ಖಾಲಿ;
 }

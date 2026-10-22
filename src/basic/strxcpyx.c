@@ -11,135 +11,135 @@
  * occur outside of a loop where this is the preferred behavior.
  */
 
-#include <stdio.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "strxcpyx.h"
+#ಅನ್ತರ್ಭಾವ "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+size_t strnpcpy_ತುಂಬಿದ(ಅಕ್ಷರ **dest, size_t ಗಾತ್ರ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src, size_t len, bool *ret_truncated) {
         bool truncated = false;
 
-        assert(dest);
-        assert(src);
+        ಪ್ರತಿಜ್ಞಾ(dest);
+        ಪ್ರತಿಜ್ಞಾ(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        ಆದರೆ (ಗಾತ್ರ_2 == 0) {
+                ಆದರೆ (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                ಹಿಂತಿರುಗಿ 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
-                        *dest = mempcpy(*dest, src, size-1);
-                size = 0;
+        ಆದರೆ (len >= ಗಾತ್ರ_2) {
+                ಆದರೆ (ಗಾತ್ರ_2 > 1)
+                        *dest = mempcpy(*dest, src, ಗಾತ್ರ_2-1);
+                ಗಾತ್ರ_2 = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (len > 0) {
                 *dest = mempcpy(*dest, src, len);
-                size -= len;
+                ಗಾತ್ರ_2 -= len;
         }
 
-        if (ret_truncated)
+        ಆದರೆ (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strpcpy_ತುಂಬಿದ(ಅಕ್ಷರ **dest, size_t ಗಾತ್ರ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src, bool *ret_truncated) {
+        ಪ್ರತಿಜ್ಞಾ(dest);
+        ಪ್ರತಿಜ್ಞಾ(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        ಹಿಂತಿರುಗಿ strnpcpy_ತುಂಬಿದ(dest, ಗಾತ್ರ_2, src, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyf_ತುಂಬಿದ(ಅಕ್ಷರ **dest, size_t ಗಾತ್ರ_2, bool *ret_truncated, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        ಪೂರ್ಣಾಂಕ i;
 
-        assert(dest);
-        assert(src);
+        ಪ್ರತಿಜ್ಞಾ(dest);
+        ಪ್ರತಿಜ್ಞಾ(src);
 
         va_start(va, src);
-        i = vsnprintf(*dest, size, src, va);
+        i = vsnprintf(*dest, ಗಾತ್ರ_2, src, va);
         va_end(va);
 
-        assert(i >= 0);
+        ಪ್ರತಿಜ್ಞಾ(i >= 0);
 
-        if (i < (int) size) {
+        ಆದರೆ (i < (ಪೂರ್ಣಾಂಕ) ಗಾತ್ರ_2) {
                 *dest += i;
-                size -= i;
-        } else {
-                size = 0;
+                ಗಾತ್ರ_2 -= i;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+                ಗಾತ್ರ_2 = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        ಆದರೆ (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyl_ತುಂಬಿದ(ಅಕ್ಷರ **dest, size_t ಗಾತ್ರ_2, bool *ret_truncated, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src, ...) {
         bool truncated = false;
         va_list va;
 
-        assert(dest);
-        assert(src);
+        ಪ್ರತಿಜ್ಞಾ(dest);
+        ಪ್ರತಿಜ್ಞಾ(src);
 
         va_start(va, src);
-        do {
+        ಮಾಡು {
                 bool t;
 
-                size = strpcpy_full(dest, size, src, &t);
+                ಗಾತ್ರ_2 = strpcpy_ತುಂಬಿದ(dest, ಗಾತ್ರ_2, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, ಅಕ್ಷರ *);
+        } ಆಗ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ಆದರೆ (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+size_t strnscpy_ತುಂಬಿದ(ಅಕ್ಷರ *dest, size_t ಗಾತ್ರ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src, size_t len, bool *ret_truncated) {
+        ಅಕ್ಷರ *s;
 
-        assert(dest);
-        assert(src);
+        ಪ್ರತಿಜ್ಞಾ(dest);
+        ಪ್ರತಿಜ್ಞಾ(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        ಹಿಂತಿರುಗಿ strnpcpy_ತುಂಬಿದ(&s, ಗಾತ್ರ_2, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strscpy_ತುಂಬಿದ(ಅಕ್ಷರ *dest, size_t ಗಾತ್ರ_2, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src, bool *ret_truncated) {
+        ಪ್ರತಿಜ್ಞಾ(dest);
+        ಪ್ರತಿಜ್ಞಾ(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        ಹಿಂತಿರುಗಿ strnscpy_ತುಂಬಿದ(dest, ಗಾತ್ರ_2, src, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strscpyl_ತುಂಬಿದ(ಅಕ್ಷರ *dest, size_t ಗಾತ್ರ_2, bool *ret_truncated, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *src, ...) {
         bool truncated = false;
         va_list va;
-        char *s;
+        ಅಕ್ಷರ *s;
 
-        assert(dest);
-        assert(src);
+        ಪ್ರತಿಜ್ಞಾ(dest);
+        ಪ್ರತಿಜ್ಞಾ(src);
 
         va_start(va, src);
         s = dest;
-        do {
+        ಮಾಡು {
                 bool t;
 
-                size = strpcpy_full(&s, size, src, &t);
+                ಗಾತ್ರ_2 = strpcpy_ತುಂಬಿದ(&s, ಗಾತ್ರ_2, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, ಅಕ್ಷರ *);
+        } ಆಗ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ಆದರೆ (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2;
 }

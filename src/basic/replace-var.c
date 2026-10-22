@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "replace-var.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ get_variable(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *b, ಅಕ್ಷರ **r) {
         size_t k;
-        char *t;
+        ಅಕ್ಷರ *t;
 
-        assert(b);
-        assert(r);
+        ಪ್ರತಿಜ್ಞಾ(b);
+        ಪ್ರತಿಜ್ಞಾ(r);
 
-        if (*b != '@')
-                return 0;
+        ಆದರೆ (*b != '@')
+                ಹಿಂತಿರುಗಿ 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        ಆದರೆ (k <= 0 || b[k+1] != '@')
+                ಹಿಂತಿರುಗಿ 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        ಆದರೆ (!t)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
         *r = t;
-        return 1;
+        ಹಿಂತಿರುಗಿ 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
+ಅಕ್ಷರ* replace_var(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪಠ್ಯ, ಅಕ್ಷರ *(*lookup)(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *variable, ಶೂನ್ಯ *userdata), ಶೂನ್ಯ *userdata) {
+        ಅಕ್ಷರ *r, *t;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *f;
         size_t l;
 
-        assert(text);
-        assert(lookup);
+        ಪ್ರತಿಜ್ಞಾ(ಪಠ್ಯ);
+        ಪ್ರತಿಜ್ಞಾ(lookup);
 
-        l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        l = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ಪಠ್ಯ);
+        r = new(ಅಕ್ಷರ, l+1);
+        ಆದರೆ (!r)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        f = text;
+        f = ಪಠ್ಯ;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
+        ಆಗ (*f) {
+                _cleanup_free_ ಅಕ್ಷರ *v = ಖಾಲಿ, *n = ಖಾಲಿ;
+                ಅಕ್ಷರ *a;
+                ಪೂರ್ಣಾಂಕ k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                ಆದರೆ (k < 0)
+                        ಹೋಗು oom;
+                ಆದರೆ (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        ಮುಂದುವರಿ;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                ಆದರೆ (!n)
+                        ಹೋಗು oom;
 
-                skip = strlen(v) + 2;
+                skip = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(v) + 2;
 
                 d = t - r;
-                nl = l - skip + strlen(n);
+                nl = l - skip + ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(n);
                 a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                ಆದರೆ (!a)
+                        ಹೋಗು oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 
 oom:
-        return mfree(r);
+        ಹಿಂತಿರುಗಿ mfree(r);
 }

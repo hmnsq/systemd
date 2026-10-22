@@ -1,58 +1,58 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#define SPECIAL_DEFAULT_TARGET "default.target"
-#define SPECIAL_INITRD_TARGET "initrd.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_DEFAULT_ಗುರಿ "default.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_INITRD_ಗುರಿ "initrd.target"
 
 /* Shutdown targets */
-#define SPECIAL_UMOUNT_TARGET "umount.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_UMOUNT_ಗುರಿ "umount.target"
 /* This is not really intended to be started by directly. This is
  * mostly so that other targets (reboot/halt/poweroff) can depend on
  * it to bring all services down that want to be brought down on
  * system shutdown. */
-#define SPECIAL_SHUTDOWN_TARGET "shutdown.target"
-#define SPECIAL_HALT_TARGET "halt.target"
-#define SPECIAL_POWEROFF_TARGET "poweroff.target"
-#define SPECIAL_REBOOT_TARGET "reboot.target"
-#define SPECIAL_SOFT_REBOOT_TARGET "soft-reboot.target"
-#define SPECIAL_KEXEC_TARGET "kexec.target"
-#define SPECIAL_EXIT_TARGET "exit.target"
-#define SPECIAL_SUSPEND_TARGET "suspend.target"
-#define SPECIAL_HIBERNATE_TARGET "hibernate.target"
-#define SPECIAL_HYBRID_SLEEP_TARGET "hybrid-sleep.target"
-#define SPECIAL_SUSPEND_THEN_HIBERNATE_TARGET "suspend-then-hibernate.target"
-#define SPECIAL_FACTORY_RESET_TARGET "factory-reset.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SHUTDOWN_ಗುರಿ "shutdown.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_HALT_ಗುರಿ "halt.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_POWEROFF_ಗುರಿ "poweroff.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_REBOOT_ಗುರಿ "reboot.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SOFT_REBOOT_ಗುರಿ "soft-reboot.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_KEXEC_ಗುರಿ "kexec.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_EXIT_ಗುರಿ "exit.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SUSPEND_ಗುರಿ "suspend.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_HIBERNATE_ಗುರಿ "hibernate.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_HYBRID_SLEEP_ಗುರಿ "hybrid-sleep.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SUSPEND_THEN_HIBERNATE_ಗುರಿ "suspend-then-hibernate.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_FACTORY_RESET_ಗುರಿ "factory-reset.target"
 
 /* Special boot targets */
-#define SPECIAL_RESCUE_TARGET "rescue.target"
-#define SPECIAL_EMERGENCY_TARGET "emergency.target"
-#define SPECIAL_MULTI_USER_TARGET "multi-user.target"
-#define SPECIAL_GRAPHICAL_TARGET "graphical.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_RESCUE_ಗುರಿ "rescue.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_EMERGENCY_ಗುರಿ "emergency.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_MULTI_USER_ಗುರಿ "multi-user.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_GRAPHICAL_ಗುರಿ "graphical.target"
 
 /* Early boot targets */
-#define SPECIAL_SYSINIT_TARGET "sysinit.target"
-#define SPECIAL_SOCKETS_TARGET "sockets.target"
-#define SPECIAL_TIMERS_TARGET "timers.target"
-#define SPECIAL_PATHS_TARGET "paths.target"
-#define SPECIAL_LOCAL_FS_TARGET "local-fs.target"
-#define SPECIAL_LOCAL_FS_PRE_TARGET "local-fs-pre.target"
-#define SPECIAL_INITRD_FS_TARGET "initrd-fs.target"
-#define SPECIAL_INITRD_ROOT_DEVICE_TARGET "initrd-root-device.target"
-#define SPECIAL_INITRD_ROOT_FS_TARGET "initrd-root-fs.target"
-#define SPECIAL_INITRD_USR_FS_TARGET "initrd-usr-fs.target"
-#define SPECIAL_REMOTE_FS_TARGET "remote-fs.target"       /* LSB's $remote_fs */
-#define SPECIAL_REMOTE_FS_PRE_TARGET "remote-fs-pre.target"
-#define SPECIAL_SWAP_TARGET "swap.target"
-#define SPECIAL_NETWORK_ONLINE_TARGET "network-online.target"
-#define SPECIAL_TIME_SYNC_TARGET "time-sync.target"       /* LSB's $time */
-#define SPECIAL_TIME_SET_TARGET "time-set.target"
-#define SPECIAL_BASIC_TARGET "basic.target"
-#define SPECIAL_TPM2_TARGET "tpm2.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SYSINIT_ಗುರಿ "sysinit.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SOCKETS_ಗುರಿ "sockets.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_TIMERS_ಗುರಿ "timers.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_PATHS_ಗುರಿ "paths.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_LOCAL_FS_ಗುರಿ "local-fs.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_LOCAL_FS_PRE_ಗುರಿ "local-fs-pre.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_INITRD_FS_ಗುರಿ "initrd-fs.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_INITRD_ಬೇರು_DEVICE_ಗುರಿ "initrd-root-device.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_INITRD_ಬೇರು_FS_ಗುರಿ "initrd-root-fs.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_INITRD_USR_FS_ಗುರಿ "initrd-usr-fs.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_REMOTE_FS_ಗುರಿ "remote-fs.target"       /* LSB's $remote_fs */
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_REMOTE_FS_PRE_ಗುರಿ "remote-fs-pre.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_ಅದಲುಬದಲು_ಗುರಿ "swap.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_ಜಾಲ_ONLINE_ಗುರಿ "network-online.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_ಸಮಯ_SYNC_ಗುರಿ "time-sync.target"       /* LSB's $time */
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_ಸಮಯ_ಗಣ_ಗುರಿ "time-set.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_BASIC_ಗುರಿ "basic.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_TPM2_ಗುರಿ "tpm2.target"
 
 /* LSB compatibility */
-#define SPECIAL_NETWORK_TARGET "network.target"           /* LSB's $network */
-#define SPECIAL_NSS_LOOKUP_TARGET "nss-lookup.target"     /* LSB's $named */
-#define SPECIAL_RPCBIND_TARGET "rpcbind.target"           /* LSB's $portmap */
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_ಜಾಲ_ಗುರಿ "network.target"           /* LSB's $network */
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_NSS_LOOKUP_ಗುರಿ "nss-lookup.target"     /* LSB's $named */
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_RPCBIND_ಗುರಿ "rpcbind.target"           /* LSB's $portmap */
 
 /*
  * Rules regarding adding further high level targets like the above:
@@ -81,52 +81,52 @@
  */
 
 /* Magic early boot services */
-#define SPECIAL_FSCK_SERVICE "systemd-fsck@.service"
-#define SPECIAL_FSCK_ROOT_SERVICE "systemd-fsck-root.service"
-#define SPECIAL_FSCK_USR_SERVICE "systemd-fsck-usr.service"
-#define SPECIAL_QUOTACHECK_SERVICE "systemd-quotacheck@.service"
-#define SPECIAL_QUOTACHECK_ROOT_SERVICE "systemd-quotacheck-root.service"
-#define SPECIAL_QUOTAON_SERVICE "quotaon@.service"
-#define SPECIAL_QUOTAON_ROOT_SERVICE "quotaon-root.service"
-#define SPECIAL_REMOUNT_FS_SERVICE "systemd-remount-fs.service"
-#define SPECIAL_VOLATILE_ROOT_SERVICE "systemd-volatile-root.service"
-#define SPECIAL_UDEVD_SERVICE "systemd-udevd.service"
-#define SPECIAL_GROWFS_SERVICE "systemd-growfs@.service"
-#define SPECIAL_GROWFS_ROOT_SERVICE "systemd-growfs-root.service"
-#define SPECIAL_PCRFS_SERVICE "systemd-pcrfs@.service"
-#define SPECIAL_PCRFS_ROOT_SERVICE "systemd-pcrfs-root.service"
-#define SPECIAL_VALIDATEFS_SERVICE "systemd-validatefs@.service"
-#define SPECIAL_HIBERNATE_RESUME_SERVICE "systemd-hibernate-resume.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_FSCK_SERVICE "systemd-fsck@.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_FSCK_ಬೇರು_SERVICE "systemd-fsck-root.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_FSCK_USR_SERVICE "systemd-fsck-usr.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_QUOTACHECK_SERVICE "systemd-quotacheck@.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_QUOTACHECK_ಬೇರು_SERVICE "systemd-quotacheck-root.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_QUOTAON_SERVICE "quotaon@.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_QUOTAON_ಬೇರು_SERVICE "quotaon-root.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_REMOUNT_FS_SERVICE "systemd-remount-fs.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_VOLATILE_ಬೇರು_SERVICE "systemd-volatile-root.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_UDEVD_SERVICE "systemd-udevd.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_GROWFS_SERVICE "systemd-growfs@.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_GROWFS_ಬೇರು_SERVICE "systemd-growfs-root.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_PCRFS_SERVICE "systemd-pcrfs@.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_PCRFS_ಬೇರು_SERVICE "systemd-pcrfs-root.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_VALIDATEFS_SERVICE "systemd-validatefs@.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_HIBERNATE_RESUME_SERVICE "systemd-hibernate-resume.service"
 
 /* Services systemd relies on */
-#define SPECIAL_DBUS_SERVICE "dbus.service"
-#define SPECIAL_DBUS_SOCKET "dbus.socket"
-#define SPECIAL_JOURNALD_SOCKET "systemd-journald.socket"
-#define SPECIAL_JOURNALD_SERVICE "systemd-journald.service"
-#define SPECIAL_PTYBROKERD_SOCKET "systemd-ptybrokerd.socket"
-#define SPECIAL_TMPFILES_SETUP_SERVICE "systemd-tmpfiles-setup.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_DBUS_SERVICE "dbus.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_DBUS_SOCKET "dbus.socket"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_JOURNALD_SOCKET "systemd-journald.socket"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_JOURNALD_SERVICE "systemd-journald.service"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_PTYBROKERD_SOCKET "systemd-ptybrokerd.socket"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_TMPFILES_ಸಿದ್ಧತೆ_SERVICE "systemd-tmpfiles-setup.service"
 
 /* Magic init signals */
-#define SPECIAL_KBREQUEST_TARGET "kbrequest.target"
-#define SPECIAL_SIGPWR_TARGET "sigpwr.target"
-#define SPECIAL_CTRL_ALT_DEL_TARGET "ctrl-alt-del.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_KBREQUEST_ಗುರಿ "kbrequest.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SIGPWR_ಗುರಿ "sigpwr.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_CTRL_ALT_DEL_ಗುರಿ "ctrl-alt-del.target"
 
 /* The unit to use as fallback if ctrl-alt-del.target (which is usually an alias) cannot be loaded. */
-#define FALLBACK_CTRL_ALT_DEL_TARGET "reboot.target"
+#ವ್ಯಾಖ್ಯಾನಿಸು FALLBACK_CTRL_ALT_DEL_ಗುರಿ "reboot.target"
 
 /* Where we add all our system units, users and machines by default */
-#define SPECIAL_SYSTEM_SLICE "system.slice"
-#define SPECIAL_USER_SLICE "user.slice"
-#define SPECIAL_MACHINE_SLICE "machine.slice"
-#define SPECIAL_ROOT_SLICE "-.slice"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SYSTEM_ತುಂಡು "system.slice"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_USER_ತುಂಡು "user.slice"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_MACHINE_ತುಂಡು "machine.slice"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_ಬೇರು_ತುಂಡು "-.slice"
 
 /* The scope unit systemd itself lives in. */
-#define SPECIAL_INIT_SCOPE "init.scope"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_INIT_SCOPE "init.scope"
 
 /* The root directory. */
-#define SPECIAL_ROOT_MOUNT "-.mount"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_ಬೇರು_MOUNT "-.mount"
 
 /* Special slices valid for the user instance */
-#define SPECIAL_SESSION_SLICE "session.slice"
-#define SPECIAL_APP_SLICE "app.slice"
-#define SPECIAL_BACKGROUND_SLICE "background.slice"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_SESSION_ತುಂಡು "session.slice"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_APP_ತುಂಡು "app.slice"
+#ವ್ಯಾಖ್ಯಾನಿಸು SPECIAL_BACKGROUND_ತುಂಡು "background.slice"

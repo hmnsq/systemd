@@ -1,163 +1,163 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "io-util.h"
-#include "memfd-util.h"
-#include "process-util.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "errno-util.h"
+#ಅನ್ತರ್ಭಾವ "fd-util.h"
+#ಅನ್ತರ್ಭಾವ "io-util.h"
+#ಅನ್ತರ್ಭಾವ "memfd-util.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode) {
-        unsigned mode_compat;
-        int mfd;
+ಪೂರ್ಣಾಂಕ memfd_create_wrapper(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಚಿಹ್ನೆರಹಿತ ಬಹುಲಕ) {
+        ಚಿಹ್ನೆರಹಿತ ಬಹುಲಕ_compat;
+        ಪೂರ್ಣಾಂಕ mfd;
 
-        assert(name);
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         /* Wrapper around memfd_create() which adds compat with older kernels where memfd_create() didn't
          * support MFD_EXEC/MFD_NOEXEC_SEAL. (kernel 6.3+) */
 
-        mfd = RET_NERRNO(memfd_create(name, mode));
-        if (mfd != -EINVAL)
-                return mfd;
+        mfd = RET_NERRNO(memfd_create(name, ಬಹುಲಕ));
+        ಆದರೆ (mfd != -EINVAL)
+                ಹಿಂತಿರುಗಿ mfd;
 
-        mode_compat = mode & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
+        ಬಹುಲಕ_compat = ಬಹುಲಕ & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
 
-        if (mode == mode_compat)
-                return mfd;
+        ಆದರೆ (ಬಹುಲಕ == ಬಹುಲಕ_compat)
+                ಹಿಂತಿರುಗಿ mfd;
 
-        return RET_NERRNO(memfd_create(name, mode_compat));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(memfd_create(name, ಬಹುಲಕ_compat));
 }
 
-int memfd_new_full(const char *name, unsigned extra_flags) {
-        _cleanup_free_ char *g = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ memfd_new_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಚಿಹ್ನೆರಹಿತ extra_flags) {
+        _cleanup_free_ ಅಕ್ಷರ *g = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (!name) {
+        ಆದರೆ (!name) {
 
                 /* If no name is specified we generate one. We include
                  * a hint indicating our library implementation, and
                  * add the thread name to it */
 
-                _cleanup_free_ char *comm = NULL;
+                _cleanup_free_ ಅಕ್ಷರ *comm = ಖಾಲಿ;
                 r = pid_get_comm(/* pid= */ 0, &comm);
-                if (r < 0)
-                        return r;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                if (isempty(comm))
+                ಆದರೆ (isempty(comm))
                         name = "sd";
-                else {
+                ಇಲ್ಲದಿದ್ದರೆ {
                         g = strjoin("sd-", comm);
-                        if (!g)
-                                return -ENOMEM;
+                        ಆದರೆ (!g)
+                                ಹಿಂತಿರುಗಿ -ENOMEM;
 
                         name = g;
                 }
         }
 
-        return memfd_create_wrapper(
+        ಹಿಂತಿರುಗಿ memfd_create_wrapper(
                         name,
                         MFD_CLOEXEC | MFD_NOEXEC_SEAL | extra_flags);
 }
 
-static int memfd_add_seals(int fd, unsigned seals) {
-        assert(fd >= 0);
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ memfd_ಕೂಡಿಸು_seals(ಪೂರ್ಣಾಂಕ fd, ಚಿಹ್ನೆರಹಿತ seals) {
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
-        return RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(fcntl(fd, F_ಕೂಡಿಸು_SEALS, seals));
 }
 
-static int memfd_get_seals(int fd, unsigned *ret_seals) {
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ memfd_get_seals(ಪೂರ್ಣಾಂಕ fd, ಚಿಹ್ನೆರಹಿತ *ret_seals) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
         r = RET_NERRNO(fcntl(fd, F_GET_SEALS));
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (ret_seals)
+        ಆದರೆ (ret_seals)
                 *ret_seals = r;
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int memfd_set_sealed(int fd) {
-        return memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+ಪೂರ್ಣಾಂಕ memfd_ಗಣ_sealed(ಪೂರ್ಣಾಂಕ fd) {
+        ಹಿಂತಿರುಗಿ memfd_ಕೂಡಿಸು_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_get_sealed(int fd) {
-        unsigned seals;
-        int r;
+ಪೂರ್ಣಾಂಕ memfd_get_sealed(ಪೂರ್ಣಾಂಕ fd) {
+        ಚಿಹ್ನೆರಹಿತ seals;
+        ಪೂರ್ಣಾಂಕ r;
 
         r = memfd_get_seals(fd, &seals);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         /* We ignore F_SEAL_EXEC here to support older kernels.
          * It is supported since kernel v6.3 (6fd7353829cafc4067aad9eea0dc95da67e7df16). */
-        return FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+        ಹಿಂತಿರುಗಿ FLAGS_ಗಣ(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_set_sealed_gracefully(int fd) {
-        int r;
+ಪೂರ್ಣಾಂಕ memfd_ಗಣ_sealed_gracefully(ಪೂರ್ಣಾಂಕ fd) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = memfd_set_sealed(fd);
-        if (r != -EPERM)
-                return r;
+        r = memfd_ಗಣ_sealed(fd);
+        ಆದರೆ (r != -EPERM)
+                ಹಿಂತಿರುಗಿ r;
 
         /* Already sealed? Check if required seals are set. */
         r = memfd_get_sealed(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM; /* Propagate the original error. */
-        return 0;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (r == 0)
+                ಹಿಂತಿರುಗಿ -EPERM; /* Propagate the original error. */
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int memfd_get_size(int fd, uint64_t *ret) {
-        struct stat stat;
+ಪೂರ್ಣಾಂಕ memfd_get_ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ fd, uint64_t *ret) {
+        ರಚನೆ stat stat;
 
-        assert(fd >= 0);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        if (fstat(fd, &stat) < 0)
-                return -errno;
+        ಆದರೆ (fstat(fd, &stat) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
         *ret = stat.st_size;
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int memfd_set_size(int fd, uint64_t sz) {
-        assert(fd >= 0);
+ಪೂರ್ಣಾಂಕ memfd_ಗಣ_ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ fd, uint64_t sz) {
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
-        return RET_NERRNO(ftruncate(fd, sz));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(ftruncate(fd, sz));
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+ಪೂರ್ಣಾಂಕ memfd_new_and_seal(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ದತ್ತಾಂಶ, size_t sz) {
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd = -EBADF;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(data || sz == 0);
+        ಪ್ರತಿಜ್ಞಾ(ದತ್ತಾಂಶ || sz == 0);
 
-        if (sz == SIZE_MAX)
-                sz = strlen(data);
+        ಆದರೆ (sz == SIZE_MAX)
+                sz = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ದತ್ತಾಂಶ);
 
-        fd = memfd_new_full(name, MFD_ALLOW_SEALING);
-        if (fd < 0)
-                return fd;
+        fd = memfd_new_ತುಂಬಿದ(name, MFD_ALLOW_SEALING);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
-        if (sz > 0) {
-                r = pwrite_full(fd, data, sz, 0);
-                if (r < 0)
-                        return r;
+        ಆದರೆ (sz > 0) {
+                r = pwrite_ತುಂಬಿದ(fd, ದತ್ತಾಂಶ, sz, 0);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        r = memfd_set_sealed(fd);
-        if (r < 0)
-                return r;
+        r = memfd_ಗಣ_sealed(fd);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return TAKE_FD(fd);
+        ಹಿಂತಿರುಗಿ TAKE_FD(fd);
 }

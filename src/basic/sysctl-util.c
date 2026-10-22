@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
 
-#include "af-list.h"
-#include "alloc-util.h"
-#include "fileio.h"
-#include "hashmap.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "string-util.h"
-#include "sysctl-util.h"
+#ಅನ್ತರ್ಭಾವ "af-list.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "hashmap.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "path-util.h"
+#ಅನ್ತರ್ಭಾವ "socket-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "sysctl-util.h"
 
-char* sysctl_normalize(char *s) {
-        char *n;
+ಅಕ್ಷರ* sysctl_normalize(ಅಕ್ಷರ *s) {
+        ಅಕ್ಷರ *n;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         n = strpbrk(s, "/.");
 
@@ -24,101 +24,101 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        ಆದರೆ (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
-                do {
-                        if (*n == '.')
+                ಮಾಡು {
+                        ಆದರೆ (*n == '.')
                                 *n = '/';
-                        else
+                        ಇಲ್ಲದಿದ್ದರೆ
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } ಆಗ (n);
 
-        path_simplify(s);
+        ಮಾರ್ಗ_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
-                memmove(s, s+1, strlen(s));
+        ಆದರೆ (s[0] == '/' && s[1] != 0)
+                memmove(s, s+1, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s));
 
-        return s;
+        ಹಿಂತಿರುಗಿ s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
-        _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ shadow_update(Hashmap **shadow, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        _cleanup_free_ ಅಕ್ಷರ *k = ಖಾಲಿ, *v = ಖಾಲಿ, *cur_k = ಖಾಲಿ, *cur_v = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(property);
-        assert(value);
+        ಪ್ರತಿಜ್ಞಾ(property);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
 
-        if (!shadow)
-                return 0;
+        ಆದರೆ (!shadow)
+                ಹಿಂತಿರುಗಿ 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        ಆದರೆ (!k)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(ಮೌಲ್ಯ);
+        ಆದರೆ (!v)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
+        cur_v = hashmap_remove2(*shadow, k, (ಶೂನ್ಯ**)&cur_k);
 
-        r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
-                assert(r != -EEXIST);
+        r = hashmap_ensure_put(shadow, &ಮಾರ್ಗ_hash_ops_free_free, k, v);
+        ಆದರೆ (r < 0) {
+                ಪ್ರತಿಜ್ಞಾ(r != -EEXIST);
 
-                return r;
+                ಹಿಂತಿರುಗಿ r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
-        char *p;
-        int r;
+ಪೂರ್ಣಾಂಕ sysctl_write_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, Hashmap **shadow) {
+        ಅಕ್ಷರ *p;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(property);
-        assert(value);
+        ಪ್ರತಿಜ್ಞಾ(property);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
 
         p = strjoina("/proc/sys/", property);
 
-        path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        ಮಾರ್ಗ_simplify(p);
+        ಆದರೆ (!ಮಾರ್ಗ_is_normalized(p))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        log_debug("Setting '%s' to '%s'", p, value);
+        log_debug("Setting '%s' to '%s'", p, ಮೌಲ್ಯ);
 
-        r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        r = shadow_update(shadow, p, ಮೌಲ್ಯ);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        ಹಿಂತಿರುಗಿ write_string_file(p, ಮೌಲ್ಯ, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_ಬಫರ್ | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
-        _cleanup_free_ char *v = NULL;
+ಪೂರ್ಣಾಂಕ sysctl_writef(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...) {
+        _cleanup_free_ ಅಕ್ಷರ *v = ಖಾಲಿ;
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return sysctl_write(property, v);
+        ಹಿಂತಿರುಗಿ sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+ಪೂರ್ಣಾಂಕ sysctl_write_verify(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(property);
-        assert(value);
+        ಪ್ರತಿಜ್ಞಾ(property);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
 
         /* Some sysctl settings accept invalid values on write, but refuses on read. E.g. coredump pattern,
          * be1e0283021ec73c2eb92839db9a471a068709d9 (v6.17) and 7d7c1fb85cba5627bbe741fb7539c709435e3848
@@ -126,18 +126,18 @@ int sysctl_write_verify(const char *property, const char *value) {
          * 304aa560385720baf3660fe8500f6dd425b63ea9 (v6.17.5). Let's first save the original value, and
          * restore to the saved value if the new value is refused. */
 
-        _cleanup_free_ char *original = NULL;
+        _cleanup_free_ ಅಕ್ಷರ *original = ಖಾಲಿ;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        ಆದರೆ (r >= 0 && streq(original, ಮೌಲ್ಯ))
+                ಹಿಂತಿರುಗಿ 0; /* Already set. */
 
-        r = sysctl_write(property, value);
-        if (r >= 0) {
-                _cleanup_free_ char *current = NULL;
+        r = sysctl_write(property, ಮೌಲ್ಯ);
+        ಆದರೆ (r >= 0) {
+                _cleanup_free_ ಅಕ್ಷರ *current = ಖಾಲಿ;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                ಆದರೆ (r >= 0) {
+                        ಆದರೆ (streq(current, ಮೌಲ್ಯ))
+                                ಹಿಂತಿರುಗಿ 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
-                (void) sysctl_write(property, original);
+        ಆದರೆ (original)
+                (ಶೂನ್ಯ) sysctl_write(property, original);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* af_ಗಮ್ಯ_sysctl_dir(ಪೂರ್ಣಾಂಕ af) {
+        ಆದರೆ (af == AF_MPLS)
+                ಹಿಂತಿರುಗಿ "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        ಹಿಂತಿರುಗಿ af_ಗಮ್ಯ_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_property(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, Hashmap **shadow) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
 
-        assert(property);
-        assert(value);
+        ಪ್ರತಿಜ್ಞಾ(property);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        ಆದರೆ (!ಒಳ_ಗಣ(af, AF_INET, AF_INET6, AF_MPLS))
+                ಹಿಂತಿರುಗಿ -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        ಆದರೆ (ifname) {
+                ಆದರೆ (!ifname_valid_ತುಂಬಿದ(ifname, IFNAME_VALID_SPECIAL))
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
-                p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
-                p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
+                p = strjoina("net/", af_ಗಮ್ಯ_sysctl_dir(af), "/conf/", ifname, "/", property);
+        } ಇಲ್ಲದಿದ್ದರೆ
+                p = strjoina("net/", af_ಗಮ್ಯ_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        ಹಿಂತಿರುಗಿ sysctl_write_ತುಂಬಿದ(p, ಮೌಲ್ಯ, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_property_boolean(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, bool ಮೌಲ್ಯ, Hashmap **shadow) {
+        ಹಿಂತಿರುಗಿ sysctl_write_ip_property(af, ifname, property, one_zero(ಮೌಲ್ಯ), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_neighbor_property(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, Hashmap **shadow) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
 
-        assert(property);
-        assert(value);
-        assert(ifname);
+        ಪ್ರತಿಜ್ಞಾ(property);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
+        ಪ್ರತಿಜ್ಞಾ(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        ಆದರೆ (!ಒಳ_ಗಣ(af, AF_INET, AF_INET6))
+                ಹಿಂತಿರುಗಿ -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
-                p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
-                p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
+        ಆದರೆ (ifname) {
+                ಆದರೆ (!ifname_valid_ತುಂಬಿದ(ifname, IFNAME_VALID_SPECIAL))
+                        ಹಿಂತಿರುಗಿ -EINVAL;
+                p = strjoina("net/", af_ಗಮ್ಯ_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
+        } ಇಲ್ಲದಿದ್ದರೆ
+                p = strjoina("net/", af_ಗಮ್ಯ_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        ಹಿಂತಿರುಗಿ sysctl_write_ತುಂಬಿದ(p, ಮೌಲ್ಯ, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
-        char buf[DECIMAL_STR_MAX(uint32_t)];
-        xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_neighbor_property_uint32(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, uint32_t ಮೌಲ್ಯ, Hashmap **shadow) {
+        ಅಕ್ಷರ buf[DECIMAL_STR_MAX(uint32_t)];
+        xsprintf(buf, "%u", ಮೌಲ್ಯ);
+        ಹಿಂತಿರುಗಿ sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
-        char *p;
-        int r;
+ಪೂರ್ಣಾಂಕ sysctl_read(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಅಕ್ಷರ **ret) {
+        ಅಕ್ಷರ *p;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(property);
+        ಪ್ರತಿಜ್ಞಾ(property);
 
         p = strjoina("/proc/sys/", property);
 
-        path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        ಮಾರ್ಗ_simplify(p);
+        ಆದರೆ (!ಮಾರ್ಗ_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        r = read_ತುಂಬಿದ_virtual_file(p, ret, ಖಾಲಿ);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
-        const char *p;
+ಪೂರ್ಣಾಂಕ sysctl_read_ip_property(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಅಕ್ಷರ **ret) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
 
-        assert(property);
+        ಪ್ರತಿಜ್ಞಾ(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        ಆದರೆ (!ಒಳ_ಗಣ(af, AF_INET, AF_INET6, AF_MPLS))
+                ಹಿಂತಿರುಗಿ -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        ಆದರೆ (ifname) {
+                ಆದರೆ (!ifname_valid_ತುಂಬಿದ(ifname, IFNAME_VALID_SPECIAL))
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
-                p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
-                p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
+                p = strjoina("net/", af_ಗಮ್ಯ_sysctl_dir(af), "/conf/", ifname, "/", property);
+        } ಇಲ್ಲದಿದ್ದರೆ
+                p = strjoina("net/", af_ಗಮ್ಯ_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        ಹಿಂತಿರುಗಿ sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ sysctl_read_ip_property_int(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಪೂರ್ಣಾಂಕ *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return safe_atoi(s, ret);
+        ಹಿಂತಿರುಗಿ ಸುರಕ್ಷಿತ_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ sysctl_read_ip_property_uint32(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, uint32_t *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return safe_atou32(s, ret);
+        ಹಿಂತಿರುಗಿ ಸುರಕ್ಷಿತ_atou32(s, ret);
 }

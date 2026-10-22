@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include <grp.h>
-#if ENABLE_GSHADOW
+#ಅನ್ತರ್ಭಾವ <grp.h>
+#ಆದರೆ ENABLE_GSHADOW
 #  include <gshadow.h>
-#endif
-#include <pwd.h>
-#include <shadow.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <pwd.h>
+#ಅನ್ತರ್ಭಾವ <shadow.h>
 
-#include "forward.h"
-#include "errno-util.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
+#ಅನ್ತರ್ಭಾವ "errno-util.h"
 
 /* Users managed by systemd-homed. See https://systemd.io/UIDS-GIDS for details
  * how this range fits into the rest of the world. */
-#define HOME_UID_MIN ((uid_t) 60001)
-#define HOME_UID_MAX ((uid_t) 60513)
+#ವ್ಯಾಖ್ಯಾನಿಸು HOME_UID_MIN ((uid_t) 60001)
+#ವ್ಯಾಖ್ಯಾನಿಸು HOME_UID_MAX ((uid_t) 60513)
 
 /* Users mapped from host into a container */
-#define MAP_UID_MIN ((uid_t) 60514)
-#define MAP_UID_MAX ((uid_t) 60577)
+#ವ್ಯಾಖ್ಯಾನಿಸು MAP_UID_MIN ((uid_t) 60514)
+#ವ್ಯಾಖ್ಯಾನಿಸು MAP_UID_MAX ((uid_t) 60577)
 
 /* A helper to print an error message when user or group resolution fails. */
-const char* strerror_user(int errnum, char *buf, size_t buflen);
-#define STRERROR_USER(errnum) strerror_user(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
-const char* strerror_group(int errnum, char *buf, size_t buflen);
-#define STRERROR_GROUP(errnum) strerror_group(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* strerror_user(ಪೂರ್ಣಾಂಕ errnum, ಅಕ್ಷರ *buf, size_t buflen);
+#ವ್ಯಾಖ್ಯಾನಿಸು STRERROR_USER(errnum) strerror_user(errnum, (ಅಕ್ಷರ[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* strerror_ಗುಂಪು(ಪೂರ್ಣಾಂಕ errnum, ಅಕ್ಷರ *buf, size_t buflen);
+#ವ್ಯಾಖ್ಯಾನಿಸು STRERROR_ಗುಂಪು(errnum) strerror_ಗುಂಪು(errnum, (ಅಕ್ಷರ[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
-static inline bool ERRNO_IS_NEG_BAD_ACCOUNT(intmax_t r) {
-        return IN_SET(r,
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ERRNO_IS_NEG_BAD_ACCOUNT(intmax_t r) {
+        ಹಿಂತಿರುಗಿ ಒಳ_ಗಣ(r,
                       -ESRCH,
                       -ENOEXEC);
 }
@@ -35,70 +35,70 @@ _DEFINE_ABS_WRAPPER(BAD_ACCOUNT);
 
 bool uid_is_valid(uid_t uid) _const_;
 
-static inline bool gid_is_valid(gid_t gid) {
-        return uid_is_valid((uid_t) gid);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool gid_is_valid(gid_t gid) {
+        ಹಿಂತಿರುಗಿ uid_is_valid((uid_t) gid);
 }
 
-int parse_uid(const char *s, uid_t* ret_uid);
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper);
+ಪೂರ್ಣಾಂಕ parse_uid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, uid_t* ret_uid);
+ಪೂರ್ಣಾಂಕ parse_uid_range(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, uid_t *ret_ಅಧೋ, uid_t *ret_ಊರ್ಧ್ವ);
 
-static inline int parse_gid(const char *s, gid_t *ret_gid) {
-        return parse_uid(s, (uid_t*) ret_gid);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ parse_gid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, gid_t *ret_gid) {
+        ಹಿಂತಿರುಗಿ parse_uid(s, (uid_t*) ret_gid);
 }
 
-char* getlogname_malloc(void);
-char* getusername_malloc(void);
+ಅಕ್ಷರ* getlogname_malloc(ಶೂನ್ಯ);
+ಅಕ್ಷರ* getusername_malloc(ಶೂನ್ಯ);
 
-const char* default_root_shell_at(int rfd);
-const char* default_root_shell(const char *root);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* default_ಬೇರು_shell_at(ಪೂರ್ಣಾಂಕ rfd);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* default_ಬೇರು_shell(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬೇರು);
 
-bool is_nologin_shell(const char *shell) _pure_;
-bool shell_is_placeholder(const char *shell) _pure_;
+bool is_nologin_shell(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *shell) ಶುದ್ಧ;
+bool shell_is_placeholder(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *shell) ಶುದ್ಧ;
 
-typedef enum UserCredsFlags {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ UserCredsFlags {
         USER_CREDS_PREFER_NSS           = 1 << 0,  /* if set, only synthesize user records if database lacks them. Normally we bypass the userdb entirely for the records we can synthesize */
         USER_CREDS_ALLOW_MISSING        = 1 << 1,  /* if a numeric UID string is resolved, be OK if there's no record for it */
         USER_CREDS_CLEAN                = 1 << 2,  /* try to clean up shell and home fields with invalid data */
         USER_CREDS_SUPPRESS_PLACEHOLDER = 1 << 3,  /* suppress home and/or shell fields if value is placeholder (root/empty/nologin) */
 } UserCredsFlags;
 
-int get_user_creds(
-                const char *username,
+ಪೂರ್ಣಾಂಕ get_user_creds(
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *username,
                 UserCredsFlags flags,
-                char **ret_username,
+                ಅಕ್ಷರ **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell);
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid);
+                ಅಕ್ಷರ **ret_home,
+                ಅಕ್ಷರ **ret_shell);
+ಪೂರ್ಣಾಂಕ get_ಗುಂಪು_creds(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *groupname, UserCredsFlags flags, ಅಕ್ಷರ **ret_name, gid_t *ret_gid);
 
-char* uid_to_name(uid_t uid);
-char* gid_to_name(gid_t gid);
+ಅಕ್ಷರ* uid_ಗಮ್ಯ_name(uid_t uid);
+ಅಕ್ಷರ* gid_ಗಮ್ಯ_name(gid_t gid);
 
-int in_gid(gid_t gid);
-int in_group(const char *name);
+ಪೂರ್ಣಾಂಕ ಒಳ_gid(gid_t gid);
+ಪೂರ್ಣಾಂಕ ಒಳ_ಗುಂಪು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name);
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret);
-int getgroups_alloc(gid_t **ret);
+ಪೂರ್ಣಾಂಕ ವಿಲೀನ_gid_lists(ಸ್ಥಿರಾಂಕ gid_t *list1, size_t size1, ಸ್ಥಿರಾಂಕ gid_t *list2, size_t size2, gid_t **ret);
+ಪೂರ್ಣಾಂಕ getgroups_alloc(gid_t **ret);
 
-int get_home_dir(char **ret);
-int get_shell(char **ret);
+ಪೂರ್ಣಾಂಕ get_home_dir(ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ get_shell(ಅಕ್ಷರ **ret);
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids);
-static inline int reset_uid_gid(void) {
-        return fully_set_uid_gid(0, 0, NULL, 0);
+ಪೂರ್ಣಾಂಕ fully_ಗಣ_uid_gid(uid_t uid, gid_t gid, ಸ್ಥಿರಾಂಕ gid_t supplementary_gids[], size_t n_supplementary_gids);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ reset_uid_gid(ಶೂನ್ಯ) {
+        ಹಿಂತಿರುಗಿ fully_ಗಣ_uid_gid(0, 0, ಖಾಲಿ, 0);
 }
 
-int take_etc_passwd_lock(const char *root);
+ಪೂರ್ಣಾಂಕ take_etc_passwd_ಬೀಗ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬೇರು);
 
-#define UID_INVALID ((uid_t) -1)
-#define GID_INVALID ((gid_t) -1)
+#ವ್ಯಾಖ್ಯಾನಿಸು UID_INVALID ((uid_t) -1)
+#ವ್ಯಾಖ್ಯಾನಿಸು GID_INVALID ((gid_t) -1)
 
-#define UID_NOBODY ((uid_t) 65534U)
-#define GID_NOBODY ((gid_t) 65534U)
+#ವ್ಯಾಖ್ಯಾನಿಸು UID_NOBODY ((uid_t) 65534U)
+#ವ್ಯಾಖ್ಯಾನಿಸು GID_NOBODY ((gid_t) 65534U)
 
 /* Conventional size of a user-namespace UID/GID delegation block (64K).
  * Untyped so it can be used in both UID and GID contexts without casts. */
-#define USERNS_RANGE_SIZE 0x10000U
+#ವ್ಯಾಖ್ಯಾನಿಸು USERNS_RANGE_ಗಾತ್ರ 0x10000U
 
 /* If REMOUNT_IDMAPPING_HOST_ROOT is set for remount_idmap() we'll include a mapping here that maps the host
  * root user accessing the idmapped mount to the this user ID on the backing fs. This is the last valid UID in
@@ -110,96 +110,96 @@ int take_etc_passwd_lock(const char *root);
  * our usual logic of assigning a 16-bit UID range to each container, so that the upper 16-bit of a 32-bit UID
  * value indicate kind of a "container ID" and the lower 16-bit map directly to the intended user you can read
  * this specific UID as the "nobody" user of the container with ID 0x7FFF, which is kinda nice. */
-#define UID_MAPPED_ROOT ((uid_t) (INT32_MAX-1))
-#define GID_MAPPED_ROOT ((gid_t) (INT32_MAX-1))
+#ವ್ಯಾಖ್ಯಾನಿಸು UID_MAPPED_ಬೇರು ((uid_t) (INT32_MAX-1))
+#ವ್ಯಾಖ್ಯಾನಿಸು GID_MAPPED_ಬೇರು ((gid_t) (INT32_MAX-1))
 
-#define ETC_PASSWD_LOCK_FILENAME ".pwd.lock"
-#define ETC_PASSWD_LOCK_PATH "/etc/" ETC_PASSWD_LOCK_FILENAME
+#ವ್ಯಾಖ್ಯಾನಿಸು ETC_PASSWD_ಬೀಗ_FILENAME ".pwd.lock"
+#ವ್ಯಾಖ್ಯಾನಿಸು ETC_PASSWD_ಬೀಗ_ಮಾರ್ಗ "/etc/" ETC_PASSWD_ಬೀಗ_FILENAME
 
 /* The following macros add 1 when converting things, since UID 0 is a valid UID, while the pointer
  * NULL is special */
-#define PTR_TO_UID(p) ((uid_t) (((uintptr_t) (p))-1))
-#define UID_TO_PTR(u) ((void*) (((uintptr_t) (u))+1))
+#ವ್ಯಾಖ್ಯಾನಿಸು PTR_ಗಮ್ಯ_UID(p) ((uid_t) (((uintptr_t) (p))-1))
+#ವ್ಯಾಖ್ಯಾನಿಸು UID_ಗಮ್ಯ_PTR(u) ((ಶೂನ್ಯ*) (((uintptr_t) (u))+1))
 
-#define PTR_TO_GID(p) ((gid_t) (((uintptr_t) (p))-1))
-#define GID_TO_PTR(u) ((void*) (((uintptr_t) (u))+1))
+#ವ್ಯಾಖ್ಯಾನಿಸು PTR_ಗಮ್ಯ_GID(p) ((gid_t) (((uintptr_t) (p))-1))
+#ವ್ಯಾಖ್ಯಾನಿಸು GID_ಗಮ್ಯ_PTR(u) ((ಶೂನ್ಯ*) (((uintptr_t) (u))+1))
 
-typedef enum ValidUserFlags {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ ValidUserFlags {
         VALID_USER_RELAX         = 1 << 0,
         VALID_USER_WARN          = 1 << 1,
         VALID_USER_ALLOW_NUMERIC = 1 << 2,
 } ValidUserFlags;
 
-bool valid_user_group_name(const char *u, ValidUserFlags flags);
-bool valid_gecos(const char *d);
-char* mangle_gecos(const char *d);
-bool valid_home(const char *p);
-bool valid_shell(const char *p);
+bool valid_user_ಗುಂಪು_name(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *u, ValidUserFlags flags);
+bool valid_gecos(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *d);
+ಅಕ್ಷರ* mangle_gecos(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *d);
+bool valid_home(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p);
+bool valid_shell(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p);
 
-int maybe_setgroups(size_t size, const gid_t *list);
+ಪೂರ್ಣಾಂಕ maybe_setgroups(size_t ಗಾತ್ರ_2, ಸ್ಥಿರಾಂಕ gid_t *list);
 
-bool synthesize_nobody(void);
+bool synthesize_nobody(ಶೂನ್ಯ);
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw);
-int fgetspent_sane(FILE *stream, struct spwd **sp);
-int fgetgrent_sane(FILE *stream, struct group **gr);
-int putpwent_sane(const struct passwd *pw, FILE *stream);
-int putspent_sane(const struct spwd *sp, FILE *stream);
-int putgrent_sane(const struct group *gr, FILE *stream);
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg);
-int putsgent_sane(const struct sgrp *sg, FILE *stream);
-#endif
+ಪೂರ್ಣಾಂಕ fgetpwent_sane(FILE *ಹರಿವು, ರಚನೆ passwd **pw);
+ಪೂರ್ಣಾಂಕ fgetspent_sane(FILE *ಹರಿವು, ರಚನೆ spwd **sp);
+ಪೂರ್ಣಾಂಕ fgetgrent_sane(FILE *ಹರಿವು, ರಚನೆ group **gr);
+ಪೂರ್ಣಾಂಕ putpwent_sane(ಸ್ಥಿರಾಂಕ ರಚನೆ passwd *pw, FILE *ಹರಿವು);
+ಪೂರ್ಣಾಂಕ putspent_sane(ಸ್ಥಿರಾಂಕ ರಚನೆ spwd *sp, FILE *ಹರಿವು);
+ಪೂರ್ಣಾಂಕ putgrent_sane(ಸ್ಥಿರಾಂಕ ರಚನೆ group *gr, FILE *ಹರಿವು);
+#ಆದರೆ ENABLE_GSHADOW
+ಪೂರ್ಣಾಂಕ fgetsgent_sane(FILE *ಹರಿವು, ರಚನೆ sgrp **sg);
+ಪೂರ್ಣಾಂಕ putsgent_sane(ಸ್ಥಿರಾಂಕ ರಚನೆ sgrp *sg, FILE *ಹರಿವು);
+#ಆದರೆ_ಅಂತ್ಯ
 
-int is_this_me(const char *username);
+ಪೂರ್ಣಾಂಕ is_this_me(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *username);
 
-const char* get_home_root(void);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* get_home_ಬೇರು(ಶೂನ್ಯ);
 
-static inline bool hashed_password_is_locked_or_invalid(const char *password) {
-        return password && password[0] != '$';
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool hashed_password_is_locked_or_invalid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *password) {
+        ಹಿಂತಿರುಗಿ password && password[0] != '$';
 }
 
 /* Places where we will try to load account data from */
-#define PASSWD_FILES STRV_MAKE("/etc/passwd", "/usr/lib/passwd")
-#define GROUP_FILES STRV_MAKE("/etc/group", "/usr/lib/group")
+#ವ್ಯಾಖ್ಯಾನಿಸು PASSWD_FILES STRV_MAKE("/etc/passwd", "/usr/lib/passwd")
+#ವ್ಯಾಖ್ಯಾನಿಸು ಗುಂಪು_FILES STRV_MAKE("/etc/group", "/usr/lib/group")
 
 /* A locked *and* invalid password for "struct spwd"'s .sp_pwdp and "struct passwd"'s .pw_passwd field */
-#define PASSWORD_LOCKED_AND_INVALID "!*"
+#ವ್ಯಾಖ್ಯಾನಿಸು PASSWORD_LOCKED_AND_INVALID "!*"
 
 /* A password indicating "look in shadow file, please!" for "struct passwd"'s .pw_passwd */
-#define PASSWORD_SEE_SHADOW "x"
+#ವ್ಯಾಖ್ಯಾನಿಸು PASSWORD_SEE_SHADOW "x"
 
 /* A password indicating "hey, no password required for login" */
-#define PASSWORD_NONE ""
+#ವ್ಯಾಖ್ಯಾನಿಸು PASSWORD_NONE ""
 
 /* Used by sysusers to indicate that the password should be filled in by firstboot.
  * Also see https://github.com/systemd/systemd/pull/24680#pullrequestreview-1439464325.
  */
-#define PASSWORD_UNPROVISIONED "!unprovisioned"
+#ವ್ಯಾಖ್ಯಾನಿಸು PASSWORD_UNPROVISIONED "!unprovisioned"
 
-int sysconf_ngroups_max(void);
+ಪೂರ್ಣಾಂಕ sysconf_ngroups_max(ಶೂನ್ಯ);
 
-int lookup_pwent_in_files(
-                char * const *files,
-                const char *name,
+ಪೂರ್ಣಾಂಕ lookup_pwent_ಒಳ_files(
+                ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *files,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name,
                 uid_t uid,
-                struct passwd **ret);
-int lookup_grent_in_files(
-                char * const *files,
-                const char *name,
+                ರಚನೆ passwd **ret);
+ಪೂರ್ಣಾಂಕ lookup_grent_ಒಳ_files(
+                ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *files,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name,
                 gid_t gid,
-                struct group **ret);
+                ರಚನೆ group **ret);
 
-ssize_t lookup_groups_in_files(
-                char * const *files,
-                const char *name,
+ssize_t lookup_groups_ಒಳ_files(
+                ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *files,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name,
                 gid_t gid,
                 gid_t **ret);
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret);
-int initgroups_wrapper(const char *user, gid_t gid);
+ಪೂರ್ಣಾಂಕ getgrouplist_malloc(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *user, gid_t gid, gid_t **ret);
+ಪೂರ್ಣಾಂಕ initgroups_wrapper(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *user, gid_t gid);
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret);
-int getpwnam_malloc(const char *name, struct passwd **ret);
+ಪೂರ್ಣಾಂಕ getpwuid_malloc(uid_t uid, ರಚನೆ passwd **ret);
+ಪೂರ್ಣಾಂಕ getpwnam_malloc(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ರಚನೆ passwd **ret);
 
-int getgrnam_malloc(const char *name, struct group **ret);
-int getgrgid_malloc(gid_t gid, struct group **ret);
+ಪೂರ್ಣಾಂಕ getgrnam_malloc(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ರಚನೆ group **ret);
+ಪೂರ್ಣಾಂಕ getgrgid_malloc(gid_t gid, ರಚನೆ group **ret);

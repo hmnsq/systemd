@@ -1,228 +1,228 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-#include "../fundamental/strv.h"   /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ "../fundamental/strv.h"   /* IWYU pragma: export */
 
-char* strv_find(char * const *l, const char *name) _pure_;
-char* strv_find_case(char * const *l, const char *name) _pure_;
-char* strv_find_prefix(char * const *l, const char *name) _pure_;
-char* strv_find_startswith(char * const *l, const char *name) _pure_;
-char* strv_find_closest(char * const *l, const char *name) _pure_;
+ಅಕ್ಷರ* strv_ಕಂಡುಹಿಡಿ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) ಶುದ್ಧ;
+ಅಕ್ಷರ* strv_ಕಂಡುಹಿಡಿ_case(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) ಶುದ್ಧ;
+ಅಕ್ಷರ* strv_ಕಂಡುಹಿಡಿ_ಪೂರ್ವಪ್ರತ್ಯಯ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) ಶುದ್ಧ;
+ಅಕ್ಷರ* strv_ಕಂಡುಹಿಡಿ_startswith(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) ಶುದ್ಧ;
+ಅಕ್ಷರ* strv_ಕಂಡುಹಿಡಿ_closest(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) ಶುದ್ಧ;
 /* Given two vectors, the first a list of keys and the second a list of key-value pairs, returns the value
  * of the first key from the first vector that is found in the second vector. */
-char* strv_find_first_field(char * const *needles, char * const *haystack) _pure_;
+ಅಕ್ಷರ* strv_ಕಂಡುಹಿಡಿ_ಮೊದಲ_ಕ್ಷೇತ್ರ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *needles, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *haystack) ಶುದ್ಧ;
 
-#define strv_contains(l, s) (!!strv_find((l), (s)))
-#define strv_contains_case(l, s) (!!strv_find_case((l), (s)))
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_ಒಳಗೊಂಡಿದೆ(l, s) (!!strv_ಕಂಡುಹಿಡಿ((l), (s)))
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_ಒಳಗೊಂಡಿದೆ_case(l, s) (!!strv_ಕಂಡುಹಿಡಿ_case((l), (s)))
 
-char** strv_free(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free);
-#define _cleanup_strv_free_ _cleanup_(strv_freep)
+ಅಕ್ಷರ** strv_free(ಅಕ್ಷರ **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ಅಕ್ಷರ**, strv_free);
+#ವ್ಯಾಖ್ಯಾನಿಸು _cleanup_strv_free_ _cleanup_(strv_freep)
 
-char** strv_free_erase(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free_erase);
-#define _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
+ಅಕ್ಷರ** strv_free_erase(ಅಕ್ಷರ **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ಅಕ್ಷರ**, strv_free_erase);
+#ವ್ಯಾಖ್ಯಾನಿಸು _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
 
-void strv_free_many(char ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
+ಶೂನ್ಯ strv_free_many(ಅಕ್ಷರ ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
 
-char** strv_copy_n(char * const *l, size_t n);
-static inline char** strv_copy(char * const *l) {
-        return strv_copy_n(l, SIZE_MAX);
+ಅಕ್ಷರ** strv_copy_n(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, size_t n);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಅಕ್ಷರ** strv_copy(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l) {
+        ಹಿಂತಿರುಗಿ strv_copy_n(l, SIZE_MAX);
 }
-int strv_copy_unless_empty(char * const *l, char ***ret);
+ಪೂರ್ಣಾಂಕ strv_copy_unless_ಖಾಲಿಗಳು(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಅಕ್ಷರ ***ret);
 
-size_t strv_length(char * const *l) _pure_;
+size_t strv_ಉದ್ದಳತೆ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l) ಶುದ್ಧ;
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
+ಪೂರ್ಣಾಂಕ strv_extend_strv(ಅಕ್ಷರ ***a, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *b, bool filter_duplicates);
+ಪೂರ್ಣಾಂಕ strv_extend_strv_consume(ಅಕ್ಷರ ***a, ಅಕ್ಷರ **b, bool filter_duplicates);
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
-static inline int strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
-        return strv_extend_strv_biconcat(a, NULL, b, suffix);
+ಪೂರ್ಣಾಂಕ strv_extend_strv_biconcat(ಅಕ್ಷರ ***a, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ *b, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *suffix);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ strv_extend_strv_concat(ಅಕ್ಷರ ***a, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ *b, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *suffix) {
+        ಹಿಂತಿರುಗಿ strv_extend_strv_biconcat(a, ಖಾಲಿ, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+ಪೂರ್ಣಾಂಕ strv_prepend(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+ಪೂರ್ಣಾಂಕ strv_extend_with_ಗಾತ್ರ(ಅಕ್ಷರ ***l, size_t *n, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ strv_extend(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        ಹಿಂತಿರುಗಿ strv_extend_with_ಗಾತ್ರ(l, ಖಾಲಿ, ಮೌಲ್ಯ);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
-#define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
+ಪೂರ್ಣಾಂಕ strv_extend_many_ಆಂತರಿಕ(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, ...);
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_extend_many(l, ...) strv_extend_many_ಆಂತರಿಕ(l, __VA_ARGS__, ಸೂಚಕ_MAX)
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
-#define strv_extendf(l, ...) strv_extendf_with_size(l, NULL, __VA_ARGS__)
+ಪೂರ್ಣಾಂಕ strv_extendf_with_ಗಾತ್ರ(ಅಕ್ಷರ ***l, size_t *n, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...) _printf_(3,4);
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_extendf(l, ...) strv_extendf_with_ಗಾತ್ರ(l, ಖಾಲಿ, __VA_ARGS__)
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
-#define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
-#define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
+ಪೂರ್ಣಾಂಕ strv_extend_joined_with_ಗಾತ್ರ_sentinel(ಅಕ್ಷರ ***l, size_t *n, ...) _sentinel_;
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_extend_joined_with_ಗಾತ್ರ(l, n, ...) strv_extend_joined_with_ಗಾತ್ರ_sentinel(l, n, __VA_ARGS__, ಖಾಲಿ)
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_extend_joined(l, ...) strv_extend_joined_with_ಗಾತ್ರ(l, ಖಾಲಿ, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+ಪೂರ್ಣಾಂಕ strv_ತಳ್ಳು_with_ಗಾತ್ರ(ಅಕ್ಷರ ***l, size_t *n, ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ strv_ತಳ್ಳು(ಅಕ್ಷರ ***l, ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        ಹಿಂತಿರುಗಿ strv_ತಳ್ಳು_with_ಗಾತ್ರ(l, ಖಾಲಿ, ಮೌಲ್ಯ);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+ಪೂರ್ಣಾಂಕ strv_ತಳ್ಳು_pair(ಅಕ್ಷರ ***l, ಅಕ್ಷರ *a, ಅಕ್ಷರ *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+ಪೂರ್ಣಾಂಕ strv_ಸೇರಿಸು(ಅಕ್ಷರ ***l, size_t position, ಅಕ್ಷರ *ಮೌಲ್ಯ);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
-}
-
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ strv_ತಳ್ಳು_prepend(ಅಕ್ಷರ ***l, ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        ಹಿಂತಿರುಗಿ strv_ಸೇರಿಸು(l, 0, ಮೌಲ್ಯ);
 }
 
-int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
-
-char** strv_remove(char **l, const char *s);
-char** strv_remove_strv(char **l, char *const*ll);
-char** strv_uniq(char **l);
-bool strv_is_uniq(char * const *l) _pure_;
-
-int strv_compare(char * const *a, char * const *b) _pure_;
-static inline bool strv_equal(char * const *a, char * const *b) {
-        return strv_compare(a, b) == 0;
+ಪೂರ್ಣಾಂಕ strv_consume_with_ಗಾತ್ರ(ಅಕ್ಷರ ***l, size_t *n, ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ strv_consume(ಅಕ್ಷರ ***l, ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        ಹಿಂತಿರುಗಿ strv_consume_with_ಗಾತ್ರ(l, ಖಾಲಿ, ಮೌಲ್ಯ);
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) _pure_;
+ಪೂರ್ಣಾಂಕ strv_consume_pair(ಅಕ್ಷರ ***l, ಅಕ್ಷರ *a, ಅಕ್ಷರ *b);
+ಪೂರ್ಣಾಂಕ strv_consume_prepend(ಅಕ್ಷರ ***l, ಅಕ್ಷರ *ಮೌಲ್ಯ);
 
-char** strv_new_internal(const char *x, ...) _sentinel_;
-char** strv_new_ap(const char *x, va_list ap);
-#define strv_new(...) strv_new_internal(__VA_ARGS__, NULL)
+ಅಕ್ಷರ** strv_remove(ಅಕ್ಷರ **l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s);
+ಅಕ್ಷರ** strv_remove_strv(ಅಕ್ಷರ **l, ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ*ll);
+ಅಕ್ಷರ** strv_uniq(ಅಕ್ಷರ **l);
+bool strv_is_uniq(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l) ಶುದ್ಧ;
 
-#define STRV_IGNORE ((const char *) POINTER_MAX)
-
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ?: STRV_IGNORE;
+ಪೂರ್ಣಾಂಕ strv_compare(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *a, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *b) ಶುದ್ಧ;
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool strv_equal(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *a, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *b) {
+        ಹಿಂತಿರುಗಿ strv_compare(a, b) == 0;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
-char** strv_split(const char *s, const char *separators);
+bool strv_equal_ignore_ಕ್ರಮ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *a, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *b) ಶುದ್ಧ;
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
+ಅಕ್ಷರ** strv_new_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *x, ...) _sentinel_;
+ಅಕ್ಷರ** strv_new_ap(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *x, va_list ap);
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_new(...) strv_new_ಆಂತರಿಕ(__VA_ARGS__, ಖಾಲಿ)
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
-char** strv_split_newlines(const char *s);
+#ವ್ಯಾಖ್ಯಾನಿಸು STRV_IGNORE ((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *) ಸೂಚಕ_MAX)
+
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* STRV_IFNOTNULL(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *x) {
+        ಹಿಂತಿರುಗಿ x ?: STRV_IGNORE;
+}
+
+ಪೂರ್ಣಾಂಕ strv_ವಿಭಜಿಸು_ತುಂಬಿದ(ಅಕ್ಷರ ***t, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *separators, ಹೊರತೆಗೆ_Flags flags);
+ಅಕ್ಷರ** strv_ವಿಭಜಿಸು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *separators);
+
+ಪೂರ್ಣಾಂಕ strv_ವಿಭಜಿಸು_and_extend_ತುಂಬಿದ(ಅಕ್ಷರ ***t, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *separators, bool filter_duplicates, ಹೊರತೆಗೆ_Flags flags);
+ಪೂರ್ಣಾಂಕ strv_ವಿಭಜಿಸು_and_extend(ಅಕ್ಷರ ***t, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *separators, bool filter_duplicates);
+
+ಪೂರ್ಣಾಂಕ strv_ವಿಭಜಿಸು_newlines_ತುಂಬಿದ(ಅಕ್ಷರ ***ret, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಹೊರತೆಗೆ_Flags flags);
+ಅಕ್ಷರ** strv_ವಿಭಜಿಸು_newlines(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s);
 
 /* Given a string containing white-space separated tuples of words themselves separated by ':',
  * returns a vector of strings. If the second element in a tuple is missing, the corresponding
  * string in the vector is an empty string. */
-int strv_split_colon_pairs(char ***t, const char *s);
+ಪೂರ್ಣಾಂಕ strv_ವಿಭಜಿಸು_colon_ಜೋಡಿಗಳು(ಅಕ್ಷರ ***t, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s);
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix);
-static inline char *strv_join(char * const *l, const char *separator) {
-        return strv_join_full(l, separator, NULL);
+ಅಕ್ಷರ* strv_join_ತುಂಬಿದ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *separator, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಅಕ್ಷರ *strv_join(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *separator) {
+        ಹಿಂತಿರುಗಿ strv_join_ತುಂಬಿದ(l, separator, ಖಾಲಿ);
 }
 
-bool strv_overlap(char * const *a, char * const *b) _pure_;
+bool strv_overlap(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *a, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *b) ಶುದ್ಧ;
 
-#define _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
-        for (typeof(*(l)) *s, *h = (l), *i = ({                         \
-                                size_t _len = strv_length(h);           \
-                                _len > 0 ? h + _len - 1 : NULL;         \
+#ವ್ಯಾಖ್ಯಾನಿಸು _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
+        ಗಾಗಿ (typeof(*(l)) *s, *h = (l), *i = ({                         \
+                                size_t _len = strv_ಉದ್ದಳತೆ(h);           \
+                                _len > 0 ? h + _len - 1 : ಖಾಲಿ;         \
                         });                                             \
              (s = i);                                                   \
              i = PTR_SUB1(i, h))
 
-#define STRV_FOREACH_BACKWARDS(s, l)                                    \
+#ವ್ಯಾಖ್ಯಾನಿಸು STRV_FOREACH_BACKWARDS(s, l)                                    \
         _STRV_FOREACH_BACKWARDS(s, l, UNIQ_T(h, UNIQ), UNIQ_T(i, UNIQ))
 
-#define _STRV_FOREACH_PAIR(x, y, l, i)                          \
-        for (typeof(*(l)) *x, *y, *i = (l);                     \
+#ವ್ಯಾಖ್ಯಾನಿಸು _STRV_FOREACH_PAIR(x, y, l, i)                          \
+        ಗಾಗಿ (typeof(*(l)) *x, *y, *i = (l);                     \
              i && *(x = i) && *(y = i + 1);                     \
              i += 2)
 
-#define STRV_FOREACH_PAIR(x, y, l)                      \
+#ವ್ಯಾಖ್ಯಾನಿಸು STRV_FOREACH_PAIR(x, y, l)                      \
         _STRV_FOREACH_PAIR(x, y, l, UNIQ_T(i, UNIQ))
 
-char** strv_sort(char **l);
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
-char** strv_sort_uniq(char **l);
-void strv_print_full(char * const *l, const char *prefix);
-static inline void strv_print(char * const *l) {
-        strv_print_full(l, NULL);
+ಅಕ್ಷರ** strv_ವಿಂಗಡಿಸು(ಅಕ್ಷರ **l);
+ಅಕ್ಷರ** strv_ವಿಂಗಡಿಸು_uniq_ತುಂಬಿದ(ಅಕ್ಷರ **l, ಪೂರ್ಣಾಂಕ (*compare)(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *a, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *b));
+ಅಕ್ಷರ** strv_ವಿಂಗಡಿಸು_uniq(ಅಕ್ಷರ **l);
+ಶೂನ್ಯ strv_print_ತುಂಬಿದ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ strv_print(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l) {
+        strv_print_ತುಂಬಿದ(l, ಖಾಲಿ);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l);
-#define startswith_strv(s, l) const_generic(s, startswith_strv_internal(s, l))
+ಅಕ್ಷರ* startswith_strv_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l);
+#ವ್ಯಾಖ್ಯಾನಿಸು startswith_strv(s, l) const_generic(s, startswith_strv_ಆಂತರಿಕ(s, l))
 
-#define STARTSWITH_SET(p, ...)                                  \
+#ವ್ಯಾಖ್ಯಾನಿಸು STARTSWITH_ಗಣ(p, ...)                                  \
         startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-char* endswith_strv_internal(const char *s, char * const *l);
-#define endswith_strv(s, l) const_generic(s, endswith_strv_internal(s, l))
+ಅಕ್ಷರ* endswith_strv_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l);
+#ವ್ಯಾಖ್ಯಾನಿಸು endswith_strv(s, l) const_generic(s, endswith_strv_ಆಂತರಿಕ(s, l))
 
-#define ENDSWITH_SET(p, ...)                                    \
+#ವ್ಯಾಖ್ಯಾನಿಸು ENDSWITH_ಗಣ(p, ...)                                    \
         endswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-#define STR_IN_SET(x, ...) strv_contains(STRV_MAKE(__VA_ARGS__), x)
-#define STRPTR_IN_SET(x, ...)                                    \
+#ವ್ಯಾಖ್ಯಾನಿಸು STR_ಒಳ_ಗಣ(x, ...) strv_ಒಳಗೊಂಡಿದೆ(STRV_MAKE(__VA_ARGS__), x)
+#ವ್ಯಾಖ್ಯಾನಿಸು STRPTR_ಒಳ_ಗಣ(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
-                _x && strv_contains(STRV_MAKE(__VA_ARGS__), _x); \
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* _x = (x);                            \
+                _x && strv_ಒಳಗೊಂಡಿದೆ(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
-#define STRCASE_IN_SET(x, ...) strv_contains_case(STRV_MAKE(__VA_ARGS__), x)
-#define STRCASEPTR_IN_SET(x, ...)                                    \
+#ವ್ಯಾಖ್ಯಾನಿಸು STRCASE_ಒಳ_ಗಣ(x, ...) strv_ಒಳಗೊಂಡಿದೆ_case(STRV_MAKE(__VA_ARGS__), x)
+#ವ್ಯಾಖ್ಯಾನಿಸು STRCASEPTR_ಒಳ_ಗಣ(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
-                _x && strv_contains_case(STRV_MAKE(__VA_ARGS__), _x); \
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* _x = (x);                            \
+                _x && strv_ಒಳಗೊಂಡಿದೆ_case(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
-#define _FOREACH_STRING(uniq, x, y, ...)                                \
-        for (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
+#ವ್ಯಾಖ್ಯಾನಿಸು _FOREACH_STRING(uniq, x, y, ...)                                \
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *x, * ಸ್ಥಿರಾಂಕ*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
              x;                                                         \
              x = *(++UNIQ_T(l, uniq)))
 
-#define FOREACH_STRING(x, y, ...)                       \
+#ವ್ಯಾಖ್ಯಾನಿಸು FOREACH_STRING(x, y, ...)                       \
         _FOREACH_STRING(UNIQ, x, y, ##__VA_ARGS__)
 
-char** strv_reverse(char **l);
-char** strv_shell_escape(char **l, const char *bad);
+ಅಕ್ಷರ** strv_ಹಿಮ್ಮುಖ(ಅಕ್ಷರ **l);
+ಅಕ್ಷರ** strv_shell_escape(ಅಕ್ಷರ **l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *bad);
 
-bool strv_fnmatch_full(char* const* patterns, const char *s, int flags, size_t *ret_matched_pos);
-static inline bool strv_fnmatch(char* const* patterns, const char *s) {
-        return strv_fnmatch_full(patterns, s, 0, NULL);
+bool strv_fnmatch_ತುಂಬಿದ(ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ* patterns, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಪೂರ್ಣಾಂಕ flags, size_t *ret_matched_pos);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool strv_fnmatch(ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ* patterns, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s) {
+        ಹಿಂತಿರುಗಿ strv_fnmatch_ತುಂಬಿದ(patterns, s, 0, ಖಾಲಿ);
 }
-static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, int flags) {
-        assert(s);
-        return strv_isempty(patterns) ||
-               strv_fnmatch_full(patterns, s, flags, NULL);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool strv_fnmatch_or_ಖಾಲಿಗಳು(ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ* patterns, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಪೂರ್ಣಾಂಕ flags) {
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಹಿಂತಿರುಗಿ strv_isempty(patterns) ||
+               strv_fnmatch_ತುಂಬಿದ(patterns, s, flags, ಖಾಲಿ);
 }
 
-char** strv_skip(char **l, size_t n);
+ಅಕ್ಷರ** strv_skip(ಅಕ್ಷರ **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+ಪೂರ್ಣಾಂಕ strv_extend_n(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, size_t n);
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
+ಪೂರ್ಣಾಂಕ strv_extend_assignment(ಅಕ್ಷರ ***l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *lhs, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *rhs);
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
+ಪೂರ್ಣಾಂಕ fputstrv(FILE *f, ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *separator, bool *space);
 
-#define strv_free_and_replace(a, b)             \
-        free_and_replace_full(a, b, strv_free)
+#ವ್ಯಾಖ್ಯಾನಿಸು strv_free_and_replace(a, b)             \
+        free_and_replace_ತುಂಬಿದ(a, b, strv_free)
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+ಶೂನ್ಯ string_strv_hashmap_remove(Hashmap *h, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಶೂನ್ಯ string_strv_ordered_hashmap_remove(OrderedHashmap *h, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಪೂರ್ಣಾಂಕ string_strv_hashmap_put(Hashmap **h, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಪೂರ್ಣಾಂಕ string_strv_ordered_hashmap_put(OrderedHashmap **h, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+ಪೂರ್ಣಾಂಕ strv_rebreak_ಸಾಲುಗಳು(ಅಕ್ಷರ **l, size_t width, ಅಕ್ಷರ ***ret);
 
-char** strv_filter_prefix(char * const *l, const char *prefix);
+ಅಕ್ಷರ** strv_filter_ಪೂರ್ವಪ್ರತ್ಯಯ(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *l, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ);
 
 /* whenever we need to initialize something with a constant non-NULL, but empty strv, we can use this shared
  * one */
-extern const char* const strv_empty[1];
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ strv_ಖಾಲಿಗಳು[1];
 
-#define STRV_EMPTY ((char**) strv_empty)
+#ವ್ಯಾಖ್ಯಾನಿಸು STRV_ಖಾಲಿಗಳು ((ಅಕ್ಷರ**) strv_ಖಾಲಿಗಳು)

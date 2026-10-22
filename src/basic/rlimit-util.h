@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include <sys/resource.h>       /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ <sys/resource.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-#define _RLIMIT_MAX RLIMIT_NLIMITS
+#ವ್ಯಾಖ್ಯಾನಿಸು _RLIMIT_MAX RLIMIT_NLIMITS
 
-DECLARE_STRING_TABLE_LOOKUP(rlimit, int);
-int rlimit_from_string_harder(const char *s) _pure_;
-void rlimits_list(const char *prefix);
+DECLARE_STRING_ಕೋಷ್ಟಕ_LOOKUP(rlimit, ಪೂರ್ಣಾಂಕ);
+ಪೂರ್ಣಾಂಕ rlimit_from_string_harder(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s) ಶುದ್ಧ;
+ಶೂನ್ಯ rlimits_list(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ);
 
-int setrlimit_closest(int resource, const struct rlimit *rlim);
-int setrlimit_closest_all(const struct rlimit * const *rlim, int *which_failed);
+ಪೂರ್ಣಾಂಕ setrlimit_closest(ಪೂರ್ಣಾಂಕ resource, ಸ್ಥಿರಾಂಕ ರಚನೆ rlimit *rlim);
+ಪೂರ್ಣಾಂಕ setrlimit_closest_all(ಸ್ಥಿರಾಂಕ ರಚನೆ rlimit * ಸ್ಥಿರಾಂಕ *rlim, ಪೂರ್ಣಾಂಕ *which_failed);
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret);
-int rlimit_parse(int resource, const char *val, struct rlimit *ret);
+ಪೂರ್ಣಾಂಕ rlimit_parse_one(ಪೂರ್ಣಾಂಕ resource, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *val, rlim_t *ret);
+ಪೂರ್ಣಾಂಕ rlimit_parse(ಪೂರ್ಣಾಂಕ resource, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *val, ರಚನೆ rlimit *ret);
 
-int rlimit_format(const struct rlimit *rl, char **ret);
+ಪೂರ್ಣಾಂಕ rlimit_format(ಸ್ಥಿರಾಂಕ ರಚನೆ rlimit *rl, ಅಕ್ಷರ **ret);
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]);
-void rlimit_free_all(struct rlimit **rl);
+ಪೂರ್ಣಾಂಕ rlimit_copy_all(ರಚನೆ rlimit* ಗುರಿ[ಸ್ಥಿರ _RLIMIT_MAX], ರಚನೆ rlimit* ಸ್ಥಿರಾಂಕ ಮೂಲ[ಸ್ಥಿರ _RLIMIT_MAX]);
+ಶೂನ್ಯ rlimit_free_all(ರಚನೆ rlimit **rl);
 
-#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+#ವ್ಯಾಖ್ಯಾನಿಸು RLIMIT_MAKE_CONST(lim) ((ರಚನೆ rlimit) { lim, lim })
 
-int rlimit_nofile_bump(int limit);
-int rlimit_nofile_safe(void);
+ಪೂರ್ಣಾಂಕ rlimit_nofile_bump(ಪೂರ್ಣಾಂಕ limit);
+ಪೂರ್ಣಾಂಕ rlimit_nofile_ಸುರಕ್ಷಿತ(ಶೂನ್ಯ);
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret);
+ಪೂರ್ಣಾಂಕ pid_getrlimit(pid_t pid, ಪೂರ್ಣಾಂಕ resource, ರಚನೆ rlimit *ret);

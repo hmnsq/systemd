@@ -5,11 +5,11 @@
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
 
-#include <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
 
-#include "gunicode.h"
+#ಅನ್ತರ್ಭಾವ "gunicode.h"
 
-#define unichar uint32_t
+#ವ್ಯಾಖ್ಯಾನಿಸು unichar uint32_t
 
 /**
  * g_utf8_prev_char:
@@ -24,36 +24,36 @@
  *
  * Return value: a pointer to the found character.
  **/
-char *
-utf8_prev_char (const char *p)
+ಅಕ್ಷರ *
+utf8_prev_char (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p)
 {
-  assert(p);
+  ಪ್ರತಿಜ್ಞಾ(p);
 
-  for (;;)
+  ಗಾಗಿ (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      ಆದರೆ ((*p & 0xc0) != 0x80)
+        ಹಿಂತಿರುಗಿ (ಅಕ್ಷರ *)p;
     }
 }
 
-struct Interval
+ರಚನೆ Interval
 {
-  unichar start, end;
+  unichar ಆರಂಭ, ಕೊನೆ;
 };
 
-static int
-interval_compare (const void *key, const void *elt)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ
+interval_compare (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *elt)
 {
-  unichar c = (unichar) (long) (key);
-  struct Interval *interval = (struct Interval *)elt;
+  unichar c = (unichar) (ದೀರ್ಘ) (ಕೀಲಿ);
+  ರಚನೆ Interval *interval = (ರಚನೆ Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  ಆದರೆ (c < interval->ಆರಂಭ)
+    ಹಿಂತಿರುಗಿ -1;
+  ಆದರೆ (c > interval->ಕೊನೆ)
+    ಹಿಂತಿರುಗಿ +1;
 
-  return 0;
+  ಹಿಂತಿರುಗಿ 0;
 }
 
 /*
@@ -82,7 +82,7 @@ bool
 unichar_iswide (unichar c)
 {
   /* See NOTE earlier for how to update this table. */
-  static const struct Interval wide[] = {
+  ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ Interval wide[] = {
     {0x1100, 0x115F}, {0x2329, 0x232A}, {0x2E80, 0x2E99}, {0x2E9B, 0x2EF3},
     {0x2F00, 0x2FD5}, {0x2FF0, 0x2FFB}, {0x3000, 0x303E}, {0x3041, 0x3096},
     {0x3099, 0x30FF}, {0x3105, 0x312D}, {0x3131, 0x318E}, {0x3190, 0x31BA},
@@ -96,14 +96,14 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  ಆದರೆ (bsearch ((ಶೂನ್ಯ *)(uintptr_t)c, wide, ELEMENTSOF(wide), ಗಾತ್ರ wide[0],
                interval_compare))
-    return true;
+    ಹಿಂತಿರುಗಿ true;
 
-  return false;
+  ಹಿಂತಿರುಗಿ false;
 }
 
-const char utf8_skip_data[256] = {
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ utf8_skip_ದತ್ತಾಂಶ[256] = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

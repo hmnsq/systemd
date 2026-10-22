@@ -1,88 +1,88 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <sys/ioctl.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
 
-#include "bitfield.h"
-#include "chattr-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "recurse-dir.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "bitfield.h"
+#ಅನ್ತರ್ಭಾವ "chattr-util.h"
+#ಅನ್ತರ್ಭಾವ "errno-util.h"
+#ಅನ್ತರ್ಭಾವ "fd-util.h"
+#ಅನ್ತರ್ಭಾವ "fs-util.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "recurse-dir.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-int chattr_full(
-              int dir_fd,
-              const char *path,
-              unsigned value,
-              unsigned mask,
-              unsigned *ret_previous,
-              unsigned *ret_final,
+ಪೂರ್ಣಾಂಕ chattr_ತುಂಬಿದ(
+              ಪೂರ್ಣಾಂಕ dir_fd,
+              ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ,
+              ಚಿಹ್ನೆರಹಿತ ಮೌಲ್ಯ,
+              ಚಿಹ್ನೆರಹಿತ ಮುಖವಾಡ_3,
+              ಚಿಹ್ನೆರಹಿತ *ret_ಹಿಂದಿನ,
+              ಚಿಹ್ನೆರಹಿತ *ret_final,
               ChattrApplyFlags flags) {
 
-        _cleanup_close_ int fd = -EBADF;
-        unsigned old_attr, new_attr;
-        int set_flags_errno = 0;
-        struct stat st;
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd = -EBADF;
+        ಚಿಹ್ನೆರಹಿತ old_attr, new_attr;
+        ಪೂರ್ಣಾಂಕ ಗಣ_flags_errno = 0;
+        ರಚನೆ stat st;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ಪ್ರತಿಜ್ಞಾ(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        fd = xopenat(dir_fd, path, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
-        if (fd < 0)
-                return fd;
+        fd = xopenat(dir_fd, ಮಾರ್ಗ, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ಆದರೆ (fstat(fd, &st) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
         /* Explicitly check whether this is a regular file or directory. If it is anything else (such
          * as a device node or fifo), then the ioctl will not hit the file systems but possibly
          * drivers, where the ioctl might have different effects. Notably, DRM is using the same
          * ioctl() number. */
 
-        if (!inode_type_can_chattr(st.st_mode))
-                return -ENOTTY;
+        ಆದರೆ (!inode_type_can_chattr(st.st_mode))
+                ಹಿಂತಿರುಗಿ -ENOTTY;
 
-        if (mask == 0 && !ret_previous && !ret_final)
-                return 0;
+        ಆದರೆ (ಮುಖವಾಡ_3 == 0 && !ret_ಹಿಂದಿನ && !ret_final)
+                ಹಿಂತಿರುಗಿ 0;
 
-        if (ioctl(fd, FS_IOC_GETFLAGS, &old_attr) < 0)
-                return -errno;
+        ಆದರೆ (ioctl(fd, FS_IOC_GETFLAGS, &old_attr) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        new_attr = (old_attr & ~mask) | (value & mask);
-        if (new_attr == old_attr) {
-                if (ret_previous)
-                        *ret_previous = old_attr;
-                if (ret_final)
+        new_attr = (old_attr & ~ಮುಖವಾಡ_3) | (ಮೌಲ್ಯ & ಮುಖವಾಡ_3);
+        ಆದರೆ (new_attr == old_attr) {
+                ಆದರೆ (ret_ಹಿಂದಿನ)
+                        *ret_ಹಿಂದಿನ = old_attr;
+                ಆದರೆ (ret_final)
                         *ret_final = old_attr;
-                return 0;
+                ಹಿಂತಿರುಗಿ 0;
         }
 
-        if (ioctl(fd, FS_IOC_SETFLAGS, &new_attr) >= 0) {
-                unsigned attr;
+        ಆದರೆ (ioctl(fd, FS_IOC_SETFLAGS, &new_attr) >= 0) {
+                ಚಿಹ್ನೆರಹಿತ attr;
 
                 /* Some filesystems (BTRFS) silently fail when a flag cannot be set. Let's make sure our
                  * changes actually went through by querying the flags again and verifying they're equal to
                  * the flags we tried to configure. */
 
-                if (ioctl(fd, FS_IOC_GETFLAGS, &attr) < 0)
-                        return -errno;
+                ಆದರೆ (ioctl(fd, FS_IOC_GETFLAGS, &attr) < 0)
+                        ಹಿಂತಿರುಗಿ -errno;
 
-                if (new_attr == attr) {
-                        if (ret_previous)
-                                *ret_previous = old_attr;
-                        if (ret_final)
+                ಆದರೆ (new_attr == attr) {
+                        ಆದರೆ (ret_ಹಿಂದಿನ)
+                                *ret_ಹಿಂದಿನ = old_attr;
+                        ಆದರೆ (ret_final)
                                 *ret_final = new_attr;
-                        return 1;
+                        ಹಿಂತಿರುಗಿ 1;
                 }
 
                 /* Trigger the fallback logic. */
                 errno = EINVAL;
         }
 
-        if (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno) || !FLAGS_SET(flags, CHATTR_FALLBACK_BITWISE))
-                return -errno;
+        ಆದರೆ (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno) || !FLAGS_ಗಣ(flags, CHATTR_FALLBACK_BITWISE))
+                ಹಿಂತಿರುಗಿ -errno;
 
         /* When -EINVAL is returned, incompatible attributes might be simultaneously specified. E.g.,
          * compress(c) and nocow(C) attributes cannot be set to files on btrfs. As a fallback, let's try to
@@ -91,164 +91,164 @@ int chattr_full(
          * Alternatively, when we get EINVAL or EOPNOTSUPP (or a similar error code) we assume a flag might
          * just not be supported, and we can ignore it too */
 
-        unsigned current_attr = old_attr;
+        ಚಿಹ್ನೆರಹಿತ current_attr = old_attr;
 
-        BIT_FOREACH(i, mask) {
-                unsigned new_one, mask_one = 1u << i;
+        ಬಿಟ್_FOREACH(i, ಮುಖವಾಡ_3) {
+                ಚಿಹ್ನೆರಹಿತ new_one, ಮುಖವಾಡ_one = 1u << i;
 
-                new_one = UPDATE_FLAG(current_attr, mask_one, FLAGS_SET(value, mask_one));
-                if (new_one == current_attr)
-                        continue;
+                new_one = UPDATE_FLAG(current_attr, ಮುಖವಾಡ_one, FLAGS_ಗಣ(ಮೌಲ್ಯ, ಮುಖವಾಡ_one));
+                ಆದರೆ (new_one == current_attr)
+                        ಮುಂದುವರಿ;
 
-                if (ioctl(fd, FS_IOC_SETFLAGS, &new_one) < 0) {
-                        if (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
-                                return -errno;
+                ಆದರೆ (ioctl(fd, FS_IOC_SETFLAGS, &new_one) < 0) {
+                        ಆದರೆ (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
+                                ಹಿಂತಿರುಗಿ -errno;
 
-                        log_full_errno(FLAGS_SET(flags, CHATTR_WARN_UNSUPPORTED_FLAGS) ? LOG_WARNING : LOG_DEBUG,
+                        log_ತುಂಬಿದ_errno(FLAGS_ಗಣ(flags, CHATTR_WARN_UNSUPPORTED_FLAGS) ? LOG_WARNING : LOG_DEBUG,
                                        errno,
-                                       "Unable to set file attribute 0x%x on %s, ignoring: %m", mask_one, strna(path));
+                                       "Unable to set file attribute 0x%x on %s, ignoring: %m", ಮುಖವಾಡ_one, strna(ಮಾರ್ಗ));
 
                         /* Ensures that we record whether only EOPNOTSUPP&friends are encountered, or if a more serious
                          * error (thus worth logging at a different level, etc) was seen too. */
-                        if (set_flags_errno == 0 || !ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
-                                set_flags_errno = -errno;
+                        ಆದರೆ (ಗಣ_flags_errno == 0 || !ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
+                                ಗಣ_flags_errno = -errno;
 
-                        continue;
+                        ಮುಂದುವರಿ;
                 }
 
-                if (ioctl(fd, FS_IOC_GETFLAGS, &current_attr) < 0)
-                        return -errno;
+                ಆದರೆ (ioctl(fd, FS_IOC_GETFLAGS, &current_attr) < 0)
+                        ಹಿಂತಿರುಗಿ -errno;
         }
 
-        if (ret_previous)
-                *ret_previous = old_attr;
-        if (ret_final)
+        ಆದರೆ (ret_ಹಿಂದಿನ)
+                *ret_ಹಿಂದಿನ = old_attr;
+        ಆದರೆ (ret_final)
                 *ret_final = current_attr;
 
         /* -ENOANO indicates that some attributes cannot be set. ERRNO_IS_IOCTL_NOT_SUPPORTED indicates that
          * all encountered failures were due to flags not supported by the FS, so return a specific error in
          * that case, so callers can handle it properly (e.g.: tmpfiles.d can use debug level logging). */
-        return current_attr == new_attr ? 1 : ERRNO_IS_IOCTL_NOT_SUPPORTED(set_flags_errno) ? set_flags_errno : -ENOANO;
+        ಹಿಂತಿರುಗಿ current_attr == new_attr ? 1 : ERRNO_IS_IOCTL_NOT_SUPPORTED(ಗಣ_flags_errno) ? ಗಣ_flags_errno : -ENOANO;
 }
 
-int read_attr_fd(int fd, unsigned *ret) {
-        struct stat st;
+ಪೂರ್ಣಾಂಕ read_attr_fd(ಪೂರ್ಣಾಂಕ fd, ಚಿಹ್ನೆರಹಿತ *ret) {
+        ರಚನೆ stat st;
 
-        assert(fd >= 0);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ಆದರೆ (fstat(fd, &st) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        if (!inode_type_can_chattr(st.st_mode))
-                return -ENOTTY;
+        ಆದರೆ (!inode_type_can_chattr(st.st_mode))
+                ಹಿಂತಿರುಗಿ -ENOTTY;
 
-        _cleanup_close_ int fd_close = -EBADF;
-        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_PATH, &fd_close); /* drop O_PATH if it is set */
-        if (fd < 0)
-                return fd;
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd_close = -EBADF;
+        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_ಮಾರ್ಗ, &fd_close); /* drop O_PATH if it is set */
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
-        return RET_NERRNO(ioctl(fd, FS_IOC_GETFLAGS, ret));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(ioctl(fd, FS_IOC_GETFLAGS, ret));
 }
 
-int read_attr_at(int dir_fd, const char *path, unsigned *ret) {
-        _cleanup_close_ int fd_close = -EBADF;
-        int fd;
+ಪೂರ್ಣಾಂಕ read_attr_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಚಿಹ್ನೆರಹಿತ *ret) {
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd_close = -EBADF;
+        ಪೂರ್ಣಾಂಕ fd;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        if (isempty(path) && dir_fd != AT_FDCWD)
+        ಆದರೆ (isempty(ಮಾರ್ಗ) && dir_fd != AT_FDCWD)
                 fd = dir_fd;
-        else {
-                fd_close = xopenat(dir_fd, path, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
-                if (fd_close < 0)
-                        return fd_close;
+        ಇಲ್ಲದಿದ್ದರೆ {
+                fd_close = xopenat(dir_fd, ಮಾರ್ಗ, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
+                ಆದರೆ (fd_close < 0)
+                        ಹಿಂತಿರುಗಿ fd_close;
 
                 fd = fd_close;
         }
 
-        return read_attr_fd(fd, ret);
+        ಹಿಂತಿರುಗಿ read_attr_fd(fd, ret);
 }
 
-int read_fs_xattr_fd(int fd, uint32_t *ret_xflags, uint32_t *ret_projid) {
-        struct fsxattr attrs;
-        _cleanup_close_ int fd_reopened = -EBADF;
+ಪೂರ್ಣಾಂಕ read_fs_xattr_fd(ಪೂರ್ಣಾಂಕ fd, uint32_t *ret_xflags, uint32_t *ret_projid) {
+        ರಚನೆ fsxattr attrs;
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd_reopened = -EBADF;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
-        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_PATH, &fd_reopened);
-        if (fd < 0)
-                return fd;
+        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_ಮಾರ್ಗ, &fd_reopened);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
-        if (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
-                return -errno;
+        ಆದರೆ (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        if (ret_xflags)
+        ಆದರೆ (ret_xflags)
                 *ret_xflags = attrs.fsx_xflags;
 
-        if (ret_projid)
+        ಆದರೆ (ret_projid)
                 *ret_projid = attrs.fsx_projid;
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int set_proj_id(int fd, uint32_t proj_id) {
-        struct fsxattr attrs;
-        _cleanup_close_ int fd_reopened = -EBADF;
+ಪೂರ್ಣಾಂಕ ಗಣ_proj_id(ಪೂರ್ಣಾಂಕ fd, uint32_t proj_id) {
+        ರಚನೆ fsxattr attrs;
+        _cleanup_close_ ಪೂರ್ಣಾಂಕ fd_reopened = -EBADF;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
-        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_PATH, &fd_reopened);
-        if (fd < 0)
-                return fd;
+        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_ಮಾರ್ಗ, &fd_reopened);
+        ಆದರೆ (fd < 0)
+                ಹಿಂತಿರುಗಿ fd;
 
-        if (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
-                return -errno;
+        ಆದರೆ (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        struct stat statbuf;
-        if (fstat(fd, &statbuf) < 0)
-                return -errno;
+        ರಚನೆ stat statbuf;
+        ಆದರೆ (fstat(fd, &statbuf) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        if (attrs.fsx_projid == proj_id && (!S_ISDIR(statbuf.st_mode) || FLAGS_SET(attrs.fsx_xflags, FS_XFLAG_PROJINHERIT)))
-                return 0;
+        ಆದರೆ (attrs.fsx_projid == proj_id && (!S_ISDIR(statbuf.st_mode) || FLAGS_ಗಣ(attrs.fsx_xflags, FS_XFLAG_PROJINHERIT)))
+                ಹಿಂತಿರುಗಿ 0;
 
         attrs.fsx_projid = proj_id;
-        if (S_ISDIR(statbuf.st_mode))
+        ಆದರೆ (S_ISDIR(statbuf.st_mode))
                 attrs.fsx_xflags |= FS_XFLAG_PROJINHERIT;
 
-        return RET_NERRNO(ioctl(fd, FS_IOC_FSSETXATTR, &attrs));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(ioctl(fd, FS_IOC_FSSETXATTR, &attrs));
 }
 
-static int set_proj_id_cb(
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ಗಣ_proj_id_cb(
                 RecurseDirEvent event,
-                const char *path,
-                int dir_fd,
-                int inode_fd,
-                const struct dirent *de,
-                const struct statx *sx,
-                void *userdata) {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ,
+                ಪೂರ್ಣಾಂಕ dir_fd,
+                ಪೂರ್ಣಾಂಕ inode_fd,
+                ಸ್ಥಿರಾಂಕ ರಚನೆ dirent *de,
+                ಸ್ಥಿರಾಂಕ ರಚನೆ statx *sx,
+                ಶೂನ್ಯ *userdata) {
 
-        if (!IN_SET(event, RECURSE_DIR_ENTER, RECURSE_DIR_ENTRY))
-                return RECURSE_DIR_CONTINUE;
+        ಆದರೆ (!ಒಳ_ಗಣ(event, RECURSE_DIR_ENTER, RECURSE_DIR_ನಮೂದು))
+                ಹಿಂತಿರುಗಿ RECURSE_DIR_CONTINUE;
 
-        if (de && !IN_SET(de->d_type, DT_DIR, DT_REG))
-                return RECURSE_DIR_CONTINUE;
+        ಆದರೆ (de && !ಒಳ_ಗಣ(de->d_type, DT_DIR, DT_REG))
+                ಹಿಂತಿರುಗಿ RECURSE_DIR_CONTINUE;
 
-        return set_proj_id(inode_fd, PTR_TO_UINT32(userdata));
+        ಹಿಂತಿರುಗಿ ಗಣ_proj_id(inode_fd, PTR_ಗಮ್ಯ_UINT32(userdata));
 }
 
-int set_proj_id_recursive(int fd, uint32_t proj_id) {
-        return recurse_dir_at(
+ಪೂರ್ಣಾಂಕ ಗಣ_proj_id_recursive(ಪೂರ್ಣಾಂಕ fd, uint32_t proj_id) {
+        ಹಿಂತಿರುಗಿ recurse_dir_at(
                         fd,
-                        /* path= */ NULL,
+                        /* path= */ ಖಾಲಿ,
                         /* statx_mask= */ 0,
                         /* n_depth_max= */ UINT_MAX,
                         RECURSE_DIR_ENSURE_TYPE|RECURSE_DIR_TOPLEVEL|RECURSE_DIR_INODE_FD,
-                        set_proj_id_cb,
-                        UINT32_TO_PTR(proj_id));
+                        ಗಣ_proj_id_cb,
+                        UINT32_ಗಮ್ಯ_PTR(proj_id));
 }
 
-bool inode_type_can_chattr(mode_t mode) {
-        return IN_SET(mode & S_IFMT, S_IFREG, S_IFDIR);
+bool inode_type_can_chattr(mode_t ಬಹುಲಕ) {
+        ಹಿಂತಿರುಗಿ ಒಳ_ಗಣ(ಬಹುಲಕ & S_IFMT, S_IFREG, S_IFDIR);
 }

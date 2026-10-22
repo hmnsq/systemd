@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-typedef enum MkdirFlags {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ MkdirFlags {
         MKDIR_FOLLOW_SYMLINK  = 1 << 0,
         MKDIR_IGNORE_EXISTING = 1 << 1,  /* Quietly accept a preexisting directory (or file) */
-        MKDIR_WARN_MODE       = 1 << 2,  /* Log at LOG_WARNING when mode doesn't match */
+        MKDIR_WARN_ಬಹುಲಕ       = 1 << 2,  /* Log at LOG_WARNING when mode doesn't match */
 } MkdirFlags;
 
-int mkdirat_errno_wrapper(int dirfd, const char *pathname, mode_t mode, LabelContext *label_context);
+ಪೂರ್ಣಾಂಕ mkdirat_errno_wrapper(ಪೂರ್ಣಾಂಕ dirfd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pathname, mode_t ಬಹುಲಕ, LabelContext *label_context);
 
-int mkdirat_safe(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-static inline int mkdir_safe(const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdirat_safe(AT_FDCWD, path, mode, uid, gid, flags);
+ಪೂರ್ಣಾಂಕ mkdirat_ಸುರಕ್ಷಿತ(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ mkdir_ಸುರಕ್ಷಿತ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags) {
+        ಹಿಂತಿರುಗಿ mkdirat_ಸುರಕ್ಷಿತ(AT_FDCWD, ಮಾರ್ಗ, ಬಹುಲಕ, uid, gid, flags);
 }
-int mkdirat_parents(int dir_fd, const char *path, mode_t mode);
-static inline int mkdir_parents(const char *path, mode_t mode) {
-        return mkdirat_parents(AT_FDCWD, path, mode);
+ಪೂರ್ಣಾಂಕ mkdirat_parents(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ mkdir_parents(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ) {
+        ಹಿಂತಿರುಗಿ mkdirat_parents(AT_FDCWD, ಮಾರ್ಗ, ಬಹುಲಕ);
 }
-int mkdir_parents_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-int mkdir_p(const char *path, mode_t mode);
-int mkdir_p_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-int mkdir_p_root_full(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes);
-static inline int mkdir_p_root(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m) {
-        return mkdir_p_root_full(root, p, uid, gid, m, USEC_INFINITY, NULL);
+ಪೂರ್ಣಾಂಕ mkdir_parents_ಸುರಕ್ಷಿತ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags);
+ಪೂರ್ಣಾಂಕ mkdir_p(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ);
+ಪೂರ್ಣಾಂಕ mkdir_p_ಸುರಕ್ಷಿತ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags);
+ಪೂರ್ಣಾಂಕ mkdir_p_ಬೇರು_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ mkdir_p_ಬೇರು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬೇರು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, uid_t uid, gid_t gid, mode_t m) {
+        ಹಿಂತಿರುಗಿ mkdir_p_ಬೇರು_ತುಂಬಿದ(ಬೇರು, p, uid, gid, m, USEC_INFINITY, ಖಾಲಿ);
 }
 
 /* The following are used to implement the mkdir_xyz_label() calls, don't use otherwise. */
-typedef int (*mkdirat_func_t)(int dir_fd, const char *pathname, mode_t mode, LabelContext *label_context);
-int mkdirat_safe_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
-static inline int mkdir_safe_internal(const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context) {
-        return mkdirat_safe_internal(AT_FDCWD, path, mode, uid, gid, flags, _mkdir, label_context);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಪೂರ್ಣಾಂಕ (*mkdirat_func_t)(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pathname, mode_t ಬಹುಲಕ, LabelContext *label_context);
+ಪೂರ್ಣಾಂಕ mkdirat_ಸುರಕ್ಷಿತ_ಆಂತರಿಕ(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ mkdir_ಸುರಕ್ಷಿತ_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context) {
+        ಹಿಂತಿರುಗಿ mkdirat_ಸುರಕ್ಷಿತ_ಆಂತರಿಕ(AT_FDCWD, ಮಾರ್ಗ, ಬಹುಲಕ, uid, gid, flags, _mkdir, label_context);
 }
-int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context);
-int mkdir_parents_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
-int mkdir_p_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+ಪೂರ್ಣಾಂಕ mkdirat_parents_ಆಂತರಿಕ(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context);
+ಪೂರ್ಣಾಂಕ mkdir_parents_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+ಪೂರ್ಣಾಂಕ mkdir_p_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);

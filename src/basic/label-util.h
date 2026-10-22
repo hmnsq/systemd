@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-typedef struct LabelOps {
-        int (*pre)(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-        int (*post)(int dir_fd, const char *path, bool created, LabelContext *label_context);
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ LabelOps {
+        ಪೂರ್ಣಾಂಕ (*pre)(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, LabelContext *label_context);
+        ಪೂರ್ಣಾಂಕ (*post)(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, bool created, LabelContext *label_context);
 } LabelOps;
 
-int label_ops_set(const LabelOps *label_ops);
-void label_ops_reset(void);
+ಪೂರ್ಣಾಂಕ label_ops_ಗಣ(ಸ್ಥಿರಾಂಕ LabelOps *label_ops);
+ಶೂನ್ಯ label_ops_reset(ಶೂನ್ಯ);
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context);
+ಪೂರ್ಣಾಂಕ label_ops_pre(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, mode_t ಬಹುಲಕ, LabelContext *label_context);
+ಪೂರ್ಣಾಂಕ label_ops_post(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, bool created, LabelContext *label_context);

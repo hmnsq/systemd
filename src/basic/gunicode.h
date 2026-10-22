@@ -4,13 +4,13 @@
  *  Copyright (C) 1999, 2000 Tom Tromey
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-char *utf8_prev_char (const char *p);
+ಅಕ್ಷರ *utf8_prev_char (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p);
 
-extern const char utf8_skip_data[256];
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ utf8_skip_ದತ್ತಾಂಶ[256];
 
 /**
  * g_utf8_next_char:
@@ -23,6 +23,6 @@ extern const char utf8_skip_data[256];
  * Before using this macro, use g_utf8_validate() to validate strings
  * that may contain invalid UTF-8.
  */
-#define utf8_next_char(p) (char *)((p) + utf8_skip_data[*(const unsigned char *)(p)])
+#ವ್ಯಾಖ್ಯಾನಿಸು utf8_ಮುಂದಿನ_char(p) (ಅಕ್ಷರ *)((p) + utf8_skip_ದತ್ತಾಂಶ[*(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ *)(p)])
 
 bool unichar_iswide (uint32_t c);

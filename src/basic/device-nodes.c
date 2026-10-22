@@ -1,91 +1,91 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
 
-#include "device-nodes.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "utf8.h"
+#ಅನ್ತರ್ಭಾವ "device-nodes.h"
+#ಅನ್ತರ್ಭಾವ "path-util.h"
+#ಅನ್ತರ್ಭಾವ "stat-util.h"
+#ಅನ್ತರ್ಭಾವ "stdio-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+ಪೂರ್ಣಾಂಕ allow_listed_char_for_devnode(ಅಕ್ಷರ c, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *additional) {
+        ಹಿಂತಿರುಗಿ
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
                 strchr("#+-.:=@_", c) ||
                 (additional && strchr(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
+ಪೂರ್ಣಾಂಕ encode_devnode_name(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ಅಕ್ಷರ *str_enc, size_t len) {
         size_t i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        ಆದರೆ (!str || !str_enc)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        ಗಾಗಿ (i = 0, j = 0; str[i] != '\0'; i++) {
+                ಪೂರ್ಣಾಂಕ seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                ಆದರೆ (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        ಆದರೆ (len-j < (size_t) seqlen)
+                                ಹಿಂತಿರುಗಿ -EINVAL;
 
-                        memcpy(&str_enc[j], &str[i], seqlen);
+                        ಸ್ಮರಣೆ_ನಕಲು(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], ಖಾಲಿ)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        ಆದರೆ (len-j < 5)
+                                ಹಿಂತಿರುಗಿ -EINVAL;
 
-                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
+                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಆದರೆ (len-j < 1)
+                                ಹಿಂತಿರುಗಿ -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        ಆದರೆ (len-j < 1)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int devnode_same(const char *a, const char *b) {
-        struct stat sa, sb;
-        int r;
+ಪೂರ್ಣಾಂಕ devnode_same(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *a, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *b) {
+        ರಚನೆ stat sa, sb;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(a);
-        assert(b);
+        ಪ್ರತಿಜ್ಞಾ(a);
+        ಪ್ರತಿಜ್ಞಾ(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        ಆದರೆ (!valid_device_ಗಂಟು_ಮಾರ್ಗ(a) || !valid_device_ಗಂಟು_ಮಾರ್ಗ(b))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        ಆದರೆ (stat(a, &sa) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
+        r = stat_verify_device_ಗಂಟು(&sa);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        ಆದರೆ (stat(b, &sb) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
+        r = stat_verify_device_ಗಂಟು(&sb);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        ಆದರೆ (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                ಹಿಂತಿರುಗಿ false;
 
-        return sa.st_rdev == sb.st_rdev;
+        ಹಿಂತಿರುಗಿ sa.st_rdev == sb.st_rdev;
 }

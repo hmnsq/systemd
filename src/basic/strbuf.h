@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-struct strbuf {
-        char *buf;
+ರಚನೆ strbuf {
+        ಅಕ್ಷರ *buf;
         size_t len;
-        struct strbuf_node *root;
+        ರಚನೆ strbuf_ಗಂಟು *ಬೇರು;
 
-        size_t nodes_count;
-        size_t in_count;
-        size_t in_len;
+        size_t nodes_ಎಣಿಕೆ;
+        size_t ಒಳ_ಎಣಿಕೆ;
+        size_t ಒಳ_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_ಎಣಿಕೆ;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+ರಚನೆ strbuf_ಗಂಟು {
+        size_t ಮೌಲ್ಯ_off;
+        size_t ಮೌಲ್ಯ_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        ರಚನೆ strbuf_ಮಗು_ನಮೂದು *children;
+        uint8_t children_ಎಣಿಕೆ;
 };
 
-struct strbuf_child_entry {
+ರಚನೆ strbuf_ಮಗು_ನಮೂದು {
         uint8_t c;
-        struct strbuf_node *child;
+        ರಚನೆ strbuf_ಗಂಟು *ಮಗು;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+ರಚನೆ strbuf* strbuf_new(ಶೂನ್ಯ);
+ssize_t strbuf_ಕೂಡಿಸು_string_ತುಂಬಿದ(ರಚನೆ strbuf *str, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t len);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ssize_t strbuf_ಕೂಡಿಸು_string(ರಚನೆ strbuf *str, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s) {
+        ಹಿಂತಿರುಗಿ strbuf_ಕೂಡಿಸು_string_ತುಂಬಿದ(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+ಶೂನ್ಯ strbuf_complete(ರಚನೆ strbuf *str);
+ರಚನೆ strbuf* strbuf_free(ರಚನೆ strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ರಚನೆ strbuf*, strbuf_free);

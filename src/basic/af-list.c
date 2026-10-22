@@ -1,67 +1,67 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/socket.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <sys/socket.h>
 
-#include "af-list.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "af-list.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ af_name* lookup_af(ನೋಂದಣಿ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ನೋಂದಣಿ GPERF_LEN_TYPE len);
 
-#include "af-from-name.inc"
-#include "af-to-name.inc"
+#ಅನ್ತರ್ಭಾವ "af-from-name.inc"
+#ಅನ್ತರ್ಭಾವ "af-to-name.inc"
 
-const char* af_to_name(int id) {
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* af_ಗಮ್ಯ_name(ಪೂರ್ಣಾಂಕ id) {
 
-        if (id <= 0)
-                return NULL;
+        ಆದರೆ (id <= 0)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        ಆದರೆ ((size_t) id >= ELEMENTSOF(af_ಹೆಸರುಗಳು))
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return af_names[id];
+        ಹಿಂತಿರುಗಿ af_ಹೆಸರುಗಳು[id];
 }
 
-const char* af_to_name_short(int id) {
-        const char *f;
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* af_ಗಮ್ಯ_name_short(ಪೂರ್ಣಾಂಕ id) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        ಆದರೆ (id == AF_UNSPEC)
+                ಹಿಂತಿರುಗಿ "*";
 
-        f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        f = af_ಗಮ್ಯ_name(id);
+        ಆದರೆ (!f)
+                ಹಿಂತಿರುಗಿ "unknown";
 
-        assert(startswith(f, "AF_"));
-        return f + 3;
+        ಪ್ರತಿಜ್ಞಾ(startswith(f, "AF_"));
+        ಹಿಂತಿರುಗಿ f + 3;
 }
 
-int af_from_name(const char *name) {
-        size_t len = strlen(ASSERT_PTR(name));
+ಪೂರ್ಣಾಂಕ af_from_name(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) {
+        size_t len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(ASSERT_PTR(name));
 
-        const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
-                const char *t = strjoina("AF_", name);
-                sc = lookup_af(t, strlen("AF_") + len);
+        ಸ್ಥಿರಾಂಕ ರಚನೆ af_name *sc = lookup_af(name, len);
+        ಆದರೆ (!sc && len + ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("AF_") <= MAX_ಶಬ್ದ_ಉದ್ದಳತೆ) {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *t = strjoina("AF_", name);
+                sc = lookup_af(t, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        ಆದರೆ (!sc)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        return sc->id;
+        ಹಿಂತಿರುಗಿ sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+ಪೂರ್ಣಾಂಕ af_max(ಶೂನ್ಯ) {
+        ಹಿಂತಿರುಗಿ ELEMENTSOF(af_ಹೆಸರುಗಳು);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* af_ಗಮ್ಯ_ipv4_ipv6(ಪೂರ್ಣಾಂಕ id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
-                id == AF_INET6 ? "ipv6" : NULL;
+        ಹಿಂತಿರುಗಿ id == AF_INET ? "ipv4" :
+                id == AF_INET6 ? "ipv6" : ಖಾಲಿ;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+ಪೂರ್ಣಾಂಕ af_from_ipv4_ipv6(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *af) {
+        ಹಿಂತಿರುಗಿ streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

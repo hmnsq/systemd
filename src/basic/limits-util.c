@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "alloc-util.h"
-#include "cgroup-util.h"
-#include "limits-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "procfs-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "cgroup-util.h"
+#ಅನ್ತರ್ಭಾವ "limits-util.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "memory-util.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "procfs-util.h"
 
-uint64_t physical_memory(void) {
-        _cleanup_free_ char *root = NULL, *value = NULL;
+uint64_t physical_ಸ್ಮರಣೆ(ಶೂನ್ಯ) {
+        _cleanup_free_ ಅಕ್ಷರ *ಬೇರು = ಖಾಲಿ, *ಮೌಲ್ಯ = ಖಾಲಿ;
         uint64_t mem, lim;
         size_t ps;
-        long sc;
-        int r;
+        ದೀರ್ಘ sc;
+        ಪೂರ್ಣಾಂಕ r;
 
         /* We return this as uint64_t in case we are running as 32-bit process on a 64-bit kernel with huge amounts of
          * memory.
@@ -25,84 +25,84 @@ uint64_t physical_memory(void) {
          * physically reported amount of memory and the limit configured for the root cgroup, if there is any. */
 
         sc = sysconf(_SC_PHYS_PAGES);
-        assert(sc > 0);
+        ಪ್ರತಿಜ್ಞಾ(sc > 0);
 
-        ps = page_size();
+        ps = ಪುಟ_ಗಾತ್ರ();
         /* Physical page count times page size cannot realistically overflow uint64_t,
          * but use MUL_SAFE to make this obvious to static analyzers. */
-        assert_se(MUL_SAFE(&mem, (uint64_t) sc, (uint64_t) ps));
+        assert_se(MUL_ಸುರಕ್ಷಿತ(&mem, (uint64_t) sc, (uint64_t) ps));
 
-        r = cg_get_root_path(&root);
-        if (r < 0) {
+        r = cg_get_ಬೇರು_ಮಾರ್ಗ(&ಬೇರು);
+        ಆದರೆ (r < 0) {
                 log_debug_errno(r, "Failed to determine root cgroup, ignoring cgroup memory limit: %m");
-                return mem;
+                ಹಿಂತಿರುಗಿ mem;
         }
 
-        r = cg_get_attribute(root, "memory.max", &value);
-        if (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
+        r = cg_get_attribute(ಬೇರು, "memory.max", &ಮೌಲ್ಯ);
+        ಆದರೆ (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
                            * complain. (Note that it might exist on our own root though, if we live
                            * in a cgroup namespace, hence check anyway instead of not even
                            * trying.) */
-                return mem;
-        if (r < 0) {
+                ಹಿಂತಿರುಗಿ mem;
+        ಆದರೆ (r < 0) {
                 log_debug_errno(r, "Failed to read memory.max cgroup attribute, ignoring cgroup memory limit: %m");
-                return mem;
+                ಹಿಂತಿರುಗಿ mem;
         }
 
-        if (streq(value, "max"))
-                return mem;
+        ಆದರೆ (streq(ಮೌಲ್ಯ, "max"))
+                ಹಿಂತಿರುಗಿ mem;
 
-        r = safe_atou64(value, &lim);
-        if (r < 0) {
-                log_debug_errno(r, "Failed to parse cgroup memory limit '%s', ignoring: %m", value);
-                return mem;
+        r = ಸುರಕ್ಷಿತ_atou64(ಮೌಲ್ಯ, &lim);
+        ಆದರೆ (r < 0) {
+                log_debug_errno(r, "Failed to parse cgroup memory limit '%s', ignoring: %m", ಮೌಲ್ಯ);
+                ಹಿಂತಿರುಗಿ mem;
         }
-        if (lim == UINT64_MAX)
-                return mem;
+        ಆದರೆ (lim == UINT64_MAX)
+                ಹಿಂತಿರುಗಿ mem;
 
         /* Make sure the limit is a multiple of our own page size */
         lim /= ps;
         lim *= ps;
 
-        return MIN(mem, lim);
+        ಹಿಂತಿರುಗಿ MIN(mem, lim);
 }
 
-uint64_t physical_memory_scale(uint64_t v, uint64_t max) {
+uint64_t physical_ಸ್ಮರಣೆ_scale(uint64_t v, uint64_t max) {
         uint64_t p, m, ps;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return physical_memory();
+        ಆದರೆ (v == 0)
+                ಹಿಂತಿರುಗಿ 0;
+        ಆದರೆ (v == max)
+                ಹಿಂತಿರುಗಿ physical_ಸ್ಮರಣೆ();
 
-        assert(max > 0);
+        ಪ್ರತಿಜ್ಞಾ(max > 0);
 
         /* Returns the physical memory size, multiplied by v divided by max. Returns UINT64_MAX on overflow. On success
          * the result is a multiple of the page size (rounds down). */
 
-        ps = page_size();
-        assert(ps > 0);
+        ps = ಪುಟ_ಗಾತ್ರ();
+        ಪ್ರತಿಜ್ಞಾ(ps > 0);
 
-        p = physical_memory() / ps;
-        assert(p > 0);
+        p = physical_ಸ್ಮರಣೆ() / ps;
+        ಪ್ರತಿಜ್ಞಾ(p > 0);
 
-        if (v > UINT64_MAX / p)
-                return UINT64_MAX;
+        ಆದರೆ (v > UINT64_MAX / p)
+                ಹಿಂತಿರುಗಿ UINT64_MAX;
 
         m = p * v;
         m /= max;
 
-        if (m > UINT64_MAX / ps)
-                return UINT64_MAX;
+        ಆದರೆ (m > UINT64_MAX / ps)
+                ಹಿಂತಿರುಗಿ UINT64_MAX;
 
-        return m * ps;
+        ಹಿಂತಿರುಗಿ m * ps;
 }
 
-uint64_t system_tasks_max(void) {
+uint64_t system_tasks_max(ಶೂನ್ಯ) {
         uint64_t a = TASKS_MAX, b = TASKS_MAX, c = TASKS_MAX;
-        _cleanup_free_ char *root = NULL;
-        int r;
+        _cleanup_free_ ಅಕ್ಷರ *ಬೇರು = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
         /* Determine the maximum number of tasks that may run on this system. We check three sources to
          * determine this limit:
@@ -130,52 +130,52 @@ uint64_t system_tasks_max(void) {
          * processes.
          */
 
-        r = procfs_get_threads_max(&a);
-        if (r < 0)
+        r = procfs_get_ಎಳೆಗಳು_max(&a);
+        ಆದರೆ (r < 0)
                 log_debug_errno(r, "Failed to read kernel.threads-max, ignoring: %m");
 
         r = procfs_get_pid_max(&b);
-        if (r < 0)
+        ಆದರೆ (r < 0)
                 log_debug_errno(r, "Failed to read kernel.pid_max, ignoring: %m");
-        else if (b > 0)
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (b > 0)
                 /* Subtract one from pid_max, since PID 0 is not a valid PID */
                 b--;
 
-        r = cg_get_root_path(&root);
-        if (r < 0)
+        r = cg_get_ಬೇರು_ಮಾರ್ಗ(&ಬೇರು);
+        ಆದರೆ (r < 0)
                 log_debug_errno(r, "Failed to determine cgroup root path, ignoring: %m");
-        else {
+        ಇಲ್ಲದಿದ್ದರೆ {
                 /* We'll have the "pids.max" attribute on the our root cgroup only if we are in a
                  * CLONE_NEWCGROUP namespace. On the top-level namespace this attribute is missing, hence
                  * suppress any message about that */
-                r = cg_get_attribute_as_uint64(root, "pids.max", &c);
-                if (r < 0 && r != -ENODATA)
+                r = cg_get_attribute_as_uint64(ಬೇರು, "pids.max", &c);
+                ಆದರೆ (r < 0 && r != -ENODATA)
                         log_debug_errno(r, "Failed to read pids.max attribute of root cgroup, ignoring: %m");
         }
 
-        return MIN3(a, b, c);
+        ಹಿಂತಿರುಗಿ MIN3(a, b, c);
 }
 
 uint64_t system_tasks_max_scale(uint64_t v, uint64_t max) {
         uint64_t t, m;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return system_tasks_max();
+        ಆದರೆ (v == 0)
+                ಹಿಂತಿರುಗಿ 0;
+        ಆದರೆ (v == max)
+                ಹಿಂತಿರುಗಿ system_tasks_max();
 
-        assert(max > 0);
+        ಪ್ರತಿಜ್ಞಾ(max > 0);
 
         /* Multiply the system's task value by the fraction v/max. Hence, if max==100 this calculates percentages
          * relative to the system's maximum number of tasks. Returns UINT64_MAX on overflow. */
 
         t = system_tasks_max();
-        assert(t > 0);
+        ಪ್ರತಿಜ್ಞಾ(t > 0);
 
-        if (v > UINT64_MAX / t) /* overflow? */
-                return UINT64_MAX;
+        ಆದರೆ (v > UINT64_MAX / t) /* overflow? */
+                ಹಿಂತಿರುಗಿ UINT64_MAX;
 
         m = t * v;
-        return m / max;
+        ಹಿಂತಿರುಗಿ m / max;
 }

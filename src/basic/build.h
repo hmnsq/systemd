@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-extern const char* const systemd_features;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ systemd_features;
 
-int version(void);
-int version_only(void);
+ಪೂರ್ಣಾಂಕ ಆವೃತ್ತಿ(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ ಆವೃತ್ತಿ_only(ಶೂನ್ಯ);
 
-#define EXPERIMENTAL_DISABLED 0
-#define EXPERIMENTAL_ENVVAR 1
-#define EXPERIMENTAL_ENABLED 2
+#ವ್ಯಾಖ್ಯಾನಿಸು EXPERIMENTAL_DISABLED 0
+#ವ್ಯಾಖ್ಯಾನಿಸು EXPERIMENTAL_ENVVAR 1
+#ವ್ಯಾಖ್ಯಾನಿಸು EXPERIMENTAL_ENABLED 2
 
-bool experimental_enabled(void);
+bool experimental_enabled(ಶೂನ್ಯ);

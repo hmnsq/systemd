@@ -1,337 +1,337 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "initrd-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "virt.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "extract-word.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "initrd-util.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "proc-cmdline.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
+#ಅನ್ತರ್ಭಾವ "virt.h"
 
-typedef enum ArgType {
-        no_argument,
-        required_argument,
-        optional_argument,
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ ArgType {
+        no_ವಾದ,
+        required_ವಾದ,
+        optional_ವಾದ,
 } ArgType;
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
-        const struct {
-                const char *name;
+ಪೂರ್ಣಾಂಕ proc_cmdline_filter_pid1_ವಾದಗಳು(ಅಕ್ಷರ **argv, ಅಕ್ಷರ ***ret) {
+        ಸ್ಥಿರಾಂಕ ರಚನೆ {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
                 ArgType has_arg;
         } options[] = {
-                { "log-level",                required_argument },
-                { "log-target",               required_argument },
-                { "log-color",                optional_argument },
-                { "log-location",             optional_argument },
-                { "log-time",                 optional_argument },
-                { "unit",                     required_argument },
-                { "system",                   no_argument,      },
-                { "user",                     no_argument,      },
-                { "test",                     no_argument,      },
-                { "no-pager",                 no_argument,      },
-                { "help",                     no_argument,      },
-                { "version",                  no_argument,      },
-                { "introspect-cli",           no_argument,      },
-                { "dump-configuration-items", no_argument,      },
-                { "dump-bus-properties",      no_argument,      },
-                { "bus-introspect",           required_argument },
-                { "dump-core",                optional_argument },
-                { "crash-chvt",               required_argument },
-                { "crash-vt",                 required_argument },
-                { "crash-shell",              optional_argument },
-                { "crash-reboot",             optional_argument },
-                { "crash-action",             required_argument },
-                { "confirm-spawn",            optional_argument },
-                { "show-status",              optional_argument },
-                { "deserialize",              required_argument },
-                { "switched-root",            no_argument,      },
-                { "default-standard-output",  required_argument },
-                { "default-standard-error",   required_argument },
-                { "machine-id",               required_argument },
-                { "service-watchdogs",        required_argument },
-                { "exit-code",                required_argument },
-                { "timeout",                  required_argument },
+                { "log-level",                required_ವಾದ },
+                { "log-target",               required_ವಾದ },
+                { "log-color",                optional_ವಾದ },
+                { "log-location",             optional_ವಾದ },
+                { "log-time",                 optional_ವಾದ },
+                { "unit",                     required_ವಾದ },
+                { "system",                   no_ವಾದ,      },
+                { "user",                     no_ವಾದ,      },
+                { "test",                     no_ವಾದ,      },
+                { "no-pager",                 no_ವಾದ,      },
+                { "help",                     no_ವಾದ,      },
+                { "version",                  no_ವಾದ,      },
+                { "introspect-cli",           no_ವಾದ,      },
+                { "dump-configuration-items", no_ವಾದ,      },
+                { "dump-bus-properties",      no_ವಾದ,      },
+                { "bus-introspect",           required_ವಾದ },
+                { "dump-core",                optional_ವಾದ },
+                { "crash-chvt",               required_ವಾದ },
+                { "crash-vt",                 required_ವಾದ },
+                { "crash-shell",              optional_ವಾದ },
+                { "crash-reboot",             optional_ವಾದ },
+                { "crash-action",             required_ವಾದ },
+                { "confirm-spawn",            optional_ವಾದ },
+                { "show-status",              optional_ವಾದ },
+                { "deserialize",              required_ವಾದ },
+                { "switched-root",            no_ವಾದ,      },
+                { "default-standard-output",  required_ವಾದ },
+                { "default-standard-error",   required_ವಾದ },
+                { "machine-id",               required_ವಾದ },
+                { "service-watchdogs",        required_ವಾದ },
+                { "exit-code",                required_ವಾದ },
+                { "timeout",                  required_ವಾದ },
         };
-        const char *short_options = "hDbsz:";
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *short_options = "hDbsz:";
 
-        _cleanup_strv_free_ char **filtered = NULL;
-        int state, r;
+        _cleanup_strv_free_ ಅಕ್ಷರ **filtered = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ state, r;
 
-        assert(argv);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(argv);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* Currently, we do not support '-', '+', and ':' at the beginning. */
-        assert(!IN_SET(short_options[0], '-', '+', ':'));
+        ಪ್ರತಿಜ್ಞಾ(!ಒಳ_ಗಣ(short_options[0], '-', '+', ':'));
 
         /* Filter out all known options. */
-        state = no_argument;
+        state = no_ವಾದ;
         STRV_FOREACH(p, strv_skip(argv, 1)) {
-                int prev_state = state;
-                const char *a = *p;
+                ಪೂರ್ಣಾಂಕ prev_state = state;
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *a = *p;
 
                 /* Reset the state for the next step. */
-                state = no_argument;
+                state = no_ವಾದ;
 
-                if (prev_state == required_argument ||
-                    (prev_state == optional_argument && a[0] != '-'))
+                ಆದರೆ (prev_state == required_ವಾದ ||
+                    (prev_state == optional_ವಾದ && a[0] != '-'))
                         /* Handled as an argument of the previous option, filtering out the string. */
-                        continue;
+                        ಮುಂದುವರಿ;
 
-                if (a[0] != '-') {
+                ಆದರೆ (a[0] != '-') {
                         /* Not an option, accepting the string. */
                         r = strv_extend(&filtered, a);
-                        if (r < 0)
-                                return r;
-                        continue;
+                        ಆದರೆ (r < 0)
+                                ಹಿಂತಿರುಗಿ r;
+                        ಮುಂದುವರಿ;
                 }
 
-                if (a[1] == '-') {
-                        if (a[2] == '\0') {
+                ಆದರೆ (a[1] == '-') {
+                        ಆದರೆ (a[2] == '\0') {
                                 /* "--" is specified, accepting remaining strings. */
                                 r = strv_extend_strv(&filtered, strv_skip(p, 1), /* filter_duplicates= */ false);
-                                if (r < 0)
-                                        return r;
-                                break;
+                                ಆದರೆ (r < 0)
+                                        ಹಿಂತಿರುಗಿ r;
+                                ನಿಲ್ಲಿಸು;
                         }
 
                         /* long option, e.g. --foo */
                         FOREACH_ELEMENT(option, options) {
-                                const char *q = startswith(a + 2, option->name);
-                                if (!q || !IN_SET(q[0], '=', '\0'))
-                                        continue;
+                                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *q = startswith(a + 2, option->name);
+                                ಆದರೆ (!q || !ಒಳ_ಗಣ(q[0], '=', '\0'))
+                                        ಮುಂದುವರಿ;
 
                                 /* Found matching option, updating the state if necessary. */
-                                if (q[0] == '\0' && option->has_arg == required_argument)
-                                        state = required_argument;
+                                ಆದರೆ (q[0] == '\0' && option->has_arg == required_ವಾದ)
+                                        state = required_ವಾದ;
 
-                                break;
+                                ನಿಲ್ಲಿಸು;
                         }
-                        continue;
+                        ಮುಂದುವರಿ;
                 }
 
                 /* short option(s), e.g. -x or -xyz */
-                while (a && *++a != '\0')
-                        for (const char *q = short_options; *q != '\0'; q++) {
-                                if (*q != *a)
-                                        continue;
+                ಆಗ (a && *++a != '\0')
+                        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *q = short_options; *q != '\0'; q++) {
+                                ಆದರೆ (*q != *a)
+                                        ಮುಂದುವರಿ;
 
                                 /* Found matching short option. */
 
-                                if (q[1] == ':') {
+                                ಆದರೆ (q[1] == ':') {
                                         /* An argument is required or optional, and remaining part
                                          * is handled as argument if exists. */
-                                        state = a[1] != '\0' ? no_argument :
-                                                q[2] == ':' ? optional_argument : required_argument;
+                                        state = a[1] != '\0' ? no_ವಾದ :
+                                                q[2] == ':' ? optional_ವಾದ : required_ವಾದ;
 
-                                        a = NULL; /* Not necessary to parse remaining part. */
+                                        a = ಖಾಲಿ; /* Not necessary to parse remaining part. */
                                 }
-                                break;
+                                ನಿಲ್ಲಿಸು;
                         }
         }
 
         *ret = TAKE_PTR(filtered);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int proc_cmdline(char **ret) {
-        assert(ret);
+ಪೂರ್ಣಾಂಕ proc_cmdline(ಅಕ್ಷರ **ret) {
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strdup_to(ret, e);
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        ಆದರೆ (e)
+                ಹಿಂತಿರುಗಿ strdup_ಗಮ್ಯ(ret, e);
 
-        if (detect_container() > 0)
-                return pid_get_cmdline(1, SIZE_MAX, 0, ret);
+        ಆದರೆ (detect_container() > 0)
+                ಹಿಂತಿರುಗಿ pid_get_cmdline(1, SIZE_MAX, 0, ret);
 
-        return read_full_file("/proc/cmdline", ret, /* ret_size= */  NULL);
+        ಹಿಂತಿರುಗಿ read_ತುಂಬಿದ_file("/proc/cmdline", ret, /* ret_size= */  ಖಾಲಿ);
 }
 
-static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ proc_cmdline_strv_ಆಂತರಿಕ(ಅಕ್ಷರ ***ret, bool filter_pid1_ವಾದಗಳು) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strv_split_full(ret, e, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        ಆದರೆ (e)
+                ಹಿಂತಿರುಗಿ strv_ವಿಭಜಿಸು_ತುಂಬಿದ(ret, e, ಖಾಲಿ, ಹೊರತೆಗೆ_UNQUOTE|ಹೊರತೆಗೆ_RELAX|ಹೊರತೆಗೆ_RETAIN_ESCAPE);
 
-        if (detect_container() > 0) {
-                _cleanup_strv_free_ char **args = NULL;
+        ಆದರೆ (detect_container() > 0) {
+                _cleanup_strv_free_ ಅಕ್ಷರ **ವಾದಗಳು = ಖಾಲಿ;
 
-                r = pid_get_cmdline_strv(1, /* flags= */ 0, &args);
-                if (r < 0)
-                        return r;
+                r = pid_get_cmdline_strv(1, /* flags= */ 0, &ವಾದಗಳು);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                if (filter_pid1_args)
-                        return proc_cmdline_filter_pid1_args(args, ret);
+                ಆದರೆ (filter_pid1_ವಾದಗಳು)
+                        ಹಿಂತಿರುಗಿ proc_cmdline_filter_pid1_ವಾದಗಳು(ವಾದಗಳು, ret);
 
-                *ret = TAKE_PTR(args);
-                return 0;
+                *ret = TAKE_PTR(ವಾದಗಳು);
+                ಹಿಂತಿರುಗಿ 0;
 
-        } else {
-                _cleanup_free_ char *s = NULL;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+                _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
 
-                r = read_full_file("/proc/cmdline", &s, NULL);
-                if (r < 0)
-                        return r;
+                r = read_ತುಂಬಿದ_file("/proc/cmdline", &s, ಖಾಲಿ);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                return strv_split_full(ret, s, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+                ಹಿಂತಿರುಗಿ strv_ವಿಭಜಿಸು_ತುಂಬಿದ(ret, s, ಖಾಲಿ, ಹೊರತೆಗೆ_UNQUOTE|ಹೊರತೆಗೆ_RELAX|ಹೊರತೆಗೆ_RETAIN_ESCAPE);
         }
 }
 
-int proc_cmdline_strv(char ***ret) {
-        return proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
+ಪೂರ್ಣಾಂಕ proc_cmdline_strv(ಅಕ್ಷರ ***ret) {
+        ಹಿಂತಿರುಗಿ proc_cmdline_strv_ಆಂತರಿಕ(ret, /* filter_pid1_args= */ false);
 }
 
-static char *mangle_word(const char *word, ProcCmdlineFlags flags) {
-        char *c = (char*) startswith(word, "rd.");
-        if (c) {
+ಸ್ಥಿರ ಅಕ್ಷರ *mangle_ಶಬ್ದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶಬ್ದ, ProcCmdlineFlags flags) {
+        ಅಕ್ಷರ *c = (ಅಕ್ಷರ*) startswith(ಶಬ್ದ, "rd.");
+        ಆದರೆ (c) {
                 /* Filter out arguments that are intended only for the initrd */
 
-                if (!in_initrd())
-                        return NULL;
+                ಆದರೆ (!ಒಳ_initrd())
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-                if (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
-                        return c;
+                ಆದರೆ (FLAGS_ಗಣ(flags, PROC_CMDLINE_STRIP_RD_ಪೂರ್ವಪ್ರತ್ಯಯ))
+                        ಹಿಂತಿರುಗಿ c;
 
-        } else if (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (FLAGS_ಗಣ(flags, PROC_CMDLINE_RD_STRICT) && ಒಳ_initrd())
                 /* And optionally filter out arguments that are intended only for the host */
-                return NULL;
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return (char*) word;
+        ಹಿಂತಿರುಗಿ (ಅಕ್ಷರ*) ಶಬ್ದ;
 }
 
-#define mangle_word(word, flags) const_generic(word, mangle_word(word, flags))
+#ವ್ಯಾಖ್ಯಾನಿಸು mangle_ಶಬ್ದ(ಶಬ್ದ, flags) const_generic(ಶಬ್ದ, mangle_ಶಬ್ದ(ಶಬ್ದ, flags))
 
-static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ proc_cmdline_parse_strv(ಅಕ್ಷರ **ವಾದಗಳು, proc_cmdline_parse_t parse_ಅಂಶ, ಶೂನ್ಯ *ದತ್ತಾಂಶ, ProcCmdlineFlags flags) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(parse_item);
+        ಪ್ರತಿಜ್ಞಾ(parse_ಅಂಶ);
 
-        STRV_FOREACH(word, args) {
-                char *key, *value;
+        STRV_FOREACH(ಶಬ್ದ, ವಾದಗಳು) {
+                ಅಕ್ಷರ *ಕೀಲಿ, *ಮೌಲ್ಯ;
 
-                key = mangle_word(*word, flags);
-                if (!key)
-                        continue;
+                ಕೀಲಿ = mangle_ಶಬ್ದ(*ಶಬ್ದ, flags);
+                ಆದರೆ (!ಕೀಲಿ)
+                        ಮುಂದುವರಿ;
 
-                value = strchr(key, '=');
-                if (value)
-                        *(value++) = '\0';
+                ಮೌಲ್ಯ = strchr(ಕೀಲಿ, '=');
+                ಆದರೆ (ಮೌಲ್ಯ)
+                        *(ಮೌಲ್ಯ++) = '\0';
 
-                r = parse_item(key, value, data);
-                if (r < 0)
-                        return r;
+                r = parse_ಅಂಶ(ಕೀಲಿ, ಮೌಲ್ಯ, ದತ್ತಾಂಶ);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ proc_cmdline_parse(proc_cmdline_parse_t parse_ಅಂಶ, ಶೂನ್ಯ *ದತ್ತಾಂಶ, ProcCmdlineFlags flags) {
+        _cleanup_strv_free_ ಅಕ್ಷರ **ವಾದಗಳು = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(parse_item);
+        ಪ್ರತಿಜ್ಞಾ(parse_ಅಂಶ);
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_parse(), let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ಪ್ರತಿಜ್ಞಾ(!(flags & (PROC_CMDLINE_ಮೌಲ್ಯ_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv_ಆಂತರಿಕ(&ವಾದಗಳು, /* filter_pid1_args= */ true);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return proc_cmdline_parse_strv(args, parse_item, data, flags);
+        ಹಿಂತಿರುಗಿ proc_cmdline_parse_strv(ವಾದಗಳು, parse_ಅಂಶ, ದತ್ತಾಂಶ, flags);
 }
 
-static bool relaxed_equal_char(char a, char b) {
-        return a == b ||
+ಸ್ಥಿರ bool relaxed_equal_char(ಅಕ್ಷರ a, ಅಕ್ಷರ b) {
+        ಹಿಂತಿರುಗಿ a == b ||
                 (a == '_' && b == '-') ||
                 (a == '-' && b == '_');
 }
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
-        assert(s);
-        assert(prefix);
+ಅಕ್ಷರ* proc_cmdline_ಕೀಲಿ_startswith(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ) {
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಪ್ರತಿಜ್ಞಾ(ಪೂರ್ವಪ್ರತ್ಯಯ);
 
         /* Much like startswith(), but considers "-" and "_" the same */
 
-        for (; *prefix != 0; s++, prefix++)
-                if (!relaxed_equal_char(*s, *prefix))
-                        return NULL;
+        ಗಾಗಿ (; *ಪೂರ್ವಪ್ರತ್ಯಯ != 0; s++, ಪೂರ್ವಪ್ರತ್ಯಯ++)
+                ಆದರೆ (!relaxed_equal_char(*s, *ಪೂರ್ವಪ್ರತ್ಯಯ))
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return (char*) s;
+        ಹಿಂತಿರುಗಿ (ಅಕ್ಷರ*) s;
 }
 
-bool proc_cmdline_key_streq(const char *x, const char *y) {
-        assert(x);
-        assert(y);
+bool proc_cmdline_ಕೀಲಿ_streq(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *x, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *y) {
+        ಪ್ರತಿಜ್ಞಾ(x);
+        ಪ್ರತಿಜ್ಞಾ(y);
 
         /* Much like streq(), but considers "-" and "_" the same */
 
-        for (; *x != 0 || *y != 0; x++, y++)
-                if (!relaxed_equal_char(*x, *y))
-                        return false;
+        ಗಾಗಿ (; *x != 0 || *y != 0; x++, y++)
+                ಆದರೆ (!relaxed_equal_char(*x, *y))
+                        ಹಿಂತಿರುಗಿ false;
 
-        return true;
+        ಹಿಂತಿರುಗಿ true;
 }
 
-static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_free_ char *v = NULL;
-        bool found = false;
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cmdline_get_ಕೀಲಿ(ಅಕ್ಷರ **ವಾದಗಳು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ProcCmdlineFlags flags, ಅಕ್ಷರ **ret_ಮೌಲ್ಯ) {
+        _cleanup_free_ ಅಕ್ಷರ *v = ಖಾಲಿ;
+        bool ಸಿಕ್ಕಿತು = false;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(key);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        STRV_FOREACH(p, args) {
-                const char *word;
+        STRV_FOREACH(p, ವಾದಗಳು) {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶಬ್ದ;
 
-                word = mangle_word(*p, flags);
-                if (!word)
-                        continue;
+                ಶಬ್ದ = mangle_ಶಬ್ದ(*p, flags);
+                ಆದರೆ (!ಶಬ್ದ)
+                        ಮುಂದುವರಿ;
 
-                if (ret_value) {
-                        const char *e;
+                ಆದರೆ (ret_ಮೌಲ್ಯ) {
+                        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e;
 
-                        e = proc_cmdline_key_startswith(word, key);
-                        if (!e)
-                                continue;
+                        e = proc_cmdline_ಕೀಲಿ_startswith(ಶಬ್ದ, ಕೀಲಿ);
+                        ಆದರೆ (!e)
+                                ಮುಂದುವರಿ;
 
-                        if (*e == '=') {
+                        ಆದರೆ (*e == '=') {
                                 r = free_and_strdup(&v, e+1);
-                                if (r < 0)
-                                        return r;
+                                ಆದರೆ (r < 0)
+                                        ಹಿಂತಿರುಗಿ r;
 
-                                found = true;
+                                ಸಿಕ್ಕಿತು = true;
 
-                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL))
-                                found = true;
+                        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (*e == 0 && FLAGS_ಗಣ(flags, PROC_CMDLINE_ಮೌಲ್ಯ_OPTIONAL))
+                                ಸಿಕ್ಕಿತು = true;
 
-                } else {
-                        if (proc_cmdline_key_streq(word, key)) {
-                                found = true;
-                                break; /* we found what we were looking for */
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಆದರೆ (proc_cmdline_ಕೀಲಿ_streq(ಶಬ್ದ, ಕೀಲಿ)) {
+                                ಸಿಕ್ಕಿತು = true;
+                                ನಿಲ್ಲಿಸು; /* we found what we were looking for */
                         }
                 }
         }
 
-        if (ret_value)
-                *ret_value = TAKE_PTR(v);
+        ಆದರೆ (ret_ಮೌಲ್ಯ)
+                *ret_ಮೌಲ್ಯ = TAKE_PTR(v);
 
-        return found;
+        ಹಿಂತಿರುಗಿ ಸಿಕ್ಕಿತು;
 }
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ proc_cmdline_get_ಕೀಲಿ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ProcCmdlineFlags flags, ಅಕ್ಷರ **ret_ಮೌಲ್ಯ) {
+        _cleanup_strv_free_ ಅಕ್ಷರ **ವಾದಗಳು = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
         /* Looks for a specific key on the kernel command line. Supports three modes:
          *
@@ -347,109 +347,109 @@ int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_val
          * In all three cases, > 0 is returned if the key is found, 0 if not. */
 
         /* PROC_CMDLINE_TRUE_WHEN_MISSING doesn't really make sense for proc_cmdline_get_key(). */
-        assert(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
+        ಪ್ರತಿಜ್ಞಾ(!FLAGS_ಗಣ(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
 
-        if (isempty(key))
-                return -EINVAL;
+        ಆದರೆ (isempty(ಕೀಲಿ))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL) && !ret_value)
-                return -EINVAL;
+        ಆದರೆ (FLAGS_ಗಣ(flags, PROC_CMDLINE_ಮೌಲ್ಯ_OPTIONAL) && !ret_ಮೌಲ್ಯ)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv_ಆಂತರಿಕ(&ವಾದಗಳು, /* filter_pid1_args= */ true);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return cmdline_get_key(args, key, flags, ret_value);
+        ಹಿಂತಿರುಗಿ cmdline_get_ಕೀಲಿ(ವಾದಗಳು, ಕೀಲಿ, flags, ret_ಮೌಲ್ಯ);
 }
 
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ proc_cmdline_get_bool(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ProcCmdlineFlags flags, bool *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *v = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = proc_cmdline_get_key(key, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_VALUE_OPTIONAL, &v);
-        if (r < 0)
-                return r;
-        if (r == 0) { /* key not specified at all */
-                *ret = FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
-                return 0;
+        r = proc_cmdline_get_ಕೀಲಿ(ಕೀಲಿ, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_ಮೌಲ್ಯ_OPTIONAL, &v);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (r == 0) { /* key not specified at all */
+                *ret = FLAGS_ಗಣ(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
+                ಹಿಂತಿರುಗಿ 0;
         }
 
-        if (v) { /* key with parameter passed */
+        ಆದರೆ (v) { /* key with parameter passed */
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
                 *ret = r;
-        } else /* key without parameter passed */
+        } ಇಲ್ಲದಿದ್ದರೆ /* key without parameter passed */
                 *ret = true;
 
-        return 1;
+        ಹಿಂತಿರುಗಿ 1;
 }
 
-static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list ap) {
-        int r, ret = 0;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cmdline_get_ಕೀಲಿ_ap(ProcCmdlineFlags flags, ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ* ವಾದಗಳು, va_list ap) {
+        ಪೂರ್ಣಾಂಕ r, ret = 0;
 
-        for (;;) {
-                char **v;
-                const char *k, *e;
+        ಗಾಗಿ (;;) {
+                ಅಕ್ಷರ **v;
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *k, *e;
 
-                k = va_arg(ap, const char*);
-                if (!k)
-                        break;
+                k = va_arg(ap, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*);
+                ಆದರೆ (!k)
+                        ನಿಲ್ಲಿಸು;
 
-                assert_se(v = va_arg(ap, char**));
+                assert_se(v = va_arg(ap, ಅಕ್ಷರ**));
 
-                STRV_FOREACH(p, args) {
-                        const char *word;
+                STRV_FOREACH(p, ವಾದಗಳು) {
+                        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶಬ್ದ;
 
-                        word = mangle_word(*p, flags);
-                        if (!word)
-                                continue;
+                        ಶಬ್ದ = mangle_ಶಬ್ದ(*p, flags);
+                        ಆದರೆ (!ಶಬ್ದ)
+                                ಮುಂದುವರಿ;
 
-                        e = proc_cmdline_key_startswith(word, k);
-                        if (e && *e == '=') {
+                        e = proc_cmdline_ಕೀಲಿ_startswith(ಶಬ್ದ, k);
+                        ಆದರೆ (e && *e == '=') {
                                 r = free_and_strdup(v, e + 1);
-                                if (r < 0)
-                                        return r;
+                                ಆದರೆ (r < 0)
+                                        ಹಿಂತಿರುಗಿ r;
 
                                 ret++;
                         }
                 }
         }
 
-        return ret;
+        ಹಿಂತಿರುಗಿ ret;
 }
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ proc_cmdline_get_ಕೀಲಿ_many_ಆಂತರಿಕ(ProcCmdlineFlags flags, ...) {
+        _cleanup_strv_free_ ಅಕ್ಷರ **ವಾದಗಳು = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
         va_list ap;
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_get_key_many, let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ಪ್ರತಿಜ್ಞಾ(!(flags & (PROC_CMDLINE_ಮೌಲ್ಯ_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         /* This call may clobber arguments on failure! */
 
-        r = proc_cmdline_strv(&args);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv(&ವಾದಗಳು);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         va_start(ap, flags);
-        r = cmdline_get_key_ap(flags, args, ap);
+        r = cmdline_get_ಕೀಲಿ_ap(flags, ವಾದಗಳು, ap);
         va_end(ap);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-bool proc_cmdline_value_missing(const char *key, const char *value) {
-        assert(key);
+bool proc_cmdline_ಮೌಲ್ಯ_missing(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        if (!value) {
-                log_warning("Missing argument for %s= kernel command line switch, ignoring.", key);
-                return true;
+        ಆದರೆ (!ಮೌಲ್ಯ) {
+                log_warning("Missing argument for %s= kernel command line switch, ignoring.", ಕೀಲಿ);
+                ಹಿಂತಿರುಗಿ true;
         }
 
-        return false;
+        ಹಿಂತಿರುಗಿ false;
 }

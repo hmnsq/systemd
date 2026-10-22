@@ -1,98 +1,98 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 /* The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
-#define LIST_HEAD(t,name)                                               \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_ತಲೆ(t,name)                                               \
         t *name
 
 /* The pointers in the linked list's items. Use this in the item structure */
-#define LIST_FIELDS(t,name)                                             \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_FIELDS(t,name)                                             \
         t *name##_next, *name##_prev
 
 /* Initialize the list's head */
-#define LIST_HEAD_INIT(head)                                            \
-        do {                                                            \
-                (head) = NULL;                                          \
-        } while (false)
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_ತಲೆ_INIT(ತಲೆ)                                            \
+        ಮಾಡು {                                                            \
+                (ತಲೆ) = ಖಾಲಿ;                                          \
+        } ಆಗ (false)
 
 /* Initialize a list item */
-#define LIST_INIT(name,item)                                            \
-        do {                                                            \
-                typeof(*(item)) *_item = (item);                        \
-                assert(_item);                                          \
-                _item->name##_prev = _item->name##_next = NULL;         \
-        } while (false)
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_INIT(name,ಅಂಶ)                                            \
+        ಮಾಡು {                                                            \
+                typeof(*(ಅಂಶ)) *ಅಂಶ_2 = (ಅಂಶ);                        \
+                ಪ್ರತಿಜ್ಞಾ(ಅಂಶ_2);                                          \
+                ಅಂಶ_2->name##_prev = ಅಂಶ_2->name##_next = ಖಾಲಿ;         \
+        } ಆಗ (false)
 
 /* Prepend an item to the list */
-#define LIST_PREPEND(name,head,item)                                    \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_PREPEND(name,ತಲೆ,ಅಂಶ)                                    \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if ((_item->name##_next = *_head))                      \
-                        _item->name##_next->name##_prev = _item;        \
-                _item->name##_prev = NULL;                              \
-                *_head = _item;                                         \
-                _item;                                                  \
+                typeof(*(ತಲೆ)) **ತಲೆ_2 = &(ತಲೆ), *ಅಂಶ_2 = (ಅಂಶ);     \
+                ಪ್ರತಿಜ್ಞಾ(ಅಂಶ_2);                                          \
+                ಆದರೆ ((ಅಂಶ_2->name##_next = *ತಲೆ_2))                      \
+                        ಅಂಶ_2->name##_next->name##_prev = ಅಂಶ_2;        \
+                ಅಂಶ_2->name##_prev = ಖಾಲಿ;                              \
+                *ತಲೆ_2 = ಅಂಶ_2;                                         \
+                ಅಂಶ_2;                                                  \
         })
 
 /* Append an item to the list */
-#define LIST_APPEND(name,head,item)                                     \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_APPEND(name,ತಲೆ,ಅಂಶ)                                     \
         ({                                                              \
-                typeof(*(head)) **_hhead = &(head), *_tail;             \
-                _tail = LIST_FIND_TAIL(name, *_hhead);                  \
-                LIST_INSERT_AFTER(name, *_hhead, _tail, item);          \
+                typeof(*(ತಲೆ)) **_hhead = &(ತಲೆ), *ಬಾಲ;             \
+                ಬಾಲ = LIST_ಕಂಡುಹಿಡಿ_ಬಾಲ(name, *_hhead);                  \
+                LIST_ಸೇರಿಸು_AFTER(name, *_hhead, ಬಾಲ, ಅಂಶ);          \
         })
 
 /* Remove an item from the list */
-#define LIST_REMOVE(name,head,item)                                     \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_REMOVE(name,ತಲೆ,ಅಂಶ)                                     \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if (_item->name##_next)                                 \
-                        _item->name##_next->name##_prev = _item->name##_prev; \
-                if (_item->name##_prev)                                 \
-                        _item->name##_prev->name##_next = _item->name##_next; \
-                else {                                                  \
-                        assert(*_head == _item);                        \
-                        *_head = _item->name##_next;                    \
+                typeof(*(ತಲೆ)) **ತಲೆ_2 = &(ತಲೆ), *ಅಂಶ_2 = (ಅಂಶ);     \
+                ಪ್ರತಿಜ್ಞಾ(ಅಂಶ_2);                                          \
+                ಆದರೆ (ಅಂಶ_2->name##_next)                                 \
+                        ಅಂಶ_2->name##_next->name##_prev = ಅಂಶ_2->name##_prev; \
+                ಆದರೆ (ಅಂಶ_2->name##_prev)                                 \
+                        ಅಂಶ_2->name##_prev->name##_next = ಅಂಶ_2->name##_next; \
+                ಇಲ್ಲದಿದ್ದರೆ {                                                  \
+                        ಪ್ರತಿಜ್ಞಾ(*ತಲೆ_2 == ಅಂಶ_2);                        \
+                        *ತಲೆ_2 = ಅಂಶ_2->name##_next;                    \
                 }                                                       \
-                _item->name##_next = _item->name##_prev = NULL;         \
-                _item;                                                  \
+                ಅಂಶ_2->name##_next = ಅಂಶ_2->name##_prev = ಖಾಲಿ;         \
+                ಅಂಶ_2;                                                  \
         })
 
 /* Find the head of the list */
-#define LIST_FIND_HEAD(name,item)                                       \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_ಕಂಡುಹಿಡಿ_ತಲೆ(name,ಅಂಶ)                                       \
         ({                                                              \
-                typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_prev)                     \
-                        _item = _item->name##_prev;                     \
-                _item;                                                  \
+                typeof(*(ಅಂಶ)) *ಅಂಶ_2 = (ಅಂಶ);                        \
+                ಆಗ (ಅಂಶ_2 && ಅಂಶ_2->name##_prev)                     \
+                        ಅಂಶ_2 = ಅಂಶ_2->name##_prev;                     \
+                ಅಂಶ_2;                                                  \
         })
 
 /* Find the tail of the list */
-#define LIST_FIND_TAIL(name,item)                                       \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_ಕಂಡುಹಿಡಿ_ಬಾಲ(name,ಅಂಶ)                                       \
         ({                                                              \
-                typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_next)                     \
-                        _item = _item->name##_next;                     \
-                _item;                                                  \
+                typeof(*(ಅಂಶ)) *ಅಂಶ_2 = (ಅಂಶ);                        \
+                ಆಗ (ಅಂಶ_2 && ಅಂಶ_2->name##_next)                     \
+                        ಅಂಶ_2 = ಅಂಶ_2->name##_next;                     \
+                ಅಂಶ_2;                                                  \
         })
 
 /* Insert an item after another one (a = where, b = what) */
-#define LIST_INSERT_AFTER(name,head,a,b)                                \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_ಸೇರಿಸು_AFTER(name,ತಲೆ,a,b)                                \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if ((_b->name##_next = *_head))                 \
+                typeof(*(ತಲೆ)) **ತಲೆ_2 = &(ತಲೆ), *_a = (a), *_b = (b); \
+                ಪ್ರತಿಜ್ಞಾ(_b);                                             \
+                ಆದರೆ (!_a) {                                              \
+                        ಆದರೆ ((_b->name##_next = *ತಲೆ_2))                 \
                                 _b->name##_next->name##_prev = _b;      \
-                        _b->name##_prev = NULL;                         \
-                        *_head = _b;                                    \
-                } else {                                                \
-                        if ((_b->name##_next = _a->name##_next))        \
+                        _b->name##_prev = ಖಾಲಿ;                         \
+                        *ತಲೆ_2 = _b;                                    \
+                } ಇಲ್ಲದಿದ್ದರೆ {                                                \
+                        ಆದರೆ ((_b->name##_next = _a->name##_next))        \
                                 _b->name##_next->name##_prev = _b;      \
                         _b->name##_prev = _a;                           \
                         _a->name##_next = _b;                           \
@@ -101,62 +101,62 @@
         })
 
 /* Insert an item before another one (a = where, b = what) */
-#define LIST_INSERT_BEFORE(name,head,a,b)                               \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_ಸೇರಿಸು_BEFORE(name,ತಲೆ,a,b)                               \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if (!*_head) {                                  \
-                                _b->name##_next = NULL;                 \
-                                _b->name##_prev = NULL;                 \
-                                *_head = _b;                            \
-                        } else {                                        \
-                                typeof(*(head)) *_tail = (head);        \
-                                while (_tail->name##_next)              \
-                                        _tail = _tail->name##_next;     \
-                                _b->name##_next = NULL;                 \
-                                _b->name##_prev = _tail;                \
-                                _tail->name##_next = _b;                \
+                typeof(*(ತಲೆ)) **ತಲೆ_2 = &(ತಲೆ), *_a = (a), *_b = (b); \
+                ಪ್ರತಿಜ್ಞಾ(_b);                                             \
+                ಆದರೆ (!_a) {                                              \
+                        ಆದರೆ (!*ತಲೆ_2) {                                  \
+                                _b->name##_next = ಖಾಲಿ;                 \
+                                _b->name##_prev = ಖಾಲಿ;                 \
+                                *ತಲೆ_2 = _b;                            \
+                        } ಇಲ್ಲದಿದ್ದರೆ {                                        \
+                                typeof(*(ತಲೆ)) *ಬಾಲ = (ತಲೆ);        \
+                                ಆಗ (ಬಾಲ->name##_next)              \
+                                        ಬಾಲ = ಬಾಲ->name##_next;     \
+                                _b->name##_next = ಖಾಲಿ;                 \
+                                _b->name##_prev = ಬಾಲ;                \
+                                ಬಾಲ->name##_next = _b;                \
                         }                                               \
-                } else {                                                \
-                        if ((_b->name##_prev = _a->name##_prev))        \
+                } ಇಲ್ಲದಿದ್ದರೆ {                                                \
+                        ಆದರೆ ((_b->name##_prev = _a->name##_prev))        \
                                 _b->name##_prev->name##_next = _b;      \
-                        else                                            \
-                                *_head = _b;                            \
+                        ಇಲ್ಲದಿದ್ದರೆ                                            \
+                                *ತಲೆ_2 = _b;                            \
                         _b->name##_next = _a;                           \
                         _a->name##_prev = _b;                           \
                 }                                                       \
                 _b;                                                     \
         })
 
-#define LIST_JUST_US(name, item)                                        \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_JUST_US(name, ಅಂಶ)                                        \
         ({                                                              \
-                typeof(*(item)) *_item = (item);                        \
-                !(_item)->name##_prev && !(_item)->name##_next;         \
+                typeof(*(ಅಂಶ)) *ಅಂಶ_2 = (ಅಂಶ);                        \
+                !(ಅಂಶ_2)->name##_prev && !(ಅಂಶ_2)->name##_next;         \
         })
 
 /* The type of the iterator 'i' is automatically determined by the type of 'head', and declared in the
  * loop. Hence, do not declare the same variable in the outer scope. Sometimes, we set 'head' through
  * hashmap_get(). In that case, you need to explicitly cast the result. */
-#define LIST_FOREACH_WITH_NEXT(name,i,n,head)                           \
-        for (typeof(*(head)) *n, *i = (head); i && (n = i->name##_next, true); i = n)
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_FOREACH_WITH_ಮುಂದಿನ(name,i,n,ತಲೆ)                           \
+        ಗಾಗಿ (typeof(*(ತಲೆ)) *n, *i = (ತಲೆ); i && (n = i->name##_next, true); i = n)
 
-#define LIST_FOREACH(name,i,head)                                       \
-        LIST_FOREACH_WITH_NEXT(name, i, UNIQ_T(n, UNIQ), head)
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_FOREACH(name,i,ತಲೆ)                                       \
+        LIST_FOREACH_WITH_ಮುಂದಿನ(name, i, UNIQ_T(n, UNIQ), ತಲೆ)
 
-#define _LIST_FOREACH_WITH_PREV(name,i,p,start)                         \
-        for (typeof(*(start)) *p, *i = (start); i && (p = i->name##_prev, true); i = p)
+#ವ್ಯಾಖ್ಯಾನಿಸು _LIST_FOREACH_WITH_PREV(name,i,p,ಆರಂಭ)                         \
+        ಗಾಗಿ (typeof(*(ಆರಂಭ)) *p, *i = (ಆರಂಭ); i && (p = i->name##_prev, true); i = p)
 
-#define LIST_FOREACH_BACKWARDS(name,i,start)                            \
-        _LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), start)
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_FOREACH_BACKWARDS(name,i,ಆರಂಭ)                            \
+        _LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), ಆರಂಭ)
 
 /* Iterate through all the members of the list p is included in, but skip over p */
-#define LIST_FOREACH_OTHERS(name,i,p)                                   \
-        for (typeof(*(p)) *_p = (p), *i = ({                            \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_FOREACH_OTHERS(name,i,p)                                   \
+        ಗಾಗಿ (typeof(*(p)) *_p = (p), *i = ({                            \
                                 typeof(*_p) *_j = _p;                   \
-                                while (_j && _j->name##_prev)           \
+                                ಆಗ (_j && _j->name##_prev)           \
                                         _j = _j->name##_prev;           \
-                                if (_j == _p)                           \
+                                ಆದರೆ (_j == _p)                           \
                                         _j = _p->name##_next;           \
                                 _j;                                     \
                         });                                             \
@@ -164,44 +164,44 @@
              i = i->name##_next == _p ? _p->name##_next : i->name##_next)
 
 /* Loop starting from p->next until p->prev. p can be adjusted meanwhile. */
-#define LIST_LOOP_BUT_ONE(name,i,head,p)                                \
-        for (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (head); \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_LOOP_BUT_ONE(name,i,ತಲೆ,p)                                \
+        ಗಾಗಿ (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (ತಲೆ); \
              i != (p);                                                  \
-             i = i->name##_next ? i->name##_next : (head))
+             i = i->name##_next ? i->name##_next : (ತಲೆ))
 
 /* Join two lists tail to head: a->b, c->d to a->b->c->d and de-initialise second list */
-#define LIST_JOIN(name,a,b)                                             \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_JOIN(name,a,b)                                             \
         ({                                                              \
-                assert(b);                                              \
-                if (!(a))                                               \
+                ಪ್ರತಿಜ್ಞಾ(b);                                              \
+                ಆದರೆ (!(a))                                               \
                         (a) = (b);                                      \
-                else {                                                  \
-                        typeof(*(a)) *_head = (b), *_tail;              \
-                        _tail = LIST_FIND_TAIL(name, (a));              \
-                        _tail->name##_next = _head;                     \
-                        _head->name##_prev = _tail;                     \
+                ಇಲ್ಲದಿದ್ದರೆ {                                                  \
+                        typeof(*(a)) *ತಲೆ_2 = (b), *ಬಾಲ;              \
+                        ಬಾಲ = LIST_ಕಂಡುಹಿಡಿ_ಬಾಲ(name, (a));              \
+                        ಬಾಲ->name##_next = ತಲೆ_2;                     \
+                        ತಲೆ_2->name##_prev = ಬಾಲ;                     \
                 }                                                       \
-                (b) = NULL;                                             \
+                (b) = ಖಾಲಿ;                                             \
                 a;                                                      \
         })
 
-#define LIST_POP(name, a)                                               \
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_ತೆಗೆ(name, a)                                               \
         ({                                                              \
                 typeof(a)* _a = &(a);                                   \
                 typeof(a) _p = *_a;                                     \
-                if (_p)                                                 \
+                ಆದರೆ (_p)                                                 \
                         LIST_REMOVE(name, *_a, _p);                     \
                 _p;                                                     \
         })
 
-#define LIST_CLEAR(name, head, free_func)       \
-        _LIST_CLEAR(name, head, free_func, UNIQ_T(elem, UNIQ))
+#ವ್ಯಾಖ್ಯಾನಿಸು LIST_CLEAR(name, ತಲೆ, free_func)       \
+        _LIST_CLEAR(name, ತಲೆ, free_func, UNIQ_T(elem, UNIQ))
 
 /* Clear the list, destroying each element with free_func */
-#define _LIST_CLEAR(name, head, free_func, elem)        \
+#ವ್ಯಾಖ್ಯಾನಿಸು _LIST_CLEAR(name, ತಲೆ, free_func, elem)        \
         ({                                              \
-                typeof(head) elem;                      \
-                while ((elem = LIST_POP(name, head)))   \
+                typeof(ತಲೆ) elem;                      \
+                ಆಗ ((elem = LIST_ತೆಗೆ(name, ತಲೆ)))   \
                         free_func(elem);                \
-                head;                                   \
+                ತಲೆ;                                   \
         })

@@ -1,82 +1,82 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
 
-#include "alloc-util.h"
-#include "bus-label.h"
-#include "hexdecoct.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "bus-label.h"
+#ಅನ್ತರ್ಭಾವ "hexdecoct.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-char* bus_label_escape(const char *s) {
-        char *r, *t;
-        const char *f;
+ಅಕ್ಷರ* bus_label_escape(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s) {
+        ಅಕ್ಷರ *r, *t;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *f;
 
-        assert_return(s, NULL);
+        assert_return(s, ಖಾಲಿ);
 
         /* Escapes all chars that D-Bus' object path cannot deal
          * with. Can be reversed with bus_path_unescape(). We special
          * case the empty string. */
 
-        if (*s == 0)
-                return strdup("_");
+        ಆದರೆ (*s == 0)
+                ಹಿಂತಿರುಗಿ strdup("_");
 
-        r = new(char, strlen(s)*3 + 1);
-        if (!r)
-                return NULL;
+        r = new(ಅಕ್ಷರ, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s)*3 + 1);
+        ಆದರೆ (!r)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        for (f = s, t = r; *f; f++) {
+        ಗಾಗಿ (f = s, t = r; *f; f++) {
 
                 /* Escape everything that is not a-zA-Z0-9. We also escape 0-9 if it's the first character */
 
-                if (!ascii_isalpha(*f) &&
+                ಆದರೆ (!ascii_isalpha(*f) &&
                     !(f > s && ascii_isdigit(*f))) {
                         *(t++) = '_';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else
+                } ಇಲ್ಲದಿದ್ದರೆ
                         *(t++) = *f;
         }
 
         *t = 0;
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-char* bus_label_unescape_n(const char *f, size_t l) {
-        char *r, *t;
+ಅಕ್ಷರ* bus_label_unescape_n(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *f, size_t l) {
+        ಅಕ್ಷರ *r, *t;
         size_t i;
 
-        assert_return(f, NULL);
+        assert_return(f, ಖಾಲಿ);
 
-        if (l == SIZE_MAX)
-                l = strlen(f);
+        ಆದರೆ (l == SIZE_MAX)
+                l = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(f);
 
         /* Special case for the empty string */
-        if (l == 1 && *f == '_')
-                return strdup("");
+        ಆದರೆ (l == 1 && *f == '_')
+                ಹಿಂತಿರುಗಿ strdup("");
 
-        r = new(char, l + 1);
-        if (!r)
-                return NULL;
+        r = new(ಅಕ್ಷರ, l + 1);
+        ಆದರೆ (!r)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        for (i = 0, t = r; i < l; ++i) {
-                if (f[i] == '_') {
-                        int a, b;
+        ಗಾಗಿ (i = 0, t = r; i < l; ++i) {
+                ಆದರೆ (f[i] == '_') {
+                        ಪೂರ್ಣಾಂಕ a, b;
 
-                        if (l - i < 3 ||
+                        ಆದರೆ (l - i < 3 ||
                             (a = unhexchar(f[i + 1])) < 0 ||
                             (b = unhexchar(f[i + 2])) < 0) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '_';
-                        } else {
-                                *(t++) = (char) ((a << 4) | b);
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                                *(t++) = (ಅಕ್ಷರ) ((a << 4) | b);
                                 i += 2;
                         }
-                } else
+                } ಇಲ್ಲದಿದ್ದರೆ
                         *(t++) = f[i];
         }
 
         *t = 0;
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }

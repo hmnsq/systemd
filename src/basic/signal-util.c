@@ -1,113 +1,113 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <threads.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "errno-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "errno-util.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "signal-util.h"
+#ಅನ್ತರ್ಭಾವ "stdio-util.h"
+#ಅನ್ತರ್ಭಾವ "string-table.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+ಪೂರ್ಣಾಂಕ reset_all_signal_handlers(ಶೂನ್ಯ) {
+        ಪೂರ್ಣಾಂಕ ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
-                        continue;
+                ಆದರೆ (ಒಳ_ಗಣ(sig, SIGKILL, SIGSTOP))
+                        ಮುಂದುವರಿ;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
-                r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                r = RET_NERRNO(sigaction(sig, &sigaction_default, ಖಾಲಿ));
+                ಆದರೆ (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        ಹಿಂತಿರುಗಿ ret;
 }
 
-int reset_signal_mask(void) {
+ಪೂರ್ಣಾಂಕ reset_signal_ಮುಖವಾಡ(ಶೂನ್ಯ) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ಆದರೆ (sigemptyset(&ss) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, ಖಾಲಿ));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+ಪೂರ್ಣಾಂಕ sigaction_many_ಆಂತರಿಕ(ಸ್ಥಿರಾಂಕ ರಚನೆ sigaction *sa, ...) {
+        ಪೂರ್ಣಾಂಕ sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ಆಗ ((sig = va_arg(ap, ಪೂರ್ಣಾಂಕ)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                ಆದರೆ (sig == 0)
+                        ಮುಂದುವರಿ;
 
-                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
+                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, ಖಾಲಿ)));
         }
 
         va_end(ap);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sigset_ಕೂಡಿಸು_many_ap(sigset_t *ss, va_list ap) {
+        ಪೂರ್ಣಾಂಕ sig, r = 0;
 
-        assert(ss);
+        ಪ್ರತಿಜ್ಞಾ(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ಆಗ ((sig = va_arg(ap, ಪೂರ್ಣಾಂಕ)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                ಆದರೆ (sig == 0)
+                        ಮುಂದುವರಿ;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                ಆದರೆ (sigaddset(ss, sig) < 0) {
+                        ಆದರೆ (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+ಪೂರ್ಣಾಂಕ sigset_ಕೂಡಿಸು_many_ಆಂತರಿಕ(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
         va_start(ap, ss);
-        r = sigset_add_many_ap(ss, ap);
+        r = sigset_ಕೂಡಿಸು_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+ಪೂರ್ಣಾಂಕ sigprocmask_many_ಆಂತರಿಕ(ಪೂರ್ಣಾಂಕ how, sigset_t *ret_old_ಮುಖವಾಡ, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ಆದರೆ (sigemptyset(&ss) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        va_start(ap, ret_old_mask);
-        r = sigset_add_many_ap(&ss, ap);
+        va_start(ap, ret_old_ಮುಖವಾಡ);
+        r = sigset_ಕೂಡಿಸು_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(sigprocmask(how, &ss, ret_old_ಮುಖವಾಡ));
 }
 
-static const char *const static_signal_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ static_signal_ಕೋಷ್ಟಕ[] = {
         [SIGHUP]    = "HUP",
         [SIGINT]    = "INT",
         [SIGQUIT]   = "QUIT",
@@ -123,9 +123,9 @@ static const char *const static_signal_table[] = {
         [SIGPIPE]   = "PIPE",
         [SIGALRM]   = "ALRM",
         [SIGTERM]   = "TERM",
-#ifdef SIGSTKFLT
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ SIGSTKFLT
         [SIGSTKFLT] = "STKFLT",  /* Linux on SPARC doesn't know SIGSTKFLT */
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         [SIGCHLD]   = "CHLD",
         [SIGCONT]   = "CONT",
         [SIGSTOP]   = "STOP",
@@ -143,87 +143,87 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP(static_signal, ಪೂರ್ಣಾಂಕ);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
-        const char *name;
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* signal_ಗಮ್ಯ_string(ಪೂರ್ಣಾಂಕ signo) {
+        ಸ್ಥಿರ thread_local ಅಕ್ಷರ buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(ಪೂರ್ಣಾಂಕ)];
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
 
-        name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        name = static_signal_ಗಮ್ಯ_string(signo);
+        ಆದರೆ (name)
+                ಹಿಂತಿರುಗಿ name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        ಆದರೆ (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        ಇಲ್ಲದಿದ್ದರೆ
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        ಹಿಂತಿರುಗಿ buf;
 }
 
-int signal_from_string(const char *s) {
-        const char *p;
-        int signo, r;
+ಪೂರ್ಣಾಂಕ signal_from_string(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
+        ಪೂರ್ಣಾಂಕ signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        ಆದರೆ (ಸುರಕ್ಷಿತ_atoi(s, &signo) >= 0) {
+                ಆದರೆ (SIGNAL_VALID(signo))
+                        ಹಿಂತಿರುಗಿ signo;
+                ಇಲ್ಲದಿದ್ದರೆ
+                        ಹಿಂತಿರುಗಿ -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        ಆದರೆ (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        ಆದರೆ (signo > 0)
+                ಹಿಂತಿರುಗಿ signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        ಆದರೆ (p) {
+                ಆದರೆ (*p == '\0')
+                        ಹಿಂತಿರುಗಿ SIGRTMIN;
+                ಆದರೆ (*p != '+')
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
-                r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                r = ಸುರಕ್ಷಿತ_atoi(p, &signo);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                ಆದರೆ (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        ಹಿಂತಿರುಗಿ -ERANGE;
 
-                return signo + SIGRTMIN;
+                ಹಿಂತಿರುಗಿ signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        ಆದರೆ (p) {
+                ಆದರೆ (*p == '\0')
+                        ಹಿಂತಿರುಗಿ SIGRTMAX;
+                ಆದರೆ (*p != '-')
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
-                r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                r = ಸುರಕ್ಷಿತ_atoi(p, &signo);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                ಆದರೆ (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        ಹಿಂತಿರುಗಿ -ERANGE;
 
-                return signo + SIGRTMAX;
+                ಹಿಂತಿರುಗಿ signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        ಹಿಂತಿರುಗಿ -EINVAL;
 }
 
-static const char *const sigill_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigill_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [ILL_ILLOPC]   = "ILL_ILLOPC",
         [ILL_ILLOPN]   = "ILL_ILLOPN",
         [ILL_ILLADR]   = "ILL_ILLADR",
@@ -235,9 +235,9 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigill_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
-static const char *const sigfpe_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigfpe_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
         [FPE_INTOVF]   = "FPE_INTOVF",
         [FPE_FLTDIV]   = "FPE_FLTDIV",
@@ -250,9 +250,9 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigfpe_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
-static const char *const sigsegv_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigsegv_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
         [SEGV_ACCERR]  = "SEGV_ACCERR",
         [SEGV_BNDERR]  = "SEGV_BNDERR",
@@ -265,9 +265,9 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigsegv_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
-static const char *const sigbus_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigbus_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
         [BUS_ADRERR]    = "BUS_ADRERR",
         [BUS_OBJERR]    = "BUS_OBJERR",
@@ -275,9 +275,9 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigbus_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
-static const char *const sigtrap_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigtrap_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
         [TRAP_TRACE]  = "TRAP_TRACE",
         [TRAP_BRANCH] = "TRAP_BRANCH",
@@ -286,19 +286,19 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigtrap_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
-static const char *const sigsys_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigsys_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigsys_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
  * all other values decoded here, provide an uppercase variant. */
-static const char *const sigchld_uppercase_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigchld_uppercase_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [CLD_EXITED]    = "CLD_EXITED",
         [CLD_KILLED]    = "CLD_KILLED",
         [CLD_DUMPED]    = "CLD_DUMPED",
@@ -307,9 +307,9 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigchld_uppercase_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
-static const char *const sigpoll_code_table[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ sigpoll_ಸಂಕೇತ_ಕೋಷ್ಟಕ[] = {
         [POLL_IN]  = "POLL_IN",
         [POLL_OUT] = "POLL_OUT",
         [POLL_MSG] = "POLL_MSG",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_ಗಮ್ಯ_STRING(sigpoll_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ);
 
-const char* signal_code_to_string(int signo, int code) {
-        switch (code) {
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* signal_ಸಂಕೇತ_ಗಮ್ಯ_string(ಪೂರ್ಣಾಂಕ signo, ಪೂರ್ಣಾಂಕ ಸಂಕೇತ_2) {
+        ಆಯ್ಕೆ (ಸಂಕೇತ_2) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
-        case SI_KERNEL:
-                return "SI_KERNEL";
-        case SI_USER:
-                return "SI_USER";
+        ಸ್ಥಿತಿ SI_KERNEL:
+                ಹಿಂತಿರುಗಿ "SI_KERNEL";
+        ಸ್ಥಿತಿ SI_USER:
+                ಹಿಂತಿರುಗಿ "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
-        case SI_ASYNCNL:
-                return "SI_ASYNCNL";
-        case SI_DETHREAD:
-                return "SI_DETHREAD";
-        case SI_TKILL:
-                return "SI_TKILL";
-        case SI_SIGIO:
-                return "SI_SIGIO";
-        case SI_ASYNCIO:
-                return "SI_ASYNCIO";
-        case SI_MESGQ:
-                return "SI_MESGQ";
-        case SI_TIMER:
-                return "SI_TIMER";
-        case SI_QUEUE:
-                return "SI_QUEUE";
+        ಸ್ಥಿತಿ SI_ASYNCNL:
+                ಹಿಂತಿರುಗಿ "SI_ASYNCNL";
+        ಸ್ಥಿತಿ SI_DETHREAD:
+                ಹಿಂತಿರುಗಿ "SI_DETHREAD";
+        ಸ್ಥಿತಿ SI_TKILL:
+                ಹಿಂತಿರುಗಿ "SI_TKILL";
+        ಸ್ಥಿತಿ SI_SIGIO:
+                ಹಿಂತಿರುಗಿ "SI_SIGIO";
+        ಸ್ಥಿತಿ SI_ASYNCIO:
+                ಹಿಂತಿರುಗಿ "SI_ASYNCIO";
+        ಸ್ಥಿತಿ SI_MESGQ:
+                ಹಿಂತಿರುಗಿ "SI_MESGQ";
+        ಸ್ಥಿತಿ SI_TIMER:
+                ಹಿಂತಿರುಗಿ "SI_TIMER";
+        ಸ್ಥಿತಿ SI_QUEUE:
+                ಹಿಂತಿರುಗಿ "SI_QUEUE";
         }
 
-        switch (signo) {
-        case SIGILL:
-                return sigill_code_to_string(code);
-        case SIGFPE:
-                return sigfpe_code_to_string(code);
-        case SIGSEGV:
-                return sigsegv_code_to_string(code);
-        case SIGBUS:
-                return sigbus_code_to_string(code);
-        case SIGTRAP:
-                return sigtrap_code_to_string(code);
-        case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
-        case SIGPOLL:
-                return sigpoll_code_to_string(code);
-        case SIGSYS:
-                return sigsys_code_to_string(code);
-        default:
-                return NULL;
+        ಆಯ್ಕೆ (signo) {
+        ಸ್ಥಿತಿ SIGILL:
+                ಹಿಂತಿರುಗಿ sigill_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಸ್ಥಿತಿ SIGFPE:
+                ಹಿಂತಿರುಗಿ sigfpe_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಸ್ಥಿತಿ SIGSEGV:
+                ಹಿಂತಿರುಗಿ sigsegv_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಸ್ಥಿತಿ SIGBUS:
+                ಹಿಂತಿರುಗಿ sigbus_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಸ್ಥಿತಿ SIGTRAP:
+                ಹಿಂತಿರುಗಿ sigtrap_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಸ್ಥಿತಿ SIGCHLD:
+                ಹಿಂತಿರುಗಿ sigchld_uppercase_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಸ್ಥಿತಿ SIGPOLL:
+                ಹಿಂತಿರುಗಿ sigpoll_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಸ್ಥಿತಿ SIGSYS:
+                ಹಿಂತಿರುಗಿ sigsys_ಸಂಕೇತ_ಗಮ್ಯ_string(ಸಂಕೇತ_2);
+        ಪೂರ್ವನಿಯೋಜಿತ:
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
         }
 }
 
-void nop_signal_handler(int sig) {
+ಶೂನ್ಯ nop_signal_handler(ಪೂರ್ಣಾಂಕ sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+ಪೂರ್ಣಾಂಕ signal_is_blocked(ಪೂರ್ಣಾಂಕ sig) {
         sigset_t ss;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        r = pthread_sigmask(SIG_SETMASK, ಖಾಲಿ, &ss);
+        ಆದರೆ (r != 0)
+                ಹಿಂತಿರುಗಿ -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        ಹಿಂತಿರುಗಿ RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
-        struct sigaction sa;
+ಪೂರ್ಣಾಂಕ autoreaping_enabled(ಶೂನ್ಯ) {
+        ರಚನೆ sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        ಆದರೆ (sigaction(SIGCHLD, /* act= */ ಖಾಲಿ, &sa) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        ಹಿಂತಿರುಗಿ sa.sa_handler == SIG_IGN || FLAGS_ಗಣ(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+ಪೂರ್ಣಾಂಕ ತೆಗೆ_pending_signal_ಆಂತರಿಕ(ಪೂರ್ಣಾಂಕ sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        ಆದರೆ (sig < 0) /* Empty list? */
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ಆದರೆ (sigemptyset(&ss) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        ಆದರೆ (sig > 0 && sigaddset(&ss, sig) < 0)
+                ಹಿಂತಿರುಗಿ -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
-        r = sigset_add_many_ap(&ss, ap);
+        r = sigset_ಕೂಡಿಸು_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        r = sigtimedwait(&ss, ಖಾಲಿ, &(ಸ್ಥಿರಾಂಕ ರಚನೆ timespec) {});
+        ಆದರೆ (r < 0) {
+                ಆದರೆ (errno == EAGAIN)
+                        ಹಿಂತಿರುಗಿ 0;
 
-                return -errno;
+                ಹಿಂತಿರುಗಿ -errno;
         }
 
-        return r; /* Returns the signal popped */
+        ಹಿಂತಿರುಗಿ r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+ಶೂನ್ಯ propagate_signal(ಪೂರ್ಣಾಂಕ sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,49 +443,49 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        ಆದರೆ (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
-const struct sigaction sigaction_ignore = {
+ಸ್ಥಿರಾಂಕ ರಚನೆ sigaction sigaction_ignore = {
         .sa_handler = SIG_IGN,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_default = {
+ಸ್ಥಿರಾಂಕ ರಚನೆ sigaction sigaction_default = {
         .sa_handler = SIG_DFL,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_nop_nocldstop = {
+ಸ್ಥಿರಾಂಕ ರಚನೆ sigaction sigaction_nop_nocldstop = {
         .sa_handler = nop_signal_handler,
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+ಪೂರ್ಣಾಂಕ parse_signo(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಪೂರ್ಣಾಂಕ *ret) {
+        ಪೂರ್ಣಾಂಕ sig, r;
 
-        r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        r = ಸುರಕ್ಷಿತ_atoi(s, &sig);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        ಆದರೆ (!SIGNAL_VALID(sig))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (ret)
+        ಆದರೆ (ret)
                 *ret = sig;
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
-        assert(signal == SIGTERM);
-        assert(info);
+ಶೂನ್ಯ sigterm_process_ಗುಂಪು_handler(ಪೂರ್ಣಾಂಕ ಸಂಕೇತ, siginfo_t *info, ಶೂನ್ಯ *ucontext) {
+        ಪ್ರತಿಜ್ಞಾ(ಸಂಕೇತ == SIGTERM);
+        ಪ್ರತಿಜ್ಞಾ(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        ಆದರೆ (si_ಸಂಕೇತ_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
-                (void) kill(0, signal);
+                (ಶೂನ್ಯ) kill(0, ಸಂಕೇತ);
 }

@@ -7,28 +7,28 @@
  * Copyright (C) 2000 Red Hat, Inc.
  */
 
-#include "alloc-util.h"
-#include "gunicode.h"
-#include "hexdecoct.h"
-#include "string-util.h"
-#include "unaligned.h"
-#include "utf8.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "gunicode.h"
+#ಅನ್ತರ್ಭಾವ "hexdecoct.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "unaligned.h"
+#ಅನ್ತರ್ಭಾವ "utf8.h"
 
 bool unichar_is_valid(char32_t ch) {
 
-        if (ch >= 0x110000) /* End of unicode space */
-                return false;
-        if ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
-                return false;
-        if ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
-                return false;
-        if ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
-                return false;
+        ಆದರೆ (ch >= 0x110000) /* End of unicode space */
+                ಹಿಂತಿರುಗಿ false;
+        ಆದರೆ ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
+                ಹಿಂತಿರುಗಿ false;
+        ಆದರೆ ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
+                ಹಿಂತಿರುಗಿ false;
+        ಆದರೆ ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
+                ಹಿಂತಿರುಗಿ false;
 
-        return true;
+        ಹಿಂತಿರುಗಿ true;
 }
 
-static bool unichar_is_control(char32_t ch) {
+ಸ್ಥಿರ bool unichar_is_control(char32_t ch) {
 
         /*
           0 to ' '-1 is the C0 range.
@@ -36,71 +36,71 @@ static bool unichar_is_control(char32_t ch) {
           '\t' is in C0 range, but more or less harmless and commonly used.
         */
 
-        return (ch < ' ' && !IN_SET(ch, '\t', '\n')) ||
+        ಹಿಂತಿರುಗಿ (ch < ' ' && !ಒಳ_ಗಣ(ch, '\t', '\n')) ||
                 (0x7F <= ch && ch <= 0x9F);
 }
 
 /* count of characters used to encode one unicode char */
-static size_t utf8_encoded_expected_len(uint8_t c) {
-        if (c < 0x80)
-                return 1;
-        if ((c & 0xe0) == 0xc0)
-                return 2;
-        if ((c & 0xf0) == 0xe0)
-                return 3;
-        if ((c & 0xf8) == 0xf0)
-                return 4;
-        if ((c & 0xfc) == 0xf8)
-                return 5;
-        if ((c & 0xfe) == 0xfc)
-                return 6;
+ಸ್ಥಿರ size_t utf8_encoded_expected_len(uint8_t c) {
+        ಆದರೆ (c < 0x80)
+                ಹಿಂತಿರುಗಿ 1;
+        ಆದರೆ ((c & 0xe0) == 0xc0)
+                ಹಿಂತಿರುಗಿ 2;
+        ಆದರೆ ((c & 0xf0) == 0xe0)
+                ಹಿಂತಿರುಗಿ 3;
+        ಆದರೆ ((c & 0xf8) == 0xf0)
+                ಹಿಂತಿರುಗಿ 4;
+        ಆದರೆ ((c & 0xfc) == 0xf8)
+                ಹಿಂತಿರುಗಿ 5;
+        ಆದರೆ ((c & 0xfe) == 0xfc)
+                ಹಿಂತಿರುಗಿ 6;
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
 /* decode one unicode char */
-int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
+ಪೂರ್ಣಾಂಕ utf8_encoded_ಗಮ್ಯ_unichar(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
 
-        assert(str);
-        assert(ret_unichar);
+        ಪ್ರತಿಜ್ಞಾ(str);
+        ಪ್ರತಿಜ್ಞಾ(ret_unichar);
 
         len = utf8_encoded_expected_len(str[0]);
 
-        switch (len) {
-        case 1:
+        ಆಯ್ಕೆ (len) {
+        ಸ್ಥಿತಿ 1:
                 *ret_unichar = (char32_t)str[0];
-                return 1;
-        case 2:
+                ಹಿಂತಿರುಗಿ 1;
+        ಸ್ಥಿತಿ 2:
                 unichar = str[0] & 0x1f;
-                break;
-        case 3:
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 3:
                 unichar = (char32_t)str[0] & 0x0f;
-                break;
-        case 4:
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 4:
                 unichar = (char32_t)str[0] & 0x07;
-                break;
-        case 5:
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 5:
                 unichar = (char32_t)str[0] & 0x03;
-                break;
-        case 6:
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 6:
                 unichar = (char32_t)str[0] & 0x01;
-                break;
-        default:
-                return -EINVAL;
+                ನಿಲ್ಲಿಸು;
+        ಪೂರ್ವನಿಯೋಜಿತ:
+                ಹಿಂತಿರುಗಿ -EINVAL;
         }
 
-        for (size_t i = 1; i < len; i++) {
-                if (((char32_t)str[i] & 0xc0) != 0x80)
-                        return -EINVAL;
+        ಗಾಗಿ (size_t i = 1; i < len; i++) {
+                ಆದರೆ (((char32_t)str[i] & 0xc0) != 0x80)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 unichar <<= 6;
                 unichar |= (char32_t)str[i] & 0x3f;
         }
 
         *ret_unichar = unichar;
-        return len;
+        ಹಿಂತಿರುಗಿ len;
 }
 
 /* Tests whether all eight bytes of a word are plain printable ASCII, i.e. within 0x20…0x7e. The three
@@ -108,41 +108,41 @@ int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
  * lane, but the converse does not hold: the two subtractions are whole-word ones, so a borrow out of
  * a failing lane also flags bytes above it. Only the aggregate test is meaningful, the mask is not a
  * per-byte map of which bytes failed. */
-static bool is_printable_fastpath_u64(uint64_t w) {
+ಸ್ಥಿರ bool is_printable_fastpath_u64(uint64_t w) {
         uint64_t x = w ^ UINT64_C(0x7f7f7f7f7f7f7f7f);
 
-        return (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
+        ಹಿಂತಿರುಗಿ (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
                  ((w - UINT64_C(0x2020202020202020)) & ~w) |                           /* < 0x20 */
                  ((x - UINT64_C(0x0101010101010101)) & ~x)) &                          /* == 0x7f */
                 UINT64_C(0x8080808080808080)) == 0;
 }
 
-bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newline) {
-        assert(str);
+bool utf8_is_printable_newline(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* str, size_t length, bool allow_newline) {
+        ಪ್ರತಿಜ್ಞಾ(str);
 
-        for (const char *p = str; length > 0;) {
-                int encoded_len;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = str; length > 0;) {
+                ಪೂರ್ಣಾಂಕ encoded_len;
                 char32_t val;
 
                 /* Bulk fast path: almost everything we are asked about is plain printable ASCII, so
                  * test eight bytes of it at once. Anything else falls through to the per-character
                  * path below, which handles it as before. A remainder of less than eight bytes is
                  * copied into a word padded with spaces, so that it can be tested the same way. */
-                while (length > 0) {
+                ಆಗ (length > 0) {
                         uint64_t w;
                         size_t n;
 
-                        if (length < sizeof(uint64_t)) {
+                        ಆದರೆ (length < ಗಾತ್ರ(uint64_t)) {
                                 n = length;
                                 w = UINT64_C(0x2020202020202020);
-                                memcpy(&w, p, n);
-                        } else {
-                                n = sizeof(uint64_t);
+                                ಸ್ಮರಣೆ_ನಕಲು(&w, p, n);
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                                n = ಗಾತ್ರ(uint64_t);
                                 w = unaligned_read_ne64(p);
                         }
 
-                        if (!is_printable_fastpath_u64(w))
-                                break;
+                        ಆದರೆ (!is_printable_fastpath_u64(w))
+                                ನಿಲ್ಲಿಸು;
 
                         length -= n;
                         p += n;
@@ -150,159 +150,159 @@ bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newlin
 
                 /* Note that this is not redundant with the loop condition above: the fast path may
                  * have consumed the remainder of the string, and then there's nothing left to decode. */
-                if (length == 0)
-                        break;
+                ಆದರೆ (length == 0)
+                        ನಿಲ್ಲಿಸು;
 
-                encoded_len = utf8_encoded_valid_unichar_full(p, length, &val);
-                if (encoded_len < 0)
-                        return false;
-                assert(encoded_len > 0 && (size_t) encoded_len <= length);
+                encoded_len = utf8_encoded_valid_unichar_ತುಂಬಿದ(p, length, &val);
+                ಆದರೆ (encoded_len < 0)
+                        ಹಿಂತಿರುಗಿ false;
+                ಪ್ರತಿಜ್ಞಾ(encoded_len > 0 && (size_t) encoded_len <= length);
 
-                if (unichar_is_control(val) || (!allow_newline && val == '\n'))
-                        return false;
+                ಆದರೆ (unichar_is_control(val) || (!allow_newline && val == '\n'))
+                        ಹಿಂತಿರುಗಿ false;
 
                 length -= encoded_len;
                 p += encoded_len;
         }
 
-        return true;
+        ಹಿಂತಿರುಗಿ true;
 }
 
-char* utf8_is_valid_n(const char *str, size_t len_bytes) {
+ಅಕ್ಷರ* utf8_is_valid_n(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, size_t len_ಬೈಟುಗಳು) {
         /* Check if the string is composed of valid utf8 characters. If length len_bytes is given, stop after
          * len_bytes. Otherwise, stop at NUL. */
 
-        assert(str);
+        ಪ್ರತಿಜ್ಞಾ(str);
 
-        for (size_t i = 0; len_bytes != SIZE_MAX ? i < len_bytes : str[i] != '\0'; ) {
-                int len;
+        ಗಾಗಿ (size_t i = 0; len_ಬೈಟುಗಳು != SIZE_MAX ? i < len_ಬೈಟುಗಳು : str[i] != '\0'; ) {
+                ಪೂರ್ಣಾಂಕ len;
 
-                if (_unlikely_(str[i] == '\0'))
-                        return NULL; /* embedded NUL */
+                ಆದರೆ (_unlikely_(str[i] == '\0'))
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ; /* embedded NUL */
 
                 len = utf8_encoded_valid_unichar(str + i,
-                                                 len_bytes != SIZE_MAX ? len_bytes - i : SIZE_MAX);
-                if (_unlikely_(len < 0))
-                        return NULL; /* invalid character */
+                                                 len_ಬೈಟುಗಳು != SIZE_MAX ? len_ಬೈಟುಗಳು - i : SIZE_MAX);
+                ಆದರೆ (_unlikely_(len < 0))
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ; /* invalid character */
 
                 i += len;
         }
 
-        return (char*) str;
+        ಹಿಂತಿರುಗಿ (ಅಕ್ಷರ*) str;
 }
 
-char* utf8_escape_invalid(const char *str) {
-        char *p, *s;
+ಅಕ್ಷರ* utf8_escape_invalid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str) {
+        ಅಕ್ಷರ *p, *s;
 
-        assert(str);
+        ಪ್ರತಿಜ್ಞಾ(str);
 
-        p = s = malloc(strlen(str) * 4 + 1);
-        if (!p)
-                return NULL;
+        p = s = ಸ್ಮರಣೆ_ಕೊಡು(ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(str) * 4 + 1);
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        while (*str) {
-                int len;
+        ಆಗ (*str) {
+                ಪೂರ್ಣಾಂಕ len;
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
+                ಆದರೆ (len > 0) {
                         s = mempcpy(s, str, len);
                         str += len;
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                         s = stpcpy(s, UTF8_REPLACEMENT_CHARACTER);
                         str += 1;
                 }
         }
 
         *s = '\0';
-        return str_realloc(p);
+        ಹಿಂತಿರುಗಿ str_realloc(p);
 }
 
-int utf8_char_console_width(const char *str) {
+ಪೂರ್ಣಾಂಕ utf8_char_console_ಅಗಲ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str) {
         char32_t c;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(str);
+        ಪ್ರತಿಜ್ಞಾ(str);
 
         /* Validate the same way utf8_is_valid() does. utf8_encoded_to_unichar() on its own accepts
          * overlong encodings, surrogates, noncharacters and the obsolete 5 and 6 byte forms, which would
          * make our idea of how wide a string is disagree with our idea of whether it is valid UTF-8 in
          * the first place. */
         r = utf8_encoded_valid_unichar(str, SIZE_MAX);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        assert_se(utf8_encoded_to_unichar(str, &c) == r);
+        assert_se(utf8_encoded_ಗಮ್ಯ_unichar(str, &c) == r);
 
-        return unichar_console_width(c);
+        ಹಿಂತಿರುಗಿ unichar_console_ಅಗಲ(c);
 }
 
-int unichar_console_width(char32_t c) {
-        if (c == '\t')
-                return 8; /* Assume a tab width of 8 */
+ಪೂರ್ಣಾಂಕ unichar_console_ಅಗಲ(char32_t c) {
+        ಆದರೆ (c == '\t')
+                ಹಿಂತಿರುಗಿ 8; /* Assume a tab width of 8 */
 
         /* TODO: we should detect combining characters */
 
-        return unichar_iswide(c) ? 2 : 1;
+        ಹಿಂತಿರುಗಿ unichar_iswide(c) ? 2 : 1;
 }
 
-char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool force_ellipsis) {
-        char *p, *s, *prev_s;
+ಅಕ್ಷರ* utf8_escape_non_printable_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, size_t console_ಅಗಲ, bool force_ellipsis) {
+        ಅಕ್ಷರ *p, *s, *prev_s;
         size_t n = 0; /* estimated print width */
 
-        assert(str);
+        ಪ್ರತಿಜ್ಞಾ(str);
 
-        if (console_width == 0)
-                return strdup("");
+        ಆದರೆ (console_ಅಗಲ == 0)
+                ಹಿಂತಿರುಗಿ strdup("");
 
-        size_t body = strlen(str) * 4;
-        p = s = prev_s = malloc(body + STRLEN("…") + 1);
-        if (!p)
-                return NULL;
+        size_t body = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(str) * 4;
+        p = s = prev_s = ಸ್ಮರಣೆ_ಕೊಡು(body + STRLEN("…") + 1);
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        for (;;) {
-                int len;
-                char *saved_s = s;
+        ಗಾಗಿ (;;) {
+                ಪೂರ್ಣಾಂಕ len;
+                ಅಕ್ಷರ *saved_s = s;
 
-                if (!*str) { /* done! */
-                        if (force_ellipsis)
-                                goto truncation;
-                        else
-                                goto finish;
+                ಆದರೆ (!*str) { /* done! */
+                        ಆದರೆ (force_ellipsis)
+                                ಹೋಗು truncation;
+                        ಇಲ್ಲದಿದ್ದರೆ
+                                ಹೋಗು ಮುಕ್ತಾಯ;
                 }
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
-                        if (utf8_is_printable(str, len)) {
-                                int w;
+                ಆದರೆ (len > 0) {
+                        ಆದರೆ (utf8_is_printable(str, len)) {
+                                ಪೂರ್ಣಾಂಕ w;
 
-                                w = utf8_char_console_width(str);
-                                assert(w >= 0);
-                                if (n + w > console_width)
-                                        goto truncation;
+                                w = utf8_char_console_ಅಗಲ(str);
+                                ಪ್ರತಿಜ್ಞಾ(w >= 0);
+                                ಆದರೆ (n + w > console_ಅಗಲ)
+                                        ಹೋಗು truncation;
 
                                 s = mempcpy(s, str, len);
                                 str += len;
                                 n += w;
 
-                        } else {
-                                for (; len > 0; len--) {
-                                        if (n + 4 > console_width)
-                                                goto truncation;
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                                ಗಾಗಿ (; len > 0; len--) {
+                                        ಆದರೆ (n + 4 > console_ಅಗಲ)
+                                                ಹೋಗು truncation;
 
                                         *(s++) = '\\';
                                         *(s++) = 'x';
-                                        *(s++) = hexchar((int) *str >> 4);
-                                        *(s++) = hexchar((int) *str);
+                                        *(s++) = hexchar((ಪೂರ್ಣಾಂಕ) *str >> 4);
+                                        *(s++) = hexchar((ಪೂರ್ಣಾಂಕ) *str);
 
                                         str += 1;
                                         n += 4;
                                 }
                         }
-                } else {
-                        if (n + 1 > console_width)
-                                goto truncation;
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಆದರೆ (n + 1 > console_ಅಗಲ)
+                                ಹೋಗು truncation;
 
-                        s = mempcpy(s, UTF8_REPLACEMENT_CHARACTER, strlen(UTF8_REPLACEMENT_CHARACTER));
+                        s = mempcpy(s, UTF8_REPLACEMENT_CHARACTER, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(UTF8_REPLACEMENT_CHARACTER));
                         str += 1;
                         n += 1;
                 }
@@ -312,52 +312,52 @@ char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool
 
  truncation:
         /* Try to go back one if we don't have enough space for the ellipsis */
-        if (n + 1 > console_width)
+        ಆದರೆ (n + 1 > console_ಅಗಲ)
                 s = prev_s;
 
-        s = mempcpy(s, "…", strlen("…"));
+        s = mempcpy(s, "…", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("…"));
 
- finish:
+ ಮುಕ್ತಾಯ:
         *s = '\0';
-        return str_realloc(p);
+        ಹಿಂತಿರುಗಿ str_realloc(p);
 }
 
-char* ascii_is_valid_n(const char *str, size_t len) {
+ಅಕ್ಷರ* ascii_is_valid_n(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, size_t len) {
         /* Check whether the string consists of valid ASCII bytes, i.e values between 1 and 127, inclusive.
          * Stops at len, or NUL byte if len is SIZE_MAX. */
 
-        assert(str);
+        ಪ್ರತಿಜ್ಞಾ(str);
 
-        for (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
-                if ((unsigned char) str[i] >= 128 || str[i] == '\0')
-                        return NULL;
+        ಗಾಗಿ (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
+                ಆದರೆ ((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) str[i] >= 128 || str[i] == '\0')
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return (char*) str;
+        ಹಿಂತಿರುಗಿ (ಅಕ್ಷರ*) str;
 }
 
-int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
+ಪೂರ್ಣಾಂಕ utf8_ಗಮ್ಯ_ascii(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ಅಕ್ಷರ replacement_char, ಅಕ್ಷರ **ret) {
         /* Convert to a string that has only ASCII chars, replacing anything that is not ASCII
          * by replacement_char. */
 
-        assert(str);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(str);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        _cleanup_free_ char *ans = new(char, strlen(str) + 1);
-        if (!ans)
-                return -ENOMEM;
+        _cleanup_free_ ಅಕ್ಷರ *ans = new(ಅಕ್ಷರ, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(str) + 1);
+        ಆದರೆ (!ans)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        char *q = ans;
+        ಅಕ್ಷರ *q = ans;
 
-        for (const char *p = str; *p; q++) {
-                int l;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = str; *p; q++) {
+                ಪೂರ್ಣಾಂಕ l;
 
                 l = utf8_encoded_valid_unichar(p, SIZE_MAX);
-                if (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
-                        return l;
+                ಆದರೆ (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
+                        ಹಿಂತಿರುಗಿ l;
 
-                if (l == 1)
+                ಆದರೆ (l == 1)
                         *q = *p;
-                else
+                ಇಲ್ಲದಿದ್ದರೆ
                         /* non-ASCII, we need to replace it */
                         *q = replacement_char;
 
@@ -366,7 +366,7 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
         *q = '\0';
 
         *ret = TAKE_PTR(ans);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
 /**
@@ -381,69 +381,69 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
  * Returns: The length in bytes that the UTF-8 representation does or would
  *          occupy.
  */
-size_t utf8_encode_unichar(char *out_utf8, char32_t g) {
+size_t utf8_encode_unichar(ಅಕ್ಷರ *ಹೊರಹೋಗು_utf8, char32_t g) {
 
-        if (g < (1 << 7)) {
-                if (out_utf8)
-                        out_utf8[0] = g & 0x7f;
-                return 1;
-        } else if (g < (1 << 11)) {
-                if (out_utf8) {
-                        out_utf8[0] = 0xc0 | ((g >> 6) & 0x1f);
-                        out_utf8[1] = 0x80 | (g & 0x3f);
+        ಆದರೆ (g < (1 << 7)) {
+                ಆದರೆ (ಹೊರಹೋಗು_utf8)
+                        ಹೊರಹೋಗು_utf8[0] = g & 0x7f;
+                ಹಿಂತಿರುಗಿ 1;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (g < (1 << 11)) {
+                ಆದರೆ (ಹೊರಹೋಗು_utf8) {
+                        ಹೊರಹೋಗು_utf8[0] = 0xc0 | ((g >> 6) & 0x1f);
+                        ಹೊರಹೋಗು_utf8[1] = 0x80 | (g & 0x3f);
                 }
-                return 2;
-        } else if (g < (1 << 16)) {
-                if (out_utf8) {
-                        out_utf8[0] = 0xe0 | ((g >> 12) & 0x0f);
-                        out_utf8[1] = 0x80 | ((g >> 6) & 0x3f);
-                        out_utf8[2] = 0x80 | (g & 0x3f);
+                ಹಿಂತಿರುಗಿ 2;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (g < (1 << 16)) {
+                ಆದರೆ (ಹೊರಹೋಗು_utf8) {
+                        ಹೊರಹೋಗು_utf8[0] = 0xe0 | ((g >> 12) & 0x0f);
+                        ಹೊರಹೋಗು_utf8[1] = 0x80 | ((g >> 6) & 0x3f);
+                        ಹೊರಹೋಗು_utf8[2] = 0x80 | (g & 0x3f);
                 }
-                return 3;
-        } else if (g < (1 << 21)) {
-                if (out_utf8) {
-                        out_utf8[0] = 0xf0 | ((g >> 18) & 0x07);
-                        out_utf8[1] = 0x80 | ((g >> 12) & 0x3f);
-                        out_utf8[2] = 0x80 | ((g >> 6) & 0x3f);
-                        out_utf8[3] = 0x80 | (g & 0x3f);
+                ಹಿಂತಿರುಗಿ 3;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (g < (1 << 21)) {
+                ಆದರೆ (ಹೊರಹೋಗು_utf8) {
+                        ಹೊರಹೋಗು_utf8[0] = 0xf0 | ((g >> 18) & 0x07);
+                        ಹೊರಹೋಗು_utf8[1] = 0x80 | ((g >> 12) & 0x3f);
+                        ಹೊರಹೋಗು_utf8[2] = 0x80 | ((g >> 6) & 0x3f);
+                        ಹೊರಹೋಗು_utf8[3] = 0x80 | (g & 0x3f);
                 }
-                return 4;
+                ಹಿಂತಿರುಗಿ 4;
         }
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
-        const uint8_t *f;
-        char *r, *t;
+ಅಕ್ಷರ* utf16_ಗಮ್ಯ_utf8(ಸ್ಥಿರಾಂಕ char16_t *s, size_t length /* bytes! */) {
+        ಸ್ಥಿರಾಂಕ uint8_t *f;
+        ಅಕ್ಷರ *r, *t;
 
-        if (length == 0)
-                return new0(char, 1);
+        ಆದರೆ (length == 0)
+                ಹಿಂತಿರುಗಿ new0(ಅಕ್ಷರ, 1);
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        if (length == SIZE_MAX) {
+        ಆದರೆ (length == SIZE_MAX) {
                 length = char16_strlen(s);
 
-                if (length > SIZE_MAX/2)
-                        return NULL; /* overflow */
+                ಆದರೆ (length > SIZE_MAX/2)
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ; /*ಅತಿಪ್ರವಾಹ*/
 
                 length *= 2;
         }
 
         /* Input length is in bytes, i.e. the shortest possible character takes 2 bytes. Each unicode character may
          * take up to 4 bytes in UTF-8. Let's also account for a trailing NUL byte. */
-        if (length > (SIZE_MAX - 1) / 2)
-                return NULL; /* overflow */
+        ಆದರೆ (length > (SIZE_MAX - 1) / 2)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ; /*ಅತಿಪ್ರವಾಹ*/
 
-        r = new(char, length * 2 + 1);
-        if (!r)
-                return NULL;
+        r = new(ಅಕ್ಷರ, length * 2 + 1);
+        ಆದರೆ (!r)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        f = (const uint8_t*) s;
+        f = (ಸ್ಥಿರಾಂಕ uint8_t*) s;
         t = r;
 
-        while (f + 1 < (const uint8_t*) s + length) {
+        ಆಗ (f + 1 < (ಸ್ಥಿರಾಂಕ uint8_t*) s + length) {
                 char16_t w1, w2;
 
                 /* see RFC 2781 section 2.2 */
@@ -451,254 +451,254 @@ char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
                 w1 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_surrogate(w1)) {
+                ಆದರೆ (!utf16_is_surrogate(w1)) {
                         t += utf8_encode_unichar(t, w1);
-                        continue;
+                        ಮುಂದುವರಿ;
                 }
 
-                if (utf16_is_trailing_surrogate(w1))
-                        continue; /* spurious trailing surrogate, ignore */
+                ಆದರೆ (utf16_is_trailing_surrogate(w1))
+                        ಮುಂದುವರಿ; /* spurious trailing surrogate, ignore */
 
-                if (f + 1 >= (const uint8_t*) s + length)
-                        break;
+                ಆದರೆ (f + 1 >= (ಸ್ಥಿರಾಂಕ uint8_t*) s + length)
+                        ನಿಲ್ಲಿಸು;
 
                 w2 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_trailing_surrogate(w2)) {
+                ಆದರೆ (!utf16_is_trailing_surrogate(w2)) {
                         f -= 2;
-                        continue; /* surrogate missing its trailing surrogate, ignore */
+                        ಮುಂದುವರಿ; /* surrogate missing its trailing surrogate, ignore */
                 }
 
-                t += utf8_encode_unichar(t, utf16_surrogate_pair_to_unichar(w1, w2));
+                t += utf8_encode_unichar(t, utf16_surrogate_pair_ಗಮ್ಯ_unichar(w1, w2));
         }
 
         *t = 0;
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-size_t utf16_encode_unichar(char16_t *out, char32_t c) {
-        assert(out);
+size_t utf16_encode_unichar(char16_t *ಹೊರಹೋಗು, char32_t c) {
+        ಪ್ರತಿಜ್ಞಾ(ಹೊರಹೋಗು);
 
         /* Note that this encodes as little-endian. */
 
-        switch (c) {
+        ಆಯ್ಕೆ (c) {
 
-        case 0 ... 0xd7ffU:
-        case 0xe000U ... 0xffffU:
-                out[0] = htole16(c);
-                return 1;
+        ಸ್ಥಿತಿ 0 ... 0xd7ffU:
+        ಸ್ಥಿತಿ 0xe000U ... 0xffffU:
+                ಹೊರಹೋಗು[0] = htole16(c);
+                ಹಿಂತಿರುಗಿ 1;
 
-        case 0x10000U ... 0x10ffffU:
+        ಸ್ಥಿತಿ 0x10000U ... 0x10ffffU:
                 c -= 0x10000U;
-                out[0] = htole16((c >> 10) + 0xd800U);
-                out[1] = htole16((c & 0x3ffU) + 0xdc00U);
-                return 2;
+                ಹೊರಹೋಗು[0] = htole16((c >> 10) + 0xd800U);
+                ಹೊರಹೋಗು[1] = htole16((c & 0x3ffU) + 0xdc00U);
+                ಹಿಂತಿರುಗಿ 2;
 
-        default: /* A surrogate (invalid) */
-                return 0;
+        ಪೂರ್ವನಿಯೋಜಿತ: /* A surrogate (invalid) */
+                ಹಿಂತಿರುಗಿ 0;
         }
 }
 
-char16_t *utf8_to_utf16(const char *s, size_t length) {
+char16_t *utf8_ಗಮ್ಯ_utf16(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t length) {
         char16_t *n, *p;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (length == 0)
-                return new0(char16_t, 1);
+        ಆದರೆ (length == 0)
+                ಹಿಂತಿರುಗಿ new0(char16_t, 1);
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        if (length == SIZE_MAX)
-                length = strlen(s);
+        ಆದರೆ (length == SIZE_MAX)
+                length = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
-        if (length > SIZE_MAX - 1)
-                return NULL; /* overflow */
+        ಆದರೆ (length > SIZE_MAX - 1)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ; /*ಅತಿಪ್ರವಾಹ*/
 
         n = new(char16_t, length + 1);
-        if (!n)
-                return NULL;
+        ಆದರೆ (!n)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
         p = n;
 
-        for (size_t i = 0; i < length;) {
+        ಗಾಗಿ (size_t i = 0; i < length;) {
                 char32_t unichar;
                 size_t e;
 
                 e = utf8_encoded_expected_len(s[i]);
-                if (e <= 1) /* Invalid and single byte characters are copied as they are */
-                        goto copy;
+                ಆದರೆ (e <= 1) /* Invalid and single byte characters are copied as they are */
+                        ಹೋಗು copy;
 
-                if (i + e > length) /* sequence longer than input buffer, then copy as-is */
-                        goto copy;
+                ಆದರೆ (i + e > length) /* sequence longer than input buffer, then copy as-is */
+                        ಹೋಗು copy;
 
-                r = utf8_encoded_to_unichar(s + i, &unichar);
-                if (r < 0) /* sequence invalid, then copy as-is */
-                        goto copy;
+                r = utf8_encoded_ಗಮ್ಯ_unichar(s + i, &unichar);
+                ಆದರೆ (r < 0) /* sequence invalid, then copy as-is */
+                        ಹೋಗು copy;
 
                 p += utf16_encode_unichar(p, unichar);
                 i += e;
-                continue;
+                ಮುಂದುವರಿ;
 
         copy:
                 *(p++) = htole16(s[i++]);
         }
 
         *p = 0;
-        return n;
+        ಹಿಂತಿರುಗಿ n;
 }
 
-size_t char16_strlen(const char16_t *s) {
+size_t char16_strlen(ಸ್ಥಿರಾಂಕ char16_t *s) {
         size_t n = 0;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        while (*s != 0)
+        ಆಗ (*s != 0)
                 n++, s++;
 
-        return n;
+        ಹಿಂತಿರುಗಿ n;
 }
 
-size_t char16_strsize(const char16_t *s) {
-        POINTER_MAY_BE_NULL(s);
+size_t char16_strsize(ಸ್ಥಿರಾಂಕ char16_t *s) {
+        ಸೂಚಕ_MAY_BE_NULL(s);
 
-        return s ? (char16_strlen(s) + 1) * sizeof(*s) : 0;
+        ಹಿಂತಿರುಗಿ s ? (char16_strlen(s) + 1) * ಗಾತ್ರ(*s) : 0;
 }
 
 /* expected size used to encode one unicode char */
-static int utf8_unichar_to_encoded_len(char32_t unichar) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ utf8_unichar_ಗಮ್ಯ_encoded_len(char32_t unichar) {
 
-        if (unichar < 0x80)
-                return 1;
-        if (unichar < 0x800)
-                return 2;
-        if (unichar < 0x10000)
-                return 3;
-        if (unichar < 0x200000)
-                return 4;
-        if (unichar < 0x4000000)
-                return 5;
+        ಆದರೆ (unichar < 0x80)
+                ಹಿಂತಿರುಗಿ 1;
+        ಆದರೆ (unichar < 0x800)
+                ಹಿಂತಿರುಗಿ 2;
+        ಆದರೆ (unichar < 0x10000)
+                ಹಿಂತಿರುಗಿ 3;
+        ಆದರೆ (unichar < 0x200000)
+                ಹಿಂತಿರುಗಿ 4;
+        ಆದರೆ (unichar < 0x4000000)
+                ಹಿಂತಿರುಗಿ 5;
 
-        return 6;
+        ಹಿಂತಿರುಗಿ 6;
 }
 
 /* validate one encoded unicode char and return its length */
-int utf8_encoded_valid_unichar_full(const char *str, size_t length /* bytes */, char32_t *ret_unichar) {
+ಪೂರ್ಣಾಂಕ utf8_encoded_valid_unichar_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, size_t length /*ಬೈಟುಗಳು*/, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(str);
-        assert(length > 0);
+        ಪ್ರತಿಜ್ಞಾ(str);
+        ಪ್ರತಿಜ್ಞಾ(length > 0);
 
         /* We read until NUL, at most length bytes. SIZE_MAX may be used to disable the length check.
          * If ret_unichar is non-NULL the decoded character is returned in it, so that callers
          * interested in both validity and value needn't decode the character a second time. */
 
         len = utf8_encoded_expected_len(str[0]);
-        if (len == 0)
-                return -EINVAL;
+        ಆದರೆ (len == 0)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* Do we have a truncated multi-byte character? */
-        if (len > length)
-                return -EINVAL;
+        ಆದರೆ (len > length)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* ascii is valid */
-        if (len == 1) {
-                if (ret_unichar)
+        ಆದರೆ (len == 1) {
+                ಆದರೆ (ret_unichar)
                         *ret_unichar = (char32_t) (uint8_t) str[0];
-                return 1;
+                ಹಿಂತಿರುಗಿ 1;
         }
 
         /* check if expected encoded chars are available */
-        for (size_t i = 0; i < len; i++)
-                if ((str[i] & 0x80) != 0x80)
-                        return -EINVAL;
+        ಗಾಗಿ (size_t i = 0; i < len; i++)
+                ಆದರೆ ((str[i] & 0x80) != 0x80)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
-        r = utf8_encoded_to_unichar(str, &unichar);
-        if (r < 0)
-                return r;
+        r = utf8_encoded_ಗಮ್ಯ_unichar(str, &unichar);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         /* check if encoded length matches encoded value */
-        if (utf8_unichar_to_encoded_len(unichar) != (int) len)
-                return -EINVAL;
+        ಆದರೆ (utf8_unichar_ಗಮ್ಯ_encoded_len(unichar) != (ಪೂರ್ಣಾಂಕ) len)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* check if value has valid range */
-        if (!unichar_is_valid(unichar))
-                return -EINVAL;
+        ಆದರೆ (!unichar_is_valid(unichar))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (ret_unichar)
+        ಆದರೆ (ret_unichar)
                 *ret_unichar = unichar;
 
-        return (int) len;
+        ಹಿಂತಿರುಗಿ (ಪೂರ್ಣಾಂಕ) len;
 }
 
-size_t utf8_n_codepoints(const char *str) {
+size_t utf8_n_codepoints(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str) {
         size_t n = 0;
 
-        assert(str);
+        ಪ್ರತಿಜ್ಞಾ(str);
 
         /* Returns the number of UTF-8 codepoints in this string, or SIZE_MAX if the string is not valid UTF-8. */
 
-        while (*str != 0) {
-                int k;
+        ಆಗ (*str != 0) {
+                ಪೂರ್ಣಾಂಕ k;
 
                 k = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (k < 0)
-                        return SIZE_MAX;
+                ಆದರೆ (k < 0)
+                        ಹಿಂತಿರುಗಿ SIZE_MAX;
 
                 str += k;
                 n++;
         }
 
-        return n;
+        ಹಿಂತಿರುಗಿ n;
 }
 
-size_t utf8_console_width(const char *str) {
-        POINTER_MAY_BE_NULL(str);
+size_t utf8_console_ಅಗಲ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str) {
+        ಸೂಚಕ_MAY_BE_NULL(str);
 
-        if (isempty(str))
-                return 0;
+        ಆದರೆ (isempty(str))
+                ಹಿಂತಿರುಗಿ 0;
 
         /* Returns the approximate width a string will take on screen when printed on a character cell
          * terminal/console. */
 
         size_t n = 0;
-        while (*str) {
-                int w;
+        ಆಗ (*str) {
+                ಪೂರ್ಣಾಂಕ w;
 
-                w = utf8_char_console_width(str);
-                if (w < 0)
-                        return SIZE_MAX;
+                w = utf8_char_console_ಅಗಲ(str);
+                ಆದರೆ (w < 0)
+                        ಹಿಂತಿರುಗಿ SIZE_MAX;
 
                 n += w;
-                str = utf8_next_char(str);
+                str = utf8_ಮುಂದಿನ_char(str);
         }
 
-        return n;
+        ಹಿಂತಿರುಗಿ n;
 }
 
-size_t utf8_last_length(const char *s, size_t n) {
-        int r;
+size_t utf8_ಕೊನೆಯ_ಉದ್ದಳತೆ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t n) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        if (n == SIZE_MAX)
-                n = strlen(s);
+        ಆದರೆ (n == SIZE_MAX)
+                n = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
         /* Determines length in bytes of last UTF-8 codepoint in string. If the string is empty, returns
          * zero. Treats invalid UTF-8 codepoints as 1 sized ones. */
 
-        for (size_t last = 0;;) {
-                if (n == 0)
-                        return last;
+        ಗಾಗಿ (size_t ಕೊನೆಯ_2 = 0;;) {
+                ಆದರೆ (n == 0)
+                        ಹಿಂತಿರುಗಿ ಕೊನೆಯ_2;
 
                 r = utf8_encoded_valid_unichar(s, n);
-                if (r <= 0)
+                ಆದರೆ (r <= 0)
                         r = 1; /* treat invalid UTF-8 as byte-wide */
 
                 s += r;
                 n -= r;
-                last = r;
+                ಕೊನೆಯ_2 = r;
         }
 }

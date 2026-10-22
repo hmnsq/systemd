@@ -1,106 +1,106 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <net/ethernet.h>
+#ಅನ್ತರ್ಭಾವ <linux/if_infiniband.h>
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಅನ್ತರ್ಭಾವ <net/ethernet.h>
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-struct hw_addr_data {
+ರಚನೆ hw_addr_ದತ್ತಾಂಶ {
         size_t length;
-        union {
-                struct ether_addr ether;
+        ಒಕ್ಕೂಟ {
+                ರಚನೆ ether_addr ether;
                 uint8_t infiniband[INFINIBAND_ALEN];
-                struct in_addr in;
-                struct in6_addr in6;
-                uint8_t bytes[HW_ADDR_MAX_SIZE];
+                ರಚನೆ in_addr ಒಳ;
+                ರಚನೆ in6_addr in6;
+                uint8_t ಬೈಟುಗಳು[HW_ADDR_MAX_ಗಾತ್ರ];
         };
 };
 
-int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *ret);
-static inline int parse_hw_addr(const char *s, struct hw_addr_data *ret) {
-        return parse_hw_addr_full(s, 0, ret);
+ಪೂರ್ಣಾಂಕ parse_hw_addr_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t expected_len, ರಚನೆ hw_addr_ದತ್ತಾಂಶ *ret);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ parse_hw_addr(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ರಚನೆ hw_addr_ದತ್ತಾಂಶ *ret) {
+        ಹಿಂತಿರುಗಿ parse_hw_addr_ತುಂಬಿದ(s, 0, ret);
 }
-int parse_ether_addr(const char *s, struct ether_addr *ret);
+ಪೂರ್ಣಾಂಕ parse_ether_addr(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ರಚನೆ ether_addr *ret);
 
-typedef enum HardwareAddressToStringFlags {
-        HW_ADDR_TO_STRING_NO_COLON = 1 << 0,
-} HardwareAddressToStringFlags;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ Hardware_ವಿಳಾಸ_ಗಮ್ಯ_String_Flags {
+        HW_ADDR_ಗಮ್ಯ_STRING_NO_COLON = 1 << 0,
+} Hardware_ವಿಳಾಸ_ಗಮ್ಯ_String_Flags;
 
-#define HW_ADDR_TO_STRING_MAX (3*HW_ADDR_MAX_SIZE)
-char* hw_addr_to_string_full(
-                const struct hw_addr_data *addr,
-                HardwareAddressToStringFlags flags,
-                char buffer[static HW_ADDR_TO_STRING_MAX]);
-static inline char* hw_addr_to_string(const struct hw_addr_data *addr, char buffer[static HW_ADDR_TO_STRING_MAX]) {
-        return hw_addr_to_string_full(addr, 0, buffer);
+#ವ್ಯಾಖ್ಯಾನಿಸು HW_ADDR_ಗಮ್ಯ_STRING_MAX (3*HW_ADDR_MAX_ಗಾತ್ರ)
+ಅಕ್ಷರ* hw_addr_ಗಮ್ಯ_string_ತುಂಬಿದ(
+                ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *addr,
+                Hardware_ವಿಳಾಸ_ಗಮ್ಯ_String_Flags flags,
+                ಅಕ್ಷರ ಬಫರ್[ಸ್ಥಿರ HW_ADDR_ಗಮ್ಯ_STRING_MAX]);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಅಕ್ಷರ* hw_addr_ಗಮ್ಯ_string(ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *addr, ಅಕ್ಷರ ಬಫರ್[ಸ್ಥಿರ HW_ADDR_ಗಮ್ಯ_STRING_MAX]) {
+        ಹಿಂತಿರುಗಿ hw_addr_ಗಮ್ಯ_string_ತುಂಬಿದ(addr, 0, ಬಫರ್);
 }
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
  * see C11 §6.5.2.5, and
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks */
-#define HW_ADDR_TO_STR_FULL(hw_addr, flags) hw_addr_to_string_full((hw_addr), flags, (char[HW_ADDR_TO_STRING_MAX]){})
-#define HW_ADDR_TO_STR(hw_addr) HW_ADDR_TO_STR_FULL(hw_addr, 0)
+#ವ್ಯಾಖ್ಯಾನಿಸು HW_ADDR_ಗಮ್ಯ_STR_ತುಂಬಿದ(hw_addr, flags) hw_addr_ಗಮ್ಯ_string_ತುಂಬಿದ((hw_addr), flags, (ಅಕ್ಷರ[HW_ADDR_ಗಮ್ಯ_STRING_MAX]){})
+#ವ್ಯಾಖ್ಯಾನಿಸು HW_ADDR_ಗಮ್ಯ_STR(hw_addr) HW_ADDR_ಗಮ್ಯ_STR_ತುಂಬಿದ(hw_addr, 0)
 
-#define HW_ADDR_NULL ((const struct hw_addr_data){})
+#ವ್ಯಾಖ್ಯಾನಿಸು HW_ADDR_NULL ((ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ){})
 
-struct hw_addr_data *hw_addr_set(struct hw_addr_data *addr, const uint8_t *bytes, size_t length);
+ರಚನೆ hw_addr_ದತ್ತಾಂಶ *hw_addr_ಗಣ(ರಚನೆ hw_addr_ದತ್ತಾಂಶ *addr, ಸ್ಥಿರಾಂಕ uint8_t *ಬೈಟುಗಳು, size_t length);
 
-void hw_addr_hash_func(const struct hw_addr_data *p, struct siphash *state);
-int hw_addr_compare(const struct hw_addr_data *a, const struct hw_addr_data *b);
-static inline bool hw_addr_equal(const struct hw_addr_data *a, const struct hw_addr_data *b) {
-        return hw_addr_compare(a, b) == 0;
+ಶೂನ್ಯ hw_addr_hash_func(ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *p, ರಚನೆ siphash *state);
+ಪೂರ್ಣಾಂಕ hw_addr_compare(ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *a, ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *b);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool hw_addr_equal(ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *a, ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *b) {
+        ಹಿಂತಿರುಗಿ hw_addr_compare(a, b) == 0;
 }
-bool hw_addr_is_null(const struct hw_addr_data *addr) _pure_;
-bool hw_addr_is_valid(const struct hw_addr_data *addr, uint16_t iftype);
+bool hw_addr_is_null(ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *addr) ಶುದ್ಧ;
+bool hw_addr_is_valid(ಸ್ಥಿರಾಂಕ ರಚನೆ hw_addr_ದತ್ತಾಂಶ *addr, uint16_t iftype);
 
-extern const struct hash_ops hw_addr_hash_ops;
-extern const struct hash_ops hw_addr_hash_ops_free;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops hw_addr_hash_ops;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops hw_addr_hash_ops_free;
 
-#define ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
-#define ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
+#ವ್ಯಾಖ್ಯಾನಿಸು ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
+#ವ್ಯಾಖ್ಯಾನಿಸು ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
 
-#define ETHER_ADDR_TO_STRING_MAX (3*6)
-char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR_TO_STRING_MAX]);
+#ವ್ಯಾಖ್ಯಾನಿಸು ETHER_ADDR_ಗಮ್ಯ_STRING_MAX (3*6)
+ಅಕ್ಷರ* ether_addr_ಗಮ್ಯ_string(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *addr, ಅಕ್ಷರ ಬಫರ್[ETHER_ADDR_ಗಮ್ಯ_STRING_MAX]);
 /* Use only as function argument, never stand-alone! */
-#define ETHER_ADDR_TO_STR(addr) ether_addr_to_string((addr), (char[ETHER_ADDR_TO_STRING_MAX]){})
+#ವ್ಯಾಖ್ಯಾನಿಸು ETHER_ADDR_ಗಮ್ಯ_STR(addr) ether_addr_ಗಮ್ಯ_string((addr), (ಅಕ್ಷರ[ETHER_ADDR_ಗಮ್ಯ_STRING_MAX]){})
 
-int ether_addr_compare(const struct ether_addr *a, const struct ether_addr *b);
-static inline bool ether_addr_equal(const struct ether_addr *a, const struct ether_addr *b) {
-        return ether_addr_compare(a, b) == 0;
+ಪೂರ್ಣಾಂಕ ether_addr_compare(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *a, ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *b);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ether_addr_equal(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *a, ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *b) {
+        ಹಿಂತಿರುಗಿ ether_addr_compare(a, b) == 0;
 }
 
-#define ETHER_ADDR_NULL ((const struct ether_addr){})
+#ವ್ಯಾಖ್ಯಾನಿಸು ETHER_ADDR_NULL ((ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr){})
 
-static inline bool ether_addr_is_null(const struct ether_addr *addr) {
-        return ether_addr_equal(addr, &ETHER_ADDR_NULL);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ether_addr_is_null(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *addr) {
+        ಹಿಂತಿರುಗಿ ether_addr_equal(addr, &ETHER_ADDR_NULL);
 }
 
-bool ether_addr_is_broadcast(const struct ether_addr *addr) _pure_;
+bool ether_addr_is_ಪ್ರಸಾರ(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *addr) ಶುದ್ಧ;
 
-static inline bool ether_addr_is_multicast(const struct ether_addr *addr) {
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x01);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ether_addr_is_multicast(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *addr) {
+        ಪ್ರತಿಜ್ಞಾ(addr);
+        ಹಿಂತಿರುಗಿ FLAGS_ಗಣ(addr->ether_addr_octet[0], 0x01);
 }
 
-static inline bool ether_addr_is_unicast(const struct ether_addr *addr) {
-        return !ether_addr_is_multicast(addr);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ether_addr_is_unicast(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *addr) {
+        ಹಿಂತಿರುಗಿ !ether_addr_is_multicast(addr);
 }
 
-static inline bool ether_addr_is_local(const struct ether_addr *addr) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ether_addr_is_local(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *addr) {
         /* Determine if the Ethernet address is locally-assigned one (IEEE 802) */
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x02);
+        ಪ್ರತಿಜ್ಞಾ(addr);
+        ಹಿಂತಿರುಗಿ FLAGS_ಗಣ(addr->ether_addr_octet[0], 0x02);
 }
 
-static inline bool ether_addr_is_global(const struct ether_addr *addr) {
-        return !ether_addr_is_local(addr);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool ether_addr_is_global(ಸ್ಥಿರಾಂಕ ರಚನೆ ether_addr *addr) {
+        ಹಿಂತಿರುಗಿ !ether_addr_is_local(addr);
 }
 
-extern const struct hash_ops ether_addr_hash_ops;
-extern const struct hash_ops ether_addr_hash_ops_free;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops ether_addr_hash_ops;
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops ether_addr_hash_ops_free;
 
-void ether_addr_mark_random(struct ether_addr *addr);
+ಶೂನ್ಯ ether_addr_mark_random(ರಚನೆ ether_addr *addr);
 
-int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type);
+ಪೂರ್ಣಾಂಕ hw_addr_ensure_ಪ್ರಸಾರ(ರಚನೆ hw_addr_ದತ್ತಾಂಶ *bcast_addr, uint16_t arp_type);

@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 /* Returns random bytes suitable for most uses, but may be insecure sometimes. */
-void random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+ಶೂನ್ಯ random_ಬೈಟುಗಳು(ಶೂನ್ಯ *p, size_t n) _nonnull_if_nonzero_(1, 2);
+ಪೂರ್ಣಾಂಕ random_ಬೈಟುಗಳು_allocate_iovec(size_t n, ರಚನೆ iovec *ret);
 
 /* Returns secure random bytes after waiting for the RNG to initialize. */
-int crypto_random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+ಪೂರ್ಣಾಂಕ crypto_random_ಬೈಟುಗಳು(ಶೂನ್ಯ *p, size_t n) _nonnull_if_nonzero_(1, 2);
+ಪೂರ್ಣಾಂಕ crypto_random_ಬೈಟುಗಳು_allocate_iovec(size_t n, ರಚನೆ iovec *ret);
 
-static inline uint64_t random_u64(void) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ uint64_t random_u64(ಶೂನ್ಯ) {
         uint64_t u;
-        random_bytes(&u, sizeof(u));
-        return u;
+        random_ಬೈಟುಗಳು(&u, ಗಾತ್ರ(u));
+        ಹಿಂತಿರುಗಿ u;
 }
 
-static inline uint32_t random_u32(void) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ uint32_t random_u32(ಶೂನ್ಯ) {
         uint32_t u;
-        random_bytes(&u, sizeof(u));
-        return u;
+        random_ಬೈಟುಗಳು(&u, ಗಾತ್ರ(u));
+        ಹಿಂತಿರುಗಿ u;
 }
 
 /* Some limits on the pool sizes when we deal with the kernel random pool */
-#define RANDOM_POOL_SIZE_MIN 32U
-#define RANDOM_POOL_SIZE_MAX (10U*1024U*1024U)
-#define RANDOM_EFI_SEED_SIZE 32U
+#ವ್ಯಾಖ್ಯಾನಿಸು RANDOM_POOL_ಗಾತ್ರ_MIN 32U
+#ವ್ಯಾಖ್ಯಾನಿಸು RANDOM_POOL_ಗಾತ್ರ_MAX (10U*1024U*1024U)
+#ವ್ಯಾಖ್ಯಾನಿಸು RANDOM_EFI_ಬೀಜ_ಗಾತ್ರ 32U
 
-size_t random_pool_size(void);
+size_t random_pool_ಗಾತ್ರ(ಶೂನ್ಯ);
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) _nonnull_if_nonzero_(2, 3);
+ಪೂರ್ಣಾಂಕ random_write_entropy(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ಬೀಜ, size_t ಗಾತ್ರ_2, bool credit) _nonnull_if_nonzero_(2, 3);
 
 uint64_t random_u64_range(uint64_t max);

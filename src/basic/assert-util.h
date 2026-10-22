@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(ಶೂನ್ಯ) _weak_ ಶುದ್ಧ;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+ಶೂನ್ಯ log_assert_failed_return(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪಠ್ಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file, ಪೂರ್ಣಾಂಕ ಸಾಲು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#ವ್ಯಾಖ್ಯಾನಿಸು assert_log(ಅಭಿವ್ಯಕ್ತಿ)                                                \
+        (_likely_(ಅಭಿವ್ಯಕ್ತಿ) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#ವ್ಯಾಖ್ಯಾನಿಸು assert_return(ಅಭಿವ್ಯಕ್ತಿ, r)                                          \
+        ಮಾಡು {                                                            \
+                ಆದರೆ (!assert_log(ಅಭಿವ್ಯಕ್ತಿ))                                  \
+                        ಹಿಂತಿರುಗಿ (r);                                     \
+        } ಆಗ (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#ವ್ಯಾಖ್ಯಾನಿಸು assert_return_errno(ಅಭಿವ್ಯಕ್ತಿ, r, err)                               \
+        ಮಾಡು {                                                            \
+                ಆದರೆ (!assert_log(ಅಭಿವ್ಯಕ್ತಿ)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        ಹಿಂತಿರುಗಿ (r);                                     \
                 }                                                       \
-        } while (false)
+        } ಆಗ (false)

@@ -1,116 +1,116 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 /* Limits the use of ANSI colors to a subset. */
-typedef enum ColorMode {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ Color_ಬಹುಲಕ {
         COLOR_OFF,        /* No colors, monochrome output. */
         COLOR_16,         /* Only the base 16 colors. */
         COLOR_256,        /* Only 256 colors. */
-        COLOR_24BIT,      /* For truecolor or 24bit color support, no restriction. */
-        _COLOR_MODE_FIXED_MAX,
+        COLOR_24_ಬಿಟ್,      /* For truecolor or 24bit color support, no restriction. */
+        COLOR_ಬಹುಲಕ_FIXED_MAX,
 
         /* The "AUTO" modes are as the above, but subject to suitable settings for the environment variables
          * TERM and NO_COLOR. */
-        COLOR_AUTO_16 = _COLOR_MODE_FIXED_MAX,
+        COLOR_AUTO_16 = COLOR_ಬಹುಲಕ_FIXED_MAX,
         COLOR_AUTO_256,
-        COLOR_AUTO_24BIT,
+        COLOR_AUTO_24_ಬಿಟ್,
 
         /* Same as default (unset), except that $NO_COLOR is ignored/overridden */
         COLOR_TRUE,
 
-        _COLOR_MODE_MAX,
-        _COLOR_MODE_INVALID = -EINVAL,
-} ColorMode;
+        COLOR_ಬಹುಲಕ_MAX,
+        COLOR_ಬಹುಲಕ_INVALID = -EINVAL,
+} Color_ಬಹುಲಕ;
 
-DECLARE_STRING_TABLE_LOOKUP(color_mode, ColorMode);
+DECLARE_STRING_ಕೋಷ್ಟಕ_LOOKUP(color_ಬಹುಲಕ, Color_ಬಹುಲಕ);
 
-ColorMode get_color_mode(void);
-static inline bool colors_enabled(void) {
+Color_ಬಹುಲಕ get_color_ಬಹುಲಕ(ಶೂನ್ಯ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool colors_enabled(ಶೂನ್ಯ) {
         /* Returns true if colors are considered supported on our stdout. */
-        return get_color_mode() != COLOR_OFF;
+        ಹಿಂತಿರುಗಿ get_color_ಬಹುಲಕ() != COLOR_OFF;
 }
 
-ColorMode parse_systemd_colors(void);
+Color_ಬಹುಲಕ parse_systemd_colors(ಶೂನ್ಯ);
 
-bool underline_enabled(void);
+bool underline_enabled(ಶೂನ್ಯ);
 
-void reset_ansi_feature_caches(void);
+ಶೂನ್ಯ reset_ansi_feature_caches(ಶೂನ್ಯ);
 
-bool looks_like_ansi_color_code(const char *str);
+bool looks_like_ansi_color_ಸಂಕೇತ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str);
 
 /* Regular colors */
-#define ANSI_BLACK   "\x1B[0;30m" /* Some type of grey usually. */
-#define ANSI_RED     "\x1B[0;31m"
-#define ANSI_GREEN   "\x1B[0;32m"
-#define ANSI_YELLOW  "\x1B[0;33m"
-#define ANSI_BLUE    "\x1B[0;34m"
-#define ANSI_MAGENTA "\x1B[0;35m"
-#define ANSI_CYAN    "\x1B[0;36m"
-#define ANSI_WHITE   "\x1B[0;37m" /* This is actually rendered as light grey, legible even on a white
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BLACK   "\x1B[0;30m" /* Some type of grey usually. */
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_RED     "\x1B[0;31m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_GREEN   "\x1B[0;32m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_YELLOW  "\x1B[0;33m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BLUE    "\x1B[0;34m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_MAGENTA "\x1B[0;35m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_CYAN    "\x1B[0;36m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_WHITE   "\x1B[0;37m" /* This is actually rendered as light grey, legible even on a white
                                    * background. See ANSI_HIGHLIGHT_WHITE for real white. */
 
-#define ANSI_BRIGHT_BLACK   "\x1B[0;90m"
-#define ANSI_BRIGHT_RED     "\x1B[0;91m"
-#define ANSI_BRIGHT_GREEN   "\x1B[0;92m"
-#define ANSI_BRIGHT_YELLOW  "\x1B[0;93m"
-#define ANSI_BRIGHT_BLUE    "\x1B[0;94m"
-#define ANSI_BRIGHT_MAGENTA "\x1B[0;95m"
-#define ANSI_BRIGHT_CYAN    "\x1B[0;96m"
-#define ANSI_BRIGHT_WHITE   "\x1B[0;97m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_BLACK   "\x1B[0;90m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_RED     "\x1B[0;91m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_GREEN   "\x1B[0;92m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_YELLOW  "\x1B[0;93m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_BLUE    "\x1B[0;94m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_MAGENTA "\x1B[0;95m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_CYAN    "\x1B[0;96m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_WHITE   "\x1B[0;97m"
 
-#define ANSI_GREY    "\x1B[0;38:5:245m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_GREY    "\x1B[0;38:5:245m"
 
 /* Bold/highlighted */
-#define ANSI_HIGHLIGHT_BLACK    "\x1B[0;1;30m"
-#define ANSI_HIGHLIGHT_RED      "\x1B[0;1;31m"
-#define ANSI_HIGHLIGHT_GREEN    "\x1B[0;1;32m"
-#define _ANSI_HIGHLIGHT_YELLOW  "\x1B[0;1;33m" /* This yellow is currently not displayed well by some terminals */
-#define ANSI_HIGHLIGHT_BLUE     "\x1B[0;1;34m"
-#define ANSI_HIGHLIGHT_MAGENTA  "\x1B[0;1;35m"
-#define ANSI_HIGHLIGHT_CYAN     "\x1B[0;1;36m"
-#define ANSI_HIGHLIGHT_WHITE    "\x1B[0;1;37m"
-#define ANSI_HIGHLIGHT_YELLOW4  "\x1B[0;1;38:5:100m"
-#define ANSI_HIGHLIGHT_KHAKI3   "\x1B[0;1;38:5:185m"
-#define ANSI_HIGHLIGHT_GREY     "\x1B[0;1;38:5:245m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_BLACK    "\x1B[0;1;30m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_RED      "\x1B[0;1;31m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_GREEN    "\x1B[0;1;32m"
+#ವ್ಯಾಖ್ಯಾನಿಸು _ANSI_HIGHLIGHT_YELLOW  "\x1B[0;1;33m" /* This yellow is currently not displayed well by some terminals */
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_BLUE     "\x1B[0;1;34m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_MAGENTA  "\x1B[0;1;35m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_CYAN     "\x1B[0;1;36m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_WHITE    "\x1B[0;1;37m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_YELLOW4  "\x1B[0;1;38:5:100m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_KHAKI3   "\x1B[0;1;38:5:185m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_GREY     "\x1B[0;1;38:5:245m"
 
-#define ANSI_HIGHLIGHT_YELLOW   ANSI_HIGHLIGHT_KHAKI3 /* Replacement yellow that is more legible */
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_YELLOW   ANSI_HIGHLIGHT_KHAKI3 /* Replacement yellow that is more legible */
 
 /* Underlined */
-#define ANSI_GREY_UNDERLINE              "\x1B[0;4;38:5:245m"
-#define ANSI_BRIGHT_BLACK_UNDERLINE      "\x1B[0;4;90m"
-#define ANSI_HIGHLIGHT_RED_UNDERLINE     "\x1B[0;1;4;31m"
-#define ANSI_HIGHLIGHT_GREEN_UNDERLINE   "\x1B[0;1;4;32m"
-#define ANSI_HIGHLIGHT_YELLOW_UNDERLINE  "\x1B[0;1;4;38:5:185m"
-#define ANSI_HIGHLIGHT_BLUE_UNDERLINE    "\x1B[0;1;4;34m"
-#define ANSI_HIGHLIGHT_MAGENTA_UNDERLINE "\x1B[0;1;4;35m"
-#define ANSI_HIGHLIGHT_GREY_UNDERLINE    "\x1B[0;1;4;38:5:245m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_GREY_UNDERLINE              "\x1B[0;4;38:5:245m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BRIGHT_BLACK_UNDERLINE      "\x1B[0;4;90m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_RED_UNDERLINE     "\x1B[0;1;4;31m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_GREEN_UNDERLINE   "\x1B[0;1;4;32m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_YELLOW_UNDERLINE  "\x1B[0;1;4;38:5:185m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_BLUE_UNDERLINE    "\x1B[0;1;4;34m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_MAGENTA_UNDERLINE "\x1B[0;1;4;35m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_GREY_UNDERLINE    "\x1B[0;1;4;38:5:245m"
 
 /* Other ANSI codes */
-#define ANSI_UNDERLINE "\x1B[0;4m"
-#define ANSI_ADD_UNDERLINE "\x1B[4m"
-#define ANSI_ADD_UNDERLINE_GREY ANSI_ADD_UNDERLINE "\x1B[58:5:245m"
-#define ANSI_ITALICS "\x1B[0;3m"
-#define ANSI_ADD_ITALICS "\x1B[3m"
-#define ANSI_HIGHLIGHT "\x1B[0;1;39m"
-#define ANSI_HIGHLIGHT_UNDERLINE "\x1B[0;1;4m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_UNDERLINE "\x1B[0;4m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ಕೂಡಿಸು_UNDERLINE "\x1B[4m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ಕೂಡಿಸು_UNDERLINE_GREY ANSI_ಕೂಡಿಸು_UNDERLINE "\x1B[58:5:245m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ITALICS "\x1B[0;3m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ಕೂಡಿಸು_ITALICS "\x1B[3m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT "\x1B[0;1;39m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_UNDERLINE "\x1B[0;1;4m"
 
 /* Fallback colors: 256 → 16 */
-#define ANSI_HIGHLIGHT_GREY_FALLBACK             "\x1B[0;1;90m"
-#define ANSI_HIGHLIGHT_GREY_FALLBACK_UNDERLINE   "\x1B[0;1;4;90m"
-#define ANSI_HIGHLIGHT_YELLOW_FALLBACK           "\x1B[0;1;33m"
-#define ANSI_HIGHLIGHT_YELLOW_FALLBACK_UNDERLINE "\x1B[0;1;4;33m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_GREY_FALLBACK             "\x1B[0;1;90m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_GREY_FALLBACK_UNDERLINE   "\x1B[0;1;4;90m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_YELLOW_FALLBACK           "\x1B[0;1;33m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HIGHLIGHT_YELLOW_FALLBACK_UNDERLINE "\x1B[0;1;4;33m"
 
 /* Background colors */
-#define ANSI_BACKGROUND_BLUE "\x1B[44m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_BACKGROUND_BLUE "\x1B[44m"
 
 /* Reset/clear ANSI styles */
-#define ANSI_NORMAL "\x1B[0m"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ಸಾಮಾನ್ಯ "\x1B[0m"
 
-#define DEFINE_ANSI_FUNC(name, NAME)                            \
-        static inline const char* ansi_##name(void) {           \
-                return colors_enabled() ? ANSI_##NAME : "";     \
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFINE_ANSI_FUNC(name, NAME)                            \
+        ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_##name(ಶೂನ್ಯ) {           \
+                ಹಿಂತಿರುಗಿ colors_enabled() ? ANSI_##NAME : "";     \
         }
 
 /* NB: in 256 mode we always emit the fallback color first, in order to deal with terminals with
@@ -119,17 +119,17 @@ bool looks_like_ansi_color_code(const char *str);
  * In 24-bit mode we don't bother with this however, under the assumption that $COLORTERM and friends
  * reflect the correct status. */
 
-#define DEFINE_ANSI_FUNC_256(name, NAME, FALLBACK)                              \
-        static inline const char* ansi_##name(void) {                           \
-                switch (get_color_mode()) {                                     \
-                        case COLOR_OFF: return "";                              \
-                        case COLOR_16: return ANSI_##FALLBACK;                  \
-                        case COLOR_256: return ANSI_##FALLBACK ANSI_##NAME;     \
-                        default: return ANSI_##NAME;                            \
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFINE_ANSI_FUNC_256(name, NAME, FALLBACK)                              \
+        ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_##name(ಶೂನ್ಯ) {                           \
+                ಆಯ್ಕೆ (get_color_ಬಹುಲಕ()) {                                     \
+                        ಸ್ಥಿತಿ COLOR_OFF: ಹಿಂತಿರುಗಿ "";                              \
+                        ಸ್ಥಿತಿ COLOR_16: ಹಿಂತಿರುಗಿ ANSI_##FALLBACK;                  \
+                        ಸ್ಥಿತಿ COLOR_256: ಹಿಂತಿರುಗಿ ANSI_##FALLBACK ANSI_##NAME;     \
+                        ಪೂರ್ವನಿಯೋಜಿತ: ಹಿಂತಿರುಗಿ ANSI_##NAME;                            \
                 }                                                               \
         }
 
-DEFINE_ANSI_FUNC(normal,            NORMAL);
+DEFINE_ANSI_FUNC(ಸಾಮಾನ್ಯ,            ಸಾಮಾನ್ಯ_2);
 DEFINE_ANSI_FUNC(highlight,         HIGHLIGHT);
 DEFINE_ANSI_FUNC(black,             BLACK);
 DEFINE_ANSI_FUNC(red,               RED);
@@ -161,52 +161,52 @@ DEFINE_ANSI_FUNC(highlight_cyan,        HIGHLIGHT_CYAN);
 DEFINE_ANSI_FUNC_256(highlight_grey,    HIGHLIGHT_GREY, HIGHLIGHT_GREY_FALLBACK);
 DEFINE_ANSI_FUNC(highlight_white,       HIGHLIGHT_WHITE);
 
-static inline const char* _ansi_highlight_yellow(void) {
-        return colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* _ansi_highlight_yellow(ಶೂನ್ಯ) {
+        ಹಿಂತಿರುಗಿ colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
 }
 
-static inline const char* ansi_highlight_green_red(bool b) {
-        return b ? ansi_highlight_green() : ansi_highlight_red();
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_highlight_green_red(bool b) {
+        ಹಿಂತಿರುಗಿ b ? ansi_highlight_green() : ansi_highlight_red();
 }
 
-static inline const char* ansi_underline(void) {
-        return underline_enabled() ? ANSI_UNDERLINE : "";
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_underline(ಶೂನ್ಯ) {
+        ಹಿಂತಿರುಗಿ underline_enabled() ? ANSI_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline(void) {
-        return underline_enabled() ? ANSI_ADD_UNDERLINE : "";
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_ಕೂಡಿಸು_underline(ಶೂನ್ಯ) {
+        ಹಿಂತಿರುಗಿ underline_enabled() ? ANSI_ಕೂಡಿಸು_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline_grey(void) {
-        return underline_enabled() ?
-                (colors_enabled() ? ANSI_ADD_UNDERLINE_GREY : ANSI_ADD_UNDERLINE) : "";
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_ಕೂಡಿಸು_underline_grey(ಶೂನ್ಯ) {
+        ಹಿಂತಿರುಗಿ underline_enabled() ?
+                (colors_enabled() ? ANSI_ಕೂಡಿಸು_UNDERLINE_GREY : ANSI_ಕೂಡಿಸು_UNDERLINE) : "";
 }
 
-static inline const char* ansi_italics(void) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_italics(ಶೂನ್ಯ) {
         /* We hook italics also into the underline checks, close enough */
-        return underline_enabled() ? ANSI_ITALICS : "";
+        ಹಿಂತಿರುಗಿ underline_enabled() ? ANSI_ITALICS : "";
 }
 
-static inline const char* ansi_add_italics(void) {
-        return underline_enabled() ? ANSI_ADD_ITALICS : "";
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_ಕೂಡಿಸು_italics(ಶೂನ್ಯ) {
+        ಹಿಂತಿರುಗಿ underline_enabled() ? ANSI_ಕೂಡಿಸು_ITALICS : "";
 }
 
-#define DEFINE_ANSI_FUNC_UNDERLINE(name, NAME)                          \
-        static inline const char* ansi_##name##_underline(void) {       \
-                return underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFINE_ANSI_FUNC_UNDERLINE(name, NAME)                          \
+        ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_##name##_underline(ಶೂನ್ಯ) {       \
+                ಹಿಂತಿರುಗಿ underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
                         ansi_##name();                                  \
         }
 
-#define DEFINE_ANSI_FUNC_UNDERLINE_256(name, NAME, FALLBACK)                                            \
-        static inline const char* ansi_##name##_underline(void) {                                       \
-                if (!underline_enabled())                                                               \
-                        return ansi_##name();                                                           \
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFINE_ANSI_FUNC_UNDERLINE_256(name, NAME, FALLBACK)                                            \
+        ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ansi_##name##_underline(ಶೂನ್ಯ) {                                       \
+                ಆದರೆ (!underline_enabled())                                                               \
+                        ಹಿಂತಿರುಗಿ ansi_##name();                                                           \
                                                                                                         \
-                switch (get_color_mode()) {                                                             \
-                        case COLOR_OFF: return "";                                                      \
-                        case COLOR_16: return ANSI_##FALLBACK##_UNDERLINE;                              \
-                        case COLOR_256: return ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
-                        default: return ANSI_##NAME##_UNDERLINE;                                        \
+                ಆಯ್ಕೆ (get_color_ಬಹುಲಕ()) {                                                             \
+                        ಸ್ಥಿತಿ COLOR_OFF: ಹಿಂತಿರುಗಿ "";                                                      \
+                        ಸ್ಥಿತಿ COLOR_16: ಹಿಂತಿರುಗಿ ANSI_##FALLBACK##_UNDERLINE;                              \
+                        ಸ್ಥಿತಿ COLOR_256: ಹಿಂತಿರುಗಿ ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
+                        ಪೂರ್ವನಿಯೋಜಿತ: ಹಿಂತಿರುಗಿ ANSI_##NAME##_UNDERLINE;                                        \
                 }                                                                                       \
         }
 

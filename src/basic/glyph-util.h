@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-typedef enum Glyph {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ Glyph {
         GLYPH_SPACE,
-        GLYPH_TREE_VERTICAL,
-        GLYPH_TREE_BRANCH,
-        GLYPH_TREE_RIGHT,
-        GLYPH_TREE_SPACE,
-        GLYPH_TREE_TOP,
+        GLYPH_ವೃಕ್ಷ_VERTICAL,
+        GLYPH_ವೃಕ್ಷ_BRANCH,
+        GLYPH_ವೃಕ್ಷ_ಬಲ,
+        GLYPH_ವೃಕ್ಷ_SPACE,
+        GLYPH_ವೃಕ್ಷ_ತುದಿ,
         GLYPH_VERTICAL_DOTTED,
         GLYPH_HORIZONTAL_DOTTED,
         GLYPH_HORIZONTAL_FAT,
@@ -24,28 +24,28 @@ typedef enum Glyph {
         GLYPH_CROSS_MARK,
         GLYPH_LIGHT_SHADE,
         GLYPH_DARK_SHADE,
-        GLYPH_FULL_BLOCK,
+        GLYPH_ತುಂಬಿದ_ಖಂಡ,
         GLYPH_SIGMA,
-        GLYPH_ARROW_UP,
-        GLYPH_ARROW_DOWN,
-        GLYPH_ARROW_LEFT,
-        GLYPH_ARROW_RIGHT,
+        GLYPH_ARROW_ಮೇಲೆ,
+        GLYPH_ARROW_ಕೆಳಕ್ಕೆ,
+        GLYPH_ARROW_ಎಡ,
+        GLYPH_ARROW_ಬಲ,
         GLYPH_ELLIPSIS,
         GLYPH_EXTERNAL_LINK,
-        _GLYPH_FIRST_EMOJI,
-        GLYPH_ECSTATIC_SMILEY = _GLYPH_FIRST_EMOJI,
+        GLYPH_ಮೊದಲ_EMOJI,
+        GLYPH_ECSTATIC_SMILEY = GLYPH_ಮೊದಲ_EMOJI,
         GLYPH_HAPPY_SMILEY,
         GLYPH_SLIGHTLY_HAPPY_SMILEY,
         GLYPH_NEUTRAL_SMILEY,
         GLYPH_SLIGHTLY_UNHAPPY_SMILEY,
         GLYPH_UNHAPPY_SMILEY,
         GLYPH_DEPRESSED_SMILEY,
-        GLYPH_LOCK_AND_KEY,
+        GLYPH_ಬೀಗ_AND_ಕೀಲಿ,
         GLYPH_TOUCH,
         GLYPH_RECYCLING,
         GLYPH_DOWNLOAD,
         GLYPH_SPARKLES,
-        GLYPH_LOW_BATTERY,
+        GLYPH_ಕೆಳಗಿನ_BATTERY,
         GLYPH_WARNING_SIGN,
         GLYPH_COMPUTER_DISK,
         GLYPH_WORLD,
@@ -68,22 +68,22 @@ typedef enum Glyph {
         _GLYPH_INVALID = -EINVAL,
 } Glyph;
 
-bool emoji_enabled(void);
+bool emoji_enabled(ಶೂನ್ಯ);
 
-const char* glyph_full(Glyph code, bool force_utf) _const_;
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* glyph_ತುಂಬಿದ(Glyph ಸಂಕೇತ_2, bool force_utf) _const_;
 
-static inline const char* glyph(Glyph code) {
-        return glyph_full(code, false);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* glyph(Glyph ಸಂಕೇತ_2) {
+        ಹಿಂತಿರುಗಿ glyph_ತುಂಬಿದ(ಸಂಕೇತ_2, false);
 }
 
-static inline const char* optional_glyph(Glyph code) {
-        return emoji_enabled() ? glyph(code) : "";
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optional_glyph(Glyph ಸಂಕೇತ_2) {
+        ಹಿಂತಿರುಗಿ emoji_enabled() ? glyph(ಸಂಕೇತ_2) : "";
 }
 
-static inline const char* glyph_check_mark(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* glyph_check_mark(bool b) {
+        ಹಿಂತಿರುಗಿ b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
 }
 
-static inline const char* glyph_check_mark_space(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : " ";
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* glyph_check_mark_space(bool b) {
+        ಹಿಂತಿರುಗಿ b ? glyph(GLYPH_CHECK_MARK) : " ";
 }

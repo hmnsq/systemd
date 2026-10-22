@@ -1,438 +1,438 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
 
-#include "alloc-util.h"
-#include "iovec-util.h"
-#include "iovec-wrapper.h"
-#include "string-util.h"
-#include "unaligned.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "iovec-util.h"
+#ಅನ್ತರ್ಭಾವ "iovec-wrapper.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "unaligned.h"
 
-void iovw_done(struct iovec_wrapper *iovw) {
-        assert(iovw);
+ಶೂನ್ಯ iovw_ಮುಗಿದ(ರಚನೆ iovec_wrapper *iovw) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
         iovw->iovec = mfree(iovw->iovec);
-        iovw->count = 0;
+        iovw->ಎಣಿಕೆ_2 = 0;
 }
 
-void iovw_done_free(struct iovec_wrapper *iovw) {
-        assert(iovw);
+ಶೂನ್ಯ iovw_ಮುಗಿದ_free(ರಚನೆ iovec_wrapper *iovw) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
-                iovec_done(i);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->ಎಣಿಕೆ_2)
+                iovec_ಮುಗಿದ(i);
 
-        iovw_done(iovw);
+        iovw_ಮುಗಿದ(iovw);
 }
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+ರಚನೆ iovec_wrapper* iovw_free(ರಚನೆ iovec_wrapper *iovw) {
+        ಆದರೆ (!iovw)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        iovw_done(iovw);
-        return mfree(iovw);
+        iovw_ಮುಗಿದ(iovw);
+        ಹಿಂತಿರುಗಿ mfree(iovw);
 }
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+ರಚನೆ iovec_wrapper* iovw_free_free(ರಚನೆ iovec_wrapper *iovw) {
+        ಆದರೆ (!iovw)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        iovw_done_free(iovw);
-        return mfree(iovw);
+        iovw_ಮುಗಿದ_free(iovw);
+        ಹಿಂತಿರುಗಿ mfree(iovw);
 }
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        int r;
+ಪೂರ್ಣಾಂಕ iovw_compare(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *a, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *b) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (a == b)
-                return 0;
+        ಆದರೆ (a == b)
+                ಹಿಂತಿರುಗಿ 0;
 
-        if (!a || !b)
-                return CMP(!!a, !!b);
+        ಆದರೆ (!a || !b)
+                ಹಿಂತಿರುಗಿ CMP(!!a, !!b);
 
         /* Note, this performs structural (element-by-element) comparison, not content-based comparison.
          * Two wrappers with identical concatenated content but different element boundaries
          * (e.g., ["fo","o"] vs ["f","oo"]) will not compare as equal. */
 
-        for (size_t i = 0, n = MIN(a->count, b->count); i < n; i++) {
+        ಗಾಗಿ (size_t i = 0, n = MIN(a->ಎಣಿಕೆ_2, b->ಎಣಿಕೆ_2); i < n; i++) {
                 r = iovec_memcmp(a->iovec + i, b->iovec + i);
-                if (r != 0)
-                        return r;
+                ಆದರೆ (r != 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        return CMP(a->count, b->count);
+        ಹಿಂತಿರುಗಿ CMP(a->ಎಣಿಕೆ_2, b->ಎಣಿಕೆ_2);
 }
 
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+ಪೂರ್ಣಾಂಕ iovw_put_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ಶೂನ್ಯ *ದತ್ತಾಂಶ, size_t len) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
+        ಪ್ರತಿಜ್ಞಾ(ದತ್ತಾಂಶ || len == 0);
 
-        if (len == 0 && !accept_zero)
-                return 0;
+        ಆದರೆ (len == 0 && !accept_zero)
+                ಹಿಂತಿರುಗಿ 0;
 
-        if (iovw->count >= IOV_MAX)
-                return -E2BIG;
+        ಆದರೆ (iovw->ಎಣಿಕೆ_2 >= IOV_MAX)
+                ಹಿಂತಿರುಗಿ -E2BIG;
 
-        if (!GREEDY_REALLOC(iovw->iovec, iovw->count + 1))
-                return -ENOMEM;
+        ಆದರೆ (!GREEDY_REALLOC(iovw->iovec, iovw->ಎಣಿಕೆ_2 + 1))
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        iovw->iovec[iovw->count++] = IOVEC_MAKE(data, len);
-        return 1;
+        iovw->iovec[iovw->ಎಣಿಕೆ_2++] = IOVEC_MAKE(ದತ್ತಾಂಶ, len);
+        ಹಿಂತಿರುಗಿ 1;
 }
 
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+ಪೂರ್ಣಾಂಕ iovw_put_iov_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *iov) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
-        if (!iov)
-                return 0;
+        ಆದರೆ (!iov)
+                ಹಿಂತಿರುಗಿ 0;
 
-        return iovw_put_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        ಹಿಂತಿರುಗಿ iovw_put_ತುಂಬಿದ(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+ಪೂರ್ಣಾಂಕ iovw_put_iovw_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *ಮೂಲ) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(iovw);
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
-        if (iovw_isempty(source))
-                return 0;
+        ಆದರೆ (iovw_isempty(ಮೂಲ))
+                ಹಿಂತಿರುಗಿ 0;
 
         /* We will reallocate iovw->iovec, hence the source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        ಆದರೆ (iovw == ಮೂಲ)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        ಆದರೆ (iovw->ಎಣಿಕೆ_2 > SIZE_MAX - ಮೂಲ->ಎಣಿಕೆ_2)
+                ಹಿಂತಿರುಗಿ -E2BIG;
+        ಆದರೆ (iovw->ಎಣಿಕೆ_2 + ಮೂಲ->ಎಣಿಕೆ_2 > IOV_MAX)
+                ಹಿಂತಿರುಗಿ -E2BIG;
 
-        if (accept_zero) {
-                if (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->count, source->iovec, source->count))
-                        return -ENOMEM;
+        ಆದರೆ (accept_zero) {
+                ಆದರೆ (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->ಎಣಿಕೆ_2, ಮೂಲ->iovec, ಮೂಲ->ಎಣಿಕೆ_2))
+                        ಹಿಂತಿರುಗಿ -ENOMEM;
 
-                return 0;
+                ಹಿಂತಿರುಗಿ 0;
         }
 
         /* When accept_zero is false, we need to filter zero length iovec in source. */
-        size_t original_count = iovw->count;
+        size_t original_ಎಣಿಕೆ = iovw->ಎಣಿಕೆ_2;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
-                r = iovw_put_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+        FOREACH_ARRAY(iovec, ಮೂಲ->iovec, ಮೂಲ->ಎಣಿಕೆ_2) {
+                r = iovw_put_iov_ತುಂಬಿದ(iovw, accept_zero, iovec);
+                ಆದರೆ (r < 0)
+                        ಹೋಗು rollback;
         }
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 
 rollback:
-        iovw->count = original_count;
-        return r;
+        iovw->ಎಣಿಕೆ_2 = original_ಎಣಿಕೆ;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
+ಪೂರ್ಣಾಂಕ iovw_consume_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ಶೂನ್ಯ *ದತ್ತಾಂಶ, size_t len) {
         /* Move data into iovw or free on error */
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = iovw_put_full(iovw, accept_zero, data, len);
-        if (r <= 0)
-                free(data);
+        r = iovw_put_ತುಂಬಿದ(iovw, accept_zero, ದತ್ತಾಂಶ, len);
+        ಆದರೆ (r <= 0)
+                ಬಿಡುಗಡೆ(ದತ್ತಾಂಶ);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov) {
-        int r;
+ಪೂರ್ಣಾಂಕ iovw_consume_iov_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ರಚನೆ iovec *iov) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(iovw);
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
-        if (!iov)
-                return 0;
+        ಆದರೆ (!iov)
+                ಹಿಂತಿರುಗಿ 0;
 
-        r = iovw_put_iov_full(iovw, accept_zero, iov);
-        if (r <= 0)
-                iovec_done(iov);
-        else
+        r = iovw_put_iov_ತುಂಬಿದ(iovw, accept_zero, iov);
+        ಆದರೆ (r <= 0)
+                iovec_ಮುಗಿದ(iov);
+        ಇಲ್ಲದಿದ್ದರೆ
                 /* On success, iov->iov_base is now owned by iovw. Let's emptify iov, but do not call
                  * iovec_done(), of course. */
-                *iov = (struct iovec) {};
+                *iov = (ರಚನೆ iovec) {};
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+ಪೂರ್ಣಾಂಕ iovw_extend_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *ದತ್ತಾಂಶ, size_t len) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
+        ಪ್ರತಿಜ್ಞಾ(ದತ್ತಾಂಶ || len == 0);
 
-        if (len == 0)
-                return iovw_put_full(iovw, accept_zero, /* data= */ NULL, /* len= */ 0);
+        ಆದರೆ (len == 0)
+                ಹಿಂತಿರುಗಿ iovw_put_ತುಂಬಿದ(iovw, accept_zero, /* data= */ ಖಾಲಿ, /* len= */ 0);
 
-        void *c = memdup(data, len);
-        if (!c)
-                return -ENOMEM;
+        ಶೂನ್ಯ *c = memdup(ದತ್ತಾಂಶ, len);
+        ಆದರೆ (!c)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return iovw_consume_full(iovw, accept_zero, c, len);
+        ಹಿಂತಿರುಗಿ iovw_consume_ತುಂಬಿದ(iovw, accept_zero, c, len);
 }
 
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+ಪೂರ್ಣಾಂಕ iovw_extend_iov_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *iov) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
-        if (!iov)
-                return 0;
+        ಆದರೆ (!iov)
+                ಹಿಂತಿರುಗಿ 0;
 
-        return iovw_extend_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        ಹಿಂತಿರುಗಿ iovw_extend_ತುಂಬಿದ(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+ಪೂರ್ಣಾಂಕ iovw_extend_iovw_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool accept_zero, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *ಮೂಲ) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(iovw);
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
         /* This duplicates the source and merges it into the iovw. */
 
-        if (iovw_isempty(source))
-                return 0;
+        ಆದರೆ (iovw_isempty(ಮೂಲ))
+                ಹಿಂತಿರುಗಿ 0;
 
         /* iovw->iovec will be reallocated in the loop below, hence source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        ಆದರೆ (iovw == ಮೂಲ)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        ಆದರೆ (iovw->ಎಣಿಕೆ_2 > SIZE_MAX - ಮೂಲ->ಎಣಿಕೆ_2)
+                ಹಿಂತಿರುಗಿ -E2BIG;
+        ಆದರೆ (iovw->ಎಣಿಕೆ_2 + ಮೂಲ->ಎಣಿಕೆ_2 > IOV_MAX)
+                ಹಿಂತಿರುಗಿ -E2BIG;
 
-        size_t original_count = iovw->count;
+        size_t original_ಎಣಿಕೆ = iovw->ಎಣಿಕೆ_2;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
-                r = iovw_extend_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+        FOREACH_ARRAY(iovec, ಮೂಲ->iovec, ಮೂಲ->ಎಣಿಕೆ_2) {
+                r = iovw_extend_iov_ತುಂಬಿದ(iovw, accept_zero, iovec);
+                ಆದರೆ (r < 0)
+                        ಹೋಗು rollback;
         }
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 
 rollback:
-        for (size_t i = original_count; i < iovw->count; i++)
-                iovec_done(iovw->iovec + i);
+        ಗಾಗಿ (size_t i = original_ಎಣಿಕೆ; i < iovw->ಎಣಿಕೆ_2; i++)
+                iovec_ಮುಗಿದ(iovw->iovec + i);
 
-        iovw->count = original_count;
-        return r;
+        iovw->ಎಣಿಕೆ_2 = original_ಎಣಿಕೆ;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value) {
-        _cleanup_free_ char *x = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ iovw_put_string_ಕ್ಷೇತ್ರ_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool replace, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕ್ಷೇತ್ರ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        _cleanup_free_ ಅಕ್ಷರ *x = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(iovw);
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
-        x = strjoin(field, value);
-        if (!x)
-                return -ENOMEM;
+        x = strjoin(ಕ್ಷೇತ್ರ, ಮೌಲ್ಯ);
+        ಆದರೆ (!x)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        if (replace)
-                FOREACH_ARRAY(iovec, iovw->iovec, iovw->count)
-                        if (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
-                                iovec->iov_len = strlen(x);
-                                return free_and_replace(iovec->iov_base, x);
+        ಆದರೆ (replace)
+                FOREACH_ARRAY(iovec, iovw->iovec, iovw->ಎಣಿಕೆ_2)
+                        ಆದರೆ (ಸ್ಮರಣೆ_startswith(iovec->iov_base, iovec->iov_len, ಕ್ಷೇತ್ರ)) {
+                                iovec->iov_len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(x);
+                                ಹಿಂತಿರುಗಿ free_and_replace(iovec->iov_base, x);
                         }
 
-        r = iovw_put(iovw, x, strlen(x));
-        if (r >= 0)
+        r = iovw_put(iovw, x, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(x));
+        ಆದರೆ (r >= 0)
                 TAKE_PTR(x);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) {
-        _cleanup_free_ char *value = NULL;
+ಪೂರ್ಣಾಂಕ iovw_put_string_fieldf_ತುಂಬಿದ(ರಚನೆ iovec_wrapper *iovw, bool replace, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕ್ಷೇತ್ರ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...) {
+        _cleanup_free_ ಅಕ್ಷರ *ಮೌಲ್ಯ = ಖಾಲಿ;
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(format);
+        ಪ್ರತಿಜ್ಞಾ(format);
 
         va_start(ap, format);
-        r = vasprintf(&value, format, ap);
+        r = vasprintf(&ಮೌಲ್ಯ, format, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return iovw_put_string_field_full(iovw, replace, field, value);
+        ಹಿಂತಿರುಗಿ iovw_put_string_ಕ್ಷೇತ್ರ_ತುಂಬಿದ(iovw, replace, ಕ್ಷೇತ್ರ, ಮೌಲ್ಯ);
 }
 
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value) {
-        _cleanup_free_ _unused_ char *free_ptr = value;
+ಪೂರ್ಣಾಂಕ iovw_put_string_ಕ್ಷೇತ್ರ_free(ರಚನೆ iovec_wrapper *iovw, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕ್ಷೇತ್ರ, ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        _cleanup_free_ ಬಳಸದ ಅಕ್ಷರ *free_ptr = ಮೌಲ್ಯ;
 
-        return iovw_put_string_field(iovw, field, value);
+        ಹಿಂತಿರುಗಿ iovw_put_string_ಕ್ಷೇತ್ರ(iovw, ಕ್ಷೇತ್ರ, ಮೌಲ್ಯ);
 }
 
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new) {
-        assert(iovw);
+ಶೂನ್ಯ iovw_rebase(ರಚನೆ iovec_wrapper *iovw, ಶೂನ್ಯ *old, ಶೂನ್ಯ *new) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count) {
-                assert(i->iov_base >= old);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->ಎಣಿಕೆ_2) {
+                ಪ್ರತಿಜ್ಞಾ(i->iov_base >= old);
                 i->iov_base = (uint8_t*) i->iov_base - (uint8_t*) old + (uint8_t*) new;
         }
 }
 
-size_t iovw_size(const struct iovec_wrapper *iovw) {
-        if (iovw_isempty(iovw))
-                return 0;
+size_t iovw_ಗಾತ್ರ(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *iovw) {
+        ಆದರೆ (iovw_isempty(iovw))
+                ಹಿಂತಿರುಗಿ 0;
 
-        return iovec_total_size(iovw->iovec, iovw->count);
+        ಹಿಂತಿರುಗಿ iovec_ಒಟ್ಟು_ಗಾತ್ರ(iovw->iovec, iovw->ಎಣಿಕೆ_2);
 }
 
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
-        assert(iovw);
-        assert(ret);
+ಪೂರ್ಣಾಂಕ iovw_concat(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *iovw, ರಚನೆ iovec *ret) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* Squish a series of iovecs into a single iovec. */
 
-        size_t len = iovw_size(iovw);
-        if (len == SIZE_MAX)
-                return -E2BIG;  /* Prevent theoretical overflow */
+        size_t len = iovw_ಗಾತ್ರ(iovw);
+        ಆದರೆ (len == SIZE_MAX)
+                ಹಿಂತಿರುಗಿ -E2BIG;  /* Prevent theoretical overflow */
 
         /* Always allocate one more byte to make the result usable as a NUL-terminated string. */
-        _cleanup_free_ uint8_t *buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        _cleanup_free_ uint8_t *buf = ಸ್ಮರಣೆ_ಕೊಡು(len + 1);
+        ಆದರೆ (!buf)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
-                p = mempcpy_safe(p, i->iov_base, i->iov_len);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->ಎಣಿಕೆ_2)
+                p = mempcpy_ಸುರಕ್ಷಿತ(p, i->iov_base, i->iov_len);
 
         *p = 0;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), len);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-char* iovw_to_cstring(const struct iovec_wrapper *iovw) {
-        assert(iovw);
+ಅಕ್ಷರ* iovw_ಗಮ್ಯ_cstring(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *iovw) {
+        ಪ್ರತಿಜ್ಞಾ(iovw);
 
         /* Squish a series of iovecs into a C string. Embedded NULs are not allowed.
          * The caller is expected to filter them out when populating the data. */
 
-        _cleanup_(iovec_done) struct iovec iov = {};
-        if (iovw_concat(iovw, &iov) < 0)
-                return NULL;
+        _cleanup_(iovec_ಮುಗಿದ) ರಚನೆ iovec iov = {};
+        ಆದರೆ (iovw_concat(iovw, &iov) < 0)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        assert(!memchr(iov.iov_base, 0, iov.iov_len));
-        return TAKE_PTR(iov.iov_base);
+        ಪ್ರತಿಜ್ಞಾ(!memchr(iov.iov_base, 0, iov.iov_len));
+        ಹಿಂತಿರುಗಿ TAKE_PTR(iov.iov_base);
 }
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret) {
-        int r;
+ಪೂರ್ಣಾಂಕ iovec_ವಿಭಜಿಸು(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *iov, size_t ಉದ್ದಳತೆ_ಗಾತ್ರ, ರಚನೆ iovec_wrapper *ret) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ಒಳ_ಗಣ(ಉದ್ದಳತೆ_ಗಾತ್ರ, 1, 2, 4));
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* This parses the input iovec as length-prefixed data, and stores the result as iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        if (!iovec_is_set(iov)) {
-                *ret = (struct iovec_wrapper) {};
-                return 0;
+        ಆದರೆ (!iovec_is_ಗಣ(iov)) {
+                *ret = (ರಚನೆ iovec_wrapper) {};
+                ಹಿಂತಿರುಗಿ 0;
         }
 
-        _cleanup_(iovw_done_free) struct iovec_wrapper iovw = {};
-        for (struct iovec i = *iov; iovec_is_set(&i); ) {
-                if (i.iov_len < length_size)
-                        return -EBADMSG;
+        _cleanup_(iovw_ಮುಗಿದ_free) ರಚನೆ iovec_wrapper iovw = {};
+        ಗಾಗಿ (ರಚನೆ iovec i = *iov; iovec_is_ಗಣ(&i); ) {
+                ಆದರೆ (i.iov_len < ಉದ್ದಳತೆ_ಗಾತ್ರ)
+                        ಹಿಂತಿರುಗಿ -EBADMSG;
 
                 size_t len;
-                switch (length_size) {
-                case 1:
+                ಆಯ್ಕೆ (ಉದ್ದಳತೆ_ಗಾತ್ರ) {
+                ಸ್ಥಿತಿ 1:
                         len = *(uint8_t*) i.iov_base;
-                        break;
-                case 2:
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ 2:
                         len = unaligned_read_be16(i.iov_base);
-                        break;
-                case 4:
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ 4:
                         len = unaligned_read_be32(i.iov_base);
-                        break;
-                default:
+                        ನಿಲ್ಲಿಸು;
+                ಪೂರ್ವನಿಯೋಜಿತ:
                         assert_not_reached();
                 }
 
-                iovec_inc(&i, length_size);
+                iovec_inc(&i, ಉದ್ದಳತೆ_ಗಾತ್ರ);
 
-                if (len == 0)
-                        continue;
+                ಆದರೆ (len == 0)
+                        ಮುಂದುವರಿ;
 
-                if (i.iov_len < len)
-                        return -EBADMSG;
+                ಆದರೆ (i.iov_len < len)
+                        ಹಿಂತಿರುಗಿ -EBADMSG;
 
                 r = iovw_extend(&iovw, i.iov_base, len);
-                if (r < 0)
-                        return r;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
                 iovec_inc(&i, len);
         }
 
         *ret = TAKE_STRUCT(iovw);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret) {
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+ಪೂರ್ಣಾಂಕ iovw_ವಿಲೀನ(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec_wrapper *iovw, size_t ಉದ್ದಳತೆ_ಗಾತ್ರ, ರಚನೆ iovec *ret) {
+        ಪ್ರತಿಜ್ಞಾ(ಒಳ_ಗಣ(ಉದ್ದಳತೆ_ಗಾತ್ರ, 1, 2, 4));
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* This is the inverse of iovec_split(), and builds a length-prefixed data from iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        size_t sz = iovw_size(iovw);
-        if (sz == 0) {
-                *ret = (struct iovec) {};
-                return 0;
+        size_t sz = iovw_ಗಾತ್ರ(iovw);
+        ಆದರೆ (sz == 0) {
+                *ret = (ರಚನೆ iovec) {};
+                ಹಿಂತಿರುಗಿ 0;
         }
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        ಆದರೆ (sz == SIZE_MAX)
+                ಹಿಂತಿರುಗಿ -E2BIG;
 
-        if (size_multiply_overflow(length_size, iovw->count))
-                return -E2BIG;
+        ಆದರೆ (ಗಾತ್ರ_multiply_ಅತಿಪ್ರವಾಹ(ಉದ್ದಳತೆ_ಗಾತ್ರ, iovw->ಎಣಿಕೆ_2))
+                ಹಿಂತಿರುಗಿ -E2BIG;
 
-        sz = size_add(sz, iovw->count * length_size);
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        sz = ಗಾತ್ರ_ಕೂಡಿಸು(sz, iovw->ಎಣಿಕೆ_2 * ಉದ್ದಳತೆ_ಗಾತ್ರ);
+        ಆದರೆ (sz == SIZE_MAX)
+                ಹಿಂತಿರುಗಿ -E2BIG;
 
         _cleanup_free_ uint8_t *buf = new(uint8_t, sz);
-        if (!buf)
-                return -ENOMEM;
+        ಆದರೆ (!buf)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(iov, iovw->iovec, iovw->count) {
-                if (iov->iov_len == 0)
-                        continue;
+        FOREACH_ARRAY(iov, iovw->iovec, iovw->ಎಣಿಕೆ_2) {
+                ಆದರೆ (iov->iov_len == 0)
+                        ಮುಂದುವರಿ;
 
-                switch (length_size) {
-                case 1:
-                        if (iov->iov_len > UINT8_MAX)
-                                return -ERANGE;
+                ಆಯ್ಕೆ (ಉದ್ದಳತೆ_ಗಾತ್ರ) {
+                ಸ್ಥಿತಿ 1:
+                        ಆದರೆ (iov->iov_len > UINT8_MAX)
+                                ಹಿಂತಿರುಗಿ -ERANGE;
 
                         *p = iov->iov_len;
-                        break;
-                case 2:
-                        if (iov->iov_len > UINT16_MAX)
-                                return -ERANGE;
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ 2:
+                        ಆದರೆ (iov->iov_len > UINT16_MAX)
+                                ಹಿಂತಿರುಗಿ -ERANGE;
 
                         unaligned_write_be16(p, iov->iov_len);
-                        break;
-                case 4:
-                        if (iov->iov_len > UINT32_MAX)
-                                return -ERANGE;
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ 4:
+                        ಆದರೆ (iov->iov_len > UINT32_MAX)
+                                ಹಿಂತಿರುಗಿ -ERANGE;
 
                         unaligned_write_be32(p, iov->iov_len);
-                        break;
-                default:
+                        ನಿಲ್ಲಿಸು;
+                ಪೂರ್ವನಿಯೋಜಿತ:
                         assert_not_reached();
                 }
-                p += length_size;
+                p += ಉದ್ದಳತೆ_ಗಾತ್ರ;
 
                 p = mempcpy(p, iov->iov_base, iov->iov_len);
         }
 
-        assert(sz >= (size_t) (p - buf));
+        ಪ್ರತಿಜ್ಞಾ(sz >= (size_t) (p - buf));
         sz = p - buf;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), sz);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }

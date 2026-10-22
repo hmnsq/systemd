@@ -1,177 +1,177 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
 
-#include "format-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "mempool.h"
+#ಅನ್ತರ್ಭಾವ "format-util.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "memory-util.h"
+#ಅನ್ತರ್ಭಾವ "mempool.h"
 
-struct pool {
-        struct pool *next;
+ರಚನೆ pool {
+        ರಚನೆ pool *ಮುಂದಿನ_2;
         size_t n_tiles;
-        size_t n_used;
+        size_t n_ಬಳಸಿದ;
 };
 
-static void* pool_ptr(struct pool *p) {
-        return ((uint8_t*) ASSERT_PTR(p)) + ALIGN(sizeof(struct pool));
+ಸ್ಥಿರ ಶೂನ್ಯ* pool_ptr(ರಚನೆ pool *p) {
+        ಹಿಂತಿರುಗಿ ((uint8_t*) ASSERT_PTR(p)) + ALIGN(ಗಾತ್ರ(ರಚನೆ pool));
 }
 
-void* mempool_alloc_tile(struct mempool *mp) {
+ಶೂನ್ಯ* mempool_alloc_tile(ರಚನೆ mempool *mp) {
         size_t i;
 
         /* When a tile is released we add it to the list and simply
          * place the next pointer at its offset 0. */
 
-        assert(mp);
-        assert(mp->tile_size >= sizeof(void*));
-        assert(mp->at_least > 0);
+        ಪ್ರತಿಜ್ಞಾ(mp);
+        ಪ್ರತಿಜ್ಞಾ(mp->tile_ಗಾತ್ರ >= ಗಾತ್ರ(ಶೂನ್ಯ*));
+        ಪ್ರತಿಜ್ಞಾ(mp->at_ಕನಿಷ್ಠ > 0);
 
-        if (mp->freelist) {
-                void *t;
+        ಆದರೆ (mp->freelist) {
+                ಶೂನ್ಯ *t;
 
                 t = mp->freelist;
-                mp->freelist = *(void**) mp->freelist;
-                return t;
+                mp->freelist = *(ಶೂನ್ಯ**) mp->freelist;
+                ಹಿಂತಿರುಗಿ t;
         }
 
-        if (_unlikely_(!mp->first_pool) ||
-            _unlikely_(mp->first_pool->n_used >= mp->first_pool->n_tiles)) {
-                size_t size, n;
-                struct pool *p;
+        ಆದರೆ (_unlikely_(!mp->ಮೊದಲ_pool) ||
+            _unlikely_(mp->ಮೊದಲ_pool->n_ಬಳಸಿದ >= mp->ಮೊದಲ_pool->n_tiles)) {
+                size_t ಗಾತ್ರ_2, n;
+                ರಚನೆ pool *p;
 
-                n = mp->first_pool ? mp->first_pool->n_tiles : 0;
-                n = MAX(mp->at_least, n * 2);
-                size = PAGE_ALIGN(ALIGN(sizeof(struct pool)) + n*mp->tile_size);
-                n = (size - ALIGN(sizeof(struct pool))) / mp->tile_size;
+                n = mp->ಮೊದಲ_pool ? mp->ಮೊದಲ_pool->n_tiles : 0;
+                n = MAX(mp->at_ಕನಿಷ್ಠ, n * 2);
+                ಗಾತ್ರ_2 = ಪುಟ_ALIGN(ALIGN(ಗಾತ್ರ(ರಚನೆ pool)) + n*mp->tile_ಗಾತ್ರ);
+                n = (ಗಾತ್ರ_2 - ALIGN(ಗಾತ್ರ(ರಚನೆ pool))) / mp->tile_ಗಾತ್ರ;
 
-                p = malloc(size);
-                if (!p)
-                        return NULL;
+                p = ಸ್ಮರಣೆ_ಕೊಡು(ಗಾತ್ರ_2);
+                ಆದರೆ (!p)
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-                p->next = mp->first_pool;
+                p->ಮುಂದಿನ_2 = mp->ಮೊದಲ_pool;
                 p->n_tiles = n;
-                p->n_used = 0;
+                p->n_ಬಳಸಿದ = 0;
 
-                mp->first_pool = p;
+                mp->ಮೊದಲ_pool = p;
         }
 
-        i = mp->first_pool->n_used++;
+        i = mp->ಮೊದಲ_pool->n_ಬಳಸಿದ++;
 
-        return (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_size;
+        ಹಿಂತಿರುಗಿ (uint8_t*) pool_ptr(mp->ಮೊದಲ_pool) + i*mp->tile_ಗಾತ್ರ;
 }
 
-void* mempool_alloc0_tile(struct mempool *mp) {
-        void *p;
+ಶೂನ್ಯ* mempool_alloc0_tile(ರಚನೆ mempool *mp) {
+        ಶೂನ್ಯ *p;
 
-        assert(mp);
+        ಪ್ರತಿಜ್ಞಾ(mp);
 
         p = mempool_alloc_tile(mp);
-        if (p)
-                memzero(p, mp->tile_size);
-        return p;
+        ಆದರೆ (p)
+                memzero(p, mp->tile_ಗಾತ್ರ);
+        ಹಿಂತಿರುಗಿ p;
 }
 
-void* mempool_free_tile(struct mempool *mp, void *p) {
-        assert(mp);
+ಶೂನ್ಯ* mempool_free_tile(ರಚನೆ mempool *mp, ಶೂನ್ಯ *p) {
+        ಪ್ರತಿಜ್ಞಾ(mp);
 
-        if (!p)
-                return NULL;
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        *(void**) p = mp->freelist;
+        *(ಶೂನ್ಯ**) p = mp->freelist;
         mp->freelist = p;
 
-        return NULL;
+        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-static bool pool_contains(struct mempool *mp, struct pool *p, void *ptr) {
+ಸ್ಥಿರ bool pool_ಒಳಗೊಂಡಿದೆ(ರಚನೆ mempool *mp, ರಚನೆ pool *p, ಶೂನ್ಯ *ptr) {
         size_t off;
-        void *a;
+        ಶೂನ್ಯ *a;
 
-        assert(mp);
-        assert(p);
+        ಪ್ರತಿಜ್ಞಾ(mp);
+        ಪ್ರತಿಜ್ಞಾ(p);
 
-        if (!ptr)
-                return false;
+        ಆದರೆ (!ptr)
+                ಹಿಂತಿರುಗಿ false;
 
         a = pool_ptr(p);
-        if ((uint8_t*) ptr < (uint8_t*) a)
-                return false;
+        ಆದರೆ ((uint8_t*) ptr < (uint8_t*) a)
+                ಹಿಂತಿರುಗಿ false;
 
         off = (uint8_t*) ptr - (uint8_t*) a;
-        if (off >= mp->tile_size * p->n_tiles)
-                return false;
+        ಆದರೆ (off >= mp->tile_ಗಾತ್ರ * p->n_tiles)
+                ಹಿಂತಿರುಗಿ false;
 
-        assert(off % mp->tile_size == 0);
-        return true;
+        ಪ್ರತಿಜ್ಞಾ(off % mp->tile_ಗಾತ್ರ == 0);
+        ಹಿಂತಿರುಗಿ true;
 }
 
-static bool pool_is_unused(struct mempool *mp, struct pool *p) {
-        assert(mp);
-        assert(p);
+ಸ್ಥಿರ bool pool_is_ಬಳಸದ(ರಚನೆ mempool *mp, ರಚನೆ pool *p) {
+        ಪ್ರತಿಜ್ಞಾ(mp);
+        ಪ್ರತಿಜ್ಞಾ(p);
 
-        if (p->n_used == 0)
-                return true;
+        ಆದರೆ (p->n_ಬಳಸಿದ == 0)
+                ಹಿಂತಿರುಗಿ true;
 
         /* Check if all tiles in this specific pool are in the freelist. */
         size_t n = 0;
-        void *i = mp->freelist;
-        while (i) {
-                if (pool_contains(mp, p, i))
+        ಶೂನ್ಯ *i = mp->freelist;
+        ಆಗ (i) {
+                ಆದರೆ (pool_ಒಳಗೊಂಡಿದೆ(mp, p, i))
                         n++;
 
-                i = *(void**) i;
+                i = *(ಶೂನ್ಯ**) i;
         }
 
-        assert(n <= p->n_used);
+        ಪ್ರತಿಜ್ಞಾ(n <= p->n_ಬಳಸಿದ);
 
-        return n == p->n_used;
+        ಹಿಂತಿರುಗಿ n == p->n_ಬಳಸಿದ;
 }
 
-static void pool_unlink(struct mempool *mp, struct pool *p) {
+ಸ್ಥಿರ ಶೂನ್ಯ pool_unlink(ರಚನೆ mempool *mp, ರಚನೆ pool *p) {
         size_t m = 0;
 
-        assert(mp);
-        assert(p);
+        ಪ್ರತಿಜ್ಞಾ(mp);
+        ಪ್ರತಿಜ್ಞಾ(p);
 
-        if (p->n_used == 0)
-                return;
+        ಆದರೆ (p->n_ಬಳಸಿದ == 0)
+                ಹಿಂತಿರುಗಿ;
 
-        void **i = &mp->freelist;
-        while (*i) {
-                void *d = *i;
+        ಶೂನ್ಯ **i = &mp->freelist;
+        ಆಗ (*i) {
+                ಶೂನ್ಯ *d = *i;
 
-                if (pool_contains(mp, p, d)) {
-                        *i = *(void**) d;
+                ಆದರೆ (pool_ಒಳಗೊಂಡಿದೆ(mp, p, d)) {
+                        *i = *(ಶೂನ್ಯ**) d;
                         m++;
 
-                        if (m == p->n_used)
-                                break;
-                } else
-                        i = (void**) d;
+                        ಆದರೆ (m == p->n_ಬಳಸಿದ)
+                                ನಿಲ್ಲಿಸು;
+                } ಇಲ್ಲದಿದ್ದರೆ
+                        i = (ಶೂನ್ಯ**) d;
         }
 }
 
-void mempool_trim(struct mempool *mp) {
-        size_t trimmed = 0, left = 0;
+ಶೂನ್ಯ mempool_trim(ರಚನೆ mempool *mp) {
+        size_t trimmed = 0, ಎಡ = 0;
 
-        assert(mp);
+        ಪ್ರತಿಜ್ಞಾ(mp);
 
-        struct pool **p = &mp->first_pool;
-        while (*p) {
-                struct pool *d = *p;
+        ರಚನೆ pool **p = &mp->ಮೊದಲ_pool;
+        ಆಗ (*p) {
+                ರಚನೆ pool *d = *p;
 
-                if (pool_is_unused(mp, d)) {
-                        trimmed += d->n_tiles * mp->tile_size;
+                ಆದರೆ (pool_is_ಬಳಸದ(mp, d)) {
+                        trimmed += d->n_tiles * mp->tile_ಗಾತ್ರ;
                         pool_unlink(mp, d);
-                        *p = d->next;
-                        free(d);
-                } else {
-                        left += d->n_tiles * mp->tile_size;
-                        p = &d->next;
+                        *p = d->ಮುಂದಿನ_2;
+                        ಬಿಡುಗಡೆ(d);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಎಡ += d->n_tiles * mp->tile_ಗಾತ್ರ;
+                        p = &d->ಮುಂದಿನ_2;
                 }
         }
 
-        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(left));
+        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_ಬೈಟುಗಳು(trimmed), mp, FORMAT_ಬೈಟುಗಳು(ಎಡ));
 }

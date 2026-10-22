@@ -1,129 +1,129 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <elf.h>
-#include <fcntl.h>
-#include <link.h>
-#include <stdlib.h>
-#include <sys/auxv.h>
+#ಅನ್ತರ್ಭಾವ <elf.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <link.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <sys/auxv.h>
 
-#include "alloc-util.h"
-#include "build-path.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "unistd.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "build-path.h"
+#ಅನ್ತರ್ಭಾವ "path-util.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "unistd.h"
 
-static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
-        size_t runpath_index = SIZE_MAX, rpath_index = SIZE_MAX;
-        const char *strtab = NULL;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ get_runpath_from_dynamic(ಸ್ಥಿರಾಂಕ ElfW(Dyn) *d, ElfW(Addr) bias, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **ret) {
+        size_t runpath_ಸೂಚ್ಯಂಕ = SIZE_MAX, rpath_ಸೂಚ್ಯಂಕ = SIZE_MAX;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *strtab = ಖಾಲಿ;
 
-        assert(d);
+        ಪ್ರತಿಜ್ಞಾ(d);
 
         /* Iterates through the PT_DYNAMIC section to find the DT_RUNPATH/DT_RPATH entries */
 
-        for (; d->d_tag != DT_NULL; d++) {
+        ಗಾಗಿ (; d->d_tag != DT_NULL; d++) {
 
-                switch (d->d_tag) {
+                ಆಯ್ಕೆ (d->d_tag) {
 
-                case DT_RUNPATH:
-                        runpath_index = (size_t) d->d_un.d_val;
-                        break;
+                ಸ್ಥಿತಿ DT_RUNPATH:
+                        runpath_ಸೂಚ್ಯಂಕ = (size_t) d->d_un.d_val;
+                        ನಿಲ್ಲಿಸು;
 
-                case DT_RPATH:
-                        rpath_index = (size_t) d->d_un.d_val;
-                        break;
+                ಸ್ಥಿತಿ DT_RPATH:
+                        rpath_ಸೂಚ್ಯಂಕ = (size_t) d->d_un.d_val;
+                        ನಿಲ್ಲಿಸು;
 
-                case DT_STRTAB:
+                ಸ್ಥಿತಿ DT_STRTAB:
                         /* On MIPS, RISC-V, or with musl, DT_STRTAB records an offset, not a valid address,
                          * so it has to be adjusted using the bias calculated earlier. */
-                        if (d->d_un.d_val != 0)
-                                strtab = (const char *) ((uintptr_t) d->d_un.d_val
-#if defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
+                        ಆದರೆ (d->d_un.d_val != 0)
+                                strtab = (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *) ((uintptr_t) d->d_un.d_val
+#ಆದರೆ defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
                                          + bias
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
                                 );
-                        break;
+                        ನಿಲ್ಲಿಸು;
                 }
 
                 /* runpath wins, hence if we have the table and runpath we can exit the loop early */
-                if (strtab && runpath_index != SIZE_MAX)
-                        break;
+                ಆದರೆ (strtab && runpath_ಸೂಚ್ಯಂಕ != SIZE_MAX)
+                        ನಿಲ್ಲಿಸು;
         }
 
-        if (!strtab)
-                return -ENOTRECOVERABLE;
+        ಆದರೆ (!strtab)
+                ಹಿಂತಿರುಗಿ -ENOTRECOVERABLE;
 
         /* According to ld.so runpath wins if both runpath and rpath are defined. */
-        if (runpath_index != SIZE_MAX) {
-                if (ret)
-                        *ret = strtab + runpath_index;
-                return 1;
+        ಆದರೆ (runpath_ಸೂಚ್ಯಂಕ != SIZE_MAX) {
+                ಆದರೆ (ret)
+                        *ret = strtab + runpath_ಸೂಚ್ಯಂಕ;
+                ಹಿಂತಿರುಗಿ 1;
         }
 
-        if (rpath_index != SIZE_MAX) {
-                if (ret)
-                        *ret = strtab + rpath_index;
-                return 1;
+        ಆದರೆ (rpath_ಸೂಚ್ಯಂಕ != SIZE_MAX) {
+                ಆದರೆ (ret)
+                        *ret = strtab + rpath_ಸೂಚ್ಯಂಕ;
+                ಹಿಂತಿರುಗಿ 1;
         }
 
-        if (ret)
-                *ret = NULL;
+        ಆದರೆ (ret)
+                *ret = ಖಾಲಿ;
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-static int get_runpath(const char **ret) {
-        unsigned long phdr, phent, phnum;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ get_runpath(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **ret) {
+        ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ phdr, phent, phnum;
 
         /* Finds the rpath/runpath in the program headers of the main executable we are running in */
 
         phdr = getauxval(AT_PHDR);      /* Start offset of phdr */
-        if (phdr == 0)
-                return -ENOTRECOVERABLE;
+        ಆದರೆ (phdr == 0)
+                ಹಿಂತಿರುಗಿ -ENOTRECOVERABLE;
 
         phnum = getauxval(AT_PHNUM);    /* Number of entries in phdr */
-        if (phnum == 0)
-                return -ENOTRECOVERABLE;
+        ಆದರೆ (phnum == 0)
+                ಹಿಂತಿರುಗಿ -ENOTRECOVERABLE;
 
         phent = getauxval(AT_PHENT);    /* Size of entries in phdr */
-        if (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
-                return -ENOTRECOVERABLE;
+        ಆದರೆ (phent < ಗಾತ್ರ(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
+                ಹಿಂತಿರುಗಿ -ENOTRECOVERABLE;
 
         ElfW(Addr) bias = 0, dyn = 0;
-        bool found_bias = false, found_dyn = false;
+        bool ಸಿಕ್ಕಿತು_bias = false, ಸಿಕ್ಕಿತು_dyn = false;
 
         /* Iterate through the Phdr structures to find the PT_PHDR and PT_DYNAMIC sections */
-        for (unsigned long i = 0; i < phnum; i++) {
-                const ElfW(Phdr) *p = (const ElfW(Phdr)*) (phdr + (i * phent));
+        ಗಾಗಿ (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i = 0; i < phnum; i++) {
+                ಸ್ಥಿರಾಂಕ ElfW(Phdr) *p = (ಸ್ಥಿರಾಂಕ ElfW(Phdr)*) (phdr + (i * phent));
 
-                switch (p->p_type) {
+                ಆಯ್ಕೆ (p->p_type) {
 
-                case PT_PHDR:
-                        if (p->p_vaddr > phdr) /* safety overflow check */
-                                return -ENOTRECOVERABLE;
+                ಸ್ಥಿತಿ PT_PHDR:
+                        ಆದರೆ (p->p_vaddr > phdr) /* safety overflow check */
+                                ಹಿಂತಿರುಗಿ -ENOTRECOVERABLE;
 
                         bias = (ElfW(Addr)) phdr - p->p_vaddr;
-                        found_bias = true;
-                        break;
+                        ಸಿಕ್ಕಿತು_bias = true;
+                        ನಿಲ್ಲಿಸು;
 
-                case PT_DYNAMIC:
+                ಸ್ಥಿತಿ PT_DYNAMIC:
                         dyn = p->p_vaddr;
-                        found_dyn = true;
-                        break;
+                        ಸಿಕ್ಕಿತು_dyn = true;
+                        ನಿಲ್ಲಿಸು;
                 }
 
-                if (found_bias && found_dyn)
-                        break;
+                ಆದರೆ (ಸಿಕ್ಕಿತು_bias && ಸಿಕ್ಕಿತು_dyn)
+                        ನಿಲ್ಲಿಸು;
         }
 
-        if (!found_dyn)
-                return -ENOTRECOVERABLE;
+        ಆದರೆ (!ಸಿಕ್ಕಿತು_dyn)
+                ಹಿಂತಿರುಗಿ -ENOTRECOVERABLE;
 
-        return get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
+        ಹಿಂತಿರುಗಿ get_runpath_from_dynamic((ಸ್ಥಿರಾಂಕ ElfW(Dyn)*) (bias + dyn), bias, ret);
 }
 
-int get_build_exec_dir(char **ret) {
-        int r;
+ಪೂರ್ಣಾಂಕ get_build_exec_dir(ಅಕ್ಷರ **ret) {
+        ಪೂರ್ಣಾಂಕ r;
 
         /* Returns the build execution directory if we are invoked in a build environment. Specifically, this
          * checks if the main program binary has an rpath/runpath set (i.e. an explicit directory where to
@@ -151,140 +151,140 @@ int get_build_exec_dir(char **ret) {
          *     -NOTRECOVERABLE  → Dynamic binary information missing?
          */
 
-        static int runpath_cached = -ERRNO_MAX-1;
-        if (runpath_cached == -ERRNO_MAX-1) {
-                const char *runpath = NULL;
+        ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ runpath_cached = -ERRNO_MAX-1;
+        ಆದರೆ (runpath_cached == -ERRNO_MAX-1) {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *runpath = ಖಾಲಿ;
 
                 runpath_cached = get_runpath(&runpath);
 
                 /* We only care if the runpath starts with $ORIGIN/ */
-                if (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
+                ಆದರೆ (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
                         runpath_cached = 0;
         }
-        if (runpath_cached < 0)
-                return runpath_cached;
-        if (runpath_cached == 0)
-                return -ENOEXEC;
+        ಆದರೆ (runpath_cached < 0)
+                ಹಿಂತಿರುಗಿ runpath_cached;
+        ಆದರೆ (runpath_cached == 0)
+                ಹಿಂತಿರುಗಿ -ENOEXEC;
 
-        _cleanup_free_ char *exe = NULL;
+        _cleanup_free_ ಅಕ್ಷರ *exe = ಖಾಲಿ;
         r = get_process_exe(0, &exe);
-        if (r < 0)
-                return runpath_cached = r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ runpath_cached = r;
 
-        return path_extract_directory(exe, ret);
+        ಹಿಂತಿರುಗಿ ಮಾರ್ಗ_ಹೊರತೆಗೆ_directory(exe, ret);
 }
 
-static int find_build_dir_binary(const char *fn, char **ret) {
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ಕಂಡುಹಿಡಿ_build_dir_ದ್ವಿಮಾನ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fn, ಅಕ್ಷರ **ret) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(fn);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(fn);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        _cleanup_free_ char *build_dir = NULL;
+        _cleanup_free_ ಅಕ್ಷರ *build_dir = ಖಾಲಿ;
         r = get_build_exec_dir(&build_dir);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        _cleanup_free_ char *np = path_join(build_dir, fn);
-        if (!np)
-                return -ENOMEM;
+        _cleanup_free_ ಅಕ್ಷರ *np = ಮಾರ್ಗ_join(build_dir, fn);
+        ಆದರೆ (!np)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
         *ret = TAKE_PTR(np);
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-static int find_environment_binary(const char *fn, const char **ret) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ಕಂಡುಹಿಡಿ_environment_ದ್ವಿಮಾನ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fn, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **ret) {
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* If a path such as /usr/lib/systemd/systemd-foobar is specified, then this will check for an
          * environment variable SYSTEMD_FOOBAR_PATH and return it if set. */
 
-        _cleanup_free_ char *s = strdup(fn);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ ಅಕ್ಷರ *s = strdup(fn);
+        ಆದರೆ (!s)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
         ascii_strupper(s);
         string_replace_char(s, '-', '_');
 
-        if (!strextend(&s, "_PATH"))
-                return -ENOMEM;
+        ಆದರೆ (!strextend(&s, "_PATH"))
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        const char *e;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e;
         e = secure_getenv(s);
-        if (!e)
-                return -ENXIO;
+        ಆದರೆ (!e)
+                ಹಿಂತಿರುಗಿ -ENXIO;
 
         *ret = e;
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int invoke_callout_binary(const char *path, char *const argv[]) {
-        int r;
+ಪೂರ್ಣಾಂಕ invoke_callout_ದ್ವಿಮಾನ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ argv[]) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(path);
+        ಪ್ರತಿಜ್ಞಾ(ಮಾರ್ಗ);
 
         /* Just like execv(), but tries to execute the specified binary in the build dir instead, if known */
 
-        _cleanup_free_ char *fn = NULL;
-        r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        _cleanup_free_ ಅಕ್ಷರ *fn = ಖಾಲಿ;
+        r = ಮಾರ್ಗ_ಹೊರತೆಗೆ_filename(ಮಾರ್ಗ, &fn);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (r == O_DIRECTORY) /* Uh? */
+                ಹಿಂತಿರುಗಿ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e;
+        ಆದರೆ (ಕಂಡುಹಿಡಿ_environment_ದ್ವಿಮಾನ(fn, &e) >= 0) {
                 /* If there's an explicit environment variable set for this binary, prefer it */
                 execv(e, argv);
-                return -errno; /* The environment variable counts, let's fail otherwise */
+                ಹಿಂತಿರುಗಿ -errno; /* The environment variable counts, let's fail otherwise */
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0)
+        _cleanup_free_ ಅಕ್ಷರ *np = ಖಾಲಿ;
+        ಆದರೆ (ಕಂಡುಹಿಡಿ_build_dir_ದ್ವಿಮಾನ(fn, &np) >= 0)
                 execv(np, argv);
 
-        execvp(path, argv);
-        return -errno;
+        execvp(ಮಾರ್ಗ, argv);
+        ಹಿಂತಿರುಗಿ -errno;
 }
 
-int pin_callout_binary(const char *path, char **ret_path) {
-        int r, fd;
+ಪೂರ್ಣಾಂಕ pin_callout_ದ್ವಿಮಾನ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಅಕ್ಷರ **ret_ಮಾರ್ಗ) {
+        ಪೂರ್ಣಾಂಕ r, fd;
 
-        assert(path);
+        ಪ್ರತಿಜ್ಞಾ(ಮಾರ್ಗ);
 
         /* Similar to invoke_callout_binary(), but pins (i.e. O_PATH opens) the binary instead of executing
          * it, also optionally provides the path to the binary. */
 
-        _cleanup_free_ char *fn = NULL;
-        r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        _cleanup_free_ ಅಕ್ಷರ *fn = ಖಾಲಿ;
+        r = ಮಾರ್ಗ_ಹೊರತೆಗೆ_filename(ಮಾರ್ಗ, &fn);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (r == O_DIRECTORY) /* Uh? */
+                ಹಿಂತಿರುಗಿ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e;
+        ಆದರೆ (ಕಂಡುಹಿಡಿ_environment_ದ್ವಿಮಾನ(fn, &e) >= 0) {
                 /* The environment variable counts. We'd fail if the executable is not available/invalid. */
-                r = open_and_check_executable(e, /* root= */ NULL, ret_path, &fd);
-                if (r < 0)
-                        return r;
+                r = open_and_check_executable(e, /* root= */ ಖಾಲಿ, ret_ಮಾರ್ಗ, &fd);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                return fd;
+                ಹಿಂತಿರುಗಿ fd;
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0) {
-                r = open_and_check_executable(np, /* root= */ NULL, ret_path, &fd);
-                if (r >= 0)
-                        return fd;
+        _cleanup_free_ ಅಕ್ಷರ *np = ಖಾಲಿ;
+        ಆದರೆ (ಕಂಡುಹಿಡಿ_build_dir_ದ್ವಿಮಾನ(fn, &np) >= 0) {
+                r = open_and_check_executable(np, /* root= */ ಖಾಲಿ, ret_ಮಾರ್ಗ, &fd);
+                ಆದರೆ (r >= 0)
+                        ಹಿಂತಿರುಗಿ fd;
         }
 
-        r = find_executable_full(path, /* root= */ NULL,
-                                 /* exec_search_path= */ NULL, /* use_path_envvar= */ true,
-                                 ret_path, &fd);
-        if (r < 0)
-                return r;
+        r = ಕಂಡುಹಿಡಿ_executable_ತುಂಬಿದ(ಮಾರ್ಗ, /* root= */ ಖಾಲಿ,
+                                 /* exec_search_path= */ ಖಾಲಿ, /* use_path_envvar= */ true,
+                                 ret_ಮಾರ್ಗ, &fd);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return fd;
+        ಹಿಂತಿರುಗಿ fd;
 }

@@ -1,57 +1,57 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 /* Erase characters until the end of the line */
-#define ANSI_ERASE_TO_END_OF_LINE "\x1B[K"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ERASE_ಗಮ್ಯ_ಕೊನೆ_ದ_ಸಾಲು "\x1B[K"
 
 /* Erase characters until end of screen */
-#define ANSI_ERASE_TO_END_OF_SCREEN "\x1B[J"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ERASE_ಗಮ್ಯ_ಕೊನೆ_ದ_SCREEN "\x1B[J"
 
 /* Move cursor up one line */
-#define ANSI_REVERSE_LINEFEED "\x1BM"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ಹಿಮ್ಮುಖ_LINEFEED "\x1BM"
 
 /* Set cursor to top left corner and clear screen */
-#define ANSI_HOME_CLEAR "\x1B[H\x1B[2J"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_HOME_CLEAR "\x1B[H\x1B[2J"
 
 /* Push/pop a window title off the stack of window titles */
-#define ANSI_WINDOW_TITLE_PUSH "\x1b[22;2t"
-#define ANSI_WINDOW_TITLE_POP "\x1b[23;2t"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ಕಿಟಕಿ_TITLE_ತಳ್ಳು "\x1b[22;2t"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ಕಿಟಕಿ_TITLE_ತೆಗೆ "\x1b[23;2t"
 
 /* The "device control string" ("DCS") start sequence */
-#define ANSI_DCS "\eP"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_DCS "\eP"
 
 /* The "operating system command" ("OSC") start sequence */
-#define ANSI_OSC "\e]"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_OSC "\e]"
 
 /* ANSI "string terminator" character ("ST"). Terminal emulators typically allow three different ones: 0x07,
  * 0x9c, and 0x1B 0x5C. We'll avoid 0x07 (BEL, aka ^G) since it might trigger unexpected TTY signal handling.
  * And we'll avoid 0x9c since that's also valid regular codepoint in UTF-8 and elsewhere, and creates
  * ambiguities. Because of that some terminal emulators explicitly choose not to support it. Hence we use
  * 0x1B 0x5c. */
-#define ANSI_ST "\e\\"
+#ವ್ಯಾಖ್ಯಾನಿಸು ANSI_ST "\e\\"
 
-bool isatty_safe(int fd);
+bool isatty_ಸುರಕ್ಷಿತ(ಪೂರ್ಣಾಂಕ fd);
 
-int terminal_reset_ansi_seq(int fd);
+ಪೂರ್ಣಾಂಕ terminal_reset_ansi_seq(ಪೂರ್ಣಾಂಕ fd);
 
-typedef enum TerminalResetFlags {
-        TERMINAL_RESET_SWITCH_TO_TEXT = 1 << 0,
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ TerminalResetFlags {
+        TERMINAL_RESET_SWITCH_ಗಮ್ಯ_ಪಠ್ಯ = 1 << 0,
         TERMINAL_RESET_AVOID_ANSI_SEQ = 1 << 1,
         TERMINAL_RESET_FORCE_ANSI_SEQ = 1 << 2,
 } TerminalResetFlags;
 
-int terminal_reset_defensive(int fd, TerminalResetFlags flags);
-int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags);
+ಪೂರ್ಣಾಂಕ terminal_reset_defensive(ಪೂರ್ಣಾಂಕ fd, TerminalResetFlags flags);
+ಪೂರ್ಣಾಂಕ terminal_reset_defensive_locked(ಪೂರ್ಣಾಂಕ fd, TerminalResetFlags flags);
 
-int terminal_set_cursor_position(int fd, unsigned row, unsigned column);
-int terminal_get_cursor_position(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_column);
+ಪೂರ್ಣಾಂಕ terminal_ಗಣ_cursor_position(ಪೂರ್ಣಾಂಕ fd, ಚಿಹ್ನೆರಹಿತ ಅಡ್ಡಸಾಲು, ಚಿಹ್ನೆರಹಿತ ಸ್ತಂಭ);
+ಪೂರ್ಣಾಂಕ terminal_get_cursor_position(ಪೂರ್ಣಾಂಕ ಒಳಹರಿವು_fd, ಪೂರ್ಣಾಂಕ output_fd, ಚಿಹ್ನೆರಹಿತ *ret_ಅಡ್ಡಸಾಲುಗಳು, ಚಿಹ್ನೆರಹಿತ *ret_ಸ್ತಂಭ);
 
-int open_terminal(const char *name, int mode);
+ಪೂರ್ಣಾಂಕ open_terminal(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, ಪೂರ್ಣಾಂಕ ಬಹುಲಕ);
 
 /* Flags for tweaking the way we become the controlling process of a terminal. */
-typedef enum AcquireTerminalFlags {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ AcquireTerminalFlags {
         /* Try to become the controlling process of the TTY. If we can't return -EPERM. */
         ACQUIRE_TERMINAL_TRY        = 0,
 
@@ -62,7 +62,7 @@ typedef enum AcquireTerminalFlags {
         ACQUIRE_TERMINAL_WAIT       = 2,
 
         /* The combined mask of the above */
-        _ACQUIRE_TERMINAL_MODE_MASK = ACQUIRE_TERMINAL_TRY | ACQUIRE_TERMINAL_FORCE | ACQUIRE_TERMINAL_WAIT,
+        ACQUIRE_TERMINAL_ಬಹುಲಕ_ಮುಖವಾಡ = ACQUIRE_TERMINAL_TRY | ACQUIRE_TERMINAL_FORCE | ACQUIRE_TERMINAL_WAIT,
 
         /* Pick one of the above, and then OR this flag in, in order to request permissive behaviour, if we can't become controlling process then don't mind */
         ACQUIRE_TERMINAL_PERMISSIVE = 1 << 2,
@@ -71,133 +71,133 @@ typedef enum AcquireTerminalFlags {
         ACQUIRE_TERMINAL_WATCH_SIGTERM = 1 << 3,
 } AcquireTerminalFlags;
 
-int acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
-int release_terminal(void);
+ಪೂರ್ಣಾಂಕ acquire_terminal(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name, AcquireTerminalFlags flags, usec_t timeout);
+ಪೂರ್ಣಾಂಕ release_terminal(ಶೂನ್ಯ);
 
-int terminal_new_session(void);
-void terminal_detach_session(void);
+ಪೂರ್ಣಾಂಕ terminal_new_session(ಶೂನ್ಯ);
+ಶೂನ್ಯ terminal_detach_session(ಶೂನ್ಯ);
 
-int terminal_vhangup_fd(int fd);
-int terminal_vhangup(const char *tty);
+ಪೂರ್ಣಾಂಕ terminal_vhangup_fd(ಪೂರ್ಣಾಂಕ fd);
+ಪೂರ್ಣಾಂಕ terminal_vhangup(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty);
 
-int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols);
-int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols);
+ಪೂರ್ಣಾಂಕ terminal_ಗಣ_ಗಾತ್ರ_fd(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ident, ಚಿಹ್ನೆರಹಿತ ಅಡ್ಡಸಾಲುಗಳು, ಚಿಹ್ನೆರಹಿತ ಲಂಬಸಾಲು_ಸಂಖ್ಯೆ);
+ಪೂರ್ಣಾಂಕ proc_cmdline_tty_ಗಾತ್ರ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty, ಚಿಹ್ನೆರಹಿತ *ret_ಅಡ್ಡಸಾಲುಗಳು, ಚಿಹ್ನೆರಹಿತ *ret_ಲಂಬಸಾಲು_ಸಂಖ್ಯೆ);
 
-int chvt(int vt);
+ಪೂರ್ಣಾಂಕ chvt(ಪೂರ್ಣಾಂಕ vt);
 
-int read_one_char(FILE *f, char *ret, usec_t timeout, bool echo, bool *need_nl);
-int ask_char(char *ret, const char *replies, const char *fmt, ...) _printf_(3, 4);
+ಪೂರ್ಣಾಂಕ read_one_char(FILE *f, ಅಕ್ಷರ *ret, usec_t timeout, bool echo, bool *need_nl);
+ಪೂರ್ಣಾಂಕ ask_char(ಅಕ್ಷರ *ret, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *replies, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fmt, ...) _printf_(3, 4);
 
-typedef enum GetCompletionsFlags {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ GetCompletionsFlags {
         /* Only return the items subject to preselection: typically you want to suppress meta entries such as
          * "list" or alias entries if this flag is set. */
         GET_COMPLETIONS_PRESELECT = 1 << 0,
 } GetCompletionsFlags;
 
-typedef int (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
-int ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
-#define ask_string(ret, text, ...) ask_string_full(ret, NULL, NULL, NULL, text, ##__VA_ARGS__)
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಪೂರ್ಣಾಂಕ (*GetCompletionsCallback)(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕೀಲಿ, GetCompletionsFlags flags, ಅಕ್ಷರ ***ret_list, ಶೂನ್ಯ *userdata);
+ಪೂರ್ಣಾಂಕ ask_string_ತುಂಬಿದ(ಅಕ್ಷರ **ret, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *prefill, GetCompletionsCallback get_completions, ಶೂನ್ಯ *userdata, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪಠ್ಯ, ...) _printf_(5, 6);
+#ವ್ಯಾಖ್ಯಾನಿಸು ask_string(ret, ಪಠ್ಯ, ...) ask_string_ತುಂಬಿದ(ret, ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ, ಪಠ್ಯ, ##__VA_ARGS__)
 
-bool any_key_to_proceed(void);
-int show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
+bool any_ಕೀಲಿ_ಗಮ್ಯ_proceed(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ show_menu(ಅಕ್ಷರ **x, size_t n_columns, size_t ಸ್ತಂಭ_ಅಗಲ, ಚಿಹ್ನೆರಹಿತ ellipsize_percentage, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *grey_ಪೂರ್ವಪ್ರತ್ಯಯ, bool with_numbers);
 
-int vt_disallocate(const char *tty_path);
+ಪೂರ್ಣಾಂಕ vt_disallocate(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty_ಮಾರ್ಗ);
 
-int resolve_dev_console(char **ret);
-int get_kernel_consoles(char ***ret);
-bool tty_is_vc(const char *tty);
-bool tty_is_vc_resolve(const char *tty);
-bool tty_is_console(const char *tty) _pure_;
-int vtnr_from_tty(const char *tty);
+ಪೂರ್ಣಾಂಕ resolve_dev_console(ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ get_kernel_consoles(ಅಕ್ಷರ ***ret);
+bool tty_is_vc(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty);
+bool tty_is_vc_resolve(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty);
+bool tty_is_console(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty) ಶುದ್ಧ;
+ಪೂರ್ಣಾಂಕ vtnr_from_tty(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty);
 
-void reset_dev_console_fd(int fd, bool switch_to_text);
-int lock_dev_console(void);
-int make_console_stdio(bool switch_to_text);
+ಶೂನ್ಯ reset_dev_console_fd(ಪೂರ್ಣಾಂಕ fd, bool switch_ಗಮ್ಯ_ಪಠ್ಯ);
+ಪೂರ್ಣಾಂಕ ಬೀಗ_dev_console(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ make_console_stdio(bool switch_ಗಮ್ಯ_ಪಠ್ಯ);
 
-int getenv_columns(void);
-int fd_columns(int fd);
-unsigned columns(void);
-int fd_lines(int fd);
-unsigned lines(void);
+ಪೂರ್ಣಾಂಕ getenv_columns(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ fd_columns(ಪೂರ್ಣಾಂಕ fd);
+ಚಿಹ್ನೆರಹಿತ columns(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಂಕ fd_ಸಾಲುಗಳು(ಪೂರ್ಣಾಂಕ fd);
+ಚಿಹ್ನೆರಹಿತ ಸಾಲುಗಳು(ಶೂನ್ಯ);
 
-void columns_lines_cache_reset(int _unused_ signum);
-void reset_terminal_feature_caches(void);
+ಶೂನ್ಯ columns_ಸಾಲುಗಳು_cache_reset(ಪೂರ್ಣಾಂಕ ಬಳಸದ signum);
+ಶೂನ್ಯ reset_terminal_feature_caches(ಶೂನ್ಯ);
 
-bool on_tty(void);
-bool term_env_valid(const char *term);
-bool getenv_terminal_is_dumb(void);
-bool terminal_is_dumb(void);
+bool on_tty(ಶೂನ್ಯ);
+bool ಪದ_env_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪದ);
+bool getenv_terminal_is_dumb(ಶೂನ್ಯ);
+bool terminal_is_dumb(ಶೂನ್ಯ);
 
-bool dev_console_colors_enabled(void);
+bool dev_console_colors_enabled(ಶೂನ್ಯ);
 
-int get_ctty_devnr(pid_t pid, dev_t *ret);
-int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret);
+ಪೂರ್ಣಾಂಕ get_ctty_devnr(pid_t pid, dev_t *ret);
+ಪೂರ್ಣಾಂಕ get_ctty(pid_t pid, dev_t *ret_devnr, ಅಕ್ಷರ **ret);
 
-int getttyname_malloc(int fd, char **ret);
-int getttyname_harder(int fd, char **ret);
+ಪೂರ್ಣಾಂಕ getttyname_malloc(ಪೂರ್ಣಾಂಕ fd, ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ getttyname_harder(ಪೂರ್ಣಾಂಕ fd, ಅಕ್ಷರ **ret);
 
-int ptsname_malloc(int fd, char **ret);
+ಪೂರ್ಣಾಂಕ ptsname_malloc(ಪೂರ್ಣಾಂಕ fd, ಅಕ್ಷರ **ret);
 
-int openpt_allocate(int flags, char **ret_peer_path);
-int openpt_allocate_in_namespace(const PidRef *pidref, int flags, char **ret_peer_path);
+ಪೂರ್ಣಾಂಕ openpt_allocate(ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_peer_ಮಾರ್ಗ);
+ಪೂರ್ಣಾಂಕ openpt_allocate_ಒಳ_namespace(ಸ್ಥಿರಾಂಕ PidRef *pidref, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_peer_ಮಾರ್ಗ);
 
-int vt_restore(int fd);
-int vt_release(int fd, bool restore);
+ಪೂರ್ಣಾಂಕ vt_restore(ಪೂರ್ಣಾಂಕ fd);
+ಪೂರ್ಣಾಂಕ vt_release(ಪೂರ್ಣಾಂಕ fd, bool restore);
 
-void get_log_colors(int priority, const char **on, const char **off, const char **highlight);
+ಶೂನ್ಯ get_log_colors(ಪೂರ್ಣಾಂಕ priority, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **on, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **off, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ **highlight);
 
 /* Assume TTY_MODE is defined in config.h. Also, this assumes there is a 'tty' group. */
-assert_cc((TTY_MODE & ~0666) == 0);
-assert_cc((TTY_MODE & 0711) == 0600);
+assert_cc((TTY_ಬಹುಲಕ & ~0666) == 0);
+assert_cc((TTY_ಬಹುಲಕ & 0711) == 0600);
 
-void termios_disable_echo(struct termios *termios);
+ಶೂನ್ಯ termios_disable_echo(ರಚನೆ termios *termios);
 
 /* A termios sentinel with all flag fields set to all-ones-bits. No real tcgetattr() result will ever
  * match this because no real terminal configuration uses all-ones in every flag field simultaneously. */
-#define TERMIOS_NULL (struct termios) {         \
+#ವ್ಯಾಖ್ಯಾನಿಸು TERMIOS_NULL (ರಚನೆ termios) {         \
         .c_iflag = UINT_MAX,                    \
         .c_oflag = UINT_MAX,                    \
         .c_cflag = UINT_MAX,                    \
         .c_lflag = UINT_MAX,                    \
 }
 
-typedef struct TermiosResetContext {
-        int *fd;
-        struct termios *termios;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ TermiosResetContext {
+        ಪೂರ್ಣಾಂಕ *fd;
+        ರಚನೆ termios *termios;
 } TermiosResetContext;
 
-void termios_reset(const TermiosResetContext *c);
+ಶೂನ್ಯ termios_reset(ಸ್ಥಿರಾಂಕ TermiosResetContext *c);
 
-#define CLEANUP_TERMIOS_RESET(_fd, _termios)                                   \
-        _cleanup_(termios_reset) _unused_ const TermiosResetContext            \
+#ವ್ಯಾಖ್ಯಾನಿಸು CLEANUP_TERMIOS_RESET(_fd, _termios)                                   \
+        _cleanup_(termios_reset) ಬಳಸದ ಸ್ಥಿರಾಂಕ TermiosResetContext            \
                 CONCATENATE(_cleanup_termios_, UNIQ) = {                       \
                         .fd = &(_fd),                                          \
                         .termios = &(_termios),                                \
                 }
 
 /* The $TERM value we use for terminals other than the Linux console */
-#define FALLBACK_TERM "vt220"
+#ವ್ಯಾಖ್ಯಾನಿಸು FALLBACK_ಪದ "vt220"
 
-int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
-int terminal_get_size(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
-int terminal_fix_size(int input_fd, int output_fd);
+ಪೂರ್ಣಾಂಕ get_default_background_color(ದ್ವಿಗುಣ *ret_red, ದ್ವಿಗುಣ *ret_green, ದ್ವಿಗುಣ *ret_blue);
+ಪೂರ್ಣಾಂಕ terminal_get_ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ ಒಳಹರಿವು_fd, ಪೂರ್ಣಾಂಕ output_fd, ಚಿಹ್ನೆರಹಿತ *ret_ಅಡ್ಡಸಾಲುಗಳು, ಚಿಹ್ನೆರಹಿತ *ret_columns, bool try_dsr, bool try_csi18);
+ಪೂರ್ಣಾಂಕ terminal_fix_ಗಾತ್ರ(ಪೂರ್ಣಾಂಕ ಒಳಹರಿವು_fd, ಪೂರ್ಣಾಂಕ output_fd);
 
-int terminal_get_terminfo_by_dcs(int fd, char **ret_name);
-int have_terminfo_file(const char *name);
-int query_term_for_tty(const char *tty, char **ret_term);
+ಪೂರ್ಣಾಂಕ terminal_get_terminfo_by_dcs(ಪೂರ್ಣಾಂಕ fd, ಅಕ್ಷರ **ret_name);
+ಪೂರ್ಣಾಂಕ have_terminfo_file(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name);
+ಪೂರ್ಣಾಂಕ query_ಪದ_for_tty(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *tty, ಅಕ್ಷರ **ret_ಪದ);
 
-int terminal_is_pty_fd(int fd);
+ಪೂರ್ಣಾಂಕ terminal_is_pty_fd(ಪೂರ್ಣಾಂಕ fd);
 
-int pty_open_peer(int fd, int mode);
+ಪೂರ್ಣಾಂಕ pty_open_peer(ಪೂರ್ಣಾಂಕ fd, ಪೂರ್ಣಾಂಕ ಬಹುಲಕ);
 
-static inline bool osc_char_is_valid(char c) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool osc_char_is_valid(ಅಕ್ಷರ c) {
         /* Checks whether the specified character is safe to be included inside an ANSI OSC sequence, as per
          * ECMA-48 5th edition, section 8.3.89 */
-        return (unsigned char) c >= 32 && (unsigned char) c < 127;
+        ಹಿಂತಿರುಗಿ (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) c >= 32 && (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) c < 127;
 }
 
-#define VTNR_MAX 63
+#ವ್ಯಾಖ್ಯಾನಿಸು VTNR_MAX 63
 
-static inline bool vtnr_is_valid(unsigned n) {
-        return n >= 1 && n <= VTNR_MAX;
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool vtnr_is_valid(ಚಿಹ್ನೆರಹಿತ n) {
+        ಹಿಂತಿರುಗಿ n >= 1 && n <= VTNR_MAX;
 }

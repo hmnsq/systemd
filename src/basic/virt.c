@@ -1,46 +1,46 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#if defined(__i386__) || defined(__x86_64__)
-#include <cpuid.h>
-#endif
-#if defined(__aarch64__)
-#include <sys/auxv.h>
-#endif
-#include <stdlib.h>
-#include <threads.h>
-#include <unistd.h>
+#ಆದರೆ defined(__i386__) || defined(__x86_64__)
+#ಅನ್ತರ್ಭಾವ <cpuid.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ಆದರೆ defined(__aarch64__)
+#ಅನ್ತರ್ಭಾವ <sys/auxv.h>
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <threads.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "alloc-util.h"
-#include "dirent-util.h"        /* IWYU pragma: keep */
-#include "env-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "namespace-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "virt.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "dirent-util.h"        /* IWYU pragma: keep */
+#ಅನ್ತರ್ಭಾವ "env-util.h"
+#ಅನ್ತರ್ಭಾವ "extract-word.h"
+#ಅನ್ತರ್ಭಾವ "fd-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "namespace-util.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "stat-util.h"
+#ಅನ್ತರ್ಭಾವ "string-table.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
+#ಅನ್ತರ್ಭಾವ "virt.h"
 
-enum {
-      SMBIOS_VM_BIT_SET,
-      SMBIOS_VM_BIT_UNSET,
-      SMBIOS_VM_BIT_UNKNOWN,
+ಎಣಿಕೆ {
+      SMBIOS_VM_ಬಿಟ್_ಗಣ,
+      SMBIOS_VM_ಬಿಟ್_UNSET,
+      SMBIOS_VM_ಬಿಟ್_UNKNOWN,
 };
 
-static Virtualization detect_vm_cpuid(void) {
+ಸ್ಥಿರ Virtualization detect_vm_cpuid(ಶೂನ್ಯ) {
 
         /* CPUID is an x86 specific interface. */
-#if defined(__i386__) || defined(__x86_64__)
+#ಆದರೆ defined(__i386__) || defined(__x86_64__)
 
-        static const struct {
-                const char sig[13];
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ sig[13];
                 Virtualization id;
-        } vm_table[] = {
+        } vm_ಕೋಷ್ಟಕ[] = {
                 { "XenVMMXenVMM", VIRTUALIZATION_XEN       },
                 { "KVMKVMKVM",    VIRTUALIZATION_KVM       }, /* qemu with KVM */
                 { "Linux KVM Hv", VIRTUALIZATION_KVM       }, /* qemu with KVM + HyperV Enlightenments */
@@ -65,15 +65,15 @@ static Virtualization detect_vm_cpuid(void) {
         /* http://lwn.net/Articles/301888/ */
 
         /* First detect whether there is a hypervisor */
-        if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) == 0)
-                return VIRTUALIZATION_NONE;
+        ಆದರೆ (__get_cpuid(1, &eax, &ebx, &ecx, &edx) == 0)
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
 
         hypervisor = ecx & 0x80000000U;
 
-        if (hypervisor) {
-                union {
+        ಆದರೆ (hypervisor) {
+                ಒಕ್ಕೂಟ {
                         uint32_t sig32[3];
-                        char text[13];
+                        ಅಕ್ಷರ ಪಠ್ಯ[13];
                 } sig = {};
 
                 /* There is a hypervisor, see what it is */
@@ -83,100 +83,100 @@ static Virtualization detect_vm_cpuid(void) {
                 sig.sig32[1] = ecx;
                 sig.sig32[2] = edx;
 
-                log_debug("Virtualization found, CPUID=%s", sig.text);
+                log_debug("Virtualization found, CPUID=%s", sig.ಪಠ್ಯ);
 
-                FOREACH_ELEMENT(vm, vm_table)
-                        if (memcmp_nn(sig.text, sizeof(sig.text),
-                                      vm->sig, sizeof(vm->sig)) == 0)
-                                return vm->id;
+                FOREACH_ELEMENT(vm, vm_ಕೋಷ್ಟಕ)
+                        ಆದರೆ (memcmp_nn(sig.ಪಠ್ಯ, ಗಾತ್ರ(sig.ಪಠ್ಯ),
+                                      vm->sig, ಗಾತ್ರ(vm->sig)) == 0)
+                                ಹಿಂತಿರುಗಿ vm->id;
 
-                log_debug("Unknown virtualization with CPUID=%s. Add to vm_table[]?", sig.text);
-                return VIRTUALIZATION_VM_OTHER;
+                log_debug("Unknown virtualization with CPUID=%s. Add to vm_table[]?", sig.ಪಠ್ಯ);
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_VM_OTHER;
         }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         log_debug("No virtualization found in CPUID");
 
-        return VIRTUALIZATION_NONE;
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
 }
 
-static Virtualization detect_vm_device_tree(void) {
-#if defined(__arm__) || defined(__aarch64__) || defined(__powerpc__) || defined(__powerpc64__) || defined(__riscv)
-        _cleanup_free_ char *hvtype = NULL;
-        int r;
+ಸ್ಥಿರ Virtualization detect_vm_device_ವೃಕ್ಷ(ಶೂನ್ಯ) {
+#ಆದರೆ defined(__arm__) || defined(__aarch64__) || defined(__powerpc__) || defined(__powerpc64__) || defined(__riscv)
+        _cleanup_free_ ಅಕ್ಷರ *hvtype = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = read_one_line_file("/proc/device-tree/hypervisor/compatible", &hvtype);
-        if (r == -ENOENT) {
-                if (access("/proc/device-tree/ibm,partition-name", F_OK) == 0 &&
+        r = read_one_ಸಾಲು_file("/proc/device-tree/hypervisor/compatible", &hvtype);
+        ಆದರೆ (r == -ENOENT) {
+                ಆದರೆ (access("/proc/device-tree/ibm,partition-name", F_OK) == 0 &&
                     access("/proc/device-tree/hmc-managed?", F_OK) == 0 &&
                     access("/proc/device-tree/chosen/qemu,graphic-width", F_OK) != 0)
-                        return VIRTUALIZATION_POWERVM;
+                        ಹಿಂತಿರುಗಿ VIRTUALIZATION_POWERVM;
 
                 _cleanup_closedir_ DIR *dir = opendir("/proc/device-tree");
-                if (!dir) {
-                        if (errno == ENOENT) {
+                ಆದರೆ (!dir) {
+                        ಆದರೆ (errno == ENOENT) {
                                 log_debug_errno(errno, "/proc/device-tree/ does not exist");
-                                return VIRTUALIZATION_NONE;
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
                         }
-                        return log_debug_errno(errno, "Opening /proc/device-tree/ failed: %m");
+                        ಹಿಂತಿರುಗಿ log_debug_errno(errno, "Opening /proc/device-tree/ failed: %m");
                 }
 
-                FOREACH_DIRENT(de, dir, return log_debug_errno(errno, "Failed to enumerate /proc/device-tree/ contents: %m"))
-                        if (strstr(de->d_name, "fw-cfg")) {
+                FOREACH_DIRENT(de, dir, ಹಿಂತಿರುಗಿ log_debug_errno(errno, "Failed to enumerate /proc/device-tree/ contents: %m"))
+                        ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(de->d_name, "fw-cfg")) {
                                 log_debug("Virtualization QEMU: \"fw-cfg\" present in /proc/device-tree/%s", de->d_name);
-                                return VIRTUALIZATION_QEMU;
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_QEMU;
                         }
 
-                _cleanup_free_ char *compat = NULL;
-                r = read_one_line_file("/proc/device-tree/compatible", &compat);
-                if (r < 0 && r != -ENOENT)
-                        return log_debug_errno(r, "Failed to read /proc/device-tree/compatible: %m");
-                if (r >= 0) {
-                        if (streq(compat, "qemu,pseries")) {
+                _cleanup_free_ ಅಕ್ಷರ *compat = ಖಾಲಿ;
+                r = read_one_ಸಾಲು_file("/proc/device-tree/compatible", &compat);
+                ಆದರೆ (r < 0 && r != -ENOENT)
+                        ಹಿಂತಿರುಗಿ log_debug_errno(r, "Failed to read /proc/device-tree/compatible: %m");
+                ಆದರೆ (r >= 0) {
+                        ಆದರೆ (streq(compat, "qemu,pseries")) {
                                 log_debug("Virtualization %s found in /proc/device-tree/compatible", compat);
-                                return VIRTUALIZATION_QEMU;
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_QEMU;
                         }
-                        if (streq(compat, "linux,dummy-virt")) {
+                        ಆದರೆ (streq(compat, "linux,dummy-virt")) {
                                 /* https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/linux%2Cdummy-virt.yaml */
                                 log_debug("Generic virtualization %s found in /proc/device-tree/compatible", compat);
-                                return VIRTUALIZATION_VM_OTHER;
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_VM_OTHER;
                         }
                 }
 
                 log_debug("No virtualization found in /proc/device-tree/*");
-                return VIRTUALIZATION_NONE;
-        } else if (r < 0)
-                return r;
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         log_debug("Virtualization %s found in /proc/device-tree/hypervisor/compatible", hvtype);
-        if (streq(hvtype, "linux,kvm"))
-                return VIRTUALIZATION_KVM;
-        else if (strstr(hvtype, "xen"))
-                return VIRTUALIZATION_XEN;
-        else if (strstr(hvtype, "vmware"))
-                return VIRTUALIZATION_VMWARE;
-        else
-                return VIRTUALIZATION_VM_OTHER;
-#else
+        ಆದರೆ (streq(hvtype, "linux,kvm"))
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_KVM;
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(hvtype, "xen"))
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_XEN;
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(hvtype, "vmware"))
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_VMWARE;
+        ಇಲ್ಲದಿದ್ದರೆ
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_VM_OTHER;
+#ಇಲ್ಲದಿದ್ದರೆ
         log_debug("This platform does not support /proc/device-tree");
-        return VIRTUALIZATION_NONE;
-#endif
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-#if defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__) || defined(__loongarch_lp64) || defined(__riscv)
-static Virtualization detect_vm_dmi_vendor(void) {
-        static const char* const dmi_vendors[] = {
+#ಆದರೆ defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__) || defined(__loongarch_lp64) || defined(__riscv)
+ಸ್ಥಿರ Virtualization detect_vm_dmi_vendor(ಶೂನ್ಯ) {
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ dmi_vendors[] = {
                 "/sys/class/dmi/id/product_name", /* Test this before sys_vendor to detect KVM over QEMU */
                 "/sys/class/dmi/id/sys_vendor",
                 "/sys/class/dmi/id/board_vendor",
                 "/sys/class/dmi/id/bios_vendor",
                 "/sys/class/dmi/id/product_version", /* For Hyper-V VMs test */
-                NULL
+                ಖಾಲಿ
         };
 
-        static const struct {
-                const char *vendor;
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *vendor;
                 Virtualization id;
-        } dmi_vendor_table[] = {
+        } dmi_vendor_ಕೋಷ್ಟಕ[] = {
                 { "KVM",                   VIRTUALIZATION_KVM       },
                 { "OpenStack",             VIRTUALIZATION_KVM       }, /* Detect OpenStack instance as KVM in non x86 architecture */
                 { "KubeVirt",              VIRTUALIZATION_KVM       }, /* Detect KubeVirt instance as KVM in non x86 architecture */
@@ -197,268 +197,268 @@ static Virtualization detect_vm_dmi_vendor(void) {
                 { "Apple Virtualization",  VIRTUALIZATION_APPLE     },
                 { "Google Compute Engine", VIRTUALIZATION_GOOGLE    }, /* https://cloud.google.com/run/docs/container-contract#sandbox */
         };
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
         STRV_FOREACH(vendor, dmi_vendors) {
-                _cleanup_free_ char *s = NULL;
+                _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
 
-                r = read_one_line_file(*vendor, &s);
-                if (r == -ENOENT)
-                        continue;
-                if (r < 0)
-                        return r;
+                r = read_one_ಸಾಲು_file(*vendor, &s);
+                ಆದರೆ (r == -ENOENT)
+                        ಮುಂದುವರಿ;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                FOREACH_ELEMENT(dmi_vendor, dmi_vendor_table)
-                        if (startswith(s, dmi_vendor->vendor)) {
+                FOREACH_ELEMENT(dmi_vendor, dmi_vendor_ಕೋಷ್ಟಕ)
+                        ಆದರೆ (startswith(s, dmi_vendor->vendor)) {
                                 log_debug("Virtualization %s found in DMI (%s)", s, *vendor);
-                                return dmi_vendor->id;
+                                ಹಿಂತಿರುಗಿ dmi_vendor->id;
                         }
         }
         log_debug("No virtualization found in DMI vendor table.");
-        return VIRTUALIZATION_NONE;
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
 }
 
-static int detect_vm_smbios(void) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ detect_vm_smbios(ಶೂನ್ಯ) {
         /* The SMBIOS BIOS Characteristics Extension Byte 2 (Section 2.1.2.2 of
          * https://www.dmtf.org/sites/default/files/standards/documents/DSP0134_3.4.0.pdf), specifies that
          * the 4th bit being set indicates a VM. The BIOS Characteristics table is exposed via the kernel in
          * /sys/firmware/dmi/entries/0-0. Note that in the general case, this bit being unset should not
          * imply that the system is running on bare-metal.  For example, QEMU 3.1.0 (with or without KVM)
          * with SeaBIOS does not set this bit. */
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
         size_t readsize;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = read_full_virtual_file("/sys/firmware/dmi/entries/0-0/raw", &s, &readsize);
-        if (r < 0) {
+        r = read_ತುಂಬಿದ_virtual_file("/sys/firmware/dmi/entries/0-0/raw", &s, &readsize);
+        ಆದರೆ (r < 0) {
                 log_debug_errno(r, "Unable to read /sys/firmware/dmi/entries/0-0/raw, "
                                 "using the virtualization information found in DMI vendor table, ignoring: %m");
-                return SMBIOS_VM_BIT_UNKNOWN;
+                ಹಿಂತಿರುಗಿ SMBIOS_VM_ಬಿಟ್_UNKNOWN;
         }
-        if (readsize < 20 || s[1] < 20) {
+        ಆದರೆ (readsize < 20 || s[1] < 20) {
                 /* The spec indicates that byte 1 contains the size of the table, 0x12 + the number of
                  * extension bytes. The data we're interested in is in extension byte 2, which would be at
                  * 0x13. If we didn't read that much data, or if the BIOS indicates that we don't have that
                  * much data, we don't infer anything from the SMBIOS. */
                 log_debug("Only read %zu bytes from /sys/firmware/dmi/entries/0-0/raw (expected 20). "
                           "Using the virtualization information found in DMI vendor table.", readsize);
-                return SMBIOS_VM_BIT_UNKNOWN;
+                ಹಿಂತಿರುಗಿ SMBIOS_VM_ಬಿಟ್_UNKNOWN;
         }
 
         uint8_t byte = (uint8_t) s[19];
-        if (byte & (1U<<4)) {
+        ಆದರೆ (byte & (1U<<4)) {
                 log_debug("DMI BIOS Extension table indicates virtualization.");
-                return SMBIOS_VM_BIT_SET;
+                ಹಿಂತಿರುಗಿ SMBIOS_VM_ಬಿಟ್_ಗಣ;
         }
         log_debug("DMI BIOS Extension table does not indicate virtualization.");
-        return SMBIOS_VM_BIT_UNSET;
+        ಹಿಂತಿರುಗಿ SMBIOS_VM_ಬಿಟ್_UNSET;
 }
-#endif /* defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__) || defined(__loongarch_lp64) */
+#ಆದರೆ_ಅಂತ್ಯ /* defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__) || defined(__loongarch_lp64) */
 
-static Virtualization detect_vm_dmi(void) {
-#if defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__) || defined(__loongarch_lp64) || defined(__riscv)
+ಸ್ಥಿರ Virtualization detect_vm_dmi(ಶೂನ್ಯ) {
+#ಆದರೆ defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__) || defined(__loongarch_lp64) || defined(__riscv)
 
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
         r = detect_vm_dmi_vendor();
 
         /* The DMI vendor tables in /sys/class/dmi/id don't help us distinguish between Amazon EC2
          * virtual machines and bare-metal instances, so we need to look at SMBIOS. */
-        if (r == VIRTUALIZATION_AMAZON) {
-                switch (detect_vm_smbios()) {
-                case SMBIOS_VM_BIT_SET:
-                        return VIRTUALIZATION_AMAZON;
-                case SMBIOS_VM_BIT_UNSET:
-                        return VIRTUALIZATION_NONE;
-                case SMBIOS_VM_BIT_UNKNOWN: {
+        ಆದರೆ (r == VIRTUALIZATION_AMAZON) {
+                ಆಯ್ಕೆ (detect_vm_smbios()) {
+                ಸ್ಥಿತಿ SMBIOS_VM_ಬಿಟ್_ಗಣ:
+                        ಹಿಂತಿರುಗಿ VIRTUALIZATION_AMAZON;
+                ಸ್ಥಿತಿ SMBIOS_VM_ಬಿಟ್_UNSET:
+                        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+                ಸ್ಥಿತಿ SMBIOS_VM_ಬಿಟ್_UNKNOWN: {
                         /* The DMI information we are after is only accessible to the root user,
                          * so we fallback to using the product name which is less restricted
                          * to distinguish metal systems from virtualized instances */
-                        _cleanup_free_ char *s = NULL;
-                        const char *e;
+                        _cleanup_free_ ಅಕ್ಷರ *s = ಖಾಲಿ;
+                        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e;
 
-                        r = read_full_virtual_file("/sys/class/dmi/id/product_name", &s, NULL);
+                        r = read_ತುಂಬಿದ_virtual_file("/sys/class/dmi/id/product_name", &s, ಖಾಲಿ);
                         /* In EC2, virtualized is much more common than metal, so if for some reason
                          * we fail to read the DMI data, assume we are virtualized. */
-                        if (r < 0) {
+                        ಆದರೆ (r < 0) {
                                 log_debug_errno(r, "Can't read /sys/class/dmi/id/product_name,"
                                                 " assuming virtualized: %m");
-                                return VIRTUALIZATION_AMAZON;
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_AMAZON;
                         }
                         e = strstrafter(truncate_nl(s), ".metal");
-                        if (e && IN_SET(*e, 0, '-')) {
+                        ಆದರೆ (e && ಒಳ_ಗಣ(*e, 0, '-')) {
                                 log_debug("DMI product name has '.metal', assuming no virtualization");
-                                return VIRTUALIZATION_NONE;
-                        } else
-                                return VIRTUALIZATION_AMAZON;
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+                        } ಇಲ್ಲದಿದ್ದರೆ
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_AMAZON;
                 }
-                default:
+                ಪೂರ್ವನಿಯೋಜಿತ:
                         assert_not_reached();
               }
         }
 
         /* If we haven't identified a VM, but the firmware indicates that there is one, indicate as much. We
          * have no further information about what it is. */
-        if (r == VIRTUALIZATION_NONE && detect_vm_smbios() == SMBIOS_VM_BIT_SET)
-                return VIRTUALIZATION_VM_OTHER;
-        return r;
-#else
-        return VIRTUALIZATION_NONE;
-#endif
+        ಆದರೆ (r == VIRTUALIZATION_NONE && detect_vm_smbios() == SMBIOS_VM_ಬಿಟ್_ಗಣ)
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_VM_OTHER;
+        ಹಿಂತಿರುಗಿ r;
+#ಇಲ್ಲದಿದ್ದರೆ
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-#define XENFEAT_dom0 11 /* xen/include/public/features.h */
-#define PATH_FEATURES "/sys/hypervisor/properties/features"
+#ವ್ಯಾಖ್ಯಾನಿಸು XENFEAT_dom0 11 /* xen/include/public/features.h */
+#ವ್ಯಾಖ್ಯಾನಿಸು ಮಾರ್ಗ_FEATURES "/sys/hypervisor/properties/features"
 /* Returns -errno, or 0 for domU, or 1 for dom0 */
-static int detect_vm_xen_dom0(void) {
-        _cleanup_free_ char *domcap = NULL;
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ detect_vm_xen_dom0(ಶೂನ್ಯ) {
+        _cleanup_free_ ಅಕ್ಷರ *domcap = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = read_one_line_file(PATH_FEATURES, &domcap);
-        if (r < 0 && r != -ENOENT)
-                return r;
-        if (r >= 0) {
-                unsigned long features;
+        r = read_one_ಸಾಲು_file(ಮಾರ್ಗ_FEATURES, &domcap);
+        ಆದರೆ (r < 0 && r != -ENOENT)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (r >= 0) {
+                ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ features;
 
                 /* Here, we need to use sscanf() instead of safe_atoul()
                  * as the string lacks the leading "0x". */
-                r = sscanf(domcap, "%lx", &features);
-                if (r == 1) {
+                r = ಅಕ್ಷರಸರಣಿ_ಓದು(domcap, "%lx", &features);
+                ಆದರೆ (r == 1) {
                         r = !!(features & (1U << XENFEAT_dom0));
                         log_debug("Virtualization XEN, found %s with value %08lx, "
                                   "XENFEAT_dom0 (indicating the 'hardware domain') is%s set.",
-                                  PATH_FEATURES, features, r ? "" : " not");
-                        return r;
+                                  ಮಾರ್ಗ_FEATURES, features, r ? "" : " not");
+                        ಹಿಂತಿರುಗಿ r;
                 }
                 log_debug("Virtualization XEN, found %s, unhandled content '%s'",
-                          PATH_FEATURES, domcap);
+                          ಮಾರ್ಗ_FEATURES, domcap);
         }
 
-        r = read_one_line_file("/proc/xen/capabilities", &domcap);
-        if (r == -ENOENT) {
+        r = read_one_ಸಾಲು_file("/proc/xen/capabilities", &domcap);
+        ಆದರೆ (r == -ENOENT) {
                 log_debug("Virtualization XEN because /proc/xen/capabilities does not exist");
-                return 0;
+                ಹಿಂತಿರುಗಿ 0;
         }
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        for (const char *i = domcap;;) {
-                _cleanup_free_ char *cap = NULL;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *i = domcap;;) {
+                _cleanup_free_ ಅಕ್ಷರ *cap = ಖಾಲಿ;
 
-                r = extract_first_word(&i, &cap, ",", 0);
-                if (r < 0)
-                        return r;
-                if (r == 0) {
+                r = ಹೊರತೆಗೆ_ಮೊದಲ_ಶಬ್ದ(&i, &cap, ",", 0);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
+                ಆದರೆ (r == 0) {
                         log_debug("Virtualization XEN DomU found (/proc/xen/capabilities)");
-                        return 0;
+                        ಹಿಂತಿರುಗಿ 0;
                 }
 
-                if (streq(cap, "control_d")) {
+                ಆದರೆ (streq(cap, "control_d")) {
                         log_debug("Virtualization XEN Dom0 ignored (/proc/xen/capabilities)");
-                        return 1;
+                        ಹಿಂತಿರುಗಿ 1;
                 }
         }
 }
 
-static Virtualization detect_vm_xen(void) {
+ಸ್ಥಿರ Virtualization detect_vm_xen(ಶೂನ್ಯ) {
         /* The presence of /proc/xen indicates some form of a Xen domain
            The check for Dom0 is handled outside this function */
-        if (access("/proc/xen", F_OK) < 0) {
+        ಆದರೆ (access("/proc/xen", F_OK) < 0) {
                 log_debug("Virtualization XEN not found, /proc/xen does not exist");
-                return VIRTUALIZATION_NONE;
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
         }
         log_debug("Virtualization XEN found (/proc/xen exists)");
-        return VIRTUALIZATION_XEN;
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_XEN;
 }
 
-static Virtualization detect_vm_hypervisor(void) {
-        _cleanup_free_ char *hvtype = NULL;
-        int r;
+ಸ್ಥಿರ Virtualization detect_vm_hypervisor(ಶೂನ್ಯ) {
+        _cleanup_free_ ಅಕ್ಷರ *hvtype = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = read_one_line_file("/sys/hypervisor/type", &hvtype);
-        if (r == -ENOENT)
-                return VIRTUALIZATION_NONE;
-        if (r < 0)
-                return r;
+        r = read_one_ಸಾಲು_file("/sys/hypervisor/type", &hvtype);
+        ಆದರೆ (r == -ENOENT)
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         log_debug("Virtualization %s found in /sys/hypervisor/type", hvtype);
 
-        if (streq(hvtype, "xen"))
-                return VIRTUALIZATION_XEN;
-        else
-                return VIRTUALIZATION_VM_OTHER;
+        ಆದರೆ (streq(hvtype, "xen"))
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_XEN;
+        ಇಲ್ಲದಿದ್ದರೆ
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_VM_OTHER;
 }
 
-static Virtualization detect_vm_uml(void) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+ಸ್ಥಿರ Virtualization detect_vm_uml(ಶೂನ್ಯ) {
+        _cleanup_fclose_ FILE *f = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
         /* Detect User-Mode Linux by reading /proc/cpuinfo */
         f = fopen("/proc/cpuinfo", "re");
-        if (!f) {
-                if (errno == ENOENT) {
+        ಆದರೆ (!f) {
+                ಆದರೆ (errno == ENOENT) {
                         log_debug("/proc/cpuinfo not found, assuming no UML virtualization.");
-                        return VIRTUALIZATION_NONE;
+                        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
                 }
-                return -errno;
+                ಹಿಂತಿರುಗಿ -errno;
         }
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                const char *t;
+        ಗಾಗಿ (;;) {
+                _cleanup_free_ ಅಕ್ಷರ *ಸಾಲು = ಖಾಲಿ;
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *t;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_ಸಾಲು(f, LONG_ಸಾಲು_MAX, &ಸಾಲು);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
+                ಆದರೆ (r == 0)
+                        ನಿಲ್ಲಿಸು;
 
-                t = startswith(line, "vendor_id\t: ");
-                if (t) {
-                        if (startswith(t, "User Mode Linux")) {
+                t = startswith(ಸಾಲು, "vendor_id\t: ");
+                ಆದರೆ (t) {
+                        ಆದರೆ (startswith(t, "User Mode Linux")) {
                                 log_debug("UML virtualization found in /proc/cpuinfo");
-                                return VIRTUALIZATION_UML;
+                                ಹಿಂತಿರುಗಿ VIRTUALIZATION_UML;
                         }
 
-                        break;
+                        ನಿಲ್ಲಿಸು;
                 }
         }
 
         log_debug("UML virtualization not found in /proc/cpuinfo.");
-        return VIRTUALIZATION_NONE;
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
 }
 
-static Virtualization detect_vm_zvm(void) {
+ಸ್ಥಿರ Virtualization detect_vm_zvm(ಶೂನ್ಯ) {
 
-#if defined(__s390__)
-        _cleanup_free_ char *t = NULL;
-        int r;
+#ಆದರೆ defined(__s390__)
+        _cleanup_free_ ಅಕ್ಷರ *t = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = get_proc_field("/proc/sysinfo", "VM00 Control Program", &t);
-        if (IN_SET(r, -ENOENT, -ENODATA))
-                return VIRTUALIZATION_NONE;
-        if (r < 0)
-                return r;
+        r = get_proc_ಕ್ಷೇತ್ರ("/proc/sysinfo", "VM00 Control Program", &t);
+        ಆದರೆ (ಒಳ_ಗಣ(r, -ENOENT, -ENODATA))
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         log_debug("Virtualization %s found in /proc/sysinfo", t);
-        if (streq(t, "z/VM"))
-                return VIRTUALIZATION_ZVM;
-        else
-                return VIRTUALIZATION_KVM;
-#else
+        ಆದರೆ (streq(t, "z/VM"))
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_ZVM;
+        ಇಲ್ಲದಿದ್ದರೆ
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_KVM;
+#ಇಲ್ಲದಿದ್ದರೆ
         log_debug("This platform does not support /proc/sysinfo");
-        return VIRTUALIZATION_NONE;
-#endif
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 /* Returns a short identifier for the various VM implementations */
-Virtualization detect_vm(void) {
-        static thread_local Virtualization cached_found = _VIRTUALIZATION_INVALID;
+Virtualization detect_vm(ಶೂನ್ಯ) {
+        ಸ್ಥಿರ thread_local Virtualization cached_ಸಿಕ್ಕಿತು = _VIRTUALIZATION_INVALID;
         bool other = false, hyperv = false;
-        int xen_dom0 = 0;
+        ಪೂರ್ಣಾಂಕ xen_dom0 = 0;
         Virtualization v, dmi;
 
-        if (cached_found >= 0)
-                return cached_found;
+        ಆದರೆ (cached_ಸಿಕ್ಕಿತು >= 0)
+                ಹಿಂತಿರುಗಿ cached_ಸಿಕ್ಕಿತು;
 
         /* We have to use the correct order here:
          *
@@ -473,7 +473,7 @@ Virtualization detect_vm(void) {
          * → Third, try to detect from DMI. */
 
         dmi = detect_vm_dmi();
-        if (IN_SET(dmi,
+        ಆದರೆ (ಒಳ_ಗಣ(dmi,
                    VIRTUALIZATION_ORACLE,
                    VIRTUALIZATION_XEN,
                    VIRTUALIZATION_AMAZON,
@@ -481,109 +481,109 @@ Virtualization detect_vm(void) {
                     * for non-x86 architectures due to its necessity for cpuid
                     * detection, which functions solely on x86 platforms. Report
                     * as a VM for other architectures. */
-#if !defined(__i386__) && !defined(__x86_64__)
+#ಆದರೆ !defined(__i386__) && !defined(__x86_64__)
                    VIRTUALIZATION_GOOGLE,
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
                    VIRTUALIZATION_PARALLELS)) {
                 v = dmi;
-                goto finish;
+                ಹೋಗು ಮುಕ್ತಾಯ;
         }
 
         /* Detect UML */
         v = detect_vm_uml();
-        if (v < 0)
-                return v;
-        if (v != VIRTUALIZATION_NONE)
-                goto finish;
+        ಆದರೆ (v < 0)
+                ಹಿಂತಿರುಗಿ v;
+        ಆದರೆ (v != VIRTUALIZATION_NONE)
+                ಹೋಗು ಮುಕ್ತಾಯ;
 
         /* Detect Xen */
         v = detect_vm_xen();
-        if (v < 0)
-                return v;
-        if (v == VIRTUALIZATION_XEN) {
+        ಆದರೆ (v < 0)
+                ಹಿಂತಿರುಗಿ v;
+        ಆದರೆ (v == VIRTUALIZATION_XEN) {
                  /* If we are Dom0, then we expect to not report as a VM. However, as we might be nested
                   * inside another hypervisor which can be detected via the CPUID check, wait to report this
                   * until after the CPUID check. */
                 xen_dom0 = detect_vm_xen_dom0();
-                if (xen_dom0 < 0)
-                        return xen_dom0;
-                if (xen_dom0 == 0)
-                        goto finish;
-        } else if (v != VIRTUALIZATION_NONE)
+                ಆದರೆ (xen_dom0 < 0)
+                        ಹಿಂತಿರುಗಿ xen_dom0;
+                ಆದರೆ (xen_dom0 == 0)
+                        ಹೋಗು ಮುಕ್ತಾಯ;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (v != VIRTUALIZATION_NONE)
                 assert_not_reached();
 
         /* Detect from CPUID */
         v = detect_vm_cpuid();
-        if (v < 0)
-                return v;
-        if (v == VIRTUALIZATION_MICROSOFT)
+        ಆದರೆ (v < 0)
+                ಹಿಂತಿರುಗಿ v;
+        ಆದರೆ (v == VIRTUALIZATION_MICROSOFT)
                 /* QEMU sets the CPUID string to hyperv's, in case it provides hyperv enlightenments. Let's
                  * hence not return Microsoft here but just use the other mechanisms first to make a better
                  * decision. */
                 hyperv = true;
-        else if (v == VIRTUALIZATION_VM_OTHER)
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (v == VIRTUALIZATION_VM_OTHER)
                 other = true;
-        else if (v == VIRTUALIZATION_KVM && dmi == VIRTUALIZATION_GOOGLE)
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (v == VIRTUALIZATION_KVM && dmi == VIRTUALIZATION_GOOGLE)
                 /* The DMI vendor tables in /sys/class/dmi/id don't help us distinguish between GCE
                  * virtual machines and bare-metal instances, so we need to look at hypervisor. */
-                return VIRTUALIZATION_GOOGLE;
-        else if (v != VIRTUALIZATION_NONE)
-                goto finish;
+                ಹಿಂತಿರುಗಿ VIRTUALIZATION_GOOGLE;
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (v != VIRTUALIZATION_NONE)
+                ಹೋಗು ಮುಕ್ತಾಯ;
 
         /* If we are in Dom0 and have not yet finished, finish with the result of detect_vm_cpuid */
-        if (xen_dom0 > 0)
-                goto finish;
+        ಆದರೆ (xen_dom0 > 0)
+                ಹೋಗು ಮುಕ್ತಾಯ;
 
         /* Now, let's get back to DMI */
-        if (dmi < 0)
-                return dmi;
-        if (dmi == VIRTUALIZATION_VM_OTHER)
+        ಆದರೆ (dmi < 0)
+                ಹಿಂತಿರುಗಿ dmi;
+        ಆದರೆ (dmi == VIRTUALIZATION_VM_OTHER)
                 other = true;
-        else if (!IN_SET(dmi, VIRTUALIZATION_NONE, VIRTUALIZATION_GOOGLE)) {
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!ಒಳ_ಗಣ(dmi, VIRTUALIZATION_NONE, VIRTUALIZATION_GOOGLE)) {
                 /* At this point if GCE has been detected in dmi, do not report as a VM. It should
                  * be a bare-metal machine */
                 v = dmi;
-                goto finish;
+                ಹೋಗು ಮುಕ್ತಾಯ;
         }
 
         /* Check high-level hypervisor sysfs file */
         v = detect_vm_hypervisor();
-        if (v < 0)
-                return v;
-        if (v == VIRTUALIZATION_VM_OTHER)
+        ಆದರೆ (v < 0)
+                ಹಿಂತಿರುಗಿ v;
+        ಆದರೆ (v == VIRTUALIZATION_VM_OTHER)
                 other = true;
-        else if (v != VIRTUALIZATION_NONE)
-                goto finish;
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (v != VIRTUALIZATION_NONE)
+                ಹೋಗು ಮುಕ್ತಾಯ;
 
-        v = detect_vm_device_tree();
-        if (v < 0)
-                return v;
-        if (v == VIRTUALIZATION_VM_OTHER)
+        v = detect_vm_device_ವೃಕ್ಷ();
+        ಆದರೆ (v < 0)
+                ಹಿಂತಿರುಗಿ v;
+        ಆದರೆ (v == VIRTUALIZATION_VM_OTHER)
                 other = true;
-        else if (v != VIRTUALIZATION_NONE)
-                goto finish;
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (v != VIRTUALIZATION_NONE)
+                ಹೋಗು ಮುಕ್ತಾಯ;
 
         v = detect_vm_zvm();
-        if (v < 0)
-                return v;
+        ಆದರೆ (v < 0)
+                ಹಿಂತಿರುಗಿ v;
 
-finish:
+ಮುಕ್ತಾಯ:
         /* None of the checks above gave us a clear answer, hence let's now use fallback logic: if hyperv
          * enlightenments are available but the VMM wasn't recognized as anything yet, it's probably
          * Microsoft. */
-        if (v == VIRTUALIZATION_NONE) {
-                if (hyperv)
+        ಆದರೆ (v == VIRTUALIZATION_NONE) {
+                ಆದರೆ (hyperv)
                         v = VIRTUALIZATION_MICROSOFT;
-                else if (other)
+                ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (other)
                         v = VIRTUALIZATION_VM_OTHER;
         }
 
-        cached_found = v;
-        log_debug("Found VM virtualization %s", virtualization_to_string(v));
-        return v;
+        cached_ಸಿಕ್ಕಿತು = v;
+        log_debug("Found VM virtualization %s", virtualization_ಗಮ್ಯ_string(v));
+        ಹಿಂತಿರುಗಿ v;
 }
 
-static const char *const container_table[_VIRTUALIZATION_MAX] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ container_ಕೋಷ್ಟಕ[_VIRTUALIZATION_MAX] = {
         [VIRTUALIZATION_LXC]            = "lxc",
         [VIRTUALIZATION_LXC_LIBVIRT]    = "lxc-libvirt",
         [VIRTUALIZATION_SYSTEMD_NSPAWN] = "systemd-nspawn",
@@ -595,23 +595,23 @@ static const char *const container_table[_VIRTUALIZATION_MAX] = {
         [VIRTUALIZATION_POUCH]          = "pouch",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_FROM_STRING(container, int);
+DEFINE_ಖಾಸಗಿ_STRING_ಕೋಷ್ಟಕ_LOOKUP_FROM_STRING(container, ಪೂರ್ಣಾಂಕ);
 
-static int running_in_pidns(void) {
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ running_ಒಳ_pidns(ಶೂನ್ಯ) {
+        ಪೂರ್ಣಾಂಕ r;
 
         r = namespace_is_init(NAMESPACE_PID);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to test if in root PID namespace, ignoring: %m");
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ log_debug_errno(r, "Failed to test if in root PID namespace, ignoring: %m");
 
-        return !r;
+        ಹಿಂತಿರುಗಿ !r;
 }
 
-static Virtualization detect_container_files(void) {
-        static const struct {
-                const char *file_path;
+ಸ್ಥಿರ Virtualization detect_container_files(ಶೂನ್ಯ) {
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ {
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file_ಮಾರ್ಗ;
                 Virtualization id;
-        } container_file_table[] = {
+        } container_file_ಕೋಷ್ಟಕ[] = {
                 /* https://github.com/containers/podman/issues/6192 */
                 /* https://github.com/containers/podman/issues/3586#issuecomment-661918679 */
                 { "/run/.containerenv", VIRTUALIZATION_PODMAN },
@@ -620,89 +620,89 @@ static Virtualization detect_container_files(void) {
                 { "/.dockerenv",        VIRTUALIZATION_DOCKER },
         };
 
-        FOREACH_ELEMENT(file, container_file_table) {
-                if (access(file->file_path, F_OK) >= 0)
-                        return file->id;
+        FOREACH_ELEMENT(file, container_file_ಕೋಷ್ಟಕ) {
+                ಆದರೆ (access(file->file_ಮಾರ್ಗ, F_OK) >= 0)
+                        ಹಿಂತಿರುಗಿ file->id;
 
-                if (errno != ENOENT)
+                ಆದರೆ (errno != ENOENT)
                         log_debug_errno(errno,
                                         "Checking if %s exists failed, ignoring: %m",
-                                        file->file_path);
+                                        file->file_ಮಾರ್ಗ);
         }
 
-        return VIRTUALIZATION_NONE;
+        ಹಿಂತಿರುಗಿ VIRTUALIZATION_NONE;
 }
 
-Virtualization detect_container(void) {
-        static thread_local Virtualization cached_found = _VIRTUALIZATION_INVALID;
-        _cleanup_free_ char *m = NULL, *o = NULL, *p = NULL;
-        const char *e = NULL;
+Virtualization detect_container(ಶೂನ್ಯ) {
+        ಸ್ಥಿರ thread_local Virtualization cached_ಸಿಕ್ಕಿತು = _VIRTUALIZATION_INVALID;
+        _cleanup_free_ ಅಕ್ಷರ *m = ಖಾಲಿ, *o = ಖಾಲಿ, *p = ಖಾಲಿ;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *e = ಖಾಲಿ;
         Virtualization v;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (cached_found >= 0)
-                return cached_found;
+        ಆದರೆ (cached_ಸಿಕ್ಕಿತು >= 0)
+                ಹಿಂತಿರುಗಿ cached_ಸಿಕ್ಕಿತು;
 
         /* /proc/vz exists in container and outside of the container, /proc/bc only outside of the container. */
-        if (access("/proc/vz", F_OK) < 0) {
-                if (errno != ENOENT)
+        ಆದರೆ (access("/proc/vz", F_OK) < 0) {
+                ಆದರೆ (errno != ENOENT)
                         log_debug_errno(errno, "Failed to check if /proc/vz exists, ignoring: %m");
-        } else if (access("/proc/bc", F_OK) < 0) {
-                if (errno == ENOENT) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (access("/proc/bc", F_OK) < 0) {
+                ಆದರೆ (errno == ENOENT) {
                         v = VIRTUALIZATION_OPENVZ;
-                        goto finish;
+                        ಹೋಗು ಮುಕ್ತಾಯ;
                 }
 
                 log_debug_errno(errno, "Failed to check if /proc/bc exists, ignoring: %m");
         }
 
         /* "Official" way of detecting WSL https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364 */
-        r = read_one_line_file("/proc/sys/kernel/osrelease", &o);
-        if (r < 0)
+        r = read_one_ಸಾಲು_file("/proc/sys/kernel/osrelease", &o);
+        ಆದರೆ (r < 0)
                 log_debug_errno(r, "Failed to read /proc/sys/kernel/osrelease, ignoring: %m");
-        else if (strstr(o, "Microsoft") || strstr(o, "WSL")) {
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(o, "Microsoft") || ಅಕ್ಷರಸರಣಿ_ಹುಡುಕು(o, "WSL")) {
                 v = VIRTUALIZATION_WSL;
-                goto finish;
+                ಹೋಗು ಮುಕ್ತಾಯ;
         }
 
         /* proot doesn't use PID namespacing, so we can just check if we have a matching tracer for this
          * invocation without worrying about it being elsewhere.
          */
-        r = get_proc_field("/proc/self/status", "TracerPid", &p);
-        if (r < 0)
+        r = get_proc_ಕ್ಷೇತ್ರ("/proc/self/status", "TracerPid", &p);
+        ಆದರೆ (r < 0)
                 log_debug_errno(r, "Failed to read our own trace PID, ignoring: %m");
-        else if (!streq(p, "0")) {
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!streq(p, "0")) {
                 pid_t ptrace_pid;
 
                 r = parse_pid(p, &ptrace_pid);
-                if (r < 0)
+                ಆದರೆ (r < 0)
                         log_debug_errno(r, "Failed to parse our own tracer PID, ignoring: %m");
-                else {
-                        _cleanup_free_ char *ptrace_comm = NULL;
-                        const char *pf;
+                ಇಲ್ಲದಿದ್ದರೆ {
+                        _cleanup_free_ ಅಕ್ಷರ *ptrace_comm = ಖಾಲಿ;
+                        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *pf;
 
                         pf = procfs_file_alloca(ptrace_pid, "comm");
-                        r = read_one_line_file(pf, &ptrace_comm);
-                        if (r < 0)
+                        r = read_one_ಸಾಲು_file(pf, &ptrace_comm);
+                        ಆದರೆ (r < 0)
                                 log_debug_errno(r, "Failed to read %s, ignoring: %m", pf);
-                        else if (startswith(ptrace_comm, "proot")) {
+                        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (startswith(ptrace_comm, "proot")) {
                                 v = VIRTUALIZATION_PROOT;
-                                goto finish;
+                                ಹೋಗು ಮುಕ್ತಾಯ;
                         }
                 }
         }
 
         /* The container manager might have placed this in the /run/host/ hierarchy for us, which is best
          * because we can be consumed just like that, without special privileges. */
-        r = read_one_line_file("/run/host/container-manager", &m);
-        if (r > 0) {
+        r = read_one_ಸಾಲು_file("/run/host/container-manager", &m);
+        ಆದರೆ (r > 0) {
                 e = m;
-                goto translate_name;
+                ಹೋಗು translate_name;
         }
-        if (!IN_SET(r, -ENOENT, 0))
-                return log_debug_errno(r, "Failed to read /run/host/container-manager: %m");
+        ಆದರೆ (!ಒಳ_ಗಣ(r, -ENOENT, 0))
+                ಹಿಂತಿರುಗಿ log_debug_errno(r, "Failed to read /run/host/container-manager: %m");
 
-        if (getpid_cached() == 1) {
+        ಆದರೆ (getpid_cached() == 1) {
                 /* If we are PID 1 we can just check our own environment variable, and that's authoritative.
                  * We distinguish three cases:
                  * - the variable is not defined → we jump to other checks
@@ -710,33 +710,33 @@ Virtualization detect_container(void) {
                  * - anything else → some container, either one of the known ones or "container-other"
                  */
                 e = getenv("container");
-                if (!e)
-                        goto check_files;
-                if (isempty(e)) {
+                ಆದರೆ (!e)
+                        ಹೋಗು check_files;
+                ಆದರೆ (isempty(e)) {
                         v = VIRTUALIZATION_NONE;
-                        goto finish;
+                        ಹೋಗು ಮುಕ್ತಾಯ;
                 }
 
-                goto translate_name;
+                ಹೋಗು translate_name;
         }
 
         /* Otherwise, PID 1 might have dropped this information into a file in /run. This is better than accessing
          * /proc/1/environ, since we don't need CAP_SYS_PTRACE for that. */
-        r = read_one_line_file("/run/systemd/container", &m);
-        if (r > 0) {
+        r = read_one_ಸಾಲು_file("/run/systemd/container", &m);
+        ಆದರೆ (r > 0) {
                 e = m;
-                goto translate_name;
+                ಹೋಗು translate_name;
         }
-        if (!IN_SET(r, -ENOENT, 0))
-                return log_debug_errno(r, "Failed to read /run/systemd/container: %m");
+        ಆದರೆ (!ಒಳ_ಗಣ(r, -ENOENT, 0))
+                ಹಿಂತಿರುಗಿ log_debug_errno(r, "Failed to read /run/systemd/container: %m");
 
         /* Fallback for cases where PID 1 was not systemd (for example, cases where init=/bin/sh is used. */
         r = getenv_for_pid(1, "container", &m);
-        if (r > 0) {
+        ಆದರೆ (r > 0) {
                 e = m;
-                goto translate_name;
+                ಹೋಗು translate_name;
         }
-        if (r < 0) /* This only works if we have CAP_SYS_PTRACE, hence let's better ignore failures here */
+        ಆದರೆ (r < 0) /* This only works if we have CAP_SYS_PTRACE, hence let's better ignore failures here */
                 log_debug_errno(r, "Failed to read $container of PID 1, ignoring: %m");
 
 check_files:
@@ -745,105 +745,105 @@ check_files:
          * container manager for Docker: the /.dockerenv file could inadvertently end up
          * in a file system image. */
         v = detect_container_files();
-        if (v < 0)
-                return v;
-        if (v != VIRTUALIZATION_NONE)
-                goto finish;
+        ಆದರೆ (v < 0)
+                ಹಿಂತಿರುಗಿ v;
+        ಆದರೆ (v != VIRTUALIZATION_NONE)
+                ಹೋಗು ಮುಕ್ತಾಯ;
 
         /* Finally, the root pid namespace has an hardcoded inode number of 0xEFFFFFFC since kernel 3.8, so
          * if all else fails we can check the inode number of our pid namespace and compare it. */
-        if (running_in_pidns() > 0) {
+        ಆದರೆ (running_ಒಳ_pidns() > 0) {
                 log_debug("Running in a pid namespace, assuming unknown container manager.");
                 v = VIRTUALIZATION_CONTAINER_OTHER;
-                goto finish;
+                ಹೋಗು ಮುಕ್ತಾಯ;
         }
 
         /* If none of that worked, give up, assume no container manager. */
         v = VIRTUALIZATION_NONE;
-        goto finish;
+        ಹೋಗು ಮುಕ್ತಾಯ;
 
 translate_name:
-        if (streq(e, "oci")) {
+        ಆದರೆ (streq(e, "oci")) {
                 /* Some images hardcode container=oci, but OCI is not a specific container manager.
                  * Try to detect one based on well-known files. */
                 v = detect_container_files();
-                if (v == VIRTUALIZATION_NONE)
+                ಆದರೆ (v == VIRTUALIZATION_NONE)
                         v = VIRTUALIZATION_CONTAINER_OTHER;
-                goto finish;
+                ಹೋಗು ಮುಕ್ತಾಯ;
         }
         v = container_from_string(e);
-        if (v < 0)
+        ಆದರೆ (v < 0)
                 v = VIRTUALIZATION_CONTAINER_OTHER;
 
-finish:
-        log_debug("Found container virtualization %s.", virtualization_to_string(v));
-        cached_found = v;
-        return v;
+ಮುಕ್ತಾಯ:
+        log_debug("Found container virtualization %s.", virtualization_ಗಮ್ಯ_string(v));
+        cached_ಸಿಕ್ಕಿತು = v;
+        ಹಿಂತಿರುಗಿ v;
 }
 
-Virtualization detect_virtualization(void) {
-        int v;
+Virtualization detect_virtualization(ಶೂನ್ಯ) {
+        ಪೂರ್ಣಾಂಕ v;
 
         v = detect_container();
-        if (v != VIRTUALIZATION_NONE)
-                return v;
+        ಆದರೆ (v != VIRTUALIZATION_NONE)
+                ಹಿಂತಿರುಗಿ v;
 
-        return detect_vm();
+        ಹಿಂತಿರುಗಿ detect_vm();
 }
 
-int running_in_userns(void) {
-        int r;
+ಪೂರ್ಣಾಂಕ running_ಒಳ_userns(ಶೂನ್ಯ) {
+        ಪೂರ್ಣಾಂಕ r;
 
         r = namespace_is_init(NAMESPACE_USER);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to test if in root user namespace, ignoring: %m");
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ log_debug_errno(r, "Failed to test if in root user namespace, ignoring: %m");
 
-        return !r;
+        ಹಿಂತಿರುಗಿ !r;
 }
 
-int running_in_chroot(void) {
-        int r;
+ಪೂರ್ಣಾಂಕ running_ಒಳ_chroot(ಶೂನ್ಯ) {
+        ಪೂರ್ಣಾಂಕ r;
 
         /* If we're PID1, /proc may not be mounted (and most likely we're not in a chroot). But PID1 will
          * mount /proc, so all other programs can assume that if /proc is *not* available, we're in some
          * chroot. */
 
         r = getenv_bool("SYSTEMD_IN_CHROOT");
-        if (r >= 0)
-                return r > 0;
-        if (r != -ENXIO)
+        ಆದರೆ (r >= 0)
+                ಹಿಂತಿರುಗಿ r > 0;
+        ಆದರೆ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_IN_CHROOT, ignoring: %m");
 
         /* Deprecated but kept for backwards compatibility. */
-        if (getenv_bool("SYSTEMD_IGNORE_CHROOT") > 0)
-                return 0;
+        ಆದರೆ (getenv_bool("SYSTEMD_IGNORE_CHROOT") > 0)
+                ಹಿಂತಿರುಗಿ 0;
 
         r = inode_same("/proc/1/root", "/", /* flags= */ 0);
-        if (r == -ENOENT) {
+        ಆದರೆ (r == -ENOENT) {
                 r = proc_mounted();
-                if (r == 0) {
-                        if (getpid_cached() == 1)
-                                return false; /* We will mount /proc, assuming we're not in a chroot. */
+                ಆದರೆ (r == 0) {
+                        ಆದರೆ (getpid_cached() == 1)
+                                ಹಿಂತಿರುಗಿ false; /* We will mount /proc, assuming we're not in a chroot. */
 
                         log_debug("/proc/ is not mounted, assuming we're in a chroot.");
-                        return true;
+                        ಹಿಂತಿರುಗಿ true;
                 }
-                if (r > 0) /* If we have fake /proc/, we can't do the check properly. */
-                        return -ENOSYS;
+                ಆದರೆ (r > 0) /* If we have fake /proc/, we can't do the check properly. */
+                        ಹಿಂತಿರುಗಿ -ENOSYS;
         }
-        if (r < 0)
-                return log_debug_errno(r, "Failed to check if /proc/1/root and / are the same inode: %m");
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ log_debug_errno(r, "Failed to check if /proc/1/root and / are the same inode: %m");
 
-        return r == 0;
+        ಹಿಂತಿರುಗಿ r == 0;
 }
 
-#if defined(__i386__) || defined(__x86_64__)
-struct cpuid_table_entry {
-        uint32_t flag_bit;
-        const char *name;
+#ಆದರೆ defined(__i386__) || defined(__x86_64__)
+ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು {
+        uint32_t flag_ಬಿಟ್;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
 };
 
-static const struct cpuid_table_entry leaf1_edx[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು leaf1_edx[] = {
         {  0, "fpu"     },
         {  1, "vme"     },
         {  2, "de"      },
@@ -869,7 +869,7 @@ static const struct cpuid_table_entry leaf1_edx[] = {
         { 28, "ht"      },
 };
 
-static const struct cpuid_table_entry leaf1_ecx[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು leaf1_ecx[] = {
         {  0, "pni"     },
         {  1, "pclmul"  },
         {  3, "monitor" },
@@ -888,7 +888,7 @@ static const struct cpuid_table_entry leaf1_ecx[] = {
         { 30, "rdrand"  },
 };
 
-static const struct cpuid_table_entry leaf7_ebx[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು leaf7_ebx[] = {
         {  3, "bmi1"   },
         {  5, "avx2"   },
         {  8, "bmi2"   },
@@ -897,71 +897,71 @@ static const struct cpuid_table_entry leaf7_ebx[] = {
         { 29, "sha_ni" },
 };
 
-static const struct cpuid_table_entry leaf81_edx[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು leaf81_edx[] = {
         { 11, "syscall" },
         { 27, "rdtscp"  },
         { 29, "lm"      },
 };
 
-static const struct cpuid_table_entry leaf81_ecx[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು leaf81_ecx[] = {
         {  0, "lahf_lm" },
         {  5, "abm"     },
 };
 
-static const struct cpuid_table_entry leaf87_edx[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು leaf87_edx[] = {
         {  8, "constant_tsc" },
 };
 
-static bool given_flag_in_set(const char *flag, const struct cpuid_table_entry *set, size_t set_size, uint32_t val) {
-        assert(set);
+ಸ್ಥಿರ bool given_flag_ಒಳ_ಗಣ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *flag, ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು *ಗಣ, size_t ಗಣ_ಗಾತ್ರ, uint32_t val) {
+        ಪ್ರತಿಜ್ಞಾ(ಗಣ);
 
-        for (size_t i = 0; i < set_size; i++) {
-                if ((UINT32_C(1) << set[i].flag_bit) & val &&
-                                streq(flag, set[i].name))
-                        return true;
+        ಗಾಗಿ (size_t i = 0; i < ಗಣ_ಗಾತ್ರ; i++) {
+                ಆದರೆ ((UINT32_C(1) << ಗಣ[i].flag_ಬಿಟ್) & val &&
+                                streq(flag, ಗಣ[i].name))
+                        ಹಿಂತಿರುಗಿ true;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ false;
 }
 
-static bool real_has_cpu_with_flag(const char *flag) {
+ಸ್ಥಿರ bool real_has_cpu_with_flag(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *flag) {
         uint32_t eax, ebx, ecx, edx;
 
-        if (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
-                if (given_flag_in_set(flag, leaf1_ecx, ELEMENTSOF(leaf1_ecx), ecx))
-                        return true;
+        ಆದರೆ (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
+                ಆದರೆ (given_flag_ಒಳ_ಗಣ(flag, leaf1_ecx, ELEMENTSOF(leaf1_ecx), ecx))
+                        ಹಿಂತಿರುಗಿ true;
 
-                if (given_flag_in_set(flag, leaf1_edx, ELEMENTSOF(leaf1_edx), edx))
-                        return true;
+                ಆದರೆ (given_flag_ಒಳ_ಗಣ(flag, leaf1_edx, ELEMENTSOF(leaf1_edx), edx))
+                        ಹಿಂತಿರುಗಿ true;
         }
 
-        if (__get_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx)) {
-                if (given_flag_in_set(flag, leaf7_ebx, ELEMENTSOF(leaf7_ebx), ebx))
-                        return true;
+        ಆದರೆ (__get_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx)) {
+                ಆದರೆ (given_flag_ಒಳ_ಗಣ(flag, leaf7_ebx, ELEMENTSOF(leaf7_ebx), ebx))
+                        ಹಿಂತಿರುಗಿ true;
         }
 
-        if (__get_cpuid(0x80000001U, &eax, &ebx, &ecx, &edx)) {
-                if (given_flag_in_set(flag, leaf81_ecx, ELEMENTSOF(leaf81_ecx), ecx))
-                        return true;
+        ಆದರೆ (__get_cpuid(0x80000001U, &eax, &ebx, &ecx, &edx)) {
+                ಆದರೆ (given_flag_ಒಳ_ಗಣ(flag, leaf81_ecx, ELEMENTSOF(leaf81_ecx), ecx))
+                        ಹಿಂತಿರುಗಿ true;
 
-                if (given_flag_in_set(flag, leaf81_edx, ELEMENTSOF(leaf81_edx), edx))
-                        return true;
+                ಆದರೆ (given_flag_ಒಳ_ಗಣ(flag, leaf81_edx, ELEMENTSOF(leaf81_edx), edx))
+                        ಹಿಂತಿರುಗಿ true;
         }
 
-        if (__get_cpuid(0x80000007U, &eax, &ebx, &ecx, &edx))
-                if (given_flag_in_set(flag, leaf87_edx, ELEMENTSOF(leaf87_edx), edx))
-                        return true;
+        ಆದರೆ (__get_cpuid(0x80000007U, &eax, &ebx, &ecx, &edx))
+                ಆದರೆ (given_flag_ಒಳ_ಗಣ(flag, leaf87_edx, ELEMENTSOF(leaf87_edx), edx))
+                        ಹಿಂತಿರುಗಿ true;
 
-        return false;
+        ಹಿಂತಿರುಗಿ false;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(__aarch64__)
-struct hwcap_table_entry {
-        uint64_t flag_mask;
-        const char *name;
+#ಆದರೆ defined(__aarch64__)
+ರಚನೆ hwcap_ಕೋಷ್ಟಕ_ನಮೂದು {
+        uint64_t flag_ಮುಖವಾಡ;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
 };
 
-static const struct hwcap_table_entry hwcap[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ hwcap_ಕೋಷ್ಟಕ_ನಮೂದು hwcap[] = {
         { HWCAP_FP,           "fp"          },
         { HWCAP_ASIMD,        "asimd"       },
         { HWCAP_EVTSTRM,      "evtstrm"     },
@@ -969,7 +969,7 @@ static const struct hwcap_table_entry hwcap[] = {
         { HWCAP_PMULL,        "pmull"       },
         { HWCAP_SHA1,         "sha1"        },
         { HWCAP_SHA2,         "sha2"        },
-        { HWCAP_CRC32,        "crc32"       },
+        { HWCAP_ಚಕ್ರೀಯ_ಪರೀಕ್ಷೆ_32,        "crc32"       },
         { HWCAP_ATOMICS,      "atomics"     },
         { HWCAP_FPHP,         "fphp"        },
         { HWCAP_ASIMDHP,      "asimdhp"     },
@@ -1012,7 +1012,7 @@ static const struct hwcap_table_entry hwcap[] = {
         { HWCAP_SME_SMOP4,    "smesmop4"    },
 };
 
-static const struct hwcap_table_entry hwcap2[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ hwcap_ಕೋಷ್ಟಕ_ನಮೂದು hwcap2[] = {
         { HWCAP2_DCPODP,      "dcpodp"     },
         { HWCAP2_SVE2,        "sve2"       },
         { HWCAP2_SVEAES,      "sveaes"     },
@@ -1079,7 +1079,7 @@ static const struct hwcap_table_entry hwcap2[] = {
         { HWCAP2_POE,         "poe"        },
 };
 
-static const struct hwcap_table_entry hwcap3[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ hwcap_ಕೋಷ್ಟಕ_ನಮೂದು hwcap3[] = {
         { HWCAP3_MTE_FAR,        "mtefar"       },
         { HWCAP3_MTE_STORE_ONLY, "mtestoreonly" },
         { HWCAP3_LSFE,           "lsfe"         },
@@ -1094,55 +1094,55 @@ static const struct hwcap_table_entry hwcap3[] = {
         { HWCAP3_SVE_LUT6,       "svelut6"      },
 };
 
-static bool given_flag_in_hwcap_set(
-                const char *flag,
-                const struct hwcap_table_entry *set,
-                size_t set_size,
-                unsigned long val) {
+ಸ್ಥಿರ bool given_flag_ಒಳ_hwcap_ಗಣ(
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *flag,
+                ಸ್ಥಿರಾಂಕ ರಚನೆ hwcap_ಕೋಷ್ಟಕ_ನಮೂದು *ಗಣ,
+                size_t ಗಣ_ಗಾತ್ರ,
+                ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val) {
 
-        assert(set);
+        ಪ್ರತಿಜ್ಞಾ(ಗಣ);
 
-        for (size_t i = 0; i < set_size; i++)
-                if ((set[i].flag_mask & val) && streq(flag, set[i].name))
-                        return true;
+        ಗಾಗಿ (size_t i = 0; i < ಗಣ_ಗಾತ್ರ; i++)
+                ಆದರೆ ((ಗಣ[i].flag_ಮುಖವಾಡ & val) && streq(flag, ಗಣ[i].name))
+                        ಹಿಂತಿರುಗಿ true;
 
-        return false;
+        ಹಿಂತಿರುಗಿ false;
 }
 
-static bool real_has_cpu_with_flag(const char *flag) {
-        unsigned long val;
+ಸ್ಥಿರ bool real_has_cpu_with_flag(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *flag) {
+        ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val;
 
         val = getauxval(AT_HWCAP);
-        if (given_flag_in_hwcap_set(flag, hwcap, ELEMENTSOF(hwcap), val))
-                return true;
+        ಆದರೆ (given_flag_ಒಳ_hwcap_ಗಣ(flag, hwcap, ELEMENTSOF(hwcap), val))
+                ಹಿಂತಿರುಗಿ true;
 
         val = getauxval(AT_HWCAP2);
-        if (given_flag_in_hwcap_set(flag, hwcap2, ELEMENTSOF(hwcap2), val))
-                return true;
+        ಆದರೆ (given_flag_ಒಳ_hwcap_ಗಣ(flag, hwcap2, ELEMENTSOF(hwcap2), val))
+                ಹಿಂತಿರುಗಿ true;
 
         val = getauxval(AT_HWCAP3);
-        if (given_flag_in_hwcap_set(flag, hwcap3, ELEMENTSOF(hwcap3), val))
-                return true;
+        ಆದರೆ (given_flag_ಒಳ_hwcap_ಗಣ(flag, hwcap3, ELEMENTSOF(hwcap3), val))
+                ಹಿಂತಿರುಗಿ true;
 
-        return false;
+        ಹಿಂತಿರುಗಿ false;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-bool has_cpu_with_flag(const char *flag) {
+bool has_cpu_with_flag(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *flag) {
         /* Check the architecture-specific CPU feature interface when available. */
-#if defined(__i386__) || defined(__x86_64__) || defined(__aarch64__)
-        return real_has_cpu_with_flag(flag);
-#else
-        return false;
-#endif
+#ಆದರೆ defined(__i386__) || defined(__x86_64__) || defined(__aarch64__)
+        ಹಿಂತಿರುಗಿ real_has_cpu_with_flag(flag);
+#ಇಲ್ಲದಿದ್ದರೆ
+        ಹಿಂತಿರುಗಿ false;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-int cpu_known_features(char ***ret) {
-        assert(ret);
+ಪೂರ್ಣಾಂಕ cpu_ತಿಳಿದ_features(ಅಕ್ಷರ ***ret) {
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-#if defined(__i386__) || defined(__x86_64__)
-        static const struct {
-                const struct cpuid_table_entry *table;
+#ಆದರೆ defined(__i386__) || defined(__x86_64__)
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ {
+                ಸ್ಥಿರಾಂಕ ರಚನೆ cpuid_ಕೋಷ್ಟಕ_ನಮೂದು *ಕೋಷ್ಟಕ;
                 size_t n_entries;
         } tables[] = {
                 { leaf1_edx,  ELEMENTSOF(leaf1_edx),  },
@@ -1152,37 +1152,37 @@ int cpu_known_features(char ***ret) {
                 { leaf81_edx, ELEMENTSOF(leaf81_edx), },
                 { leaf87_edx, ELEMENTSOF(leaf87_edx), },
         };
-#elif defined(__aarch64__)
-        static const struct {
-                const struct hwcap_table_entry *table;
+#ಅಥವಾಆದರೆ defined(__aarch64__)
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ {
+                ಸ್ಥಿರಾಂಕ ರಚನೆ hwcap_ಕೋಷ್ಟಕ_ನಮೂದು *ಕೋಷ್ಟಕ;
                 size_t n_entries;
         } tables[] = {
                 { hwcap,  ELEMENTSOF(hwcap),  },
                 { hwcap2, ELEMENTSOF(hwcap2), },
                 { hwcap3, ELEMENTSOF(hwcap3), },
         };
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-#if defined(__i386__) || defined(__x86_64__) || defined(__aarch64__)
-        _cleanup_strv_free_ char **features = NULL;
+#ಆದರೆ defined(__i386__) || defined(__x86_64__) || defined(__aarch64__)
+        _cleanup_strv_free_ ಅಕ್ಷರ **features = ಖಾಲಿ;
         size_t n = 0;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        FOREACH_ELEMENT(table, tables)
-                FOREACH_ARRAY(i, table->table, table->n_entries) {
-                        r = strv_extend_with_size(&features, &n, i->name);
-                        if (r < 0)
-                                return r;
+        FOREACH_ELEMENT(ಕೋಷ್ಟಕ, tables)
+                FOREACH_ARRAY(i, ಕೋಷ್ಟಕ->ಕೋಷ್ಟಕ, ಕೋಷ್ಟಕ->n_entries) {
+                        r = strv_extend_with_ಗಾತ್ರ(&features, &n, i->name);
+                        ಆದರೆ (r < 0)
+                                ಹಿಂತಿರುಗಿ r;
                 }
 
         *ret = TAKE_PTR(features);
-#else
-        *ret = NULL;
-#endif
-        return 0;
+#ಇಲ್ಲದಿದ್ದರೆ
+        *ret = ಖಾಲಿ;
+#ಆದರೆ_ಅಂತ್ಯ
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-static const char *const virtualization_table[_VIRTUALIZATION_MAX] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸ್ಥಿರಾಂಕ virtualization_ಕೋಷ್ಟಕ[_VIRTUALIZATION_MAX] = {
         [VIRTUALIZATION_NONE]            = "none",
         [VIRTUALIZATION_KVM]             = "kvm",
         [VIRTUALIZATION_AMAZON]          = "amazon",
@@ -1217,4 +1217,4 @@ static const char *const virtualization_table[_VIRTUALIZATION_MAX] = {
         [VIRTUALIZATION_CONTAINER_OTHER] = "container-other",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(virtualization, Virtualization);
+DEFINE_STRING_ಕೋಷ್ಟಕ_LOOKUP(virtualization, Virtualization);

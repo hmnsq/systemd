@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "sort-util.h"
+#ಅನ್ತರ್ಭಾವ "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+ರಚನೆ strbuf* strbuf_new(ಶೂನ್ಯ) {
+        _cleanup_(strbuf_freep) ರಚನೆ strbuf *str = ಖಾಲಿ;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(ರಚನೆ strbuf, 1);
+        ಆದರೆ (!str)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (ರಚನೆ strbuf) {
+                .buf = new0(ಅಕ್ಷರ, 1),
+                .ಬೇರು = new0(ರಚನೆ strbuf_ಗಂಟು, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_ಎಣಿಕೆ = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        ಆದರೆ (!str->buf || !str->ಬೇರು)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return TAKE_PTR(str);
+        ಹಿಂತಿರುಗಿ TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+ಸ್ಥಿರ ರಚನೆ strbuf_ಗಂಟು* strbuf_ಗಂಟು_cleanup(ರಚನೆ strbuf_ಗಂಟು *ಗಂಟು) {
+        ಪ್ರತಿಜ್ಞಾ(ಗಂಟು);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(ಮಗು, ಗಂಟು->children, ಗಂಟು->children_ಎಣಿಕೆ)
+                strbuf_ಗಂಟು_cleanup(ಮಗು->ಮಗು);
 
-        free(node->children);
-        return mfree(node);
+        ಬಿಡುಗಡೆ(ಗಂಟು->children);
+        ಹಿಂತಿರುಗಿ mfree(ಗಂಟು);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+ಶೂನ್ಯ strbuf_complete(ರಚನೆ strbuf *str) {
+        ಆದರೆ (!str || !str->ಬೇರು)
+                ಹಿಂತಿರುಗಿ;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->ಬೇರು = strbuf_ಗಂಟು_cleanup(str->ಬೇರು);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+ರಚನೆ strbuf* strbuf_free(ರಚನೆ strbuf *str) {
+        ಆದರೆ (!str)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        ಬಿಡುಗಡೆ(str->buf);
+        ಹಿಂತಿರುಗಿ mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ strbuf_children_cmp(ಸ್ಥಿರಾಂಕ ರಚನೆ strbuf_ಮಗು_ನಮೂದು *n1, ಸ್ಥಿರಾಂಕ ರಚನೆ strbuf_ಮಗು_ನಮೂದು *n2) {
+        ಪ್ರತಿಜ್ಞಾ(n1);
+        ಪ್ರತಿಜ್ಞಾ(n2);
 
-        return CMP(n1->c, n2->c);
+        ಹಿಂತಿರುಗಿ CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+ಸ್ಥಿರ ಶೂನ್ಯ bubbleinsert(ರಚನೆ strbuf_ಗಂಟು *ಗಂಟು,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         ರಚನೆ strbuf_ಗಂಟು *ಗಂಟು_ಮಗು) {
 
-        struct strbuf_child_entry new = {
+        ರಚನೆ strbuf_ಮಗು_ನಮೂದು new = {
                 .c = c,
-                .child = node_child,
+                .ಮಗು = ಗಂಟು_ಮಗು,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        ಪೂರ್ಣಾಂಕ ಎಡ = 0, ಬಲ = ASSERT_PTR(ಗಂಟು)->children_ಎಣಿಕೆ;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
-                else
-                        right = middle;
+        ಆಗ (ಬಲ > ಎಡ) {
+                ಪೂರ್ಣಾಂಕ ಮಧ್ಯ = (ಬಲ + ಎಡ) / 2 ;
+                ಆದರೆ (strbuf_children_cmp(&ಗಂಟು->children[ಮಧ್ಯ], &new) <= 0)
+                        ಎಡ = ಮಧ್ಯ + 1;
+                ಇಲ್ಲದಿದ್ದರೆ
+                        ಬಲ = ಮಧ್ಯ;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(ಗಂಟು->children + ಎಡ + 1, ಗಂಟು->children + ಎಡ,
+                ಗಾತ್ರ(ರಚನೆ strbuf_ಮಗು_ನಮೂದು) * (ಗಂಟು->children_ಎಣಿಕೆ - ಎಡ));
+        ಗಂಟು->children[ಎಡ] = new;
 
-        node->children_count++;
+        ಗಂಟು->children_ಎಣಿಕೆ++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_ಕೂಡಿಸು_string_ತುಂಬಿದ(ರಚನೆ strbuf *str, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        ಪ್ರತಿಜ್ಞಾ(str);
+        ಪ್ರತಿಜ್ಞಾ(s || len == 0);
 
-        if (len == SIZE_MAX)
-                len = strlen(s);
+        ಆದರೆ (len == SIZE_MAX)
+                len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
-        if (!str->root)
-                return -EINVAL;
+        ಆದರೆ (!str->ಬೇರು)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
-        if (len == 0) {
-                str->dedup_count++;
-                return 0;
+        str->ಒಳ_ಎಣಿಕೆ++;
+        ಆದರೆ (len == 0) {
+                str->dedup_ಎಣಿಕೆ++;
+                ಹಿಂತಿರುಗಿ 0;
         }
-        str->in_len += len;
+        str->ಒಳ_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        ರಚನೆ strbuf_ಗಂಟು *ಗಂಟು = str->ಬೇರು;
+        ಗಾಗಿ (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = ಗಂಟು->ಮೌಲ್ಯ_off + ಗಂಟು->ಮೌಲ್ಯ_len - len;
+                ಆದರೆ (depth == len || (ಗಂಟು->ಮೌಲ್ಯ_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
-                        return off;
+                        str->dedup_ಎಣಿಕೆ++;
+                        ಹಿಂತಿರುಗಿ off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
-                node = child->child;
+                ರಚನೆ strbuf_ಮಗು_ನಮೂದು *ಮಗು, ಹುಡುಕು = { .c = c };
+                ಮಗು = typesafe_bsearch(&ಹುಡುಕು, ಗಂಟು->children, ಗಂಟು->children_ಎಣಿಕೆ, strbuf_children_cmp);
+                ಆದರೆ (!ಮಗು)
+                        ನಿಲ್ಲಿಸು;
+                ಗಂಟು = ಮಗು->ಮಗು;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        ಆದರೆ (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                ಹಿಂತಿರುಗಿ -ENOMEM;
         off = str->len;
-        memcpy(str->buf + off, s, len);
+        ಸ್ಮರಣೆ_ನಕಲು(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ ರಚನೆ strbuf_ಗಂಟು *ಗಂಟು_ಮಗು = ಖಾಲಿ;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        ಗಂಟು_ಮಗು = new(ರಚನೆ strbuf_ಗಂಟು, 1);
+        ಆದರೆ (!ಗಂಟು_ಮಗು)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
+        *ಗಂಟು_ಮಗು = (ರಚನೆ strbuf_ಗಂಟು) {
+                .ಮೌಲ್ಯ_off = off,
+                .ಮೌಲ್ಯ_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        ಆದರೆ (!GREEDY_REALLOC(ಗಂಟು->children, ಗಂಟು->children_ಎಣಿಕೆ + 1))
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_ಎಣಿಕೆ++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(ಗಂಟು, c, TAKE_PTR(ಗಂಟು_ಮಗು));
 
-        return off;
+        ಹಿಂತಿರುಗಿ off;
 }

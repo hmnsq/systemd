@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 /*
  * For details about the file format see RFC:
@@ -9,63 +9,63 @@
  *  and
  *    https://github.com/pcapng/pcapng/
  */
-enum pcapng_block_types {
-        PCAPNG_INTERFACE_BLOCK = 1,
-        PCAPNG_PACKET_BLOCK, /* Obsolete */
-        PCAPNG_SIMPLE_PACKET_BLOCK,
-        PCAPNG_NAME_RESOLUTION_BLOCK,
-        PCAPNG_INTERFACE_STATS_BLOCK,
-        PCAPNG_ENHANCED_PACKET_BLOCK,
+ಎಣಿಕೆ pcapng_ಖಂಡ_types {
+        PCAPNG_INTERFACE_ಖಂಡ = 1,
+        PCAPNG_PACKET_ಖಂಡ, /* Obsolete */
+        PCAPNG_SIMPLE_PACKET_ಖಂಡ,
+        PCAPNG_NAME_RESOLUTION_ಖಂಡ,
+        PCAPNG_INTERFACE_STATS_ಖಂಡ,
+        PCAPNG_ENHANCED_PACKET_ಖಂಡ,
 
-        PCAPNG_SECTION_BLOCK   = 0x0A0D0D0A,
+        PCAPNG_SECTION_ಖಂಡ   = 0x0A0D0D0A,
 };
 
-struct pcapng_option {
-        uint16_t code;
+ರಚನೆ pcapng_option {
+        uint16_t ಸಂಕೇತ_2;
         uint16_t length;
-        uint8_t data[];
+        uint8_t ದತ್ತಾಂಶ[];
 };
 
-#define PCAPNG_BYTE_ORDER_MAGIC 0x1A2B3C4D
-#define PCAPNG_MAJOR_VERS 1
-#define PCAPNG_MINOR_VERS 0
+#ವ್ಯಾಖ್ಯಾನಿಸು PCAPNG_BYTE_ಕ್ರಮ_MAGIC 0x1A2B3C4D
+#ವ್ಯಾಖ್ಯಾನಿಸು PCAPNG_MAJOR_VERS 1
+#ವ್ಯಾಖ್ಯಾನಿಸು PCAPNG_MINOR_VERS 0
 
-enum pcapng_opt {
-        PCAPNG_OPT_END     = 0,
+ಎಣಿಕೆ pcapng_opt {
+        PCAPNG_OPT_ಕೊನೆ     = 0,
         PCAPNG_OPT_COMMENT = 1,
 };
 
-struct pcapng_section {
-        uint32_t block_type;
-        uint32_t block_length;
-        uint32_t byte_order_magic;
-        uint16_t major_version;
-        uint16_t minor_version;
-        uint64_t section_length;
+ರಚನೆ pcapng_section {
+        uint32_t ಖಂಡ_type;
+        uint32_t ಖಂಡ_ಉದ್ದಳತೆ;
+        uint32_t byte_ಕ್ರಮ_magic;
+        uint16_t major_ಆವೃತ್ತಿ;
+        uint16_t minor_ಆವೃತ್ತಿ;
+        uint64_t section_ಉದ್ದಳತೆ;
 };
 
-enum pcapng_section_opt {
+ಎಣಿಕೆ pcapng_section_opt {
         PCAPNG_SHB_HARDWARE = 2,
         PCAPNG_SHB_OS       = 3,
         PCAPNG_SHB_USERAPPL = 4,
 };
 
-struct pcapng_interface_block {
-        uint32_t block_type;   /* 1 */
-        uint32_t block_length;
+ರಚನೆ pcapng_interface_ಖಂಡ {
+        uint32_t ಖಂಡ_type;   /* 1 */
+        uint32_t ಖಂಡ_ಉದ್ದಳತೆ;
         uint16_t link_type;
         uint16_t reserved;
         uint32_t snap_len;
 };
 
-enum pcapng_interface_options {
+ಎಣಿಕೆ pcapng_interface_options {
         PCAPNG_IFB_NAME = 2,
         PCAPNG_IFB_DESCRIPTION,
         PCAPNG_IFB_IPV4ADDR,
         PCAPNG_IFB_IPV6ADDR,
         PCAPNG_IFB_MACADDR,
         PCAPNG_IFB_EUIADDR,
-        PCAPNG_IFB_SPEED,
+        PCAPNG_IFB_ವೇಗ,
         PCAPNG_IFB_TSRESOL,
         PCAPNG_IFB_TZONE,
         PCAPNG_IFB_FILTER,
@@ -75,38 +75,38 @@ enum pcapng_interface_options {
         PCAPNG_IFB_HARDWARE,
 };
 
-struct pcapng_enhance_packet_block {
-        uint32_t block_type; /* 6 */
-        uint32_t block_length;
+ರಚನೆ pcapng_enhance_packet_ಖಂಡ {
+        uint32_t ಖಂಡ_type; /* 6 */
+        uint32_t ಖಂಡ_ಉದ್ದಳತೆ;
         uint32_t interface_id;
         uint32_t timestamp_hi;
         uint32_t timestamp_lo;
-        uint32_t capture_length;
-        uint32_t original_length;
+        uint32_t capture_ಉದ್ದಳತೆ;
+        uint32_t original_ಉದ್ದಳತೆ;
 };
 
 /* Flags values */
-#define PCAPNG_IFB_INBOUND   0b01
-#define PCAPNG_IFB_OUTBOUND  0b10
+#ವ್ಯಾಖ್ಯಾನಿಸು PCAPNG_IFB_INBOUND   0b01
+#ವ್ಯಾಖ್ಯಾನಿಸು PCAPNG_IFB_OUTBOUND  0b10
 
-enum pcapng_epb_options {
+ಎಣಿಕೆ pcapng_epb_options {
         PCAPNG_EPB_FLAGS = 2,
         PCAPNG_EPB_HASH,
         PCAPNG_EPB_DROPCOUNT,
         PCAPNG_EPB_PACKETID,
-        PCAPNG_EPB_QUEUE,
+        PCAPNG_EPB_ಸರತಿ,
         PCAPNG_EPB_VERDICT,
 };
 
-struct pcapng_statistics_block {
-        uint32_t block_type; /* 5 */
-        uint32_t block_length;
+ರಚನೆ pcapng_statistics_ಖಂಡ {
+        uint32_t ಖಂಡ_type; /* 5 */
+        uint32_t ಖಂಡ_ಉದ್ದಳತೆ;
         uint32_t interface_id;
         uint32_t timestamp_hi;
         uint32_t timestamp_lo;
 };
 
-enum pcapng_isb_options {
+ಎಣಿಕೆ pcapng_isb_options {
         PCAPNG_ISB_STARTTIME = 2,
         PCAPNG_ISB_ENDTIME,
         PCAPNG_ISB_IFRECV,

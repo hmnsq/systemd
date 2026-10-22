@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "errno-list.h"
+#ಅನ್ತರ್ಭಾವ "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ errno_name* lookup_errno(ನೋಂದಣಿ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str,
+                                             ನೋಂದಣಿ GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#ಅನ್ತರ್ಭಾವ "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+ಪೂರ್ಣಾಂಕ errno_from_name(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name) {
+        ಸ್ಥಿರಾಂಕ ರಚನೆ errno_name *sc;
 
-        assert(name);
+        ಪ್ರತಿಜ್ಞಾ(name);
 
-        sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_errno(name, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(name));
+        ಆದರೆ (!sc)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        ಪ್ರತಿಜ್ಞಾ(sc->id > 0);
+        ಹಿಂತಿರುಗಿ sc->id;
 }
 
-#ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __GLIBC__
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* errno_name_no_fallback(ಪೂರ್ಣಾಂಕ id) {
+        ಆದರೆ (id == 0) /* To stay in line with our implementation below.  */
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return strerrorname_np(ABS(id));
+        ಹಿಂತಿರುಗಿ strerrorname_np(ABS(id));
 }
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* errno_name_no_fallback(ಪೂರ್ಣಾಂಕ id) {
+        ಆದರೆ (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        ಆದರೆ ((size_t) id >= ELEMENTSOF(errno_ಹೆಸರುಗಳು))
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        return errno_names[id];
+        ಹಿಂತಿರುಗಿ errno_ಹೆಸರುಗಳು[id];
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
-        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* errno_name(ಪೂರ್ಣಾಂಕ id, ಅಕ್ಷರ buf[ಸ್ಥಿರ ERRNO_NAME_BUF_LEN]) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *a = errno_name_no_fallback(id);
+        ಆದರೆ (a)
+                ಹಿಂತಿರುಗಿ a;
+        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", ನಿರಪೇಕ್ಷ(id));
+        ಹಿಂತಿರುಗಿ buf;
 }

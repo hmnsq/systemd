@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 /* Bit index (0-based) to mask of specified type. Assertion failure if index is out of range. */
-#define _INDEX_TO_MASK(type, i, uniq)                                   \
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_ಮುಖವಾಡ(type, i, uniq)                                   \
         ({                                                              \
-                int UNIQ_T(_i, uniq) = (i);                             \
-                assert(UNIQ_T(_i, uniq) >= 0);                          \
-                assert(UNIQ_T(_i, uniq) < (int)sizeof(type) * 8);       \
+                ಪೂರ್ಣಾಂಕ UNIQ_T(_i, uniq) = (i);                             \
+                ಪ್ರತಿಜ್ಞಾ(UNIQ_T(_i, uniq) >= 0);                          \
+                ಪ್ರತಿಜ್ಞಾ(UNIQ_T(_i, uniq) < (ಪೂರ್ಣಾಂಕ)ಗಾತ್ರ(type) * 8);       \
                 ((type)1) << UNIQ_T(_i, uniq);                          \
         })
-#define INDEX_TO_MASK(type, i)                                          \
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_ಮುಖವಾಡ_2(type, i)                                          \
         ({                                                              \
-                assert_cc(sizeof(type) <= sizeof(unsigned long long));  \
-                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (int)(sizeof(type) * 8)); \
+                assert_cc(ಗಾತ್ರ(type) <= ಗಾತ್ರ(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದೀರ್ಘ));  \
+                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (ಪೂರ್ಣಾಂಕ)(ಗಾತ್ರ(type) * 8)); \
                 __builtin_choose_expr(__builtin_constant_p(i),          \
                                       ((type)1) << (i),                 \
-                                      _INDEX_TO_MASK(type, i, UNIQ));   \
+                                      ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_ಮುಖವಾಡ(type, i, UNIQ));   \
         })
 
 /* Builds a mask of specified type with multiple bits set. Note the result will not be constant, even if all
  * indexes are constant. */
-#define INDEXES_TO_MASK(type, ...)                              \
-        UNIQ_INDEXES_TO_MASK(type, UNIQ, ##__VA_ARGS__)
-#define UNIQ_INDEXES_TO_MASK(type, uniq, ...)                           \
+#ವ್ಯಾಖ್ಯಾನಿಸು INDEXES_ಗಮ್ಯ_ಮುಖವಾಡ(type, ...)                              \
+        UNIQ_INDEXES_ಗಮ್ಯ_ಮುಖವಾಡ(type, UNIQ, ##__VA_ARGS__)
+#ವ್ಯಾಖ್ಯಾನಿಸು UNIQ_INDEXES_ಗಮ್ಯ_ಮುಖವಾಡ(type, uniq, ...)                           \
         ({                                                              \
-                typeof(type) UNIQ_T(_mask, uniq) = (type)0;             \
-                int UNIQ_T(_i, uniq);                                   \
-                FOREACH_ARGUMENT(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
-                        UNIQ_T(_mask, uniq) |= INDEX_TO_MASK(type, UNIQ_T(_i, uniq)); \
-                UNIQ_T(_mask, uniq);                                    \
+                typeof(type) UNIQ_T(ಮುಖವಾಡ_2, uniq) = (type)0;             \
+                ಪೂರ್ಣಾಂಕ UNIQ_T(_i, uniq);                                   \
+                FOREACH_ವಾದ(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
+                        UNIQ_T(ಮುಖವಾಡ_2, uniq) |= ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_ಮುಖವಾಡ_2(type, UNIQ_T(_i, uniq)); \
+                UNIQ_T(ಮುಖವಾಡ_2, uniq);                                    \
         })
 
 /* Same as the FLAG macros, but accept a 0-based bit index instead of a mask. Results in assertion failure if
  * index is out of range for the type. */
-#define SET_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), true)
-#define CLEAR_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), false)
-#define BIT_SET(bits, i) FLAGS_SET(bits, INDEX_TO_MASK(typeof(bits), i))
+#ವ್ಯಾಖ್ಯಾನಿಸು ಗಣ_ಬಿಟ್(ಬಿಟ್ಟುಗಳು, i) ಗಣ_FLAG(ಬಿಟ್ಟುಗಳು, ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_ಮುಖವಾಡ_2(typeof(ಬಿಟ್ಟುಗಳು), i), true)
+#ವ್ಯಾಖ್ಯಾನಿಸು CLEAR_ಬಿಟ್(ಬಿಟ್ಟುಗಳು, i) ಗಣ_FLAG(ಬಿಟ್ಟುಗಳು, ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_ಮುಖವಾಡ_2(typeof(ಬಿಟ್ಟುಗಳು), i), false)
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಿಟ್_ಗಣ(ಬಿಟ್ಟುಗಳು, i) FLAGS_ಗಣ(ಬಿಟ್ಟುಗಳು, ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_ಮುಖವಾಡ_2(typeof(ಬಿಟ್ಟುಗಳು), i))
 
 /* As above, but accepts multiple indexes. Note the result will not be constant, even if all indexes are
  * constant. */
-#define SET_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), true)
-#define CLEAR_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), false)
-#define BITS_SET(bits, ...) FLAGS_SET(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__))
+#ವ್ಯಾಖ್ಯಾನಿಸು ಗಣ_ಬಿಟ್ಟುಗಳು(ಬಿಟ್ಟುಗಳು, ...) ಗಣ_FLAG(ಬಿಟ್ಟುಗಳು, INDEXES_ಗಮ್ಯ_ಮುಖವಾಡ(typeof(ಬಿಟ್ಟುಗಳು), ##__VA_ARGS__), true)
+#ವ್ಯಾಖ್ಯಾನಿಸು CLEAR_ಬಿಟ್ಟುಗಳು(ಬಿಟ್ಟುಗಳು, ...) ಗಣ_FLAG(ಬಿಟ್ಟುಗಳು, INDEXES_ಗಮ್ಯ_ಮುಖವಾಡ(typeof(ಬಿಟ್ಟುಗಳು), ##__VA_ARGS__), false)
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಿಟ್ಟುಗಳು_ಗಣ(ಬಿಟ್ಟುಗಳು, ...) FLAGS_ಗಣ(ಬಿಟ್ಟುಗಳು, INDEXES_ಗಮ್ಯ_ಮುಖವಾಡ(typeof(ಬಿಟ್ಟುಗಳು), ##__VA_ARGS__))
 
 /* Iterate through each set bit. Index is 0-based and type int. */
-#define BIT_FOREACH(index, bits) _BIT_FOREACH(index, bits, UNIQ)
-#define _BIT_FOREACH(index, bits, uniq)                                 \
-        for (int UNIQ_T(_last, uniq) = -1, index;                       \
-             (index = BIT_NEXT_SET(bits, UNIQ_T(_last, uniq))) >= 0;    \
-             UNIQ_T(_last, uniq) = index)
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಿಟ್_FOREACH(index, ಬಿಟ್ಟುಗಳು) ಬಿಟ್_FOREACH_2(index, ಬಿಟ್ಟುಗಳು, UNIQ)
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಿಟ್_FOREACH_2(index, ಬಿಟ್ಟುಗಳು, uniq)                                 \
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ UNIQ_T(ಕೊನೆಯ, uniq) = -1, index;                       \
+             (index = ಬಿಟ್_ಮುಂದಿನ_ಗಣ(ಬಿಟ್ಟುಗಳು, UNIQ_T(ಕೊನೆಯ, uniq))) >= 0;    \
+             UNIQ_T(ಕೊನೆಯ, uniq) = index)
 
 /* Find the next set bit after 0-based index 'prev'. Result is 0-based index of next set bit, or -1 if no
  * more bits are set. */
-#define BIT_FIRST_SET(bits) BIT_NEXT_SET(bits, -1)
-#define BIT_NEXT_SET(bits, prev)                        \
-        UNIQ_BIT_NEXT_SET(bits, prev, UNIQ)
-#define UNIQ_BIT_NEXT_SET(bits, prev, uniq)                             \
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಿಟ್_ಮೊದಲ_ಗಣ(ಬಿಟ್ಟುಗಳು) ಬಿಟ್_ಮುಂದಿನ_ಗಣ(ಬಿಟ್ಟುಗಳು, -1)
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಿಟ್_ಮುಂದಿನ_ಗಣ(ಬಿಟ್ಟುಗಳು, prev)                        \
+        UNIQ_ಬಿಟ್_ಮುಂದಿನ_ಗಣ(ಬಿಟ್ಟುಗಳು, prev, UNIQ)
+#ವ್ಯಾಖ್ಯಾನಿಸು UNIQ_ಬಿಟ್_ಮುಂದಿನ_ಗಣ(ಬಿಟ್ಟುಗಳು, prev, uniq)                             \
         ({                                                              \
-                typeof(bits) UNIQ_T(_bits, uniq) = (bits);              \
-                int UNIQ_T(_prev, uniq) = (prev);                       \
-                int UNIQ_T(_next, uniq);                                \
-                _BIT_NEXT_SET(UNIQ_T(_bits, uniq),                      \
+                typeof(ಬಿಟ್ಟುಗಳು) UNIQ_T(ಬಿಟ್ಟುಗಳು_2, uniq) = (ಬಿಟ್ಟುಗಳು);              \
+                ಪೂರ್ಣಾಂಕ UNIQ_T(_prev, uniq) = (prev);                       \
+                ಪೂರ್ಣಾಂಕ UNIQ_T(ಮುಂದಿನ, uniq);                                \
+                ಬಿಟ್_ಮುಂದಿನ_ಗಣ_2(UNIQ_T(ಬಿಟ್ಟುಗಳು_2, uniq),                      \
                               UNIQ_T(_prev, uniq),                      \
-                              UNIQ_T(_next, uniq));                     \
+                              UNIQ_T(ಮುಂದಿನ, uniq));                     \
         })
-#define _BIT_NEXT_SET(bits, prev, next)                                 \
-        ((int)(prev + 1) == (int)sizeof(bits) * 8                       \
+#ವ್ಯಾಖ್ಯಾನಿಸು ಬಿಟ್_ಮುಂದಿನ_ಗಣ_2(ಬಿಟ್ಟುಗಳು, prev, ಮುಂದಿನ_2)                                 \
+        ((ಪೂರ್ಣಾಂಕ)(prev + 1) == (ಪೂರ್ಣಾಂಕ)ಗಾತ್ರ(ಬಿಟ್ಟುಗಳು) * 8                       \
          ? -1 /* Prev index was msb. */                                 \
-         : ((next = __builtin_ffsll(((unsigned long long)(bits)) >> (prev + 1))) == 0 \
+         : ((ಮುಂದಿನ_2 = __builtin_ffsll(((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದೀರ್ಘ)(ಬಿಟ್ಟುಗಳು)) >> (prev + 1))) == 0 \
             ? -1 /* No more bits set. */                                \
-            : prev + next))
+            : prev + ಮುಂದಿನ_2))

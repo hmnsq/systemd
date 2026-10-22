@@ -1,72 +1,72 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include <printf.h>
-#include <stdio.h>
+#ಅನ್ತರ್ಭಾವ <printf.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 _printf_(3, 4)
-static inline char* snprintf_ok(char *buf, size_t len, const char *format, ...) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಅಕ್ಷರ* snprintf_ok(ಅಕ್ಷರ *buf, size_t len, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...) {
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
         va_start(ap, format);
         r = vsnprintf(buf, len, format, ap);
         va_end(ap);
 
-        return r >= 0 && (size_t) r < len ? buf : NULL;
+        ಹಿಂತಿರುಗಿ r >= 0 && (size_t) r < len ? buf : ಖಾಲಿ;
 }
 
-#define xsprintf(buf, fmt, ...) \
-        assert_message_se(snprintf_ok(buf, ELEMENTSOF(buf), fmt, ##__VA_ARGS__), "xsprintf: buffer too small")
+#ವ್ಯಾಖ್ಯಾನಿಸು xsprintf(buf, fmt, ...) \
+        assert_ಸಂದೇಶ_se(snprintf_ok(buf, ELEMENTSOF(buf), fmt, ##__VA_ARGS__), "xsprintf: buffer too small")
 
-char* asprintf_safe(const char *restrict fmt, ...) _printf_(1, 2);
+ಅಕ್ಷರ* asprintf_ಸುರಕ್ಷಿತ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸೀಮಿತ fmt, ...) _printf_(1, 2);
 
-#define VA_FORMAT_ADVANCE(format, ap)                                   \
-do {                                                                    \
-        int _argtypes[128];                                             \
+#ವ್ಯಾಖ್ಯಾನಿಸು VA_FORMAT_ADVANCE(format, ap)                                   \
+ಮಾಡು {                                                                    \
+        ಪೂರ್ಣಾಂಕ _argtypes[128];                                             \
         size_t _i, _k;                                                  \
         /* See https://github.com/google/sanitizers/issues/992 */       \
-        if (HAS_FEATURE_MEMORY_SANITIZER)                               \
-                memset(_argtypes, 0, sizeof(_argtypes));                \
+        ಆದರೆ (HAS_FEATURE_ಸ್ಮರಣೆ_SANITIZER)                               \
+                memset(_argtypes, 0, ಗಾತ್ರ(_argtypes));                \
         _k = parse_printf_format((format), ELEMENTSOF(_argtypes), _argtypes); \
-        assert(_k < ELEMENTSOF(_argtypes));                             \
-        for (_i = 0; _i < _k; _i++) {                                   \
-                if (_argtypes[_i] & PA_FLAG_PTR)  {                     \
-                        (void) va_arg(ap, void*);                       \
-                        continue;                                       \
+        ಪ್ರತಿಜ್ಞಾ(_k < ELEMENTSOF(_argtypes));                             \
+        ಗಾಗಿ (_i = 0; _i < _k; _i++) {                                   \
+                ಆದರೆ (_argtypes[_i] & PA_FLAG_PTR)  {                     \
+                        (ಶೂನ್ಯ) va_arg(ap, ಶೂನ್ಯ*);                       \
+                        ಮುಂದುವರಿ;                                       \
                 }                                                       \
                                                                         \
-                switch (_argtypes[_i]) {                                \
-                case PA_INT:                                            \
-                case PA_INT|PA_FLAG_SHORT:                              \
-                case PA_CHAR:                                           \
-                        (void) va_arg(ap, int);                         \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG:                               \
-                        (void) va_arg(ap, long int);                    \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG_LONG:                          \
-                        (void) va_arg(ap, long long int);               \
-                        break;                                          \
-                case PA_WCHAR:                                          \
-                        (void) va_arg(ap, wchar_t);                     \
-                        break;                                          \
-                case PA_WSTRING:                                        \
-                case PA_STRING:                                         \
-                case PA_POINTER:                                        \
-                        (void) va_arg(ap, void*);                       \
-                        break;                                          \
-                case PA_FLOAT:                                          \
-                case PA_DOUBLE:                                         \
-                        (void) va_arg(ap, double);                      \
-                        break;                                          \
-                case PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
-                        (void) va_arg(ap, long double);                 \
-                        break;                                          \
-                default:                                                \
+                ಆಯ್ಕೆ (_argtypes[_i]) {                                \
+                ಸ್ಥಿತಿ PA_INT:                                            \
+                ಸ್ಥಿತಿ PA_INT|PA_FLAG_SHORT:                              \
+                ಸ್ಥಿತಿ PA_CHAR:                                           \
+                        (ಶೂನ್ಯ) va_arg(ap, ಪೂರ್ಣಾಂಕ);                         \
+                        ನಿಲ್ಲಿಸು;                                          \
+                ಸ್ಥಿತಿ PA_INT|PA_FLAG_LONG:                               \
+                        (ಶೂನ್ಯ) va_arg(ap, ದೀರ್ಘ ಪೂರ್ಣಾಂಕ);                    \
+                        ನಿಲ್ಲಿಸು;                                          \
+                ಸ್ಥಿತಿ PA_INT|PA_FLAG_LONG_LONG:                          \
+                        (ಶೂನ್ಯ) va_arg(ap, ದೀರ್ಘ ದೀರ್ಘ ಪೂರ್ಣಾಂಕ);               \
+                        ನಿಲ್ಲಿಸು;                                          \
+                ಸ್ಥಿತಿ PA_WCHAR:                                          \
+                        (ಶೂನ್ಯ) va_arg(ap, wchar_t);                     \
+                        ನಿಲ್ಲಿಸು;                                          \
+                ಸ್ಥಿತಿ PA_WSTRING:                                        \
+                ಸ್ಥಿತಿ PA_STRING:                                         \
+                ಸ್ಥಿತಿ PA_POINTER:                                        \
+                        (ಶೂನ್ಯ) va_arg(ap, ಶೂನ್ಯ*);                       \
+                        ನಿಲ್ಲಿಸು;                                          \
+                ಸ್ಥಿತಿ PA_FLOAT:                                          \
+                ಸ್ಥಿತಿ PA_DOUBLE:                                         \
+                        (ಶೂನ್ಯ) va_arg(ap, ದ್ವಿಗುಣ);                      \
+                        ನಿಲ್ಲಿಸು;                                          \
+                ಸ್ಥಿತಿ PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
+                        (ಶೂನ್ಯ) va_arg(ap, ದೀರ್ಘ ದ್ವಿಗುಣ);                 \
+                        ನಿಲ್ಲಿಸು;                                          \
+                ಪೂರ್ವನಿಯೋಜಿತ:                                                \
                         assert_not_reached();                           \
                 }                                                       \
         }                                                               \
-} while (false)
+} ಆಗ (false)

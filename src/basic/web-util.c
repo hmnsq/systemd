@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
-#include "web-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "path-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
+#ಅನ್ತರ್ಭಾವ "utf8.h"
+#ಅನ್ತರ್ಭಾವ "web-util.h"
 
-bool http_url_is_valid(const char *url) {
-        const char *p;
+bool http_url_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
 
-        if (isempty(url))
-                return false;
+        ಆದರೆ (isempty(url))
+                ಹಿಂತಿರುಗಿ false;
 
-        p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        p = STARTSWITH_ಗಣ(url, "http://", "https://");
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ false;
 
-        if (isempty(p))
-                return false;
+        ಆದರೆ (isempty(p))
+                ಹಿಂತಿರುಗಿ false;
 
-        return ascii_is_valid(p);
+        ಹಿಂತಿರುಗಿ ascii_is_valid(p);
 }
 
-bool file_url_is_valid(const char *url) {
-        const char *p;
+bool file_url_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
 
-        if (isempty(url))
-                return false;
+        ಆದರೆ (isempty(url))
+                ಹಿಂತಿರುಗಿ false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        ಆದರೆ (isempty(p))
+                ಹಿಂತಿರುಗಿ false;
 
-        return ascii_is_valid(p);
+        ಹಿಂತಿರುಗಿ ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
-        const char *p, *e;
-        int r;
+ಪೂರ್ಣಾಂಕ provider_url_parse(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url, ಅಕ್ಷರ **ret_socket, ಅಕ್ಷರ **ret_resource) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, *e;
+        ಪೂರ್ಣಾಂಕ r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        ಆದರೆ (isempty(url))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        ಆದರೆ (!e || e == p)
+                ಹಿಂತಿರುಗಿ -EINVAL;
+        ಆದರೆ (e[1] != '/')
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ ಅಕ್ಷರ *s = strndup(p, e - p);
+        ಆದರೆ (!s)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        ಆದರೆ (!ಮಾರ್ಗ_is_absolute(s) || !ಮಾರ್ಗ_is_normalized(s))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *resource = e + 2;
+        ಆದರೆ (isempty(resource))
+                ಹಿಂತಿರುಗಿ -EINVAL;
+        ಆದರೆ (ಮಾರ್ಗ_is_absolute(resource) || !ಮಾರ್ಗ_is_normalized(resource))
+                ಹಿಂತಿರುಗಿ -EINVAL;
+        ಆದರೆ (string_has_cc(resource, /* ok= */ ಖಾಲಿ) || strpbrk(resource, "?#"))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        r = strdup_ಗಮ್ಯ_ತುಂಬಿದ(ret_resource, resource);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (ret_socket)
+        ಆದರೆ (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+bool provider_url_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url) {
+        ಹಿಂತಿರುಗಿ provider_url_parse(url, /* ret_socket= */ ಖಾಲಿ, /* ret_resource= */ ಖಾಲಿ) >= 0;
 }
 
-bool documentation_url_is_valid(const char *url) {
-        const char *p;
+bool documentation_url_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *url) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
 
-        if (isempty(url))
-                return false;
+        ಆದರೆ (isempty(url))
+                ಹಿಂತಿರುಗಿ false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        ಆದರೆ (http_url_is_valid(url) || file_url_is_valid(url))
+                ಹಿಂತಿರುಗಿ true;
 
-        p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        p = STARTSWITH_ಗಣ(url, "info:", "man:");
+        ಆದರೆ (isempty(p))
+                ಹಿಂತಿರುಗಿ false;
 
-        return ascii_is_valid(p);
+        ಹಿಂತಿರುಗಿ ascii_is_valid(p);
 }
 
-bool http_header_valid(const char *header) {
-        return header &&
-                ascii_is_valid(header) &&
-                !string_has_cc(header, /* ok= */ NULL) &&
-                strchr(header, ':');
+bool http_ಶೀರ್ಷಿಕೆ_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಶೀರ್ಷಿಕೆ) {
+        ಹಿಂತಿರುಗಿ ಶೀರ್ಷಿಕೆ &&
+                ascii_is_valid(ಶೀರ್ಷಿಕೆ) &&
+                !string_has_cc(ಶೀರ್ಷಿಕೆ, /* ok= */ ಖಾಲಿ) &&
+                strchr(ಶೀರ್ಷಿಕೆ, ':');
 }
 
-bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+bool http_etag_is_valid(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *etag) {
+        ಆದರೆ (isempty(etag))
+                ಹಿಂತಿರುಗಿ false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        ಆದರೆ (!endswith(etag, "\""))
+                ಹಿಂತಿರುಗಿ false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        ಆದರೆ (!STARTSWITH_ಗಣ(etag, "\"", "W/\""))
+                ಹಿಂತಿರುಗಿ false;
 
-        return true;
+        ಹಿಂತಿರುಗಿ true;
 }

@@ -1,55 +1,55 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "procfs-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "time-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "extract-word.h"
+#ಅನ್ತರ್ಭಾವ "fd-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "procfs-util.h"
+#ಅನ್ತರ್ಭಾವ "stdio-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "time-util.h"
 
-int procfs_get_pid_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ procfs_get_pid_max(uint64_t *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *ಮೌಲ್ಯ = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = read_one_line_file("/proc/sys/kernel/pid_max", &value);
-        if (r < 0)
-                return r;
+        r = read_one_ಸಾಲು_file("/proc/sys/kernel/pid_max", &ಮೌಲ್ಯ);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return safe_atou64(value, ret);
+        ಹಿಂತಿರುಗಿ ಸುರಕ್ಷಿತ_atou64(ಮೌಲ್ಯ, ret);
 }
 
-int procfs_get_threads_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ procfs_get_ಎಳೆಗಳು_max(uint64_t *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *ಮೌಲ್ಯ = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = read_one_line_file("/proc/sys/kernel/threads-max", &value);
-        if (r < 0)
-                return r;
+        r = read_one_ಸಾಲು_file("/proc/sys/kernel/threads-max", &ಮೌಲ್ಯ);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return safe_atou64(value, ret);
+        ಹಿಂತಿರುಗಿ ಸುರಕ್ಷಿತ_atou64(ಮೌಲ್ಯ, ret);
 }
 
-int procfs_tasks_set_limit(uint64_t limit) {
-        char buffer[DECIMAL_STR_MAX(uint64_t)+1];
+ಪೂರ್ಣಾಂಕ procfs_tasks_ಗಣ_ಎಲ್ಲೆ(uint64_t limit) {
+        ಅಕ್ಷರ ಬಫರ್[DECIMAL_STR_MAX(uint64_t)+1];
         uint64_t pid_max;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        if (limit == 0) /* This makes no sense, we are userspace and hence count as tasks too, and we want to live,
+        ಆದರೆ (limit == 0) /* This makes no sense, we are userspace and hence count as tasks too, and we want to live,
                          * hence the limit conceptually has to be above 0. Also, most likely if anyone asks for a zero
                          * limit they probably mean "no limit", hence let's better refuse this to avoid
                          * confusion. */
-                return -EINVAL;
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* The Linux kernel doesn't allow this value to go below 20, hence don't allow this either, higher values than
          * TASKS_MAX are not accepted by the pid_max sysctl. We'll treat anything this high as "unbounded" and hence
@@ -57,66 +57,66 @@ int procfs_tasks_set_limit(uint64_t limit) {
         limit = CLAMP(limit, 20U, TASKS_MAX);
 
         r = procfs_get_pid_max(&pid_max);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         /* As pid_max is about the numeric pid_t range we'll bump it if necessary, but only ever increase it, never
          * decrease it, as threads-max is the much more relevant sysctl. */
-        if (limit > pid_max-1) {
-                xsprintf(buffer, "%" PRIu64, limit+1); /* Add one, since PID 0 is not a valid PID */
-                r = write_string_file("/proc/sys/kernel/pid_max", buffer, WRITE_STRING_FILE_DISABLE_BUFFER);
-                if (r < 0)
-                        return r;
+        ಆದರೆ (limit > pid_max-1) {
+                xsprintf(ಬಫರ್, "%" PRIu64, limit+1); /* Add one, since PID 0 is not a valid PID */
+                r = write_string_file("/proc/sys/kernel/pid_max", ಬಫರ್, WRITE_STRING_FILE_DISABLE_ಬಫರ್);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        xsprintf(buffer, "%" PRIu64, limit);
-        r = write_string_file("/proc/sys/kernel/threads-max", buffer, WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0) {
-                uint64_t threads_max;
+        xsprintf(ಬಫರ್, "%" PRIu64, limit);
+        r = write_string_file("/proc/sys/kernel/threads-max", ಬಫರ್, WRITE_STRING_FILE_DISABLE_ಬಫರ್);
+        ಆದರೆ (r < 0) {
+                uint64_t ಎಳೆಗಳು_max;
 
                 /* Hmm, we couldn't write this? If so, maybe it was already set properly? In that case let's not
                  * generate an error */
 
-                if (procfs_get_threads_max(&threads_max) < 0)
-                        return r; /* return original error */
+                ಆದರೆ (procfs_get_ಎಳೆಗಳು_max(&ಎಳೆಗಳು_max) < 0)
+                        ಹಿಂತಿರುಗಿ r; /* return original error */
 
-                if (MIN(pid_max - 1, threads_max) != limit)
-                        return r; /* return original error */
+                ಆದರೆ (MIN(pid_max - 1, ಎಳೆಗಳು_max) != limit)
+                        ಹಿಂತಿರುಗಿ r; /* return original error */
 
                 /* Yay! Value set already matches what we were trying to set, hence consider this a success. */
         }
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int procfs_tasks_get_current(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        const char *p, *nr;
+ಪೂರ್ಣಾಂಕ procfs_tasks_get_current(uint64_t *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *ಮೌಲ್ಯ = ಖಾಲಿ;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, *nr;
         size_t n;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = read_one_line_file("/proc/loadavg", &value);
-        if (r < 0)
-                return r;
+        r = read_one_ಸಾಲು_file("/proc/loadavg", &ಮೌಲ್ಯ);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
         /* Look for the second part of the fourth field, which is separated by a slash from the first part. None of the
          * earlier fields use a slash, hence let's use this to find the right spot. */
-        p = strchr(value, '/');
-        if (!p)
-                return -EINVAL;
+        p = strchr(ಮೌಲ್ಯ, '/');
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         p++;
         n = strspn(p, DIGITS);
-        nr = strndupa_safe(p, n);
+        nr = strndupa_ಸುರಕ್ಷಿತ(p, n);
 
-        return safe_atou64(nr, ret);
+        ಹಿಂತಿರುಗಿ ಸುರಕ್ಷಿತ_atou64(nr, ret);
 }
 
-static uint64_t calc_gcd64(uint64_t a, uint64_t b) {
+ಸ್ಥಿರ uint64_t calc_gcd64(uint64_t a, uint64_t b) {
 
-        while (b > 0) {
+        ಆಗ (b > 0) {
                 uint64_t t;
 
                 t = a % b;
@@ -125,57 +125,57 @@ static uint64_t calc_gcd64(uint64_t a, uint64_t b) {
                 b = t;
         }
 
-        return a;
+        ಹಿಂತಿರುಗಿ a;
 }
 
-nsec_t procfs_ticks_to_nsec(uint64_t ticks) {
-        uint64_t ticks_per_second = sysconf_clock_ticks_cached(),
-                gcd = calc_gcd64(NSEC_PER_SEC, ticks_per_second);
+nsec_t procfs_ticks_ಗಮ್ಯ_nsec(uint64_t ticks) {
+        uint64_t ticks_ಪ್ರತಿ_ಎರಡನೇ = sysconf_clock_ticks_cached(),
+                ಮಹತ್ತಮ_ಸಾಮಾನ್ಯ_ಅಪವರ್ತನ = calc_gcd64(NSEC_ಪ್ರತಿ_SEC, ticks_ಪ್ರತಿ_ಎರಡನೇ);
 
         /* Reduce NSEC_PER_SEC/ticks_per_second first to avoid overflow of ticks * NSEC_PER_SEC, and split
          * the multiplication into whole and remainder parts, so that the result stays exact.
          *
          * Note that in most cases b == 1 and the second term is trivial. */
-        uint64_t a = NSEC_PER_SEC / gcd,
-                 b = ticks_per_second / gcd;
+        uint64_t a = NSEC_ಪ್ರತಿ_SEC / ಮಹತ್ತಮ_ಸಾಮಾನ್ಯ_ಅಪವರ್ತನ,
+                 b = ticks_ಪ್ರತಿ_ಎರಡನೇ / ಮಹತ್ತಮ_ಸಾಮಾನ್ಯ_ಅಪವರ್ತನ;
 
-        return ticks / b * a + DIV_ROUND_UP(ticks % b * a, b);
+        ಹಿಂತಿರುಗಿ ticks / b * a + DIV_ಸುತ್ತು_ಮೇಲೆ(ticks % b * a, b);
 }
 
-int procfs_cpu_get_usage(nsec_t *ret) {
-        int r;
+ಪೂರ್ಣಾಂಕ procfs_cpu_get_usage(nsec_t *ret) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         ProcfsCpuTicks ticks;
         r = procfs_cpu_get_ticks(&ticks);
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        *ret = procfs_ticks_to_nsec(ticks.user + ticks.nice + ticks.system + ticks.irq + ticks.softirq);
-        return 0;
+        *ret = procfs_ticks_ಗಮ್ಯ_nsec(ticks.user + ticks.nice + ticks.system + ticks.irq + ticks.softirq);
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
-        _cleanup_free_ char *first_line = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *ಮೊದಲ_ಸಾಲು = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = read_one_line_file("/proc/stat", &first_line);
-        if (r < 0)
-                return r;
+        r = read_one_ಸಾಲು_file("/proc/stat", &ಮೊದಲ_ಸಾಲು);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        const char *p = first_word(first_line, "cpu");
-        if (!p)
-                return -EINVAL;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = ಮೊದಲ_ಶಬ್ದ(ಮೊದಲ_ಸಾಲು, "cpu");
+        ಆದರೆ (!p)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* All eight fields exist on any kernel we support: iowait was added in 2.5.41, steal in 2.6.11.
          * "guest" and "guest_nice" are not returned, the kernel already includes them in "user" and "nice".
          * Nevertheless, this file might be synthesized slopilly, so let's not require the last three fields.
          * We don't care about them in most cases anyway. */
         ProcfsCpuTicks t = {};
-        r = sscanf(p, "%"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64,
+        r = ಅಕ್ಷರಸರಣಿ_ಓದು(p, "%"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64,
                    &t.user,
                    &t.nice,
                    &t.system,
@@ -184,91 +184,91 @@ int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
                    &t.irq,
                    &t.softirq,
                    &t.steal);
-        if (r < 5)
-                return -EINVAL;
-        if (r < 8)
+        ಆದರೆ (r < 5)
+                ಹಿಂತಿರುಗಿ -EINVAL;
+        ಆದರೆ (r < 8)
                 log_once(LOG_INFO, "Short read (%d fields) from /proc/stat, continuing.", r);
 
         *ret = t;
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int convert_meminfo_value_to_uint64_bytes(const char *s, uint64_t *ret) {
-        _cleanup_free_ char *w = NULL;
+ಪೂರ್ಣಾಂಕ convert_meminfo_ಮೌಲ್ಯ_ಗಮ್ಯ_uint64_ಬೈಟುಗಳು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, uint64_t *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *w = ಖಾಲಿ;
         uint64_t v;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(s);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = extract_first_word(&s, &w, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        r = ಹೊರತೆಗೆ_ಮೊದಲ_ಶಬ್ದ(&s, &w, /* separators= */ ಖಾಲಿ, /* flags= */ 0);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (r == 0)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* Ensure the line ends in "kB" */
-        if (!streq(s, "kB"))
-                return -EINVAL;
+        ಆದರೆ (!streq(s, "kB"))
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        r = safe_atou64(w, &v);
-        if (r < 0)
-                return r;
-        if (v == UINT64_MAX)
-                return -EINVAL;
+        r = ಸುರಕ್ಷಿತ_atou64(w, &v);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
+        ಆದರೆ (v == UINT64_MAX)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (!MUL_ASSIGN_SAFE(&v, U64_KB))
-                return -EOVERFLOW;
+        ಆದರೆ (!MUL_ನಿಯೋಜಿಸು_ಸುರಕ್ಷಿತ(&v, U64_KB))
+                ಹಿಂತಿರುಗಿ -EOVERFLOW;
 
         *ret = v;
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used) {
-        uint64_t mem_total = UINT64_MAX, mem_available = UINT64_MAX;
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+ಪೂರ್ಣಾಂಕ procfs_ಸ್ಮರಣೆ_get(uint64_t *ret_ಒಟ್ಟು, uint64_t *ret_ಬಳಸಿದ) {
+        uint64_t mem_ಒಟ್ಟು = UINT64_MAX, mem_ಲಭ್ಯ = UINT64_MAX;
+        _cleanup_fclose_ FILE *f = ಖಾಲಿ;
+        ಪೂರ್ಣಾಂಕ r;
 
         f = fopen("/proc/meminfo", "re");
-        if (!f)
-                return -errno;
+        ಆದರೆ (!f)
+                ಹಿಂತಿರುಗಿ -errno;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
+        ಗಾಗಿ (;;) {
+                _cleanup_free_ ಅಕ್ಷರ *ಸಾಲು = ಖಾಲಿ;
                 uint64_t *v;
-                char *p;
+                ಅಕ್ಷರ *p;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EINVAL; /* EOF: Couldn't find one or both fields? */
+                r = read_ಸಾಲು(f, LONG_ಸಾಲು_MAX, &ಸಾಲು);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
+                ಆದರೆ (r == 0)
+                        ಹಿಂತಿರುಗಿ -EINVAL; /* EOF: Couldn't find one or both fields? */
 
-                p = first_word(line, "MemTotal:");
-                if (p)
-                        v = &mem_total;
-                else {
-                        p = first_word(line, "MemAvailable:");
-                        if (p)
-                                v = &mem_available;
-                        else
-                                continue;
+                p = ಮೊದಲ_ಶಬ್ದ(ಸಾಲು, "MemTotal:");
+                ಆದರೆ (p)
+                        v = &mem_ಒಟ್ಟು;
+                ಇಲ್ಲದಿದ್ದರೆ {
+                        p = ಮೊದಲ_ಶಬ್ದ(ಸಾಲು, "MemAvailable:");
+                        ಆದರೆ (p)
+                                v = &mem_ಲಭ್ಯ;
+                        ಇಲ್ಲದಿದ್ದರೆ
+                                ಮುಂದುವರಿ;
                 }
 
-                r = convert_meminfo_value_to_uint64_bytes(p, v);
-                if (r < 0)
-                        return r;
+                r = convert_meminfo_ಮೌಲ್ಯ_ಗಮ್ಯ_uint64_ಬೈಟುಗಳು(p, v);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
-                if (mem_total != UINT64_MAX && mem_available != UINT64_MAX)
-                        break;
+                ಆದರೆ (mem_ಒಟ್ಟು != UINT64_MAX && mem_ಲಭ್ಯ != UINT64_MAX)
+                        ನಿಲ್ಲಿಸು;
         }
 
-        if (mem_available > mem_total)
-                return -EINVAL;
+        ಆದರೆ (mem_ಲಭ್ಯ > mem_ಒಟ್ಟು)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        if (ret_total)
-                *ret_total = mem_total;
-        if (ret_used)
-                *ret_used = mem_total - mem_available;
-        return 0;
+        ಆದರೆ (ret_ಒಟ್ಟು)
+                *ret_ಒಟ್ಟು = mem_ಒಟ್ಟು;
+        ಆದರೆ (ret_ಬಳಸಿದ)
+                *ret_ಬಳಸಿದ = mem_ಒಟ್ಟು - mem_ಲಭ್ಯ;
+        ಹಿಂತಿರುಗಿ 0;
 }

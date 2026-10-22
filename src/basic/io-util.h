@@ -1,52 +1,52 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
 /* On most architectures POLL* and EPOLL* share numeric values, but sparc allocates POLLRDHUP at
  * 0x800 while EPOLLRDHUP is 0x2000 everywhere. Always go through these helpers when crossing
  * between poll() and epoll() event masks. Bits outside the mapped set (EPOLLET, EPOLLONESHOT,
  * POLLNVAL, …) are dropped. */
-uint32_t poll_events_to_epoll(uint32_t events);
-uint32_t epoll_events_to_poll(uint32_t events);
+uint32_t poll_events_ಗಮ್ಯ_epoll(uint32_t events);
+uint32_t epoll_events_ಗಮ್ಯ_poll(uint32_t events);
 
-int flush_fd(int fd);
+ಪೂರ್ಣಾಂಕ flush_fd(ಪೂರ್ಣಾಂಕ fd);
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll);
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll);
+ssize_t loop_read(ಪೂರ್ಣಾಂಕ fd, ಶೂನ್ಯ *buf, size_t nbytes, bool do_poll);
+ಪೂರ್ಣಾಂಕ loop_read_exact(ಪೂರ್ಣಾಂಕ fd, ಶೂನ್ಯ *buf, size_t nbytes, bool do_poll);
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) _nonnull_if_nonzero_(2, 3);
-static inline int loop_write(int fd, const void *buf, size_t nbytes) {
-        return loop_write_full(fd, buf, nbytes, 0);
+ಪೂರ್ಣಾಂಕ loop_write_ತುಂಬಿದ(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *buf, size_t nbytes, usec_t timeout) _nonnull_if_nonzero_(2, 3);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ loop_write(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *buf, size_t nbytes) {
+        ಹಿಂತಿರುಗಿ loop_write_ತುಂಬಿದ(fd, buf, nbytes, 0);
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written);
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) _nonnull_if_nonzero_(2, 3);
+ಪೂರ್ಣಾಂಕ pwritev_ತುಂಬಿದ(ಪೂರ್ಣಾಂಕ fd, ರಚನೆ iovec *iovec, size_t n, uint64_t ಸ್ಥಾನಾಂತರ, uint64_t *ret_written);
+ಪೂರ್ಣಾಂಕ pwrite_ತುಂಬಿದ(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *buf, size_t nbytes, uint64_t ಸ್ಥಾನಾಂತರ) _nonnull_if_nonzero_(2, 3);
 
-int pipe_eof(int fd);
+ಪೂರ್ಣಾಂಕ pipe_eof(ಪೂರ್ಣಾಂಕ fd);
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) _nonnull_if_nonzero_(1, 2);
-_nonnull_if_nonzero_(1, 2) static inline int ppoll_usec(struct pollfd *fds, size_t n_fds, usec_t timeout) {
-        return ppoll_usec_full(fds, n_fds, timeout, NULL);
+ಪೂರ್ಣಾಂಕ ppoll_usec_ತುಂಬಿದ(ರಚನೆ pollfd *fds, size_t n_fds, usec_t timeout, ಸ್ಥಿರಾಂಕ sigset_t *ss) _nonnull_if_nonzero_(1, 2);
+_nonnull_if_nonzero_(1, 2) ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ ppoll_usec(ರಚನೆ pollfd *fds, size_t n_fds, usec_t timeout) {
+        ಹಿಂತಿರುಗಿ ppoll_usec_ತುಂಬಿದ(fds, n_fds, timeout, ಖಾಲಿ);
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout);
+ಪೂರ್ಣಾಂಕ fd_wait_for_event(ಪೂರ್ಣಾಂಕ fd, ಪೂರ್ಣಾಂಕ event, usec_t timeout);
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length);
+ssize_t sparse_write(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *p, size_t sz, size_t ಸತತ_ಉದ್ದಳತೆ);
 
-static inline bool FILE_SIZE_VALID(uint64_t l) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool FILE_ಗಾತ್ರ_VALID(uint64_t l) {
         /* ftruncate() and friends take an unsigned file size, but actually cannot deal with file sizes larger than
          * 2^63 since the kernel internally handles it as signed value. This call allows checking for this early. */
 
-        return (l >> 63) == 0;
+        ಹಿಂತಿರುಗಿ (l >> 63) == 0;
 }
 
-static inline bool FILE_SIZE_VALID_OR_INFINITY(uint64_t l) {
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool FILE_ಗಾತ್ರ_VALID_OR_INFINITY(uint64_t l) {
 
         /* Same as above, but allows one extra value: -1 as indication for infinity. */
 
-        if (l == UINT64_MAX)
-                return true;
+        ಆದರೆ (l == UINT64_MAX)
+                ಹಿಂತಿರುಗಿ true;
 
-        return FILE_SIZE_VALID(l);
+        ಹಿಂತಿರುಗಿ FILE_ಗಾತ್ರ_VALID(l);
 }

@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
 
-#include "forward.h"
-#include "stdio-util.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
+#ಅನ್ತರ್ಭಾವ "stdio-util.h"
 
-char* sysctl_normalize(char *s);
-int sysctl_read(const char *property, char **ret);
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow);
-int sysctl_writef(const char *property, const char *format, ...) _printf_(2, 3);
-static inline int sysctl_write(const char *property, const char *value) {
-        return sysctl_write_full(property, value, NULL);
+ಅಕ್ಷರ* sysctl_normalize(ಅಕ್ಷರ *s);
+ಪೂರ್ಣಾಂಕ sysctl_read(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ sysctl_write_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, Hashmap **shadow);
+ಪೂರ್ಣಾಂಕ sysctl_writef(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...) _printf_(2, 3);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ sysctl_write(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ) {
+        ಹಿಂತಿರುಗಿ sysctl_write_ತುಂಬಿದ(property, ಮೌಲ್ಯ, ಖಾಲಿ);
 }
-int sysctl_write_verify(const char *property, const char *value);
+ಪೂರ್ಣಾಂಕ sysctl_write_verify(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret);
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret);
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret);
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow);
+ಪೂರ್ಣಾಂಕ sysctl_read_ip_property(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ sysctl_read_ip_property_int(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಪೂರ್ಣಾಂಕ *ret);
+ಪೂರ್ಣಾಂಕ sysctl_read_ip_property_uint32(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, uint32_t *ret);
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_property(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, Hashmap **shadow);
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_property_boolean(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, bool ಮೌಲ್ಯ, Hashmap **shadow);
 
-static inline int sysctl_write_ip_property_tristate(int af, const char *ifname, const char *property, int value, Hashmap **shadow) {
-        if (value < 0)
-                return 0;
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ sysctl_write_ip_property_tristate(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಪೂರ್ಣಾಂಕ ಮೌಲ್ಯ, Hashmap **shadow) {
+        ಆದರೆ (ಮೌಲ್ಯ < 0)
+                ಹಿಂತಿರುಗಿ 0;
 
-        return sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
+        ಹಿಂತಿರುಗಿ sysctl_write_ip_property_boolean(af, ifname, property, ಮೌಲ್ಯ, shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow);
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_neighbor_property(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ, Hashmap **shadow);
+ಪೂರ್ಣಾಂಕ sysctl_write_ip_neighbor_property_uint32(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, uint32_t ಮೌಲ್ಯ, Hashmap **shadow);
 
-#define DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
-        static inline int sysctl_write_ip_property_##name(int af, const char *ifname, const char *property, type value, Hashmap **shadow) { \
-                char buf[DECIMAL_STR_MAX(type)];                        \
-                xsprintf(buf, format, value);                           \
-                return sysctl_write_ip_property(af, ifname, property, buf, shadow); \
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
+        ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ sysctl_write_ip_property_##name(ಪೂರ್ಣಾಂಕ af, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ifname, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *property, type ಮೌಲ್ಯ, Hashmap **shadow) { \
+                ಅಕ್ಷರ buf[DECIMAL_STR_MAX(type)];                        \
+                xsprintf(buf, format, ಮೌಲ್ಯ);                           \
+                ಹಿಂತಿರುಗಿ sysctl_write_ip_property(af, ifname, property, buf, shadow); \
         }
 
-DEFINE_SYSCTL_WRITE_IP_PROPERTY(int, int, "%i");
+DEFINE_SYSCTL_WRITE_IP_PROPERTY(ಪೂರ್ಣಾಂಕ, ಪೂರ್ಣಾಂಕ, "%i");
 DEFINE_SYSCTL_WRITE_IP_PROPERTY(uint32, uint32_t, "%" PRIu32);

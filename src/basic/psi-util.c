@@ -1,107 +1,107 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <threads.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "psi-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "errno-util.h"
+#ಅನ್ತರ್ಭಾವ "extract-word.h"
+#ಅನ್ತರ್ಭಾವ "fd-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "psi-util.h"
+#ಅನ್ತರ್ಭಾವ "string-table.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        unsigned field_filled = 0;
+ಪೂರ್ಣಾಂಕ read_resource_pressure(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ ಅಕ್ಷರ *ಸಾಲು = ಖಾಲಿ;
+        _cleanup_fclose_ FILE *f = ಖಾಲಿ;
+        ಚಿಹ್ನೆರಹಿತ ಕ್ಷೇತ್ರ_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *cline;
+        ಅಕ್ಷರ *ಶಬ್ದ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(path);
-        assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ಮಾರ್ಗ);
+        ಪ್ರತಿಜ್ಞಾ(ಒಳ_ಗಣ(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_ತುಂಬಿದ));
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *t = ASSERT_PTR(pressure_type_ಗಮ್ಯ_string(type));
 
-        r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        r = fopen_unlocked(ಮಾರ್ಗ, "re", &f);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        ಗಾಗಿ (;;) {
+                _cleanup_free_ ಅಕ್ಷರ *l = ಖಾಲಿ;
+                ಅಕ್ಷರ *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_ಸಾಲು(f, LONG_ಸಾಲು_MAX, &l);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
+                ಆದರೆ (r == 0)
+                        ನಿಲ್ಲಿಸು;
 
-                w = first_word(l, t);
-                if (w) {
-                        line = TAKE_PTR(l);
+                w = ಮೊದಲ_ಶಬ್ದ(l, t);
+                ಆದರೆ (w) {
+                        ಸಾಲು = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        ನಿಲ್ಲಿಸು;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        ಆದರೆ (!ಸಾಲು)
+                ಹಿಂತಿರುಗಿ -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        ಆಗ ((r = ಹೊರತೆಗೆ_ಮೊದಲ_ಶಬ್ದ(&cline, &ಶಬ್ದ, ಖಾಲಿ, 0)) > 0) {
+                _cleanup_free_ ಅಕ್ಷರ *w = ಶಬ್ದ;
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                ಆದರೆ ((v = startswith(w, "avg10="))) {
+                        ಆದರೆ (ಕ್ಷೇತ್ರ_filled & (1U << 0))
+                                ಹಿಂತಿರುಗಿ -EINVAL;
 
-                        field_filled |= 1U << 0;
-                        r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                        ಕ್ಷೇತ್ರ_filled |= 1U << 0;
+                        r = parse_loadavg_fixed_ಬಿಂದು(v, &rp.avg10);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ ((v = startswith(w, "avg60="))) {
+                        ಆದರೆ (ಕ್ಷೇತ್ರ_filled & (1U << 1))
+                                ಹಿಂತಿರುಗಿ -EINVAL;
 
-                        field_filled |= 1U << 1;
-                        r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                        ಕ್ಷೇತ್ರ_filled |= 1U << 1;
+                        r = parse_loadavg_fixed_ಬಿಂದು(v, &rp.avg60);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ ((v = startswith(w, "avg300="))) {
+                        ಆದರೆ (ಕ್ಷೇತ್ರ_filled & (1U << 2))
+                                ಹಿಂತಿರುಗಿ -EINVAL;
 
-                        field_filled |= 1U << 2;
-                        r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                        ಕ್ಷೇತ್ರ_filled |= 1U << 2;
+                        r = parse_loadavg_fixed_ಬಿಂದು(v, &rp.avg300);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ ((v = startswith(w, "total="))) {
+                        ಆದರೆ (ಕ್ಷೇತ್ರ_filled & (1U << 3))
+                                ಹಿಂತಿರುಗಿ -EINVAL;
 
-                        field_filled |= 1U << 3;
-                        r = safe_atou64(v, &rp.total);
-                } else
-                        continue;
+                        ಕ್ಷೇತ್ರ_filled |= 1U << 3;
+                        r = ಸುರಕ್ಷಿತ_atou64(v, &rp.ಒಟ್ಟು);
+                } ಇಲ್ಲದಿದ್ದರೆ
+                        ಮುಂದುವರಿ;
 
-                if (r < 0)
-                        return r;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        if (r < 0)
-                return r;
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        ಆದರೆ (ಕ್ಷೇತ್ರ_filled != 15U)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         *ret = rp;
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = {
+ಸ್ಥಿರಾಂಕ PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_ಸ್ಮರಣೆ] = {
                 .name      = "memory",
                 .env_watch = "MEMORY_PRESSURE_WATCH",
                 .env_write = "MEMORY_PRESSURE_WRITE",
@@ -118,38 +118,38 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = "memory",
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ pressure_resource_ಕೋಷ್ಟಕ[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_ಸ್ಮರಣೆ] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
+DEFINE_STRING_ಕೋಷ್ಟಕ_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ pressure_type_ಕೋಷ್ಟಕ[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
-        [PRESSURE_TYPE_FULL] = "full",
+        [PRESSURE_TYPE_ತುಂಬಿದ] = "full",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
+DEFINE_STRING_ಕೋಷ್ಟಕ_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+ಪೂರ್ಣಾಂಕ is_pressure_supported(ಶೂನ್ಯ) {
+        ಸ್ಥಿರ thread_local ಪೂರ್ಣಾಂಕ cached = -1;
+        ಪೂರ್ಣಾಂಕ r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        ಆದರೆ (cached >= 0)
+                ಹಿಂತಿರುಗಿ cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
-                r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                r = read_virtual_file(p, 0, ಖಾಲಿ, ಖಾಲಿ);
+                ಆದರೆ (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        ಹಿಂತಿರುಗಿ (cached = false);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
         }
 
-        return (cached = true);
+        ಹಿಂತಿರುಗಿ (cached = true);
 }

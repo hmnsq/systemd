@@ -1,21 +1,21 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <poll.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/epoll.h>          /* IWYU pragma: keep */
-#include <time.h>
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <poll.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
+#ಅನ್ತರ್ಭಾವ <sys/epoll.h>          /* IWYU pragma: keep */
+#ಅನ್ತರ್ಭಾವ <time.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "errno-util.h"
-#include "fiber-ops.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "time-util.h"
+#ಅನ್ತರ್ಭಾವ "errno-util.h"
+#ಅನ್ತರ್ಭಾವ "fiber-ops.h"
+#ಅನ್ತರ್ಭಾವ "io-util.h"
+#ಅನ್ತರ್ಭಾವ "iovec-util.h"
+#ಅನ್ತರ್ಭಾವ "time-util.h"
 
-uint32_t poll_events_to_epoll(uint32_t events) {
-        return (events & POLLIN    ? EPOLLIN    : 0) |
+uint32_t poll_events_ಗಮ್ಯ_epoll(uint32_t events) {
+        ಹಿಂತಿರುಗಿ (events & POLLIN    ? EPOLLIN    : 0) |
                (events & POLLOUT   ? EPOLLOUT   : 0) |
                (events & POLLPRI   ? EPOLLPRI   : 0) |
                (events & POLLERR   ? EPOLLERR   : 0) |
@@ -23,8 +23,8 @@ uint32_t poll_events_to_epoll(uint32_t events) {
                (events & POLLRDHUP ? EPOLLRDHUP : 0);
 }
 
-uint32_t epoll_events_to_poll(uint32_t events) {
-        return (events & EPOLLIN    ? POLLIN    : 0) |
+uint32_t epoll_events_ಗಮ್ಯ_poll(uint32_t events) {
+        ಹಿಂತಿರುಗಿ (events & EPOLLIN    ? POLLIN    : 0) |
                (events & EPOLLOUT   ? POLLOUT   : 0) |
                (events & EPOLLPRI   ? POLLPRI   : 0) |
                (events & EPOLLERR   ? POLLERR   : 0) |
@@ -32,139 +32,139 @@ uint32_t epoll_events_to_poll(uint32_t events) {
                (events & EPOLLRDHUP ? POLLRDHUP : 0);
 }
 
-int flush_fd(int fd) {
-        int count = 0;
+ಪೂರ್ಣಾಂಕ flush_fd(ಪೂರ್ಣಾಂಕ fd) {
+        ಪೂರ್ಣಾಂಕ ಎಣಿಕೆ_2 = 0;
 
         /* Read from the specified file descriptor, until POLLIN is not set anymore, throwing away everything
          * read. Note that some file descriptors (notable IP sockets) will trigger POLLIN even when no data can be read
          * (due to IP packet checksum mismatches), hence this function is only safe to be non-blocking if the fd used
          * was set to non-blocking too. */
 
-        for (;;) {
-                char buf[LINE_MAX];
+        ಗಾಗಿ (;;) {
+                ಅಕ್ಷರ buf[LINE_MAX];
                 ssize_t l;
-                int r;
+                ಪೂರ್ಣಾಂಕ r;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
-                        continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                ಆದರೆ (r == -EINTR)
+                        ಮುಂದುವರಿ;
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
+                ಆದರೆ (r == 0)
+                        ಹಿಂತಿರುಗಿ ಎಣಿಕೆ_2;
 
-                l = read(fd, buf, sizeof(buf));
-                if (l < 0) {
-                        if (errno == EINTR)
-                                continue;
-                        if (errno == EAGAIN)
-                                return count;
+                l = ಪಠ(fd, buf, ಗಾತ್ರ(buf));
+                ಆದರೆ (l < 0) {
+                        ಆದರೆ (errno == EINTR)
+                                ಮುಂದುವರಿ;
+                        ಆದರೆ (errno == EAGAIN)
+                                ಹಿಂತಿರುಗಿ ಎಣಿಕೆ_2;
 
-                        return -errno;
-                } else if (l == 0)
-                        return count;
+                        ಹಿಂತಿರುಗಿ -errno;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (l == 0)
+                        ಹಿಂತಿರುಗಿ ಎಣಿಕೆ_2;
 
-                if (l > INT_MAX-count) /* On overflow terminate */
-                        return INT_MAX;
+                ಆದರೆ (l > ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ-ಎಣಿಕೆ_2) /* On overflow terminate */
+                        ಹಿಂತಿರುಗಿ ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ;
 
-                count += (int) l;
+                ಎಣಿಕೆ_2 += (ಪೂರ್ಣಾಂಕ) l;
         }
 }
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
+ssize_t loop_read(ಪೂರ್ಣಾಂಕ fd, ಶೂನ್ಯ *buf, size_t nbytes, bool do_poll) {
         uint8_t *p = ASSERT_PTR(buf);
         ssize_t n = 0;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
         /* If called with nbytes == 0, let's call read() at least once, to validate the operation */
 
-        if (nbytes > (size_t) SSIZE_MAX)
-                return -EINVAL;
+        ಆದರೆ (nbytes > (size_t) SSIZE_MAX)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
         /* do_poll == false means "don't wait, return what we have if EAGAIN". If the fd is already
          * non-blocking, read() can't block the thread, so the non-fiber path satisfies that semantic
          * correctly even from a fiber. Only use the fiber path when the fd is blocking (where read()
          * would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && !do_poll) {
+        ಪೂರ್ಣಾಂಕ flags = 0;
+        ಆದರೆ (fiber_ops_is_ಗಣ() && !do_poll) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                ಆದರೆ (flags < 0)
+                        ಹಿಂತಿರುಗಿ -errno;
         }
 
-        do {
+        ಮಾಡು {
                 ssize_t k;
 
-                if (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
+                ಆದರೆ (fiber_ops_is_ಗಣ() && (do_poll || !FLAGS_ಗಣ(flags, O_NONBLOCK))) {
                         /* On a fiber the read op suspends on EAGAIN until data is available, so we don't
                          * need a separate poll step or the do_poll knob. */
                         k = fiber_ops_read(fd, p, nbytes);
-                        if (k < 0)
-                                return n > 0 ? n : k;
-                } else {
-                        k = read(fd, p, nbytes);
-                        if (k < 0) {
-                                if (errno == EINTR)
-                                        continue;
+                        ಆದರೆ (k < 0)
+                                ಹಿಂತಿರುಗಿ n > 0 ? n : k;
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                        k = ಪಠ(fd, p, nbytes);
+                        ಆದರೆ (k < 0) {
+                                ಆದರೆ (errno == EINTR)
+                                        ಮುಂದುವರಿ;
 
-                                if (errno == EAGAIN && do_poll) {
+                                ಆದರೆ (errno == EAGAIN && do_poll) {
 
                                         /* We knowingly ignore any return value here,
                                          * and expect that any error/EOF is reported
                                          * via read() */
 
-                                        (void) fd_wait_for_event(fd, POLLIN, USEC_INFINITY);
-                                        continue;
+                                        (ಶೂನ್ಯ) fd_wait_for_event(fd, POLLIN, USEC_INFINITY);
+                                        ಮುಂದುವರಿ;
                                 }
 
-                                return n > 0 ? n : -errno;
+                                ಹಿಂತಿರುಗಿ n > 0 ? n : -errno;
                         }
                 }
 
-                if (k == 0)
-                        return n;
+                ಆದರೆ (k == 0)
+                        ಹಿಂತಿರುಗಿ n;
 
-                assert((size_t) k <= nbytes);
-                assert(k <= SSIZE_MAX - n);
+                ಪ್ರತಿಜ್ಞಾ((size_t) k <= nbytes);
+                ಪ್ರತಿಜ್ಞಾ(k <= SSIZE_MAX - n);
 
                 p += k;
                 nbytes -= k;
                 n += k;
-        } while (nbytes > 0);
+        } ಆಗ (nbytes > 0);
 
-        return n;
+        ಹಿಂತಿರುಗಿ n;
 }
 
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll) {
+ಪೂರ್ಣಾಂಕ loop_read_exact(ಪೂರ್ಣಾಂಕ fd, ಶೂನ್ಯ *buf, size_t nbytes, bool do_poll) {
         ssize_t n;
 
         n = loop_read(fd, buf, nbytes, do_poll);
-        if (n < 0)
-                return (int) n;
-        if ((size_t) n != nbytes)
-                return -EIO;
+        ಆದರೆ (n < 0)
+                ಹಿಂತಿರುಗಿ (ಪೂರ್ಣಾಂಕ) n;
+        ಆದರೆ ((size_t) n != nbytes)
+                ಹಿಂತಿರುಗಿ -EIO;
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
-        const uint8_t *p;
-        usec_t end;
-        int r;
+ಪೂರ್ಣಾಂಕ loop_write_ತುಂಬಿದ(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *buf, size_t nbytes, usec_t timeout) {
+        ಸ್ಥಿರಾಂಕ uint8_t *p;
+        usec_t ಕೊನೆ;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(fd >= 0);
-        assert(buf || nbytes == 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(buf || nbytes == 0);
 
-        if (nbytes == 0) {
-                static const dummy_t dummy[0];
-                assert_cc(sizeof(dummy) == 0);
-                p = (const void*) dummy; /* Some valid pointer, in case NULL was specified */
-        } else {
-                if (nbytes == SIZE_MAX)
-                        nbytes = strlen(buf);
-                else if (_unlikely_(nbytes > (size_t) SSIZE_MAX))
-                        return -EINVAL;
+        ಆದರೆ (nbytes == 0) {
+                ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ dummy_t dummy[0];
+                assert_cc(ಗಾತ್ರ(dummy) == 0);
+                p = (ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ*) dummy; /* Some valid pointer, in case NULL was specified */
+        } ಇಲ್ಲದಿದ್ದರೆ {
+                ಆದರೆ (nbytes == SIZE_MAX)
+                        nbytes = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(buf);
+                ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (_unlikely_(nbytes > (size_t) SSIZE_MAX))
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 p = buf;
         }
@@ -173,146 +173,146 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
          * non-blocking, write() can't block the thread, so the non-fiber path satisfies that
          * semantic correctly even from a fiber. Only use the fiber path when the fd is blocking
          * (where write() would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && timeout == 0) {
+        ಪೂರ್ಣಾಂಕ flags = 0;
+        ಆದರೆ (fiber_ops_is_ಗಣ() && timeout == 0) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                ಆದರೆ (flags < 0)
+                        ಹಿಂತಿರುಗಿ -errno;
         }
 
-        if (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
+        ಆದರೆ (fiber_ops_is_ಗಣ() && !FLAGS_ಗಣ(flags, O_NONBLOCK)) {
                 /* On a fiber the write op suspends on EAGAIN until the fd is writable; honor the
                  * caller's timeout via a deadline scope. */
-                FIBER_OPS_TIMEOUT(timestamp_is_set(timeout) ? timeout : USEC_INFINITY);
+                FIBER_OPS_TIMEOUT(timestamp_is_ಗಣ(timeout) ? timeout : USEC_INFINITY);
 
-                while (nbytes > 0) {
+                ಆಗ (nbytes > 0) {
                         ssize_t k = fiber_ops_write(fd, p, nbytes);
-                        if (k < 0)
-                                return (int) k;
-                        if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                                return -EIO;
+                        ಆದರೆ (k < 0)
+                                ಹಿಂತಿರುಗಿ (ಪೂರ್ಣಾಂಕ) k;
+                        ಆದರೆ (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                                ಹಿಂತಿರುಗಿ -EIO;
 
-                        assert((size_t) k <= nbytes);
+                        ಪ್ರತಿಜ್ಞಾ((size_t) k <= nbytes);
                         p += k;
                         nbytes -= k;
                 }
 
-                return 0;
+                ಹಿಂತಿರುಗಿ 0;
         }
 
         /* When timeout is 0 or USEC_INFINITY this is not used. But we initialize it to a sensible value. */
-        end = timestamp_is_set(timeout) ? usec_add(now(CLOCK_MONOTONIC), timeout) : USEC_INFINITY;
+        ಕೊನೆ = timestamp_is_ಗಣ(timeout) ? usec_ಕೂಡಿಸು(now(CLOCK_MONOTONIC), timeout) : USEC_INFINITY;
 
-        do {
+        ಮಾಡು {
                 ssize_t k;
 
-                k = write(fd, p, nbytes);
-                if (k < 0) {
-                        if (errno == EINTR)
-                                continue;
+                k = ಲಿಖ(fd, p, nbytes);
+                ಆದರೆ (k < 0) {
+                        ಆದರೆ (errno == EINTR)
+                                ಮುಂದುವರಿ;
 
-                        if (errno != EAGAIN || timeout == 0)
-                                return -errno;
+                        ಆದರೆ (errno != EAGAIN || timeout == 0)
+                                ಹಿಂತಿರುಗಿ -errno;
 
                         usec_t wait_for;
 
-                        if (timeout == USEC_INFINITY)
+                        ಆದರೆ (timeout == USEC_INFINITY)
                                 wait_for = USEC_INFINITY;
-                        else {
+                        ಇಲ್ಲದಿದ್ದರೆ {
                                 usec_t t = now(CLOCK_MONOTONIC);
-                                if (t >= end)
-                                        return -ETIME;
+                                ಆದರೆ (t >= ಕೊನೆ)
+                                        ಹಿಂತಿರುಗಿ -ETIME;
 
-                                wait_for = usec_sub_unsigned(end, t);
+                                wait_for = usec_sub_unsigned(ಕೊನೆ, t);
                         }
 
                         r = fd_wait_for_event(fd, POLLOUT, wait_for);
-                        if (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
+                        ಆದರೆ (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
                                 /* If timeout == USEC_INFINITY we knowingly ignore any return value
                                  * here, and expect that any error/EOF is reported via write() */
-                                continue;
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIME;
-                        continue;
+                                ಮುಂದುವರಿ;
+                        ಆದರೆ (r < 0)
+                                ಹಿಂತಿರುಗಿ r;
+                        ಆದರೆ (r == 0)
+                                ಹಿಂತಿರುಗಿ -ETIME;
+                        ಮುಂದುವರಿ;
                 }
 
-                if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                        return -EIO;
+                ಆದರೆ (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                        ಹಿಂತಿರುಗಿ -EIO;
 
-                assert((size_t) k <= nbytes);
+                ಪ್ರತಿಜ್ಞಾ((size_t) k <= nbytes);
 
                 p += k;
                 nbytes -= k;
-        } while (nbytes > 0);
+        } ಆಗ (nbytes > 0);
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
+ಪೂರ್ಣಾಂಕ pwritev_ತುಂಬಿದ(ಪೂರ್ಣಾಂಕ fd, ರಚನೆ iovec *iovec, size_t n, uint64_t ಸ್ಥಾನಾಂತರ, uint64_t *ret_written) {
         uint64_t written = 0;
-        int r = 0;
+        ಪೂರ್ಣಾಂಕ r = 0;
 
-        assert(fd >= 0);
-        assert(iovec || n == 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(iovec || n == 0);
 
         /* Writes all of the iovecs at the offset. The iovecs are advanced past what was written, and
          * 'ret_written' tells how much that was, also if the write fails halfway. */
 
-        for (size_t i = 0;;) {
+        ಗಾಗಿ (size_t i = 0;;) {
                 size_t m;
                 ssize_t k;
 
-                while (i < n && !iovec_is_set(iovec + i))
+                ಆಗ (i < n && !iovec_is_ಗಣ(iovec + i))
                         i++;
-                if (i >= n)
-                        break;
+                ಆದರೆ (i >= n)
+                        ನಿಲ್ಲಿಸು;
 
                 m = MIN(n - i, (size_t) IOV_MAX);
-                k = pwritev(fd, iovec + i, m, offset + written);
-                if (k < 0) {
-                        if (errno == EINTR)
-                                continue;
+                k = pwritev(fd, iovec + i, m, ಸ್ಥಾನಾಂತರ + written);
+                ಆದರೆ (k < 0) {
+                        ಆದರೆ (errno == EINTR)
+                                ಮುಂದುವರಿ;
 
                         r = -errno;
-                        break;
+                        ನಿಲ್ಲಿಸು;
                 }
-                if (k == 0) {
+                ಆದರೆ (k == 0) {
                         r = -EIO;
-                        break;
+                        ನಿಲ್ಲಿಸು;
                 }
 
                 written += k;
-                (void) iovec_inc_many(iovec + i, m, k);
+                (ಶೂನ್ಯ) iovec_inc_many(iovec + i, m, k);
         }
 
-        if (ret_written)
+        ಆದರೆ (ret_written)
                 *ret_written = written;
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) {
-        assert(fd >= 0);
-        assert(buf || nbytes == 0);
+ಪೂರ್ಣಾಂಕ pwrite_ತುಂಬಿದ(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *buf, size_t nbytes, uint64_t ಸ್ಥಾನಾಂತರ) {
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(buf || nbytes == 0);
 
-        return pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
+        ಹಿಂತಿರುಗಿ pwritev_ತುಂಬಿದ(fd, &IOVEC_MAKE((ಶೂನ್ಯ*) buf, nbytes), 1, ಸ್ಥಾನಾಂತರ, /* ret_written= */ ಖಾಲಿ);
 }
 
-int pipe_eof(int fd) {
-        int r;
+ಪೂರ್ಣಾಂಕ pipe_eof(ಪೂರ್ಣಾಂಕ fd) {
+        ಪೂರ್ಣಾಂಕ r;
 
         r = fd_wait_for_event(fd, POLLIN, 0);
-        if (r <= 0)
-                return r;
+        ಆದರೆ (r <= 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return !!(r & POLLHUP);
+        ಹಿಂತಿರುಗಿ !!(r & POLLHUP);
 }
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
-        int r;
+ಪೂರ್ಣಾಂಕ ppoll_usec_ತುಂಬಿದ(ರಚನೆ pollfd *fds, size_t n_fds, usec_t timeout, ಸ್ಥಿರಾಂಕ sigset_t *ss) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(fds || n_fds == 0);
+        ಪ್ರತಿಜ್ಞಾ(fds || n_fds == 0);
 
         /* This is a wrapper around ppoll() that does primarily two things:
          *
@@ -329,101 +329,101 @@ int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigs
          *  to handle signals, such as signalfd() or signal handlers. ⚠️ ⚠️ ⚠️
          */
 
-        if (n_fds == 0 && timeout == 0)
-                return 0;
+        ಆದರೆ (n_fds == 0 && timeout == 0)
+                ಹಿಂತಿರುಗಿ 0;
 
-        r = fiber_ops_ppoll(fds, n_fds, timeout == USEC_INFINITY ? NULL : TIMESPEC_STORE(timeout), ss);
-        if (r <= 0)
-                return r;
+        r = fiber_ops_ppoll(fds, n_fds, timeout == USEC_INFINITY ? ಖಾಲಿ : TIMESPEC_STORE(timeout), ss);
+        ಆದರೆ (r <= 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        for (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
-                if (fds[i].revents == 0)
-                        continue;
-                if (fds[i].revents & POLLNVAL)
-                        return -EBADF;
+        ಗಾಗಿ (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
+                ಆದರೆ (fds[i].revents == 0)
+                        ಮುಂದುವರಿ;
+                ಆದರೆ (fds[i].revents & POLLNVAL)
+                        ಹಿಂತಿರುಗಿ -EBADF;
                 n--;
         }
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout) {
-        struct pollfd pollfd = {
+ಪೂರ್ಣಾಂಕ fd_wait_for_event(ಪೂರ್ಣಾಂಕ fd, ಪೂರ್ಣಾಂಕ event, usec_t timeout) {
+        ರಚನೆ pollfd pollfd = {
                 .fd = fd,
                 .events = event,
         };
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
         /* ⚠️ ⚠️ ⚠️ Keep in mind you almost certainly want to handle -EINTR gracefully in the caller, see
          * ppoll_usec() above! ⚠️ ⚠️ ⚠️ */
 
         r = ppoll_usec(&pollfd, 1, timeout);
-        if (r <= 0)
-                return r;
+        ಆದರೆ (r <= 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return pollfd.revents;
+        ಹಿಂತಿರುಗಿ pollfd.revents;
 }
 
-static size_t nul_length(const uint8_t *p, size_t sz) {
+ಸ್ಥಿರ size_t nul_ಉದ್ದಳತೆ(ಸ್ಥಿರಾಂಕ uint8_t *p, size_t sz) {
         size_t n = 0;
 
-        assert(p);
+        ಪ್ರತಿಜ್ಞಾ(p);
 
-        while (sz > 0) {
-                if (*p != 0)
-                        break;
+        ಆಗ (sz > 0) {
+                ಆದರೆ (*p != 0)
+                        ನಿಲ್ಲಿಸು;
 
                 n++;
                 p++;
                 sz--;
         }
 
-        return n;
+        ಹಿಂತಿರುಗಿ n;
 }
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
-        const uint8_t *q, *w, *e;
+ssize_t sparse_write(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *p, size_t sz, size_t ಸತತ_ಉದ್ದಳತೆ) {
+        ಸ್ಥಿರಾಂಕ uint8_t *q, *w, *e;
         ssize_t l;
 
         q = w = p;
         e = q + sz;
-        while (q < e) {
+        ಆಗ (q < e) {
                 size_t n;
 
-                n = nul_length(q, e - q);
+                n = nul_ಉದ್ದಳತೆ(q, e - q);
 
                 /* If there are more than the specified run length of
                  * NUL bytes, or if this is the beginning or the end
                  * of the buffer, then seek instead of write */
-                if ((n > run_length) ||
+                ಆದರೆ ((n > ಸತತ_ಉದ್ದಳತೆ) ||
                     (n > 0 && q == p) ||
                     (n > 0 && q + n >= e)) {
-                        if (q > w) {
-                                l = write(fd, w, q - w);
-                                if (l < 0)
-                                        return -errno;
-                                if (l != q -w)
-                                        return -EIO;
+                        ಆದರೆ (q > w) {
+                                l = ಲಿಖ(fd, w, q - w);
+                                ಆದರೆ (l < 0)
+                                        ಹಿಂತಿರುಗಿ -errno;
+                                ಆದರೆ (l != q -w)
+                                        ಹಿಂತಿರುಗಿ -EIO;
                         }
 
-                        if (lseek(fd, n, SEEK_CUR) < 0)
-                                return -errno;
+                        ಆದರೆ (lseek(fd, n, SEEK_CUR) < 0)
+                                ಹಿಂತಿರುಗಿ -errno;
 
                         q += n;
                         w = q;
-                } else if (n > 0)
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (n > 0)
                         q += n;
-                else
+                ಇಲ್ಲದಿದ್ದರೆ
                         q++;
         }
 
-        if (q > w) {
-                l = write(fd, w, q - w);
-                if (l < 0)
-                        return -errno;
-                if (l != q - w)
-                        return -EIO;
+        ಆದರೆ (q > w) {
+                l = ಲಿಖ(fd, w, q - w);
+                ಆದರೆ (l < 0)
+                        ಹಿಂತಿರುಗಿ -errno;
+                ಆದರೆ (l != q - w)
+                        ಹಿಂತಿರುಗಿ -EIO;
         }
 
-        return q - (const uint8_t*) p;
+        ಹಿಂತಿರುಗಿ q - (ಸ್ಥಿರಾಂಕ uint8_t*) p;
 }

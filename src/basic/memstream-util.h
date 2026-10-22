@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-typedef struct MemStream {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ರಚನೆ Mem_ಹರಿವು {
         FILE *f;
-        char *buf;
+        ಅಕ್ಷರ *buf;
         size_t sz;
-} MemStream;
+} Mem_ಹರಿವು;
 
-void memstream_done(MemStream *m);
-FILE* memstream_init(MemStream *m);
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size);
+ಶೂನ್ಯ memstream_ಮುಗಿದ(Mem_ಹರಿವು *m);
+FILE* memstream_init(Mem_ಹರಿವು *m);
+ಪೂರ್ಣಾಂಕ memstream_finalize(Mem_ಹರಿವು *m, ಅಕ್ಷರ **ret_buf, size_t *ret_ಗಾತ್ರ);
 
 /* This finalizes the passed memstream. */
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                MemStream *m);
-#define memstream_dump(level, m)                                        \
-        memstream_dump_internal(level, 0, PROJECT_FILE, __LINE__, __func__, m)
+ಪೂರ್ಣಾಂಕ memstream_dump_ಆಂತರಿಕ(
+                ಪೂರ್ಣಾಂಕ level,
+                ಪೂರ್ಣಾಂಕ error,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *file,
+                ಪೂರ್ಣಾಂಕ ಸಾಲು,
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *func,
+                Mem_ಹರಿವು *m);
+#ವ್ಯಾಖ್ಯಾನಿಸು memstream_dump(level, m)                                        \
+        memstream_dump_ಆಂತರಿಕ(level, 0, PROJECT_FILE, __LINE__, __func__, m)

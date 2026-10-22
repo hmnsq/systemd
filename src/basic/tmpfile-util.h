@@ -1,61 +1,61 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_at(AT_FDCWD, path, ret_file, ret_path);
+ಪೂರ್ಣಾಂಕ fopen_temporary_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, FILE **ret_file, ಅಕ್ಷರ **ret_ಮಾರ್ಗ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ fopen_temporary(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, FILE **ret_file, ಅಕ್ಷರ **ret_ಮಾರ್ಗ) {
+        ಹಿಂತಿರುಗಿ fopen_temporary_at(AT_FDCWD, ಮಾರ್ಗ, ret_file, ret_ಮಾರ್ಗ);
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary_child(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_child_at(AT_FDCWD, path, ret_file, ret_path);
+ಪೂರ್ಣಾಂಕ fopen_temporary_ಮಗು_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, FILE **ret_file, ಅಕ್ಷರ **ret_ಮಾರ್ಗ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ fopen_temporary_ಮಗು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, FILE **ret_file, ಅಕ್ಷರ **ret_ಮಾರ್ಗ) {
+        ಹಿಂತಿರುಗಿ fopen_temporary_ಮಗು_at(AT_FDCWD, ಮಾರ್ಗ, ret_file, ret_ಮಾರ್ಗ);
 }
 
-int mkostemp_safe(char *pattern);
-int fmkostemp_safe(char *pattern, const char *mode, FILE**_f);
+ಪೂರ್ಣಾಂಕ mkostemp_ಸುರಕ್ಷಿತ(ಅಕ್ಷರ *ನಮೂನೆ);
+ಪೂರ್ಣಾಂಕ fmkostemp_ಸುರಕ್ಷಿತ(ಅಕ್ಷರ *ನಮೂನೆ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಬಹುಲಕ, FILE**_f);
 
-void unlink_tempfilep(char (*p)[]);
+ಶೂನ್ಯ unlink_tempfilep(ಅಕ್ಷರ (*p)[]);
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret);
-int tempfn_random(const char *p, const char *extra, char **ret);
-int tempfn_random_child(const char *p, const char *extra, char **ret);
+ಪೂರ್ಣಾಂಕ tempfn_xxxxxx(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *extra, ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ tempfn_random(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *extra, ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ tempfn_random_ಮಗು(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *extra, ಅಕ್ಷರ **ret);
 
-int open_tmpfile_unlinkable(const char *directory, int flags);
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path);
-static inline int open_tmpfile_linkable(const char *target, int flags, char **ret_path) {
-        return open_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path);
+ಪೂರ್ಣಾಂಕ open_tmpfile_unlinkable(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *directory, ಪೂರ್ಣಾಂಕ flags);
+ಪೂರ್ಣಾಂಕ open_tmpfile_linkable_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_ಮಾರ್ಗ);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ open_tmpfile_linkable(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_ಮಾರ್ಗ) {
+        ಹಿಂತಿರುಗಿ open_tmpfile_linkable_at(AT_FDCWD, ಗುರಿ, flags, ret_ಮಾರ್ಗ);
 }
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file);
-static inline int fopen_tmpfile_linkable(const char *target, int flags, char **ret_path, FILE **ret_file) {
-        return fopen_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path, ret_file);
+ಪೂರ್ಣಾಂಕ fopen_tmpfile_linkable_at(ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_ಮಾರ್ಗ, FILE **ret_file);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ fopen_tmpfile_linkable(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret_ಮಾರ್ಗ, FILE **ret_file) {
+        ಹಿಂತಿರುಗಿ fopen_tmpfile_linkable_at(AT_FDCWD, ಗುರಿ, flags, ret_ಮಾರ್ಗ, ret_file);
 }
 
-typedef enum LinkTmpfileFlags {
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಎಣಿಕೆ LinkTmpfileFlags {
         LINK_TMPFILE_REPLACE = 1 << 0,
         LINK_TMPFILE_SYNC    = 1 << 1,
 } LinkTmpfileFlags;
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int link_tmpfile(int fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return link_tmpfile_at(fd, AT_FDCWD, path, target, flags);
+ಪೂರ್ಣಾಂಕ link_tmpfile_at(ಪೂರ್ಣಾಂಕ fd, ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, LinkTmpfileFlags flags);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ link_tmpfile(ಪೂರ್ಣಾಂಕ fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, LinkTmpfileFlags flags) {
+        ಹಿಂತಿರುಗಿ link_tmpfile_at(fd, AT_FDCWD, ಮಾರ್ಗ, ಗುರಿ, flags);
 }
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int flink_tmpfile(FILE *f, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return flink_tmpfile_at(f, AT_FDCWD, path, target, flags);
+ಪೂರ್ಣಾಂಕ flink_tmpfile_at(FILE *f, ಪೂರ್ಣಾಂಕ dir_fd, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, LinkTmpfileFlags flags);
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ flink_tmpfile(FILE *f, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾರ್ಗ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಗುರಿ, LinkTmpfileFlags flags) {
+        ಹಿಂತಿರುಗಿ flink_tmpfile_at(f, AT_FDCWD, ಮಾರ್ಗ, ಗುರಿ, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret);
-int mkdtemp_open(const char *template, int flags, char **ret);
+ಪೂರ್ಣಾಂಕ mkdtemp_malloc(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾದರಿ, ಅಕ್ಷರ **ret);
+ಪೂರ್ಣಾಂಕ mkdtemp_open(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮಾದರಿ, ಪೂರ್ಣಾಂಕ flags, ಅಕ್ಷರ **ret);
 
 /* A helper for removing link_tmpfile_at() via _cleanup_() */
-struct cleanup_tmpfile_data {
-        int *dir_fd;
-        char **filename;
+ರಚನೆ cleanup_tmpfile_ದತ್ತಾಂಶ {
+        ಪೂರ್ಣಾಂಕ *dir_fd;
+        ಅಕ್ಷರ **filename;
 };
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d);
-#define _CLEANUP_TMPFILE_AT(u, dir_fd, filename)                        \
-        _unused_ _cleanup_(cleanup_tmpfile_data_done) struct cleanup_tmpfile_data UNIQ_T(cta, u) = { &(dir_fd), &(filename) }
-#define CLEANUP_TMPFILE_AT(dir_fd, filename)                            \
+ಶೂನ್ಯ cleanup_tmpfile_ದತ್ತಾಂಶ_ಮುಗಿದ(ರಚನೆ cleanup_tmpfile_ದತ್ತಾಂಶ *d);
+#ವ್ಯಾಖ್ಯಾನಿಸು _CLEANUP_TMPFILE_AT(u, dir_fd, filename)                        \
+        ಬಳಸದ _cleanup_(cleanup_tmpfile_ದತ್ತಾಂಶ_ಮುಗಿದ) ರಚನೆ cleanup_tmpfile_ದತ್ತಾಂಶ UNIQ_T(cta, u) = { &(dir_fd), &(filename) }
+#ವ್ಯಾಖ್ಯಾನಿಸು CLEANUP_TMPFILE_AT(dir_fd, filename)                            \
         _CLEANUP_TMPFILE_AT(UNIQ, dir_fd, filename)

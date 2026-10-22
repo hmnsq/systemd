@@ -1,60 +1,60 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ಸೂಚನೆ once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ iovec iovec_nul_byte; /* Points to a single NUL byte */
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ iovec iovec_ಖಾಲಿಗಳು;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+ಪೂರ್ಣಾಂಕ iovec_alloc(size_t n, ರಚನೆ iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_ಒಟ್ಟು_ಗಾತ್ರ(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(ರಚನೆ iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+ರಚನೆ iovec* iovec_make_string(ರಚನೆ iovec *iovec, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s);
 
-#define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+#ವ್ಯಾಖ್ಯಾನಿಸು IOVEC_MAKE_STRING(s) \
+        *iovec_make_string(&(ರಚನೆ iovec) {}, s)
 
-#define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+#ವ್ಯಾಖ್ಯಾನಿಸು CONST_IOVEC_MAKE_STRING(s)              \
+        (ಸ್ಥಿರಾಂಕ ರಚನೆ iovec) {                  \
+                .iov_base = (ಅಕ್ಷರ*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
-#define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+#ವ್ಯಾಖ್ಯಾನಿಸು IOVEC_MAKE_BYTE(c)                                      \
+        (ಸ್ಥಿರಾಂಕ ರಚನೆ iovec) {                                  \
+                .iov_base = (ಅಕ್ಷರ*) ((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
-#define IOVEC_ALLOCA(n)                              \
+#ವ್ಯಾಖ್ಯಾನಿಸು IOVEC_ALLOCA(n)                              \
         ({                                           \
                 size_t _n_ = (n);                    \
-                IOVEC_MAKE(alloca_safe(_n_), _n_);   \
+                IOVEC_MAKE(alloca_ಸುರಕ್ಷಿತ(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+ಶೂನ್ಯ iovec_erase(ರಚನೆ iovec *iovec);
+ಶೂನ್ಯ iovec_ಮುಗಿದ_erase(ರಚನೆ iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+ಅಕ್ಷರ* ಗಣ_iovec_string_ಕ್ಷೇತ್ರ(ರಚನೆ iovec *iovec, size_t *n_iovec, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕ್ಷೇತ್ರ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಮೌಲ್ಯ);
+ಅಕ್ಷರ* ಗಣ_iovec_string_ಕ್ಷೇತ್ರ_free(ರಚನೆ iovec *iovec, size_t *n_iovec, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕ್ಷೇತ್ರ, ಅಕ್ಷರ *ಮೌಲ್ಯ);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+ಶೂನ್ಯ iovec_array_free(ರಚನೆ iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+ಪೂರ್ಣಾಂಕ iovec_memcmp(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *a, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *b) ಶುದ್ಧ;
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool iovec_equal(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *a, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *b) {
+        ಹಿಂತಿರುಗಿ iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+ರಚನೆ iovec* iovec_memdup(ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *ಮೂಲ, ರಚನೆ iovec *ret);
+ಪೂರ್ಣಾಂಕ iovec_ಮುಗಿದ_and_memdup(ರಚನೆ iovec *iovec, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *ಮೂಲ);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+ರಚನೆ iovec* iovec_append(ರಚನೆ iovec *iovec, ಸ್ಥಿರಾಂಕ ರಚನೆ iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+ರಚನೆ iovec* iovec_consume(ರಚನೆ iovec *iovec, size_t n);

@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "ordered-set.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+ಪೂರ್ಣಾಂಕ ordered_ಗಣ_ensure_allocated(Ordered_ಗಣ **s, ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops *ops) {
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        if (*s)
-                return 0;
+        ಆದರೆ (*s)
+                ಹಿಂತಿರುಗಿ 0;
 
-        *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        *s = ordered_ಗಣ_new(ops);
+        ಆದರೆ (!*s)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return 0;
+        ಹಿಂತಿರುಗಿ 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+ಪೂರ್ಣಾಂಕ ordered_ಗಣ_ensure_put(Ordered_ಗಣ **s, ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops *ops, ಶೂನ್ಯ *p) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        r = ordered_ಗಣ_ensure_allocated(s, ops);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        return ordered_set_put(*s, p);
+        ಹಿಂತಿರುಗಿ ordered_ಗಣ_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+ಪೂರ್ಣಾಂಕ ordered_ಗಣ_consume(Ordered_ಗಣ *s, ಶೂನ್ಯ *p) {
+        ಪೂರ್ಣಾಂಕ r;
 
-        r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        r = ordered_ಗಣ_put(s, p);
+        ಆದರೆ (r <= 0)
+                ಬಿಡುಗಡೆ(p);
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+ಪೂರ್ಣಾಂಕ ordered_ಗಣ_put_strdup_ತುಂಬಿದ(Ordered_ಗಣ **s, ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops *hash_ops, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p) {
+        ಅಕ್ಷರ *c;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(s);
-        assert(p);
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಪ್ರತಿಜ್ಞಾ(p);
 
-        r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        r = ordered_ಗಣ_ensure_allocated(s, hash_ops);
+        ಆದರೆ (r < 0)
+                ಹಿಂತಿರುಗಿ r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        ಆದರೆ (ordered_ಗಣ_ಒಳಗೊಂಡಿದೆ(*s, p))
+                ಹಿಂತಿರುಗಿ 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        ಆದರೆ (!c)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        ಹಿಂತಿರುಗಿ ordered_ಗಣ_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+ಪೂರ್ಣಾಂಕ ordered_ಗಣ_put_strdupv_ತುಂಬಿದ(Ordered_ಗಣ **s, ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops *hash_ops, ಅಕ್ಷರ **l) {
+        ಪೂರ್ಣಾಂಕ r, ret = 0;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         STRV_FOREACH(i, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                r = ordered_ಗಣ_put_strdup_ತುಂಬಿದ(s, hash_ops, *i);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        ಹಿಂತಿರುಗಿ ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+ಪೂರ್ಣಾಂಕ ordered_ಗಣ_put_string_ಗಣ_ತುಂಬಿದ(Ordered_ಗಣ **s, ಸ್ಥಿರಾಂಕ ರಚನೆ hash_ops *hash_ops, Ordered_ಗಣ *l) {
+        ಪೂರ್ಣಾಂಕ r, ret = 0;
+        ಅಕ್ಷರ *p;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
-        ORDERED_SET_FOREACH(p, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+        ORDERED_ಗಣ_FOREACH(p, l) {
+                r = ordered_ಗಣ_put_strdup_ತುಂಬಿದ(s, hash_ops, p);
+                ಆದರೆ (r < 0)
+                        ಹಿಂತಿರುಗಿ r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        ಹಿಂತಿರುಗಿ ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+ಶೂನ್ಯ ordered_ಗಣ_print(FILE *f, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಕ್ಷೇತ್ರ, Ordered_ಗಣ *s) {
         bool space = false;
-        char *p;
+        ಅಕ್ಷರ *p;
 
-        assert(f);
-        assert(field);
+        ಪ್ರತಿಜ್ಞಾ(f);
+        ಪ್ರತಿಜ್ಞಾ(ಕ್ಷೇತ್ರ);
 
-        if (ordered_set_isempty(s))
-                return;
+        ಆದರೆ (ordered_ಗಣ_isempty(s))
+                ಹಿಂತಿರುಗಿ;
 
-        fputs(field, f);
+        fputs(ಕ್ಷೇತ್ರ, f);
 
-        ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+        ORDERED_ಗಣ_FOREACH(p, s)
+                fputs_with_separator(f, p, ಖಾಲಿ, &space);
 
         fputc('\n', f);
 }

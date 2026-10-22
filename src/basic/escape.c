@@ -1,112 +1,112 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "hexdecoct.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "escape.h"
+#ಅನ್ತರ್ಭಾವ "hexdecoct.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
+#ಅನ್ತರ್ಭಾವ "utf8.h"
 
-int cescape_char(char c, char *buf) {
-        char *buf_old = buf;
+ಪೂರ್ಣಾಂಕ cescape_char(ಅಕ್ಷರ c, ಅಕ್ಷರ *buf) {
+        ಅಕ್ಷರ *buf_old = buf;
 
         /* Needs space for 4 characters in the buffer */
 
-        switch (c) {
+        ಆಯ್ಕೆ (c) {
 
-                case '\a':
+                ಸ್ಥಿತಿ '\a':
                         *(buf++) = '\\';
                         *(buf++) = 'a';
-                        break;
-                case '\b':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\b':
                         *(buf++) = '\\';
                         *(buf++) = 'b';
-                        break;
-                case '\f':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\f':
                         *(buf++) = '\\';
                         *(buf++) = 'f';
-                        break;
-                case '\n':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\n':
                         *(buf++) = '\\';
                         *(buf++) = 'n';
-                        break;
-                case '\r':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\r':
                         *(buf++) = '\\';
                         *(buf++) = 'r';
-                        break;
-                case '\t':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\t':
                         *(buf++) = '\\';
                         *(buf++) = 't';
-                        break;
-                case '\v':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\v':
                         *(buf++) = '\\';
                         *(buf++) = 'v';
-                        break;
-                case '\\':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\\':
                         *(buf++) = '\\';
                         *(buf++) = '\\';
-                        break;
-                case '"':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '"':
                         *(buf++) = '\\';
                         *(buf++) = '"';
-                        break;
-                case '\'':
+                        ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ '\'':
                         *(buf++) = '\\';
                         *(buf++) = '\'';
-                        break;
+                        ನಿಲ್ಲಿಸು;
 
-                default:
+                ಪೂರ್ವನಿಯೋಜಿತ:
                         /* For special chars we prefer octal over
                          * hexadecimal encoding, simply because glib's
                          * g_strescape() does the same */
-                        if ((c < ' ') || (c >= 127)) {
+                        ಆದರೆ ((c < ' ') || (c >= 127)) {
                                 *(buf++) = '\\';
-                                *(buf++) = octchar((unsigned char) c >> 6);
-                                *(buf++) = octchar((unsigned char) c >> 3);
-                                *(buf++) = octchar((unsigned char) c);
-                        } else
+                                *(buf++) = octchar((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) c >> 6);
+                                *(buf++) = octchar((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) c >> 3);
+                                *(buf++) = octchar((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) c);
+                        } ಇಲ್ಲದಿದ್ದರೆ
                                 *(buf++) = c;
-                        break;
+                        ನಿಲ್ಲಿಸು;
         }
 
-        return buf - buf_old;
+        ಹಿಂತಿರುಗಿ buf - buf_old;
 }
 
-char* cescape_length(const char *s, size_t n) {
-        const char *f;
-        char *r, *t;
+ಅಕ್ಷರ* cescape_ಉದ್ದಳತೆ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t n) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *f;
+        ಅಕ್ಷರ *r, *t;
 
         /* Does C style string escaping. May be reversed with cunescape(). */
 
-        assert(s || n == 0);
+        ಪ್ರತಿಜ್ಞಾ(s || n == 0);
 
-        if (n == SIZE_MAX)
-                n = strlen(s);
+        ಆದರೆ (n == SIZE_MAX)
+                n = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
-        if (n > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ಆದರೆ (n > (SIZE_MAX - 1) / 4)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        r = new(char, n*4 + 1);
-        if (!r)
-                return NULL;
+        r = new(ಅಕ್ಷರ, n*4 + 1);
+        ಆದರೆ (!r)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        for (f = s, t = r; f < s + n; f++)
+        ಗಾಗಿ (f = s, t = r; f < s + n; f++)
                 t += cescape_char(*f, t);
 
         *t = 0;
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
-        int r = 1;
+ಪೂರ್ಣಾಂಕ cunescape_one(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p, size_t length, char32_t *ret, bool *eight_ಬಿಟ್, bool accept_nul) {
+        ಪೂರ್ಣಾಂಕ r = 1;
 
-        assert(p);
-        assert(ret);
-        assert(eight_bit);
+        ಪ್ರತಿಜ್ಞಾ(p);
+        ಪ್ರತಿಜ್ಞಾ(ret);
+        ಪ್ರತಿಜ್ಞಾ(eight_ಬಿಟ್);
 
         /* Unescapes C style. Returns the unescaped character in ret.
          * Sets *eight_bit to true if the escaped sequence either fits in
@@ -114,267 +114,267 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
          * instead be copied directly.
          */
 
-        if (length != SIZE_MAX && length < 1)
-                return -EINVAL;
+        ಆದರೆ (length != SIZE_MAX && length < 1)
+                ಹಿಂತಿರುಗಿ -EINVAL;
 
-        switch (p[0]) {
+        ಆಯ್ಕೆ (p[0]) {
 
-        case 'a':
+        ಸ್ಥಿತಿ 'a':
                 *ret = '\a';
-                break;
-        case 'b':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 'b':
                 *ret = '\b';
-                break;
-        case 'f':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 'f':
                 *ret = '\f';
-                break;
-        case 'n':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 'n':
                 *ret = '\n';
-                break;
-        case 'r':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 'r':
                 *ret = '\r';
-                break;
-        case 't':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 't':
                 *ret = '\t';
-                break;
-        case 'v':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ 'v':
                 *ret = '\v';
-                break;
-        case '\\':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ '\\':
                 *ret = '\\';
-                break;
-        case '"':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ '"':
                 *ret = '"';
-                break;
-        case '\'':
+                ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ '\'':
                 *ret = '\'';
-                break;
+                ನಿಲ್ಲಿಸು;
 
-        case 's':
+        ಸ್ಥಿತಿ 's':
                 /* This is an extension of the XDG syntax files */
                 *ret = ' ';
-                break;
+                ನಿಲ್ಲಿಸು;
 
-        case 'x': {
+        ಸ್ಥಿತಿ 'x': {
                 /* hexadecimal encoding */
-                int a, b;
+                ಪೂರ್ಣಾಂಕ a, b;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                ಆದರೆ (length != SIZE_MAX && length < 3)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 a = unhexchar(p[1]);
-                if (a < 0)
-                        return -EINVAL;
+                ಆದರೆ (a < 0)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 b = unhexchar(p[2]);
-                if (b < 0)
-                        return -EINVAL;
+                ಆದರೆ (b < 0)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 /* Don't allow NUL bytes */
-                if (a == 0 && b == 0 && !accept_nul)
-                        return -EINVAL;
+                ಆದರೆ (a == 0 && b == 0 && !accept_nul)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 *ret = (a << 4U) | b;
-                *eight_bit = true;
+                *eight_ಬಿಟ್ = true;
                 r = 3;
-                break;
+                ನಿಲ್ಲಿಸು;
         }
 
-        case 'u': {
+        ಸ್ಥಿತಿ 'u': {
                 /* C++11 style 16-bit unicode */
 
-                int a[4];
+                ಪೂರ್ಣಾಂಕ a[4];
                 size_t i;
                 uint32_t c;
 
-                if (length != SIZE_MAX && length < 5)
-                        return -EINVAL;
+                ಆದರೆ (length != SIZE_MAX && length < 5)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
-                for (i = 0; i < 4; i++) {
+                ಗಾಗಿ (i = 0; i < 4; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        ಆದರೆ (a[i] < 0)
+                                ಹಿಂತಿರುಗಿ a[i];
                 }
 
                 c = ((uint32_t) a[0] << 12U) | ((uint32_t) a[1] << 8U) | ((uint32_t) a[2] << 4U) | (uint32_t) a[3];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                ಆದರೆ (c == 0 && !accept_nul)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 /* Don't allow UTF-16 surrogates, they cannot be encoded as valid UTF-8. Note we
                  * deliberately do *not* use unichar_is_valid() here (unlike the \U case below):
                  * it also rejects noncharacters such as U+FFFE, which callers legitimately round-trip
                  * through \u (e.g. systemd.mount-extra= parsing, see test-fstab-generator). */
-                if (utf16_is_surrogate(c))
-                        return -EINVAL;
+                ಆದರೆ (utf16_is_surrogate(c))
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 *ret = c;
                 r = 5;
-                break;
+                ನಿಲ್ಲಿಸು;
         }
 
-        case 'U': {
+        ಸ್ಥಿತಿ 'U': {
                 /* C++11 style 32-bit unicode */
 
-                int a[8];
+                ಪೂರ್ಣಾಂಕ a[8];
                 size_t i;
                 char32_t c;
 
-                if (length != SIZE_MAX && length < 9)
-                        return -EINVAL;
+                ಆದರೆ (length != SIZE_MAX && length < 9)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
-                for (i = 0; i < 8; i++) {
+                ಗಾಗಿ (i = 0; i < 8; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        ಆದರೆ (a[i] < 0)
+                                ಹಿಂತಿರುಗಿ a[i];
                 }
 
                 c = ((uint32_t) a[0] << 28U) | ((uint32_t) a[1] << 24U) | ((uint32_t) a[2] << 20U) | ((uint32_t) a[3] << 16U) |
                     ((uint32_t) a[4] << 12U) | ((uint32_t) a[5] <<  8U) | ((uint32_t) a[6] <<  4U) |  (uint32_t) a[7];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                ಆದರೆ (c == 0 && !accept_nul)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 /* Don't allow invalid code points */
-                if (!unichar_is_valid(c))
-                        return -EINVAL;
+                ಆದರೆ (!unichar_is_valid(c))
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 *ret = c;
                 r = 9;
-                break;
+                ನಿಲ್ಲಿಸು;
         }
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7': {
+        ಸ್ಥಿತಿ '0':
+        ಸ್ಥಿತಿ '1':
+        ಸ್ಥಿತಿ '2':
+        ಸ್ಥಿತಿ '3':
+        ಸ್ಥಿತಿ '4':
+        ಸ್ಥಿತಿ '5':
+        ಸ್ಥಿತಿ '6':
+        ಸ್ಥಿತಿ '7': {
                 /* octal encoding */
-                int a, b, c;
+                ಪೂರ್ಣಾಂಕ a, b, c;
                 char32_t m;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                ಆದರೆ (length != SIZE_MAX && length < 3)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 a = unoctchar(p[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ಆದರೆ (a < 0)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 b = unoctchar(p[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ಆದರೆ (b < 0)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 c = unoctchar(p[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ಆದರೆ (c < 0)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 /* don't allow NUL bytes */
-                if (a == 0 && b == 0 && c == 0 && !accept_nul)
-                        return -EINVAL;
+                ಆದರೆ (a == 0 && b == 0 && c == 0 && !accept_nul)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 /* Don't allow bytes above 255 */
                 m = ((uint32_t) a << 6U) | ((uint32_t) b << 3U) | (uint32_t) c;
-                if (m > 255)
-                        return -EINVAL;
+                ಆದರೆ (m > 255)
+                        ಹಿಂತಿರುಗಿ -EINVAL;
 
                 *ret = m;
-                *eight_bit = true;
+                *eight_ಬಿಟ್ = true;
                 r = 3;
-                break;
+                ನಿಲ್ಲಿಸು;
         }
 
-        default:
-                return -EINVAL;
+        ಪೂರ್ವನಿಯೋಜಿತ:
+                ಹಿಂತಿರುಗಿ -EINVAL;
         }
 
-        return r;
+        ಹಿಂತಿರುಗಿ r;
 }
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret) {
-        _cleanup_free_ char *ans = NULL;
-        char *t;
-        const char *f;
+ssize_t cunescape_ಉದ್ದಳತೆ_with_ಪೂರ್ವಪ್ರತ್ಯಯ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t length, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, UnescapeFlags flags, ಅಕ್ಷರ **ret) {
+        _cleanup_free_ ಅಕ್ಷರ *ans = ಖಾಲಿ;
+        ಅಕ್ಷರ *t;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *f;
         size_t pl;
-        int r;
+        ಪೂರ್ಣಾಂಕ r;
 
-        assert(s);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* Undoes C style string escaping, and optionally prefixes it. */
 
-        if (length == SIZE_MAX)
-                length = strlen(s);
+        ಆದರೆ (length == SIZE_MAX)
+                length = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
-        pl = strlen_ptr(prefix);
+        pl = strlen_ptr(ಪೂರ್ವಪ್ರತ್ಯಯ);
 
-        ans = new(char, pl+length+1);
-        if (!ans)
-                return -ENOMEM;
+        ans = new(ಅಕ್ಷರ, pl+length+1);
+        ಆದರೆ (!ans)
+                ಹಿಂತಿರುಗಿ -ENOMEM;
 
-        if (prefix)
-                memcpy(ans, prefix, pl);
+        ಆದರೆ (ಪೂರ್ವಪ್ರತ್ಯಯ)
+                ಸ್ಮರಣೆ_ನಕಲು(ans, ಪೂರ್ವಪ್ರತ್ಯಯ, pl);
 
-        for (f = s, t = ans + pl; f < s + length; f++) {
-                size_t remaining;
-                bool eight_bit = false;
+        ಗಾಗಿ (f = s, t = ans + pl; f < s + length; f++) {
+                size_t ಉಳಿದ;
+                bool eight_ಬಿಟ್ = false;
                 char32_t u;
 
-                remaining = s + length - f;
-                assert(remaining > 0);
+                ಉಳಿದ = s + length - f;
+                ಪ್ರತಿಜ್ಞಾ(ಉಳಿದ > 0);
 
-                if (*f != '\\') {
+                ಆದರೆ (*f != '\\') {
                         /* A literal, copy verbatim */
                         *(t++) = *f;
-                        continue;
+                        ಮುಂದುವರಿ;
                 }
 
-                if (remaining == 1) {
-                        if (flags & UNESCAPE_RELAX) {
+                ಆದರೆ (ಉಳಿದ == 1) {
+                        ಆದರೆ (flags & UNESCAPE_RELAX) {
                                 /* A trailing backslash, copy verbatim */
                                 *(t++) = *f;
-                                continue;
+                                ಮುಂದುವರಿ;
                         }
 
-                        return -EINVAL;
+                        ಹಿಂತಿರುಗಿ -EINVAL;
                 }
 
-                r = cunescape_one(f + 1, remaining - 1, &u, &eight_bit, flags & UNESCAPE_ACCEPT_NUL);
-                if (r < 0) {
-                        if (flags & UNESCAPE_RELAX) {
+                r = cunescape_one(f + 1, ಉಳಿದ - 1, &u, &eight_ಬಿಟ್, flags & UNESCAPE_ACCEPT_NUL);
+                ಆದರೆ (r < 0) {
+                        ಆದರೆ (flags & UNESCAPE_RELAX) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '\\';
-                                continue;
+                                ಮುಂದುವರಿ;
                         }
 
-                        return r;
+                        ಹಿಂತಿರುಗಿ r;
                 }
 
                 f += r;
-                if (eight_bit)
+                ಆದರೆ (eight_ಬಿಟ್)
                         /* One byte? Set directly as specified */
                         *(t++) = u;
-                else
+                ಇಲ್ಲದಿದ್ದರೆ
                         /* Otherwise encode as multi-byte UTF-8 */
                         t += utf8_encode_unichar(t, u);
         }
 
         *t = 0;
 
-        assert(t >= ans); /* Let static analyzers know that the answer is non-negative. */
+        ಪ್ರತಿಜ್ಞಾ(t >= ans); /* Let static analyzers know that the answer is non-negative. */
         *ret = TAKE_PTR(ans);
-        return t - *ret;
+        ಹಿಂತಿರುಗಿ t - *ret;
 }
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags) {
-        char *ans, *t, *prev, *prev2;
-        const char *f;
+ಅಕ್ಷರ* xescape_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *bad, size_t console_ಅಗಲ, XEscapeFlags flags) {
+        ಅಕ್ಷರ *ans, *t, *prev, *prev2;
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *f;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         /* Escapes all chars in bad, in addition to \ and all special chars, in \xFF style escaping. May be
          * reversed with cunescape(). If XESCAPE_8_BIT is specified, characters >= 127 are let through
@@ -383,44 +383,44 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
          * If console_width is reached, or XESCAPE_FORCE_ELLIPSIS is set, output is truncated and "..." is
          * appended. */
 
-        if (console_width == 0)
-                return strdup("");
+        ಆದರೆ (console_ಅಗಲ == 0)
+                ಹಿಂತಿರುಗಿ strdup("");
 
-        size_t len_forced_ellipsis = FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
-        size_t len_s = strlen(s);
+        size_t len_forced_ellipsis = FLAGS_ಗಣ(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
+        size_t len_s = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
-        size_t len_body = MIN(console_width, SIZE_MAX - 1); /* We need room for the NUL byte */
-        if (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
+        size_t len_body = MIN(console_ಅಗಲ, SIZE_MAX - 1); /* We need room for the NUL byte */
+        ಆದರೆ (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
                 len_body = len_s * 4 + len_forced_ellipsis;
 
-        ans = new(char, len_body + 1);
-        if (!ans)
-                return NULL;
+        ans = new(ಅಕ್ಷರ, len_body + 1);
+        ಆದರೆ (!ans)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        for (f = s, t = prev = prev2 = ans; ; f++) {
-                char *tmp_t = t;
+        ಗಾಗಿ (f = s, t = prev = prev2 = ans; ; f++) {
+                ಅಕ್ಷರ *tmp_t = t;
 
-                if (!*f) {
-                        if (len_forced_ellipsis != 0)
-                                break;
+                ಆದರೆ (!*f) {
+                        ಆದರೆ (len_forced_ellipsis != 0)
+                                ನಿಲ್ಲಿಸು;
 
                         *t = 0;
-                        return ans;
+                        ಹಿಂತಿರುಗಿ ans;
                 }
 
-                if ((unsigned char) *f < ' ' ||
-                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned char) *f >= 127) ||
+                ಆದರೆ ((ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) *f < ' ' ||
+                    (!FLAGS_ಗಣ(flags, XESCAPE_8_ಬಿಟ್) && (ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ) *f >= 127) ||
                     *f == '\\' || (bad && strchr(bad, *f))) {
-                        if ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
-                                break;
+                        ಆದರೆ ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
+                                ನಿಲ್ಲಿಸು;
 
                         *(t++) = '\\';
                         *(t++) = 'x';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else {
-                        if ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
-                                break;
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಆದರೆ ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
+                                ನಿಲ್ಲಿಸು;
 
                         *(t++) = *f;
                 }
@@ -433,197 +433,197 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
         /* We can just write where we want, since chars are one-byte */
         size_t c = MIN(len_body, STRLEN("...")); /* If the console is too narrow, write fewer dots */
         size_t off;
-        if (len_body - c >= (size_t) (t - ans))
+        ಆದರೆ (len_body - c >= (size_t) (t - ans))
                 off = (size_t) (t - ans);
-        else if (len_body - c >= (size_t) (prev - ans))
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (len_body - c >= (size_t) (prev - ans))
                 off = (size_t) (prev - ans);
-        else if (len_body - c >= (size_t) (prev2 - ans))
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (len_body - c >= (size_t) (prev2 - ans))
                 off = (size_t) (prev2 - ans);
-        else
+        ಇಲ್ಲದಿದ್ದರೆ
                 off = len_body - c;
-        assert(off <= (size_t) (t - ans));
+        ಪ್ರತಿಜ್ಞಾ(off <= (size_t) (t - ans));
 
-        memcpy(ans + off, "...", c);
+        ಸ್ಮರಣೆ_ನಕಲು(ans + off, "...", c);
         ans[off + c] = '\0';
-        return ans;
+        ಹಿಂತಿರುಗಿ ans;
 }
 
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags) {
-        if (FLAGS_SET(flags, XESCAPE_8_BIT))
-                return xescape_full(str, /* bad= */ NULL, console_width, flags);
-        else
-                return utf8_escape_non_printable_full(str,
-                                                      console_width,
-                                                      FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS));
+ಅಕ್ಷರ* escape_non_printable_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, size_t console_ಅಗಲ, XEscapeFlags flags) {
+        ಆದರೆ (FLAGS_ಗಣ(flags, XESCAPE_8_ಬಿಟ್))
+                ಹಿಂತಿರುಗಿ xescape_ತುಂಬಿದ(str, /* bad= */ ಖಾಲಿ, console_ಅಗಲ, flags);
+        ಇಲ್ಲದಿದ್ದರೆ
+                ಹಿಂತಿರುಗಿ utf8_escape_non_printable_ತುಂಬಿದ(str,
+                                                      console_ಅಗಲ,
+                                                      FLAGS_ಗಣ(flags, XESCAPE_FORCE_ELLIPSIS));
 }
 
-char* octescape_full(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+ಅಕ್ಷರ* octescape_ತುಂಬಿದ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t len, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *bad) {
+        ಅಕ್ಷರ *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn octal style escaping. May be
          * reversed with cunescape(). */
 
-        assert(s || len == 0);
+        ಪ್ರತಿಜ್ಞಾ(s || len == 0);
 
-        if (len == SIZE_MAX)
-                len = strlen(s);
+        ಆದರೆ (len == SIZE_MAX)
+                len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ಆದರೆ (len > (SIZE_MAX - 1) / 4)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(ಅಕ್ಷರ, len * 4 + 1);
+        ಆದರೆ (!buf)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        for (size_t i = 0; i < len; i++) {
+        ಗಾಗಿ (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
+                ಆದರೆ (u < ' ' || u >= 127 || ಒಳ_ಗಣ(u, '\\', '"') || (bad && strchr(bad, u))) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u >> 6);
                         *(t++) = '0' + ((u >> 3) & 7);
                         *(t++) = '0' + (u & 7);
-                } else
+                } ಇಲ್ಲದಿದ್ದರೆ
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        ಹಿಂತಿರುಗಿ buf;
 }
 
-char* decescape(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+ಅಕ್ಷರ* decescape(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, size_t len, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *bad) {
+        ಅಕ್ಷರ *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn decimal style escaping. */
 
-        assert(s || len == 0);
+        ಪ್ರತಿಜ್ಞಾ(s || len == 0);
 
-        if (len == SIZE_MAX)
-                len = strlen(s);
+        ಆದರೆ (len == SIZE_MAX)
+                len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ಆದರೆ (len > (SIZE_MAX - 1) / 4)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(ಅಕ್ಷರ, len * 4 + 1);
+        ಆದರೆ (!buf)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-        for (size_t i = 0; i < len; i++) {
+        ಗಾಗಿ (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
+                ಆದರೆ (u < ' ' || u >= 127 || ಒಳ_ಗಣ(u, '\\', '"') || strchr(bad, u)) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u / 100);
                         *(t++) = '0' + ((u / 10) % 10);
                         *(t++) = '0' + (u % 10);
-                } else
+                } ಇಲ್ಲದಿದ್ದರೆ
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        ಹಿಂತಿರುಗಿ buf;
 }
 
-static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
-        assert(bad);
-        assert(t);
-        assert(s);
+ಸ್ಥಿರ ಅಕ್ಷರ* strcpy_backslash_escaped(ಅಕ್ಷರ *t, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *bad) {
+        ಪ್ರತಿಜ್ಞಾ(bad);
+        ಪ್ರತಿಜ್ಞಾ(t);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        while (*s) {
-                int l = utf8_encoded_valid_unichar(s, SIZE_MAX);
+        ಆಗ (*s) {
+                ಪೂರ್ಣಾಂಕ l = utf8_encoded_valid_unichar(s, SIZE_MAX);
 
-                if (char_is_cc(*s) || l < 0)
+                ಆದರೆ (char_is_cc(*s) || l < 0)
                         t += cescape_char(*(s++), t);
-                else if (l == 1) {
-                        if (*s == '\\' || strchr(bad, *s))
+                ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (l == 1) {
+                        ಆದರೆ (*s == '\\' || strchr(bad, *s))
                                 *(t++) = '\\';
                         *(t++) = *(s++);
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                         t = mempcpy(t, s, l);
                         s += l;
                 }
         }
 
-        return t;
+        ಹಿಂತಿರುಗಿ t;
 }
 
-char* shell_escape(const char *s, const char *bad) {
-        char *buf, *t;
+ಅಕ್ಷರ* shell_escape(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *bad) {
+        ಅಕ್ಷರ *buf, *t;
 
-        buf = new(char, strlen(s)*4+1);
-        if (!buf)
-                return NULL;
+        buf = new(ಅಕ್ಷರ, ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s)*4+1);
+        ಆದರೆ (!buf)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
         t = strcpy_backslash_escaped(buf, s, bad);
         *t = 0;
 
-        return buf;
+        ಹಿಂತಿರುಗಿ buf;
 }
 
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
-        const char *p;
-        char *buf, *t;
+ಅಕ್ಷರ* shell_maybe_quote(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s, ShellEscapeFlags flags) {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p;
+        ಅಕ್ಷರ *buf, *t;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         /* Encloses a string in quotes if necessary to make it OK as a shell string. */
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
-                return strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
+        ಆದರೆ (FLAGS_ಗಣ(flags, SHELL_ESCAPE_ಖಾಲಿಗಳು) && isempty(s))
+                ಹಿಂತಿರುಗಿ strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
 
-        for (p = s; *p; ) {
-                int l = utf8_encoded_valid_unichar(p, SIZE_MAX);
+        ಗಾಗಿ (p = s; *p; ) {
+                ಪೂರ್ಣಾಂಕ l = utf8_encoded_valid_unichar(p, SIZE_MAX);
 
-                if (char_is_cc(*p) || l < 0 ||
+                ಆದರೆ (char_is_cc(*p) || l < 0 ||
                     strchr(WHITESPACE SHELL_NEED_QUOTES, *p))
-                        break;
+                        ನಿಲ್ಲಿಸು;
 
                 p += l;
         }
 
-        if (!*p)
-                return strdup(s);
+        ಆದರೆ (!*p)
+                ಹಿಂತಿರುಗಿ strdup(s);
 
-        buf = new(char, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
-        if (!buf)
-                return NULL;
+        buf = new(ಅಕ್ಷರ, FLAGS_ಗಣ(flags, SHELL_ESCAPE_POSIX) + 1 + ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(s)*4 + 1 + 1);
+        ಆದರೆ (!buf)
+                ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
         t = buf;
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
+        ಆದರೆ (FLAGS_ಗಣ(flags, SHELL_ESCAPE_POSIX)) {
                 *(t++) = '$';
                 *(t++) = '\'';
-        } else
+        } ಇಲ್ಲದಿದ್ದರೆ
                 *(t++) = '"';
 
         t = mempcpy(t, s, p - s);
 
         t = strcpy_backslash_escaped(t, p,
-                                     FLAGS_SET(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
+                                     FLAGS_ಗಣ(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
+        ಆದರೆ (FLAGS_ಗಣ(flags, SHELL_ESCAPE_POSIX))
                 *(t++) = '\'';
-        else
+        ಇಲ್ಲದಿದ್ದರೆ
                 *(t++) = '"';
         *t = 0;
 
-        return str_realloc(buf);
+        ಹಿಂತಿರುಗಿ str_realloc(buf);
 }
 
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
-        _cleanup_free_ char *result = NULL;
+ಅಕ್ಷರ* quote_command_ಸಾಲು(ಅಕ್ಷರ * ಸ್ಥಿರಾಂಕ *argv, ShellEscapeFlags flags) {
+        _cleanup_free_ ಅಕ್ಷರ *ಫಲಿತಾಂಶ = ಖಾಲಿ;
 
-        assert(argv);
+        ಪ್ರತಿಜ್ಞಾ(argv);
 
         STRV_FOREACH(a, argv) {
-                _cleanup_free_ char *t = NULL;
+                _cleanup_free_ ಅಕ್ಷರ *t = ಖಾಲಿ;
 
                 t = shell_maybe_quote(*a, flags);
-                if (!t)
-                        return NULL;
+                ಆದರೆ (!t)
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-                if (!strextend_with_separator(&result, " ", t))
-                        return NULL;
+                ಆದರೆ (!strextend_with_separator(&ಫಲಿತಾಂಶ, " ", t))
+                        ಹಿಂತಿರುಗಿ ಖಾಲಿ;
         }
 
-        return str_realloc(TAKE_PTR(result));
+        ಹಿಂತಿರುಗಿ str_realloc(TAKE_PTR(ಫಲಿತಾಂಶ));
 }
