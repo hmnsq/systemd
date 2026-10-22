@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-typedef enum ChaseFlags {
-        CHASE_PREFIX_ROOT        = 1 << 0,  /* The specified path will be prefixed by the specified root before beginning the iteration */
+प्रकारनिर्देश गणना ChaseFlags {
+        CHASE_PREFIX_मूल        = 1 << 0,  /* The specified path will be prefixed by the specified root before beginning the iteration */
         CHASE_NONEXISTENT        = 1 << 1,  /* It's OK if the path doesn't actually exist. */
         CHASE_NO_AUTOFS          = 1 << 2,  /* Return -EREMOTE if autofs mount point found */
         CHASE_TRIGGER_AUTOFS     = 1 << 3,  /* Use open_tree() rather than openat() to trigger autofs mount */
@@ -30,31 +30,31 @@ typedef enum ChaseFlags {
         CHASE_MUST_BE_SOCKET     = 1 << 15, /* Fail if returned inode fd is not a socket */
 } ChaseFlags;
 
-int statx_unsafe_transition(const struct statx *a, const struct statx *b);
-bool stat_unsafe_transition(const struct stat *a, const struct stat *b);
+पूर्णाङ्क statx_unsafe_transition(ध्रुव संरचना statx *a, ध्रुव संरचना statx *b);
+bool stat_unsafe_transition(ध्रुव संरचना stat *a, ध्रुव संरचना stat *b);
 
 /* How many iterations to execute before returning -ELOOP */
 #define CHASE_MAX 128U
 
-int chase(const char *path_with_prefix, const char *root, ChaseFlags flags, char **ret_path, int *ret_fd);
+पूर्णाङ्क chase(ध्रुव वर्ण *path_with_prefix, ध्रुव वर्ण *मूल, ChaseFlags flags, वर्ण **ret_path, पूर्णाङ्क *ret_fd);
 
-int chaseat_prefix_root(const char *path, const char *root, char **ret);
-int chase_extract_filename(const char *path, const char *root, char **ret);
+पूर्णाङ्क chaseat_prefix_मूल(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, वर्ण **ret);
+पूर्णाङ्क chase_extract_filename(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, वर्ण **ret);
 
-int chase_and_open(const char *path, const char *root, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendir(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_stat(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_access(const char *path, const char *root, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopen_unlocked(const char *path, const char *root, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlink(const char *path, const char *root, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent(const char *path, const char *root, ChaseFlags chase_flags, char **ret_filename);
+पूर्णाङ्क chase_and_open(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, ChaseFlags chase_flags, पूर्णाङ्क open_flags, वर्ण **ret_path);
+पूर्णाङ्क chase_and_opendir(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, ChaseFlags chase_flags, वर्ण **ret_path, DIR **ret_dir);
+पूर्णाङ्क chase_and_stat(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, ChaseFlags chase_flags, वर्ण **ret_path, संरचना stat *ret_stat);
+पूर्णाङ्क chase_and_access(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, ChaseFlags chase_flags, पूर्णाङ्क access_mode, वर्ण **ret_path);
+पूर्णाङ्क chase_and_fopen_unlocked(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, ChaseFlags chase_flags, ध्रुव वर्ण *open_flags, वर्ण **ret_path, FILE **ret_file);
+पूर्णाङ्क chase_and_unlink(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, ChaseFlags chase_flags, पूर्णाङ्क unlink_flags, वर्ण **ret_path);
+पूर्णाङ्क chase_and_open_parent(ध्रुव वर्ण *path, ध्रुव वर्ण *मूल, ChaseFlags chase_flags, वर्ण **ret_filename);
 
-int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **ret_path, int *ret_fd);
+पूर्णाङ्क chaseat(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags flags, वर्ण **ret_path, पूर्णाङ्क *ret_fd);
 
-int chase_and_openat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendirat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_statat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_accessat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopenat_unlocked(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlinkat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent_at(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_filename);
+पूर्णाङ्क chase_and_openat(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags chase_flags, पूर्णाङ्क open_flags, वर्ण **ret_path);
+पूर्णाङ्क chase_and_opendirat(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags chase_flags, वर्ण **ret_path, DIR **ret_dir);
+पूर्णाङ्क chase_and_statat(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags chase_flags, वर्ण **ret_path, संरचना stat *ret_stat);
+पूर्णाङ्क chase_and_accessat(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags chase_flags, पूर्णाङ्क access_mode, वर्ण **ret_path);
+पूर्णाङ्क chase_and_fopenat_unlocked(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags chase_flags, ध्रुव वर्ण *open_flags, वर्ण **ret_path, FILE **ret_file);
+पूर्णाङ्क chase_and_unlinkat(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags chase_flags, पूर्णाङ्क unlink_flags, वर्ण **ret_path);
+पूर्णाङ्क chase_and_open_parent_at(पूर्णाङ्क मूल_fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ChaseFlags chase_flags, वर्ण **ret_filename);
