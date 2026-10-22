@@ -14,7 +14,7 @@
 // 2. It will not produce the same results on little-endian and big-endian
 //    machines.
 
-#include "MurmurHash2.h"
+#अन्तर्भाव "MurmurHash2.h"
 
 _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
@@ -23,13 +23,13 @@ _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
 // Microsoft Visual Studio
 
-#if defined(_MSC_VER)
+#यदि defined(_MSC_VER)
 
 #define BIG_CONSTANT(x) (x)
 
 // Other compilers
 
-#else        // defined(_MSC_VER)
+#अन्यथा        // defined(_MSC_VER)
 
 #define BIG_CONSTANT(x) (x##LLU)
 
@@ -37,13 +37,13 @@ _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
+uint32_t MurmurHash2 ( ध्रुव शून्य * किल्ली, पूर्णाङ्क len, uint32_t seed )
 {
   // 'm' and 'r' are mixing constants generated offline.
   // They're not really 'magic', they just happen to work well.
 
-  const uint32_t m = 0x5bd1e995;
-  const int r = 24;
+  ध्रुव uint32_t m = 0x5bd1e995;
+  ध्रुव पूर्णाङ्क r = 24;
 
   // Initialize the hash to a 'random' value
 
@@ -51,9 +51,9 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
 
   // Mix 4 bytes at a time into the hash
 
-  const unsigned char * data = (const unsigned char *)key;
+  ध्रुव unsigned वर्ण * data = (ध्रुव unsigned वर्ण *)किल्ली;
 
-  while (len >= 4)
+  यावत् (len >= 4)
   {
     uint32_t k = *(uint32_t*)data;
 
@@ -70,11 +70,11 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
 
   // Handle the last few bytes of the input array
 
-  switch(len)
+  विकल्प(len)
   {
-  case 3: h ^= data[2] << 16; /* fall through */
-  case 2: h ^= data[1] << 8;  /* fall through */
-  case 1: h ^= data[0];       /* fall through */
+  पक्ष 3: h ^= data[2] << 16; /* fall through */
+  पक्ष 2: h ^= data[1] << 8;  /* fall through */
+  पक्ष 1: h ^= data[0];       /* fall through */
       h *= m;
   };
 
@@ -85,5 +85,5 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
   h *= m;
   h ^= h >> 15;
 
-  return h;
+  प्रत्यागम h;
 }

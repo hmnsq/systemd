@@ -1,92 +1,92 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#अन्तर्भाव <stdlib.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "sort-util.h"
 
 /* hey glibc, APIs with callbacks without a user pointer are so useless */
-void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
-                 comparison_userdata_fn_t compar, void *arg) {
+शून्य *xbsearch_r(ध्रुव शून्य *किल्ली, ध्रुव शून्य *base, size_t nmemb, size_t size,
+                 comparison_userdata_fn_t compar, शून्य *arg) {
         size_t l, u, idx;
-        const void *p;
-        int comparison;
+        ध्रुव शून्य *p;
+        पूर्णाङ्क comparison;
 
-        assert(!size_multiply_overflow(nmemb, size));
+        प्रतिज्ञा(!size_multiply_overflow(nmemb, size));
 
         l = 0;
         u = nmemb;
-        while (l < u) {
+        यावत् (l < u) {
                 idx = (l + u) / 2;
-                p = (const uint8_t*) base + idx * size;
-                comparison = compar(key, p, arg);
-                if (comparison < 0)
+                p = (ध्रुव uint8_t*) base + idx * size;
+                comparison = compar(किल्ली, p, arg);
+                यदि (comparison < 0)
                         u = idx;
-                else if (comparison > 0)
+                अन्यथा यदि (comparison > 0)
                         l = idx + 1;
-                else
-                        return (void *)p;
+                अन्यथा
+                        प्रत्यागम (शून्य *)p;
         }
-        return NULL;
+        प्रत्यागम रिक्त;
 }
 
-void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
+शून्य* bsearch_safe_internal(ध्रुव शून्य *किल्ली, ध्रुव शून्य *base, size_t nmemb, size_t size, comparison_fn_t compar) {
         /**
         * Normal bsearch requires base to be nonnull. Here were require
         * that only if nmemb > 0.
         */
 
-        if (nmemb <= 0)
-                return NULL;
+        यदि (nmemb <= 0)
+                प्रत्यागम रिक्त;
 
-        assert(base);
-        return (void*) bsearch(key, base, nmemb, size, compar);
+        प्रतिज्ञा(base);
+        प्रत्यागम (शून्य*) bsearch(किल्ली, base, nmemb, size, compar);
 }
 
-void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
+शून्य qsort_safe(शून्य *base, size_t nmemb, size_t size, comparison_fn_t compar) {
         /**
          * Normal qsort requires base to be nonnull. Here were require
          * that only if nmemb > 0.
          */
 
-        if (nmemb <= 1)
-                return;
+        यदि (nmemb <= 1)
+                प्रत्यागम;
 
-        assert(base);
+        प्रतिज्ञा(base);
         qsort(base, nmemb, size, compar);
 }
 
-void qsort_r_safe(void *base, size_t nmemb, size_t size, comparison_userdata_fn_t compar, void *userdata) {
-        if (nmemb <= 1)
-                return;
+शून्य qsort_r_safe(शून्य *base, size_t nmemb, size_t size, comparison_userdata_fn_t compar, शून्य *userdata) {
+        यदि (nmemb <= 1)
+                प्रत्यागम;
 
-        assert(base);
+        प्रतिज्ञा(base);
         qsort_r(base, nmemb, size, compar, userdata);
 }
 
-int cmp_int(const int *a, const int *b) {
+पूर्णाङ्क cmp_int(ध्रुव पूर्णाङ्क *a, ध्रुव पूर्णाङ्क *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        प्रत्यागम CMP(*a, *b);
 }
 
-int cmp_uint16(const uint16_t *a, const uint16_t *b) {
+पूर्णाङ्क cmp_uint16(ध्रुव uint16_t *a, ध्रुव uint16_t *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        प्रत्यागम CMP(*a, *b);
 }
 
-int cmp_unsigned(const unsigned *a, const unsigned *b) {
+पूर्णाङ्क cmp_unsigned(ध्रुव unsigned *a, ध्रुव unsigned *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        प्रत्यागम CMP(*a, *b);
 }

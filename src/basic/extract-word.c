@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "utf8.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "escape.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "utf8.h"
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
-        _cleanup_free_ char *s = NULL;
+पूर्णाङ्क extract_first_word(ध्रुव वर्ण **p, वर्ण **ret, ध्रुव वर्ण *separators, ExtractFlags flags) {
+        _cleanup_free_ वर्ण *s = रिक्त;
         size_t sz = 0;
-        char quote = 0;                 /* 0 or ' or " */
+        वर्ण quote = 0;                 /* 0 or ' or " */
         bool backslash = false;         /* whether we've just seen a backslash */
-        char c;
-        int r;
+        वर्ण c;
+        पूर्णाङ्क r;
 
-        assert(p);
-        assert(ret);
-        assert(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
+        प्रतिज्ञा(p);
+        प्रतिज्ञा(ret);
+        प्रतिज्ञा(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
 
         /* Bail early if called after last value or with no input */
-        if (!*p)
-                goto finish;
+        यदि (!*p)
+                गच्छ finish;
         c = **p;
 
-        if (!separators)
+        यदि (!separators)
                 separators = WHITESPACE;
 
         /* Parses the first word of a string, and returns it in
@@ -32,36 +32,36 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
          * (because of an uneven number of quotes or similar), leaves
          * the pointer *p at the first invalid character. */
 
-        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
-                if (!GREEDY_REALLOC(s, sz+1))
-                        return -ENOMEM;
+        यदि (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
+                यदि (!GREEDY_REALLOC(s, sz+1))
+                        प्रत्यागम -ENOMEM;
 
-        for (;; (*p)++, c = **p) {
-                if (c == 0)
-                        goto finish_force_terminate;
-                else if (strchr(separators, c)) {
-                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+        प्रति (;; (*p)++, c = **p) {
+                यदि (c == 0)
+                        गच्छ finish_force_terminate;
+                अन्यथा यदि (strchr(separators, c)) {
+                        यदि (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                यदि (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                         (*p)++;
-                                goto finish_force_next;
+                                गच्छ finish_force_next;
                         }
-                } else {
+                } अन्यथा {
                         /* We found a non-blank character, so we will always
                          * want to return a string (even if it is empty),
                          * allocate it here. */
-                        if (!GREEDY_REALLOC(s, sz+1))
-                                return -ENOMEM;
-                        break;
+                        यदि (!GREEDY_REALLOC(s, sz+1))
+                                प्रत्यागम -ENOMEM;
+                        भङ्ग;
                 }
         }
 
-        for (;; (*p)++, c = **p) {
-                if (backslash) {
-                        if (!GREEDY_REALLOC(s, sz+7))
-                                return -ENOMEM;
+        प्रति (;; (*p)++, c = **p) {
+                यदि (backslash) {
+                        यदि (!GREEDY_REALLOC(s, sz+7))
+                                प्रत्यागम -ENOMEM;
 
-                        if (c == 0) {
-                                if ((flags & EXTRACT_UNESCAPE_RELAX) &&
+                        यदि (c == 0) {
+                                यदि ((flags & EXTRACT_UNESCAPE_RELAX) &&
                                     (quote == 0 || flags & EXTRACT_RELAX)) {
                                         /* If we find an unquoted trailing backslash and we're in
                                          * EXTRACT_UNESCAPE_RELAX mode, keep it verbatim in the
@@ -71,211 +71,211 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
                                          * mode, EXTRACT_UNESCAPE_RELAX mode does not allow them.
                                          */
                                         s[sz++] = '\\';
-                                        goto finish_force_terminate;
+                                        गच्छ finish_force_terminate;
                                 }
-                                if (flags & EXTRACT_RELAX)
-                                        goto finish_force_terminate;
-                                return -EINVAL;
+                                यदि (flags & EXTRACT_RELAX)
+                                        गच्छ finish_force_terminate;
+                                प्रत्यागम -EINVAL;
                         }
 
-                        if (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
+                        यदि (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
                                 bool eight_bit = false;
                                 char32_t u;
 
-                                if ((flags & EXTRACT_CUNESCAPE) &&
+                                यदि ((flags & EXTRACT_CUNESCAPE) &&
                                     (r = cunescape_one(*p, SIZE_MAX, &u, &eight_bit, false)) >= 0) {
                                         /* A valid escaped sequence */
-                                        assert(r >= 1);
+                                        प्रतिज्ञा(r >= 1);
 
                                         (*p) += r - 1;
 
-                                        if (eight_bit)
+                                        यदि (eight_bit)
                                                 s[sz++] = u;
-                                        else
+                                        अन्यथा
                                                 sz += utf8_encode_unichar(s + sz, u);
-                                } else if ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
+                                } अन्यथा यदि ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
                                            (strchr(separators, **p) || **p == '\\'))
                                         /* An escaped separator char or the escape char itself */
                                         s[sz++] = c;
-                                else if (flags & EXTRACT_UNESCAPE_RELAX) {
+                                अन्यथा यदि (flags & EXTRACT_UNESCAPE_RELAX) {
                                         s[sz++] = '\\';
                                         s[sz++] = c;
-                                } else
-                                        return -EINVAL;
-                        } else
+                                } अन्यथा
+                                        प्रत्यागम -EINVAL;
+                        } अन्यथा
                                 s[sz++] = c;
 
                         backslash = false;
 
-                } else if (quote != 0) {     /* inside either single or double quotes */
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0) {
-                                        if (flags & EXTRACT_RELAX)
-                                                goto finish_force_terminate;
-                                        return -EINVAL;
-                                } else if (c == quote) {        /* found the end quote */
+                } अन्यथा यदि (quote != 0) {     /* inside either single or double quotes */
+                        प्रति (;; (*p)++, c = **p) {
+                                यदि (c == 0) {
+                                        यदि (flags & EXTRACT_RELAX)
+                                                गच्छ finish_force_terminate;
+                                        प्रत्यागम -EINVAL;
+                                } अन्यथा यदि (c == quote) {        /* found the end quote */
                                         quote = 0;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        यदि (flags & EXTRACT_UNQUOTE)
+                                                भङ्ग;
+                                } अन्यथा यदि (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
+                                        भङ्ग;
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                यदि (!GREEDY_REALLOC(s, sz+2))
+                                        प्रत्यागम -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote == 0)
-                                        break;
+                                यदि (quote == 0)
+                                        भङ्ग;
                         }
 
-                } else {
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0)
-                                        goto finish_force_terminate;
-                                else if (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
+                } अन्यथा {
+                        प्रति (;; (*p)++, c = **p) {
+                                यदि (c == 0)
+                                        गच्छ finish_force_terminate;
+                                अन्यथा यदि (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
                                         quote = c;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        यदि (flags & EXTRACT_UNQUOTE)
+                                                भङ्ग;
+                                } अन्यथा यदि (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
-                                } else if (strchr(separators, c)) {
-                                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        भङ्ग;
+                                } अन्यथा यदि (strchr(separators, c)) {
+                                        यदि (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                                यदि (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                         (*p)++;
-                                                goto finish_force_next;
+                                                गच्छ finish_force_next;
                                         }
-                                        if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        यदि (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                 /* Skip additional coalesced separators. */
-                                                for (;; (*p)++, c = **p) {
-                                                        if (c == 0)
-                                                                goto finish_force_terminate;
-                                                        if (!strchr(separators, c))
-                                                                break;
+                                                प्रति (;; (*p)++, c = **p) {
+                                                        यदि (c == 0)
+                                                                गच्छ finish_force_terminate;
+                                                        यदि (!strchr(separators, c))
+                                                                भङ्ग;
                                                 }
-                                        goto finish;
+                                        गच्छ finish;
 
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                यदि (!GREEDY_REALLOC(s, sz+2))
+                                        प्रत्यागम -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote != 0)
-                                        break;
+                                यदि (quote != 0)
+                                        भङ्ग;
                         }
                 }
         }
 
 finish_force_terminate:
-        *p = NULL;
+        *p = रिक्त;
 finish:
-        if (!s) {
-                *p = NULL;
-                *ret = NULL;
-                return 0;
+        यदि (!s) {
+                *p = रिक्त;
+                *ret = रिक्त;
+                प्रत्यागम 0;
         }
 
 finish_force_next:
         s[sz] = 0;
         *ret = TAKE_PTR(s);
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-int extract_first_word_and_warn(
-                const char **p,
-                char **ret,
-                const char *separators,
+पूर्णाङ्क extract_first_word_and_warn(
+                ध्रुव वर्ण **p,
+                वर्ण **ret,
+                ध्रुव वर्ण *separators,
                 ExtractFlags flags,
-                const char *unit,
-                const char *filename,
-                unsigned line,
-                const char *rvalue) {
+                ध्रुव वर्ण *unit,
+                ध्रुव वर्ण *filename,
+                unsigned ओळ,
+                ध्रुव वर्ण *rvalue) {
 
         /* Try to unquote it, if it fails, warn about it and try again
          * but this time using EXTRACT_UNESCAPE_RELAX to keep the
          * backslashes verbatim in invalid escape sequences. */
 
-        const char *save;
-        int r;
+        ध्रुव वर्ण *save;
+        पूर्णाङ्क r;
 
-        assert(p);
-        assert(ret);
+        प्रतिज्ञा(p);
+        प्रतिज्ञा(ret);
 
         save = *p;
         r = extract_first_word(p, ret, separators, flags);
-        if (r >= 0)
-                return r;
+        यदि (r >= 0)
+                प्रत्यागम r;
 
-        if (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
+        यदि (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
 
                 /* Retry it with EXTRACT_UNESCAPE_RELAX. */
                 *p = save;
                 r = extract_first_word(p, ret, separators, flags|EXTRACT_UNESCAPE_RELAX);
-                if (r >= 0) {
+                यदि (r >= 0) {
                         /* It worked this time, hence it must have been an invalid escape sequence. */
-                        log_syntax(unit, LOG_WARNING, filename, line, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
-                        return r;
+                        log_syntax(unit, LOG_WARNING, filename, ओळ, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
+                        प्रत्यागम r;
                 }
 
                 /* If it's still EINVAL; then it must be unbalanced quoting, report this. */
-                if (r == -EINVAL)
-                        return log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
+                यदि (r == -EINVAL)
+                        प्रत्यागम log_syntax(unit, LOG_ERR, filename, ओळ, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
         }
 
         /* Can be any error, report it */
-        return log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
+        प्रत्यागम log_syntax(unit, LOG_ERR, filename, ओळ, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
 }
 
 /* We pass ExtractFlags as unsigned int (to avoid undefined behaviour when passing
  * an object that undergoes default argument promotion as an argument to va_start).
  * Let's make sure that ExtractFlags fits into an unsigned int. */
-assert_cc(sizeof(enum ExtractFlags) <= sizeof(unsigned));
+assert_cc(परिमाण(गणना ExtractFlags) <= परिमाण(unsigned));
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
+पूर्णाङ्क extract_many_शब्द_internal(ध्रुव वर्ण **p, ध्रुव वर्ण *separators, unsigned flags, ...) {
         va_list ap;
         unsigned n = 0;
-        int r;
+        पूर्णाङ्क r;
 
         /* Parses a number of words from a string, stripping any quotes if necessary. */
 
-        assert(p);
+        प्रतिज्ञा(p);
 
         /* Count how many words are expected */
         va_start(ap, flags);
-        while (va_arg(ap, char**))
+        यावत् (va_arg(ap, वर्ण**))
                 n++;
         va_end(ap);
 
-        if (n == 0)
-                return 0;
+        यदि (n == 0)
+                प्रत्यागम 0;
 
         /* Read all words into a temporary array */
-        char **l = newa0(char*, n);
+        वर्ण **l = newa0(वर्ण*, n);
         unsigned c;
 
-        for (c = 0; c < n; c++) {
+        प्रति (c = 0; c < n; c++) {
                 r = extract_first_word(p, &l[c], separators, flags);
-                if (r < 0) {
+                यदि (r < 0) {
                         free_many_charp(l, c);
-                        return r;
+                        प्रत्यागम r;
                 }
-                if (r == 0)
-                        break;
+                यदि (r == 0)
+                        भङ्ग;
         }
 
         /* If we managed to parse all words, return them in the passed in parameters */
         va_start(ap, flags);
         FOREACH_ARRAY(i, l, n) {
-                char **v = ASSERT_PTR(va_arg(ap, char**));
+                वर्ण **v = ASSERT_PTR(va_arg(ap, वर्ण**));
                 *v = *i;
         }
         va_end(ap);
 
-        return c;
+        प्रत्यागम c;
 }

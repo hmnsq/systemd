@@ -1,113 +1,113 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
-#include <unistd.h>
+#अन्तर्भाव <threads.h>
+#अन्तर्भाव <unistd.h>
 
-#include "errno-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "signal-util.h"
+#अन्तर्भाव "stdio-util.h"
+#अन्तर्भाव "string-table.h"
+#अन्तर्भाव "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+पूर्णाङ्क reset_all_signal_handlers(शून्य) {
+        पूर्णाङ्क ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        प्रति (पूर्णाङ्क sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
-                        continue;
+                यदि (IN_SET(sig, SIGKILL, SIGSTOP))
+                        अनुवर्त;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
-                r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                r = RET_NERRNO(sigaction(sig, &sigaction_default, रिक्त));
+                यदि (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        प्रत्यागम ret;
 }
 
-int reset_signal_mask(void) {
+पूर्णाङ्क reset_signal_mask(शून्य) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        यदि (sigemptyset(&ss) < 0)
+                प्रत्यागम -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        प्रत्यागम RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, रिक्त));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+पूर्णाङ्क sigaction_many_internal(ध्रुव संरचना sigaction *sa, ...) {
+        पूर्णाङ्क sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        यावत् ((sig = va_arg(ap, पूर्णाङ्क)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                यदि (sig == 0)
+                        अनुवर्त;
 
-                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
+                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, रिक्त)));
         }
 
         va_end(ap);
 
-        return r;
+        प्रत्यागम r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+स्थिर पूर्णाङ्क sigset_add_many_ap(sigset_t *ss, va_list ap) {
+        पूर्णाङ्क sig, r = 0;
 
-        assert(ss);
+        प्रतिज्ञा(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        यावत् ((sig = va_arg(ap, पूर्णाङ्क)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                यदि (sig == 0)
+                        अनुवर्त;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                यदि (sigaddset(ss, sig) < 0) {
+                        यदि (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        प्रत्यागम r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+पूर्णाङ्क sigset_add_many_internal(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        पूर्णाङ्क r;
 
         va_start(ap, ss);
         r = sigset_add_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        प्रत्यागम r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+पूर्णाङ्क sigprocmask_many_internal(पूर्णाङ्क how, sigset_t *ret_old_mask, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        पूर्णाङ्क r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        यदि (sigemptyset(&ss) < 0)
+                प्रत्यागम -errno;
 
         va_start(ap, ret_old_mask);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        प्रत्यागम RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
 }
 
-static const char *const static_signal_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव static_signal_table[] = {
         [SIGHUP]    = "HUP",
         [SIGINT]    = "INT",
         [SIGQUIT]   = "QUIT",
@@ -143,87 +143,87 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, पूर्णाङ्क);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
-        const char *name;
+ध्रुव वर्ण* signal_to_string(पूर्णाङ्क signo) {
+        स्थिर thread_local वर्ण buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(पूर्णाङ्क)];
+        ध्रुव वर्ण *name;
 
         name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        यदि (name)
+                प्रत्यागम name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        यदि (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        अन्यथा
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        प्रत्यागम buf;
 }
 
-int signal_from_string(const char *s) {
-        const char *p;
-        int signo, r;
+पूर्णाङ्क signal_from_string(ध्रुव वर्ण *s) {
+        ध्रुव वर्ण *p;
+        पूर्णाङ्क signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        यदि (safe_atoi(s, &signo) >= 0) {
+                यदि (SIGNAL_VALID(signo))
+                        प्रत्यागम signo;
+                अन्यथा
+                        प्रत्यागम -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        यदि (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        यदि (signo > 0)
+                प्रत्यागम signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        यदि (p) {
+                यदि (*p == '\0')
+                        प्रत्यागम SIGRTMIN;
+                यदि (*p != '+')
+                        प्रत्यागम -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                यदि (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        प्रत्यागम -ERANGE;
 
-                return signo + SIGRTMIN;
+                प्रत्यागम signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        यदि (p) {
+                यदि (*p == '\0')
+                        प्रत्यागम SIGRTMAX;
+                यदि (*p != '-')
+                        प्रत्यागम -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                यदि (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        प्रत्यागम -ERANGE;
 
-                return signo + SIGRTMAX;
+                प्रत्यागम signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        प्रत्यागम -EINVAL;
 }
 
-static const char *const sigill_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigill_code_table[] = {
         [ILL_ILLOPC]   = "ILL_ILLOPC",
         [ILL_ILLOPN]   = "ILL_ILLOPN",
         [ILL_ILLADR]   = "ILL_ILLADR",
@@ -235,9 +235,9 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, पूर्णाङ्क);
 
-static const char *const sigfpe_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigfpe_code_table[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
         [FPE_INTOVF]   = "FPE_INTOVF",
         [FPE_FLTDIV]   = "FPE_FLTDIV",
@@ -250,9 +250,9 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, पूर्णाङ्क);
 
-static const char *const sigsegv_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigsegv_code_table[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
         [SEGV_ACCERR]  = "SEGV_ACCERR",
         [SEGV_BNDERR]  = "SEGV_BNDERR",
@@ -265,9 +265,9 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, पूर्णाङ्क);
 
-static const char *const sigbus_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigbus_code_table[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
         [BUS_ADRERR]    = "BUS_ADRERR",
         [BUS_OBJERR]    = "BUS_OBJERR",
@@ -275,9 +275,9 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, पूर्णाङ्क);
 
-static const char *const sigtrap_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigtrap_code_table[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
         [TRAP_TRACE]  = "TRAP_TRACE",
         [TRAP_BRANCH] = "TRAP_BRANCH",
@@ -286,19 +286,19 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, पूर्णाङ्क);
 
-static const char *const sigsys_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigsys_code_table[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, पूर्णाङ्क);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
  * all other values decoded here, provide an uppercase variant. */
-static const char *const sigchld_uppercase_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigchld_uppercase_code_table[] = {
         [CLD_EXITED]    = "CLD_EXITED",
         [CLD_KILLED]    = "CLD_KILLED",
         [CLD_DUMPED]    = "CLD_DUMPED",
@@ -307,9 +307,9 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, पूर्णाङ्क);
 
-static const char *const sigpoll_code_table[] = {
+स्थिर ध्रुव वर्ण *ध्रुव sigpoll_code_table[] = {
         [POLL_IN]  = "POLL_IN",
         [POLL_OUT] = "POLL_OUT",
         [POLL_MSG] = "POLL_MSG",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, पूर्णाङ्क);
 
-const char* signal_code_to_string(int signo, int code) {
-        switch (code) {
+ध्रुव वर्ण* signal_code_to_string(पूर्णाङ्क signo, पूर्णाङ्क code) {
+        विकल्प (code) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
-        case SI_KERNEL:
-                return "SI_KERNEL";
-        case SI_USER:
-                return "SI_USER";
+        पक्ष SI_KERNEL:
+                प्रत्यागम "SI_KERNEL";
+        पक्ष SI_USER:
+                प्रत्यागम "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
-        case SI_ASYNCNL:
-                return "SI_ASYNCNL";
-        case SI_DETHREAD:
-                return "SI_DETHREAD";
-        case SI_TKILL:
-                return "SI_TKILL";
-        case SI_SIGIO:
-                return "SI_SIGIO";
-        case SI_ASYNCIO:
-                return "SI_ASYNCIO";
-        case SI_MESGQ:
-                return "SI_MESGQ";
-        case SI_TIMER:
-                return "SI_TIMER";
-        case SI_QUEUE:
-                return "SI_QUEUE";
+        पक्ष SI_ASYNCNL:
+                प्रत्यागम "SI_ASYNCNL";
+        पक्ष SI_DETHREAD:
+                प्रत्यागम "SI_DETHREAD";
+        पक्ष SI_TKILL:
+                प्रत्यागम "SI_TKILL";
+        पक्ष SI_SIGIO:
+                प्रत्यागम "SI_SIGIO";
+        पक्ष SI_ASYNCIO:
+                प्रत्यागम "SI_ASYNCIO";
+        पक्ष SI_MESGQ:
+                प्रत्यागम "SI_MESGQ";
+        पक्ष SI_TIMER:
+                प्रत्यागम "SI_TIMER";
+        पक्ष SI_QUEUE:
+                प्रत्यागम "SI_QUEUE";
         }
 
-        switch (signo) {
-        case SIGILL:
-                return sigill_code_to_string(code);
-        case SIGFPE:
-                return sigfpe_code_to_string(code);
-        case SIGSEGV:
-                return sigsegv_code_to_string(code);
-        case SIGBUS:
-                return sigbus_code_to_string(code);
-        case SIGTRAP:
-                return sigtrap_code_to_string(code);
-        case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
-        case SIGPOLL:
-                return sigpoll_code_to_string(code);
-        case SIGSYS:
-                return sigsys_code_to_string(code);
-        default:
-                return NULL;
+        विकल्प (signo) {
+        पक्ष SIGILL:
+                प्रत्यागम sigill_code_to_string(code);
+        पक्ष SIGFPE:
+                प्रत्यागम sigfpe_code_to_string(code);
+        पक्ष SIGSEGV:
+                प्रत्यागम sigsegv_code_to_string(code);
+        पक्ष SIGBUS:
+                प्रत्यागम sigbus_code_to_string(code);
+        पक्ष SIGTRAP:
+                प्रत्यागम sigtrap_code_to_string(code);
+        पक्ष SIGCHLD:
+                प्रत्यागम sigchld_uppercase_code_to_string(code);
+        पक्ष SIGPOLL:
+                प्रत्यागम sigpoll_code_to_string(code);
+        पक्ष SIGSYS:
+                प्रत्यागम sigsys_code_to_string(code);
+        स्वभाव:
+                प्रत्यागम रिक्त;
         }
 }
 
-void nop_signal_handler(int sig) {
+शून्य nop_signal_handler(पूर्णाङ्क sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+पूर्णाङ्क signal_is_blocked(पूर्णाङ्क sig) {
         sigset_t ss;
-        int r;
+        पूर्णाङ्क r;
 
-        r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        r = pthread_sigmask(SIG_SETMASK, रिक्त, &ss);
+        यदि (r != 0)
+                प्रत्यागम -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        प्रत्यागम RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
-        struct sigaction sa;
+पूर्णाङ्क autoreaping_enabled(शून्य) {
+        संरचना sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        यदि (sigaction(SIGCHLD, /* act= */ रिक्त, &sa) < 0)
+                प्रत्यागम -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        प्रत्यागम sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+पूर्णाङ्क काढा_pending_signal_internal(पूर्णाङ्क sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        पूर्णाङ्क r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        यदि (sig < 0) /* Empty list? */
+                प्रत्यागम -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        यदि (sigemptyset(&ss) < 0)
+                प्रत्यागम -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        यदि (sig > 0 && sigaddset(&ss, sig) < 0)
+                प्रत्यागम -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        r = sigtimedwait(&ss, रिक्त, &(ध्रुव संरचना timespec) {});
+        यदि (r < 0) {
+                यदि (errno == EAGAIN)
+                        प्रत्यागम 0;
 
-                return -errno;
+                प्रत्यागम -errno;
         }
 
-        return r; /* Returns the signal popped */
+        प्रत्यागम r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+शून्य propagate_signal(पूर्णाङ्क sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,49 +443,49 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        यदि (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
-const struct sigaction sigaction_ignore = {
+ध्रुव संरचना sigaction sigaction_ignore = {
         .sa_handler = SIG_IGN,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_default = {
+ध्रुव संरचना sigaction sigaction_default = {
         .sa_handler = SIG_DFL,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_nop_nocldstop = {
+ध्रुव संरचना sigaction sigaction_nop_nocldstop = {
         .sa_handler = nop_signal_handler,
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+पूर्णाङ्क parse_signo(ध्रुव वर्ण *s, पूर्णाङ्क *ret) {
+        पूर्णाङ्क sig, r;
 
         r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        यदि (!SIGNAL_VALID(sig))
+                प्रत्यागम -EINVAL;
 
-        if (ret)
+        यदि (ret)
                 *ret = sig;
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
-        assert(signal == SIGTERM);
-        assert(info);
+शून्य sigterm_process_group_handler(पूर्णाङ्क सङ्केत, siginfo_t *info, शून्य *ucontext) {
+        प्रतिज्ञा(सङ्केत == SIGTERM);
+        प्रतिज्ञा(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        यदि (si_code_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
-                (void) kill(0, signal);
+                (शून्य) kill(0, सङ्केत);
 }
