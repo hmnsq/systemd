@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* A minimal, generic state engine that tracks ANSI escape sequence boundaries in a byte stream. It does not
  * interpret sequences, it only determines where they begin and end, so that callers can find "safe"
@@ -10,7 +10,7 @@
  * sequences: for CSI and nF sequences that's the parameter, intermediate and final bytes, for "string"
  * sequences (OSC and friends) it's the string itself. */
 
-typedef enum AnsiSeqState {
+تعريفنوع تعداد AnsiSeqState {
         ANSI_SEQ_STATE_GROUND,     /* regular characters */
         ANSI_SEQ_STATE_ESC,        /* ESC seen, or within an escape sequence that is neither CSI nor a string sequence */
         ANSI_SEQ_STATE_CSI,        /* within a CSI sequence */
@@ -21,7 +21,7 @@ typedef enum AnsiSeqState {
         _ANSI_SEQ_STATE_INVALID = -EINVAL,
 } AnsiSeqState;
 
-typedef enum AnsiSeqEvent {
+تعريفنوع تعداد AnsiSeqEvent {
         ANSI_SEQ_EVENT_TEXT,       /* a regular character, not part of any sequence */
         ANSI_SEQ_EVENT_SEQUENCE,   /* a character belonging to a sequence that is not complete yet */
         ANSI_SEQ_EVENT_END,        /* the character completes a sequence, its payload may be queried */
@@ -34,23 +34,23 @@ typedef enum AnsiSeqEvent {
  * considered invalid and aborted. */
 #define ANSI_SEQ_STRING_MAX 192U
 
-typedef struct AnsiSeqParser {
+تعريفنوع بنية AnsiSeqParser {
         AnsiSeqState state;
-        char introducer;    /* for string sequences: the character that introduced it, e.g. ']' for OSC */
-        char *string;       /* the accumulated payload of the most recent string sequence */
+        حرف introducer;    /* for string sequences: the character that introduced it, e.g. ']' for OSC */
+        حرف *string;       /* the accumulated payload of the most recent string sequence */
         size_t string_len;
         bool bad;           /* the current string sequence grew beyond ANSI_SEQ_STRING_MAX or is otherwise invalid */
         bool capture;       /* if true we'll capture the sequence */
 } AnsiSeqParser;
 
-void ansi_seq_parser_done(AnsiSeqParser *p);
+فراغ ansi_seq_parser_done(AnsiSeqParser *p);
 
 /* Feeds a single character, returns an AnsiSeqEvent, or a negative errno on capture allocation failure */
-int ansi_seq_parser_feed(AnsiSeqParser *p, char c);
+صحيح ansi_seq_parser_feed(AnsiSeqParser *p, حرف c);
 
 /* Just like this, but eat up errors, and immediately submit character again */
-int ansi_seq_parser_feed_harder(AnsiSeqParser *p, char c);
+صحيح ansi_seq_parser_feed_harder(AnsiSeqParser *p, حرف c);
 
 /* After ANSI_SEQ_EVENT_END: the captured payload as NUL terminated string, or NULL if capturing is
  * off or the payload overflowed */
-const char* ansi_seq_parser_string(const AnsiSeqParser *p);
+ثابت حرف* ansi_seq_parser_string(ثابت AnsiSeqParser *p);
