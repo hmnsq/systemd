@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-typedef struct LabelOps {
-        int (*pre)(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-        int (*post)(int dir_fd, const char *path, bool created, LabelContext *label_context);
+வகைவரை கட்டமைப்பு LabelOps {
+        முழு (*pre)(முழு dir_fd, மாறிலி எழுத்து *path, mode_t mode, LabelContext *label_context);
+        முழு (*post)(முழு dir_fd, மாறிலி எழுத்து *path, bool created, LabelContext *label_context);
 } LabelOps;
 
-int label_ops_set(const LabelOps *label_ops);
-void label_ops_reset(void);
+முழு label_ops_set(மாறிலி LabelOps *label_ops);
+வெறுமை label_ops_reset(வெறுமை);
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context);
+முழு label_ops_pre(முழு dir_fd, மாறிலி எழுத்து *path, mode_t mode, LabelContext *label_context);
+முழு label_ops_post(முழு dir_fd, மாறிலி எழுத்து *path, bool created, LabelContext *label_context);

@@ -1,177 +1,177 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "rlimit-util.h"
-#include "string-table.h"
-#include "strv.h"
-#include "time-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "errno-util.h"
+#அந்தர்பாவ "extract-word.h"
+#அந்தர்பாவ "fd-util.h"
+#அந்தர்பாவ "fileio.h"
+#அந்தர்பாவ "format-util.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "process-util.h"
+#அந்தர்பாவ "rlimit-util.h"
+#அந்தர்பாவ "string-table.h"
+#அந்தர்பாவ "strv.h"
+#அந்தர்பாவ "time-util.h"
 
-int setrlimit_closest(int resource, const struct rlimit *rlim) {
-        struct rlimit highest, fixed;
+முழு setrlimit_closest(முழு resource, மாறிலி கட்டமைப்பு rlimit *rlim) {
+        கட்டமைப்பு rlimit highest, fixed;
 
-        assert(rlim);
+        ப்ரதிஜ்ஞா(rlim);
 
-        if (setrlimit(resource, rlim) >= 0)
-                return 0;
+        எனில் (setrlimit(resource, rlim) >= 0)
+                திரும்பு 0;
 
-        if (errno != EPERM)
-                return -errno;
+        எனில் (errno != EPERM)
+                திரும்பு -errno;
 
         /* So we failed to set the desired setrlimit, then let's try
          * to get as close as we can */
-        if (getrlimit(resource, &highest) < 0)
-                return -errno;
+        எனில் (getrlimit(resource, &highest) < 0)
+                திரும்பு -errno;
 
         /* If the hard limit is unbounded anyway, then the EPERM had other reasons, let's propagate the original EPERM
          * then */
-        if (highest.rlim_max == RLIM_INFINITY)
-                return -EPERM;
+        எனில் (highest.rlim_max == RLIM_INFINITY)
+                திரும்பு -EPERM;
 
-        fixed = (struct rlimit) {
+        fixed = (கட்டமைப்பு rlimit) {
                 .rlim_cur = MIN(rlim->rlim_cur, highest.rlim_max),
                 .rlim_max = MIN(rlim->rlim_max, highest.rlim_max),
         };
 
         /* Shortcut things if we wouldn't change anything. */
-        if (fixed.rlim_cur == highest.rlim_cur &&
+        எனில் (fixed.rlim_cur == highest.rlim_cur &&
             fixed.rlim_max == highest.rlim_max)
-                return 0;
+                திரும்பு 0;
 
         log_debug("Failed at setting rlimit " RLIM_FMT " for resource RLIMIT_%s. Will attempt setting value " RLIM_FMT " instead.", rlim->rlim_max, rlimit_to_string(resource), fixed.rlim_max);
 
-        return RET_NERRNO(setrlimit(resource, &fixed));
+        திரும்பு RET_NERRNO(setrlimit(resource, &fixed));
 }
 
-int setrlimit_closest_all(const struct rlimit *const *rlim, int *which_failed) {
-        int r;
+முழு setrlimit_closest_all(மாறிலி கட்டமைப்பு rlimit *மாறிலி *rlim, முழு *which_failed) {
+        முழு r;
 
-        assert(rlim);
+        ப்ரதிஜ்ஞா(rlim);
 
         /* On failure returns the limit's index that failed in *which_failed, but only if non-NULL */
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!rlim[i])
-                        continue;
+        க்கு (முழு i = 0; i < _RLIMIT_MAX; i++) {
+                எனில் (!rlim[i])
+                        தொடர்;
 
                 r = setrlimit_closest(i, rlim[i]);
-                if (r < 0) {
-                        if (which_failed)
+                எனில் (r < 0) {
+                        எனில் (which_failed)
                                 *which_failed = i;
 
-                        return r;
+                        திரும்பு r;
                 }
         }
 
-        if (which_failed)
+        எனில் (which_failed)
                 *which_failed = -1;
 
-        return 0;
+        திரும்பு 0;
 }
 
-static int rlimit_parse_u64(const char *val, rlim_t *ret) {
+நிலையான முழு rlimit_parse_u64(மாறிலி எழுத்து *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        முழு r;
 
-        assert(val);
-        assert(ret);
+        ப்ரதிஜ்ஞா(val);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (streq(val, "infinity")) {
+        எனில் (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                திரும்பு 0;
         }
 
         /* setrlimit(2) suggests rlim_t is always 64-bit on Linux. */
-        assert_cc(sizeof(rlim_t) == sizeof(uint64_t));
+        assert_cc(அளவு(rlim_t) == அளவு(uint64_t));
 
         r = safe_atou64(val, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (u >= (uint64_t) RLIM_INFINITY)
+                திரும்பு -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        திரும்பு 0;
 }
 
-static int rlimit_parse_size(const char *val, rlim_t *ret) {
+நிலையான முழு rlimit_parse_size(மாறிலி எழுத்து *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        முழு r;
 
-        assert(val);
-        assert(ret);
+        ப்ரதிஜ்ஞா(val);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (streq(val, "infinity")) {
+        எனில் (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                திரும்பு 0;
         }
 
         r = parse_size(val, 1024, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (u >= (uint64_t) RLIM_INFINITY)
+                திரும்பு -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        திரும்பு 0;
 }
 
-static int rlimit_parse_sec(const char *val, rlim_t *ret) {
+நிலையான முழு rlimit_parse_sec(மாறிலி எழுத்து *val, rlim_t *ret) {
         uint64_t u;
         usec_t t;
-        int r;
+        முழு r;
 
-        assert(val);
-        assert(ret);
+        ப்ரதிஜ்ஞா(val);
+        ப்ரதிஜ்ஞா(ret);
 
         r = parse_sec(val, &t);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                திரும்பு 0;
         }
 
         u = (uint64_t) DIV_ROUND_UP(t, USEC_PER_SEC);
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        எனில் (u >= (uint64_t) RLIM_INFINITY)
+                திரும்பு -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        திரும்பு 0;
 }
 
-static int rlimit_parse_usec(const char *val, rlim_t *ret) {
+நிலையான முழு rlimit_parse_usec(மாறிலி எழுத்து *val, rlim_t *ret) {
         usec_t t;
-        int r;
+        முழு r;
 
-        assert(val);
-        assert(ret);
+        ப்ரதிஜ்ஞா(val);
+        ப்ரதிஜ்ஞா(ret);
 
         r = parse_time(val, &t, 1);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                திரும்பு 0;
         }
 
         *ret = (rlim_t) t;
-        return 0;
+        திரும்பு 0;
 }
 
-static int rlimit_parse_nice(const char *val, rlim_t *ret) {
+நிலையான முழு rlimit_parse_nice(மாறிலி எழுத்து *val, rlim_t *ret) {
         uint64_t rl;
-        int r;
+        முழு r;
 
-        assert(val);
-        assert(ret);
+        ப்ரதிஜ்ஞா(val);
+        ப்ரதிஜ்ஞா(ret);
 
         /* So, Linux is weird. The range for RLIMIT_NICE is 40..1, mapping to the nice levels -20..19. However, the
          * RLIMIT_NICE limit defaults to 0 by the kernel, i.e. a value that maps to nice level 20, which of course is
@@ -181,45 +181,45 @@ static int rlimit_parse_nice(const char *val, rlim_t *ret) {
          *
          * Yeah, Linux is quality engineering sometimes... */
 
-        if (val[0] == '+') {
+        எனில் (val[0] == '+') {
 
                 /* Prefixed with "+": Parse as positive user-friendly nice value */
                 r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                if (rl >= PRIO_MAX)
-                        return -ERANGE;
+                எனில் (rl >= PRIO_MAX)
+                        திரும்பு -ERANGE;
 
                 rl = 20 - rl;
 
-        } else if (val[0] == '-') {
+        } இல்லையெனில் எனில் (val[0] == '-') {
 
                 /* Prefixed with "-": Parse as negative user-friendly nice value */
                 r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                if (rl > (uint64_t) (-PRIO_MIN))
-                        return -ERANGE;
+                எனில் (rl > (uint64_t) (-PRIO_MIN))
+                        திரும்பு -ERANGE;
 
                 rl = 20 + rl;
-        } else {
+        } இல்லையெனில் {
 
                 /* Not prefixed: parse as raw resource limit value */
                 r = safe_atou64(val, &rl);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                if (rl > (uint64_t) (20 - PRIO_MIN))
-                        return -ERANGE;
+                எனில் (rl > (uint64_t) (20 - PRIO_MIN))
+                        திரும்பு -ERANGE;
         }
 
         *ret = (rlim_t) rl;
-        return 0;
+        திரும்பு 0;
 }
 
-static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret) = {
+நிலையான முழு (*மாறிலி rlimit_parse_table[_RLIMIT_MAX])(மாறிலி எழுத்து *val, rlim_t *ret) = {
         [RLIMIT_CPU]        = rlimit_parse_sec,
         [RLIMIT_FSIZE]      = rlimit_parse_size,
         [RLIMIT_DATA]       = rlimit_parse_size,
@@ -238,83 +238,83 @@ static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret
         [RLIMIT_RTTIME]     = rlimit_parse_usec,
 };
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret) {
-        assert(val);
-        assert(ret);
+முழு rlimit_parse_one(முழு resource, மாறிலி எழுத்து *val, rlim_t *ret) {
+        ப்ரதிஜ்ஞா(val);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (resource < 0)
-                return -EINVAL;
-        if (resource >= _RLIMIT_MAX)
-                return -EINVAL;
+        எனில் (resource < 0)
+                திரும்பு -EINVAL;
+        எனில் (resource >= _RLIMIT_MAX)
+                திரும்பு -EINVAL;
 
-        return rlimit_parse_table[resource](val, ret);
+        திரும்பு rlimit_parse_table[resource](val, ret);
 }
 
-int rlimit_parse(int resource, const char *val, struct rlimit *ret) {
-        _cleanup_free_ char *hard = NULL, *soft = NULL;
+முழு rlimit_parse(முழு resource, மாறிலி எழுத்து *val, கட்டமைப்பு rlimit *ret) {
+        _cleanup_free_ எழுத்து *hard = வெற்று, *soft = வெற்று;
         rlim_t hl, sl;
-        int r;
+        முழு r;
 
-        assert(val);
-        assert(ret);
+        ப்ரதிஜ்ஞா(val);
+        ப்ரதிஜ்ஞா(ret);
 
         r = extract_first_word(&val, &soft, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (r == 0)
+                திரும்பு -EINVAL;
 
         r = rlimit_parse_one(resource, soft, &sl);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         r = extract_first_word(&val, &hard, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (!isempty(val))
-                return -EINVAL;
-        if (r == 0)
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (!isempty(val))
+                திரும்பு -EINVAL;
+        எனில் (r == 0)
                 hl = sl;
-        else {
+        இல்லையெனில் {
                 r = rlimit_parse_one(resource, hard, &hl);
-                if (r < 0)
-                        return r;
-                if (sl > hl)
-                        return -EILSEQ;
+                எனில் (r < 0)
+                        திரும்பு r;
+                எனில் (sl > hl)
+                        திரும்பு -EILSEQ;
         }
 
-        *ret = (struct rlimit) {
+        *ret = (கட்டமைப்பு rlimit) {
                 .rlim_cur = sl,
                 .rlim_max = hl,
         };
 
-        return 0;
+        திரும்பு 0;
 }
 
-int rlimit_format(const struct rlimit *rl, char **ret) {
-        char *s;
+முழு rlimit_format(மாறிலி கட்டமைப்பு rlimit *rl, எழுத்து **ret) {
+        எழுத்து *s;
 
-        assert(rl);
-        assert(ret);
+        ப்ரதிஜ்ஞா(rl);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
+        எனில் (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
                 s = strdup("infinity");
-        else if (rl->rlim_cur >= RLIM_INFINITY)
+        இல்லையெனில் எனில் (rl->rlim_cur >= RLIM_INFINITY)
                 s = asprintf_safe("infinity:" RLIM_FMT, rl->rlim_max);
-        else if (rl->rlim_max >= RLIM_INFINITY)
+        இல்லையெனில் எனில் (rl->rlim_max >= RLIM_INFINITY)
                 s = asprintf_safe(RLIM_FMT ":infinity", rl->rlim_cur);
-        else if (rl->rlim_cur == rl->rlim_max)
+        இல்லையெனில் எனில் (rl->rlim_cur == rl->rlim_max)
                 s = asprintf_safe(RLIM_FMT, rl->rlim_cur);
-        else
+        இல்லையெனில்
                 s = asprintf_safe(RLIM_FMT ":" RLIM_FMT, rl->rlim_cur, rl->rlim_max);
-        if (!s)
-                return -ENOMEM;
+        எனில் (!s)
+                திரும்பு -ENOMEM;
 
         *ret = s;
-        return 0;
+        திரும்பு 0;
 }
 
-static const char* const rlimit_table[_RLIMIT_MAX] = {
+நிலையான மாறிலி எழுத்து* மாறிலி rlimit_table[_RLIMIT_MAX] = {
         [RLIMIT_AS]         = "AS",
         [RLIMIT_CORE]       = "CORE",
         [RLIMIT_CPU]        = "CPU",
@@ -333,101 +333,101 @@ static const char* const rlimit_table[_RLIMIT_MAX] = {
         [RLIMIT_STACK]      = "STACK",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(rlimit, int);
+DEFINE_STRING_TABLE_LOOKUP(rlimit, முழு);
 
-void rlimits_list(const char *prefix) {
+வெறுமை rlimits_list(மாறிலி எழுத்து *prefix) {
         FOREACH_ELEMENT(field, rlimit_table)
                 printf("%s%s\n", strempty(prefix), *field);
 }
 
-int rlimit_from_string_harder(const char *s) {
-        const char *suffix;
+முழு rlimit_from_string_harder(மாறிலி எழுத்து *s) {
+        மாறிலி எழுத்து *suffix;
 
         /* The official prefix */
         suffix = startswith(s, "RLIMIT_");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        எனில் (suffix)
+                திரும்பு rlimit_from_string(suffix);
 
         /* Our own unit file setting prefix */
         suffix = startswith(s, "Limit");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        எனில் (suffix)
+                திரும்பு rlimit_from_string(suffix);
 
-        return rlimit_from_string(s);
+        திரும்பு rlimit_from_string(s);
 }
 
-void rlimit_free_all(struct rlimit **rl) {
-        free_many((void**) rl, _RLIMIT_MAX);
+வெறுமை rlimit_free_all(கட்டமைப்பு rlimit **rl) {
+        free_many((வெறுமை**) rl, _RLIMIT_MAX);
 }
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]) {
-        struct rlimit* copy[_RLIMIT_MAX] = {};
+முழு rlimit_copy_all(கட்டமைப்பு rlimit* target[நிலையான _RLIMIT_MAX], கட்டமைப்பு rlimit* மாறிலி source[நிலையான _RLIMIT_MAX]) {
+        கட்டமைப்பு rlimit* copy[_RLIMIT_MAX] = {};
 
-        assert(target);
-        assert(source);
+        ப்ரதிஜ்ஞா(target);
+        ப்ரதிஜ்ஞா(source);
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!source[i])
-                        continue;
+        க்கு (முழு i = 0; i < _RLIMIT_MAX; i++) {
+                எனில் (!source[i])
+                        தொடர்;
 
-                copy[i] = newdup(struct rlimit, source[i], 1);
-                if (!copy[i]) {
+                copy[i] = newdup(கட்டமைப்பு rlimit, source[i], 1);
+                எனில் (!copy[i]) {
                         rlimit_free_all(copy);
-                        return -ENOMEM;
+                        திரும்பு -ENOMEM;
                 }
         }
 
-        memcpy(target, copy, sizeof(struct rlimit*) * _RLIMIT_MAX);
-        return 0;
+        memcpy(target, copy, அளவு(கட்டமைப்பு rlimit*) * _RLIMIT_MAX);
+        திரும்பு 0;
 }
 
-int rlimit_nofile_bump(int limit) {
-        int r;
+முழு rlimit_nofile_bump(முழு limit) {
+        முழு r;
 
         /* Bumps the (soft) RLIMIT_NOFILE resource limit as close as possible to the specified limit. If a negative
          * limit is specified, bumps it to the maximum the kernel and the hard resource limit allows. This call should
          * be used by all our programs that might need a lot of fds, and that know how to deal with high fd numbers
          * (i.e. do not use select() — which chokes on fds >= 1024) */
 
-        if (limit < 0)
+        எனில் (limit < 0)
                 limit = read_nr_open();
 
-        if (limit < 3)
+        எனில் (limit < 3)
                 limit = 3;
 
         r = setrlimit_closest(RLIMIT_NOFILE, &RLIMIT_MAKE_CONST(limit));
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
+        எனில் (r < 0)
+                திரும்பு log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
 
-        return 0;
+        திரும்பு 0;
 }
 
-int rlimit_nofile_safe(void) {
-        struct rlimit rl;
+முழு rlimit_nofile_safe(வெறுமை) {
+        கட்டமைப்பு rlimit rl;
 
         /* Resets RLIMIT_NOFILE's soft limit FD_SETSIZE (i.e. 1024), for compatibility with software still using
          * select() */
 
-        if (getrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
+        எனில் (getrlimit(RLIMIT_NOFILE, &rl) < 0)
+                திரும்பு log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
 
-        if (rl.rlim_cur <= FD_SETSIZE)
-                return 0;
+        எனில் (rl.rlim_cur <= FD_SETSIZE)
+                திரும்பு 0;
 
         /* So we might have inherited a hard limit that's larger than the kernel's maximum limit as stored in
          * /proc/sys/fs/nr_open. If we pass this hard limit unmodified to setrlimit(), we'll get EPERM. To
          * make sure that doesn't happen, let's limit our hard limit to the value from nr_open. */
         rl.rlim_max = MIN(rl.rlim_max, (rlim_t) read_nr_open());
         rl.rlim_cur = MIN((rlim_t) FD_SETSIZE, rl.rlim_max);
-        if (setrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
+        எனில் (setrlimit(RLIMIT_NOFILE, &rl) < 0)
+                திரும்பு log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
 
-        return 1;
+        திரும்பு 1;
 }
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
+முழு pid_getrlimit(pid_t pid, முழு resource, கட்டமைப்பு rlimit *ret) {
 
-        static const char * const prefix_table[_RLIMIT_MAX] = {
+        நிலையான மாறிலி எழுத்து * மாறிலி prefix_table[_RLIMIT_MAX] = {
                 [RLIMIT_CPU]        = "Max cpu time",
                 [RLIMIT_FSIZE]      = "Max file size",
                 [RLIMIT_DATA]       = "Max data size",
@@ -446,94 +446,94 @@ int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
                 [RLIMIT_RTTIME]     = "Max realtime timeout",
         };
 
-        int r;
+        முழு r;
 
-        assert(resource >= 0);
-        assert(resource < _RLIMIT_MAX);
-        assert(pid >= 0);
-        assert(ret);
+        ப்ரதிஜ்ஞா(resource >= 0);
+        ப்ரதிஜ்ஞா(resource < _RLIMIT_MAX);
+        ப்ரதிஜ்ஞா(pid >= 0);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (pid == 0 || pid == getpid_cached())
-                return RET_NERRNO(getrlimit(resource, ret));
+        எனில் (pid == 0 || pid == getpid_cached())
+                திரும்பு RET_NERRNO(getrlimit(resource, ret));
 
-        r = RET_NERRNO(prlimit(pid, resource, /* new_limit= */ NULL, ret));
-        if (!ERRNO_IS_NEG_PRIVILEGE(r))
-                return r;
+        r = RET_NERRNO(prlimit(pid, resource, /* new_limit= */ வெற்று, ret));
+        எனில் (!ERRNO_IS_NEG_PRIVILEGE(r))
+                திரும்பு r;
 
         /* We don't have access? Then try to go via /proc/$PID/limits. Weirdly that's world readable in
          * contrast to querying the data via prlimit() */
 
-        const char *p = procfs_file_alloca(pid, "limits");
-        _cleanup_free_ char *limits = NULL;
+        மாறிலி எழுத்து *p = procfs_file_alloca(pid, "limits");
+        _cleanup_free_ எழுத்து *limits = வெற்று;
 
-        r = read_full_file(p, &limits, /* ret_size= */ NULL);
-        if (r < 0)
-                return -EPERM; /* propagate original permission error if we can't access the limits file */
+        r = read_full_file(p, &limits, /* ret_size= */ வெற்று);
+        எனில் (r < 0)
+                திரும்பு -EPERM; /* propagate original permission error if we can't access the limits file */
 
-        _cleanup_strv_free_ char **l = NULL;
+        _cleanup_strv_free_ எழுத்து **l = வெற்று;
         l = strv_split_newlines(limits);
-        if (!l)
-                return -ENOMEM;
+        எனில் (!l)
+                திரும்பு -ENOMEM;
 
         STRV_FOREACH(i, strv_skip(l, 1)) {
-                _cleanup_free_ char *soft = NULL, *hard = NULL;
+                _cleanup_free_ எழுத்து *soft = வெற்று, *hard = வெற்று;
                 uint64_t sv, hv;
-                const char *e;
+                மாறிலி எழுத்து *e;
 
                 e = startswith(*i, prefix_table[resource]);
-                if (!e)
-                        continue;
+                எனில் (!e)
+                        தொடர்;
 
-                if (*e != ' ')
-                        continue;
+                எனில் (*e != ' ')
+                        தொடர்;
 
                 e += strspn(e, WHITESPACE);
 
                 size_t n;
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
-                        continue;
+                எனில் (n == 0)
+                        தொடர்;
 
                 soft = strndup(e, n);
-                if (!soft)
-                        return -ENOMEM;
+                எனில் (!soft)
+                        திரும்பு -ENOMEM;
 
                 e += n;
-                if (*e != ' ')
-                        continue;
+                எனில் (*e != ' ')
+                        தொடர்;
 
                 e += strspn(e, WHITESPACE);
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
-                        continue;
+                எனில் (n == 0)
+                        தொடர்;
 
                 hard = strndup(e, n);
-                if (!hard)
-                        return -ENOMEM;
+                எனில் (!hard)
+                        திரும்பு -ENOMEM;
 
-                if (streq(soft, "unlimited"))
+                எனில் (streq(soft, "unlimited"))
                         sv = RLIM_INFINITY;
-                else {
+                இல்லையெனில் {
                         r = safe_atou64(soft, &sv);
-                        if (r < 0)
-                                return r;
+                        எனில் (r < 0)
+                                திரும்பு r;
                 }
 
-                if (streq(hard, "unlimited"))
+                எனில் (streq(hard, "unlimited"))
                         hv = RLIM_INFINITY;
-                else {
+                இல்லையெனில் {
                         r = safe_atou64(hard, &hv);
-                        if (r < 0)
-                                return r;
+                        எனில் (r < 0)
+                                திரும்பு r;
                 }
 
-                *ret = (struct rlimit) {
+                *ret = (கட்டமைப்பு rlimit) {
                         .rlim_cur = sv,
                         .rlim_max = hv,
                 };
 
-                return 0;
+                திரும்பு 0;
         }
 
-        return -ENOTRECOVERABLE;
+        திரும்பு -ENOTRECOVERABLE;
 }

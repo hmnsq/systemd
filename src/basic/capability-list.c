@@ -1,68 +1,68 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#அந்தர்பாவ <stdio.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "parse-util.h"
-#include "string-util.h"
-#include "strv.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "bitfield.h"
+#அந்தர்பாவ "capability-list.h"
+#அந்தர்பாவ "capability-util.h"
+#அந்தர்பாவ "extract-word.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+நிலையான மாறிலி கட்டமைப்பு capability_name* lookup_capability(பதிவு மாறிலி எழுத்து *str, பதிவு GPERF_LEN_TYPE len);
 
-#include "capability-from-name.inc"
-#include "capability-to-name.inc"
+#அந்தர்பாவ "capability-from-name.inc"
+#அந்தர்பாவ "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+மாறிலி எழுத்து* capability_to_name(முழு id) {
+        எனில் (id < 0)
+                திரும்பு வெற்று;
+        எனில் ((unsigned) id >= capability_list_length())
+                திரும்பு வெற்று;
 
-        return capability_names[id];
+        திரும்பு capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+மாறிலி எழுத்து* capability_to_string(முழு id, எழுத்து buf[நிலையான CAPABILITY_TO_STRING_MAX]) {
+        மாறிலி எழுத்து *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        எனில் (id < 0)
+                திரும்பு வெற்று;
+        எனில் (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                திரும்பு வெற்று;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        எனில் (p)
+                திரும்பு p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        திரும்பு buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+முழு capability_from_name(மாறிலி எழுத்து *name) {
+        மாறிலி கட்டமைப்பு capability_name *sc;
+        முழு r, i;
 
-        assert(name);
+        ப்ரதிஜ்ஞா(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        எனில் (r >= 0) {
+                எனில் (i < 0 || i > CAP_LIMIT)
+                        திரும்பு -EINVAL;
 
-                return i;
+                திரும்பு i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        எனில் (!sc)
+                திரும்பு -EINVAL;
 
-        return sc->id;
+        திரும்பு sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -70,117 +70,117 @@ int capability_from_name(const char *name) {
  * value larger than the last known capability. This is different from cap_last_cap() which returns the
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
-unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+unsigned capability_list_length(வெறுமை) {
+        திரும்பு MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+முழு capability_set_to_string(uint64_t set, எழுத்து **ret) {
+        _cleanup_free_ எழுத்து *str = வெற்று;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        க்கு (unsigned i = 0; i <= cap_last_cap(); i++) {
+                மாறிலி எழுத்து *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                எனில் (!BIT_SET(set, i))
+                        தொடர்;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                ப்ரதிஜ்ஞா(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                எனில் (!strextend_with_separator(&str, " ", p))
+                        திரும்பு -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        எனில் (!str) {
+                str = new0(எழுத்து, 1);
+                எனில் (!str)
+                        திரும்பு -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        திரும்பு 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+முழு capability_set_to_string_negative(uint64_t set, எழுத்து **ret) {
+        _cleanup_free_ எழுத்து *a = வெற்று, *b = வெற்று;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
         /* Format the specified capability mask both in positive way (i.e. just listing caps) and in negative
          * way (i.e. listing only caps that are missing from the full set) and return the shorter version of
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        எனில் (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        இல்லையெனில் {
+                எழுத்து *c = strjoin("~", b);
+                எனில் (!c)
+                        திரும்பு -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        திரும்பு 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+முழு capability_set_to_strv(uint64_t set, எழுத்து ***ret) {
+        _cleanup_strv_free_ எழுத்து **l = வெற்று;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        க்கு (unsigned i = 0; i <= cap_last_cap(); i++) {
+                மாறிலி எழுத்து *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                எனில் (!BIT_SET(set, i))
+                        தொடர்;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                ப்ரதிஜ்ஞா(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        திரும்பு 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+முழு capability_set_from_string(மாறிலி எழுத்து *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        க்கு (மாறிலி எழுத்து *p = s;;) {
+                _cleanup_free_ எழுத்து *word = வெற்று;
+                முழு r;
 
-                r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&p, &word, வெற்று, EXTRACT_UNQUOTE|EXTRACT_RELAX);
+                எனில் (r < 0)
+                        திரும்பு r;
+                எனில் (r == 0)
+                        நிறுத்து;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                எனில் (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } இல்லையெனில்
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        எனில் (ret)
                 *ret = val;
 
-        return good;
+        திரும்பு good;
 }

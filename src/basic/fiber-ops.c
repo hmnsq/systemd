@@ -1,51 +1,51 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#include <poll.h>
-#include <threads.h>
-#include <unistd.h>
+#அந்தர்பாவ <poll.h>
+#அந்தர்பாவ <threads.h>
+#அந்தர்பாவ <unistd.h>
 
-#include "errno-util.h"
-#include "fiber-ops.h"
+#அந்தர்பாவ "errno-util.h"
+#அந்தர்பாவ "fiber-ops.h"
 
-static thread_local const FiberOps *fiber_ops = NULL;
+நிலையான thread_local மாறிலி FiberOps *fiber_ops = வெற்று;
 
-bool fiber_ops_is_set(void) {
-        return fiber_ops != NULL;
+bool fiber_ops_is_set(வெறுமை) {
+        திரும்பு fiber_ops != வெற்று;
 }
 
-void fiber_ops_set(const FiberOps *ops) {
+வெறுமை fiber_ops_set(மாறிலி FiberOps *ops) {
         fiber_ops = ops;
 }
 
-int fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask) {
-        if (fiber_ops)
-                return fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
+முழு fiber_ops_ppoll(கட்டமைப்பு pollfd *fds, size_t n_fds, மாறிலி கட்டமைப்பு timespec *timeout, மாறிலி sigset_t *sigmask) {
+        எனில் (fiber_ops)
+                திரும்பு fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
 
-        return RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
+        திரும்பு RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
 }
 
-ssize_t fiber_ops_read(int fd, void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->read(fd, buf, count);
+ssize_t fiber_ops_read(முழு fd, வெறுமை *buf, size_t மொத்தம்) {
+        எனில் (fiber_ops)
+                திரும்பு fiber_ops->பட(fd, buf, மொத்தம்);
 
-        ssize_t n = read(fd, buf, count);
-        return n < 0 ? -errno : n;
+        ssize_t n = பட(fd, buf, மொத்தம்);
+        திரும்பு n < 0 ? -errno : n;
 }
 
-ssize_t fiber_ops_write(int fd, const void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->write(fd, buf, count);
+ssize_t fiber_ops_write(முழு fd, மாறிலி வெறுமை *buf, size_t மொத்தம்) {
+        எனில் (fiber_ops)
+                திரும்பு fiber_ops->லிக(fd, buf, மொத்தம்);
 
-        return RET_NERRNO(write(fd, buf, count));
+        திரும்பு RET_NERRNO(லிக(fd, buf, மொத்தம்));
 }
 
 sd_future* fiber_ops_timeout(uint64_t timeout) {
-        assert(fiber_ops);
+        ப்ரதிஜ்ஞா(fiber_ops);
 
-        return fiber_ops->timeout(timeout);
+        திரும்பு fiber_ops->timeout(timeout);
 }
 
 sd_future* fiber_ops_timeout_unref(sd_future *timer) {
-        assert(fiber_ops);
+        ப்ரதிஜ்ஞா(fiber_ops);
 
-        return fiber_ops->timeout_unref(timer);
+        திரும்பு fiber_ops->timeout_unref(timer);
 }

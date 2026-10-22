@@ -1,302 +1,302 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/magic.h>
-#include <sys/statvfs.h>
-#include <unistd.h>
+#அந்தர்பாவ <fcntl.h>
+#அந்தர்பாவ <linux/magic.h>
+#அந்தர்பாவ <sys/statvfs.h>
+#அந்தர்பாவ <unistd.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "chase.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "filesystems.h"
-#include "fs-util.h"
-#include "hash-funcs.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "path-util.h"
-#include "siphash24.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "bitfield.h"
+#அந்தர்பாவ "chase.h"
+#அந்தர்பாவ "dirent-util.h"
+#அந்தர்பாவ "errno-util.h"
+#அந்தர்பாவ "fd-util.h"
+#அந்தர்பாவ "filesystems.h"
+#அந்தர்பாவ "fs-util.h"
+#அந்தர்பாவ "hash-funcs.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "mountpoint-util.h"
+#அந்தர்பாவ "path-util.h"
+#அந்தர்பாவ "siphash24.h"
+#அந்தர்பாவ "stat-util.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "time-util.h"
 
-static int verify_stat_at(
-                int fd,
-                const char *path,
+நிலையான முழு verify_stat_at(
+                முழு fd,
+                மாறிலி எழுத்து *path,
                 bool follow,
-                int (*verify_func)(const struct stat *st),
+                முழு (*verify_func)(மாறிலி கட்டமைப்பு stat *st),
                 bool verify) {
 
-        struct stat st;
-        int r;
+        கட்டமைப்பு stat st;
+        முழு r;
 
-        assert(wildcard_fd_is_valid(fd));
-        assert(!isempty(path) || !follow);
-        assert(verify_func);
+        ப்ரதிஜ்ஞா(wildcard_fd_is_valid(fd));
+        ப்ரதிஜ்ஞா(!isempty(path) || !follow);
+        ப்ரதிஜ்ஞா(verify_func);
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ எழுத்து *p = வெற்று;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (fstatat(fd, strempty(path), &st,
+        எனில் (fstatat(fd, strempty(path), &st,
                     (isempty(path) ? AT_EMPTY_PATH : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
-                return -errno;
+                திரும்பு -errno;
 
         r = verify_func(&st);
-        return verify ? r : r >= 0;
+        திரும்பு verify ? r : r >= 0;
 }
 
-static int mode_verify_regular(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+நிலையான முழு mode_verify_regular(mode_t mode) {
+        எனில் (S_ISDIR(mode))
+                திரும்பு -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        எனில் (S_ISLNK(mode))
+                திரும்பு -ELOOP;
 
-        if (!S_ISREG(mode))
-                return -EBADFD;
+        எனில் (!S_ISREG(mode))
+                திரும்பு -EBADFD;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int stat_verify_regular(const struct stat *st) {
-        assert(st);
+முழு stat_verify_regular(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
         /* Checks whether the specified stat() structure refers to a regular file. If not returns an
          * appropriate error code. */
 
-        return mode_verify_regular(st->st_mode);
+        திரும்பு mode_verify_regular(st->st_mode);
 }
 
-int statx_verify_regular(const struct statx *stx) {
-        assert(stx);
+முழு statx_verify_regular(மாறிலி கட்டமைப்பு statx *stx) {
+        ப்ரதிஜ்ஞா(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        எனில் (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                திரும்பு -ENODATA;
 
-        return mode_verify_regular(stx->stx_mode);
+        திரும்பு mode_verify_regular(stx->stx_mode);
 }
 
-int verify_regular_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_regular, true);
+முழு verify_regular_at(முழு fd, மாறிலி எழுத்து *path, bool follow) {
+        திரும்பு verify_stat_at(fd, path, follow, stat_verify_regular, true);
 }
 
-int fd_verify_regular(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+முழு fd_verify_regular(முழு fd) {
+        எனில் (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                திரும்பு -EISDIR;
 
-        return verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
+        திரும்பு verify_regular_at(fd, /* path= */ வெற்று, /* follow= */ false);
 }
 
-static int mode_verify_directory(mode_t mode) {
-        if (S_ISLNK(mode))
-                return -ELOOP;
+நிலையான முழு mode_verify_directory(mode_t mode) {
+        எனில் (S_ISLNK(mode))
+                திரும்பு -ELOOP;
 
-        if (!S_ISDIR(mode))
-                return -ENOTDIR;
+        எனில் (!S_ISDIR(mode))
+                திரும்பு -ENOTDIR;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int stat_verify_directory(const struct stat *st) {
-        assert(st);
+முழு stat_verify_directory(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        return mode_verify_directory(st->st_mode);
+        திரும்பு mode_verify_directory(st->st_mode);
 }
 
-int statx_verify_directory(const struct statx *stx) {
-        assert(stx);
+முழு statx_verify_directory(மாறிலி கட்டமைப்பு statx *stx) {
+        ப்ரதிஜ்ஞா(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        எனில் (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                திரும்பு -ENODATA;
 
-        return mode_verify_directory(stx->stx_mode);
+        திரும்பு mode_verify_directory(stx->stx_mode);
 }
 
-int fd_verify_directory(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return 0;
+முழு fd_verify_directory(முழு fd) {
+        எனில் (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                திரும்பு 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_directory, true);
+        திரும்பு verify_stat_at(fd, வெற்று, false, stat_verify_directory, true);
 }
 
-int is_dir_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_directory, false);
+முழு is_dir_at(முழு fd, மாறிலி எழுத்து *path, bool follow) {
+        திரும்பு verify_stat_at(fd, path, follow, stat_verify_directory, false);
 }
 
-int is_dir(const char *path, bool follow) {
-        assert(!isempty(path));
-        return is_dir_at(AT_FDCWD, path, follow);
+முழு is_dir(மாறிலி எழுத்து *path, bool follow) {
+        ப்ரதிஜ்ஞா(!isempty(path));
+        திரும்பு is_dir_at(AT_FDCWD, path, follow);
 }
 
-int stat_verify_symlink(const struct stat *st) {
-        assert(st);
+முழு stat_verify_symlink(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        எனில் (S_ISDIR(st->st_mode))
+                திரும்பு -EISDIR;
 
-        if (!S_ISLNK(st->st_mode))
-                return -ENOLINK;
+        எனில் (!S_ISLNK(st->st_mode))
+                திரும்பு -ENOLINK;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int fd_verify_symlink(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+முழு fd_verify_symlink(முழு fd) {
+        எனில் (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                திரும்பு -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
+        திரும்பு verify_stat_at(fd, /* path= */ வெற்று, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
 }
 
-int is_symlink(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
+முழு is_symlink(மாறிலி எழுத்து *path) {
+        ப்ரதிஜ்ஞா(!isempty(path));
+        திரும்பு verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
 }
 
-static int mode_verify_socket(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+நிலையான முழு mode_verify_socket(mode_t mode) {
+        எனில் (S_ISDIR(mode))
+                திரும்பு -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        எனில் (S_ISLNK(mode))
+                திரும்பு -ELOOP;
 
-        if (!S_ISSOCK(mode))
-                return -ENOTSOCK;
+        எனில் (!S_ISSOCK(mode))
+                திரும்பு -ENOTSOCK;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int stat_verify_socket(const struct stat *st) {
-        assert(st);
+முழு stat_verify_socket(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        return mode_verify_socket(st->st_mode);
+        திரும்பு mode_verify_socket(st->st_mode);
 }
 
-int statx_verify_socket(const struct statx *stx) {
-        assert(stx);
+முழு statx_verify_socket(மாறிலி கட்டமைப்பு statx *stx) {
+        ப்ரதிஜ்ஞா(stx);
 
-        return mode_verify_socket(stx->stx_mode);
+        திரும்பு mode_verify_socket(stx->stx_mode);
 }
 
-int fd_verify_socket(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+முழு fd_verify_socket(முழு fd) {
+        எனில் (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                திரும்பு -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
+        திரும்பு verify_stat_at(fd, /* path= */ வெற்று, /* follow= */ false, stat_verify_socket, /* verify= */ true);
 }
 
-int is_socket(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
+முழு is_socket(மாறிலி எழுத்து *path) {
+        ப்ரதிஜ்ஞா(!isempty(path));
+        திரும்பு verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
 }
 
-int stat_verify_linked(const struct stat *st) {
-        assert(st);
+முழு stat_verify_linked(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        if (st->st_nlink <= 0)
-                return -EIDRM; /* recognizable error. */
+        எனில் (st->st_nlink <= 0)
+                திரும்பு -EIDRM; /* recognizable error. */
 
-        return 0;
+        திரும்பு 0;
 }
 
-int fd_verify_linked(int fd) {
+முழு fd_verify_linked(முழு fd) {
 
-        if (fd == XAT_FDROOT)
-                return 0;
+        எனில் (fd == XAT_FDROOT)
+                திரும்பு 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_linked, true);
+        திரும்பு verify_stat_at(fd, வெற்று, false, stat_verify_linked, true);
 }
 
-int stat_verify_block(const struct stat *st) {
-        assert(st);
+முழு stat_verify_block(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        எனில் (S_ISDIR(st->st_mode))
+                திரும்பு -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        எனில் (S_ISLNK(st->st_mode))
+                திரும்பு -ELOOP;
 
-        if (!S_ISBLK(st->st_mode))
-                return -ENOTBLK;
+        எனில் (!S_ISBLK(st->st_mode))
+                திரும்பு -ENOTBLK;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int fd_verify_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+முழு fd_verify_block(முழு fd) {
+        எனில் (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                திரும்பு -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
+        திரும்பு verify_stat_at(fd, /* path= */ வெற்று, /* follow= */ false, stat_verify_block, /* verify= */ true);
 }
 
-int stat_verify_char(const struct stat *st) {
-        assert(st);
+முழு stat_verify_char(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        எனில் (S_ISDIR(st->st_mode))
+                திரும்பு -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        எனில் (S_ISLNK(st->st_mode))
+                திரும்பு -ELOOP;
 
-        if (!S_ISCHR(st->st_mode))
-                return -EBADFD;
+        எனில் (!S_ISCHR(st->st_mode))
+                திரும்பு -EBADFD;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int stat_verify_device_node(const struct stat *st) {
-        assert(st);
+முழு stat_verify_device_முனை(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        எனில் (S_ISDIR(st->st_mode))
+                திரும்பு -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        எனில் (S_ISLNK(st->st_mode))
+                திரும்பு -ELOOP;
 
-        if (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
-                return -ENOTTY;
+        எனில் (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
+                திரும்பு -ENOTTY;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int is_device_node(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
+முழு is_device_முனை(மாறிலி எழுத்து *path) {
+        ப்ரதிஜ்ஞா(!isempty(path));
+        திரும்பு verify_stat_at(AT_FDCWD, path, false, stat_verify_device_முனை, false);
 }
 
-int stat_verify_regular_or_block(const struct stat *st) {
-        assert(st);
+முழு stat_verify_regular_or_block(மாறிலி கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        எனில் (S_ISDIR(st->st_mode))
+                திரும்பு -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        எனில் (S_ISLNK(st->st_mode))
+                திரும்பு -ELOOP;
 
-        if (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
-                return -EBADFD;
+        எனில் (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
+                திரும்பு -EBADFD;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int fd_verify_regular_or_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+முழு fd_verify_regular_or_block(முழு fd) {
+        எனில் (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                திரும்பு -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
+        திரும்பு verify_stat_at(fd, /* path= */ வெற்று, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
 }
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) {
-        _cleanup_close_ int fd = -EBADF;
-        struct dirent *buf;
+முழு dir_is_empty_at(முழு dir_fd, மாறிலி எழுத்து *path, bool ignore_hidden_or_backup) {
+        _cleanup_close_ முழு fd = -EBADF;
+        கட்டமைப்பு dirent *buf;
         size_t m;
 
         fd = xopenat(dir_fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        எனில் (fd < 0)
+                திரும்பு fd;
 
         /* Allocate space for at least 3 full dirents, since every dir has at least two entries ("."  +
          * ".."), and only once we have seen if there's a third we know whether the dir is empty or not. If
@@ -305,125 +305,125 @@ int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) 
         m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_SIZE_MAX;
         buf = alloca(m);
 
-        for (;;) {
-                struct dirent *de;
+        க்கு (;;) {
+                கட்டமைப்பு dirent *de;
                 ssize_t n;
 
                 n = getdents64(fd, buf, m);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                எனில் (n < 0)
+                        திரும்பு -errno;
+                எனில் (n == 0)
+                        நிறுத்து;
 
-                assert((size_t) n <= m);
+                ப்ரதிஜ்ஞா((size_t) n <= m);
                 msan_unpoison(buf, n);
 
                 FOREACH_DIRENT_IN_BUFFER(de, buf, n)
-                        if (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
-                                return 0;
+                        எனில் (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
+                                திரும்பு 0;
         }
 
-        return 1;
+        திரும்பு 1;
 }
 
-bool stat_may_be_dev_null(struct stat *st) {
-        assert(st);
+bool stat_may_be_dev_null(கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
         /* We don't want to hardcode the major/minor of /dev/null, hence we do a simpler "is this a character
          * device node?" check. */
 
-        return S_ISCHR(st->st_mode);
+        திரும்பு S_ISCHR(st->st_mode);
 }
 
-bool stat_is_empty(struct stat *st) {
-        assert(st);
+bool stat_is_empty(கட்டமைப்பு stat *st) {
+        ப்ரதிஜ்ஞா(st);
 
-        return S_ISREG(st->st_mode) && st->st_size <= 0;
+        திரும்பு S_ISREG(st->st_mode) && st->st_size <= 0;
 }
 
-int null_or_empty_path_with_root(const char *fn, const char *root) {
-        _cleanup_free_ char *resolved = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        struct stat st;
-        int r;
+முழு null_or_empty_path_with_வேர்(மாறிலி எழுத்து *fn, மாறிலி எழுத்து *வேர்) {
+        _cleanup_free_ எழுத்து *resolved = வெற்று;
+        _cleanup_close_ முழு fd = -EBADF;
+        கட்டமைப்பு stat st;
+        முழு r;
 
-        assert(fn);
+        ப்ரதிஜ்ஞா(fn);
 
         /* fn includes the root prefix. */
 
-        if (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
-                return true;
+        எனில் (path_equal(path_startswith(fn, வேர் ?: "/"), "dev/null"))
+                திரும்பு true;
 
-        if (empty_or_root(root)) {
-                if (stat(fn, &st) < 0)
-                        return -errno;
+        எனில் (empty_or_வேர்(வேர்)) {
+                எனில் (stat(fn, &st) < 0)
+                        திரும்பு -errno;
 
-                return null_or_empty(&st);
+                திரும்பு null_or_empty(&st);
         }
 
         /* An image below a root directory usually has no /dev/null, so a symlink to /dev/null dangles there.
          * CHASE_NONEXISTENT resolves such a symlink without requiring the target to exist. */
-        r = chase(fn, root, CHASE_NONEXISTENT, &resolved, &fd);
-        if (r < 0)
-                return r;
+        r = chase(fn, வேர், CHASE_NONEXISTENT, &resolved, &fd);
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (path_equal(path_startswith(resolved, root), "dev/null"))
-                return true;
+        எனில் (path_equal(path_startswith(resolved, வேர்), "dev/null"))
+                திரும்பு true;
 
-        if (r == 0)
-                return -ENOENT;
+        எனில் (r == 0)
+                திரும்பு -ENOENT;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        எனில் (fstat(fd, &st) < 0)
+                திரும்பு -errno;
 
-        return null_or_empty(&st);
+        திரும்பு null_or_empty(&st);
 }
 
-static const char* statx_mask_one_to_name(unsigned mask);
-static const char* statx_attribute_to_name(uint64_t attr);
+நிலையான மாறிலி எழுத்து* statx_mask_one_to_name(unsigned mask);
+நிலையான மாறிலி எழுத்து* statx_attribute_to_name(uint64_t attr);
 
-#include "statx-attribute-to-name.inc"
-#include "statx-mask-to-name.inc"
+#அந்தர்பாவ "statx-attribute-to-name.inc"
+#அந்தர்பாவ "statx-mask-to-name.inc"
 
 #define DEFINE_STATX_BITS_TO_STRING(prefix, type, func, format_str)             \
-        static char* prefix##_to_string(type v) {                               \
-                if (v == 0)                                                     \
-                        return strdup("");                                      \
+        நிலையான எழுத்து* prefix##_to_string(type v) {                               \
+                எனில் (v == 0)                                                     \
+                        திரும்பு strdup("");                                      \
                                                                                 \
-                _cleanup_free_ char *s = NULL;                                  \
+                _cleanup_free_ எழுத்து *s = வெற்று;                                  \
                                                                                 \
                 BIT_FOREACH(i, v) {                                             \
                         type f = 1 << i;                                        \
                                                                                 \
-                        const char *n = func(f);                                \
-                        if (!n)                                                 \
-                                continue;                                       \
+                        மாறிலி எழுத்து *n = func(f);                                \
+                        எனில் (!n)                                                 \
+                                தொடர்;                                       \
                                                                                 \
-                        if (!strextend_with_separator(&s, "|", n))              \
-                                return NULL;                                    \
+                        எனில் (!strextend_with_separator(&s, "|", n))              \
+                                திரும்பு வெற்று;                                    \
                         v &= ~f;                                                \
                 }                                                               \
                                                                                 \
-                if (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
-                        return NULL;                                            \
+                எனில் (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
+                        திரும்பு வெற்று;                                            \
                                                                                 \
-                return TAKE_PTR(s);                                             \
+                திரும்பு TAKE_PTR(s);                                             \
         }
 
 DEFINE_STATX_BITS_TO_STRING(statx_mask,       unsigned, statx_mask_one_to_name,  "0x%x");
 DEFINE_STATX_BITS_TO_STRING(statx_attributes, uint64_t, statx_attribute_to_name, "0x%" PRIx64);
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+முழு xstatx_full(முழு fd,
+                மாறிலி எழுத்து *path,
+                முழு statx_flags,
                 XStatXFlags xstatx_flags,
                 unsigned mandatory_mask,
                 unsigned optional_mask,
                 uint64_t mandatory_attributes,
-                struct statx *ret) {
+                கட்டமைப்பு statx *ret) {
 
-        struct statx sx = {}; /* explicitly initialize the struct to make msan silent. */
-        int r;
+        கட்டமைப்பு statx sx = {}; /* explicitly initialize the struct to make msan silent. */
+        முழு r;
 
         /* Wrapper around statx(), with additional bells and whistles:
          *
@@ -436,159 +436,159 @@ int xstatx_full(int fd,
          *    STATX_MNT_ID if not.
          */
 
-        assert(wildcard_fd_is_valid(fd));
-        assert((mandatory_mask & optional_mask) == 0);
-        assert(!FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) || !((mandatory_mask|optional_mask) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
-        assert(ret);
+        ப்ரதிஜ்ஞா(wildcard_fd_is_valid(fd));
+        ப்ரதிஜ்ஞா((mandatory_mask & optional_mask) == 0);
+        ப்ரதிஜ்ஞா(!FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) || !((mandatory_mask|optional_mask) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
+        ப்ரதிஜ்ஞா(ret);
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ எழுத்து *p = வெற்று;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         unsigned request_mask = mandatory_mask|optional_mask;
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
+        எனில் (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
                 request_mask |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
 
-        if (statx(fd,
+        எனில் (statx(fd,
                   strempty(path),
                   statx_flags|(isempty(path) ? AT_EMPTY_PATH : 0),
                   request_mask,
                   &sx) < 0)
-                return negative_errno();
+                திரும்பு negative_errno();
 
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
+        எனில் (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
             !(sx.stx_mask & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
-                return log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
+                திரும்பு log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
 
-        if (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
+        எனில் (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
+                எனில் (DEBUG_LOGGING) {
+                        _cleanup_free_ எழுத்து *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
                         log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(mask_str));
                 }
 
-                return -EUNATCH;
+                திரும்பு -EUNATCH;
         }
 
-        if (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
+        எனில் (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
+                எனில் (DEBUG_LOGGING) {
+                        _cleanup_free_ எழுத்து *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
                         log_debug("statx() does not support '%s' attribute (running on an old kernel?)", strnull(attr_str));
                 }
 
-                return -EUNATCH;
+                திரும்பு -EUNATCH;
         }
 
         *ret = sx;
-        return FLAGS_SET(sx.stx_mask, optional_mask);
+        திரும்பு FLAGS_SET(sx.stx_mask, optional_mask);
 }
 
-static int xfstatfs(int fd, struct statfs *ret) {
-        assert(ret);
+நிலையான முழு xfstatfs(முழு fd, கட்டமைப்பு statfs *ret) {
+        ப்ரதிஜ்ஞா(ret);
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(statfs(".", ret));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(statfs("/", ret));
+        எனில் (fd == AT_FDCWD)
+                திரும்பு RET_NERRNO(statfs(".", ret));
+        எனில் (fd == XAT_FDROOT)
+                திரும்பு RET_NERRNO(statfs("/", ret));
 
-        assert(fd >= 0);
-        return RET_NERRNO(fstatfs(fd, ret));
+        ப்ரதிஜ்ஞா(fd >= 0);
+        திரும்பு RET_NERRNO(fstatfs(fd, ret));
 }
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret) {
-        _cleanup_close_ int fd = -EBADF;
+முழு xstatfsat(முழு dir_fd, மாறிலி எழுத்து *path, கட்டமைப்பு statfs *ret) {
+        _cleanup_close_ முழு fd = -EBADF;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        ப்ரதிஜ்ஞா(wildcard_fd_is_valid(dir_fd));
+        ப்ரதிஜ்ஞா(ret);
 
-        if (!isempty(path)) {
+        எனில் (!isempty(path)) {
                 fd = xopenat(dir_fd, path, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                எனில் (fd < 0)
+                        திரும்பு fd;
                 dir_fd = fd;
         }
 
-        return xfstatfs(dir_fd, ret);
+        திரும்பு xfstatfs(dir_fd, ret);
 }
 
-int fd_is_read_only_fs(int fd) {
-        int r;
+முழு fd_is_read_only_fs(முழு fd) {
+        முழு r;
 
-        struct statfs st;
+        கட்டமைப்பு statfs st;
         r = xfstatfs(fd, &st);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (st.f_flags & ST_RDONLY)
-                return true;
+        எனில் (st.f_flags & ST_RDONLY)
+                திரும்பு true;
 
-        if (is_network_fs(&st))
+        எனில் (is_network_fs(&st))
                 /* On NFS, fstatfs() might not reflect whether we can actually write to the remote share.
                  * Let's try again with access(W_OK) which is more reliable, at least sometimes. */
-                return access_fd(fd, W_OK) == -EROFS;
+                திரும்பு access_fd(fd, W_OK) == -EROFS;
 
-        return false;
+        திரும்பு false;
 }
 
-int path_is_read_only_fs(const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+முழு path_is_read_only_fs(மாறிலி எழுத்து *path) {
+        _cleanup_close_ முழு fd = -EBADF;
 
-        assert(path);
+        ப்ரதிஜ்ஞா(path);
 
         fd = open(path, O_CLOEXEC | O_PATH);
-        if (fd < 0)
-                return -errno;
+        எனில் (fd < 0)
+                திரும்பு -errno;
 
-        return fd_is_read_only_fs(fd);
+        திரும்பு fd_is_read_only_fs(fd);
 }
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags) {
-        struct stat sta, stb;
-        int r;
+முழு inode_same_at(முழு fda, மாறிலி எழுத்து *filea, முழு fdb, மாறிலி எழுத்து *fileb, முழு flags) {
+        கட்டமைப்பு stat sta, stb;
+        முழு r;
 
-        assert(fda >= 0 || fda == AT_FDCWD);
-        assert(fdb >= 0 || fdb == AT_FDCWD);
-        assert((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
+        ப்ரதிஜ்ஞா(fda >= 0 || fda == AT_FDCWD);
+        ப்ரதிஜ்ஞா(fdb >= 0 || fdb == AT_FDCWD);
+        ப்ரதிஜ்ஞா((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
 
         /* Refuse an unset filea or fileb early unless AT_EMPTY_PATH is set */
-        if ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
-                return -EINVAL;
+        எனில் ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
+                திரும்பு -EINVAL;
 
         /* Shortcut: comparing the same fd with itself means we can return true */
-        if (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
-                return true;
+        எனில் (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
+                திரும்பு true;
 
-        _cleanup_close_ int pin_a = -EBADF, pin_b = -EBADF;
-        if (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
+        _cleanup_close_ முழு pin_a = -EBADF, pin_b = -EBADF;
+        எனில் (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
                 /* Let's try to use the name_to_handle_at() AT_HANDLE_FID API to identify identical
                  * inodes. We have to issue multiple calls on the same file for that (first, to acquire the
                  * FID, and then to check if .st_dev is actually the same). Hence let's pin the inode in
                  * between via O_PATH, unless we already have an fd for it. */
 
-                if (!isempty(filea)) {
+                எனில் (!isempty(filea)) {
                         pin_a = openat(fda, filea, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_a < 0)
-                                return -errno;
+                        எனில் (pin_a < 0)
+                                திரும்பு -errno;
 
                         fda = pin_a;
-                        filea = NULL;
+                        filea = வெற்று;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                if (!isempty(fileb)) {
+                எனில் (!isempty(fileb)) {
                         pin_b = openat(fdb, fileb, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_b < 0)
-                                return -errno;
+                        எனில் (pin_b < 0)
+                                திரும்பு -errno;
 
                         fdb = pin_b;
-                        fileb = NULL;
+                        fileb = வெற்று;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                int ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
-                _cleanup_free_ struct file_handle *ha = NULL, *hb = NULL;
+                முழு ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
+                _cleanup_free_ கட்டமைப்பு file_handle *ha = வெற்று, *hb = வெற்று;
                 uint64_t mntida, mntidb;
-                int _mntida, _mntidb;
+                முழு _mntida, _mntidb;
 
                 r = name_to_handle_at_try_fid(
                                 fda,
@@ -597,43 +597,43 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
                                 &_mntida,
                                 &mntida,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                எனில் (r < 0) {
+                        எனில் (is_name_to_handle_at_fatal_error(r))
+                                திரும்பு r;
 
-                        goto fallback;
+                        செல் fallback;
                 }
                 bool have_unique_mntid = r > 0;
 
-                if (!have_unique_mntid)
+                எனில் (!have_unique_mntid)
                         mntida = _mntida;
 
                 r = name_to_handle_at_try_fid(
                                 fdb,
                                 fileb,
                                 &hb,
-                                have_unique_mntid ? NULL : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
-                                have_unique_mntid ? &mntidb : NULL,
+                                have_unique_mntid ? வெற்று : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
+                                have_unique_mntid ? &mntidb : வெற்று,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                எனில் (r < 0) {
+                        எனில் (is_name_to_handle_at_fatal_error(r))
+                                திரும்பு r;
 
-                        goto fallback;
+                        செல் fallback;
                 }
-                if (r == 0) {
-                        assert(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
+                எனில் (r == 0) {
+                        ப்ரதிஜ்ஞா(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
                         mntidb = _mntidb;
                 }
 
                 /* Now compare the two file handles */
-                if (!file_handle_equal(ha, hb))
-                        return false;
+                எனில் (!file_handle_equal(ha, hb))
+                        திரும்பு false;
 
                 /* If the file handles are the same and they come from the same mount ID? Great, then we are
                  * good, they are definitely the same */
-                if (mntida == mntidb)
-                        return true;
+                எனில் (mntida == mntidb)
+                        திரும்பு true;
 
                 /* File handles are the same, they are not on the same mount id. This might either be because
                  * they are on two entirely different file systems, that just happen to have the same FIDs
@@ -644,107 +644,107 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
         }
 
 fallback:
-        if (fstatat(fda, strempty(filea), &sta, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
+        எனில் (fstatat(fda, strempty(filea), &sta, flags) < 0)
+                திரும்பு log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
 
-        if (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
+        எனில் (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
+                திரும்பு log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
 
-        return stat_inode_same(&sta, &stb);
+        திரும்பு stat_inode_same(&sta, &stb);
 }
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
-        assert(s);
-        assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
+bool is_fs_type(மாறிலி கட்டமைப்பு statfs *s, statfs_f_type_t magic_மதிப்பு) {
+        ப்ரதிஜ்ஞா(s);
+        assert_cc(அளவு(statfs_f_type_t) >= அளவு(s->f_type));
 
-        return F_TYPE_EQUAL(s->f_type, magic_value);
+        திரும்பு F_TYPE_EQUAL(s->f_type, magic_மதிப்பு);
 }
 
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
-        int r;
+முழு is_fs_type_at(முழு dir_fd, மாறிலி எழுத்து *path, statfs_f_type_t magic_மதிப்பு) {
+        முழு r;
 
-        struct statfs s;
+        கட்டமைப்பு statfs s;
         r = xstatfsat(dir_fd, path, &s);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return is_fs_type(&s, magic_value);
+        திரும்பு is_fs_type(&s, magic_மதிப்பு);
 }
 
-bool is_temporary_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
+bool is_temporary_fs(மாறிலி கட்டமைப்பு statfs *s) {
+        திரும்பு fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
 }
 
-bool is_network_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_NETWORK);
+bool is_network_fs(மாறிலி கட்டமைப்பு statfs *s) {
+        திரும்பு fs_in_group(s, FILESYSTEM_SET_NETWORK);
 }
 
-int fd_is_temporary_fs(int fd) {
-        int r;
+முழு fd_is_temporary_fs(முழு fd) {
+        முழு r;
 
-        struct statfs s;
+        கட்டமைப்பு statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return is_temporary_fs(&s);
+        திரும்பு is_temporary_fs(&s);
 }
 
-int fd_is_network_fs(int fd) {
-        int r;
+முழு fd_is_network_fs(முழு fd) {
+        முழு r;
 
-        struct statfs s;
+        கட்டமைப்பு statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return is_network_fs(&s);
+        திரும்பு is_network_fs(&s);
 }
 
-int path_is_temporary_fs(const char *path) {
-        struct statfs s;
+முழு path_is_temporary_fs(மாறிலி எழுத்து *path) {
+        கட்டமைப்பு statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        எனில் (statfs(path, &s) < 0)
+                திரும்பு -errno;
 
-        return is_temporary_fs(&s);
+        திரும்பு is_temporary_fs(&s);
 }
 
-int path_is_network_fs(const char *path) {
-        struct statfs s;
+முழு path_is_network_fs(மாறிலி எழுத்து *path) {
+        கட்டமைப்பு statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        எனில் (statfs(path, &s) < 0)
+                திரும்பு -errno;
 
-        return is_network_fs(&s);
+        திரும்பு is_network_fs(&s);
 }
 
-int proc_mounted(void) {
+முழு proc_mounted(வெறுமை) {
         /* This is typically used in error path. So, it is better to not overwrite the original errno. */
         PROTECT_ERRNO;
-        int r;
+        முழு r;
 
         /* A quick check of procfs is properly mounted */
 
         r = path_is_fs_type("/proc/", PROC_SUPER_MAGIC);
-        if (r == -ENOENT) /* not mounted at all */
-                return false;
+        எனில் (r == -ENOENT) /* not mounted at all */
+                திரும்பு false;
 
-        return r;
+        திரும்பு r;
 }
 
-bool stat_inode_same(const struct stat *a, const struct stat *b) {
+bool stat_inode_same(மாறிலி கட்டமைப்பு stat *a, மாறிலி கட்டமைப்பு stat *b) {
 
         /* Returns if the specified stat structure references the same (though possibly modified) inode. Does
          * a thorough check, comparing inode nr, backing device and if the inode is still of the same type. */
 
-        return stat_is_set(a) && stat_is_set(b) &&
+        திரும்பு stat_is_set(a) && stat_is_set(b) &&
                 ((a->st_mode ^ b->st_mode) & S_IFMT) == 0 &&  /* same inode type */
                 a->st_dev == b->st_dev &&
                 a->st_ino == b->st_ino;
 }
 
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
+bool stat_inode_unmodified(மாறிலி கட்டமைப்பு stat *a, மாறிலி கட்டமைப்பு stat *b) {
 
         /* Returns if the specified stat structures reference the same, unmodified inode. This check tries to
          * be reasonably careful when detecting changes: we check both inode and mtime, to cater for file
@@ -755,55 +755,55 @@ bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
          * about contents of the file. The purpose here is to detect file contents changes, and nothing
          * else. */
 
-        assert(a);
-        assert(b);
+        ப்ரதிஜ்ஞா(a);
+        ப்ரதிஜ்ஞா(b);
 
-        return stat_inode_same(a, b) &&
+        திரும்பு stat_inode_same(a, b) &&
                 a->st_mtim.tv_sec == b->st_mtim.tv_sec &&
                 a->st_mtim.tv_nsec == b->st_mtim.tv_nsec &&
                 (!S_ISREG(a->st_mode) || a->st_size == b->st_size) && /* if regular file, compare file size */
                 (!(S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) || a->st_rdev == b->st_rdev); /* if device node, also compare major/minor, because we can */
 }
 
-bool statx_inode_same(const struct statx *a, const struct statx *b) {
+bool statx_inode_same(மாறிலி கட்டமைப்பு statx *a, மாறிலி கட்டமைப்பு statx *b) {
 
         /* Same as stat_inode_same() but for struct statx */
 
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+        எனில் (!statx_is_set(a) || !statx_is_set(b))
+                திரும்பு false;
 
-        assert(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
-        assert(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
+        ப்ரதிஜ்ஞா(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
+        ப்ரதிஜ்ஞா(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
 
-        return
+        திரும்பு
                 ((a->stx_mode ^ b->stx_mode) & S_IFMT) == 0 &&
                 a->stx_dev_major == b->stx_dev_major &&
                 a->stx_dev_minor == b->stx_dev_minor &&
                 a->stx_ino == b->stx_ino;
 }
 
-int statx_mount_same(const struct statx *a, const struct statx *b) {
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+முழு statx_mount_same(மாறிலி கட்டமைப்பு statx *a, மாறிலி கட்டமைப்பு statx *b) {
+        எனில் (!statx_is_set(a) || !statx_is_set(b))
+                திரும்பு false;
 
-        if ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
+        எனில் ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
             (FLAGS_SET(a->stx_mask, STATX_MNT_ID_UNIQUE) && FLAGS_SET(b->stx_mask, STATX_MNT_ID_UNIQUE)))
-                return a->stx_mnt_id == b->stx_mnt_id;
+                திரும்பு a->stx_mnt_id == b->stx_mnt_id;
 
-        return -ENODATA;
+        திரும்பு -ENODATA;
 }
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+usec_t statx_timestamp_load(மாறிலி கட்டமைப்பு statx_timestamp *ts) {
+        ப்ரதிஜ்ஞா(ts);
+        திரும்பு timespec_load(&(மாறிலி கட்டமைப்பு timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load_nsec(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+nsec_t statx_timestamp_load_nsec(மாறிலி கட்டமைப்பு statx_timestamp *ts) {
+        ப்ரதிஜ்ஞா(ts);
+        திரும்பு timespec_load_nsec(&(மாறிலி கட்டமைப்பு timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
 
-void inode_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+வெறுமை inode_hash_func(மாறிலி கட்டமைப்பு stat *q, கட்டமைப்பு siphash *state) {
+        ப்ரதிஜ்ஞா(q);
 
         siphash24_compress_typesafe(q->st_dev, state);
         siphash24_compress_typesafe(q->st_ino, state);
@@ -813,145 +813,145 @@ void inode_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(type, state);
 }
 
-int inode_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+முழு inode_compare_func(மாறிலி கட்டமைப்பு stat *a, மாறிலி கட்டமைப்பு stat *b) {
+        முழு r;
 
-        assert(a);
-        assert(b);
+        ப்ரதிஜ்ஞா(a);
+        ப்ரதிஜ்ஞா(b);
 
         r = CMP(a->st_dev, b->st_dev);
-        if (r != 0)
-                return r;
+        எனில் (r != 0)
+                திரும்பு r;
 
         r = CMP(a->st_ino, b->st_ino);
-        if (r != 0)
-                return r;
+        எனில் (r != 0)
+                திரும்பு r;
 
-        return CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
+        திரும்பு CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
+DEFINE_HASH_OPS_WITH_சாவி_DESTRUCTOR(inode_hash_ops, கட்டமைப்பு stat, inode_hash_func, inode_compare_func, விடுவி);
 
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+வெறுமை inode_unmodified_hash_func(மாறிலி கட்டமைப்பு stat *q, கட்டமைப்பு siphash *state) {
+        ப்ரதிஜ்ஞா(q);
 
         inode_hash_func(q, state);
 
         siphash24_compress_typesafe(q->st_mtim.tv_sec, state);
         siphash24_compress_typesafe(q->st_mtim.tv_nsec, state);
 
-        if (S_ISREG(q->st_mode))
+        எனில் (S_ISREG(q->st_mode))
                 siphash24_compress_typesafe(q->st_size, state);
-        else {
+        இல்லையெனில் {
                 uint64_t invalid = UINT64_MAX;
                 siphash24_compress_typesafe(invalid, state);
         }
 
-        if (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
+        எனில் (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
                 siphash24_compress_typesafe(q->st_rdev, state);
-        else {
+        இல்லையெனில் {
                 dev_t invalid = (dev_t) -1;
                 siphash24_compress_typesafe(invalid, state);
         }
 }
 
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+முழு inode_unmodified_compare_func(மாறிலி கட்டமைப்பு stat *a, மாறிலி கட்டமைப்பு stat *b) {
+        முழு r;
 
-        assert(a);
-        assert(b);
+        ப்ரதிஜ்ஞா(a);
+        ப்ரதிஜ்ஞா(b);
 
         r = inode_compare_func(a, b);
-        if (r != 0)
-                return r;
+        எனில் (r != 0)
+                திரும்பு r;
 
         r = CMP(a->st_mtim.tv_sec, b->st_mtim.tv_sec);
-        if (r != 0)
-                return r;
+        எனில் (r != 0)
+                திரும்பு r;
 
         r = CMP(a->st_mtim.tv_nsec, b->st_mtim.tv_nsec);
-        if (r != 0)
-                return r;
+        எனில் (r != 0)
+                திரும்பு r;
 
-        if (S_ISREG(a->st_mode)) {
+        எனில் (S_ISREG(a->st_mode)) {
                 r = CMP(a->st_size, b->st_size);
-                if (r != 0)
-                        return r;
+                எனில் (r != 0)
+                        திரும்பு r;
         }
 
-        if (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
+        எனில் (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
                 r = CMP(a->st_rdev, b->st_rdev);
-                if (r != 0)
-                        return r;
+                எனில் (r != 0)
+                        திரும்பு r;
         }
 
-        return 0;
+        திரும்பு 0;
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
+DEFINE_HASH_OPS_WITH_சாவி_DESTRUCTOR(inode_unmodified_hash_ops, கட்டமைப்பு stat, inode_unmodified_hash_func, inode_unmodified_compare_func, விடுவி);
 
-const char* inode_type_to_string(mode_t m) {
+மாறிலி எழுத்து* inode_type_to_string(mode_t m) {
 
         /* Returns a short string for the inode type. We use the same name as the underlying macros for each
          * inode type. */
 
-        switch (m & S_IFMT) {
-        case S_IFREG:
-                return "reg";
-        case S_IFDIR:
-                return "dir";
-        case S_IFLNK:
-                return "lnk";
-        case S_IFCHR:
-                return "chr";
-        case S_IFBLK:
-                return "blk";
-        case S_IFIFO:
-                return "fifo";
-        case S_IFSOCK:
-                return "sock";
+        தேர்வு (m & S_IFMT) {
+        நிலை S_IFREG:
+                திரும்பு "reg";
+        நிலை S_IFDIR:
+                திரும்பு "dir";
+        நிலை S_IFLNK:
+                திரும்பு "lnk";
+        நிலை S_IFCHR:
+                திரும்பு "chr";
+        நிலை S_IFBLK:
+                திரும்பு "blk";
+        நிலை S_IFIFO:
+                திரும்பு "fifo";
+        நிலை S_IFSOCK:
+                திரும்பு "sock";
         }
 
         /* Note anonymous inodes in the kernel will have a zero type. Hence fstat() of an eventfd() will
          * return an .st_mode where we'll return NULL here! */
-        return NULL;
+        திரும்பு வெற்று;
 }
 
-mode_t inode_type_from_string(const char *s) {
-        if (!s)
-                return MODE_INVALID;
+mode_t inode_type_from_string(மாறிலி எழுத்து *s) {
+        எனில் (!s)
+                திரும்பு MODE_INVALID;
 
-        if (streq(s, "reg"))
-                return S_IFREG;
-        if (streq(s, "dir"))
-                return S_IFDIR;
-        if (streq(s, "lnk"))
-                return S_IFLNK;
-        if (streq(s, "chr"))
-                return S_IFCHR;
-        if (streq(s, "blk"))
-                return S_IFBLK;
-        if (streq(s, "fifo"))
-                return S_IFIFO;
-        if (streq(s, "sock"))
-                return S_IFSOCK;
+        எனில் (streq(s, "reg"))
+                திரும்பு S_IFREG;
+        எனில் (streq(s, "dir"))
+                திரும்பு S_IFDIR;
+        எனில் (streq(s, "lnk"))
+                திரும்பு S_IFLNK;
+        எனில் (streq(s, "chr"))
+                திரும்பு S_IFCHR;
+        எனில் (streq(s, "blk"))
+                திரும்பு S_IFBLK;
+        எனில் (streq(s, "fifo"))
+                திரும்பு S_IFIFO;
+        எனில் (streq(s, "sock"))
+                திரும்பு S_IFSOCK;
 
-        return MODE_INVALID;
+        திரும்பு MODE_INVALID;
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret) {
-        assert(fd >= 0);
-        assert(ret);
+முழு vfs_free_bytes(முழு fd, uint64_t *ret) {
+        ப்ரதிஜ்ஞா(fd >= 0);
+        ப்ரதிஜ்ஞா(ret);
 
         /* Safely returns the current available disk space (for root, i.e. including any space reserved for
          * root) of the disk referenced by the fd, converted to bytes. */
 
-        struct statvfs sv;
-        if (fstatvfs(fd, &sv) < 0)
-                return -errno;
+        கட்டமைப்பு statvfs sv;
+        எனில் (fstatvfs(fd, &sv) < 0)
+                திரும்பு -errno;
 
-        if (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
-                return -ERANGE;
+        எனில் (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
+                திரும்பு -ERANGE;
 
-        return 0;
+        திரும்பு 0;
 }

@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#அந்தர்பாவ <unistd.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "sha256.h"
-#include "string-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "hexdecoct.h"
+#அந்தர்பாவ "sha256.h"
+#அந்தர்பாவ "string-util.h"
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        struct sha256_ctx ctx;
+முழு sha256_fd(முழு fd, uint64_t max_size, uint8_t ret[நிலையான SHA256_DIGEST_SIZE]) {
+        கட்டமைப்பு sha256_ctx ctx;
         uint64_t total_size = 0;
 
-        assert(fd >= 0);
+        ப்ரதிஜ்ஞா(fd >= 0);
 
         sha256_init_ctx(&ctx);
 
-        for (;;) {
+        க்கு (;;) {
                 uint8_t buffer[64 * 1024];
                 ssize_t n;
 
-                n = read(fd, buffer, sizeof(buffer));
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = பட(fd, buffer, அளவு(buffer));
+                எனில் (n < 0)
+                        திரும்பு -errno;
+                எனில் (n == 0)
+                        நிறுத்து;
 
-                if (!INC_SAFE(&total_size, n) || total_size > max_size)
-                        return -EFBIG;
+                எனில் (!INC_SAFE(&total_size, n) || total_size > max_size)
+                        திரும்பு -EFBIG;
 
                 sha256_process_bytes(buffer, n, &ctx);
         }
 
         sha256_finish_ctx(&ctx, ret);
-        return 0;
+        திரும்பு 0;
 }
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        _cleanup_free_ uint8_t *data = NULL;
+முழு parse_sha256(மாறிலி எழுத்து *s, uint8_t ret[நிலையான SHA256_DIGEST_SIZE]) {
+        _cleanup_free_ uint8_t *data = வெற்று;
         size_t size = 0;
-        int r;
+        முழு r;
 
-        if (!sha256_is_valid(s))
-                return -EINVAL;
+        எனில் (!sha256_is_valid(s))
+                திரும்பு -EINVAL;
 
-        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (void**) &data, &size);
-        if (r < 0)
-                return r;
-        assert(size == SHA256_DIGEST_SIZE);
+        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (வெறுமை**) &data, &size);
+        எனில் (r < 0)
+                திரும்பு r;
+        ப்ரதிஜ்ஞா(size == SHA256_DIGEST_SIZE);
 
         memcpy(ret, data, size);
-        return 0;
+        திரும்பு 0;
 }
 
-bool sha256_is_valid(const char *s) {
-        return s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
+bool sha256_is_valid(மாறிலி எழுத்து *s) {
+        திரும்பு s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
 }
 
-char* sha256_direct_hex(const void *buffer, size_t sz) {
-        assert(buffer || sz == 0);
+எழுத்து* sha256_direct_hex(மாறிலி வெறுமை *buffer, size_t sz) {
+        ப்ரதிஜ்ஞா(buffer || sz == 0);
 
-        if (sz == SIZE_MAX)
+        எனில் (sz == SIZE_MAX)
                 sz = strlen(buffer);
 
-        return hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
+        திரும்பு hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
 }

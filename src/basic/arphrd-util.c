@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#அந்தர்பாவ <linux/if_arp.h>
+#அந்தர்பாவ <linux/if_infiniband.h>
+#அந்தர்பாவ <netinet/in.h>
+#அந்தர்பாவ <string.h>
 
-#include "arphrd-util.h"
+#அந்தர்பாவ "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+நிலையான மாறிலி கட்டமைப்பு arphrd_name* lookup_arphrd(பதிவு மாறிலி எழுத்து *str, பதிவு GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#அந்தர்பாவ "arphrd-from-name.inc"
+#அந்தர்பாவ "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+முழு arphrd_from_name(மாறிலி எழுத்து *name) {
+        மாறிலி கட்டமைப்பு arphrd_name *sc;
 
-        assert(name);
+        ப்ரதிஜ்ஞா(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        எனில் (!sc)
+                திரும்பு -EINVAL;
 
-        return sc->id;
+        திரும்பு sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+        தேர்வு (arphrd) {
+        நிலை ARPHRD_ETHER:
+                திரும்பு ETH_ALEN;
+        நிலை ARPHRD_INFINIBAND:
+                திரும்பு INFINIBAND_ALEN;
+        நிலை ARPHRD_TUNNEL:
+        நிலை ARPHRD_SIT:
+        நிலை ARPHRD_IPGRE:
+                திரும்பு அளவு(கட்டமைப்பு in_addr);
+        நிலை ARPHRD_TUNNEL6:
+        நிலை ARPHRD_IP6GRE:
+                திரும்பு அளவு(கட்டமைப்பு in6_addr);
+        இயல்பு:
+                திரும்பு 0;
         }
 }

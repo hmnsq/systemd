@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-#include "sd-id128.h"
+#அந்தர்பாவ "sd-id128.h"
 
-#include "../fundamental/efivars.h"        /* IWYU pragma: export */
+#அந்தர்பாவ "../fundamental/efivars.h"        /* IWYU pragma: export */
 
 #define EFI_VENDOR_LOADER       SD_ID128_MAKE(4a,67,b0,82,0a,4c,41,cf,b6,c7,44,0b,29,bb,8c,4f)
 #define EFI_VENDOR_LOADER_STR   SD_ID128_MAKE_UUID_STR(4a,67,b0,82,0a,4c,41,cf,b6,c7,44,0b,29,bb,8c,4f)
@@ -37,56 +37,56 @@
 #define EFIVAR_PATH(variable) "/sys/firmware/efi/efivars/" variable
 #define EFIVAR_CACHE_PATH(variable) "/run/systemd/efivars/" variable
 
-#if ENABLE_EFI
+#எனில் ENABLE_EFI
 
-int efi_get_variable(const char *variable, uint32_t *attribute, void **ret_value, size_t *ret_size);
-int efi_get_variable_string(const char *variable, char **ret);
-int efi_get_variable_path(const char *variable, char **ret);
-int efi_set_variable(const char *variable, const void *value, size_t size) _nonnull_if_nonzero_(2, 3);
-int efi_set_variable_string(const char *variable, const char *value);
+முழு efi_get_variable(மாறிலி எழுத்து *variable, uint32_t *attribute, வெறுமை **ret_மதிப்பு, size_t *ret_size);
+முழு efi_get_variable_string(மாறிலி எழுத்து *variable, எழுத்து **ret);
+முழு efi_get_variable_path(மாறிலி எழுத்து *variable, எழுத்து **ret);
+முழு efi_set_variable(மாறிலி எழுத்து *variable, மாறிலி வெறுமை *மதிப்பு, size_t size) _nonnull_if_nonzero_(2, 3);
+முழு efi_set_variable_string(மாறிலி எழுத்து *variable, மாறிலி எழுத்து *மதிப்பு);
 
 bool set_efi_boot(bool b);
-bool is_efi_boot(void);
-bool is_efi_secure_boot(void);
-SecureBootMode efi_get_secure_boot_mode(void);
+bool is_efi_boot(வெறுமை);
+bool is_efi_secure_boot(வெறுமை);
+SecureBootMode efi_get_secure_boot_mode(வெறுமை);
 
-#else
+#இல்லையெனில்
 
-static inline int efi_get_variable(const char *variable, uint32_t *attribute, void **value, size_t *size) {
-        return -EOPNOTSUPP;
+நிலையான உள்வரி முழு efi_get_variable(மாறிலி எழுத்து *variable, uint32_t *attribute, வெறுமை **மதிப்பு, size_t *size) {
+        திரும்பு -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_string(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+நிலையான உள்வரி முழு efi_get_variable_string(மாறிலி எழுத்து *variable, எழுத்து **ret) {
+        திரும்பு -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_path(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+நிலையான உள்வரி முழு efi_get_variable_path(மாறிலி எழுத்து *variable, எழுத்து **ret) {
+        திரும்பு -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable(const char *variable, const void *value, size_t size) {
-        return -EOPNOTSUPP;
+நிலையான உள்வரி முழு efi_set_variable(மாறிலி எழுத்து *variable, மாறிலி வெறுமை *மதிப்பு, size_t size) {
+        திரும்பு -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable_string(const char *variable, const char *p) {
-        return -EOPNOTSUPP;
+நிலையான உள்வரி முழு efi_set_variable_string(மாறிலி எழுத்து *variable, மாறிலி எழுத்து *p) {
+        திரும்பு -EOPNOTSUPP;
 }
 
-static inline bool set_efi_boot(bool b) {
-        return false;
+நிலையான உள்வரி bool set_efi_boot(bool b) {
+        திரும்பு false;
 }
 
-static inline bool is_efi_boot(void) {
-        return false;
+நிலையான உள்வரி bool is_efi_boot(வெறுமை) {
+        திரும்பு false;
 }
 
-static inline bool is_efi_secure_boot(void) {
-        return false;
+நிலையான உள்வரி bool is_efi_secure_boot(வெறுமை) {
+        திரும்பு false;
 }
 
-static inline SecureBootMode efi_get_secure_boot_mode(void) {
-        return SECURE_BOOT_UNKNOWN;
+நிலையான உள்வரி SecureBootMode efi_get_secure_boot_mode(வெறுமை) {
+        திரும்பு SECURE_BOOT_UNKNOWN;
 }
 #endif
 
-char *efi_tilt_backslashes(char *s);
+எழுத்து *efi_tilt_backslashes(எழுத்து *s);

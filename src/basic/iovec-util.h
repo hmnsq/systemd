@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#அந்தர்பாவ <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#அந்தர்பாவ "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+வெளி மாறிலி கட்டமைப்பு iovec iovec_nul_byte; /* Points to a single NUL byte */
+வெளி மாறிலி கட்டமைப்பு iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+முழு iovec_alloc(size_t n, கட்டமைப்பு iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_total_size(மாறிலி கட்டமைப்பு iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(கட்டமைப்பு iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+கட்டமைப்பு iovec* iovec_make_string(கட்டமைப்பு iovec *iovec, மாறிலி எழுத்து *s);
 
 #define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+        *iovec_make_string(&(கட்டமைப்பு iovec) {}, s)
 
 #define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+        (மாறிலி கட்டமைப்பு iovec) {                  \
+                .iov_base = (எழுத்து*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
 #define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+        (மாறிலி கட்டமைப்பு iovec) {                                  \
+                .iov_base = (எழுத்து*) ((மாறிலி எழுத்து[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
@@ -39,22 +39,22 @@ struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
                 IOVEC_MAKE(alloca_safe(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+வெறுமை iovec_erase(கட்டமைப்பு iovec *iovec);
+வெறுமை iovec_done_erase(கட்டமைப்பு iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+எழுத்து* set_iovec_string_field(கட்டமைப்பு iovec *iovec, size_t *n_iovec, மாறிலி எழுத்து *field, மாறிலி எழுத்து *மதிப்பு);
+எழுத்து* set_iovec_string_field_free(கட்டமைப்பு iovec *iovec, size_t *n_iovec, மாறிலி எழுத்து *field, எழுத்து *மதிப்பு);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+வெறுமை iovec_array_free(கட்டமைப்பு iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+முழு iovec_memcmp(மாறிலி கட்டமைப்பு iovec *a, மாறிலி கட்டமைப்பு iovec *b) _pure_;
+நிலையான உள்வரி bool iovec_equal(மாறிலி கட்டமைப்பு iovec *a, மாறிலி கட்டமைப்பு iovec *b) {
+        திரும்பு iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+கட்டமைப்பு iovec* iovec_memdup(மாறிலி கட்டமைப்பு iovec *source, கட்டமைப்பு iovec *ret);
+முழு iovec_done_and_memdup(கட்டமைப்பு iovec *iovec, மாறிலி கட்டமைப்பு iovec *source);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+கட்டமைப்பு iovec* iovec_append(கட்டமைப்பு iovec *iovec, மாறிலி கட்டமைப்பு iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+கட்டமைப்பு iovec* iovec_consume(கட்டமைப்பு iovec *iovec, size_t n);

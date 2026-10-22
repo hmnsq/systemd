@@ -1,55 +1,55 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#அந்தர்பாவ <unistd.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "procfs-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "time-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "extract-word.h"
+#அந்தர்பாவ "fd-util.h"
+#அந்தர்பாவ "fileio.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "process-util.h"
+#அந்தர்பாவ "procfs-util.h"
+#அந்தர்பாவ "stdio-util.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "time-util.h"
 
-int procfs_get_pid_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+முழு procfs_get_pid_max(uint64_t *ret) {
+        _cleanup_free_ எழுத்து *மதிப்பு = வெற்று;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = read_one_line_file("/proc/sys/kernel/pid_max", &value);
-        if (r < 0)
-                return r;
+        r = read_one_வரி_file("/proc/sys/kernel/pid_max", &மதிப்பு);
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return safe_atou64(value, ret);
+        திரும்பு safe_atou64(மதிப்பு, ret);
 }
 
-int procfs_get_threads_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+முழு procfs_get_threads_max(uint64_t *ret) {
+        _cleanup_free_ எழுத்து *மதிப்பு = வெற்று;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = read_one_line_file("/proc/sys/kernel/threads-max", &value);
-        if (r < 0)
-                return r;
+        r = read_one_வரி_file("/proc/sys/kernel/threads-max", &மதிப்பு);
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return safe_atou64(value, ret);
+        திரும்பு safe_atou64(மதிப்பு, ret);
 }
 
-int procfs_tasks_set_limit(uint64_t limit) {
-        char buffer[DECIMAL_STR_MAX(uint64_t)+1];
+முழு procfs_tasks_set_limit(uint64_t limit) {
+        எழுத்து buffer[DECIMAL_STR_MAX(uint64_t)+1];
         uint64_t pid_max;
-        int r;
+        முழு r;
 
-        if (limit == 0) /* This makes no sense, we are userspace and hence count as tasks too, and we want to live,
+        எனில் (limit == 0) /* This makes no sense, we are userspace and hence count as tasks too, and we want to live,
                          * hence the limit conceptually has to be above 0. Also, most likely if anyone asks for a zero
                          * limit they probably mean "no limit", hence let's better refuse this to avoid
                          * confusion. */
-                return -EINVAL;
+                திரும்பு -EINVAL;
 
         /* The Linux kernel doesn't allow this value to go below 20, hence don't allow this either, higher values than
          * TASKS_MAX are not accepted by the pid_max sysctl. We'll treat anything this high as "unbounded" and hence
@@ -57,66 +57,66 @@ int procfs_tasks_set_limit(uint64_t limit) {
         limit = CLAMP(limit, 20U, TASKS_MAX);
 
         r = procfs_get_pid_max(&pid_max);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         /* As pid_max is about the numeric pid_t range we'll bump it if necessary, but only ever increase it, never
          * decrease it, as threads-max is the much more relevant sysctl. */
-        if (limit > pid_max-1) {
+        எனில் (limit > pid_max-1) {
                 xsprintf(buffer, "%" PRIu64, limit+1); /* Add one, since PID 0 is not a valid PID */
                 r = write_string_file("/proc/sys/kernel/pid_max", buffer, WRITE_STRING_FILE_DISABLE_BUFFER);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
         xsprintf(buffer, "%" PRIu64, limit);
         r = write_string_file("/proc/sys/kernel/threads-max", buffer, WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0) {
+        எனில் (r < 0) {
                 uint64_t threads_max;
 
                 /* Hmm, we couldn't write this? If so, maybe it was already set properly? In that case let's not
                  * generate an error */
 
-                if (procfs_get_threads_max(&threads_max) < 0)
-                        return r; /* return original error */
+                எனில் (procfs_get_threads_max(&threads_max) < 0)
+                        திரும்பு r; /* return original error */
 
-                if (MIN(pid_max - 1, threads_max) != limit)
-                        return r; /* return original error */
+                எனில் (MIN(pid_max - 1, threads_max) != limit)
+                        திரும்பு r; /* return original error */
 
                 /* Yay! Value set already matches what we were trying to set, hence consider this a success. */
         }
 
-        return 0;
+        திரும்பு 0;
 }
 
-int procfs_tasks_get_current(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        const char *p, *nr;
+முழு procfs_tasks_get_current(uint64_t *ret) {
+        _cleanup_free_ எழுத்து *மதிப்பு = வெற்று;
+        மாறிலி எழுத்து *p, *nr;
         size_t n;
-        int r;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = read_one_line_file("/proc/loadavg", &value);
-        if (r < 0)
-                return r;
+        r = read_one_வரி_file("/proc/loadavg", &மதிப்பு);
+        எனில் (r < 0)
+                திரும்பு r;
 
         /* Look for the second part of the fourth field, which is separated by a slash from the first part. None of the
          * earlier fields use a slash, hence let's use this to find the right spot. */
-        p = strchr(value, '/');
-        if (!p)
-                return -EINVAL;
+        p = strchr(மதிப்பு, '/');
+        எனில் (!p)
+                திரும்பு -EINVAL;
 
         p++;
         n = strspn(p, DIGITS);
         nr = strndupa_safe(p, n);
 
-        return safe_atou64(nr, ret);
+        திரும்பு safe_atou64(nr, ret);
 }
 
-static uint64_t calc_gcd64(uint64_t a, uint64_t b) {
+நிலையான uint64_t calc_gcd64(uint64_t a, uint64_t b) {
 
-        while (b > 0) {
+        போது (b > 0) {
                 uint64_t t;
 
                 t = a % b;
@@ -125,7 +125,7 @@ static uint64_t calc_gcd64(uint64_t a, uint64_t b) {
                 b = t;
         }
 
-        return a;
+        திரும்பு a;
 }
 
 nsec_t procfs_ticks_to_nsec(uint64_t ticks) {
@@ -139,36 +139,36 @@ nsec_t procfs_ticks_to_nsec(uint64_t ticks) {
         uint64_t a = NSEC_PER_SEC / gcd,
                  b = ticks_per_second / gcd;
 
-        return ticks / b * a + DIV_ROUND_UP(ticks % b * a, b);
+        திரும்பு ticks / b * a + DIV_ROUND_UP(ticks % b * a, b);
 }
 
-int procfs_cpu_get_usage(nsec_t *ret) {
-        int r;
+முழு procfs_cpu_get_usage(nsec_t *ret) {
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
         ProcfsCpuTicks ticks;
         r = procfs_cpu_get_ticks(&ticks);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         *ret = procfs_ticks_to_nsec(ticks.user + ticks.nice + ticks.system + ticks.irq + ticks.softirq);
-        return 0;
+        திரும்பு 0;
 }
 
-int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
-        _cleanup_free_ char *first_line = NULL;
-        int r;
+முழு procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
+        _cleanup_free_ எழுத்து *first_வரி = வெற்று;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = read_one_line_file("/proc/stat", &first_line);
-        if (r < 0)
-                return r;
+        r = read_one_வரி_file("/proc/stat", &first_வரி);
+        எனில் (r < 0)
+                திரும்பு r;
 
-        const char *p = first_word(first_line, "cpu");
-        if (!p)
-                return -EINVAL;
+        மாறிலி எழுத்து *p = first_word(first_வரி, "cpu");
+        எனில் (!p)
+                திரும்பு -EINVAL;
 
         /* All eight fields exist on any kernel we support: iowait was added in 2.5.41, steal in 2.6.11.
          * "guest" and "guest_nice" are not returned, the kernel already includes them in "user" and "nice".
@@ -184,91 +184,91 @@ int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
                    &t.irq,
                    &t.softirq,
                    &t.steal);
-        if (r < 5)
-                return -EINVAL;
-        if (r < 8)
+        எனில் (r < 5)
+                திரும்பு -EINVAL;
+        எனில் (r < 8)
                 log_once(LOG_INFO, "Short read (%d fields) from /proc/stat, continuing.", r);
 
         *ret = t;
-        return 0;
+        திரும்பு 0;
 }
 
-int convert_meminfo_value_to_uint64_bytes(const char *s, uint64_t *ret) {
-        _cleanup_free_ char *w = NULL;
+முழு convert_meminfo_மதிப்பு_to_uint64_bytes(மாறிலி எழுத்து *s, uint64_t *ret) {
+        _cleanup_free_ எழுத்து *w = வெற்று;
         uint64_t v;
-        int r;
+        முழு r;
 
-        assert(s);
-        assert(ret);
+        ப்ரதிஜ்ஞா(s);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = extract_first_word(&s, &w, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        r = extract_first_word(&s, &w, /* separators= */ வெற்று, /* flags= */ 0);
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (r == 0)
+                திரும்பு -EINVAL;
 
         /* Ensure the line ends in "kB" */
-        if (!streq(s, "kB"))
-                return -EINVAL;
+        எனில் (!streq(s, "kB"))
+                திரும்பு -EINVAL;
 
         r = safe_atou64(w, &v);
-        if (r < 0)
-                return r;
-        if (v == UINT64_MAX)
-                return -EINVAL;
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (v == UINT64_MAX)
+                திரும்பு -EINVAL;
 
-        if (!MUL_ASSIGN_SAFE(&v, U64_KB))
-                return -EOVERFLOW;
+        எனில் (!MUL_ASSIGN_SAFE(&v, U64_KB))
+                திரும்பு -EOVERFLOW;
 
         *ret = v;
-        return 0;
+        திரும்பு 0;
 }
 
-int procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used) {
+முழு procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used) {
         uint64_t mem_total = UINT64_MAX, mem_available = UINT64_MAX;
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        _cleanup_fclose_ FILE *f = வெற்று;
+        முழு r;
 
         f = fopen("/proc/meminfo", "re");
-        if (!f)
-                return -errno;
+        எனில் (!f)
+                திரும்பு -errno;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
+        க்கு (;;) {
+                _cleanup_free_ எழுத்து *வரி = வெற்று;
                 uint64_t *v;
-                char *p;
+                எழுத்து *p;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EINVAL; /* EOF: Couldn't find one or both fields? */
+                r = read_வரி(f, LONG_வரி_MAX, &வரி);
+                எனில் (r < 0)
+                        திரும்பு r;
+                எனில் (r == 0)
+                        திரும்பு -EINVAL; /* EOF: Couldn't find one or both fields? */
 
-                p = first_word(line, "MemTotal:");
-                if (p)
+                p = first_word(வரி, "MemTotal:");
+                எனில் (p)
                         v = &mem_total;
-                else {
-                        p = first_word(line, "MemAvailable:");
-                        if (p)
+                இல்லையெனில் {
+                        p = first_word(வரி, "MemAvailable:");
+                        எனில் (p)
                                 v = &mem_available;
-                        else
-                                continue;
+                        இல்லையெனில்
+                                தொடர்;
                 }
 
-                r = convert_meminfo_value_to_uint64_bytes(p, v);
-                if (r < 0)
-                        return r;
+                r = convert_meminfo_மதிப்பு_to_uint64_bytes(p, v);
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                if (mem_total != UINT64_MAX && mem_available != UINT64_MAX)
-                        break;
+                எனில் (mem_total != UINT64_MAX && mem_available != UINT64_MAX)
+                        நிறுத்து;
         }
 
-        if (mem_available > mem_total)
-                return -EINVAL;
+        எனில் (mem_available > mem_total)
+                திரும்பு -EINVAL;
 
-        if (ret_total)
+        எனில் (ret_total)
                 *ret_total = mem_total;
-        if (ret_used)
+        எனில் (ret_used)
                 *ret_used = mem_total - mem_available;
-        return 0;
+        திரும்பு 0;
 }

@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-struct strbuf {
-        char *buf;
+கட்டமைப்பு strbuf {
+        எழுத்து *buf;
         size_t len;
-        struct strbuf_node *root;
+        கட்டமைப்பு strbuf_முனை *வேர்;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_மொத்தம்;
+        size_t in_மொத்தம்;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_மொத்தம்;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+கட்டமைப்பு strbuf_முனை {
+        size_t மதிப்பு_off;
+        size_t மதிப்பு_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        கட்டமைப்பு strbuf_child_entry *children;
+        uint8_t children_மொத்தம்;
 };
 
-struct strbuf_child_entry {
+கட்டமைப்பு strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        கட்டமைப்பு strbuf_முனை *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+கட்டமைப்பு strbuf* strbuf_new(வெறுமை);
+ssize_t strbuf_add_string_full(கட்டமைப்பு strbuf *str, மாறிலி எழுத்து *s, size_t len);
+நிலையான உள்வரி ssize_t strbuf_add_string(கட்டமைப்பு strbuf *str, மாறிலி எழுத்து *s) {
+        திரும்பு strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+வெறுமை strbuf_complete(கட்டமைப்பு strbuf *str);
+கட்டமைப்பு strbuf* strbuf_free(கட்டமைப்பு strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(கட்டமைப்பு strbuf*, strbuf_free);

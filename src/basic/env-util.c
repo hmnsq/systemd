@@ -1,69 +1,69 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "syslog-util.h"
-#include "utf8.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "env-util.h"
+#அந்தர்பாவ "errno-util.h"
+#அந்தர்பாவ "extract-word.h"
+#அந்தர்பாவ "format-util.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "path-util.h"
+#அந்தர்பாவ "process-util.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "strv.h"
+#அந்தர்பாவ "syslog-util.h"
+#அந்தர்பாவ "utf8.h"
 
 /* We follow bash for the character set. Different shells have different rules. */
 #define VALID_BASH_ENV_NAME_CHARS               \
         ALPHANUMERICAL                          \
         "_"
 
-size_t sc_arg_max(void) {
+size_t sc_arg_max(வெறுமை) {
         long l = sysconf(_SC_ARG_MAX);
-        assert(l > 0);
-        return (size_t) l;
+        ப்ரதிஜ்ஞா(l > 0);
+        திரும்பு (size_t) l;
 }
 
-static bool env_name_is_valid_n(const char *e, size_t n) {
+நிலையான bool env_name_is_valid_n(மாறிலி எழுத்து *e, size_t n) {
 
-        if (n == SIZE_MAX)
+        எனில் (n == SIZE_MAX)
                 n = strlen_ptr(e);
 
-        if (n == 0)
-                return false;
+        எனில் (n == 0)
+                திரும்பு false;
 
-        assert(e);
+        ப்ரதிஜ்ஞா(e);
 
-        if (ascii_isdigit(e[0]))
-                return false;
+        எனில் (ascii_isdigit(e[0]))
+                திரும்பு false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the equal sign and trailing NUL this hence leaves ARG_MAX-2 as
          * longest possible variable name. */
-        if (_unlikely_(n > sc_arg_max() - 2))
-                return false;
+        எனில் (_unlikely_(n > sc_arg_max() - 2))
+                திரும்பு false;
 
-        for (const char *p = e; p < e + n; p++)
-                if (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
-                        return false;
+        க்கு (மாறிலி எழுத்து *p = e; p < e + n; p++)
+                எனில் (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
+                        திரும்பு false;
 
-        return true;
+        திரும்பு true;
 }
 
-bool env_name_is_valid(const char *e) {
-        return env_name_is_valid_n(e, SIZE_MAX);
+bool env_name_is_valid(மாறிலி எழுத்து *e) {
+        திரும்பு env_name_is_valid_n(e, SIZE_MAX);
 }
 
-bool env_value_is_valid(const char *e) {
-        if (!e)
-                return false;
+bool env_மதிப்பு_is_valid(மாறிலி எழுத்து *e) {
+        எனில் (!e)
+                திரும்பு false;
 
-        if (!utf8_is_valid(e))
-                return false;
+        எனில் (!utf8_is_valid(e))
+                திரும்பு false;
 
         /* Note that variable *values* may contain control characters, in particular NL, TAB, BS, DEL, ESC…
          * When printing those variables with show-environment, we'll escape them. Make sure to print
@@ -72,83 +72,83 @@ bool env_value_is_valid(const char *e) {
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the shortest possible variable name of length 1, the equal
          * sign and trailing NUL this hence leaves ARG_MAX-3 as longest possible variable value. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 3))
-                return false;
+        எனில் (_unlikely_(strlen(e) > sc_arg_max() - 3))
+                திரும்பு false;
 
-        return true;
+        திரும்பு true;
 }
 
-bool env_assignment_is_valid(const char *e) {
-        const char *eq;
+bool env_assignment_is_valid(மாறிலி எழுத்து *e) {
+        மாறிலி எழுத்து *eq;
 
-        assert(e);
+        ப்ரதிஜ்ஞா(e);
 
         eq = strchr(e, '=');
-        if (!eq)
-                return false;
+        எனில் (!eq)
+                திரும்பு false;
 
-        if (!env_name_is_valid_n(e, eq - e))
-                return false;
+        எனில் (!env_name_is_valid_n(e, eq - e))
+                திரும்பு false;
 
-        if (!env_value_is_valid(eq + 1))
-                return false;
+        எனில் (!env_மதிப்பு_is_valid(eq + 1))
+                திரும்பு false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
          * variable assignments cannot be either, but let's leave room for one trailing NUL byte. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 1))
-                return false;
+        எனில் (_unlikely_(strlen(e) > sc_arg_max() - 1))
+                திரும்பு false;
 
-        return true;
+        திரும்பு true;
 }
 
-bool strv_env_is_valid(char * const *e) {
+bool strv_env_is_valid(எழுத்து * மாறிலி *e) {
         STRV_FOREACH(p, e) {
                 size_t k;
 
-                if (!env_assignment_is_valid(*p))
-                        return false;
+                எனில் (!env_assignment_is_valid(*p))
+                        திரும்பு false;
 
                 /* Check if there are duplicate assignments */
                 k = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, k) && (*q)[k] == '=')
-                                return false;
+                        எனில் (strneq(*p, *q, k) && (*q)[k] == '=')
+                                திரும்பு false;
         }
 
-        return true;
+        திரும்பு true;
 }
 
-bool strv_env_name_is_valid(char * const *l) {
+bool strv_env_name_is_valid(எழுத்து * மாறிலி *l) {
         STRV_FOREACH(p, l) {
-                if (!env_name_is_valid(*p))
-                        return false;
+                எனில் (!env_name_is_valid(*p))
+                        திரும்பு false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                எனில் (strv_contains(p + 1, *p))
+                        திரும்பு false;
         }
 
-        return true;
+        திரும்பு true;
 }
 
-bool strv_env_name_or_assignment_is_valid(char * const *l) {
+bool strv_env_name_or_assignment_is_valid(எழுத்து * மாறிலி *l) {
         STRV_FOREACH(p, l) {
-                if (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
-                        return false;
+                எனில் (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
+                        திரும்பு false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                எனில் (strv_contains(p + 1, *p))
+                        திரும்பு false;
         }
 
-        return true;
+        திரும்பு true;
 }
 
-static int env_append(char **e, char ***k, char **a) {
-        assert(e);
-        assert(k);
-        assert(*k >= e);
+நிலையான முழு env_append(எழுத்து **e, எழுத்து ***k, எழுத்து **a) {
+        ப்ரதிஜ்ஞா(e);
+        ப்ரதிஜ்ஞா(k);
+        ப்ரதிஜ்ஞா(*k >= e);
 
-        if (!a)
-                return 0;
+        எனில் (!a)
+                திரும்பு 0;
 
         /* Expects the following arguments: 'e' shall point to the beginning of an strv we are going to append to, 'k'
          * to a pointer pointing to the NULL entry at the end of the same array. 'a' shall point to another strv.
@@ -157,36 +157,36 @@ static int env_append(char **e, char ***k, char **a) {
          *
          * This call assumes 'e' has enough pre-allocated space to grow by all of 'a''s items. */
 
-        for (; *a; a++) {
-                char **j, *c;
+        க்கு (; *a; a++) {
+                எழுத்து **j, *c;
                 size_t n;
 
                 n = strcspn(*a, "=");
-                if ((*a)[n] == '=')
+                எனில் ((*a)[n] == '=')
                         n++;
 
-                for (j = e; j < *k; j++)
-                        if (strneq(*j, *a, n))
-                                break;
+                க்கு (j = e; j < *k; j++)
+                        எனில் (strneq(*j, *a, n))
+                                நிறுத்து;
 
                 c = strdup(*a);
-                if (!c)
-                        return -ENOMEM;
+                எனில் (!c)
+                        திரும்பு -ENOMEM;
 
-                if (j >= *k) { /* Append to the end? */
+                எனில் (j >= *k) { /* Append to the end? */
                         (*k)[0] = c;
-                        (*k)[1] = NULL;
+                        (*k)[1] = வெற்று;
                         (*k)++;
-                } else
+                } இல்லையெனில்
                         free_and_replace(*j, c); /* Override existing item */
         }
 
-        return 0;
+        திரும்பு 0;
 }
 
-char** _strv_env_merge(char **first, ...) {
-        _cleanup_strv_free_ char **merged = NULL;
-        char **k;
+எழுத்து** _strv_env_merge(எழுத்து **first, ...) {
+        _cleanup_strv_free_ எழுத்து **merged = வெற்று;
+        எழுத்து **k;
         va_list ap;
 
         /* Merges an arbitrary number of environment sets */
@@ -194,46 +194,46 @@ char** _strv_env_merge(char **first, ...) {
         size_t n = strv_length(first);
 
         va_start(ap, first);
-        for (;;) {
-                char **l;
+        க்கு (;;) {
+                எழுத்து **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, எழுத்து**);
+                எனில் (l == POINTER_MAX)
+                        நிறுத்து;
 
                 n += strv_length(l);
         }
         va_end(ap);
 
-        k = merged = new(char*, n + 1);
-        if (!merged)
-                return NULL;
-        merged[0] = NULL;
+        k = merged = new(எழுத்து*, n + 1);
+        எனில் (!merged)
+                திரும்பு வெற்று;
+        merged[0] = வெற்று;
 
-        if (env_append(merged, &k, first) < 0)
-                return NULL;
+        எனில் (env_append(merged, &k, first) < 0)
+                திரும்பு வெற்று;
 
         va_start(ap, first);
-        for (;;) {
-                char **l;
+        க்கு (;;) {
+                எழுத்து **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, எழுத்து**);
+                எனில் (l == POINTER_MAX)
+                        நிறுத்து;
 
-                if (env_append(merged, &k, l) < 0) {
+                எனில் (env_append(merged, &k, l) < 0) {
                         va_end(ap);
-                        return NULL;
+                        திரும்பு வெற்று;
                 }
         }
         va_end(ap);
 
-        return TAKE_PTR(merged);
+        திரும்பு TAKE_PTR(merged);
 }
 
-static bool env_match(const char *t, const char *pattern) {
-        assert(t);
-        assert(pattern);
+நிலையான bool env_match(மாறிலி எழுத்து *t, மாறிலி எழுத்து *pattern) {
+        ப்ரதிஜ்ஞா(t);
+        ப்ரதிஜ்ஞா(pattern);
 
         /* pattern a matches string a
          *         a matches a=
@@ -245,34 +245,34 @@ static bool env_match(const char *t, const char *pattern) {
          *         a=b does not match a
          *         a=b does not match a=c */
 
-        if (streq(t, pattern))
-                return true;
+        எனில் (streq(t, pattern))
+                திரும்பு true;
 
-        if (!strchr(pattern, '=')) {
+        எனில் (!strchr(pattern, '=')) {
                 t = startswith(t, pattern);
 
-                return t && *t == '=';
+                திரும்பு t && *t == '=';
         }
 
-        return false;
+        திரும்பு false;
 }
 
-static bool env_entry_has_name(const char *entry, const char *name) {
-        const char *t;
+நிலையான bool env_entry_has_name(மாறிலி எழுத்து *entry, மாறிலி எழுத்து *name) {
+        மாறிலி எழுத்து *t;
 
-        assert(entry);
-        assert(name);
+        ப்ரதிஜ்ஞா(entry);
+        ப்ரதிஜ்ஞா(name);
 
         t = startswith(entry, name);
-        if (!t)
-                return false;
+        எனில் (!t)
+                திரும்பு false;
 
-        return *t == '=';
+        திரும்பு *t == '=';
 }
 
-char** strv_env_delete(char **x, size_t n_lists, ...) {
+எழுத்து** strv_env_delete(எழுத்து **x, size_t n_lists, ...) {
         size_t n, i = 0;
-        _cleanup_strv_free_ char **t = NULL;
+        _cleanup_strv_free_ எழுத்து **t = வெற்று;
         va_list ap;
 
         /* Deletes every entry from x that is mentioned in the other
@@ -280,103 +280,103 @@ char** strv_env_delete(char **x, size_t n_lists, ...) {
 
         n = strv_length(x);
 
-        t = new(char*, n+1);
-        if (!t)
-                return NULL;
+        t = new(எழுத்து*, n+1);
+        எனில் (!t)
+                திரும்பு வெற்று;
 
         STRV_FOREACH(k, x) {
                 va_start(ap, n_lists);
-                for (size_t v = 0; v < n_lists; v++) {
-                        char **l;
+                க்கு (size_t v = 0; v < n_lists; v++) {
+                        எழுத்து **l;
 
-                        l = va_arg(ap, char**);
+                        l = va_arg(ap, எழுத்து**);
                         STRV_FOREACH(j, l)
-                                if (env_match(*k, *j))
-                                        goto skip;
+                                எனில் (env_match(*k, *j))
+                                        செல் skip;
                 }
                 va_end(ap);
 
                 t[i] = strdup(*k);
-                if (!t[i])
-                        return NULL;
+                எனில் (!t[i])
+                        திரும்பு வெற்று;
 
                 i++;
-                continue;
+                தொடர்;
 
         skip:
                 va_end(ap);
         }
 
-        t[i] = NULL;
+        t[i] = வெற்று;
 
-        assert(i <= n);
+        ப்ரதிஜ்ஞா(i <= n);
 
-        return TAKE_PTR(t);
+        திரும்பு TAKE_PTR(t);
 }
 
-char** strv_env_unset(char **l, const char *p) {
-        assert(p);
+எழுத்து** strv_env_unset(எழுத்து **l, மாறிலி எழுத்து *p) {
+        ப்ரதிஜ்ஞா(p);
 
-        if (!l)
-                return NULL;
+        எனில் (!l)
+                திரும்பு வெற்று;
 
         /* Drops every occurrence of the env var setting p in the
          * string list. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                if (env_match(*f, p)) {
-                        free(*f);
-                        continue;
+        எழுத்து **f, **t;
+        க்கு (f = t = l; *f; f++) {
+                எனில் (env_match(*f, p)) {
+                        விடுவி(*f);
+                        தொடர்;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = வெற்று;
+        திரும்பு l;
 }
 
-char** strv_env_unset_many_internal(char **l, ...) {
-        if (!l)
-                return NULL;
+எழுத்து** strv_env_unset_many_internal(எழுத்து **l, ...) {
+        எனில் (!l)
+                திரும்பு வெற்று;
 
         /* Like strv_env_unset() but applies many at once. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
+        எழுத்து **f, **t;
+        க்கு (f = t = l; *f; f++) {
                 bool found = false;
-                const char *p;
+                மாறிலி எழுத்து *p;
                 va_list ap;
 
                 va_start(ap, l);
 
-                while ((p = va_arg(ap, const char*)))
-                        if (env_match(*f, p)) {
+                போது ((p = va_arg(ap, மாறிலி எழுத்து*)))
+                        எனில் (env_match(*f, p)) {
                                 found = true;
-                                break;
+                                நிறுத்து;
                         }
 
                 va_end(ap);
 
-                if (found) {
-                        free(*f);
-                        continue;
+                எனில் (found) {
+                        விடுவி(*f);
+                        தொடர்;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = வெற்று;
+        திரும்பு l;
 }
 
-int strv_env_replace_consume(char ***l, char *p) {
-        const char *t, *name;
-        int r;
+முழு strv_env_replace_consume(எழுத்து ***l, எழுத்து *p) {
+        மாறிலி எழுத்து *t, *name;
+        முழு r;
 
-        assert(l);
-        assert(p);
+        ப்ரதிஜ்ஞா(l);
+        ப்ரதிஜ்ஞா(p);
 
         /* Replace first occurrence of the env var or add a new one in the string list. Drop other
          * occurrences. Edits in-place. Does not copy p and CONSUMES p EVEN ON FAILURE.
@@ -384,576 +384,576 @@ int strv_env_replace_consume(char ***l, char *p) {
          * p must be a valid key=value assignment. */
 
         t = strchr(p, '=');
-        if (!t) {
-                free(p);
-                return -EINVAL;
+        எனில் (!t) {
+                விடுவி(p);
+                திரும்பு -EINVAL;
         }
 
         name = strndupa_safe(p, t - p);
 
         STRV_FOREACH(f, *l)
-                if (env_entry_has_name(*f, name)) {
+                எனில் (env_entry_has_name(*f, name)) {
                         free_and_replace(*f, p);
                         strv_env_unset(f + 1, *f);
-                        return 0;
+                        திரும்பு 0;
                 }
 
         /* We didn't find a match, we need to append p or create a new strv */
         r = strv_consume(l, p);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return 1;
+        திரும்பு 1;
 }
 
-int strv_env_replace_strdup(char ***l, const char *assignment) {
+முழு strv_env_replace_strdup(எழுத்து ***l, மாறிலி எழுத்து *assignment) {
         /* Like strv_env_replace_consume(), but copies the argument. */
 
-        assert(l);
-        assert(assignment);
+        ப்ரதிஜ்ஞா(l);
+        ப்ரதிஜ்ஞா(assignment);
 
-        char *p = strdup(assignment);
-        if (!p)
-                return -ENOMEM;
+        எழுத்து *p = strdup(assignment);
+        எனில் (!p)
+                திரும்பு -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        திரும்பு strv_env_replace_consume(l, p);
 }
 
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
-        char *p;
+முழு strv_env_replace_strdup_passthrough(எழுத்து ***l, மாறிலி எழுத்து *assignment) {
+        எழுத்து *p;
 
         /* Like strv_env_replace_strdup(), but pulls the variable from the environment of
          * the calling program, if a variable name without value is specified. */
 
-        assert(l);
-        assert(assignment);
+        ப்ரதிஜ்ஞா(l);
+        ப்ரதிஜ்ஞா(assignment);
 
-        if (strchr(assignment, '=')) {
-                if (!env_assignment_is_valid(assignment))
-                        return -EINVAL;
+        எனில் (strchr(assignment, '=')) {
+                எனில் (!env_assignment_is_valid(assignment))
+                        திரும்பு -EINVAL;
 
                 p = strdup(assignment);
-        } else {
-                if (!env_name_is_valid(assignment))
-                        return -EINVAL;
+        } இல்லையெனில் {
+                எனில் (!env_name_is_valid(assignment))
+                        திரும்பு -EINVAL;
 
                 /* If we can't find the variable in our environment, we will use
                  * the empty string. This way "passthrough" is equivalent to passing
                  * --setenv=FOO=$FOO in the shell. */
                 p = strjoin(assignment, "=", secure_getenv(assignment));
         }
-        if (!p)
-                return -ENOMEM;
+        எனில் (!p)
+                திரும்பு -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        திரும்பு strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
-        assert(l);
+முழு strv_env_assign(எழுத்து ***l, மாறிலி எழுத்து *சாவி, மாறிலி எழுத்து *மதிப்பு) {
+        ப்ரதிஜ்ஞா(l);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        எனில் (!env_name_is_valid(சாவி))
+                திரும்பு -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
-                strv_env_unset(*l, key);
-                return 0;
+        எனில் (!மதிப்பு) {
+                strv_env_unset(*l, சாவி);
+                திரும்பு 0;
         }
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        எழுத்து *p = strjoin(சாவி, "=", மதிப்பு);
+        எனில் (!p)
+                திரும்பு -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        திரும்பு strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
-        int r;
+முழு strv_env_assignf(எழுத்து ***l, மாறிலி எழுத்து *சாவி, மாறிலி எழுத்து *valuef, ...) {
+        முழு r;
 
-        assert(l);
-        assert(key);
+        ப்ரதிஜ்ஞா(l);
+        ப்ரதிஜ்ஞா(சாவி);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        எனில் (!env_name_is_valid(சாவி))
+                திரும்பு -EINVAL;
 
-        if (!valuef) {
-                strv_env_unset(*l, key);
-                return 0;
+        எனில் (!valuef) {
+                strv_env_unset(*l, சாவி);
+                திரும்பு 0;
         }
 
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ எழுத்து *மதிப்பு = வெற்று;
         va_list ap;
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&மதிப்பு, valuef, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        எனில் (r < 0)
+                திரும்பு -ENOMEM;
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        எழுத்து *p = strjoin(சாவி, "=", மதிப்பு);
+        எனில் (!p)
+                திரும்பு -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        திரும்பு strv_env_replace_consume(l, p);
 }
 
-int _strv_env_assign_many(char ***l, ...) {
+முழு _strv_env_assign_many(எழுத்து ***l, ...) {
         va_list ap;
-        int r;
+        முழு r;
 
-        assert(l);
+        ப்ரதிஜ்ஞா(l);
 
         va_start(ap, l);
-        for (;;) {
-                const char *key, *value;
+        க்கு (;;) {
+                மாறிலி எழுத்து *சாவி, *மதிப்பு;
 
-                key = va_arg(ap, const char *);
-                if (!key)
-                        break;
+                சாவி = va_arg(ap, மாறிலி எழுத்து *);
+                எனில் (!சாவி)
+                        நிறுத்து;
 
-                if (!env_name_is_valid(key)) {
+                எனில் (!env_name_is_valid(சாவி)) {
                         va_end(ap);
-                        return -EINVAL;
+                        திரும்பு -EINVAL;
                 }
 
-                value = va_arg(ap, const char *);
-                if (!value) {
-                        strv_env_unset(*l, key);
-                        continue;
+                மதிப்பு = va_arg(ap, மாறிலி எழுத்து *);
+                எனில் (!மதிப்பு) {
+                        strv_env_unset(*l, சாவி);
+                        தொடர்;
                 }
 
-                char *p = strjoin(key, "=", value);
-                if (!p) {
+                எழுத்து *p = strjoin(சாவி, "=", மதிப்பு);
+                எனில் (!p) {
                         va_end(ap);
-                        return -ENOMEM;
+                        திரும்பு -ENOMEM;
                 }
 
                 r = strv_env_replace_consume(l, p);
-                if (r < 0) {
+                எனில் (r < 0) {
                         va_end(ap);
-                        return r;
+                        திரும்பு r;
                 }
         }
         va_end(ap);
 
-        return 0;
+        திரும்பு 0;
 }
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags) {
-        assert(name);
+எழுத்து* strv_env_get_n(எழுத்து * மாறிலி *l, மாறிலி எழுத்து *name, size_t k, ReplaceEnvFlags flags) {
+        ப்ரதிஜ்ஞா(name);
 
-        if (k == SIZE_MAX)
+        எனில் (k == SIZE_MAX)
                 k = strlen(name);
-        if (k <= 0)
-                return NULL;
+        எனில் (k <= 0)
+                திரும்பு வெற்று;
 
         STRV_FOREACH_BACKWARDS(i, l)
-                if (strneq(*i, name, k) && (*i)[k] == '=')
-                        return (char*) *i + k + 1;
+                எனில் (strneq(*i, name, k) && (*i)[k] == '=')
+                        திரும்பு (எழுத்து*) *i + k + 1;
 
-        if (flags & REPLACE_ENV_USE_ENVIRONMENT) {
-                const char *t;
+        எனில் (flags & REPLACE_ENV_USE_ENVIRONMENT) {
+                மாறிலி எழுத்து *t;
 
                 /* Safety check that the name is not overly long, before we do a stack allocation */
-                if (k > sc_arg_max() - 2)
-                        return NULL;
+                எனில் (k > sc_arg_max() - 2)
+                        திரும்பு வெற்று;
 
                 t = strndupa_safe(name, k);
-                return secure_getenv(t);
+                திரும்பு secure_getenv(t);
         };
 
-        return NULL;
+        திரும்பு வெற்று;
 }
 
-char* strv_env_pairs_get(char **l, const char *name) {
-        char *result = NULL;
+எழுத்து* strv_env_pairs_get(எழுத்து **l, மாறிலி எழுத்து *name) {
+        எழுத்து *result = வெற்று;
 
-        assert(name);
+        ப்ரதிஜ்ஞா(name);
 
-        STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
-                        result = *value;
+        STRV_FOREACH_PAIR(சாவி, மதிப்பு, l)
+                எனில் (streq(*சாவி, name))
+                        result = *மதிப்பு;
 
-        return result;
+        திரும்பு result;
 }
 
-int strv_env_get_merged(char **l, char ***ret) {
-        _cleanup_strv_free_ char **v = NULL;
+முழு strv_env_get_merged(எழுத்து **l, எழுத்து ***ret) {
+        _cleanup_strv_free_ எழுத்து **v = வெற்று;
         size_t n = 0;
-        int r;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
         /* This converts a strv with pairs of environment variable name + value into a strv of name and
          * value concatenated with a "=" separator. E.g.
          * input  : { "NAME", "value", "FOO", "var" }
          * output : { "NAME=value", "FOO=var" } */
 
-        STRV_FOREACH_PAIR(key, value, l) {
-                char *s;
+        STRV_FOREACH_PAIR(சாவி, மதிப்பு, l) {
+                எழுத்து *s;
 
-                s = strjoin(*key, "=", *value);
-                if (!s)
-                        return -ENOMEM;
+                s = strjoin(*சாவி, "=", *மதிப்பு);
+                எனில் (!s)
+                        திரும்பு -ENOMEM;
 
                 r = strv_consume_with_size(&v, &n, s);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
         *ret = TAKE_PTR(v);
-        return 0;
+        திரும்பு 0;
 }
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata) {
-        int k = 0;
+எழுத்து** strv_env_clean_with_callback(எழுத்து **l, வெறுமை (*invalid_callback)(மாறிலி எழுத்து *p, வெறுமை *userdata), வெறுமை *userdata) {
+        முழு k = 0;
 
         STRV_FOREACH(p, l) {
                 size_t n;
                 bool duplicate = false;
 
-                if (!env_assignment_is_valid(*p)) {
-                        if (invalid_callback)
+                எனில் (!env_assignment_is_valid(*p)) {
+                        எனில் (invalid_callback)
                                 invalid_callback(*p, userdata);
-                        free(*p);
-                        continue;
+                        விடுவி(*p);
+                        தொடர்;
                 }
 
                 n = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, n) && (*q)[n] == '=') {
+                        எனில் (strneq(*p, *q, n) && (*q)[n] == '=') {
                                 duplicate = true;
-                                break;
+                                நிறுத்து;
                         }
 
-                if (duplicate) {
-                        free(*p);
-                        continue;
+                எனில் (duplicate) {
+                        விடுவி(*p);
+                        தொடர்;
                 }
 
                 l[k++] = *p;
         }
 
-        if (l)
-                l[k] = NULL;
+        எனில் (l)
+                l[k] = வெற்று;
 
-        return l;
+        திரும்பு l;
 }
 
-static int strv_extend_with_length(char ***l, const char *s, size_t n) {
-        char *c;
+நிலையான முழு strv_extend_with_length(எழுத்து ***l, மாறிலி எழுத்து *s, size_t n) {
+        எழுத்து *c;
 
         c = strndup(s, n);
-        if (!c)
-                return -ENOMEM;
+        எனில் (!c)
+                திரும்பு -ENOMEM;
 
-        return strv_consume(l, c);
+        திரும்பு strv_consume(l, c);
 }
 
-static int strv_env_get_n_validated(
-                char **env,
-                const char *name,
+நிலையான முழு strv_env_get_n_validated(
+                எழுத்து **env,
+                மாறிலி எழுத்து *name,
                 size_t l,
                 ReplaceEnvFlags flags,
-                char **ret,              /* points into the env block! do not free! */
-                char ***unset_variables, /* updated in place */
-                char ***bad_variables) { /* ditto */
+                எழுத்து **ret,              /* points into the env block! do not free! */
+                எழுத்து ***unset_variables, /* updated in place */
+                எழுத்து ***bad_variables) { /* ditto */
 
-        char *e;
-        int r;
+        எழுத்து *e;
+        முழு r;
 
-        assert(l == 0 || name);
-        assert(ret);
+        ப்ரதிஜ்ஞா(l == 0 || name);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (env_name_is_valid_n(name, l)) {
+        எனில் (env_name_is_valid_n(name, l)) {
                 e = strv_env_get_n(env, name, l, flags);
-                if (!e && unset_variables) {
+                எனில் (!e && unset_variables) {
                         r = strv_extend_with_length(unset_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        எனில் (r < 0)
+                                திரும்பு r;
                 }
-        } else {
-                e = NULL; /* Resolve invalid variable names the same way as unset ones */
+        } இல்லையெனில் {
+                e = வெற்று; /* Resolve invalid variable names the same way as unset ones */
 
-                if (bad_variables) {
+                எனில் (bad_variables) {
                         r = strv_extend_with_length(bad_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        எனில் (r < 0)
+                                திரும்பு r;
                 }
         }
 
         *ret = e;
-        return !!e;
+        திரும்பு !!e;
 }
 
-int replace_env_full(
-                const char *format,
+முழு replace_env_full(
+                மாறிலி எழுத்து *format,
                 size_t length,
-                char **env,
+                எழுத்து **env,
                 ReplaceEnvFlags flags,
-                char **ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+                எழுத்து **ret,
+                எழுத்து ***ret_unset_variables,
+                எழுத்து ***ret_bad_variables) {
 
-        enum {
+        எண்ணிக்கை {
                 WORD,
                 CURLY,
                 VARIABLE,
                 VARIABLE_RAW,
                 TEST,
-                DEFAULT_VALUE,
-                ALTERNATE_VALUE,
+                DEFAULT_மதிப்பு,
+                ALTERNATE_மதிப்பு,
         } state = WORD;
 
-        _cleanup_strv_free_ char **unset_variables = NULL, **bad_variables = NULL;
-        const char *e, *word = format, *test_value = NULL; /* test_value is initialized to appease gcc */
-        _cleanup_free_ char *s = NULL;
-        char ***pu, ***pb;
+        _cleanup_strv_free_ எழுத்து **unset_variables = வெற்று, **bad_variables = வெற்று;
+        மாறிலி எழுத்து *e, *word = format, *test_மதிப்பு = வெற்று; /* test_value is initialized to appease gcc */
+        _cleanup_free_ எழுத்து *s = வெற்று;
+        எழுத்து ***pu, ***pb;
         size_t i, len = 0; /* len is initialized to appease gcc */
-        int nest = 0, r;
+        முழு nest = 0, r;
 
-        assert(format);
+        ப்ரதிஜ்ஞா(format);
 
-        if (length == SIZE_MAX)
+        எனில் (length == SIZE_MAX)
                 length = strlen(format);
 
-        pu = ret_unset_variables ? &unset_variables : NULL;
-        pb = ret_bad_variables ? &bad_variables : NULL;
+        pu = ret_unset_variables ? &unset_variables : வெற்று;
+        pb = ret_bad_variables ? &bad_variables : வெற்று;
 
-        for (e = format, i = 0; *e && i < length; e++, i++)
-                switch (state) {
+        க்கு (e = format, i = 0; *e && i < length; e++, i++)
+                தேர்வு (state) {
 
-                case WORD:
-                        if (*e == '$')
+                நிலை WORD:
+                        எனில் (*e == '$')
                                 state = CURLY;
-                        break;
+                        நிறுத்து;
 
-                case CURLY:
-                        if (*e == '{') {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                நிலை CURLY:
+                        எனில் (*e == '{') {
+                                எனில் (!strextendn(&s, word, e-word-1))
+                                        திரும்பு -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE;
                                 nest++;
 
-                        } else if (*e == '$') {
-                                if (!strextendn(&s, word, e-word))
-                                        return -ENOMEM;
+                        } இல்லையெனில் எனில் (*e == '$') {
+                                எனில் (!strextendn(&s, word, e-word))
+                                        திரும்பு -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
 
-                        } else if (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        } இல்லையெனில் எனில் (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                எனில் (!strextendn(&s, word, e-word-1))
+                                        திரும்பு -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE_RAW;
 
-                        } else
+                        } இல்லையெனில்
                                 state = WORD;
-                        break;
+                        நிறுத்து;
 
-                case VARIABLE:
-                        if (*e == '}') {
-                                char *t;
+                நிலை VARIABLE:
+                        எனில் (*e == '}') {
+                                எழுத்து *t;
 
                                 r = strv_env_get_n_validated(env, word+2, e-word-2, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                எனில் (!strextend(&s, t))
+                                        திரும்பு -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                                 nest--;
-                        } else if (*e == ':') {
-                                if (flags & REPLACE_ENV_ALLOW_EXTENDED) {
+                        } இல்லையெனில் எனில் (*e == ':') {
+                                எனில் (flags & REPLACE_ENV_ALLOW_EXTENDED) {
                                         len = e - word - 2;
                                         state = TEST;
-                                } else
+                                } இல்லையெனில்
                                         /* Treat this as unsupported syntax, i.e. do no replacement */
                                         state = WORD;
                         }
-                        break;
+                        நிறுத்து;
 
-                case TEST:
-                        if (*e == '-')
-                                state = DEFAULT_VALUE;
-                        else if (*e == '+')
-                                state = ALTERNATE_VALUE;
-                        else {
+                நிலை TEST:
+                        எனில் (*e == '-')
+                                state = DEFAULT_மதிப்பு;
+                        இல்லையெனில் எனில் (*e == '+')
+                                state = ALTERNATE_மதிப்பு;
+                        இல்லையெனில் {
                                 state = WORD;
-                                break;
+                                நிறுத்து;
                         }
 
-                        test_value = e+1;
-                        break;
+                        test_மதிப்பு = e+1;
+                        நிறுத்து;
 
-                case DEFAULT_VALUE: /* fall through */
-                case ALTERNATE_VALUE:
-                        assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
+                நிலை DEFAULT_மதிப்பு: /* fall through */
+                நிலை ALTERNATE_மதிப்பு:
+                        ப்ரதிஜ்ஞா(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
-                        if (*e == '{') {
+                        எனில் (*e == '{') {
                                 nest++;
-                                break;
+                                நிறுத்து;
                         }
 
-                        if (*e != '}')
-                                break;
+                        எனில் (*e != '}')
+                                நிறுத்து;
 
                         nest--;
-                        if (nest == 0) {
-                                _cleanup_strv_free_ char **u = NULL, **b = NULL;
-                                _cleanup_free_ char *v = NULL;
-                                char *t = NULL;
+                        எனில் (nest == 0) {
+                                _cleanup_strv_free_ எழுத்து **u = வெற்று, **b = வெற்று;
+                                _cleanup_free_ எழுத்து *v = வெற்று;
+                                எழுத்து *t = வெற்று;
 
                                 r = strv_env_get_n_validated(env, word+2, len, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
-                                if (t && state == ALTERNATE_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                எனில் (t && state == ALTERNATE_மதிப்பு) {
+                                        r = replace_env_full(test_மதிப்பு, e-test_மதிப்பு, env, flags, &v, pu ? &u : வெற்று, pb ? &b : வெற்று);
+                                        எனில் (r < 0)
+                                                திரும்பு r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                } இல்லையெனில் எனில் (!t && state == DEFAULT_மதிப்பு) {
+                                        r = replace_env_full(test_மதிப்பு, e-test_மதிப்பு, env, flags, &v, pu ? &u : வெற்று, pb ? &b : வெற்று);
+                                        எனில் (r < 0)
+                                                திரும்பு r;
 
                                         t = v;
                                 }
 
                                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                எனில் (r < 0)
+                                        திரும்பு r;
                                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                எனில் (!strextend(&s, t))
+                                        திரும்பு -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                         }
-                        break;
+                        நிறுத்து;
 
-                case VARIABLE_RAW:
-                        assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                நிலை VARIABLE_RAW:
+                        ப்ரதிஜ்ஞா(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                        if (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                char *t = NULL;
+                        எனில் (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                எழுத்து *t = வெற்று;
 
                                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                                if (r < 0)
-                                        return r;
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                எனில் (!strextend(&s, t))
+                                        திரும்பு -ENOMEM;
 
                                 word = e--;
                                 i--;
                                 state = WORD;
                         }
-                        break;
+                        நிறுத்து;
                 }
 
-        if (state == VARIABLE_RAW) {
-                char *t;
+        எனில் (state == VARIABLE_RAW) {
+                எழுத்து *t;
 
-                assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                ப்ரதிஜ்ஞா(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                if (!strextend(&s, t))
-                        return -ENOMEM;
+                எனில் (!strextend(&s, t))
+                        திரும்பு -ENOMEM;
 
-        } else if (!strextendn(&s, word, e-word))
-                return -ENOMEM;
+        } இல்லையெனில் எனில் (!strextendn(&s, word, e-word))
+                திரும்பு -ENOMEM;
 
-        if (ret_unset_variables)
+        எனில் (ret_unset_variables)
                 *ret_unset_variables = TAKE_PTR(unset_variables);
-        if (ret_bad_variables)
+        எனில் (ret_bad_variables)
                 *ret_bad_variables = TAKE_PTR(bad_variables);
 
-        if (ret)
+        எனில் (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        திரும்பு 0;
 }
 
-int replace_env_argv(
-                char **argv,
-                char **env,
-                char ***ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+முழு replace_env_argv(
+                எழுத்து **argv,
+                எழுத்து **env,
+                எழுத்து ***ret,
+                எழுத்து ***ret_unset_variables,
+                எழுத்து ***ret_bad_variables) {
 
-        _cleanup_strv_free_ char **n = NULL, **unset_variables = NULL, **bad_variables = NULL;
+        _cleanup_strv_free_ எழுத்து **n = வெற்று, **unset_variables = வெற்று, **bad_variables = வெற்று;
         size_t k = 0, l;
-        int r;
+        முழு r;
 
-        assert(!strv_isempty(argv));
-        assert(ret);
+        ப்ரதிஜ்ஞா(!strv_isempty(argv));
+        ப்ரதிஜ்ஞா(ret);
 
         l = strv_length(argv);
 
-        n = new(char*, l+1);
-        if (!n)
-                return -ENOMEM;
+        n = new(எழுத்து*, l+1);
+        எனில் (!n)
+                திரும்பு -ENOMEM;
 
         STRV_FOREACH(i, argv) {
-                const char *word = *i;
+                மாறிலி எழுத்து *word = *i;
 
                 /* If $FOO appears as single word, replace it by the split up variable */
-                if (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
-                        _cleanup_strv_free_ char **m = NULL;
-                        const char *name = word + 1;
-                        char *e, **w;
+                எனில் (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
+                        _cleanup_strv_free_ எழுத்து **m = வெற்று;
+                        மாறிலி எழுத்து *name = word + 1;
+                        எழுத்து *e, **w;
                         size_t q;
 
-                        if (env_name_is_valid(name)) {
+                        எனில் (env_name_is_valid(name)) {
                                 e = strv_env_get(env, name);
-                                if (e)
+                                எனில் (e)
                                         r = strv_split_full(&m, e, WHITESPACE, EXTRACT_RELAX|EXTRACT_UNQUOTE);
-                                else if (ret_unset_variables)
+                                இல்லையெனில் எனில் (ret_unset_variables)
                                         r = strv_extend(&unset_variables, name);
-                                else
+                                இல்லையெனில்
                                         r = 0;
-                        } else if (ret_bad_variables)
+                        } இல்லையெனில் எனில் (ret_bad_variables)
                                 r = strv_extend(&bad_variables, name);
-                        else
+                        இல்லையெனில்
                                 r = 0;
-                        if (r < 0)
-                                return r;
+                        எனில் (r < 0)
+                                திரும்பு r;
 
                         q = strv_length(m);
                         l = l + q - 1;
 
-                        w = reallocarray(n, l + 1, sizeof(char*));
-                        if (!w)
-                                return -ENOMEM;
+                        w = reallocarray(n, l + 1, அளவு(எழுத்து*));
+                        எனில் (!w)
+                                திரும்பு -ENOMEM;
 
                         n = w;
-                        if (m) {
-                                memcpy(n + k, m, (q + 1) * sizeof(char*));
+                        எனில் (m) {
+                                memcpy(n + k, m, (q + 1) * அளவு(எழுத்து*));
                                 m = mfree(m);
                         }
 
                         k += q;
                         /* reallocarray() does not zero-initialize the grown tail, add NUL termination */
-                        n[k] = NULL;
-                        continue;
+                        n[k] = வெற்று;
+                        தொடர்;
                 }
 
-                _cleanup_strv_free_ char **u = NULL, **b = NULL;
+                _cleanup_strv_free_ எழுத்து **u = வெற்று, **b = வெற்று;
 
                 /* If ${FOO} appears as part of a word, replace it by the variable as-is */
                 r = replace_env_full(
@@ -962,212 +962,212 @@ int replace_env_argv(
                                 env,
                                 /* flags= */ 0,
                                 n + k,
-                                ret_unset_variables ? &u : NULL,
-                                ret_bad_variables ? &b : NULL);
-                if (r < 0)
-                        return r;
-                n[++k] = NULL;
+                                ret_unset_variables ? &u : வெற்று,
+                                ret_bad_variables ? &b : வெற்று);
+                எனில் (r < 0)
+                        திரும்பு r;
+                n[++k] = வெற்று;
 
                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
 
                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
-        if (ret_unset_variables) {
+        எனில் (ret_unset_variables) {
                 strv_sort_uniq(unset_variables);
                 *ret_unset_variables = TAKE_PTR(unset_variables);
         }
-        if (ret_bad_variables) {
+        எனில் (ret_bad_variables) {
                 strv_sort_uniq(bad_variables);
                 *ret_bad_variables = TAKE_PTR(bad_variables);
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        திரும்பு 0;
 }
 
-int getenv_bool(const char *p) {
-        const char *e;
+முழு getenv_bool(மாறிலி எழுத்து *p) {
+        மாறிலி எழுத்து *e;
 
         e = getenv(p);
-        if (!e)
-                return -ENXIO;
+        எனில் (!e)
+                திரும்பு -ENXIO;
 
-        return parse_boolean(e);
+        திரும்பு parse_boolean(e);
 }
 
-int secure_getenv_bool(const char *p) {
-        const char *e;
+முழு secure_getenv_bool(மாறிலி எழுத்து *p) {
+        மாறிலி எழுத்து *e;
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        எனில் (!e)
+                திரும்பு -ENXIO;
 
-        return parse_boolean(e);
+        திரும்பு parse_boolean(e);
 }
 
-int secure_getenv_uint64(const char *p, uint64_t *ret) {
-        const char *e;
+முழு secure_getenv_uint64(மாறிலி எழுத்து *p, uint64_t *ret) {
+        மாறிலி எழுத்து *e;
 
-        assert(p);
+        ப்ரதிஜ்ஞா(p);
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        எனில் (!e)
+                திரும்பு -ENXIO;
 
-        return safe_atou64(e, ret);
+        திரும்பு safe_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
-        assert(name);
+முழு set_unset_env(மாறிலி எழுத்து *name, மாறிலி எழுத்து *மதிப்பு, bool overwrite) {
+        ப்ரதிஜ்ஞா(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        எனில் (மதிப்பு)
+                திரும்பு RET_NERRNO(setenv(name, மதிப்பு, overwrite));
 
-        return RET_NERRNO(unsetenv(name));
+        திரும்பு RET_NERRNO(unsetenv(name));
 }
 
-int putenv_dup(const char *assignment, bool override) {
-        const char *e, *n;
+முழு putenv_dup(மாறிலி எழுத்து *assignment, bool override) {
+        மாறிலி எழுத்து *e, *n;
 
         e = strchr(assignment, '=');
-        if (!e)
-                return -EINVAL;
+        எனில் (!e)
+                திரும்பு -EINVAL;
 
         n = strndupa_safe(assignment, e - assignment);
 
         /* This is like putenv(), but uses setenv() so that our memory doesn't become part of environ[]. */
-        return RET_NERRNO(setenv(n, e + 1, override));
+        திரும்பு RET_NERRNO(setenv(n, e + 1, override));
 }
 
-int setenv_systemd_exec_pid(bool update_only) {
-        const char *e;
-        int r;
+முழு setenv_systemd_exec_pid(bool update_only) {
+        மாறிலி எழுத்து *e;
+        முழு r;
 
         /* Update $SYSTEMD_EXEC_PID=pid except when '*' is set for the variable. */
 
         e = secure_getenv("SYSTEMD_EXEC_PID");
-        if (!e && update_only)
-                return 0;
+        எனில் (!e && update_only)
+                திரும்பு 0;
 
-        if (streq_ptr(e, "*"))
-                return 0;
+        எனில் (streq_ptr(e, "*"))
+                திரும்பு 0;
 
         r = setenvf("SYSTEMD_EXEC_PID", /* overwrite= */ 1, PID_FMT, getpid_cached());
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return 1;
+        திரும்பு 1;
 }
 
-int setenv_systemd_log_level(void) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+முழு setenv_systemd_log_level(வெறுமை) {
+        _cleanup_free_ எழுத்து *val = வெற்று;
+        முழு r;
 
         r = log_level_to_string_alloc(log_get_max_level(), &val);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
+        திரும்பு RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
 }
 
-int getenv_path_list(const char *name, char ***ret_paths) {
-        _cleanup_strv_free_ char **l = NULL;
-        const char *e;
-        int r;
+முழு getenv_path_list(மாறிலி எழுத்து *name, எழுத்து ***ret_paths) {
+        _cleanup_strv_free_ எழுத்து **l = வெற்று;
+        மாறிலி எழுத்து *e;
+        முழு r;
 
-        assert(name);
-        assert(ret_paths);
+        ப்ரதிஜ்ஞா(name);
+        ப்ரதிஜ்ஞா(ret_paths);
 
         e = secure_getenv(name);
-        if (!e)
-                return -ENXIO;
+        எனில் (!e)
+                திரும்பு -ENXIO;
 
         r = strv_split_full(&l, e, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse $%s: %m", name);
+        எனில் (r < 0)
+                திரும்பு log_debug_errno(r, "Failed to parse $%s: %m", name);
 
         STRV_FOREACH(p, l) {
-                if (!path_is_absolute(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                எனில் (!path_is_absolute(*p))
+                        திரும்பு log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not absolute, refusing.", *p);
 
-                if (!path_is_normalized(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                எனில் (!path_is_normalized(*p))
+                        திரும்பு log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not normalized, refusing.", *p);
 
-                if (path_equal(*p, "/"))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                எனில் (path_equal(*p, "/"))
+                        திரும்பு log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is the root fs, refusing.", *p);
         }
 
-        if (strv_isempty(l))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        எனில் (strv_isempty(l))
+                திரும்பு log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "No paths specified, refusing.");
 
         *ret_paths = TAKE_PTR(l);
-        return 1;
+        திரும்பு 1;
 }
 
-int getenv_steal_erase(const char *name, char **ret) {
-        _cleanup_(erase_and_freep) char *a = NULL;
-        char *e;
+முழு getenv_steal_erase(மாறிலி எழுத்து *name, எழுத்து **ret) {
+        _cleanup_(erase_and_freep) எழுத்து *a = வெற்று;
+        எழுத்து *e;
 
-        assert(name);
+        ப்ரதிஜ்ஞா(name);
 
         /* Reads an environment variable, makes a copy of it, erases its memory in the environment block and removes
          * it from there. Usecase: reading passwords from the env block (which is a bad idea, but useful for
          * testing, and given that people are likely going to misuse this, be thorough) */
 
         e = secure_getenv(name);
-        if (!e) {
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        எனில் (!e) {
+                எனில் (ret)
+                        *ret = வெற்று;
+                திரும்பு 0;
         }
 
-        if (ret) {
+        எனில் (ret) {
                 a = strdup(e);
-                if (!a)
-                        return -ENOMEM;
+                எனில் (!a)
+                        திரும்பு -ENOMEM;
         }
 
         string_erase(e);
 
-        if (unsetenv(name) < 0)
-                return -errno;
+        எனில் (unsetenv(name) < 0)
+                திரும்பு -errno;
 
-        if (ret)
+        எனில் (ret)
                 *ret = TAKE_PTR(a);
 
-        return 1;
+        திரும்பு 1;
 }
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
-        _cleanup_free_ char *value = NULL;
+முழு setenvf(மாறிலி எழுத்து *name, bool overwrite, மாறிலி எழுத்து *valuef, ...) {
+        _cleanup_free_ எழுத்து *மதிப்பு = வெற்று;
         va_list ap;
-        int r;
+        முழு r;
 
-        assert(name);
+        ப்ரதிஜ்ஞா(name);
 
-        if (!valuef)
-                return RET_NERRNO(unsetenv(name));
+        எனில் (!valuef)
+                திரும்பு RET_NERRNO(unsetenv(name));
 
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&மதிப்பு, valuef, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        எனில் (r < 0)
+                திரும்பு -ENOMEM;
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
-                return 0;
+        எனில் (streq_ptr(getenv(name), மதிப்பு))
+                திரும்பு 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        திரும்பு RET_NERRNO(setenv(name, மதிப்பு, overwrite));
 }

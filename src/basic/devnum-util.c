@@ -1,145 +1,145 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/sysmacros.h>
+#அந்தர்பாவ <string.h>
+#அந்தர்பாவ <sys/stat.h>
+#அந்தர்பாவ <sys/sysmacros.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "devnum-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "chase.h"
+#அந்தர்பாவ "devnum-util.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "path-util.h"
+#அந்தர்பாவ "stdio-util.h"
+#அந்தர்பாவ "string-util.h"
 
-int parse_devnum(const char *s, dev_t *ret) {
-        const char *major;
+முழு parse_devnum(மாறிலி எழுத்து *s, dev_t *ret) {
+        மாறிலி எழுத்து *major;
         unsigned x, y;
         size_t n;
-        int r;
+        முழு r;
 
-        assert(s);
-        assert(ret);
+        ப்ரதிஜ்ஞா(s);
+        ப்ரதிஜ்ஞா(ret);
 
         n = strspn(s, DIGITS);
-        if (n == 0)
-                return -EINVAL;
-        if (n > DECIMAL_STR_MAX(dev_t))
-                return -EINVAL;
-        if (s[n] != ':')
-                return -EINVAL;
+        எனில் (n == 0)
+                திரும்பு -EINVAL;
+        எனில் (n > DECIMAL_STR_MAX(dev_t))
+                திரும்பு -EINVAL;
+        எனில் (s[n] != ':')
+                திரும்பு -EINVAL;
 
         major = strndupa_safe(s, n);
         r = safe_atou(major, &x);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         r = safe_atou(s + n + 1, &y);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (!DEVICE_MAJOR_VALID(x) || !DEVICE_MINOR_VALID(y))
-                return -ERANGE;
+        எனில் (!DEVICE_MAJOR_VALID(x) || !DEVICE_MINOR_VALID(y))
+                திரும்பு -ERANGE;
 
         *ret = makedev(x, y);
-        return 0;
+        திரும்பு 0;
 }
 
-int device_path_make_major_minor(mode_t mode, dev_t devnum, char **ret) {
-        const char *t;
+முழு device_path_make_major_minor(mode_t mode, dev_t devnum, எழுத்து **ret) {
+        மாறிலி எழுத்து *t;
 
         /* Generates the /dev/{char|block}/MAJOR:MINOR path for a dev_t */
 
-        if (S_ISCHR(mode))
+        எனில் (S_ISCHR(mode))
                 t = "char";
-        else if (S_ISBLK(mode))
+        இல்லையெனில் எனில் (S_ISBLK(mode))
                 t = "block";
-        else
-                return -ENODEV;
+        இல்லையெனில்
+                திரும்பு -ENODEV;
 
-        if (asprintf(ret, "/dev/%s/" DEVNUM_FORMAT_STR, t, DEVNUM_FORMAT_VAL(devnum)) < 0)
-                return -ENOMEM;
+        எனில் (asprintf(ret, "/dev/%s/" DEVNUM_FORMAT_STR, t, DEVNUM_FORMAT_VAL(devnum)) < 0)
+                திரும்பு -ENOMEM;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int device_path_make_inaccessible(mode_t mode, char **ret) {
-        const char *s;
+முழு device_path_make_inaccessible(mode_t mode, எழுத்து **ret) {
+        மாறிலி எழுத்து *s;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (S_ISCHR(mode))
+        எனில் (S_ISCHR(mode))
                 s = "/run/systemd/inaccessible/chr";
-        else if (S_ISBLK(mode))
+        இல்லையெனில் எனில் (S_ISBLK(mode))
                 s = "/run/systemd/inaccessible/blk";
-        else
-                return -ENODEV;
+        இல்லையெனில்
+                திரும்பு -ENODEV;
 
-        return strdup_to(ret, s);
+        திரும்பு strdup_to(ret, s);
 }
 
-int device_path_make_canonical(mode_t mode, dev_t devnum, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+முழு device_path_make_canonical(mode_t mode, dev_t devnum, எழுத்து **ret) {
+        _cleanup_free_ எழுத்து *p = வெற்று;
+        முழு r;
 
         /* Finds the canonical path for a device, i.e. resolves the /dev/{char|block}/MAJOR:MINOR path to the end. */
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (devnum_is_zero(devnum))
+        எனில் (devnum_is_zero(devnum))
                 /* A special hack to make sure our 'inaccessible' device nodes work. They won't have symlinks in
                  * /dev/block/ and /dev/char/, hence we handle them specially here. */
-                return device_path_make_inaccessible(mode, ret);
+                திரும்பு device_path_make_inaccessible(mode, ret);
 
         r = device_path_make_major_minor(mode, devnum, &p);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return chase(p, NULL, 0, ret, NULL);
+        திரும்பு chase(p, வெற்று, 0, ret, வெற்று);
 }
 
-int device_path_parse_major_minor(const char *path, mode_t *ret_mode, dev_t *ret_devnum) {
+முழு device_path_parse_major_minor(மாறிலி எழுத்து *path, mode_t *ret_mode, dev_t *ret_devnum) {
         mode_t mode;
         dev_t devnum;
-        int r;
+        முழு r;
 
         /* Tries to extract the major/minor directly from the device path if we can. Handles /dev/block/ and /dev/char/
          * paths, as well out synthetic inaccessible device nodes. Never goes to disk. Returns -ENODEV if the device
          * path cannot be parsed like this.  */
 
-        if (path_equal(path, "/run/systemd/inaccessible/chr")) {
+        எனில் (path_equal(path, "/run/systemd/inaccessible/chr")) {
                 mode = S_IFCHR;
                 devnum = makedev(0, 0);
-        } else if (path_equal(path, "/run/systemd/inaccessible/blk")) {
+        } இல்லையெனில் எனில் (path_equal(path, "/run/systemd/inaccessible/blk")) {
                 mode = S_IFBLK;
                 devnum = makedev(0, 0);
-        } else {
-                const char *w;
+        } இல்லையெனில் {
+                மாறிலி எழுத்து *w;
 
                 w = path_startswith(path, "/dev/block/");
-                if (w)
+                எனில் (w)
                         mode = S_IFBLK;
-                else {
+                இல்லையெனில் {
                         w = path_startswith(path, "/dev/char/");
-                        if (!w)
-                                return -ENODEV;
+                        எனில் (!w)
+                                திரும்பு -ENODEV;
 
                         mode = S_IFCHR;
                 }
 
                 r = parse_devnum(w, &devnum);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
-        if (ret_mode)
+        எனில் (ret_mode)
                 *ret_mode = mode;
-        if (ret_devnum)
+        எனில் (ret_devnum)
                 *ret_devnum = devnum;
 
-        return 0;
+        திரும்பு 0;
 }
 
-char* format_devnum(dev_t d, char buf[static DEVNUM_STR_MAX]) {
-        return ASSERT_PTR(snprintf_ok(buf, DEVNUM_STR_MAX, DEVNUM_FORMAT_STR, DEVNUM_FORMAT_VAL(d)));
+எழுத்து* format_devnum(dev_t d, எழுத்து buf[நிலையான DEVNUM_STR_MAX]) {
+        திரும்பு ASSERT_PTR(snprintf_ok(buf, DEVNUM_STR_MAX, DEVNUM_FORMAT_STR, DEVNUM_FORMAT_VAL(d)));
 }

@@ -1,227 +1,227 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
+#அந்தர்பாவ <string.h>
 
-#include "alloc-util.h"
-#include "forward.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "forward.h"
 
-#include "../fundamental/string-util.h" /* IWYU pragma: export */
+#அந்தர்பாவ "../fundamental/string-util.h" /* IWYU pragma: export */
 
-static inline char* strstr_ptr_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
-        return (char*) strstr(haystack, needle);
+நிலையான உள்வரி எழுத்து* strstr_ptr_internal(மாறிலி எழுத்து *haystack, மாறிலி எழுத்து *needle) {
+        எனில் (!haystack || !needle)
+                திரும்பு வெற்று;
+        திரும்பு (எழுத்து*) strstr(haystack, needle);
 }
 
 #define strstr_ptr(haystack, needle) \
         const_generic(haystack, strstr_ptr_internal(haystack, needle))
 
-static inline char* strstrafter_internal(const char *haystack, const char *needle) {
+நிலையான உள்வரி எழுத்து* strstrafter_internal(மாறிலி எழுத்து *haystack, மாறிலி எழுத்து *needle) {
         /* Returns NULL if not found, or pointer to first character after needle if found */
 
-        char *p = (char*) strstr_ptr(haystack, needle);
-        if (!p)
-                return NULL;
+        எழுத்து *p = (எழுத்து*) strstr_ptr(haystack, needle);
+        எனில் (!p)
+                திரும்பு வெற்று;
 
-        return p + strlen(needle);
+        திரும்பு p + strlen(needle);
 }
 
 #define strstrafter(haystack, needle) \
         const_generic(haystack, strstrafter_internal(haystack, needle))
 
-static inline const char* strnull(const char *s) {
-        return s ?: "(null)";
+நிலையான உள்வரி மாறிலி எழுத்து* strnull(மாறிலி எழுத்து *s) {
+        திரும்பு s ?: "(null)";
 }
 
-static inline const char* strna(const char *s) {
-        return s ?: "n/a";
+நிலையான உள்வரி மாறிலி எழுத்து* strna(மாறிலி எழுத்து *s) {
+        திரும்பு s ?: "n/a";
 }
 
-static inline const char* true_false(bool b) {
-        return b ? "true" : "false";
+நிலையான உள்வரி மாறிலி எழுத்து* true_false(bool b) {
+        திரும்பு b ? "true" : "false";
 }
 
-static inline const char* plus_minus(bool b) {
-        return b ? "+" : "-";
+நிலையான உள்வரி மாறிலி எழுத்து* plus_minus(bool b) {
+        திரும்பு b ? "+" : "-";
 }
 
-static inline const char* one_zero(bool b) {
-        return b ? "1" : "0";
+நிலையான உள்வரி மாறிலி எழுத்து* one_zero(bool b) {
+        திரும்பு b ? "1" : "0";
 }
 
-static inline const char* enable_disable(bool b) {
-        return b ? "enable" : "disable";
+நிலையான உள்வரி மாறிலி எழுத்து* enable_disable(bool b) {
+        திரும்பு b ? "enable" : "disable";
 }
 
-static inline const char* enabled_disabled(bool b) {
-        return b ? "enabled" : "disabled";
+நிலையான உள்வரி மாறிலி எழுத்து* enabled_disabled(bool b) {
+        திரும்பு b ? "enabled" : "disabled";
 }
 
 /* This macro's return pointer will have the "const" qualifier set or unset the same way as the input
  * pointer. */
 #define empty_to_null(p)                                \
         ({                                              \
-                const char *_p = (p);                   \
-                (typeof(p)) (isempty(_p) ? NULL : _p);  \
+                மாறிலி எழுத்து *_p = (p);                   \
+                (typeof(p)) (isempty(_p) ? வெற்று : _p);  \
         })
 
-static inline const char* empty_to_na(const char *p) {
-        return isempty(p) ? "n/a" : p;
+நிலையான உள்வரி மாறிலி எழுத்து* empty_to_na(மாறிலி எழுத்து *p) {
+        திரும்பு isempty(p) ? "n/a" : p;
 }
 
-static inline const char* empty_to_dash(const char *str) {
-        return isempty(str) ? "-" : str;
+நிலையான உள்வரி மாறிலி எழுத்து* empty_to_dash(மாறிலி எழுத்து *str) {
+        திரும்பு isempty(str) ? "-" : str;
 }
 
-static inline bool empty_or_dash(const char *str) {
-        return !str ||
+நிலையான உள்வரி bool empty_or_dash(மாறிலி எழுத்து *str) {
+        திரும்பு !str ||
                 str[0] == 0 ||
                 (str[0] == '-' && str[1] == 0);
 }
 
-static inline const char* empty_or_dash_to_null(const char *p) {
-        return empty_or_dash(p) ? NULL : p;
+நிலையான உள்வரி மாறிலி எழுத்து* empty_or_dash_to_null(மாறிலி எழுத்து *p) {
+        திரும்பு empty_or_dash(p) ? வெற்று : p;
 }
 #define empty_or_dash_to_null(p)                                \
         ({                                                      \
-                const char *_p = (p);                           \
-                (typeof(p)) (empty_or_dash(_p) ? NULL : _p);    \
+                மாறிலி எழுத்து *_p = (p);                           \
+                (typeof(p)) (empty_or_dash(_p) ? வெற்று : _p);    \
         })
 
-char* first_word(const char *s, const char *word) _pure_;
+எழுத்து* first_word(மாறிலி எழுத்து *s, மாறிலி எழுத்து *word) _pure_;
 
-char* strextendn(char **x, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+எழுத்து* strextendn(எழுத்து **x, மாறிலி எழுத்து *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-#define strjoin(a, ...) strextend_with_separator_internal(NULL, NULL, a, __VA_ARGS__, NULL)
+#define strjoin(a, ...) strextend_with_separator_internal(வெற்று, வெற்று, a, __VA_ARGS__, வெற்று)
 
 #define strjoina(a, ...)                                                \
         ({                                                              \
-                const char *_appendees_[] = { a, __VA_ARGS__ };         \
-                char *_d_, *_p_;                                        \
+                மாறிலி எழுத்து *_appendees_[] = { a, __VA_ARGS__ };         \
+                எழுத்து *_d_, *_p_;                                        \
                 size_t _len_ = 0;                                       \
                 size_t _i_;                                             \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                க்கு (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _len_ += strlen(_appendees_[_i_]);              \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                _p_ = _d_ = newa(எழுத்து, _len_ + 1);                      \
+                க்கு (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _p_ = stpcpy(_p_, _appendees_[_i_]);            \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-char* strstrip(char *s);
-char* delete_chars(char *s, const char *bad);
-char* delete_trailing_chars(char *s, const char *bad);
-char* truncate_nl_full(char *s, size_t *ret_len);
-static inline char* truncate_nl(char *s) {
-        return truncate_nl_full(s, NULL);
+எழுத்து* strstrip(எழுத்து *s);
+எழுத்து* delete_chars(எழுத்து *s, மாறிலி எழுத்து *bad);
+எழுத்து* delete_trailing_chars(எழுத்து *s, மாறிலி எழுத்து *bad);
+எழுத்து* truncate_nl_full(எழுத்து *s, size_t *ret_len);
+நிலையான உள்வரி எழுத்து* truncate_nl(எழுத்து *s) {
+        திரும்பு truncate_nl_full(s, வெற்று);
 }
 
-static inline char* skip_leading_chars(const char *s, const char *bad) {
-        if (!s)
-                return NULL;
+நிலையான உள்வரி எழுத்து* skip_leading_chars(மாறிலி எழுத்து *s, மாறிலி எழுத்து *bad) {
+        எனில் (!s)
+                திரும்பு வெற்று;
 
-        if (!bad)
+        எனில் (!bad)
                 bad = WHITESPACE;
 
-        return (char*) s + strspn(s, bad);
+        திரும்பு (எழுத்து*) s + strspn(s, bad);
 }
 
-char ascii_tolower(char x) _const_;
-char* ascii_strlower(char *s);
-char* ascii_strlower_n(char *s, size_t n);
+எழுத்து ascii_tolower(எழுத்து x) _const_;
+எழுத்து* ascii_strlower(எழுத்து *s);
+எழுத்து* ascii_strlower_n(எழுத்து *s, size_t n);
 
-char ascii_toupper(char x) _const_;
-char* ascii_strupper(char *s);
+எழுத்து ascii_toupper(எழுத்து x) _const_;
+எழுத்து* ascii_strupper(எழுத்து *s);
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n);
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m);
+முழு ascii_strcasecmp_n(மாறிலி எழுத்து *a, மாறிலி எழுத்து *b, size_t n);
+முழு ascii_strcasecmp_nn(மாறிலி எழுத்து *a, size_t n, மாறிலி எழுத்து *b, size_t m);
 
-bool chars_intersect(const char *a, const char *b) _pure_;
+bool chars_intersect(மாறிலி எழுத்து *a, மாறிலி எழுத்து *b) _pure_;
 
-static inline bool _pure_ in_charset(const char *s, const char *charset) {
-        assert(s);
-        assert(charset);
-        return s[strspn(s, charset)] == '\0';
+நிலையான உள்வரி bool _pure_ in_charset(மாறிலி எழுத்து *s, மாறிலி எழுத்து *charset) {
+        ப்ரதிஜ்ஞா(s);
+        ப்ரதிஜ்ஞா(charset);
+        திரும்பு s[strspn(s, charset)] == '\0';
 }
 
-static inline bool char_is_cc(char p) {
+நிலையான உள்வரி bool char_is_cc(எழுத்து p) {
         /* char is unsigned on some architectures, e.g. aarch64. So, compiler may warn the condition
          * p >= 0 is always true. See #19543. Hence, let's cast to unsigned before the comparison. Note
          * that the cast in the right hand side is redundant, as according to the C standard, compilers
          * automatically cast a signed value to unsigned when comparing with an unsigned variable. Just
          * for safety and readability. */
-        return (uint8_t) p < (uint8_t) ' ' || p == 127;
+        திரும்பு (uint8_t) p < (uint8_t) ' ' || p == 127;
 }
-bool string_has_cc(const char *p, const char *ok) _pure_;
+bool string_has_cc(மாறிலி எழுத்து *p, மாறிலி எழுத்து *ok) _pure_;
 
-char* ellipsize_mem(const char *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
-static inline char* ellipsize(const char *s, size_t length, unsigned percent) {
-        return ellipsize_mem(s, strlen(s), length, percent);
+எழுத்து* ellipsize_mem(மாறிலி எழுத்து *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
+நிலையான உள்வரி எழுத்து* ellipsize(மாறிலி எழுத்து *s, size_t length, unsigned percent) {
+        திரும்பு ellipsize_mem(s, strlen(s), length, percent);
 }
 
-char* cellescape(char *buf, size_t len, const char *s);
+எழுத்து* cellescape(எழுத்து *buf, size_t len, மாறிலி எழுத்து *s);
 
 /* This limit is arbitrary, enough to give some idea what the string contains */
 #define CELLESCAPE_DEFAULT_LENGTH 64
 
-char* strshorten(char *s, size_t l);
+எழுத்து* strshorten(எழுத்து *s, size_t l);
 
-int strgrowpad0(char **s, size_t l);
+முழு strgrowpad0(எழுத்து **s, size_t l);
 
-char* strreplace(const char *text, const char *old_string, const char *new_string);
+எழுத்து* strreplace(மாறிலி எழுத்து *text, மாறிலி எழுத்து *old_string, மாறிலி எழுத்து *new_string);
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]);
+எழுத்து* strip_tab_ansi(எழுத்து **ibuf, size_t *_isz, size_t highlight[2]);
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap);
-char* strextend_with_separator_internal(char **x, const char *separator, ...) _sentinel_;
-#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, NULL)
-#define strextend(x, ...) strextend_with_separator_internal(x, NULL, __VA_ARGS__, NULL)
+எழுத்து* strextendv_with_separator(எழுத்து **x, மாறிலி எழுத்து *separator, va_list ap);
+எழுத்து* strextend_with_separator_internal(எழுத்து **x, மாறிலி எழுத்து *separator, ...) _sentinel_;
+#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, வெற்று)
+#define strextend(x, ...) strextend_with_separator_internal(x, வெற்று, __VA_ARGS__, வெற்று)
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) _printf_(3,4);
-#define strextendf(x, ...) strextendf_with_separator(x, NULL, __VA_ARGS__)
+முழு strextendf_with_separator(எழுத்து **x, மாறிலி எழுத்து *separator, மாறிலி எழுத்து *format, ...) _printf_(3,4);
+#define strextendf(x, ...) strextendf_with_separator(x, வெற்று, __VA_ARGS__)
 
 #define strprepend_with_separator(x, separator, ...)                            \
         ({                                                                      \
-                char **_p_ = ASSERT_PTR(x), *_s_;                               \
-                _s_ = strextend_with_separator_internal(NULL, (separator), __VA_ARGS__, empty_to_null(*_p_), NULL); \
-                if (_s_) {                                                      \
-                        free(*_p_);                                             \
+                எழுத்து **_p_ = ASSERT_PTR(x), *_s_;                               \
+                _s_ = strextend_with_separator_internal(வெற்று, (separator), __VA_ARGS__, empty_to_null(*_p_), வெற்று); \
+                எனில் (_s_) {                                                      \
+                        விடுவி(*_p_);                                             \
                         *_p_ = _s_;                                             \
                 }                                                               \
                 _s_;                                                            \
         })
-#define strprepend(x, ...) strprepend_with_separator(x, NULL, __VA_ARGS__)
+#define strprepend(x, ...) strprepend_with_separator(x, வெற்று, __VA_ARGS__)
 
-char* strrep(const char *s, size_t n);
+எழுத்து* strrep(மாறிலி எழுத்து *s, size_t n);
 
 #define strrepa(s, n)                                                   \
         ({                                                              \
-                const char *_sss_ = (s);                                \
+                மாறிலி எழுத்து *_sss_ = (s);                                \
                 size_t _nnn_ = (n), _len_ = strlen(_sss_);              \
                 assert_se(MUL_ASSIGN_SAFE(&_len_, _nnn_));              \
-                char *_d_, *_p_;                                        \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
+                எழுத்து *_d_, *_p_;                                        \
+                _p_ = _d_ = newa(எழுத்து, _len_ + 1);                      \
+                க்கு (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
                         _p_ = stpcpy(_p_, _sss_);                       \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second);
+முழு split_pair(மாறிலி எழுத்து *s, மாறிலி எழுத்து *sep, எழுத்து **ret_first, எழுத்து **ret_second);
 
-int free_and_strdup(char **p, const char *s);
-int free_and_strdup_warn(char **p, const char *s);
-int free_and_strndup(char **p, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+முழு free_and_strdup(எழுத்து **p, மாறிலி எழுத்து *s);
+முழு free_and_strdup_warn(எழுத்து **p, மாறிலி எழுத்து *s);
+முழு free_and_strndup(எழுத்து **p, மாறிலி எழுத்து *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-int strdup_to_full(char **ret, const char *src);
-static inline int strdup_to(char **ret, const char *src) {
-        int r = strdup_to_full(ASSERT_PTR(ret), src);
-        return r < 0 ? r : 0;  /* Suppress return value of 1. */
+முழு strdup_to_full(எழுத்து **ret, மாறிலி எழுத்து *src);
+நிலையான உள்வரி முழு strdup_to(எழுத்து **ret, மாறிலி எழுத்து *src) {
+        முழு r = strdup_to_full(ASSERT_PTR(ret), src);
+        திரும்பு r < 0 ? r : 0;  /* Suppress return value of 1. */
 }
 
-typedef enum StringSafeFlags {
+வகைவரை எண்ணிக்கை StringSafeFlags {
         STRING_ASCII               = 1 << 0, /* Verify string is 7-Bit ASCII (rather than just UTF-8) */
         STRING_ALLOW_EMPTY         = 1 << 1, /* Allow empty strings */
         STRING_ALLOW_NEWLINES      = 1 << 2, /* Allow newlines (\n) */
@@ -233,10 +233,10 @@ typedef enum StringSafeFlags {
         STRING_DISALLOW_WHITESPACE = 1 << 8, /* Refuse whitespace (space, tab, newline, …) */
 } StringSafeFlags;
 
-bool string_is_safe(const char *p, StringSafeFlags flags) _pure_;
+bool string_is_safe(மாறிலி எழுத்து *p, StringSafeFlags flags) _pure_;
 
 DISABLE_WARNING_STRINGOP_TRUNCATION;
-static inline void strncpy_exact(char *buf, const char *src, size_t buf_len) {
+நிலையான உள்வரி வெறுமை strncpy_exact(எழுத்து *buf, மாறிலி எழுத்து *src, size_t buf_len) {
         strncpy(buf, src, buf_len);
 }
 REENABLE_WARNING;
@@ -244,38 +244,38 @@ REENABLE_WARNING;
 /* Like startswith_no_case(), but operates on arbitrary memory blocks.
  * It works only for ASCII strings.
  */
-static inline void* memory_startswith_no_case(const void *p, size_t sz, const char *token) {
-        assert(token);
+நிலையான உள்வரி வெறுமை* memory_startswith_no_case(மாறிலி வெறுமை *p, size_t sz, மாறிலி எழுத்து *token) {
+        ப்ரதிஜ்ஞா(token);
 
         size_t n = strlen(token);
-        if (sz < n)
-                return NULL;
+        எனில் (sz < n)
+                திரும்பு வெற்று;
 
-        assert(p);
+        ப்ரதிஜ்ஞா(p);
 
-        for (size_t i = 0; i < n; i++)
-                if (ascii_tolower(((char *)p)[i]) != ascii_tolower(token[i]))
-                        return NULL;
+        க்கு (size_t i = 0; i < n; i++)
+                எனில் (ascii_tolower(((எழுத்து *)p)[i]) != ascii_tolower(token[i]))
+                        திரும்பு வெற்று;
 
-        return (uint8_t*) p + n;
+        திரும்பு (uint8_t*) p + n;
 }
 
-char* str_realloc(char *p);
-char* string_erase(char *x);
+எழுத்து* str_realloc(எழுத்து *p);
+எழுத்து* string_erase(எழுத்து *x);
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret);
-int string_extract_line(const char *s, size_t i, char **ret);
+முழு string_truncate_வரிகள்(மாறிலி எழுத்து *s, size_t n_வரிகள், எழுத்து **ret);
+முழு string_extract_வரி(மாறிலி எழுத்து *s, size_t i, எழுத்து **ret);
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
-static inline int string_contains_word(const char *string, const char *separators, const char *word) {
-        return string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
+முழு string_contains_word_strv(மாறிலி எழுத்து *string, மாறிலி எழுத்து *separators, எழுத்து * மாறிலி *சொற்கள், மாறிலி எழுத்து **ret_word);
+நிலையான உள்வரி முழு string_contains_word(மாறிலி எழுத்து *string, மாறிலி எழுத்து *separators, மாறிலி எழுத்து *word) {
+        திரும்பு string_contains_word_strv(string, separators, STRV_MAKE(word), வெற்று);
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok);
+bool streq_skip_trailing_chars(மாறிலி எழுத்து *s1, மாறிலி எழுத்து *s2, மாறிலி எழுத்து *ok);
 
-char* string_replace_char(char *str, char old_char, char new_char);
+எழுத்து* string_replace_char(எழுத்து *str, எழுத்து old_char, எழுத்து new_char);
 
-typedef enum MakeCStringMode {
+வகைவரை எண்ணிக்கை MakeCStringMode {
         MAKE_CSTRING_REFUSE_TRAILING_NUL,
         MAKE_CSTRING_ALLOW_TRAILING_NUL,
         MAKE_CSTRING_REQUIRE_TRAILING_NUL,
@@ -283,55 +283,55 @@ typedef enum MakeCStringMode {
         _MAKE_CSTRING_MODE_INVALID = -1,
 } MakeCStringMode;
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret);
+முழு make_cstring(மாறிலி வெறுமை *s, size_t n, MakeCStringMode mode, எழுத்து **ret);
 
-size_t strspn_from_end(const char *str, const char *accept) _pure_;
-size_t strnspn(const char *str, const char *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
+size_t strspn_from_end(மாறிலி எழுத்து *str, மாறிலி எழுத்து *accept) _pure_;
+size_t strnspn(மாறிலி எழுத்து *str, மாறிலி எழுத்து *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
 
-char* strdupspn(const char *a, const char *accept);
-char* strdupcspn(const char *a, const char *reject);
+எழுத்து* strdupspn(மாறிலி எழுத்து *a, மாறிலி எழுத்து *accept);
+எழுத்து* strdupcspn(மாறிலி எழுத்து *a, மாறிலி எழுத்து *reject);
 
 /* These are like strdupa()/strndupa(), but honour ALLOCA_MAX */
 #define strdupa_safe(s)                                                 \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strlen(_t));                \
+                மாறிலி எழுத்து *_t = (s);                                   \
+                (எழுத்து*) memdupa_suffix0(_t, strlen(_t));                \
         })
 
 #define strndupa_safe(s, n)                                             \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strnlen(_t, n));            \
+                மாறிலி எழுத்து *_t = (s);                                   \
+                (எழுத்து*) memdupa_suffix0(_t, strnlen(_t, n));            \
         })
 
-char* find_line_startswith_internal(const char *haystack, const char *needle);
-#define find_line_startswith(haystack, needle) \
-        const_generic(haystack, find_line_startswith_internal(haystack, needle))
+எழுத்து* find_வரி_startswith_internal(மாறிலி எழுத்து *haystack, மாறிலி எழுத்து *needle);
+#define find_வரி_startswith(haystack, needle) \
+        const_generic(haystack, find_வரி_startswith_internal(haystack, needle))
 
-char* find_line_internal(const char *haystack, const char *needle);
-#define find_line(haystack, needle) \
-        const_generic(haystack, find_line_internal(haystack, needle))
+எழுத்து* find_வரி_internal(மாறிலி எழுத்து *haystack, மாறிலி எழுத்து *needle);
+#define find_வரி(haystack, needle) \
+        const_generic(haystack, find_வரி_internal(haystack, needle))
 
-char* find_line_after_internal(const char *haystack, const char *needle);
-#define find_line_after(haystack, needle) \
-        const_generic(haystack, find_line_after_internal(haystack, needle))
+எழுத்து* find_வரி_after_internal(மாறிலி எழுத்து *haystack, மாறிலி எழுத்து *needle);
+#define find_வரி_after(haystack, needle) \
+        const_generic(haystack, find_வரி_after_internal(haystack, needle))
 
-typedef enum VersionFlags {
+வகைவரை எண்ணிக்கை VersionFlags {
         VERSION_ALLOW_EMPTY      = 1 << 0,
         VERSION_ALLOW_UNDERSCORE = 1 << 1, /* Allow "_" as separator (recommended separator) */
         VERSION_ALLOW_PLUS       = 1 << 2, /* Allow "+" as separator (sometimes used as separator for boot attempt counters) */
 } VersionFlags;
 
-bool version_is_valid(const char *s, VersionFlags flags) _pure_;
+bool version_is_valid(மாறிலி எழுத்து *s, VersionFlags flags) _pure_;
 
-ssize_t strlevenshtein(const char *x, const char *y);
+ssize_t strlevenshtein(மாறிலி எழுத்து *x, மாறிலி எழுத்து *y);
 
-char* strrstr_internal(const char *haystack, const char *needle) _pure_;
+எழுத்து* strrstr_internal(மாறிலி எழுத்து *haystack, மாறிலி எழுத்து *needle) _pure_;
 #define strrstr(haystack, needle) \
         const_generic(haystack, strrstr_internal(haystack, needle))
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) _pure_;
+எழுத்து* strrstr_no_case_internal(மாறிலி எழுத்து *haystack, மாறிலி எழுத்து *needle) _pure_;
 #define strrstr_no_case(haystack, needle) \
         const_generic(haystack, strrstr_no_case_internal(haystack, needle))
 
-size_t str_common_prefix(const char *a, const char *b) _pure_;
+size_t str_common_prefix(மாறிலி எழுத்து *a, மாறிலி எழுத்து *b) _pure_;

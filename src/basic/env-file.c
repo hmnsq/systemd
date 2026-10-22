@@ -1,660 +1,660 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#அந்தர்பாவ <sys/stat.h>
+#அந்தர்பாவ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "env-file.h"
+#அந்தர்பாவ "env-util.h"
+#அந்தர்பாவ "escape.h"
+#அந்தர்பாவ "fd-util.h"
+#அந்தர்பாவ "fileio.h"
+#அந்தர்பாவ "fs-util.h"
+#அந்தர்பாவ "label-util.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "strv.h"
+#அந்தர்பாவ "tmpfile-util.h"
+#அந்தர்பாவ "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+வகைவரை முழு (*தள்ளு_env_func_t)(
+                மாறிலி எழுத்து *filename,
+                unsigned வரி,
+                மாறிலி எழுத்து *சாவி,
+                எழுத்து *மதிப்பு,
+                வெறுமை *userdata);
 
-static int parse_env_file_internal(
+நிலையான முழு parse_env_file_internal(
                 FILE *f,
-                const char *fname,
-                push_env_func_t push,
-                void *userdata) {
+                மாறிலி எழுத்து *fname,
+                தள்ளு_env_func_t தள்ளு,
+                வெறுமை *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
-        int r;
+        size_t n_சாவி = 0, n_மதிப்பு = 0, last_மதிப்பு_whitespace = SIZE_MAX, last_சாவி_whitespace = SIZE_MAX;
+        _cleanup_free_ எழுத்து *contents = வெற்று, *சாவி = வெற்று, *மதிப்பு = வெற்று;
+        unsigned வரி = 1;
+        முழு r;
 
-        enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+        எண்ணிக்கை {
+                PRE_சாவி,
+                சாவி_2,
+                PRE_மதிப்பு,
+                மதிப்பு_2,
+                மதிப்பு_ESCAPE,
+                SINGLE_QUOTE_மதிப்பு,
+                DOUBLE_QUOTE_மதிப்பு,
+                DOUBLE_QUOTE_மதிப்பு_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_சாவி;
 
-        assert(f || fname);
-        assert(push);
+        ப்ரதிஜ்ஞா(f || fname);
+        ப்ரதிஜ்ஞா(தள்ளு);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        எனில் (f)
+                r = read_full_stream(f, &contents, வெற்று);
+        இல்லையெனில்
+                r = read_full_file(fname, &contents, வெற்று);
+        எனில் (r < 0)
+                திரும்பு r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        க்கு (எழுத்து *p = contents; *p; p++) {
+                எழுத்து c = *p;
 
-                switch (state) {
+                தேர்வு (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                நிலை PRE_சாவி:
+                        எனில் (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                        இல்லையெனில் எனில் (!strchr(WHITESPACE, c)) {
+                                state = சாவி_2;
+                                last_சாவி_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                எனில் (!GREEDY_REALLOC(சாவி, n_சாவி+2))
+                                        திரும்பு -ENOMEM;
 
-                                key[n_key++] = c;
+                                சாவி[n_சாவி++] = c;
                         }
-                        break;
+                        நிறுத்து;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
-                        } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                நிலை சாவி_2:
+                        எனில் (strchr(NEWLINE, c)) {
+                                state = PRE_சாவி;
+                                வரி++;
+                                n_சாவி = 0;
+                        } இல்லையெனில் எனில் (c == '=') {
+                                state = PRE_மதிப்பு;
+                                last_மதிப்பு_whitespace = SIZE_MAX;
+                        } இல்லையெனில் {
+                                எனில் (!strchr(WHITESPACE, c))
+                                        last_சாவி_whitespace = SIZE_MAX;
+                                இல்லையெனில் எனில் (last_சாவி_whitespace == SIZE_MAX)
+                                         last_சாவி_whitespace = n_சாவி;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                எனில் (!GREEDY_REALLOC(சாவி, n_சாவி+2))
+                                        திரும்பு -ENOMEM;
 
-                                key[n_key++] = c;
+                                சாவி[n_சாவி++] = c;
                         }
 
-                        break;
+                        நிறுத்து;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                நிலை PRE_மதிப்பு:
+                        எனில் (strchr(NEWLINE, c)) {
+                                state = PRE_சாவி;
+                                வரி++;
+                                சாவி[n_சாவி] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                எனில் (மதிப்பு)
+                                        மதிப்பு[n_மதிப்பு] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                எனில் (last_சாவி_whitespace != SIZE_MAX)
+                                        சாவி[last_சாவி_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = தள்ளு(fname, வரி, சாவி, மதிப்பு, userdata);
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_சாவி = 0;
+                                மதிப்பு = வெற்று;
+                                n_மதிப்பு = 0;
 
-                        } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
-                                state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                        } இல்லையெனில் எனில் (c == '\'')
+                                state = SINGLE_QUOTE_மதிப்பு;
+                        இல்லையெனில் எனில் (c == '"')
+                                state = DOUBLE_QUOTE_மதிப்பு;
+                        இல்லையெனில் எனில் (c == '\\')
+                                state = மதிப்பு_ESCAPE;
+                        இல்லையெனில் எனில் (!strchr(WHITESPACE, c)) {
+                                state = மதிப்பு_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                எனில் (!GREEDY_REALLOC(மதிப்பு, n_மதிப்பு+2))
+                                        திரும்பு -ENOMEM;
 
-                                value[n_value++] = c;
+                                மதிப்பு[n_மதிப்பு++] = c;
                         }
 
-                        break;
+                        நிறுத்து;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                நிலை மதிப்பு_2:
+                        எனில் (strchr(NEWLINE, c)) {
+                                state = PRE_சாவி;
+                                வரி++;
 
-                                key[n_key] = 0;
+                                சாவி[n_சாவி] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                எனில் (மதிப்பு)
+                                        மதிப்பு[n_மதிப்பு] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                எனில் (last_மதிப்பு_whitespace != SIZE_MAX)
+                                        மதிப்பு[last_மதிப்பு_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                எனில் (last_சாவி_whitespace != SIZE_MAX)
+                                        சாவி[last_சாவி_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = தள்ளு(fname, வரி, சாவி, மதிப்பு, userdata);
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_சாவி = 0;
+                                மதிப்பு = வெற்று;
+                                n_மதிப்பு = 0;
 
-                        } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                        } இல்லையெனில் எனில் (c == '\\') {
+                                state = மதிப்பு_ESCAPE;
+                                last_மதிப்பு_whitespace = SIZE_MAX;
+                        } இல்லையெனில் {
+                                எனில் (!strchr(WHITESPACE, c))
+                                        last_மதிப்பு_whitespace = SIZE_MAX;
+                                இல்லையெனில் எனில் (last_மதிப்பு_whitespace == SIZE_MAX)
+                                        last_மதிப்பு_whitespace = n_மதிப்பு;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                எனில் (!GREEDY_REALLOC(மதிப்பு, n_மதிப்பு+2))
+                                        திரும்பு -ENOMEM;
 
-                                value[n_value++] = c;
+                                மதிப்பு[n_மதிப்பு++] = c;
                         }
 
-                        break;
+                        நிறுத்து;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                நிலை மதிப்பு_ESCAPE:
+                        state = மதிப்பு_2;
 
-                        if (!strchr(NEWLINE, c)) {
+                        எனில் (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                எனில் (!GREEDY_REALLOC(மதிப்பு, n_மதிப்பு+2))
+                                        திரும்பு -ENOMEM;
 
-                                value[n_value++] = c;
+                                மதிப்பு[n_மதிப்பு++] = c;
                         }
-                        break;
+                        நிறுத்து;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
-                                state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                நிலை SINGLE_QUOTE_மதிப்பு:
+                        எனில் (c == '\'')
+                                state = PRE_மதிப்பு;
+                        இல்லையெனில் {
+                                எனில் (!GREEDY_REALLOC(மதிப்பு, n_மதிப்பு+2))
+                                        திரும்பு -ENOMEM;
 
-                                value[n_value++] = c;
-                        }
-
-                        break;
-
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
-                                state = PRE_VALUE;
-                        else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-
-                                value[n_value++] = c;
+                                மதிப்பு[n_மதிப்பு++] = c;
                         }
 
-                        break;
+                        நிறுத்து;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                நிலை DOUBLE_QUOTE_மதிப்பு:
+                        எனில் (c == '"')
+                                state = PRE_மதிப்பு;
+                        இல்லையெனில் எனில் (c == '\\')
+                                state = DOUBLE_QUOTE_மதிப்பு_ESCAPE;
+                        இல்லையெனில் {
+                                எனில் (!GREEDY_REALLOC(மதிப்பு, n_மதிப்பு+2))
+                                        திரும்பு -ENOMEM;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                                மதிப்பு[n_மதிப்பு++] = c;
+                        }
+
+                        நிறுத்து;
+
+                நிலை DOUBLE_QUOTE_மதிப்பு_ESCAPE:
+                        state = DOUBLE_QUOTE_மதிப்பு;
+
+                        எனில் (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-                                value[n_value++] = c;
-                        } else if (c != '\n') {
+                                எனில் (!GREEDY_REALLOC(மதிப்பு, n_மதிப்பு+2))
+                                        திரும்பு -ENOMEM;
+                                மதிப்பு[n_மதிப்பு++] = c;
+                        } இல்லையெனில் எனில் (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                எனில் (!GREEDY_REALLOC(மதிப்பு, n_மதிப்பு+3))
+                                        திரும்பு -ENOMEM;
+                                மதிப்பு[n_மதிப்பு++] = '\\';
+                                மதிப்பு[n_மதிப்பு++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        நிறுத்து;
 
-                case COMMENT:
-                        if (c == '\\')
+                நிலை COMMENT:
+                        எனில் (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                        இல்லையெனில் எனில் (strchr(NEWLINE, c)) {
+                                state = PRE_சாவி;
+                                வரி++;
                         }
-                        break;
+                        நிறுத்து;
 
-                case COMMENT_ESCAPE:
+                நிலை COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                        } else
+                        எனில் (strchr(NEWLINE, c)) {
+                                state = PRE_சாவி;
+                                வரி++;
+                        } இல்லையெனில்
                                 state = COMMENT;
-                        break;
+                        நிறுத்து;
                 }
         }
 
-        if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+        எனில் (IN_SET(state,
+                   PRE_மதிப்பு,
+                   மதிப்பு_2,
+                   மதிப்பு_ESCAPE,
+                   SINGLE_QUOTE_மதிப்பு,
+                   DOUBLE_QUOTE_மதிப்பு,
+                   DOUBLE_QUOTE_மதிப்பு_ESCAPE)) {
 
-                key[n_key] = 0;
+                சாவி[n_சாவி] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                எனில் (மதிப்பு)
+                        மதிப்பு[n_மதிப்பு] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                எனில் (state == மதிப்பு_2)
+                        எனில் (last_மதிப்பு_whitespace != SIZE_MAX)
+                                மதிப்பு[last_மதிப்பு_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                எனில் (last_சாவி_whitespace != SIZE_MAX)
+                        சாவி[last_சாவி_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                r = தள்ளு(fname, வரி, சாவி, மதிப்பு, userdata);
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                value = NULL;
+                மதிப்பு = வெற்று;
         }
 
-        return 0;
+        திரும்பு 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+நிலையான முழு check_utf8ness_and_warn(
+                மாறிலி எழுத்து *filename, unsigned வரி,
+                மாறிலி எழுத்து *சாவி, எழுத்து *மதிப்பு) {
 
-        assert(key);
+        ப்ரதிஜ்ஞா(சாவி);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        எனில் (!utf8_is_valid(சாவி)) {
+                _cleanup_free_ எழுத்து *p = வெற்று;
 
-                p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(சாவி);
+                திரும்பு log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), வரி, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        எனில் (மதிப்பு && !utf8_is_valid(மதிப்பு)) {
+                _cleanup_free_ எழுத்து *p = வெற்று;
 
-                p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(மதிப்பு);
+                திரும்பு log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), வரி, சாவி, p);
         }
 
-        return 0;
+        திரும்பு 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+நிலையான முழு parse_env_file_தள்ளு(
+                மாறிலி எழுத்து *filename, unsigned வரி,
+                மாறிலி எழுத்து *சாவி, எழுத்து *மதிப்பு,
+                வெறுமை *userdata) {
 
-        const char *k;
+        மாறிலி எழுத்து *k;
         va_list aq, *ap = userdata;
-        int r;
+        முழு r;
 
-        assert(key);
+        ப்ரதிஜ்ஞா(சாவி);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, வரி, சாவி, மதிப்பு);
+        எனில் (r < 0)
+                திரும்பு r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        போது ((k = va_arg(aq, மாறிலி எழுத்து *))) {
+                எழுத்து **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, எழுத்து **);
 
-                if (streq(key, k)) {
+                எனில் (streq(சாவி, k)) {
                         va_end(aq);
-                        free_and_replace(*v, value);
+                        free_and_replace(*v, மதிப்பு);
 
-                        return 1;
+                        திரும்பு 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        விடுவி(மதிப்பு);
 
-        return 0;
+        திரும்பு 0;
 }
 
-int parse_env_filev(
+முழு parse_env_filev(
                 FILE *f,
-                const char *fname,
+                மாறிலி எழுத்து *fname,
                 va_list ap) {
 
-        int r;
+        முழு r;
         va_list aq;
 
-        assert(f || fname);
+        ப்ரதிஜ்ஞா(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_தள்ளு, &aq);
         va_end(aq);
-        return r;
+        திரும்பு r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
+முழு parse_env_file_fdv(முழு fd, மாறிலி எழுத்து *fname, va_list ap) {
+        _cleanup_fclose_ FILE *f = வெற்று;
         va_list aq;
-        int r;
+        முழு r;
 
-        assert(fd >= 0);
+        ப்ரதிஜ்ஞா(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_தள்ளு, &aq);
         va_end(aq);
-        return r;
+        திரும்பு r;
 }
 
-int parse_env_file_sentinel(
+முழு parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                மாறிலி எழுத்து *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        முழு r;
 
-        assert(f || fname);
+        ப்ரதிஜ்ஞா(f || fname);
 
         va_start(ap, fname);
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        திரும்பு r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+முழு parse_env_file_fd_sentinel(
+                முழு fd,
+                மாறிலி எழுத்து *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        முழு r;
 
-        assert(fd >= 0);
+        ப்ரதிஜ்ஞா(fd >= 0);
 
         va_start(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        திரும்பு r;
 }
 
-int parse_env_datav(
-                const char *data,
+முழு parse_env_datav(
+                மாறிலி எழுத்து *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                மாறிலி எழுத்து *fname, /* only used for logging */
                 va_list ap) {
 
-        assert(data);
+        ப்ரதிஜ்ஞா(data);
 
-        if (size == SIZE_MAX)
+        எனில் (size == SIZE_MAX)
                 size = strlen_ptr(data);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ FILE *f = fmemopen_unlocked((வெறுமை*) data, size, "r");
+        எனில் (!f)
+                திரும்பு -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        திரும்பு parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
+முழு parse_env_data_sentinel(
+                மாறிலி எழுத்து *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                மாறிலி எழுத்து *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        முழு r;
 
         va_start(ap, fname);
         r = parse_env_datav(data, size, fname, ap);
         va_end(ap);
 
-        return r;
+        திரும்பு r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+நிலையான முழு load_env_file_தள்ளு(
+                மாறிலி எழுத்து *filename, unsigned வரி,
+                மாறிலி எழுத்து *சாவி, எழுத்து *மதிப்பு,
+                வெறுமை *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        எழுத்து ***m = userdata;
+        எழுத்து *p;
+        முழு r;
 
-        assert(key);
+        ப்ரதிஜ்ஞா(சாவி);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, வரி, சாவி, மதிப்பு);
+        எனில் (r < 0)
+                திரும்பு r;
 
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        p = strjoin(சாவி, "=", மதிப்பு);
+        எனில் (!p)
+                திரும்பு -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        free(value);
-        return 0;
+        விடுவி(மதிப்பு);
+        திரும்பு 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+முழு load_env_file(FILE *f, மாறிலி எழுத்து *fname, எழுத்து ***ret) {
+        _cleanup_strv_free_ எழுத்து **m = வெற்று;
+        முழு r;
 
-        assert(f || fname);
-        assert(ret);
+        ப்ரதிஜ்ஞா(f || fname);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_தள்ளு, &m);
+        எனில் (r < 0)
+                திரும்பு r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        திரும்பு 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+நிலையான முழு load_env_file_தள்ளு_pairs(
+                மாறிலி எழுத்து *filename, unsigned வரி,
+                மாறிலி எழுத்து *சாவி, எழுத்து *மதிப்பு,
+                வெறுமை *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        எழுத்து ***m = ASSERT_PTR(userdata);
+        முழு r;
 
-        assert(key);
+        ப்ரதிஜ்ஞா(சாவி);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, வரி, சாவி, மதிப்பு);
+        எனில் (r < 0)
+                திரும்பு r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        க்கு (எழுத்து **t = *m; t && *t; t += 2)
+                எனில் (streq(t[0], சாவி)) {
+                        எனில் (மதிப்பு)
+                                திரும்பு free_and_replace(t[1], மதிப்பு);
+                        இல்லையெனில்
+                                திரும்பு free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        r = strv_extend(m, சாவி);
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        எனில் (மதிப்பு)
+                திரும்பு strv_தள்ளு(m, மதிப்பு);
+        இல்லையெனில்
+                திரும்பு strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+முழு load_env_file_pairs(FILE *f, மாறிலி எழுத்து *fname, எழுத்து ***ret) {
+        _cleanup_strv_free_ எழுத்து **m = வெற்று;
+        முழு r;
 
-        assert(f || fname);
-        assert(ret);
+        ப்ரதிஜ்ஞா(f || fname);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_தள்ளு_pairs, &m);
+        எனில் (r < 0)
+                திரும்பு r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        திரும்பு 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+முழு load_env_file_pairs_fd(முழு fd, மாறிலி எழுத்து *fname, எழுத்து ***ret) {
+        _cleanup_fclose_ FILE *f = வெற்று;
+        முழு r;
 
-        assert(fd >= 0);
+        ப்ரதிஜ்ஞா(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return load_env_file_pairs(f, fname, ret);
+        திரும்பு load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+நிலையான முழு merge_env_file_தள்ளு(
+                மாறிலி எழுத்து *filename, unsigned வரி,
+                மாறிலி எழுத்து *சாவி, எழுத்து *மதிப்பு,
+                வெறுமை *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        எழுத்து ***env = ASSERT_PTR(userdata);
+        எழுத்து *expanded_மதிப்பு;
+        முழு r;
 
-        assert(key);
+        ப்ரதிஜ்ஞா(சாவி);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+        எனில் (!மதிப்பு) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), வரி, சாவி);
+                திரும்பு 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+        எனில் (!env_name_is_valid(சாவி)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), வரி, சாவி);
+                விடுவி(மதிப்பு);
+                திரும்பு 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(மதிப்பு,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                        &expanded_மதிப்பு);
+        எனில் (r < 0)
+                திரும்பு log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), வரி, மதிப்பு);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(மதிப்பு, expanded_மதிப்பு);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, வரி, சாவி, மதிப்பு);
 
-        return load_env_file_push(filename, line, key, value, env);
+        திரும்பு load_env_file_தள்ளு(filename, வரி, சாவி, மதிப்பு, env);
 }
 
-int merge_env_file(
-                char ***env,
+முழு merge_env_file(
+                எழுத்து ***env,
                 FILE *f,
-                const char *fname) {
+                மாறிலி எழுத்து *fname) {
 
-        assert(env);
-        assert(f || fname);
+        ப்ரதிஜ்ஞா(env);
+        ப்ரதிஜ்ஞா(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        திரும்பு parse_env_file_internal(f, fname, merge_env_file_தள்ளு, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+நிலையான வெறுமை env_file_fputs_escaped(FILE *f, மாறிலி எழுத்து *p) {
+        ப்ரதிஜ்ஞா(f);
+        ப்ரதிஜ்ஞா(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        எனில் (string_has_cc(p, வெற்று) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                க்கு (; *p; p++) {
+                        எனில் (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } இல்லையெனில்
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+வெறுமை env_file_fputs_assignment(FILE *f, மாறிலி எழுத்து *k, மாறிலி எழுத்து *v) {
+        ப்ரதிஜ்ஞா(f);
+        ப்ரதிஜ்ஞா(k);
 
-        if (!v)
-                return;
+        எனில் (!v)
+                திரும்பு;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+நிலையான வெறுமை write_env_var(FILE *f, மாறிலி எழுத்து *v) {
+        மாறிலி எழுத்து *p;
 
-        assert(f);
-        assert(v);
+        ப்ரதிஜ்ஞா(f);
+        ப்ரதிஜ்ஞா(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        எனில் (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                திரும்பு;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+முழு write_env_file_label(முழு dir_fd, மாறிலி எழுத்து *fname, எழுத்து **headers, எழுத்து **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        முழு r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        ப்ரதிஜ்ஞா(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ப்ரதிஜ்ஞா(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        எனில் (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ FILE *f = வெற்று;
+        _cleanup_free_ எழுத்து *p = வெற்று;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        எனில் (r < 0) {
+                எனில் (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+                        (வெறுமை) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                திரும்பு r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        எனில் (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ வெற்று, /* created= */ true, label_context);
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+                ப்ரதிஜ்ஞா(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        திரும்பு 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+முழு write_vconsole_conf(முழு dir_fd, மாறிலி எழுத்து *fname, எழுத்து **l) {
+        எழுத்து **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        திரும்பு write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ வெற்று);
 }

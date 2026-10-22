@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "stdio-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "stdio-util.h"
 
-char* asprintf_safe(const char *restrict fmt, ...) {
-        _cleanup_free_ char *buf = NULL;
+எழுத்து* asprintf_safe(மாறிலி எழுத்து *restrict fmt, ...) {
+        _cleanup_free_ எழுத்து *buf = வெற்று;
         va_list ap;
-        int r;
+        முழு r;
 
         va_start(ap, fmt);
         r = vasprintf(&buf, fmt, ap);
         va_end(ap);
 
-        if (r < 0)
-                return NULL;
-        return TAKE_PTR(buf);
+        எனில் (r < 0)
+                திரும்பு வெற்று;
+        திரும்பு TAKE_PTR(buf);
 }

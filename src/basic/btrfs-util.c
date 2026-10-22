@@ -1,94 +1,94 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/btrfs.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
+#அந்தர்பாவ <linux/btrfs.h>
+#அந்தர்பாவ <sys/ioctl.h>
+#அந்தர்பாவ <sys/stat.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "path-util.h"
-#include "string-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "btrfs-util.h"
+#அந்தர்பாவ "errno-util.h"
+#அந்தர்பாவ "fd-util.h"
+#அந்தர்பாவ "fs-util.h"
+#அந்தர்பாவ "path-util.h"
+#அந்தர்பாவ "string-util.h"
 
-int btrfs_validate_subvolume_name(const char *name) {
+முழு btrfs_validate_subvolume_name(மாறிலி எழுத்து *name) {
 
-        if (!filename_is_valid(name))
-                return -EINVAL;
+        எனில் (!filename_is_valid(name))
+                திரும்பு -EINVAL;
 
-        if (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
-                return -E2BIG;
+        எனில் (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
+                திரும்பு -E2BIG;
 
-        return 0;
+        திரும்பு 0;
 }
 
-static int extract_subvolume_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+நிலையான முழு extract_subvolume_name(மாறிலி எழுத்து *path, எழுத்து **ret) {
+        _cleanup_free_ எழுத்து *fn = வெற்று;
+        முழு r;
 
-        assert(path);
-        assert(ret);
+        ப்ரதிஜ்ஞா(path);
+        ப்ரதிஜ்ஞா(ret);
 
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         r = btrfs_validate_subvolume_name(fn);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        திரும்பு 0;
 }
 
-int btrfs_subvol_make(int dir_fd, const char *path) {
-        struct btrfs_ioctl_vol_args args = {};
-        _cleanup_free_ char *subvolume = NULL, *parent = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+முழு btrfs_subvol_make(முழு dir_fd, மாறிலி எழுத்து *path) {
+        கட்டமைப்பு btrfs_ioctl_vol_args args = {};
+        _cleanup_free_ எழுத்து *subvolume = வெற்று, *parent = வெற்று;
+        _cleanup_close_ முழு fd = -EBADF;
+        முழு r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(!isempty(path));
+        ப்ரதிஜ்ஞா(wildcard_fd_is_valid(dir_fd));
+        ப்ரதிஜ்ஞா(!isempty(path));
 
         r = extract_subvolume_name(path, &subvolume);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         r = path_extract_directory(path, &parent);
-        if (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
-                return r;
+        எனில் (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
+                திரும்பு r;
 
         fd = xopenat(dir_fd, parent ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        எனில் (fd < 0)
+                திரும்பு fd;
 
-        strncpy(args.name, subvolume, sizeof(args.name)-1);
+        strncpy(args.name, subvolume, அளவு(args.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        திரும்பு RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
 }
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode) {
+முழு btrfs_subvol_make_fallback(முழு dir_fd, மாறிலி எழுத்து *path, mode_t mode) {
         mode_t old, combined;
-        int r;
+        முழு r;
 
-        assert(path);
+        ப்ரதிஜ்ஞா(path);
 
         /* Let's work like mkdir(), i.e. take the specified mode, and mask it with the current umask. */
         old = umask(~mode);
         combined = old | ~mode;
-        if (combined != ~mode)
+        எனில் (combined != ~mode)
                 umask(combined);
         r = btrfs_subvol_make(dir_fd, path);
         umask(old);
 
-        if (r >= 0)
-                return 1; /* subvol worked */
-        if (!ERRNO_IS_NOT_SUPPORTED(r))
-                return r;
+        எனில் (r >= 0)
+                திரும்பு 1; /* subvol worked */
+        எனில் (!ERRNO_IS_NOT_SUPPORTED(r))
+                திரும்பு r;
 
-        if (mkdirat(dir_fd, path, mode) < 0)
-                return -errno;
+        எனில் (mkdirat(dir_fd, path, mode) < 0)
+                திரும்பு -errno;
 
-        return 0; /* plain directory */
+        திரும்பு 0; /* plain directory */
 }

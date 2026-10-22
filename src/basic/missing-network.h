@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <netinet/in.h> /* IWYU pragma: export */
+#அந்தர்பாவ <netinet/in.h> /* IWYU pragma: export */
 
 /* Not exposed but defined at include/net/ip.h */
 #ifndef IPV4_MIN_MTU
@@ -38,7 +38,7 @@
 #endif
 
 /* Not exposed but defined in net/netlabel/netlabel_unlabeled.h */
-enum {
+எண்ணிக்கை {
         NLBL_UNLABEL_C_UNSPEC,
         NLBL_UNLABEL_C_ACCEPT,
         NLBL_UNLABEL_C_LIST,
@@ -52,7 +52,7 @@ enum {
 };
 
 /* Not exposed but defined in net/netlabel/netlabel_unlabeled.h */
-enum {
+எண்ணிக்கை {
         NLBL_UNLABEL_A_UNSPEC,
         NLBL_UNLABEL_A_ACPTFLG,
         NLBL_UNLABEL_A_IPV6ADDR,

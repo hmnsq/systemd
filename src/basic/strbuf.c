@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#அந்தர்பாவ <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "sort-util.h"
+#அந்தர்பாவ "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+கட்டமைப்பு strbuf* strbuf_new(வெறுமை) {
+        _cleanup_(strbuf_freep) கட்டமைப்பு strbuf *str = வெற்று;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(கட்டமைப்பு strbuf, 1);
+        எனில் (!str)
+                திரும்பு வெற்று;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (கட்டமைப்பு strbuf) {
+                .buf = new0(எழுத்து, 1),
+                .வேர் = new0(கட்டமைப்பு strbuf_முனை, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_மொத்தம் = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        எனில் (!str->buf || !str->வேர்)
+                திரும்பு வெற்று;
 
-        return TAKE_PTR(str);
+        திரும்பு TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+நிலையான கட்டமைப்பு strbuf_முனை* strbuf_முனை_cleanup(கட்டமைப்பு strbuf_முனை *முனை) {
+        ப்ரதிஜ்ஞா(முனை);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(child, முனை->children, முனை->children_மொத்தம்)
+                strbuf_முனை_cleanup(child->child);
 
-        free(node->children);
-        return mfree(node);
+        விடுவி(முனை->children);
+        திரும்பு mfree(முனை);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+வெறுமை strbuf_complete(கட்டமைப்பு strbuf *str) {
+        எனில் (!str || !str->வேர்)
+                திரும்பு;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->வேர் = strbuf_முனை_cleanup(str->வேர்);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+கட்டமைப்பு strbuf* strbuf_free(கட்டமைப்பு strbuf *str) {
+        எனில் (!str)
+                திரும்பு வெற்று;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        விடுவி(str->buf);
+        திரும்பு mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+நிலையான முழு strbuf_children_cmp(மாறிலி கட்டமைப்பு strbuf_child_entry *n1, மாறிலி கட்டமைப்பு strbuf_child_entry *n2) {
+        ப்ரதிஜ்ஞா(n1);
+        ப்ரதிஜ்ஞா(n2);
 
-        return CMP(n1->c, n2->c);
+        திரும்பு CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+நிலையான வெறுமை bubbleinsert(கட்டமைப்பு strbuf_முனை *முனை,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         கட்டமைப்பு strbuf_முனை *முனை_child) {
 
-        struct strbuf_child_entry new = {
+        கட்டமைப்பு strbuf_child_entry new = {
                 .c = c,
-                .child = node_child,
+                .child = முனை_child,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        முழு இடது = 0, வலது = ASSERT_PTR(முனை)->children_மொத்தம்;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
-                else
-                        right = middle;
+        போது (வலது > இடது) {
+                முழு நடு = (வலது + இடது) / 2 ;
+                எனில் (strbuf_children_cmp(&முனை->children[நடு], &new) <= 0)
+                        இடது = நடு + 1;
+                இல்லையெனில்
+                        வலது = நடு;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(முனை->children + இடது + 1, முனை->children + இடது,
+                அளவு(கட்டமைப்பு strbuf_child_entry) * (முனை->children_மொத்தம் - இடது));
+        முனை->children[இடது] = new;
 
-        node->children_count++;
+        முனை->children_மொத்தம்++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_add_string_full(கட்டமைப்பு strbuf *str, மாறிலி எழுத்து *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        ப்ரதிஜ்ஞா(str);
+        ப்ரதிஜ்ஞா(s || len == 0);
 
-        if (len == SIZE_MAX)
+        எனில் (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (!str->root)
-                return -EINVAL;
+        எனில் (!str->வேர்)
+                திரும்பு -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
-        if (len == 0) {
-                str->dedup_count++;
-                return 0;
+        str->in_மொத்தம்++;
+        எனில் (len == 0) {
+                str->dedup_மொத்தம்++;
+                திரும்பு 0;
         }
         str->in_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        கட்டமைப்பு strbuf_முனை *முனை = str->வேர்;
+        க்கு (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = முனை->மதிப்பு_off + முனை->மதிப்பு_len - len;
+                எனில் (depth == len || (முனை->மதிப்பு_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
-                        return off;
+                        str->dedup_மொத்தம்++;
+                        திரும்பு off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
-                node = child->child;
+                கட்டமைப்பு strbuf_child_entry *child, தேடல் = { .c = c };
+                child = typesafe_bsearch(&தேடல், முனை->children, முனை->children_மொத்தம், strbuf_children_cmp);
+                எனில் (!child)
+                        நிறுத்து;
+                முனை = child->child;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        எனில் (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                திரும்பு -ENOMEM;
         off = str->len;
         memcpy(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ கட்டமைப்பு strbuf_முனை *முனை_child = வெற்று;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        முனை_child = new(கட்டமைப்பு strbuf_முனை, 1);
+        எனில் (!முனை_child)
+                திரும்பு -ENOMEM;
+        *முனை_child = (கட்டமைப்பு strbuf_முனை) {
+                .மதிப்பு_off = off,
+                .மதிப்பு_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        எனில் (!GREEDY_REALLOC(முனை->children, முனை->children_மொத்தம் + 1))
+                திரும்பு -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_மொத்தம்++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(முனை, c, TAKE_PTR(முனை_child));
 
-        return off;
+        திரும்பு off;
 }

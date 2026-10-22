@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <signal.h>
+#அந்தர்பாவ <signal.h>
 
-#include "fileio.h"
-#include "format-util.h"
-#include "forward.h"
-#include "string-util.h"
+#அந்தர்பாவ "fileio.h"
+#அந்தர்பாவ "format-util.h"
+#அந்தர்பாவ "forward.h"
+#அந்தர்பாவ "string-util.h"
 
 #define procfs_file_alloca(pid, field)                                  \
         ({                                                              \
                 pid_t _pid_ = (pid);                                    \
-                const char *_field_ = (field);                          \
-                char *_r_;                                              \
-                if (_pid_ == 0)                                         \
+                மாறிலி எழுத்து *_field_ = (field);                          \
+                எழுத்து *_r_;                                              \
+                எனில் (_pid_ == 0)                                         \
                         _r_ = strjoina("/proc/self/", _field_);         \
-                else {                                                  \
-                        assert(_pid_ > 0);                              \
-                        _r_ = newa(char, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
+                இல்லையெனில் {                                                  \
+                        ப்ரதிஜ்ஞா(_pid_ > 0);                              \
+                        _r_ = newa(எழுத்து, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
                         sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, _field_); \
                 }                                                       \
-                (const char*) _r_;                                      \
+                (மாறிலி எழுத்து*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+நிலையான உள்வரி முழு procfs_file_get_field(pid_t pid, மாறிலி எழுத்து *name, மாறிலி எழுத்து *சாவி, எழுத்து **ret) {
+        திரும்பு get_proc_field(procfs_file_alloca(pid, name), சாவி, ret);
 }
 
-typedef enum ProcessCmdlineFlags {
+வகைவரை எண்ணிக்கை ProcessCmdlineFlags {
         PROCESS_CMDLINE_COMM_FALLBACK = 1 << 0,
         PROCESS_CMDLINE_USE_LOCALE    = 1 << 1,
         PROCESS_CMDLINE_QUOTE         = 1 << 2,
         PROCESS_CMDLINE_QUOTE_POSIX   = 1 << 3,
 } ProcessCmdlineFlags;
 
-int pid_get_comm(pid_t pid, char **ret);
-int pidref_get_comm(const PidRef *pid, char **ret);
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
-int get_process_exe(pid_t pid, char **ret);
-int pid_get_uid(pid_t pid, uid_t *ret);
-int pidref_get_uid(const PidRef *pid, uid_t *ret);
-int get_process_gid(pid_t pid, gid_t *ret);
-int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
-int get_process_environ(pid_t pid, char **ret);
-int pid_get_ppid(pid_t pid, pid_t *ret);
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
-int pid_get_start_time(pid_t pid, usec_t *ret);
-int pidref_get_start_time(const PidRef *pid, usec_t *ret);
-int get_process_umask(pid_t pid, mode_t *ret);
-int pidref_has_sigcgt(const PidRef *pidref, int sig);
-int pidref_has_sigblk(const PidRef *pidref, int sig);
+முழு pid_get_comm(pid_t pid, எழுத்து **ret);
+முழு pidref_get_comm(மாறிலி PidRef *pid, எழுத்து **ret);
+முழு pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, எழுத்து **ret);
+முழு pidref_get_cmdline(மாறிலி PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, எழுத்து **ret);
+முழு pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, எழுத்து ***ret);
+முழு pidref_get_cmdline_strv(மாறிலி PidRef *pid, ProcessCmdlineFlags flags, எழுத்து ***ret);
+முழு get_process_exe(pid_t pid, எழுத்து **ret);
+முழு pid_get_uid(pid_t pid, uid_t *ret);
+முழு pidref_get_uid(மாறிலி PidRef *pid, uid_t *ret);
+முழு get_process_gid(pid_t pid, gid_t *ret);
+முழு get_process_cwd(pid_t pid, எழுத்து **ret);
+முழு get_process_வேர்(pid_t pid, எழுத்து **ret);
+முழு get_process_environ(pid_t pid, எழுத்து **ret);
+முழு pid_get_ppid(pid_t pid, pid_t *ret);
+முழு pidref_get_ppid(மாறிலி PidRef *pidref, pid_t *ret);
+முழு pidref_get_ppid_as_pidref(மாறிலி PidRef *pidref, PidRef *ret);
+முழு pid_get_start_time(pid_t pid, usec_t *ret);
+முழு pidref_get_start_time(மாறிலி PidRef *pid, usec_t *ret);
+முழு get_process_umask(pid_t pid, mode_t *ret);
+முழு pidref_has_sigcgt(மாறிலி PidRef *pidref, முழு sig);
+முழு pidref_has_sigblk(மாறிலி PidRef *pidref, முழு sig);
 
-static inline bool SIGINFO_CODE_IS_DEAD(int code) {
-        return IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
+நிலையான உள்வரி bool SIGINFO_CODE_IS_DEAD(முழு code) {
+        திரும்பு IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
 }
 
-typedef enum WaitFlags {
+வகைவரை எண்ணிக்கை WaitFlags {
         WAIT_LOG_ABNORMAL             = 1 << 0,
         WAIT_LOG_NON_ZERO_EXIT_STATUS = 1 << 1,
 
@@ -68,26 +68,26 @@ typedef enum WaitFlags {
         WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
 } WaitFlags;
 
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
+முழு pidref_wait_for_terminate_and_check(மாறிலி எழுத்து *name, PidRef *pidref, WaitFlags flags);
 
-int kill_and_sigcont(pid_t pid, int sig);
+முழு kill_and_sigcont(pid_t pid, முழு sig);
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret);
+முழு procfs_get_stat_flags(மாறிலி எழுத்து *path, unsigned long long *ret);
 
-int pid_is_kernel_thread(pid_t pid);
-int pidref_is_kernel_thread(const PidRef *pid);
+முழு pid_is_kernel_thread(pid_t pid);
+முழு pidref_is_kernel_thread(மாறிலி PidRef *pid);
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret);
+முழு getenv_for_pid(pid_t pid, மாறிலி எழுத்து *field, எழுத்து **ret);
 
-int pid_is_alive(pid_t pid);
-int pidref_is_alive(const PidRef *pidref);
-int pid_is_unwaited(pid_t pid);
-int pidref_is_unwaited(PidRef *pidref);
-int pid_is_my_child(pid_t pid);
-int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+முழு pid_is_alive(pid_t pid);
+முழு pidref_is_alive(மாறிலி PidRef *pidref);
+முழு pid_is_unwaited(pid_t pid);
+முழு pidref_is_unwaited(PidRef *pidref);
+முழு pid_is_my_child(pid_t pid);
+முழு pidref_is_my_child(PidRef *pidref);
+முழு pidref_from_same_வேர்_fs(PidRef *a, PidRef *b);
 
-bool is_main_thread(void);
+bool is_main_thread(வெறுமை);
 
 #ifndef PERSONALITY_INVALID
 /* personality(2) documents that 0xFFFFFFFFUL is used for querying the
@@ -101,57 +101,57 @@ bool is_main_thread(void);
  * personality we're interested in. */
 #define OPINIONATED_PERSONALITY_MASK 0xFFUL
 
-unsigned long personality_from_string(const char *s);
-const char* personality_to_string(unsigned long p);
+unsigned long personality_from_string(மாறிலி எழுத்து *s);
+மாறிலி எழுத்து* personality_to_string(unsigned long p);
 
-int safe_personality(unsigned long p);
-int opinionated_personality(unsigned long *ret);
+முழு safe_personality(unsigned long p);
+முழு opinionated_personality(unsigned long *ret);
 
-DECLARE_STRING_TABLE_LOOKUP(sigchld_code, int);
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int);
+DECLARE_STRING_TABLE_LOOKUP(sigchld_code, முழு);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, முழு);
 
-static inline pid_t PTR_TO_PID(const void *p) {
-        return (pid_t) ((uintptr_t) p);
+நிலையான உள்வரி pid_t PTR_TO_PID(மாறிலி வெறுமை *p) {
+        திரும்பு (pid_t) ((uintptr_t) p);
 }
 
-static inline void* PID_TO_PTR(pid_t pid) {
-        return (void*) ((uintptr_t) pid);
+நிலையான உள்வரி வெறுமை* PID_TO_PTR(pid_t pid) {
+        திரும்பு (வெறுமை*) ((uintptr_t) pid);
 }
 
-void valgrind_summary_hack(void);
+வெறுமை valgrind_summary_hack(வெறுமை);
 
-int pid_compare_func(const pid_t *a, const pid_t *b);
+முழு pid_compare_func(மாறிலி pid_t *a, மாறிலி pid_t *b);
 
-bool nice_is_valid(int n) _const_;
+bool nice_is_valid(முழு n) _const_;
 
-bool sched_policy_is_valid(int policy) _const_;
-bool sched_policy_supported(int policy);
-int sched_get_priority_min_safe(int policy);
-int sched_get_priority_max_safe(int policy);
+bool sched_policy_is_valid(முழு policy) _const_;
+bool sched_policy_supported(முழு policy);
+முழு sched_get_priority_min_safe(முழு policy);
+முழு sched_get_priority_max_safe(முழு policy);
 
 #define PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
 
-static inline bool pid_is_valid(pid_t p) {
-        return p > 0;
+நிலையான உள்வரி bool pid_is_valid(pid_t p) {
+        திரும்பு p > 0;
 }
 
-static inline bool pid_is_automatic(pid_t p) {
-        return p == PID_AUTOMATIC;
+நிலையான உள்வரி bool pid_is_automatic(pid_t p) {
+        திரும்பு p == PID_AUTOMATIC;
 }
 
-pid_t getpid_cached(void);
-void reset_cached_pid(void);
+pid_t getpid_cached(வெறுமை);
+வெறுமை reset_cached_pid(வெறுமை);
 
-int must_be_root(void);
+முழு must_be_வேர்(வெறுமை);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_அடுக்கு(முழு (*fn)(வெறுமை *), முழு flags, வெறுமை *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
  * and thus will cause deadlocks if the parent uses threads and the child does memory allocations. Hence: if
  * the parent is threaded these flags may not be used. These flags cannot be used if the parent uses threads
  * or the child uses malloc(). 💣 */
-typedef enum ForkFlags {
+வகைவரை எண்ணிக்கை ForkFlags {
         FORK_RESET_SIGNALS      = 1 <<  0, /* Reset all signal handlers and signal mask */
         FORK_CLOSE_ALL_FDS      = 1 <<  1, /* Close all open file descriptors in the child, except for 0,1,2 */
         FORK_DEATHSIG_SIGTERM   = 1 <<  2, /* Set PR_DEATHSIG in the child to SIGTERM */
@@ -178,46 +178,46 @@ typedef enum ForkFlags {
         FORK_ALLOW_DLOPEN       = 1 << 23, /* Do not block dlopen() in child */
 } ForkFlags;
 
-int pidref_safe_fork_full(
-                const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+முழு pidref_safe_fork_full(
+                மாறிலி எழுத்து *name,
+                மாறிலி முழு stdio_fds[3],
+                முழு except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret);
 
-static inline int pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
-        return pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
+நிலையான உள்வரி முழு pidref_safe_fork(மாறிலி எழுத்து *name, ForkFlags flags, PidRef *ret) {
+        திரும்பு pidref_safe_fork_full(name, வெற்று, வெற்று, 0, flags, ret);
 }
 
-int namespace_fork_full(
-                const char *outer_name,
-                const char *inner_name,
-                int except_fds[],
+முழு namespace_fork_full(
+                மாறிலி எழுத்து *outer_name,
+                மாறிலி எழுத்து *inner_name,
+                முழு except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                முழு pidns_fd,
+                முழு mntns_fd,
+                முழு netns_fd,
+                முழு userns_fd,
+                முழு வேர்_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
-int namespace_fork(
-                const char *outer_name,
-                const char *inner_name,
+முழு namespace_fork(
+                மாறிலி எழுத்து *outer_name,
+                மாறிலி எழுத்து *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                முழு pidns_fd,
+                முழு mntns_fd,
+                முழு netns_fd,
+                முழு userns_fd,
+                முழு வேர்_fd,
                 PidRef *ret);
 
-bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
-int get_oom_score_adjust(int *ret);
+bool oom_score_adjust_is_valid(முழு oa);
+முழு set_oom_score_adjust(முழு மதிப்பு);
+முழு get_oom_score_adjust(முழு *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */
 #define PID_T_MAX ((pid_t) INT32_MAX)
@@ -231,33 +231,33 @@ int get_oom_score_adjust(int *ret);
 
 assert_cc(TASKS_MAX <= (unsigned long) PID_T_MAX);
 
-int setpriority_closest(int priority);
+முழு setpriority_closest(முழு priority);
 
-_noreturn_ void freeze(void);
+_noreturn_ வெறுமை freeze(வெறுமை);
 
-int get_process_threads(pid_t pid);
+முழு get_process_threads(pid_t pid);
 
-int is_reaper_process(void);
-int make_reaper_process(bool b);
+முழு is_reaper_process(வெறுமை);
+முழு make_reaper_process(bool b);
 
-int posix_spawn_wrapper(
-                const char *path,
-                char * const *argv,
-                char * const *envp,
-                const char *cgroup,
+முழு posix_spawn_wrapper(
+                மாறிலி எழுத்து *path,
+                எழுத்து * மாறிலி *argv,
+                எழுத்து * மாறிலி *envp,
+                மாறிலி எழுத்து *cgroup,
                 PidRef *ret_pidref);
 
-int proc_dir_open(DIR **ret);
-int proc_dir_read(DIR *d, pid_t *ret);
-int proc_dir_read_pidref(DIR *d, PidRef *ret);
+முழு proc_dir_open(DIR **ret);
+முழு proc_dir_read(DIR *d, pid_t *ret);
+முழு proc_dir_read_pidref(DIR *d, PidRef *ret);
 
-int safe_mlockall(int flags);
+முழு safe_mlockall(முழு flags);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error);
-int read_errno(int errno_fd);
+_noreturn_ வெறுமை report_errno_and_exit(முழு errno_fd, முழு error);
+முழு read_errno(முழு errno_fd);
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+முழு prctl_safe(முழு op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
 
-int proc_set_comm(const char *comm);
-int proc_set_nnp(void);
-nsec_t proc_get_timerslack(void);
+முழு proc_set_comm(மாறிலி எழுத்து *comm);
+முழு proc_set_nnp(வெறுமை);
+nsec_t proc_get_timerslack(வெறுமை);

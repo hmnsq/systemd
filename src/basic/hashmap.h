@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "hash-funcs.h"
-#include "iterator.h"
+#அந்தர்பாவ "forward.h"
+#அந்தர்பாவ "hash-funcs.h"
+#அந்தர்பாவ "iterator.h"
 
 /*
  * A hash table implementation. As a minor optimization a NULL hashmap object
@@ -16,20 +16,20 @@
  * - perform extra checks for invalid use of iterators
  */
 
-#define HASH_KEY_SIZE 16
+#define HASH_சாவி_SIZE 16
 
 
 /* The base type for all hashmap and set types. Many functions in the implementation take (HashmapBase*)
  * parameters and are run-time polymorphic, though the API is not meant to be polymorphic (do not call
  * underscore-prefixed functions directly). */
-typedef struct HashmapBase HashmapBase;
+வகைவரை கட்டமைப்பு HashmapBase HashmapBase;
 
 /* Specific hashmap/set types */
-typedef struct Hashmap Hashmap;               /* Maps keys to values */
-typedef struct OrderedHashmap OrderedHashmap; /* Like Hashmap, but also remembers entry insertion order */
-typedef struct Set Set;                       /* Stores just keys */
+வகைவரை கட்டமைப்பு Hashmap Hashmap;               /* Maps keys to values */
+வகைவரை கட்டமைப்பு OrderedHashmap OrderedHashmap; /* Like Hashmap, but also remembers entry insertion order */
+வகைவரை கட்டமைப்பு Set Set;                       /* Stores just keys */
 
-typedef struct IteratedCache IteratedCache;   /* Caches the iterated order of one of the above */
+வகைவரை கட்டமைப்பு IteratedCache IteratedCache;   /* Caches the iterated order of one of the above */
 
 /* Macros for type checking */
 #define PTR_COMPATIBLE_WITH_HASHMAP_BASE(h) \
@@ -45,15 +45,15 @@ typedef struct IteratedCache IteratedCache;   /* Caches the iterated order of on
 #define HASHMAP_BASE(h) \
         __builtin_choose_expr(PTR_COMPATIBLE_WITH_HASHMAP_BASE(h), \
                 (HashmapBase*)(h), \
-                (void)0)
+                (வெறுமை)0)
 
 #define PLAIN_HASHMAP(h) \
         __builtin_choose_expr(PTR_COMPATIBLE_WITH_PLAIN_HASHMAP(h), \
                 (Hashmap*)(h), \
-                (void)0)
+                (வெறுமை)0)
 
-Hashmap* hashmap_new(const struct hash_ops *hash_ops);
-OrderedHashmap* ordered_hashmap_new(const struct hash_ops *hash_ops);
+Hashmap* hashmap_new(மாறிலி கட்டமைப்பு hash_ops *hash_ops);
+OrderedHashmap* ordered_hashmap_new(மாறிலி கட்டமைப்பு hash_ops *hash_ops);
 
 #define hashmap_free_and_replace(a, b)                          \
         free_and_replace_full(a, b, hashmap_free)
@@ -61,180 +61,180 @@ OrderedHashmap* ordered_hashmap_new(const struct hash_ops *hash_ops);
         free_and_replace_full(a, b, ordered_hashmap_free)
 
 HashmapBase* _hashmap_free(HashmapBase *h);
-static inline Hashmap* hashmap_free(Hashmap *h) {
-        return (void*) _hashmap_free(HASHMAP_BASE(h));
+நிலையான உள்வரி Hashmap* hashmap_free(Hashmap *h) {
+        திரும்பு (வெறுமை*) _hashmap_free(HASHMAP_BASE(h));
 }
-static inline OrderedHashmap* ordered_hashmap_free(OrderedHashmap *h) {
-        return (void*) _hashmap_free(HASHMAP_BASE(h));
+நிலையான உள்வரி OrderedHashmap* ordered_hashmap_free(OrderedHashmap *h) {
+        திரும்பு (வெறுமை*) _hashmap_free(HASHMAP_BASE(h));
 }
 
 IteratedCache* iterated_cache_free(IteratedCache *cache);
-int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void ***res_values, unsigned *res_n_entries);
+முழு iterated_cache_get(IteratedCache *cache, மாறிலி வெறுமை ***res_சாவிகள், மாறிலி வெறுமை ***res_மதிப்புகள், unsigned *res_n_entries);
 
 HashmapBase* _hashmap_copy(HashmapBase *h);
-static inline Hashmap* hashmap_copy(Hashmap *h) {
-        return (Hashmap*) _hashmap_copy(HASHMAP_BASE(h));
+நிலையான உள்வரி Hashmap* hashmap_copy(Hashmap *h) {
+        திரும்பு (Hashmap*) _hashmap_copy(HASHMAP_BASE(h));
 }
-static inline OrderedHashmap* ordered_hashmap_copy(OrderedHashmap *h) {
-        return (OrderedHashmap*) _hashmap_copy(HASHMAP_BASE(h));
+நிலையான உள்வரி OrderedHashmap* ordered_hashmap_copy(OrderedHashmap *h) {
+        திரும்பு (OrderedHashmap*) _hashmap_copy(HASHMAP_BASE(h));
 }
 
-int hashmap_ensure_allocated(Hashmap **h, const struct hash_ops *hash_ops);
-int hashmap_ensure_put(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
-int ordered_hashmap_ensure_allocated(OrderedHashmap **h, const struct hash_ops *hash_ops);
-int hashmap_ensure_replace(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
+முழு hashmap_ensure_allocated(Hashmap **h, மாறிலி கட்டமைப்பு hash_ops *hash_ops);
+முழு hashmap_ensure_put(Hashmap **h, மாறிலி கட்டமைப்பு hash_ops *hash_ops, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
+முழு ordered_hashmap_ensure_allocated(OrderedHashmap **h, மாறிலி கட்டமைப்பு hash_ops *hash_ops);
+முழு hashmap_ensure_replace(Hashmap **h, மாறிலி கட்டமைப்பு hash_ops *hash_ops, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
 
-int ordered_hashmap_ensure_put(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
-int ordered_hashmap_ensure_replace(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
+முழு ordered_hashmap_ensure_put(OrderedHashmap **h, மாறிலி கட்டமைப்பு hash_ops *hash_ops, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
+முழு ordered_hashmap_ensure_replace(OrderedHashmap **h, மாறிலி கட்டமைப்பு hash_ops *hash_ops, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
 
 IteratedCache* _hashmap_iterated_cache_new(HashmapBase *h);
-static inline IteratedCache* hashmap_iterated_cache_new(Hashmap *h) {
-        return _hashmap_iterated_cache_new(HASHMAP_BASE(h));
+நிலையான உள்வரி IteratedCache* hashmap_iterated_cache_new(Hashmap *h) {
+        திரும்பு _hashmap_iterated_cache_new(HASHMAP_BASE(h));
 }
-static inline IteratedCache* ordered_hashmap_iterated_cache_new(OrderedHashmap *h) {
-        return _hashmap_iterated_cache_new(HASHMAP_BASE(h));
-}
-
-int hashmap_put(Hashmap *h, const void *key, void *value);
-static inline int ordered_hashmap_put(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_put(PLAIN_HASHMAP(h), key, value);
+நிலையான உள்வரி IteratedCache* ordered_hashmap_iterated_cache_new(OrderedHashmap *h) {
+        திரும்பு _hashmap_iterated_cache_new(HASHMAP_BASE(h));
 }
 
-int hashmap_put_strdup_full(Hashmap **h, const struct hash_ops *hash_ops, const char *k, const char *v);
-static inline int hashmap_put_strdup(Hashmap **h, const char *k, const char *v) {
-        return hashmap_put_strdup_full(h, &string_hash_ops_free_free, k, v);
+முழு hashmap_put(Hashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
+நிலையான உள்வரி முழு ordered_hashmap_put(OrderedHashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு) {
+        திரும்பு hashmap_put(PLAIN_HASHMAP(h), சாவி, மதிப்பு);
 }
 
-int hashmap_update(Hashmap *h, const void *key, void *value);
-static inline int ordered_hashmap_update(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_update(PLAIN_HASHMAP(h), key, value);
+முழு hashmap_put_strdup_full(Hashmap **h, மாறிலி கட்டமைப்பு hash_ops *hash_ops, மாறிலி எழுத்து *k, மாறிலி எழுத்து *v);
+நிலையான உள்வரி முழு hashmap_put_strdup(Hashmap **h, மாறிலி எழுத்து *k, மாறிலி எழுத்து *v) {
+        திரும்பு hashmap_put_strdup_full(h, &string_hash_ops_free_free, k, v);
 }
 
-int hashmap_replace(Hashmap *h, const void *key, void *value);
-static inline int ordered_hashmap_replace(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_replace(PLAIN_HASHMAP(h), key, value);
+முழு hashmap_update(Hashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
+நிலையான உள்வரி முழு ordered_hashmap_update(OrderedHashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு) {
+        திரும்பு hashmap_update(PLAIN_HASHMAP(h), சாவி, மதிப்பு);
 }
 
-void* _hashmap_get(HashmapBase *h, const void *key);
-static inline void *hashmap_get(Hashmap *h, const void *key) {
-        return _hashmap_get(HASHMAP_BASE(h), key);
-}
-static inline void *ordered_hashmap_get(OrderedHashmap *h, const void *key) {
-        return _hashmap_get(HASHMAP_BASE(h), key);
+முழு hashmap_replace(Hashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
+நிலையான உள்வரி முழு ordered_hashmap_replace(OrderedHashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு) {
+        திரும்பு hashmap_replace(PLAIN_HASHMAP(h), சாவி, மதிப்பு);
 }
 
-void* hashmap_get2(Hashmap *h, const void *key, void **ret);
-static inline void *ordered_hashmap_get2(OrderedHashmap *h, const void *key, void **ret) {
-        return hashmap_get2(PLAIN_HASHMAP(h), key, ret);
+வெறுமை* _hashmap_get(HashmapBase *h, மாறிலி வெறுமை *சாவி);
+நிலையான உள்வரி வெறுமை *hashmap_get(Hashmap *h, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_get(HASHMAP_BASE(h), சாவி);
+}
+நிலையான உள்வரி வெறுமை *ordered_hashmap_get(OrderedHashmap *h, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_get(HASHMAP_BASE(h), சாவி);
 }
 
-bool _hashmap_contains(HashmapBase *h, const void *key);
-static inline bool hashmap_contains(Hashmap *h, const void *key) {
-        return _hashmap_contains(HASHMAP_BASE(h), key);
-}
-static inline bool ordered_hashmap_contains(OrderedHashmap *h, const void *key) {
-        return _hashmap_contains(HASHMAP_BASE(h), key);
+வெறுமை* hashmap_get2(Hashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை **ret);
+நிலையான உள்வரி வெறுமை *ordered_hashmap_get2(OrderedHashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை **ret) {
+        திரும்பு hashmap_get2(PLAIN_HASHMAP(h), சாவி, ret);
 }
 
-void* _hashmap_remove(HashmapBase *h, const void *key);
-static inline void *hashmap_remove(Hashmap *h, const void *key) {
-        return _hashmap_remove(HASHMAP_BASE(h), key);
+bool _hashmap_contains(HashmapBase *h, மாறிலி வெறுமை *சாவி);
+நிலையான உள்வரி bool hashmap_contains(Hashmap *h, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_contains(HASHMAP_BASE(h), சாவி);
 }
-static inline void *ordered_hashmap_remove(OrderedHashmap *h, const void *key) {
-        return _hashmap_remove(HASHMAP_BASE(h), key);
-}
-
-void* hashmap_remove2(Hashmap *h, const void *key, void **ret);
-static inline void *ordered_hashmap_remove2(OrderedHashmap *h, const void *key, void **ret) {
-        return hashmap_remove2(PLAIN_HASHMAP(h), key, ret);
+நிலையான உள்வரி bool ordered_hashmap_contains(OrderedHashmap *h, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_contains(HASHMAP_BASE(h), சாவி);
 }
 
-void* _hashmap_remove_value(HashmapBase *h, const void *key, void *value);
-static inline void *hashmap_remove_value(Hashmap *h, const void *key, void *value) {
-        return _hashmap_remove_value(HASHMAP_BASE(h), key, value);
+வெறுமை* _hashmap_remove(HashmapBase *h, மாறிலி வெறுமை *சாவி);
+நிலையான உள்வரி வெறுமை *hashmap_remove(Hashmap *h, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_remove(HASHMAP_BASE(h), சாவி);
+}
+நிலையான உள்வரி வெறுமை *ordered_hashmap_remove(OrderedHashmap *h, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_remove(HASHMAP_BASE(h), சாவி);
 }
 
-static inline void* ordered_hashmap_remove_value(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_remove_value(PLAIN_HASHMAP(h), key, value);
+வெறுமை* hashmap_remove2(Hashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை **ret);
+நிலையான உள்வரி வெறுமை *ordered_hashmap_remove2(OrderedHashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை **ret) {
+        திரும்பு hashmap_remove2(PLAIN_HASHMAP(h), சாவி, ret);
 }
 
-int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value);
-static inline int ordered_hashmap_remove_and_put(OrderedHashmap *h, const void *old_key, const void *new_key, void *value) {
-        return hashmap_remove_and_put(PLAIN_HASHMAP(h), old_key, new_key, value);
+வெறுமை* hashmap_remove_மதிப்பு(HashmapBase *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு);
+நிலையான உள்வரி வெறுமை *hashmap_remove_மதிப்பு_2(Hashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு) {
+        திரும்பு hashmap_remove_மதிப்பு(HASHMAP_BASE(h), சாவி, மதிப்பு);
 }
 
-int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value);
-static inline int ordered_hashmap_remove_and_replace(OrderedHashmap *h, const void *old_key, const void *new_key, void *value) {
-        return hashmap_remove_and_replace(PLAIN_HASHMAP(h), old_key, new_key, value);
+நிலையான உள்வரி வெறுமை* ordered_hashmap_remove_மதிப்பு(OrderedHashmap *h, மாறிலி வெறுமை *சாவி, வெறுமை *மதிப்பு) {
+        திரும்பு hashmap_remove_மதிப்பு_2(PLAIN_HASHMAP(h), சாவி, மதிப்பு);
+}
+
+முழு hashmap_remove_and_put(Hashmap *h, மாறிலி வெறுமை *old_சாவி, மாறிலி வெறுமை *new_சாவி, வெறுமை *மதிப்பு);
+நிலையான உள்வரி முழு ordered_hashmap_remove_and_put(OrderedHashmap *h, மாறிலி வெறுமை *old_சாவி, மாறிலி வெறுமை *new_சாவி, வெறுமை *மதிப்பு) {
+        திரும்பு hashmap_remove_and_put(PLAIN_HASHMAP(h), old_சாவி, new_சாவி, மதிப்பு);
+}
+
+முழு hashmap_remove_and_replace(Hashmap *h, மாறிலி வெறுமை *old_சாவி, மாறிலி வெறுமை *new_சாவி, வெறுமை *மதிப்பு);
+நிலையான உள்வரி முழு ordered_hashmap_remove_and_replace(OrderedHashmap *h, மாறிலி வெறுமை *old_சாவி, மாறிலி வெறுமை *new_சாவி, வெறுமை *மதிப்பு) {
+        திரும்பு hashmap_remove_and_replace(PLAIN_HASHMAP(h), old_சாவி, new_சாவி, மதிப்பு);
 }
 
 /* Since merging data from an OrderedHashmap into a Hashmap or vice-versa
  * should just work, allow this by having looser type-checking here. */
-int _hashmap_merge(Hashmap *h, Hashmap *other);
+முழு _hashmap_merge(Hashmap *h, Hashmap *other);
 #define hashmap_merge(h, other) _hashmap_merge(PLAIN_HASHMAP(h), PLAIN_HASHMAP(other))
 #define ordered_hashmap_merge(h, other) hashmap_merge(h, other)
 
-int _hashmap_reserve(HashmapBase *h, unsigned entries_add);
-static inline int hashmap_reserve(Hashmap *h, unsigned entries_add) {
-        return _hashmap_reserve(HASHMAP_BASE(h), entries_add);
+முழு _hashmap_reserve(HashmapBase *h, unsigned entries_add);
+நிலையான உள்வரி முழு hashmap_reserve(Hashmap *h, unsigned entries_add) {
+        திரும்பு _hashmap_reserve(HASHMAP_BASE(h), entries_add);
 }
-static inline int ordered_hashmap_reserve(OrderedHashmap *h, unsigned entries_add) {
-        return _hashmap_reserve(HASHMAP_BASE(h), entries_add);
+நிலையான உள்வரி முழு ordered_hashmap_reserve(OrderedHashmap *h, unsigned entries_add) {
+        திரும்பு _hashmap_reserve(HASHMAP_BASE(h), entries_add);
 }
 
-int _hashmap_move(HashmapBase *h, HashmapBase *other);
+முழு _hashmap_move(HashmapBase *h, HashmapBase *other);
 /* Unlike hashmap_merge, hashmap_move does not allow mixing the types. */
-static inline int hashmap_move(Hashmap *h, Hashmap *other) {
-        return _hashmap_move(HASHMAP_BASE(h), HASHMAP_BASE(other));
+நிலையான உள்வரி முழு hashmap_move(Hashmap *h, Hashmap *other) {
+        திரும்பு _hashmap_move(HASHMAP_BASE(h), HASHMAP_BASE(other));
 }
-static inline int ordered_hashmap_move(OrderedHashmap *h, OrderedHashmap *other) {
-        return _hashmap_move(HASHMAP_BASE(h), HASHMAP_BASE(other));
+நிலையான உள்வரி முழு ordered_hashmap_move(OrderedHashmap *h, OrderedHashmap *other) {
+        திரும்பு _hashmap_move(HASHMAP_BASE(h), HASHMAP_BASE(other));
 }
 
-int _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key);
-static inline int hashmap_move_one(Hashmap *h, Hashmap *other, const void *key) {
-        return _hashmap_move_one(HASHMAP_BASE(h), HASHMAP_BASE(other), key);
+முழு _hashmap_move_one(HashmapBase *h, HashmapBase *other, மாறிலி வெறுமை *சாவி);
+நிலையான உள்வரி முழு hashmap_move_one(Hashmap *h, Hashmap *other, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_move_one(HASHMAP_BASE(h), HASHMAP_BASE(other), சாவி);
 }
-static inline int ordered_hashmap_move_one(OrderedHashmap *h, OrderedHashmap *other, const void *key) {
-        return _hashmap_move_one(HASHMAP_BASE(h), HASHMAP_BASE(other), key);
+நிலையான உள்வரி முழு ordered_hashmap_move_one(OrderedHashmap *h, OrderedHashmap *other, மாறிலி வெறுமை *சாவி) {
+        திரும்பு _hashmap_move_one(HASHMAP_BASE(h), HASHMAP_BASE(other), சாவி);
 }
 
 unsigned _hashmap_size(HashmapBase *h) _pure_;
-static inline unsigned hashmap_size(Hashmap *h) {
-        return _hashmap_size(HASHMAP_BASE(h));
+நிலையான உள்வரி unsigned hashmap_size(Hashmap *h) {
+        திரும்பு _hashmap_size(HASHMAP_BASE(h));
 }
-static inline unsigned ordered_hashmap_size(OrderedHashmap *h) {
-        return _hashmap_size(HASHMAP_BASE(h));
+நிலையான உள்வரி unsigned ordered_hashmap_size(OrderedHashmap *h) {
+        திரும்பு _hashmap_size(HASHMAP_BASE(h));
 }
 
-static inline bool hashmap_isempty(Hashmap *h) {
-        return hashmap_size(h) == 0;
+நிலையான உள்வரி bool hashmap_isempty(Hashmap *h) {
+        திரும்பு hashmap_size(h) == 0;
 }
-static inline bool ordered_hashmap_isempty(OrderedHashmap *h) {
-        return ordered_hashmap_size(h) == 0;
+நிலையான உள்வரி bool ordered_hashmap_isempty(OrderedHashmap *h) {
+        திரும்பு ordered_hashmap_size(h) == 0;
 }
 
 unsigned _hashmap_buckets(HashmapBase *h) _pure_;
-static inline unsigned hashmap_buckets(Hashmap *h) {
-        return _hashmap_buckets(HASHMAP_BASE(h));
+நிலையான உள்வரி unsigned hashmap_buckets(Hashmap *h) {
+        திரும்பு _hashmap_buckets(HASHMAP_BASE(h));
 }
-static inline unsigned ordered_hashmap_buckets(OrderedHashmap *h) {
-        return _hashmap_buckets(HASHMAP_BASE(h));
-}
-
-bool _hashmap_iterate(HashmapBase *h, Iterator *i, void **value, const void **key);
-static inline bool hashmap_iterate(Hashmap *h, Iterator *i, void **value, const void **key) {
-        return _hashmap_iterate(HASHMAP_BASE(h), i, value, key);
-}
-static inline bool ordered_hashmap_iterate(OrderedHashmap *h, Iterator *i, void **value, const void **key) {
-        return _hashmap_iterate(HASHMAP_BASE(h), i, value, key);
+நிலையான உள்வரி unsigned ordered_hashmap_buckets(OrderedHashmap *h) {
+        திரும்பு _hashmap_buckets(HASHMAP_BASE(h));
 }
 
-void _hashmap_clear(HashmapBase *h);
-static inline void hashmap_clear(Hashmap *h) {
+bool _hashmap_iterate(HashmapBase *h, Iterator *i, வெறுமை **மதிப்பு, மாறிலி வெறுமை **சாவி);
+நிலையான உள்வரி bool hashmap_iterate(Hashmap *h, Iterator *i, வெறுமை **மதிப்பு, மாறிலி வெறுமை **சாவி) {
+        திரும்பு _hashmap_iterate(HASHMAP_BASE(h), i, மதிப்பு, சாவி);
+}
+நிலையான உள்வரி bool ordered_hashmap_iterate(OrderedHashmap *h, Iterator *i, வெறுமை **மதிப்பு, மாறிலி வெறுமை **சாவி) {
+        திரும்பு _hashmap_iterate(HASHMAP_BASE(h), i, மதிப்பு, சாவி);
+}
+
+வெறுமை _hashmap_clear(HashmapBase *h);
+நிலையான உள்வரி வெறுமை hashmap_clear(Hashmap *h) {
         _hashmap_clear(HASHMAP_BASE(h));
 }
-static inline void ordered_hashmap_clear(OrderedHashmap *h) {
+நிலையான உள்வரி வெறுமை ordered_hashmap_clear(OrderedHashmap *h) {
         _hashmap_clear(HASHMAP_BASE(h));
 }
 
@@ -249,80 +249,80 @@ static inline void ordered_hashmap_clear(OrderedHashmap *h) {
  * the first entry is O(1).
  */
 
-void *_hashmap_first_key_and_value(HashmapBase *h, bool remove, void **ret_key);
-static inline void *hashmap_steal_first_key_and_value(Hashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, ret);
+வெறுமை *hashmap_first_சாவி_and_மதிப்பு(HashmapBase *h, bool remove, வெறுமை **ret_சாவி);
+நிலையான உள்வரி வெறுமை *hashmap_steal_first_சாவி_and_மதிப்பு(Hashmap *h, வெறுமை **ret) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), true, ret);
 }
-static inline void *ordered_hashmap_steal_first_key_and_value(OrderedHashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, ret);
+நிலையான உள்வரி வெறுமை *ordered_hashmap_steal_first_சாவி_and_மதிப்பு(OrderedHashmap *h, வெறுமை **ret) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), true, ret);
 }
-static inline void *hashmap_first_key_and_value(Hashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, ret);
+நிலையான உள்வரி வெறுமை *hashmap_first_சாவி_and_மதிப்பு_2(Hashmap *h, வெறுமை **ret) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), false, ret);
 }
-static inline void *ordered_hashmap_first_key_and_value(OrderedHashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, ret);
-}
-
-static inline void *hashmap_steal_first(Hashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, NULL);
-}
-static inline void *ordered_hashmap_steal_first(OrderedHashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, NULL);
-}
-static inline void *hashmap_first(Hashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, NULL);
-}
-static inline void *ordered_hashmap_first(OrderedHashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, NULL);
+நிலையான உள்வரி வெறுமை *ordered_hashmap_first_சாவி_and_மதிப்பு(OrderedHashmap *h, வெறுமை **ret) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), false, ret);
 }
 
-static inline void *_hashmap_first_key(HashmapBase *h, bool remove) {
-        void *key = NULL;
+நிலையான உள்வரி வெறுமை *hashmap_steal_first(Hashmap *h) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), true, வெற்று);
+}
+நிலையான உள்வரி வெறுமை *ordered_hashmap_steal_first(OrderedHashmap *h) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), true, வெற்று);
+}
+நிலையான உள்வரி வெறுமை *hashmap_first(Hashmap *h) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), false, வெற்று);
+}
+நிலையான உள்வரி வெறுமை *ordered_hashmap_first(OrderedHashmap *h) {
+        திரும்பு hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), false, வெற்று);
+}
 
-        (void) _hashmap_first_key_and_value(HASHMAP_BASE(h), remove, &key);
-        return key;
+நிலையான உள்வரி வெறுமை *hashmap_first_சாவி(HashmapBase *h, bool remove) {
+        வெறுமை *சாவி = வெற்று;
+
+        (வெறுமை) hashmap_first_சாவி_and_மதிப்பு(HASHMAP_BASE(h), remove, &சாவி);
+        திரும்பு சாவி;
 }
-static inline void *hashmap_steal_first_key(Hashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), true);
+நிலையான உள்வரி வெறுமை *hashmap_steal_first_சாவி(Hashmap *h) {
+        திரும்பு hashmap_first_சாவி(HASHMAP_BASE(h), true);
 }
-static inline void *ordered_hashmap_steal_first_key(OrderedHashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), true);
+நிலையான உள்வரி வெறுமை *ordered_hashmap_steal_first_சாவி(OrderedHashmap *h) {
+        திரும்பு hashmap_first_சாவி(HASHMAP_BASE(h), true);
 }
-static inline void *hashmap_first_key(Hashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), false);
+நிலையான உள்வரி வெறுமை *hashmap_first_சாவி_2(Hashmap *h) {
+        திரும்பு hashmap_first_சாவி(HASHMAP_BASE(h), false);
 }
-static inline void *ordered_hashmap_first_key(OrderedHashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), false);
+நிலையான உள்வரி வெறுமை *ordered_hashmap_first_சாவி(OrderedHashmap *h) {
+        திரும்பு hashmap_first_சாவி(HASHMAP_BASE(h), false);
 }
 
 /* no hashmap_next */
-void* ordered_hashmap_next(OrderedHashmap *h, const void *key);
+வெறுமை* ordered_hashmap_next(OrderedHashmap *h, மாறிலி வெறுமை *சாவி);
 
-char** _hashmap_get_strv(HashmapBase *h);
-static inline char** hashmap_get_strv(Hashmap *h) {
-        return _hashmap_get_strv(HASHMAP_BASE(h));
+எழுத்து** _hashmap_get_strv(HashmapBase *h);
+நிலையான உள்வரி எழுத்து** hashmap_get_strv(Hashmap *h) {
+        திரும்பு _hashmap_get_strv(HASHMAP_BASE(h));
 }
-static inline char** ordered_hashmap_get_strv(OrderedHashmap *h) {
-        return _hashmap_get_strv(HASHMAP_BASE(h));
-}
-
-int _hashmap_dump_sorted(HashmapBase *h, void ***ret, size_t *ret_n);
-static inline int hashmap_dump_sorted(Hashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
-}
-static inline int ordered_hashmap_dump_sorted(OrderedHashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
-}
-static inline int set_dump_sorted(Set *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
+நிலையான உள்வரி எழுத்து** ordered_hashmap_get_strv(OrderedHashmap *h) {
+        திரும்பு _hashmap_get_strv(HASHMAP_BASE(h));
 }
 
-int _hashmap_dump_keys_sorted(HashmapBase *h, void ***ret, size_t *ret_n);
-static inline int hashmap_dump_keys_sorted(Hashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_keys_sorted(HASHMAP_BASE(h), ret, ret_n);
+முழு _hashmap_dump_sorted(HashmapBase *h, வெறுமை ***ret, size_t *ret_n);
+நிலையான உள்வரி முழு hashmap_dump_sorted(Hashmap *h, வெறுமை ***ret, size_t *ret_n) {
+        திரும்பு _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
 }
-static inline int ordered_hashmap_dump_keys_sorted(OrderedHashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_keys_sorted(HASHMAP_BASE(h), ret, ret_n);
+நிலையான உள்வரி முழு ordered_hashmap_dump_sorted(OrderedHashmap *h, வெறுமை ***ret, size_t *ret_n) {
+        திரும்பு _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
+}
+நிலையான உள்வரி முழு set_dump_sorted(Set *h, வெறுமை ***ret, size_t *ret_n) {
+        திரும்பு _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
+}
+
+முழு hashmap_dump_சாவிகள்_sorted(HashmapBase *h, வெறுமை ***ret, size_t *ret_n);
+நிலையான உள்வரி முழு hashmap_dump_சாவிகள்_sorted_2(Hashmap *h, வெறுமை ***ret, size_t *ret_n) {
+        திரும்பு hashmap_dump_சாவிகள்_sorted(HASHMAP_BASE(h), ret, ret_n);
+}
+நிலையான உள்வரி முழு ordered_hashmap_dump_சாவிகள்_sorted(OrderedHashmap *h, வெறுமை ***ret, size_t *ret_n) {
+        திரும்பு hashmap_dump_சாவிகள்_sorted(HASHMAP_BASE(h), ret, ret_n);
 }
 
 /*
@@ -332,34 +332,34 @@ static inline int ordered_hashmap_dump_keys_sorted(OrderedHashmap *h, void ***re
  * It is safe to remove the current entry.
  */
 #define _HASHMAP_BASE_FOREACH(e, h, i) \
-        for (Iterator i = ITERATOR_FIRST; _hashmap_iterate((h), &i, (void**)&(e), NULL); )
+        க்கு (Iterator i = ITERATOR_FIRST; _hashmap_iterate((h), &i, (வெறுமை**)&(e), வெற்று); )
 #define HASHMAP_BASE_FOREACH(e, h) \
         _HASHMAP_BASE_FOREACH(e, h, UNIQ_T(i, UNIQ))
 
 #define _HASHMAP_FOREACH(e, h, i) \
-        for (Iterator i = ITERATOR_FIRST; hashmap_iterate((h), &i, (void**)&(e), NULL); )
+        க்கு (Iterator i = ITERATOR_FIRST; hashmap_iterate((h), &i, (வெறுமை**)&(e), வெற்று); )
 #define HASHMAP_FOREACH(e, h) \
         _HASHMAP_FOREACH(e, h, UNIQ_T(i, UNIQ))
 
 #define _ORDERED_HASHMAP_FOREACH(e, h, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_hashmap_iterate((h), &i, (void**)&(e), NULL); )
+        க்கு (Iterator i = ITERATOR_FIRST; ordered_hashmap_iterate((h), &i, (வெறுமை**)&(e), வெற்று); )
 #define ORDERED_HASHMAP_FOREACH(e, h) \
         _ORDERED_HASHMAP_FOREACH(e, h, UNIQ_T(i, UNIQ))
 
-#define _HASHMAP_BASE_FOREACH_KEY(e, k, h, i) \
-        for (Iterator i = ITERATOR_FIRST; _hashmap_iterate((h), &i, (void**)&(e), (const void**) &(k)); )
-#define HASHMAP_BASE_FOREACH_KEY(e, k, h) \
-        _HASHMAP_BASE_FOREACH_KEY(e, k, h, UNIQ_T(i, UNIQ))
+#define HASHMAP_BASE_FOREACH_சாவி(e, k, h, i) \
+        க்கு (Iterator i = ITERATOR_FIRST; _hashmap_iterate((h), &i, (வெறுமை**)&(e), (மாறிலி வெறுமை**) &(k)); )
+#define HASHMAP_BASE_FOREACH_சாவி_2(e, k, h) \
+        HASHMAP_BASE_FOREACH_சாவி(e, k, h, UNIQ_T(i, UNIQ))
 
-#define _HASHMAP_FOREACH_KEY(e, k, h, i) \
-        for (Iterator i = ITERATOR_FIRST; hashmap_iterate((h), &i, (void**)&(e), (const void**) &(k)); )
-#define HASHMAP_FOREACH_KEY(e, k, h) \
-        _HASHMAP_FOREACH_KEY(e, k, h, UNIQ_T(i, UNIQ))
+#define HASHMAP_FOREACH_சாவி(e, k, h, i) \
+        க்கு (Iterator i = ITERATOR_FIRST; hashmap_iterate((h), &i, (வெறுமை**)&(e), (மாறிலி வெறுமை**) &(k)); )
+#define HASHMAP_FOREACH_சாவி_2(e, k, h) \
+        HASHMAP_FOREACH_சாவி(e, k, h, UNIQ_T(i, UNIQ))
 
-#define _ORDERED_HASHMAP_FOREACH_KEY(e, k, h, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_hashmap_iterate((h), &i, (void**)&(e), (const void**) &(k)); )
-#define ORDERED_HASHMAP_FOREACH_KEY(e, k, h) \
-        _ORDERED_HASHMAP_FOREACH_KEY(e, k, h, UNIQ_T(i, UNIQ))
+#define ORDERED_HASHMAP_FOREACH_சாவி(e, k, h, i) \
+        க்கு (Iterator i = ITERATOR_FIRST; ordered_hashmap_iterate((h), &i, (வெறுமை**)&(e), (மாறிலி வெறுமை**) &(k)); )
+#define ORDERED_HASHMAP_FOREACH_சாவி_2(e, k, h) \
+        ORDERED_HASHMAP_FOREACH_சாவி(e, k, h, UNIQ_T(i, UNIQ))
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(Hashmap*, hashmap_free);
 DEFINE_TRIVIAL_CLEANUP_FUNC(OrderedHashmap*, ordered_hashmap_free);
@@ -371,4 +371,4 @@ DEFINE_TRIVIAL_CLEANUP_FUNC(IteratedCache*, iterated_cache_free);
 
 #define _cleanup_iterated_cache_free_ _cleanup_(iterated_cache_freep)
 
-void hashmap_trim_pools(void);
+வெறுமை hashmap_trim_pools(வெறுமை);

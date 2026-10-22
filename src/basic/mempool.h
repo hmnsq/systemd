@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-struct pool;
+கட்டமைப்பு pool;
 
-struct mempool {
-        struct pool *first_pool;
-        void *freelist;
+கட்டமைப்பு mempool {
+        கட்டமைப்பு pool *first_pool;
+        வெறுமை *freelist;
         size_t tile_size;
         size_t at_least;
 };
 
-void* mempool_alloc_tile(struct mempool *mp);
-void* mempool_alloc0_tile(struct mempool *mp);
-void* mempool_free_tile(struct mempool *mp, void *p);
+வெறுமை* mempool_alloc_tile(கட்டமைப்பு mempool *mp);
+வெறுமை* mempool_alloc0_tile(கட்டமைப்பு mempool *mp);
+வெறுமை* mempool_free_tile(கட்டமைப்பு mempool *mp, வெறுமை *p);
 
 #define DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_least) \
-static struct mempool pool_name = { \
-        .tile_size = sizeof(tile_type), \
+நிலையான கட்டமைப்பு mempool pool_name = { \
+        .tile_size = அளவு(tile_type), \
         .at_least = alloc_at_least, \
 }
 
-bool mempool_enabled(void) _weak_ _pure_;
+bool mempool_enabled(வெறுமை) _weak_ _pure_;
 
-void mempool_trim(struct mempool *mp);
+வெறுமை mempool_trim(கட்டமைப்பு mempool *mp);

@@ -1,157 +1,157 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "parse-util.h"
-#include "percent-util.h"
-#include "string-util.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "percent-util.h"
+#அந்தர்பாவ "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
-        const char *pc, *n;
-        int r, v;
+நிலையான முழு parse_parts_மதிப்பு_whole(மாறிலி எழுத்து *p, மாறிலி எழுத்து *குறியீடு) {
+        மாறிலி எழுத்து *pc, *n;
+        முழு r, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, குறியீடு);
+        எனில் (!pc)
+                திரும்பு -EINVAL;
 
         n = strndupa_safe(p, pc - p);
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (v < 0)
+                திரும்பு -ERANGE;
 
-        return v;
+        திரும்பு v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+நிலையான முழு parse_parts_மதிப்பு_with_tenths_place(மாறிலி எழுத்து *p, மாறிலி எழுத்து *குறியீடு) {
+        மாறிலி எழுத்து *pc, *dot, *n;
+        முழு r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, குறியீடு);
+        எனில் (!pc)
+                திரும்பு -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        எனில் (dot) {
+                எனில் (dot + 2 != pc)
+                        திரும்பு -EINVAL;
+                எனில் (dot[1] < '0' || dot[1] > '9')
+                        திரும்பு -EINVAL;
                 q = dot[1] - '0';
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } இல்லையெனில் {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (v < 0)
+                திரும்பு -ERANGE;
+        எனில் (v > (INT_MAX - q) / 10)
+                திரும்பு -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        திரும்பு v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+நிலையான முழு parse_parts_மதிப்பு_with_hundredths_place(மாறிலி எழுத்து *p, மாறிலி எழுத்து *குறியீடு) {
+        மாறிலி எழுத்து *pc, *dot, *n;
+        முழு r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, குறியீடு);
+        எனில் (!pc)
+                திரும்பு -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        எனில் (dot) {
+                எனில் (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        எனில் (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                திரும்பு -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } இல்லையெனில் எனில் (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        எனில் (dot[1] < '0' || dot[1] > '9')
+                                திரும்பு -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } இல்லையெனில்
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        திரும்பு -EINVAL;
 
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } இல்லையெனில் {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (v < 0)
+                திரும்பு -ERANGE;
+        எனில் (v > (INT_MAX - q) / 100)
+                திரும்பு -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        திரும்பு v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+முழு parse_percent_unbounded(மாறிலி எழுத்து *p) {
+        திரும்பு parse_parts_மதிப்பு_whole(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+முழு parse_percent(மாறிலி எழுத்து *p) {
+        முழு v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        எனில் (v > 100)
+                திரும்பு -ERANGE;
 
-        return v;
+        திரும்பு v;
 }
 
-int parse_permille_unbounded(const char *p) {
-        const char *pm;
+முழு parse_permille_unbounded(மாறிலி எழுத்து *p) {
+        மாறிலி எழுத்து *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        எனில் (pm)
+                திரும்பு parse_parts_மதிப்பு_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        திரும்பு parse_parts_மதிப்பு_with_tenths_place(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+முழு parse_permille(மாறிலி எழுத்து *p) {
+        முழு v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        எனில் (v > 1000)
+                திரும்பு -ERANGE;
 
-        return v;
+        திரும்பு v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
-        const char *pm;
+முழு parse_permyriad_unbounded(மாறிலி எழுத்து *p) {
+        மாறிலி எழுத்து *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        எனில் (pm)
+                திரும்பு parse_parts_மதிப்பு_whole(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        எனில் (pm)
+                திரும்பு parse_parts_மதிப்பு_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        திரும்பு parse_parts_மதிப்பு_with_hundredths_place(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+முழு parse_permyriad(மாறிலி எழுத்து *p) {
+        முழு v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        எனில் (v > 10000)
+                திரும்பு -ERANGE;
 
-        return v;
+        திரும்பு v;
 }

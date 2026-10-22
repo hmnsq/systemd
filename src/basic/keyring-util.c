@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "keyring-util.h"
-#include "log.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "keyring-util.h"
+#அந்தர்பாவ "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+முழு keyring_read(சாவி_serial_t serial, வெறுமை **ret, size_t *ret_size) {
         size_t bufsize = 100;
 
-        for (;;) {
-                _cleanup_(erase_and_freep) uint8_t *buf = NULL;
+        க்கு (;;) {
+                _cleanup_(erase_and_freep) uint8_t *buf = வெற்று;
                 long n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                எனில் (!buf)
+                        திரும்பு -ENOMEM;
 
                 n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                எனில் (n < 0)
+                        திரும்பு -errno;
 
-                if ((size_t) n <= bufsize) {
+                எனில் ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        எனில் (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
+                        எனில் (ret_size)
                                 *ret_size = n;
 
-                        return 0;
+                        திரும்பு 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
-        _cleanup_free_ char *tuple = NULL;
+முழு keyring_describe(சாவி_serial_t serial, எழுத்து **ret) {
+        _cleanup_free_ எழுத்து *tuple = வெற்று;
         size_t sz = 64;
-        int c;
+        முழு c;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        for (;;) {
-                tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+        க்கு (;;) {
+                tuple = new(எழுத்து, sz);
+                எனில் (!tuple)
+                        திரும்பு log_oom_debug();
 
                 c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                எனில் (c < 0)
+                        திரும்பு log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
-                        break;
+                எனில் ((size_t) c <= sz)
+                        நிறுத்து;
 
                 sz = c;
-                free(tuple);
+                விடுவி(tuple);
         }
 
         /* The kernel returns a final NUL in the string, verify that. */
-        assert(tuple[c-1] == 0);
+        ப்ரதிஜ்ஞா(tuple[c-1] == 0);
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        திரும்பு 0;
 }

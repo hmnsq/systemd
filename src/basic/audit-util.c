@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "audit-util.h"
+#அந்தர்பாவ "fileio.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "pidref.h"
+#அந்தர்பாவ "process-util.h"
+#அந்தர்பாவ "stat-util.h"
+#அந்தர்பாவ "user-util.h"
+#அந்தர்பாவ "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+நிலையான முழு audit_read_field(மாறிலி PidRef *pid, மாறிலி எழுத்து *field, எழுத்து **ret) {
+        முழு r;
 
-        assert(field);
-        assert(ret);
+        ப்ரதிஜ்ஞா(field);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        எனில் (!pidref_is_set(pid))
+                திரும்பு -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        எனில் (detect_container() > 0)
+                திரும்பு -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        மாறிலி எழுத்து *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ எழுத்து *s = வெற்று;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_full_virtual_file(p, &s, /* ret_size= */ வெற்று);
+        எனில் (r == -ENOENT) {
+                எனில் (proc_mounted() == 0)
+                        திரும்பு -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } இல்லையெனில் எனில் (r < 0)
+                திரும்பு r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        எனில் (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                திரும்பு -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        திரும்பு 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+முழு audit_session_from_pid(மாறிலி PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ எழுத்து *s = வெற்று;
+        முழு r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        எனில் (!audit_session_is_valid(u))
+                திரும்பு -ENODATA;
 
-        if (ret_id)
+        எனில் (ret_id)
                 *ret_id = u;
 
-        return 0;
+        திரும்பு 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+முழு audit_loginuid_from_pid(மாறிலி PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ எழுத்து *s = வெற்று;
+        முழு r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        எனில் (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                திரும்பு -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        திரும்பு parse_uid(s, ret_uid);
 }

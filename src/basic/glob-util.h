@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <glob.h>       /* IWYU pragma: export */
+#அந்தர்பாவ <glob.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-typedef DIR* (*opendir_t)(const char *);
+வகைவரை DIR* (*opendir_t)(மாறிலி எழுத்து *);
 
-int safe_glob_full(const char *path, int flags, opendir_t opendir_func, char ***ret);
-static inline int safe_glob(const char *path, int flags, char ***ret) {
-        return safe_glob_full(path, flags, NULL, ret);
+முழு safe_glob_full(மாறிலி எழுத்து *path, முழு flags, opendir_t opendir_func, எழுத்து ***ret);
+நிலையான உள்வரி முழு safe_glob(மாறிலி எழுத்து *path, முழு flags, எழுத்து ***ret) {
+        திரும்பு safe_glob_full(path, flags, வெற்று, ret);
 }
 
 /* Note: which match is returned depends on the implementation/system and not guaranteed to be stable */
-int glob_first(const char *path, char **ret);
-#define glob_exists(path) glob_first(path, NULL)
-int glob_extend(char ***strv, const char *path, int flags);
+முழு glob_first(மாறிலி எழுத்து *path, எழுத்து **ret);
+#define glob_exists(path) glob_first(path, வெற்று)
+முழு glob_extend(எழுத்து ***strv, மாறிலி எழுத்து *path, முழு flags);
 
-int glob_non_glob_prefix(const char *path, char **ret);
+முழு glob_non_glob_prefix(மாறிலி எழுத்து *path, எழுத்து **ret);
 
-bool string_is_glob(const char *p) _pure_;
+bool string_is_glob(மாறிலி எழுத்து *p) _pure_;

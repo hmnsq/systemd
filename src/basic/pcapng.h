@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
 /*
  * For details about the file format see RFC:
@@ -9,7 +9,7 @@
  *  and
  *    https://github.com/pcapng/pcapng/
  */
-enum pcapng_block_types {
+எண்ணிக்கை pcapng_block_types {
         PCAPNG_INTERFACE_BLOCK = 1,
         PCAPNG_PACKET_BLOCK, /* Obsolete */
         PCAPNG_SIMPLE_PACKET_BLOCK,
@@ -20,7 +20,7 @@ enum pcapng_block_types {
         PCAPNG_SECTION_BLOCK   = 0x0A0D0D0A,
 };
 
-struct pcapng_option {
+கட்டமைப்பு pcapng_option {
         uint16_t code;
         uint16_t length;
         uint8_t data[];
@@ -30,12 +30,12 @@ struct pcapng_option {
 #define PCAPNG_MAJOR_VERS 1
 #define PCAPNG_MINOR_VERS 0
 
-enum pcapng_opt {
+எண்ணிக்கை pcapng_opt {
         PCAPNG_OPT_END     = 0,
         PCAPNG_OPT_COMMENT = 1,
 };
 
-struct pcapng_section {
+கட்டமைப்பு pcapng_section {
         uint32_t block_type;
         uint32_t block_length;
         uint32_t byte_order_magic;
@@ -44,13 +44,13 @@ struct pcapng_section {
         uint64_t section_length;
 };
 
-enum pcapng_section_opt {
+எண்ணிக்கை pcapng_section_opt {
         PCAPNG_SHB_HARDWARE = 2,
         PCAPNG_SHB_OS       = 3,
         PCAPNG_SHB_USERAPPL = 4,
 };
 
-struct pcapng_interface_block {
+கட்டமைப்பு pcapng_interface_block {
         uint32_t block_type;   /* 1 */
         uint32_t block_length;
         uint16_t link_type;
@@ -58,7 +58,7 @@ struct pcapng_interface_block {
         uint32_t snap_len;
 };
 
-enum pcapng_interface_options {
+எண்ணிக்கை pcapng_interface_options {
         PCAPNG_IFB_NAME = 2,
         PCAPNG_IFB_DESCRIPTION,
         PCAPNG_IFB_IPV4ADDR,
@@ -75,7 +75,7 @@ enum pcapng_interface_options {
         PCAPNG_IFB_HARDWARE,
 };
 
-struct pcapng_enhance_packet_block {
+கட்டமைப்பு pcapng_enhance_packet_block {
         uint32_t block_type; /* 6 */
         uint32_t block_length;
         uint32_t interface_id;
@@ -89,7 +89,7 @@ struct pcapng_enhance_packet_block {
 #define PCAPNG_IFB_INBOUND   0b01
 #define PCAPNG_IFB_OUTBOUND  0b10
 
-enum pcapng_epb_options {
+எண்ணிக்கை pcapng_epb_options {
         PCAPNG_EPB_FLAGS = 2,
         PCAPNG_EPB_HASH,
         PCAPNG_EPB_DROPCOUNT,
@@ -98,7 +98,7 @@ enum pcapng_epb_options {
         PCAPNG_EPB_VERDICT,
 };
 
-struct pcapng_statistics_block {
+கட்டமைப்பு pcapng_statistics_block {
         uint32_t block_type; /* 5 */
         uint32_t block_length;
         uint32_t interface_id;
@@ -106,7 +106,7 @@ struct pcapng_statistics_block {
         uint32_t timestamp_lo;
 };
 
-enum pcapng_isb_options {
+எண்ணிக்கை pcapng_isb_options {
         PCAPNG_ISB_STARTTIME = 2,
         PCAPNG_ISB_ENDTIME,
         PCAPNG_ISB_IFRECV,

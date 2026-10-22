@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-typedef enum ChaseFlags {
-        CHASE_PREFIX_ROOT        = 1 << 0,  /* The specified path will be prefixed by the specified root before beginning the iteration */
+வகைவரை எண்ணிக்கை ChaseFlags {
+        CHASE_PREFIX_வேர்        = 1 << 0,  /* The specified path will be prefixed by the specified root before beginning the iteration */
         CHASE_NONEXISTENT        = 1 << 1,  /* It's OK if the path doesn't actually exist. */
         CHASE_NO_AUTOFS          = 1 << 2,  /* Return -EREMOTE if autofs mount point found */
         CHASE_TRIGGER_AUTOFS     = 1 << 3,  /* Use open_tree() rather than openat() to trigger autofs mount */
@@ -30,31 +30,31 @@ typedef enum ChaseFlags {
         CHASE_MUST_BE_SOCKET     = 1 << 15, /* Fail if returned inode fd is not a socket */
 } ChaseFlags;
 
-int statx_unsafe_transition(const struct statx *a, const struct statx *b);
-bool stat_unsafe_transition(const struct stat *a, const struct stat *b);
+முழு statx_unsafe_transition(மாறிலி கட்டமைப்பு statx *a, மாறிலி கட்டமைப்பு statx *b);
+bool stat_unsafe_transition(மாறிலி கட்டமைப்பு stat *a, மாறிலி கட்டமைப்பு stat *b);
 
 /* How many iterations to execute before returning -ELOOP */
 #define CHASE_MAX 128U
 
-int chase(const char *path_with_prefix, const char *root, ChaseFlags flags, char **ret_path, int *ret_fd);
+முழு chase(மாறிலி எழுத்து *path_with_prefix, மாறிலி எழுத்து *வேர், ChaseFlags flags, எழுத்து **ret_path, முழு *ret_fd);
 
-int chaseat_prefix_root(const char *path, const char *root, char **ret);
-int chase_extract_filename(const char *path, const char *root, char **ret);
+முழு chaseat_prefix_வேர்(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், எழுத்து **ret);
+முழு chase_extract_filename(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், எழுத்து **ret);
 
-int chase_and_open(const char *path, const char *root, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendir(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_stat(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_access(const char *path, const char *root, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopen_unlocked(const char *path, const char *root, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlink(const char *path, const char *root, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent(const char *path, const char *root, ChaseFlags chase_flags, char **ret_filename);
+முழு chase_and_open(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், ChaseFlags chase_flags, முழு open_flags, எழுத்து **ret_path);
+முழு chase_and_opendir(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், ChaseFlags chase_flags, எழுத்து **ret_path, DIR **ret_dir);
+முழு chase_and_stat(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், ChaseFlags chase_flags, எழுத்து **ret_path, கட்டமைப்பு stat *ret_stat);
+முழு chase_and_access(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், ChaseFlags chase_flags, முழு access_mode, எழுத்து **ret_path);
+முழு chase_and_fopen_unlocked(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், ChaseFlags chase_flags, மாறிலி எழுத்து *open_flags, எழுத்து **ret_path, FILE **ret_file);
+முழு chase_and_unlink(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், ChaseFlags chase_flags, முழு unlink_flags, எழுத்து **ret_path);
+முழு chase_and_open_parent(மாறிலி எழுத்து *path, மாறிலி எழுத்து *வேர், ChaseFlags chase_flags, எழுத்து **ret_filename);
 
-int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **ret_path, int *ret_fd);
+முழு chaseat(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags flags, எழுத்து **ret_path, முழு *ret_fd);
 
-int chase_and_openat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendirat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_statat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_accessat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopenat_unlocked(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlinkat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent_at(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_filename);
+முழு chase_and_openat(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags chase_flags, முழு open_flags, எழுத்து **ret_path);
+முழு chase_and_opendirat(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags chase_flags, எழுத்து **ret_path, DIR **ret_dir);
+முழு chase_and_statat(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags chase_flags, எழுத்து **ret_path, கட்டமைப்பு stat *ret_stat);
+முழு chase_and_accessat(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags chase_flags, முழு access_mode, எழுத்து **ret_path);
+முழு chase_and_fopenat_unlocked(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags chase_flags, மாறிலி எழுத்து *open_flags, எழுத்து **ret_path, FILE **ret_file);
+முழு chase_and_unlinkat(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags chase_flags, முழு unlink_flags, எழுத்து **ret_path);
+முழு chase_and_open_parent_at(முழு வேர்_fd, முழு dir_fd, மாறிலி எழுத்து *path, ChaseFlags chase_flags, எழுத்து **ret_filename);

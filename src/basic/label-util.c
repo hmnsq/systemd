@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "label-util.h"
+#அந்தர்பாவ "label-util.h"
 
-static const LabelOps *label_ops = NULL;
+நிலையான மாறிலி LabelOps *label_ops = வெற்று;
 
-int label_ops_set(const LabelOps *ops) {
-        assert(ops);
+முழு label_ops_set(மாறிலி LabelOps *ops) {
+        ப்ரதிஜ்ஞா(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        எனில் (label_ops)
+                திரும்பு -EBUSY;
 
         label_ops = ops;
-        return 0;
+        திரும்பு 0;
 }
 
-void label_ops_reset(void) {
-        label_ops = NULL;
+வெறுமை label_ops_reset(வெறுமை) {
+        label_ops = வெற்று;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+முழு label_ops_pre(முழு dir_fd, மாறிலி எழுத்து *path, mode_t mode, LabelContext *label_context) {
+        எனில் (!label_ops || !label_ops->pre)
+                திரும்பு 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        திரும்பு label_ops->pre(dir_fd, path, mode, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+முழு label_ops_post(முழு dir_fd, மாறிலி எழுத்து *path, bool created, LabelContext *label_context) {
+        எனில் (!label_ops || !label_ops->post)
+                திரும்பு 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        திரும்பு label_ops->post(dir_fd, path, created, label_context);
 }

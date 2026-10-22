@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
 /* What characters are special in the shell? */
 /* must be escaped outside and inside double-quotes */
@@ -21,12 +21,12 @@
  */
 #define SHELL_NEED_ESCAPE_POSIX "\\\'"
 
-typedef enum UnescapeFlags {
+வகைவரை எண்ணிக்கை UnescapeFlags {
         UNESCAPE_RELAX      = 1 << 0,
         UNESCAPE_ACCEPT_NUL = 1 << 1,
 } UnescapeFlags;
 
-typedef enum ShellEscapeFlags {
+வகைவரை எண்ணிக்கை ShellEscapeFlags {
         /* The default is to add shell quotes ("") so the shell will consider this a single argument.
          * Tabs and newlines are escaped. */
 
@@ -34,38 +34,38 @@ typedef enum ShellEscapeFlags {
         SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
-char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
-static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+முழு cescape_char(எழுத்து c, எழுத்து *buf);
+எழுத்து* cescape_length(மாறிலி எழுத்து *s, size_t n) _nonnull_if_nonzero_(1, 2);
+நிலையான உள்வரி எழுத்து* cescape(மாறிலி எழுத்து *s) {
+        திரும்பு cescape_length(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+முழு cunescape_one(மாறிலி எழுத்து *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
-static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+ssize_t cunescape_length_with_prefix(மாறிலி எழுத்து *s, size_t length, மாறிலி எழுத்து *prefix, UnescapeFlags flags, எழுத்து **ret);
+நிலையான உள்வரி ssize_t cunescape_length(மாறிலி எழுத்து *s, size_t length, UnescapeFlags flags, எழுத்து **ret) {
+        திரும்பு cunescape_length_with_prefix(s, length, வெற்று, flags, ret);
 }
-static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+நிலையான உள்வரி ssize_t cunescape(மாறிலி எழுத்து *s, UnescapeFlags flags, எழுத்து **ret) {
+        திரும்பு cunescape_length(s, SIZE_MAX, flags, ret);
 }
 
-typedef enum XEscapeFlags {
+வகைவரை எண்ணிக்கை XEscapeFlags {
         XESCAPE_8_BIT          = 1 << 0,
         XESCAPE_FORCE_ELLIPSIS = 1 << 1,
 } XEscapeFlags;
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
-static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+எழுத்து* xescape_full(மாறிலி எழுத்து *s, மாறிலி எழுத்து *bad, size_t console_width, XEscapeFlags flags);
+நிலையான உள்வரி எழுத்து* xescape(மாறிலி எழுத்து *s, மாறிலி எழுத்து *bad) {
+        திரும்பு xescape_full(s, bad, SIZE_MAX, 0);
 }
-char* octescape_full(const char *s, size_t len, const char *bad);
-static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+எழுத்து* octescape_full(மாறிலி எழுத்து *s, size_t len, மாறிலி எழுத்து *bad);
+நிலையான உள்வரி எழுத்து* octescape(மாறிலி எழுத்து *s, size_t len) {
+        திரும்பு octescape_full(s, len, வெற்று);
 }
-char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);
+எழுத்து* decescape(மாறிலி எழுத்து *s, size_t len, மாறிலி எழுத்து *bad) _nonnull_if_nonzero_(1, 2);
+எழுத்து* escape_non_printable_full(மாறிலி எழுத்து *str, size_t console_width, XEscapeFlags flags);
 
-char* shell_escape(const char *s, const char *bad);
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags);
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags);
+எழுத்து* shell_escape(மாறிலி எழுத்து *s, மாறிலி எழுத்து *bad);
+எழுத்து* shell_maybe_quote(மாறிலி எழுத்து *s, ShellEscapeFlags flags);
+எழுத்து* quote_command_வரி(எழுத்து * மாறிலி *argv, ShellEscapeFlags flags);

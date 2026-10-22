@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "list.h"
+#அந்தர்பாவ "forward.h"
+#அந்தர்பாவ "list.h"
 
 /*
  * The log context allows attaching extra metadata to log messages written to the journal via log.h. We keep
@@ -32,73 +32,73 @@
  * message.
  */
 
-typedef struct LogContext {
+வகைவரை கட்டமைப்பு LogContext {
         unsigned n_ref;
         /* Depending on which destructor is used (log_context_free() or log_context_detach()) the memory
          * referenced by this is freed or not */
-        char **fields;
-        struct iovec *input_iovec;
-        size_t n_input_iovec;
-        char *key;
-        char *value;
+        எழுத்து **fields;
+        கட்டமைப்பு iovec *உள்ளீடு_iovec;
+        size_t n_உள்ளீடு_iovec;
+        எழுத்து *சாவி;
+        எழுத்து *மதிப்பு;
         bool owned;
-        LIST_FIELDS(struct LogContext, ll);
+        LIST_FIELDS(கட்டமைப்பு LogContext, ll);
 } LogContext;
 
-bool log_context_enabled(void);
+bool log_context_enabled(வெறுமை);
 
-LogContext* log_context_new(const char *key, const char *value);
-LogContext* log_context_new_strv(char **fields, bool owned);
-LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned);
+LogContext* log_context_new(மாறிலி எழுத்து *சாவி, மாறிலி எழுத்து *மதிப்பு);
+LogContext* log_context_new_strv(எழுத்து **fields, bool owned);
+LogContext* log_context_new_iov(கட்டமைப்பு iovec *உள்ளீடு_iovec, size_t n_உள்ளீடு_iovec, bool owned);
 
 /* Same as log_context_new(), but frees the given fields strv/iovec on failure. */
-LogContext* log_context_new_strv_consume(char **fields);
-LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec);
+LogContext* log_context_new_strv_consume(எழுத்து **fields);
+LogContext* log_context_new_iov_consume(கட்டமைப்பு iovec *உள்ளீடு_iovec, size_t n_உள்ளீடு_iovec);
 
 DECLARE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context);
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(LogContext*, log_context_unref);
 
 /* Returns the head of the log context list. */
-LogContext* log_context_head(void);
+LogContext* log_context_head(வெறுமை);
 /* Returns the number of attached log context objects. */
-size_t log_context_num_contexts(void);
+size_t log_context_இலக்கம்_contexts(வெறுமை);
 /* Returns the number of fields in all attached log contexts. */
-size_t log_context_num_fields(void);
+size_t log_context_இலக்கம்_fields_2(வெறுமை);
 
-void log_context_swap(LogContext **log_context, size_t *num_fields);
+வெறுமை log_context_swap(LogContext **log_context, size_t *இலக்கம்_fields);
 
-void _reset_log_level(int *saved_log_level);
+வெறுமை _reset_log_level(முழு *saved_log_level);
 
 #define _LOG_CONTEXT_SET_LOG_LEVEL(level, l) \
-        _cleanup_(_reset_log_level) _unused_ int l = log_set_max_level(level);
+        _cleanup_(_reset_log_level) _unused_ முழு l = log_set_max_level(level);
 
 #define LOG_CONTEXT_SET_LOG_LEVEL(level) \
         _LOG_CONTEXT_SET_LOG_LEVEL(level, UNIQ_T(l, UNIQ))
 
-#define LOG_CONTEXT_PUSH(...) \
-        LOG_CONTEXT_PUSH_STRV(STRV_MAKE(__VA_ARGS__))
+#define LOG_CONTEXT_தள்ளு(...) \
+        LOG_CONTEXT_தள்ளு_STRV(STRV_MAKE(__VA_ARGS__))
 
 #define LOG_CONTEXT_PUSHF(...) \
-        LOG_CONTEXT_PUSH(snprintf_ok((char[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
+        LOG_CONTEXT_தள்ளு(snprintf_ok((எழுத்து[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
 
-#define _LOG_CONTEXT_PUSH_KEY_VALUE(key, value, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new(key, value);
+#define LOG_CONTEXT_தள்ளு_சாவி_மதிப்பு(சாவி, மதிப்பு, c) \
+        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new(சாவி, மதிப்பு);
 
-#define LOG_CONTEXT_PUSH_KEY_VALUE(key, value) \
-        _LOG_CONTEXT_PUSH_KEY_VALUE(key, value, UNIQ_T(c, UNIQ))
+#define LOG_CONTEXT_தள்ளு_சாவி_மதிப்பு_2(சாவி, மதிப்பு) \
+        LOG_CONTEXT_தள்ளு_சாவி_மதிப்பு(சாவி, மதிப்பு, UNIQ_T(c, UNIQ))
 
-#define _LOG_CONTEXT_PUSH_STRV(strv, c) \
+#define LOG_CONTEXT_தள்ளு_STRV_2(strv, c) \
         _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv(strv, /* owned= */ false);
 
-#define LOG_CONTEXT_PUSH_STRV(strv) \
-        _LOG_CONTEXT_PUSH_STRV(strv, UNIQ_T(c, UNIQ))
+#define LOG_CONTEXT_தள்ளு_STRV(strv) \
+        LOG_CONTEXT_தள்ளு_STRV_2(strv, UNIQ_T(c, UNIQ))
 
-#define _LOG_CONTEXT_PUSH_IOV(input_iovec, n_input_iovec, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov(input_iovec, n_input_iovec, /* owned= */ false);
+#define LOG_CONTEXT_தள்ளு_IOV(உள்ளீடு_iovec, n_உள்ளீடு_iovec, c) \
+        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov(உள்ளீடு_iovec, n_உள்ளீடு_iovec, /* owned= */ false);
 
-#define LOG_CONTEXT_PUSH_IOV(input_iovec, n_input_iovec) \
-        _LOG_CONTEXT_PUSH_IOV(input_iovec, n_input_iovec, UNIQ_T(c, UNIQ))
+#define LOG_CONTEXT_தள்ளு_IOV_2(உள்ளீடு_iovec, n_உள்ளீடு_iovec) \
+        LOG_CONTEXT_தள்ளு_IOV(உள்ளீடு_iovec, n_உள்ளீடு_iovec, UNIQ_T(c, UNIQ))
 
 /* LOG_CONTEXT_CONSUME_STR()/LOG_CONTEXT_CONSUME_STRV()/LOG_CONTEXT_CONSUME_IOV() are identical to
 * LOG_CONTEXT_PUSH_STR()/LOG_CONTEXT_PUSH_STRV()/LOG_CONTEXT_PUSH_IOV() except they take ownership of the
@@ -107,8 +107,8 @@ void _reset_log_level(int *saved_log_level);
 
 #define _LOG_CONTEXT_CONSUME_STR(s, c, strv) \
         _unused_ _cleanup_strv_free_ strv = strv_new(s);                                                \
-        if (!strv)                                                                                      \
-                free(s);                                                                                \
+        எனில் (!strv)                                                                                      \
+                விடுவி(s);                                                                                \
         _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(TAKE_PTR(strv))
 
 #define LOG_CONTEXT_CONSUME_STR(s) \
@@ -120,8 +120,8 @@ void _reset_log_level(int *saved_log_level);
 #define LOG_CONTEXT_CONSUME_STRV(strv) \
         _LOG_CONTEXT_CONSUME_STRV(strv, UNIQ_T(c, UNIQ))
 
-#define _LOG_CONTEXT_CONSUME_IOV(input_iovec, n_input_iovec, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov_consume(input_iovec, n_input_iovec);
+#define _LOG_CONTEXT_CONSUME_IOV(உள்ளீடு_iovec, n_உள்ளீடு_iovec, c) \
+        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov_consume(உள்ளீடு_iovec, n_உள்ளீடு_iovec);
 
-#define LOG_CONTEXT_CONSUME_IOV(input_iovec, n_input_iovec) \
-        _LOG_CONTEXT_CONSUME_IOV(input_iovec, n_input_iovec, UNIQ_T(c, UNIQ))
+#define LOG_CONTEXT_CONSUME_IOV(உள்ளீடு_iovec, n_உள்ளீடு_iovec) \
+        _LOG_CONTEXT_CONSUME_IOV(உள்ளீடு_iovec, n_உள்ளீடு_iovec, UNIQ_T(c, UNIQ))

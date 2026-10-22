@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
 #define SYSTEMD_CGROUP_CONTROLLER "_systemd"
 
 /* An enum of well known cgroup controllers */
-typedef enum CGroupController {
+வகைவரை எண்ணிக்கை CGroupController {
         /* Original cgroup controllers */
         CGROUP_CONTROLLER_CPU,
         CGROUP_CONTROLLER_CPUACCT,    /* v1 only */
@@ -35,7 +35,7 @@ typedef enum CGroupController {
 #define CGROUP_CONTROLLER_TO_MASK(c) (1U << (c))
 
 /* A bit mask of well known cgroup controllers */
-typedef enum CGroupMask {
+வகைவரை எண்ணிக்கை CGroupMask {
         CGROUP_MASK_CPU = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPU),
         CGROUP_MASK_CPUACCT = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUACCT),
         CGROUP_MASK_CPUSET = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUSET),
@@ -76,14 +76,14 @@ typedef enum CGroupMask {
 #define CGROUP_LIMIT_MIN UINT64_C(0)
 #define CGROUP_LIMIT_MAX UINT64_MAX
 
-static inline bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
-        return
+நிலையான உள்வரி bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
+        திரும்பு
             x == CGROUP_WEIGHT_INVALID ||
             (x >= CGROUP_WEIGHT_MIN && x <= CGROUP_WEIGHT_MAX);
 }
 
 /* IO limits on unified hierarchy */
-typedef enum CGroupIOLimitType {
+வகைவரை எண்ணிக்கை CGroupIOLimitType {
         CGROUP_IO_RBPS_MAX,
         CGROUP_IO_WBPS_MAX,
         CGROUP_IO_RIOPS_MAX,
@@ -93,10 +93,10 @@ typedef enum CGroupIOLimitType {
         _CGROUP_IO_LIMIT_TYPE_INVALID = -EINVAL,
 } CGroupIOLimitType;
 
-extern const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
+வெளி மாறிலி uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
-void cgroup_io_limits_list(void);
+வெறுமை cgroup_io_limits_list(வெறுமை);
 
 /* Special values for the io.bfq.weight attribute */
 #define CGROUP_BFQ_WEIGHT_INVALID UINT64_MAX
@@ -105,8 +105,8 @@ void cgroup_io_limits_list(void);
 #define CGROUP_BFQ_WEIGHT_DEFAULT UINT64_C(100)
 
 /* Convert the normal io.weight value to io.bfq.weight */
-static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
-        return
+நிலையான உள்வரி uint64_t BFQ_WEIGHT(uint64_t io_weight) {
+        திரும்பு
             io_weight <= CGROUP_WEIGHT_DEFAULT ?
             CGROUP_BFQ_WEIGHT_DEFAULT - (CGROUP_WEIGHT_DEFAULT - io_weight) * (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) / (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) :
             CGROUP_BFQ_WEIGHT_DEFAULT + (io_weight - CGROUP_WEIGHT_DEFAULT) * (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT) / (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT);
@@ -119,127 +119,127 @@ static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
  * generate paths with multiple adjacent / removed.
  */
 
-int cg_is_available(void);
+முழு cg_is_available(வெறுமை);
 
-int cg_path_open(const char *path);
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id);
+முழு cg_path_open(மாறிலி எழுத்து *path);
+முழு cg_cgroupid_open(முழு cgroupfs_fd, uint64_t id);
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret);
+முழு cg_path_from_cgroupid(முழு cgroupfs_fd, uint64_t id, எழுத்து **ret);
 
-typedef enum CGroupFlags {
+வகைவரை எண்ணிக்கை CGroupFlags {
         CGROUP_SIGCONT            = 1 << 0,
         CGROUP_IGNORE_SELF        = 1 << 1,
         CGROUP_DONT_SKIP_UNMAPPED = 1 << 2,
 } CGroupFlags;
 
-int cg_enumerate_processes(const char *path, FILE **ret);
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
+முழு cg_enumerate_processes(மாறிலி எழுத்து *path, FILE **ret);
+முழு cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
+முழு cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
 
-int cg_enumerate_subgroups(const char *path, DIR **ret);
-int cg_read_subgroup(DIR *d, char **ret);
+முழு cg_enumerate_subgroups(மாறிலி எழுத்து *path, DIR **ret);
+முழு cg_read_subgroup(DIR *d, எழுத்து **ret);
 
-typedef int (*cg_kill_log_func_t)(const PidRef *pid, int sig, void *userdata);
+வகைவரை முழு (*cg_kill_log_func_t)(மாறிலி PidRef *pid, முழு sig, வெறுமை *userdata);
 
-int cg_kill(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed);
-int cg_kill_recursive(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+முழு cg_kill(மாறிலி எழுத்து *path, முழு sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, வெறுமை *userdata);
+முழு cg_kill_kernel_sigkill(மாறிலி எழுத்து *path, uint64_t *ret_n_pids_killed);
+முழு cg_kill_recursive(மாறிலி எழுத்து *path, முழு sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, வெறுமை *userdata);
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path);
+முழு cg_split_spec(மாறிலி எழுத்து *spec, எழுத்து **ret_controller, எழுத்து **ret_path);
 
-int cg_get_path(const char *path, const char *suffix, char **ret);
+முழு cg_get_path(மாறிலி எழுத்து *path, மாறிலி எழுத்து *suffix, எழுத்து **ret);
 
-int cg_pid_get_path(pid_t pid, char **ret);
-int cg_pidref_get_path(const PidRef *pidref, char **ret);
+முழு cg_pid_get_path(pid_t pid, எழுத்து **ret);
+முழு cg_pidref_get_path(மாறிலி PidRef *pidref, எழுத்து **ret);
 
-int cg_is_threaded(const char *path);
+முழு cg_is_threaded(மாறிலி எழுத்து *path);
 
-int cg_is_delegated(const char *path);
-int cg_is_delegated_fd(int fd);
+முழு cg_is_delegated(மாறிலி எழுத்து *path);
+முழு cg_is_delegated_fd(முழு fd);
 
-int cg_has_coredump_receive(const char *path);
+முழு cg_has_coredump_receive(மாறிலி எழுத்து *path);
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value);
-int cg_get_attribute(const char *path, const char *attribute, char **ret);
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
-int cg_get_attribute_as_bool(const char *path, const char *attribute);
+முழு cg_set_attribute(மாறிலி எழுத்து *path, மாறிலி எழுத்து *attribute, மாறிலி எழுத்து *மதிப்பு);
+முழு cg_get_attribute(மாறிலி எழுத்து *path, மாறிலி எழுத்து *attribute, எழுத்து **ret);
+முழு cg_get_attribute_as_uint64(மாறிலி எழுத்து *path, மாறிலி எழுத்து *attribute, uint64_t *ret);
+முழு cg_get_attribute_as_bool(மாறிலி எழுத்து *path, மாறிலி எழுத்து *attribute);
 
-int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
+முழு cg_get_keyed_attribute(மாறிலி எழுத்து *path, மாறிலி எழுத்து *attribute, எழுத்து * மாறிலி *சாவிகள், எழுத்து **values);
+முழு cg_get_keyed_attribute_uint64(மாறிலி எழுத்து *path, மாறிலி எழுத்து *attribute, மாறிலி எழுத்து *சாவி, uint64_t *ret);
 
-int cg_get_owner(const char *path, uid_t *ret_uid);
+முழு cg_get_owner(மாறிலி எழுத்து *path, uid_t *ret_uid);
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
+முழு cg_set_xattr(மாறிலி எழுத்து *path, மாறிலி எழுத்து *name, மாறிலி வெறுமை *மதிப்பு, size_t size, முழு flags);
+முழு cg_get_xattr(மாறிலி எழுத்து *path, மாறிலி எழுத்து *name, எழுத்து **ret, size_t *ret_size);
 /* Returns negative on error, and 0 or 1 on success for the bool value */
-int cg_get_xattr_bool(const char *path, const char *name);
-int cg_remove_xattr(const char *path, const char *name);
+முழு cg_get_xattr_bool(மாறிலி எழுத்து *path, மாறிலி எழுத்து *name);
+முழு cg_remove_xattr(மாறிலி எழுத்து *path, மாறிலி எழுத்து *name);
 
-int cg_is_empty(const char *path);
+முழு cg_is_empty(மாறிலி எழுத்து *path);
 
-int cg_get_root_path(char **path);
+முழு cg_get_வேர்_path(எழுத்து **path);
 
-int cg_path_get_session(const char *path, char **ret_session);
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_unit(const char *path, char **ret_unit) {
-        return cg_path_get_unit_full(path, ret_unit, NULL);
+முழு cg_path_get_session(மாறிலி எழுத்து *path, எழுத்து **ret_session);
+முழு cg_path_get_owner_uid(மாறிலி எழுத்து *path, uid_t *ret_uid);
+முழு cg_path_get_unit_full(மாறிலி எழுத்து *path, எழுத்து **ret_unit, எழுத்து **ret_subgroup);
+நிலையான உள்வரி முழு cg_path_get_unit(மாறிலி எழுத்து *path, எழுத்து **ret_unit) {
+        திரும்பு cg_path_get_unit_full(path, ret_unit, வெற்று);
 }
-int cg_path_get_unit_path(const char *path, char **ret_unit);
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_user_unit(const char *path, char **ret_unit) {
-        return cg_path_get_user_unit_full(path, ret_unit, NULL);
+முழு cg_path_get_unit_path(மாறிலி எழுத்து *path, எழுத்து **ret_unit);
+முழு cg_path_get_user_unit_full(மாறிலி எழுத்து *path, எழுத்து **ret_unit, எழுத்து **ret_subgroup);
+நிலையான உள்வரி முழு cg_path_get_user_unit(மாறிலி எழுத்து *path, எழுத்து **ret_unit) {
+        திரும்பு cg_path_get_user_unit_full(path, ret_unit, வெற்று);
 }
-int cg_path_get_machine_name(const char *path, char **ret_machine);
-int cg_path_get_slice(const char *path, char **ret_slice);
-int cg_path_get_user_slice(const char *path, char **ret_slice);
+முழு cg_path_get_machine_name(மாறிலி எழுத்து *path, எழுத்து **ret_machine);
+முழு cg_path_get_slice(மாறிலி எழுத்து *path, எழுத்து **ret_slice);
+முழு cg_path_get_user_slice(மாறிலி எழுத்து *path, எழுத்து **ret_slice);
 
-int cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
-int cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
+முழு cg_shift_path(மாறிலி எழுத்து *cgroup, மாறிலி எழுத்து *cached_வேர், மாறிலி எழுத்து **ret_shifted);
+முழு cg_pid_get_path_shifted(pid_t pid, மாறிலி எழுத்து *cached_வேர், எழுத்து **ret_cgroup);
+முழு cg_pidref_get_path_shifted(மாறிலி PidRef *pidref, மாறிலி எழுத்து *cached_வேர், எழுத்து **ret_cgroup);
 
-int cg_pid_get_session(pid_t pid, char **ret_session);
-int cg_pidref_get_session(const PidRef *pidref, char **ret);
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_unit_full(pid, ret_unit, NULL);
+முழு cg_pid_get_session(pid_t pid, எழுத்து **ret_session);
+முழு cg_pidref_get_session(மாறிலி PidRef *pidref, எழுத்து **ret);
+முழு cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
+முழு cg_pidref_get_owner_uid(மாறிலி PidRef *pidref, uid_t *ret);
+முழு cg_pid_get_unit_full(pid_t pid, எழுத்து **ret_unit, எழுத்து **ret_subgroup);
+நிலையான உள்வரி முழு cg_pid_get_unit(pid_t pid, எழுத்து **ret_unit) {
+        திரும்பு cg_pid_get_unit_full(pid, ret_unit, வெற்று);
 }
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_unit_full(pidref, ret_unit, NULL);
+முழு cg_pidref_get_unit_full(மாறிலி PidRef *pidref, எழுத்து **ret_unit, எழுத்து **ret_subgroup);
+நிலையான உள்வரி முழு cg_pidref_get_unit(மாறிலி PidRef *pidref, எழுத்து **ret_unit) {
+        திரும்பு cg_pidref_get_unit_full(pidref, ret_unit, வெற்று);
 }
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_user_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_user_unit_full(pid, ret_unit, NULL);
+முழு cg_pid_get_user_unit_full(pid_t pid, எழுத்து **ret_unit, எழுத்து **ret_subgroup);
+நிலையான உள்வரி முழு cg_pid_get_user_unit(pid_t pid, எழுத்து **ret_unit) {
+        திரும்பு cg_pid_get_user_unit_full(pid, ret_unit, வெற்று);
 }
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_user_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
+முழு cg_pidref_get_user_unit_full(மாறிலி PidRef *pidref, எழுத்து **ret_unit, எழுத்து **ret_subgroup);
+நிலையான உள்வரி முழு cg_pidref_get_user_unit(மாறிலி PidRef *pidref, எழுத்து **ret_unit) {
+        திரும்பு cg_pidref_get_user_unit_full(pidref, ret_unit, வெற்று);
 }
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine);
-int cg_pid_get_slice(pid_t pid, char **ret_slice);
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice);
+முழு cg_pid_get_machine_name(pid_t pid, எழுத்து **ret_machine);
+முழு cg_pid_get_slice(pid_t pid, எழுத்து **ret_slice);
+முழு cg_pid_get_user_slice(pid_t pid, எழுத்து **ret_slice);
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit);
+முழு cg_path_decode_unit(மாறிலி எழுத்து *cgroup, எழுத்து **ret_unit);
 
-bool cg_needs_escape(const char *p) _pure_;
-int cg_escape(const char *p, char **ret);
-char* cg_unescape(const char *p) _pure_;
+bool cg_needs_escape(மாறிலி எழுத்து *p) _pure_;
+முழு cg_escape(மாறிலி எழுத்து *p, எழுத்து **ret);
+எழுத்து* cg_unescape(மாறிலி எழுத்து *p) _pure_;
 
-int cg_slice_to_path(const char *unit, char **ret);
+முழு cg_slice_to_path(மாறிலி எழுத்து *unit, எழுத்து **ret);
 
-int cg_mask_supported(CGroupMask *ret);
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
-int cg_mask_from_string(const char *s, CGroupMask *ret);
-int cg_mask_to_string(CGroupMask mask, char **ret);
+முழு cg_mask_supported(CGroupMask *ret);
+முழு cg_mask_supported_subtree(மாறிலி எழுத்து *வேர், CGroupMask *ret);
+முழு cg_mask_from_string(மாறிலி எழுத்து *s, CGroupMask *ret);
+முழு cg_mask_to_string(CGroupMask mask, எழுத்து **ret);
 
-bool cg_kill_supported(void);
+bool cg_kill_supported(வெறுமை);
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
 
-typedef enum ManagedOOMMode {
+வகைவரை எண்ணிக்கை ManagedOOMMode {
         MANAGED_OOM_AUTO,
         MANAGED_OOM_KILL,
         _MANAGED_OOM_MODE_MAX,
@@ -248,7 +248,7 @@ typedef enum ManagedOOMMode {
 
 DECLARE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
 
-typedef enum ManagedOOMPreference {
+வகைவரை எண்ணிக்கை ManagedOOMPreference {
         MANAGED_OOM_PREFERENCE_NONE = 0,
         MANAGED_OOM_PREFERENCE_AVOID = 1,
         MANAGED_OOM_PREFERENCE_OMIT = 2,

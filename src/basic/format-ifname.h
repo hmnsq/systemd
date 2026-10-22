@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <net/if.h>
+#அந்தர்பாவ <net/if.h>
 
-typedef enum {
+வகைவரை எண்ணிக்கை {
         FORMAT_IFNAME_IFINDEX              = 1 << 0,
         FORMAT_IFNAME_IFINDEX_WITH_PERCENT = (1 << 1) | FORMAT_IFNAME_IFINDEX,
 } FormatIfnameFlag;
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]);
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret);
+முழு format_ifname_full(முழு ifindex, FormatIfnameFlag flag, எழுத்து buf[நிலையான IF_NAMESIZE]);
+முழு format_ifname_full_alloc(முழு ifindex, FormatIfnameFlag flag, எழுத்து **ret);
 
-static inline int format_ifname(int ifindex, char buf[static IF_NAMESIZE]) {
-        return format_ifname_full(ifindex, 0, buf);
+நிலையான உள்வரி முழு format_ifname(முழு ifindex, எழுத்து buf[நிலையான IF_NAMESIZE]) {
+        திரும்பு format_ifname_full(ifindex, 0, buf);
 }
-static inline int format_ifname_alloc(int ifindex, char **ret) {
-        return format_ifname_full_alloc(ifindex, 0, ret);
-}
-
-static inline char* _format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        (void) format_ifname_full(ifindex, flag, buf);
-        return buf;
+நிலையான உள்வரி முழு format_ifname_alloc(முழு ifindex, எழுத்து **ret) {
+        திரும்பு format_ifname_full_alloc(ifindex, 0, ret);
 }
 
-#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (char[IF_NAMESIZE]){})
-#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (char[IF_NAMESIZE]){})
+நிலையான உள்வரி எழுத்து* _format_ifname_full(முழு ifindex, FormatIfnameFlag flag, எழுத்து buf[நிலையான IF_NAMESIZE]) {
+        (வெறுமை) format_ifname_full(ifindex, flag, buf);
+        திரும்பு buf;
+}
+
+#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (எழுத்து[IF_NAMESIZE]){})
+#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (எழுத்து[IF_NAMESIZE]){})

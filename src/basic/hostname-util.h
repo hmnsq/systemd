@@ -1,57 +1,57 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "strv.h"
+#அந்தர்பாவ "forward.h"
+#அந்தர்பாவ "strv.h"
 
 /* HOST_NAME_MAX should be 64 on linux, but musl uses the one by POSIX (255). */
 #define LINUX_HOST_NAME_MAX CONST_MIN((size_t) HOST_NAME_MAX, (size_t) 64)
 
-char* get_default_hostname_raw(void);
+எழுத்து* get_default_hostname_raw(வெறுமை);
 
-bool valid_ldh_char(char c) _const_;
+bool valid_ldh_char(எழுத்து c) _const_;
 
-typedef enum ValidHostnameFlags {
+வகைவரை எண்ணிக்கை ValidHostnameFlags {
         VALID_HOSTNAME_TRAILING_DOT  = 1 << 0,   /* Accept trailing dot on multi-label names */
         VALID_HOSTNAME_DOT_HOST      = 1 << 1,   /* Accept ".host" as valid hostname */
         VALID_HOSTNAME_QUESTION_MARK = 1 << 2,   /* Accept "?" as place holder for hashed machine ID value */
         VALID_HOSTNAME_WORD_TOKEN    = 1 << 3,   /* Accept "$" as place holder for a word list substitution */
 } ValidHostnameFlags;
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) _pure_;
-char* hostname_cleanup(char *s);
+bool hostname_is_valid(மாறிலி எழுத்து *s, ValidHostnameFlags flags) _pure_;
+எழுத்து* hostname_cleanup(எழுத்து *s);
 
-bool is_localhost(const char *hostname);
+bool is_localhost(மாறிலி எழுத்து *hostname);
 
-static inline bool is_gateway_hostname(const char *hostname) {
+நிலையான உள்வரி bool is_gateway_hostname(மாறிலி எழுத்து *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "gateway" host. */
-        return STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
+        திரும்பு STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
 }
 
-static inline bool is_outbound_hostname(const char *hostname) {
+நிலையான உள்வரி bool is_outbound_hostname(மாறிலி எழுத்து *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "outbound" host. */
-        return STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
+        திரும்பு STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
 }
 
-static inline bool is_dns_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
+நிலையான உள்வரி bool is_dns_stub_hostname(மாறிலி எழுத்து *hostname) {
+        திரும்பு STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
 }
 
-static inline bool is_dns_proxy_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
+நிலையான உள்வரி bool is_dns_proxy_stub_hostname(மாறிலி எழுத்து *hostname) {
+        திரும்பு STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
 }
 
-const char* etc_hostname(void);
-const char* etc_machine_info(void);
+மாறிலி எழுத்து* etc_hostname(வெறுமை);
+மாறிலி எழுத்து* etc_machine_info(வெறுமை);
 
-int get_pretty_hostname(char **ret);
+முழு get_pretty_hostname(எழுத்து **ret);
 
-int machine_spec_valid(const char *s);
-int split_user_at_host(const char *s, char **ret_user, char **ret_host);
+முழு machine_spec_valid(மாறிலி எழுத்து *s);
+முழு split_user_at_host(மாறிலி எழுத்து *s, எழுத்து **ret_user, எழுத்து **ret_host);
 
 #define MACHINE_TAGS_MAX 1024U
 
-bool machine_tag_is_valid(const char *s);
-int machine_tag_list_is_valid(char **l);
-int machine_tags_from_string(const char *s, bool graceful, char ***ret);
-int machine_tags_from_strv(char **l, bool graceful, char ***ret);
+bool machine_tag_is_valid(மாறிலி எழுத்து *s);
+முழு machine_tag_list_is_valid(எழுத்து **l);
+முழு machine_tags_from_string(மாறிலி எழுத்து *s, bool graceful, எழுத்து ***ret);
+முழு machine_tags_from_strv(எழுத்து **l, bool graceful, எழுத்து ***ret);

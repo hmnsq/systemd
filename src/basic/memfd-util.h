@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/mman.h>           /* IWYU pragma: export */
+#அந்தர்பாவ <sys/mman.h>           /* IWYU pragma: export */
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode);
+முழு memfd_create_wrapper(மாறிலி எழுத்து *name, unsigned mode);
 
-int memfd_new_full(const char *name, unsigned extra_flags);
-static inline int memfd_new(const char *name) {
-        return memfd_new_full(name, 0);
+முழு memfd_new_full(மாறிலி எழுத்து *name, unsigned extra_flags);
+நிலையான உள்வரி முழு memfd_new(மாறிலி எழுத்து *name) {
+        திரும்பு memfd_new_full(name, 0);
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
-static inline int memfd_new_and_seal_string(const char *name, const char *s) {
-        return memfd_new_and_seal(name, s, SIZE_MAX);
+முழு memfd_new_and_seal(மாறிலி எழுத்து *name, மாறிலி வெறுமை *data, size_t sz) _nonnull_if_nonzero_(2, 3);
+நிலையான உள்வரி முழு memfd_new_and_seal_string(மாறிலி எழுத்து *name, மாறிலி எழுத்து *s) {
+        திரும்பு memfd_new_and_seal(name, s, SIZE_MAX);
 }
 
-int memfd_set_sealed(int fd);
-int memfd_get_sealed(int fd);
-int memfd_set_sealed_gracefully(int fd);
+முழு memfd_set_sealed(முழு fd);
+முழு memfd_get_sealed(முழு fd);
+முழு memfd_set_sealed_gracefully(முழு fd);
 
-int memfd_get_size(int fd, uint64_t *ret);
-int memfd_set_size(int fd, uint64_t sz);
+முழு memfd_get_size(முழு fd, uint64_t *ret);
+முழு memfd_set_size(முழு fd, uint64_t sz);

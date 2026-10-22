@@ -1,28 +1,28 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#அந்தர்பாவ <stdlib.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "initrd-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "virt.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "extract-word.h"
+#அந்தர்பாவ "fileio.h"
+#அந்தர்பாவ "initrd-util.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "proc-cmdline.h"
+#அந்தர்பாவ "process-util.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "strv.h"
+#அந்தர்பாவ "virt.h"
 
-typedef enum ArgType {
+வகைவரை எண்ணிக்கை ArgType {
         no_argument,
         required_argument,
         optional_argument,
 } ArgType;
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
-        const struct {
-                const char *name;
+முழு proc_cmdline_filter_pid1_args(எழுத்து **argv, எழுத்து ***ret) {
+        மாறிலி கட்டமைப்பு {
+                மாறிலி எழுத்து *name;
                 ArgType has_arg;
         } options[] = {
                 { "log-level",                required_argument },
@@ -58,280 +58,280 @@ int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
                 { "exit-code",                required_argument },
                 { "timeout",                  required_argument },
         };
-        const char *short_options = "hDbsz:";
+        மாறிலி எழுத்து *short_options = "hDbsz:";
 
-        _cleanup_strv_free_ char **filtered = NULL;
-        int state, r;
+        _cleanup_strv_free_ எழுத்து **filtered = வெற்று;
+        முழு state, r;
 
-        assert(argv);
-        assert(ret);
+        ப்ரதிஜ்ஞா(argv);
+        ப்ரதிஜ்ஞா(ret);
 
         /* Currently, we do not support '-', '+', and ':' at the beginning. */
-        assert(!IN_SET(short_options[0], '-', '+', ':'));
+        ப்ரதிஜ்ஞா(!IN_SET(short_options[0], '-', '+', ':'));
 
         /* Filter out all known options. */
         state = no_argument;
         STRV_FOREACH(p, strv_skip(argv, 1)) {
-                int prev_state = state;
-                const char *a = *p;
+                முழு prev_state = state;
+                மாறிலி எழுத்து *a = *p;
 
                 /* Reset the state for the next step. */
                 state = no_argument;
 
-                if (prev_state == required_argument ||
+                எனில் (prev_state == required_argument ||
                     (prev_state == optional_argument && a[0] != '-'))
                         /* Handled as an argument of the previous option, filtering out the string. */
-                        continue;
+                        தொடர்;
 
-                if (a[0] != '-') {
+                எனில் (a[0] != '-') {
                         /* Not an option, accepting the string. */
                         r = strv_extend(&filtered, a);
-                        if (r < 0)
-                                return r;
-                        continue;
+                        எனில் (r < 0)
+                                திரும்பு r;
+                        தொடர்;
                 }
 
-                if (a[1] == '-') {
-                        if (a[2] == '\0') {
+                எனில் (a[1] == '-') {
+                        எனில் (a[2] == '\0') {
                                 /* "--" is specified, accepting remaining strings. */
                                 r = strv_extend_strv(&filtered, strv_skip(p, 1), /* filter_duplicates= */ false);
-                                if (r < 0)
-                                        return r;
-                                break;
+                                எனில் (r < 0)
+                                        திரும்பு r;
+                                நிறுத்து;
                         }
 
                         /* long option, e.g. --foo */
                         FOREACH_ELEMENT(option, options) {
-                                const char *q = startswith(a + 2, option->name);
-                                if (!q || !IN_SET(q[0], '=', '\0'))
-                                        continue;
+                                மாறிலி எழுத்து *q = startswith(a + 2, option->name);
+                                எனில் (!q || !IN_SET(q[0], '=', '\0'))
+                                        தொடர்;
 
                                 /* Found matching option, updating the state if necessary. */
-                                if (q[0] == '\0' && option->has_arg == required_argument)
+                                எனில் (q[0] == '\0' && option->has_arg == required_argument)
                                         state = required_argument;
 
-                                break;
+                                நிறுத்து;
                         }
-                        continue;
+                        தொடர்;
                 }
 
                 /* short option(s), e.g. -x or -xyz */
-                while (a && *++a != '\0')
-                        for (const char *q = short_options; *q != '\0'; q++) {
-                                if (*q != *a)
-                                        continue;
+                போது (a && *++a != '\0')
+                        க்கு (மாறிலி எழுத்து *q = short_options; *q != '\0'; q++) {
+                                எனில் (*q != *a)
+                                        தொடர்;
 
                                 /* Found matching short option. */
 
-                                if (q[1] == ':') {
+                                எனில் (q[1] == ':') {
                                         /* An argument is required or optional, and remaining part
                                          * is handled as argument if exists. */
                                         state = a[1] != '\0' ? no_argument :
                                                 q[2] == ':' ? optional_argument : required_argument;
 
-                                        a = NULL; /* Not necessary to parse remaining part. */
+                                        a = வெற்று; /* Not necessary to parse remaining part. */
                                 }
-                                break;
+                                நிறுத்து;
                         }
         }
 
         *ret = TAKE_PTR(filtered);
-        return 0;
+        திரும்பு 0;
 }
 
-int proc_cmdline(char **ret) {
-        assert(ret);
+முழு proc_cmdline(எழுத்து **ret) {
+        ப்ரதிஜ்ஞா(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strdup_to(ret, e);
+        மாறிலி எழுத்து *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        எனில் (e)
+                திரும்பு strdup_to(ret, e);
 
-        if (detect_container() > 0)
-                return pid_get_cmdline(1, SIZE_MAX, 0, ret);
+        எனில் (detect_container() > 0)
+                திரும்பு pid_get_cmdline(1, SIZE_MAX, 0, ret);
 
-        return read_full_file("/proc/cmdline", ret, /* ret_size= */  NULL);
+        திரும்பு read_full_file("/proc/cmdline", ret, /* ret_size= */  வெற்று);
 }
 
-static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
-        int r;
+நிலையான முழு proc_cmdline_strv_internal(எழுத்து ***ret, bool filter_pid1_args) {
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strv_split_full(ret, e, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+        மாறிலி எழுத்து *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        எனில் (e)
+                திரும்பு strv_split_full(ret, e, வெற்று, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
 
-        if (detect_container() > 0) {
-                _cleanup_strv_free_ char **args = NULL;
+        எனில் (detect_container() > 0) {
+                _cleanup_strv_free_ எழுத்து **args = வெற்று;
 
                 r = pid_get_cmdline_strv(1, /* flags= */ 0, &args);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                if (filter_pid1_args)
-                        return proc_cmdline_filter_pid1_args(args, ret);
+                எனில் (filter_pid1_args)
+                        திரும்பு proc_cmdline_filter_pid1_args(args, ret);
 
                 *ret = TAKE_PTR(args);
-                return 0;
+                திரும்பு 0;
 
-        } else {
-                _cleanup_free_ char *s = NULL;
+        } இல்லையெனில் {
+                _cleanup_free_ எழுத்து *s = வெற்று;
 
-                r = read_full_file("/proc/cmdline", &s, NULL);
-                if (r < 0)
-                        return r;
+                r = read_full_file("/proc/cmdline", &s, வெற்று);
+                எனில் (r < 0)
+                        திரும்பு r;
 
-                return strv_split_full(ret, s, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+                திரும்பு strv_split_full(ret, s, வெற்று, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
         }
 }
 
-int proc_cmdline_strv(char ***ret) {
-        return proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
+முழு proc_cmdline_strv(எழுத்து ***ret) {
+        திரும்பு proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
 }
 
-static char *mangle_word(const char *word, ProcCmdlineFlags flags) {
-        char *c = (char*) startswith(word, "rd.");
-        if (c) {
+நிலையான எழுத்து *mangle_word(மாறிலி எழுத்து *word, ProcCmdlineFlags flags) {
+        எழுத்து *c = (எழுத்து*) startswith(word, "rd.");
+        எனில் (c) {
                 /* Filter out arguments that are intended only for the initrd */
 
-                if (!in_initrd())
-                        return NULL;
+                எனில் (!in_initrd())
+                        திரும்பு வெற்று;
 
-                if (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
-                        return c;
+                எனில் (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
+                        திரும்பு c;
 
-        } else if (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
+        } இல்லையெனில் எனில் (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
                 /* And optionally filter out arguments that are intended only for the host */
-                return NULL;
+                திரும்பு வெற்று;
 
-        return (char*) word;
+        திரும்பு (எழுத்து*) word;
 }
 
 #define mangle_word(word, flags) const_generic(word, mangle_word(word, flags))
 
-static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        int r;
+நிலையான முழு proc_cmdline_parse_strv(எழுத்து **args, proc_cmdline_parse_t parse_item, வெறுமை *data, ProcCmdlineFlags flags) {
+        முழு r;
 
-        assert(parse_item);
+        ப்ரதிஜ்ஞா(parse_item);
 
         STRV_FOREACH(word, args) {
-                char *key, *value;
+                எழுத்து *சாவி, *மதிப்பு;
 
-                key = mangle_word(*word, flags);
-                if (!key)
-                        continue;
+                சாவி = mangle_word(*word, flags);
+                எனில் (!சாவி)
+                        தொடர்;
 
-                value = strchr(key, '=');
-                if (value)
-                        *(value++) = '\0';
+                மதிப்பு = strchr(சாவி, '=');
+                எனில் (மதிப்பு)
+                        *(மதிப்பு++) = '\0';
 
-                r = parse_item(key, value, data);
-                if (r < 0)
-                        return r;
+                r = parse_item(சாவி, மதிப்பு, data);
+                எனில் (r < 0)
+                        திரும்பு r;
         }
 
-        return 0;
+        திரும்பு 0;
 }
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+முழு proc_cmdline_parse(proc_cmdline_parse_t parse_item, வெறுமை *data, ProcCmdlineFlags flags) {
+        _cleanup_strv_free_ எழுத்து **args = வெற்று;
+        முழு r;
 
-        assert(parse_item);
+        ப்ரதிஜ்ஞா(parse_item);
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_parse(), let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ப்ரதிஜ்ஞா(!(flags & (PROC_CMDLINE_மதிப்பு_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return proc_cmdline_parse_strv(args, parse_item, data, flags);
+        திரும்பு proc_cmdline_parse_strv(args, parse_item, data, flags);
 }
 
-static bool relaxed_equal_char(char a, char b) {
-        return a == b ||
+நிலையான bool relaxed_equal_char(எழுத்து a, எழுத்து b) {
+        திரும்பு a == b ||
                 (a == '_' && b == '-') ||
                 (a == '-' && b == '_');
 }
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
-        assert(s);
-        assert(prefix);
+எழுத்து* proc_cmdline_சாவி_startswith(மாறிலி எழுத்து *s, மாறிலி எழுத்து *prefix) {
+        ப்ரதிஜ்ஞா(s);
+        ப்ரதிஜ்ஞா(prefix);
 
         /* Much like startswith(), but considers "-" and "_" the same */
 
-        for (; *prefix != 0; s++, prefix++)
-                if (!relaxed_equal_char(*s, *prefix))
-                        return NULL;
+        க்கு (; *prefix != 0; s++, prefix++)
+                எனில் (!relaxed_equal_char(*s, *prefix))
+                        திரும்பு வெற்று;
 
-        return (char*) s;
+        திரும்பு (எழுத்து*) s;
 }
 
-bool proc_cmdline_key_streq(const char *x, const char *y) {
-        assert(x);
-        assert(y);
+bool proc_cmdline_சாவி_streq(மாறிலி எழுத்து *x, மாறிலி எழுத்து *y) {
+        ப்ரதிஜ்ஞா(x);
+        ப்ரதிஜ்ஞா(y);
 
         /* Much like streq(), but considers "-" and "_" the same */
 
-        for (; *x != 0 || *y != 0; x++, y++)
-                if (!relaxed_equal_char(*x, *y))
-                        return false;
+        க்கு (; *x != 0 || *y != 0; x++, y++)
+                எனில் (!relaxed_equal_char(*x, *y))
+                        திரும்பு false;
 
-        return true;
+        திரும்பு true;
 }
 
-static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_free_ char *v = NULL;
+நிலையான முழு cmdline_get_சாவி(எழுத்து **args, மாறிலி எழுத்து *சாவி, ProcCmdlineFlags flags, எழுத்து **ret_மதிப்பு) {
+        _cleanup_free_ எழுத்து *v = வெற்று;
         bool found = false;
-        int r;
+        முழு r;
 
-        assert(key);
+        ப்ரதிஜ்ஞா(சாவி);
 
         STRV_FOREACH(p, args) {
-                const char *word;
+                மாறிலி எழுத்து *word;
 
                 word = mangle_word(*p, flags);
-                if (!word)
-                        continue;
+                எனில் (!word)
+                        தொடர்;
 
-                if (ret_value) {
-                        const char *e;
+                எனில் (ret_மதிப்பு) {
+                        மாறிலி எழுத்து *e;
 
-                        e = proc_cmdline_key_startswith(word, key);
-                        if (!e)
-                                continue;
+                        e = proc_cmdline_சாவி_startswith(word, சாவி);
+                        எனில் (!e)
+                                தொடர்;
 
-                        if (*e == '=') {
+                        எனில் (*e == '=') {
                                 r = free_and_strdup(&v, e+1);
-                                if (r < 0)
-                                        return r;
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
                                 found = true;
 
-                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL))
+                        } இல்லையெனில் எனில் (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_மதிப்பு_OPTIONAL))
                                 found = true;
 
-                } else {
-                        if (proc_cmdline_key_streq(word, key)) {
+                } இல்லையெனில் {
+                        எனில் (proc_cmdline_சாவி_streq(word, சாவி)) {
                                 found = true;
-                                break; /* we found what we were looking for */
+                                நிறுத்து; /* we found what we were looking for */
                         }
                 }
         }
 
-        if (ret_value)
-                *ret_value = TAKE_PTR(v);
+        எனில் (ret_மதிப்பு)
+                *ret_மதிப்பு = TAKE_PTR(v);
 
-        return found;
+        திரும்பு found;
 }
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+முழு proc_cmdline_get_சாவி(மாறிலி எழுத்து *சாவி, ProcCmdlineFlags flags, எழுத்து **ret_மதிப்பு) {
+        _cleanup_strv_free_ எழுத்து **args = வெற்று;
+        முழு r;
 
         /* Looks for a specific key on the kernel command line. Supports three modes:
          *
@@ -347,109 +347,109 @@ int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_val
          * In all three cases, > 0 is returned if the key is found, 0 if not. */
 
         /* PROC_CMDLINE_TRUE_WHEN_MISSING doesn't really make sense for proc_cmdline_get_key(). */
-        assert(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
+        ப்ரதிஜ்ஞா(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
 
-        if (isempty(key))
-                return -EINVAL;
+        எனில் (isempty(சாவி))
+                திரும்பு -EINVAL;
 
-        if (FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL) && !ret_value)
-                return -EINVAL;
+        எனில் (FLAGS_SET(flags, PROC_CMDLINE_மதிப்பு_OPTIONAL) && !ret_மதிப்பு)
+                திரும்பு -EINVAL;
 
         r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
-        return cmdline_get_key(args, key, flags, ret_value);
+        திரும்பு cmdline_get_சாவி(args, சாவி, flags, ret_மதிப்பு);
 }
 
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+முழு proc_cmdline_get_bool(மாறிலி எழுத்து *சாவி, ProcCmdlineFlags flags, bool *ret) {
+        _cleanup_free_ எழுத்து *v = வெற்று;
+        முழு r;
 
-        assert(ret);
+        ப்ரதிஜ்ஞா(ret);
 
-        r = proc_cmdline_get_key(key, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_VALUE_OPTIONAL, &v);
-        if (r < 0)
-                return r;
-        if (r == 0) { /* key not specified at all */
+        r = proc_cmdline_get_சாவி(சாவி, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_மதிப்பு_OPTIONAL, &v);
+        எனில் (r < 0)
+                திரும்பு r;
+        எனில் (r == 0) { /* key not specified at all */
                 *ret = FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
-                return 0;
+                திரும்பு 0;
         }
 
-        if (v) { /* key with parameter passed */
+        எனில் (v) { /* key with parameter passed */
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                எனில் (r < 0)
+                        திரும்பு r;
                 *ret = r;
-        } else /* key without parameter passed */
+        } இல்லையெனில் /* key without parameter passed */
                 *ret = true;
 
-        return 1;
+        திரும்பு 1;
 }
 
-static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list ap) {
-        int r, ret = 0;
+நிலையான முழு cmdline_get_சாவி_ap(ProcCmdlineFlags flags, எழுத்து* மாறிலி* args, va_list ap) {
+        முழு r, ret = 0;
 
-        for (;;) {
-                char **v;
-                const char *k, *e;
+        க்கு (;;) {
+                எழுத்து **v;
+                மாறிலி எழுத்து *k, *e;
 
-                k = va_arg(ap, const char*);
-                if (!k)
-                        break;
+                k = va_arg(ap, மாறிலி எழுத்து*);
+                எனில் (!k)
+                        நிறுத்து;
 
-                assert_se(v = va_arg(ap, char**));
+                assert_se(v = va_arg(ap, எழுத்து**));
 
                 STRV_FOREACH(p, args) {
-                        const char *word;
+                        மாறிலி எழுத்து *word;
 
                         word = mangle_word(*p, flags);
-                        if (!word)
-                                continue;
+                        எனில் (!word)
+                                தொடர்;
 
-                        e = proc_cmdline_key_startswith(word, k);
-                        if (e && *e == '=') {
+                        e = proc_cmdline_சாவி_startswith(word, k);
+                        எனில் (e && *e == '=') {
                                 r = free_and_strdup(v, e + 1);
-                                if (r < 0)
-                                        return r;
+                                எனில் (r < 0)
+                                        திரும்பு r;
 
                                 ret++;
                         }
                 }
         }
 
-        return ret;
+        திரும்பு ret;
 }
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+முழு proc_cmdline_get_சாவி_many_internal(ProcCmdlineFlags flags, ...) {
+        _cleanup_strv_free_ எழுத்து **args = வெற்று;
+        முழு r;
         va_list ap;
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_get_key_many, let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ப்ரதிஜ்ஞா(!(flags & (PROC_CMDLINE_மதிப்பு_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         /* This call may clobber arguments on failure! */
 
         r = proc_cmdline_strv(&args);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         va_start(ap, flags);
-        r = cmdline_get_key_ap(flags, args, ap);
+        r = cmdline_get_சாவி_ap(flags, args, ap);
         va_end(ap);
 
-        return r;
+        திரும்பு r;
 }
 
-bool proc_cmdline_value_missing(const char *key, const char *value) {
-        assert(key);
+bool proc_cmdline_மதிப்பு_missing(மாறிலி எழுத்து *சாவி, மாறிலி எழுத்து *மதிப்பு) {
+        ப்ரதிஜ்ஞா(சாவி);
 
-        if (!value) {
-                log_warning("Missing argument for %s= kernel command line switch, ignoring.", key);
-                return true;
+        எனில் (!மதிப்பு) {
+                log_warning("Missing argument for %s= kernel command line switch, ignoring.", சாவி);
+                திரும்பு true;
         }
 
-        return false;
+        திரும்பு false;
 }

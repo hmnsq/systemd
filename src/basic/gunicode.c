@@ -5,9 +5,9 @@
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
 
-#include <stdlib.h>
+#அந்தர்பாவ <stdlib.h>
 
-#include "gunicode.h"
+#அந்தர்பாவ "gunicode.h"
 
 #define unichar uint32_t
 
@@ -24,36 +24,36 @@
  *
  * Return value: a pointer to the found character.
  **/
-char *
-utf8_prev_char (const char *p)
+எழுத்து *
+utf8_prev_char (மாறிலி எழுத்து *p)
 {
-  assert(p);
+  ப்ரதிஜ்ஞா(p);
 
-  for (;;)
+  க்கு (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      எனில் ((*p & 0xc0) != 0x80)
+        திரும்பு (எழுத்து *)p;
     }
 }
 
-struct Interval
+கட்டமைப்பு Interval
 {
   unichar start, end;
 };
 
-static int
-interval_compare (const void *key, const void *elt)
+நிலையான முழு
+interval_compare (மாறிலி வெறுமை *சாவி, மாறிலி வெறுமை *elt)
 {
-  unichar c = (unichar) (long) (key);
-  struct Interval *interval = (struct Interval *)elt;
+  unichar c = (unichar) (long) (சாவி);
+  கட்டமைப்பு Interval *interval = (கட்டமைப்பு Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  எனில் (c < interval->start)
+    திரும்பு -1;
+  எனில் (c > interval->end)
+    திரும்பு +1;
 
-  return 0;
+  திரும்பு 0;
 }
 
 /*
@@ -82,7 +82,7 @@ bool
 unichar_iswide (unichar c)
 {
   /* See NOTE earlier for how to update this table. */
-  static const struct Interval wide[] = {
+  நிலையான மாறிலி கட்டமைப்பு Interval wide[] = {
     {0x1100, 0x115F}, {0x2329, 0x232A}, {0x2E80, 0x2E99}, {0x2E9B, 0x2EF3},
     {0x2F00, 0x2FD5}, {0x2FF0, 0x2FFB}, {0x3000, 0x303E}, {0x3041, 0x3096},
     {0x3099, 0x30FF}, {0x3105, 0x312D}, {0x3131, 0x318E}, {0x3190, 0x31BA},
@@ -96,14 +96,14 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  எனில் (bsearch ((வெறுமை *)(uintptr_t)c, wide, ELEMENTSOF(wide), அளவு wide[0],
                interval_compare))
-    return true;
+    திரும்பு true;
 
-  return false;
+  திரும்பு false;
 }
 
-const char utf8_skip_data[256] = {
+மாறிலி எழுத்து utf8_skip_data[256] = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

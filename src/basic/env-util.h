@@ -1,77 +1,77 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
 #define ENVIRONMENT_ASSIGNMENTS_MAX 16384U
 
-size_t sc_arg_max(void);
+size_t sc_arg_max(வெறுமை);
 
-bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
-bool env_assignment_is_valid(const char *e);
+bool env_name_is_valid(மாறிலி எழுத்து *e);
+bool env_மதிப்பு_is_valid(மாறிலி எழுத்து *e);
+bool env_assignment_is_valid(மாறிலி எழுத்து *e);
 
-typedef enum ReplaceEnvFlags {
+வகைவரை எண்ணிக்கை ReplaceEnvFlags {
         REPLACE_ENV_USE_ENVIRONMENT = 1 << 0,
         REPLACE_ENV_ALLOW_BRACELESS = 1 << 1,
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+முழு replace_env_full(மாறிலி எழுத்து *format, size_t length, எழுத்து **env, ReplaceEnvFlags flags, எழுத்து **ret, எழுத்து ***ret_unset_variables, எழுத்து ***ret_bad_variables);
+நிலையான உள்வரி முழு replace_env(மாறிலி எழுத்து *format, எழுத்து **env, ReplaceEnvFlags flags, எழுத்து **ret) {
+        திரும்பு replace_env_full(format, SIZE_MAX, env, flags, ret, வெற்று, வெற்று);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+முழு replace_env_argv(எழுத்து **argv, எழுத்து **env, எழுத்து ***ret, எழுத்து ***ret_unset_variables, எழுத்து ***ret_bad_variables);
 
-bool strv_env_is_valid(char * const *e);
-bool strv_env_name_is_valid(char * const *l);
-bool strv_env_name_or_assignment_is_valid(char * const *l);
+bool strv_env_is_valid(எழுத்து * மாறிலி *e);
+bool strv_env_name_is_valid(எழுத்து * மாறிலி *l);
+bool strv_env_name_or_assignment_is_valid(எழுத்து * மாறிலி *l);
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata);
-#define strv_env_clean(l) strv_env_clean_with_callback(l, NULL, NULL)
+எழுத்து** strv_env_clean_with_callback(எழுத்து **l, வெறுமை (*invalid_callback)(மாறிலி எழுத்து *p, வெறுமை *userdata), வெறுமை *userdata);
+#define strv_env_clean(l) strv_env_clean_with_callback(l, வெற்று, வெற்று)
 
-char** _strv_env_merge(char **first, ...);
+எழுத்து** _strv_env_merge(எழுத்து **first, ...);
 #define strv_env_merge(first, ...) _strv_env_merge(first, __VA_ARGS__, POINTER_MAX)
-char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
+எழுத்து** strv_env_delete(எழுத்து **x, size_t n_lists, ...); /* New copy */
 
-char** strv_env_unset(char **l, const char *p); /* In place ... */
-char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
-#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
-#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
+எழுத்து** strv_env_unset(எழுத்து **l, மாறிலி எழுத்து *p); /* In place ... */
+எழுத்து** strv_env_unset_many_internal(எழுத்து **l, ...) _sentinel_;
+#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, வெற்று)
+முழு strv_env_replace_consume(எழுத்து ***l, எழுத்து *p); /* In place ... */
+முழு strv_env_replace_strdup(எழுத்து ***l, மாறிலி எழுத்து *assignment);
+முழு strv_env_replace_strdup_passthrough(எழுத்து ***l, மாறிலி எழுத்து *assignment);
+முழு strv_env_assign(எழுத்து ***l, மாறிலி எழுத்து *சாவி, மாறிலி எழுத்து *மதிப்பு);
+முழு strv_env_assignf(எழுத்து ***l, மாறிலி எழுத்து *சாவி, மாறிலி எழுத்து *valuef, ...) _printf_(3, 4);
+முழு _strv_env_assign_many(எழுத்து ***l, ...) _sentinel_;
+#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, வெற்று)
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
-static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+எழுத்து* strv_env_get_n(எழுத்து * மாறிலி *l, மாறிலி எழுத்து *name, size_t k, ReplaceEnvFlags flags);
+நிலையான உள்வரி எழுத்து* strv_env_get(எழுத்து * மாறிலி *x, மாறிலி எழுத்து *n) {
+        திரும்பு strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
-char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+எழுத்து* strv_env_pairs_get(எழுத்து **l, மாறிலி எழுத்து *name) _pure_;
+முழு strv_env_get_merged(எழுத்து **l, எழுத்து ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+முழு getenv_bool(மாறிலி எழுத்து *p);
+முழு secure_getenv_bool(மாறிலி எழுத்து *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+முழு secure_getenv_uint64(மாறிலி எழுத்து *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+முழு set_unset_env(மாறிலி எழுத்து *name, மாறிலி எழுத்து *மதிப்பு, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+முழு putenv_dup(மாறிலி எழுத்து *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+முழு setenv_systemd_exec_pid(bool update_only);
+முழு setenv_systemd_log_level(வெறுமை);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+முழு getenv_path_list(மாறிலி எழுத்து *name, எழுத்து ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+முழு getenv_steal_erase(மாறிலி எழுத்து *name, எழுத்து **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+முழு setenvf(மாறிலி எழுத்து *name, bool overwrite, மாறிலி எழுத்து *valuef, ...) _printf_(3,4);

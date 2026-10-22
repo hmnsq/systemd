@@ -1,312 +1,312 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#அந்தர்பாவ <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "build.h"
-#include "env-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "version.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "ansi-color.h"
+#அந்தர்பாவ "build.h"
+#அந்தர்பாவ "env-util.h"
+#அந்தர்பாவ "extract-word.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "version.h"
 
-const char* const systemd_features =
+மாறிலி எழுத்து* மாறிலி systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#எனில் HAVE_PAM
         "+PAM"
-#else
+#இல்லையெனில்
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#எனில் HAVE_AUDIT
         " +AUDIT"
-#else
+#இல்லையெனில்
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#எனில் HAVE_SELINUX
         " +SELINUX"
-#else
+#இல்லையெனில்
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#எனில் HAVE_APPARMOR
         " +APPARMOR"
-#else
+#இல்லையெனில்
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#எனில் ENABLE_IMA
         " +IMA"
-#else
+#இல்லையெனில்
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#எனில் ENABLE_IPE
         " +IPE"
-#else
+#இல்லையெனில்
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#எனில் ENABLE_SMACK
         " +SMACK"
-#else
+#இல்லையெனில்
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#எனில் HAVE_SECCOMP
         " +SECCOMP"
-#else
+#இல்லையெனில்
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#எனில் HAVE_GNUTLS
         " +GNUTLS"
-#else
+#இல்லையெனில்
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#எனில் HAVE_OPENSSL
         " +OPENSSL"
-#else
+#இல்லையெனில்
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#எனில் HAVE_ACL
         " +ACL"
-#else
+#இல்லையெனில்
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#எனில் HAVE_BLKID
         " +BLKID"
-#else
+#இல்லையெனில்
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#எனில் HAVE_LIBCURL
         " +CURL"
-#else
+#இல்லையெனில்
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#எனில் HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#இல்லையெனில்
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#எனில் HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#இல்லையெனில்
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#எனில் HAVE_LIBIDN2
         " +IDN2"
-#else
+#இல்லையெனில்
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#எனில் HAVE_KMOD
         " +KMOD"
-#else
+#இல்லையெனில்
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#எனில் HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#இல்லையெனில்
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#எனில் HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#இல்லையெனில்
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#எனில் HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#இல்லையெனில்
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#எனில் HAVE_PCRE2
         " +PCRE2"
-#else
+#இல்லையெனில்
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#எனில் HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#இல்லையெனில்
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#எனில் HAVE_P11KIT
         " +P11KIT"
-#else
+#இல்லையெனில்
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#எனில் HAVE_QRENCODE
         " +QRENCODE"
-#else
+#இல்லையெனில்
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#எனில் HAVE_TPM2
         " +TPM2"
-#else
+#இல்லையெனில்
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#எனில் HAVE_BZIP2
         " +BZIP2"
-#else
+#இல்லையெனில்
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#எனில் HAVE_LZ4
         " +LZ4"
-#else
+#இல்லையெனில்
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#எனில் HAVE_XZ
         " +XZ"
-#else
+#இல்லையெனில்
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#எனில் HAVE_ZLIB
         " +ZLIB"
-#else
+#இல்லையெனில்
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#எனில் HAVE_ZSTD
         " +ZSTD"
-#else
+#இல்லையெனில்
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#எனில் BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#இல்லையெனில்
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#எனில் HAVE_VMLINUX_H
         " +BTF"
-#else
+#இல்லையெனில்
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#எனில் HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#இல்லையெனில்
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#எனில் ENABLE_UTMP
         " +UTMP"
-#else
+#இல்லையெனில்
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#எனில் HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#இல்லையெனில்
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#எனில் EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
-#elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
+#அல்லதெனில் EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#இல்லையெனில்
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+நிலையான எழுத்து* systemd_features_with_color(வெறுமை) {
+        மாறிலி எழுத்து *p = systemd_features;
+        _cleanup_free_ எழுத்து *ret = வெற்று;
+        முழு r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        க்கு (;;) {
+                _cleanup_free_ எழுத்து *word = வெற்று;
+                எழுத்து *q;
 
-                r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                r = extract_first_word(&p, &word, வெற்று, 0);
+                எனில் (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        திரும்பு வெற்று;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                எனில் (r == 0)
+                        திரும்பு TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                எனில் (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        திரும்பு வெற்று;
                 }
 
-                if (word[0] == '+')
+                எனில் (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                இல்லையெனில் எனில் (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                இல்லையெனில்
                         q = strextend(&ret, word);
-                if (!q) {
+                எனில் (!q) {
                         log_oom_warning();
-                        return NULL;
+                        திரும்பு வெற்று;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+முழு version(வெறுமை) {
+        _cleanup_free_ எழுத்து *b = வெற்று;
 
-        if (colors_enabled())
+        எனில் (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        திரும்பு 0;
 }
 
-int version_only(void) {
+முழு version_only(வெறுமை) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        திரும்பு 0;
 }
 
-bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+bool experimental_enabled(வெறுமை) {
+#எனில் EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        திரும்பு false;
+#இல்லையெனில்
+        முழு r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        எனில் (r >= 0)
+                திரும்பு r;
+        எனில் (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        திரும்பு EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

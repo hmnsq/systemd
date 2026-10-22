@@ -1,103 +1,103 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <net/ethernet.h>
-#include <net/if_arp.h>
-#include <stdio.h>
+#அந்தர்பாவ <net/ethernet.h>
+#அந்தர்பாவ <net/if_arp.h>
+#அந்தர்பாவ <stdio.h>
 
-#include "ether-addr-util.h"
-#include "hash-funcs.h"
-#include "hexdecoct.h"
-#include "in-addr-util.h"
-#include "memory-util.h"
-#include "siphash24.h"
-#include "string-util.h"
+#அந்தர்பாவ "ether-addr-util.h"
+#அந்தர்பாவ "hash-funcs.h"
+#அந்தர்பாவ "hexdecoct.h"
+#அந்தர்பாவ "in-addr-util.h"
+#அந்தர்பாவ "memory-util.h"
+#அந்தர்பாவ "siphash24.h"
+#அந்தர்பாவ "string-util.h"
 
-char* hw_addr_to_string_full(
-                const struct hw_addr_data *addr,
+எழுத்து* hw_addr_to_string_full(
+                மாறிலி கட்டமைப்பு hw_addr_data *addr,
                 HardwareAddressToStringFlags flags,
-                char buffer[static HW_ADDR_TO_STRING_MAX]) {
+                எழுத்து buffer[நிலையான HW_ADDR_TO_STRING_MAX]) {
 
-        assert(addr);
-        assert(buffer);
-        assert(addr->length <= HW_ADDR_MAX_SIZE);
+        ப்ரதிஜ்ஞா(addr);
+        ப்ரதிஜ்ஞா(buffer);
+        ப்ரதிஜ்ஞா(addr->length <= HW_ADDR_MAX_SIZE);
 
-        for (size_t i = 0, j = 0; i < addr->length; i++) {
+        க்கு (size_t i = 0, j = 0; i < addr->length; i++) {
                 buffer[j++] = hexchar(addr->bytes[i] >> 4);
                 buffer[j++] = hexchar(addr->bytes[i] & 0x0f);
-                if (!FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON))
+                எனில் (!FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON))
                         buffer[j++] = ':';
         }
 
         buffer[addr->length == 0 || FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON) ?
                addr->length * 2 :
                addr->length * 3 - 1] = '\0';
-        return buffer;
+        திரும்பு buffer;
 }
 
-struct hw_addr_data *hw_addr_set(struct hw_addr_data *addr, const uint8_t *bytes, size_t length) {
-        assert(addr);
-        assert(length <= HW_ADDR_MAX_SIZE);
+கட்டமைப்பு hw_addr_data *hw_addr_set(கட்டமைப்பு hw_addr_data *addr, மாறிலி uint8_t *bytes, size_t length) {
+        ப்ரதிஜ்ஞா(addr);
+        ப்ரதிஜ்ஞா(length <= HW_ADDR_MAX_SIZE);
 
         addr->length = length;
         memcpy_safe(addr->bytes, bytes, length);
-        return addr;
+        திரும்பு addr;
 }
 
-int hw_addr_compare(const struct hw_addr_data *a, const struct hw_addr_data *b) {
-        int r;
+முழு hw_addr_compare(மாறிலி கட்டமைப்பு hw_addr_data *a, மாறிலி கட்டமைப்பு hw_addr_data *b) {
+        முழு r;
 
-        assert(a);
-        assert(b);
+        ப்ரதிஜ்ஞா(a);
+        ப்ரதிஜ்ஞா(b);
 
         r = CMP(a->length, b->length);
-        if (r != 0)
-                return r;
+        எனில் (r != 0)
+                திரும்பு r;
 
-        return memcmp(a->bytes, b->bytes, a->length);
+        திரும்பு memcmp(a->bytes, b->bytes, a->length);
 }
 
-void hw_addr_hash_func(const struct hw_addr_data *p, struct siphash *state) {
-        assert(p);
-        assert(state);
+வெறுமை hw_addr_hash_func(மாறிலி கட்டமைப்பு hw_addr_data *p, கட்டமைப்பு siphash *state) {
+        ப்ரதிஜ்ஞா(p);
+        ப்ரதிஜ்ஞா(state);
 
         siphash24_compress_typesafe(p->length, state);
         siphash24_compress_safe(p->bytes, p->length, state);
 }
 
-bool hw_addr_is_null(const struct hw_addr_data *addr) {
-        assert(addr);
-        return addr->length == 0 || memeqzero(addr->bytes, addr->length);
+bool hw_addr_is_null(மாறிலி கட்டமைப்பு hw_addr_data *addr) {
+        ப்ரதிஜ்ஞா(addr);
+        திரும்பு addr->length == 0 || memeqzero(addr->bytes, addr->length);
 }
 
-bool hw_addr_is_valid(const struct hw_addr_data *addr, uint16_t iftype) {
-        assert(addr);
+bool hw_addr_is_valid(மாறிலி கட்டமைப்பு hw_addr_data *addr, uint16_t iftype) {
+        ப்ரதிஜ்ஞா(addr);
 
-        switch (iftype) {
-        case ARPHRD_ETHER:
+        தேர்வு (iftype) {
+        நிலை ARPHRD_ETHER:
                 /* Refuse all zero and all 0xFF. */
-                if (addr->length != ETH_ALEN)
-                        return false;
+                எனில் (addr->length != ETH_ALEN)
+                        திரும்பு false;
 
-                return !ether_addr_is_null(&addr->ether) && !ether_addr_is_broadcast(&addr->ether);
+                திரும்பு !ether_addr_is_null(&addr->ether) && !ether_addr_is_broadcast(&addr->ether);
 
-        case ARPHRD_INFINIBAND:
+        நிலை ARPHRD_INFINIBAND:
                 /* The last 8 bytes cannot be zero. */
-                if (addr->length != INFINIBAND_ALEN)
-                        return false;
+                எனில் (addr->length != INFINIBAND_ALEN)
+                        திரும்பு false;
 
-                return !memeqzero(addr->bytes + INFINIBAND_ALEN - 8, 8);
+                திரும்பு !memeqzero(addr->bytes + INFINIBAND_ALEN - 8, 8);
 
-        default:
-                return false;
+        இயல்பு:
+                திரும்பு false;
         }
 }
 
-DEFINE_HASH_OPS(hw_addr_hash_ops, struct hw_addr_data, hw_addr_hash_func, hw_addr_compare);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(hw_addr_hash_ops_free, struct hw_addr_data, hw_addr_hash_func, hw_addr_compare, free);
+DEFINE_HASH_OPS(hw_addr_hash_ops, கட்டமைப்பு hw_addr_data, hw_addr_hash_func, hw_addr_compare);
+DEFINE_HASH_OPS_WITH_சாவி_DESTRUCTOR(hw_addr_hash_ops_free, கட்டமைப்பு hw_addr_data, hw_addr_hash_func, hw_addr_compare, விடுவி);
 
-char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR_TO_STRING_MAX]) {
-        assert(addr);
-        assert(buffer);
+எழுத்து* ether_addr_to_string(மாறிலி கட்டமைப்பு ether_addr *addr, எழுத்து buffer[ETHER_ADDR_TO_STRING_MAX]) {
+        ப்ரதிஜ்ஞா(addr);
+        ப்ரதிஜ்ஞா(buffer);
 
         /* Like ether_ntoa() but uses %02x instead of %x to print
          * ethernet addresses, which makes them look less funny. Also,
@@ -111,97 +111,97 @@ char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR
                 addr->ether_addr_octet[4],
                 addr->ether_addr_octet[5]);
 
-        return buffer;
+        திரும்பு buffer;
 }
 
-int ether_addr_compare(const struct ether_addr *a, const struct ether_addr *b) {
-        assert(a);
-        assert(b);
+முழு ether_addr_compare(மாறிலி கட்டமைப்பு ether_addr *a, மாறிலி கட்டமைப்பு ether_addr *b) {
+        ப்ரதிஜ்ஞா(a);
+        ப்ரதிஜ்ஞா(b);
 
-        return memcmp(a, b, ETH_ALEN);
+        திரும்பு memcmp(a, b, ETH_ALEN);
 }
 
-static void ether_addr_hash_func(const struct ether_addr *p, struct siphash *state) {
-        assert(p);
+நிலையான வெறுமை ether_addr_hash_func(மாறிலி கட்டமைப்பு ether_addr *p, கட்டமைப்பு siphash *state) {
+        ப்ரதிஜ்ஞா(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 
-bool ether_addr_is_broadcast(const struct ether_addr *addr) {
-        assert(addr);
-        return memeqbyte(0xff, addr->ether_addr_octet, ETH_ALEN);
+bool ether_addr_is_broadcast(மாறிலி கட்டமைப்பு ether_addr *addr) {
+        ப்ரதிஜ்ஞா(addr);
+        திரும்பு memeqbyte(0xff, addr->ether_addr_octet, ETH_ALEN);
 }
 
-DEFINE_HASH_OPS(ether_addr_hash_ops, struct ether_addr, ether_addr_hash_func, ether_addr_compare);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(ether_addr_hash_ops_free, struct ether_addr, ether_addr_hash_func, ether_addr_compare, free);
+DEFINE_HASH_OPS(ether_addr_hash_ops, கட்டமைப்பு ether_addr, ether_addr_hash_func, ether_addr_compare);
+DEFINE_HASH_OPS_WITH_சாவி_DESTRUCTOR(ether_addr_hash_ops_free, கட்டமைப்பு ether_addr, ether_addr_hash_func, ether_addr_compare, விடுவி);
 
-static int parse_hw_addr_one_field(const char **s, char sep, size_t len, uint8_t *buf) {
-        const char *hex = HEXDIGITS, *p;
+நிலையான முழு parse_hw_addr_one_field(மாறிலி எழுத்து **s, எழுத்து sep, size_t len, uint8_t *buf) {
+        மாறிலி எழுத்து *hex = HEXDIGITS, *p;
         uint16_t data = 0;
         bool cont;
 
-        assert(s);
-        assert(*s);
-        assert(IN_SET(len, 1, 2));
-        assert(buf);
+        ப்ரதிஜ்ஞா(s);
+        ப்ரதிஜ்ஞா(*s);
+        ப்ரதிஜ்ஞா(IN_SET(len, 1, 2));
+        ப்ரதிஜ்ஞா(buf);
 
         p = *s;
 
-        for (size_t i = 0; i < len * 2; i++) {
-                const char *hexoff;
+        க்கு (size_t i = 0; i < len * 2; i++) {
+                மாறிலி எழுத்து *hexoff;
                 size_t x;
 
-                if (*p == '\0' || *p == sep) {
-                        if (i == 0)
-                                return -EINVAL;
-                        break;
+                எனில் (*p == '\0' || *p == sep) {
+                        எனில் (i == 0)
+                                திரும்பு -EINVAL;
+                        நிறுத்து;
                 }
 
                 hexoff = strchr(hex, *p);
-                if (!hexoff)
-                        return -EINVAL;
+                எனில் (!hexoff)
+                        திரும்பு -EINVAL;
 
-                assert(hexoff >= hex);
+                ப்ரதிஜ்ஞா(hexoff >= hex);
                 x = hexoff - hex;
-                if (x >= 16)
+                எனில் (x >= 16)
                         x -= 6; /* A-F */
 
-                assert(x < 16);
+                ப்ரதிஜ்ஞா(x < 16);
                 data <<= 4;
                 data += x;
 
                 p++;
         }
 
-        if (*p != '\0' && *p != sep)
-                return -EINVAL;
+        எனில் (*p != '\0' && *p != sep)
+                திரும்பு -EINVAL;
 
-        switch (len) {
-        case 1:
+        தேர்வு (len) {
+        நிலை 1:
                 buf[0] = data;
-                break;
-        case 2:
+                நிறுத்து;
+        நிலை 2:
                 buf[0] = (data & 0xff00) >> 8;
                 buf[1] = data & 0xff;
-                break;
-        default:
+                நிறுத்து;
+        இயல்பு:
                 assert_not_reached();
         }
 
         cont = *p == sep;
         *s = p + cont;
-        return cont;
+        திரும்பு cont;
 }
 
-int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *ret) {
+முழு parse_hw_addr_full(மாறிலி எழுத்து *s, size_t expected_len, கட்டமைப்பு hw_addr_data *ret) {
         size_t field_size, max_len, len = 0;
         uint8_t bytes[HW_ADDR_MAX_SIZE];
-        char sep;
-        int r;
+        எழுத்து sep;
+        முழு r;
 
-        assert(s);
-        assert(expected_len <= HW_ADDR_MAX_SIZE || expected_len == SIZE_MAX);
-        assert(ret);
+        ப்ரதிஜ்ஞா(s);
+        ப்ரதிஜ்ஞா(expected_len <= HW_ADDR_MAX_SIZE || expected_len == SIZE_MAX);
+        ப்ரதிஜ்ஞா(ret);
 
         /* This accepts the following formats:
          *
@@ -221,20 +221,20 @@ int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *
          * Otherwise: accepts addresses with matching length.
          */
 
-        if (IN_SET(expected_len, 0, sizeof(struct in_addr), sizeof(struct in6_addr))) {
-                union in_addr_union a;
-                int family;
+        எனில் (IN_SET(expected_len, 0, அளவு(கட்டமைப்பு in_addr), அளவு(கட்டமைப்பு in6_addr))) {
+                ஒன்றிப்பு in_addr_union a;
+                முழு family;
 
-                if (expected_len == 0)
+                எனில் (expected_len == 0)
                         r = in_addr_from_string_auto(s, &family, &a);
-                else {
-                        family = expected_len == sizeof(struct in_addr) ? AF_INET : AF_INET6;
+                இல்லையெனில் {
+                        family = expected_len == அளவு(கட்டமைப்பு in_addr) ? AF_INET : AF_INET6;
                         r = in_addr_from_string(family, s, &a);
                 }
-                if (r >= 0) {
+                எனில் (r >= 0) {
                         ret->length = FAMILY_ADDRESS_SIZE(family);
                         memcpy(ret->bytes, a.bytes, ret->length);
-                        return 0;
+                        திரும்பு 0;
                 }
         }
 
@@ -243,80 +243,80 @@ int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *
                 expected_len == SIZE_MAX ? HW_ADDR_MAX_SIZE : expected_len;
         sep = s[strspn(s, HEXDIGITS)];
 
-        if (sep == '.')
+        எனில் (sep == '.')
                 field_size = 2;
-        else if (IN_SET(sep, ':', '-'))
+        இல்லையெனில் எனில் (IN_SET(sep, ':', '-'))
                 field_size = 1;
-        else
-                return -EINVAL;
+        இல்லையெனில்
+                திரும்பு -EINVAL;
 
-        if (max_len % field_size != 0)
-                return -EINVAL;
+        எனில் (max_len % field_size != 0)
+                திரும்பு -EINVAL;
 
-        for (size_t i = 0; i < max_len / field_size; i++) {
+        க்கு (size_t i = 0; i < max_len / field_size; i++) {
                 r = parse_hw_addr_one_field(&s, sep, field_size, bytes + i * field_size);
-                if (r < 0)
-                        return r;
-                if (r == 0) {
+                எனில் (r < 0)
+                        திரும்பு r;
+                எனில் (r == 0) {
                         len = (i + 1) * field_size;
-                        break;
+                        நிறுத்து;
                 }
         }
 
-        if (len == 0)
-                return -EINVAL;
+        எனில் (len == 0)
+                திரும்பு -EINVAL;
 
-        if (expected_len == 0) {
-                if (!IN_SET(len, 4, 16, ETH_ALEN, INFINIBAND_ALEN))
-                        return -EINVAL;
-        } else if (expected_len != SIZE_MAX) {
-                if (len != expected_len)
-                        return -EINVAL;
+        எனில் (expected_len == 0) {
+                எனில் (!IN_SET(len, 4, 16, ETH_ALEN, INFINIBAND_ALEN))
+                        திரும்பு -EINVAL;
+        } இல்லையெனில் எனில் (expected_len != SIZE_MAX) {
+                எனில் (len != expected_len)
+                        திரும்பு -EINVAL;
         }
 
         ret->length = len;
         memcpy(ret->bytes, bytes, ret->length);
-        return 0;
+        திரும்பு 0;
 }
 
-int parse_ether_addr(const char *s, struct ether_addr *ret) {
-        struct hw_addr_data a;
-        int r;
+முழு parse_ether_addr(மாறிலி எழுத்து *s, கட்டமைப்பு ether_addr *ret) {
+        கட்டமைப்பு hw_addr_data a;
+        முழு r;
 
-        assert(s);
-        assert(ret);
+        ப்ரதிஜ்ஞா(s);
+        ப்ரதிஜ்ஞா(ret);
 
         r = parse_hw_addr_full(s, ETH_ALEN, &a);
-        if (r < 0)
-                return r;
+        எனில் (r < 0)
+                திரும்பு r;
 
         *ret = a.ether;
-        return 0;
+        திரும்பு 0;
 }
 
-void ether_addr_mark_random(struct ether_addr *addr) {
-        assert(addr);
+வெறுமை ether_addr_mark_random(கட்டமைப்பு ether_addr *addr) {
+        ப்ரதிஜ்ஞா(addr);
 
         /* see eth_random_addr in the kernel */
         addr->ether_addr_octet[0] &= 0xfe;        /* clear multicast bit */
         addr->ether_addr_octet[0] |= 0x02;        /* set local assignment bit (IEEE802) */
 }
 
-int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type) {
-        assert(bcast_addr);
+முழு hw_addr_ensure_broadcast(கட்டமைப்பு hw_addr_data *bcast_addr, uint16_t arp_type) {
+        ப்ரதிஜ்ஞா(bcast_addr);
 
-        if (!hw_addr_is_null(bcast_addr))
-                return 0;
+        எனில் (!hw_addr_is_null(bcast_addr))
+                திரும்பு 0;
 
-        switch (arp_type) {
-        case ARPHRD_ETHER:
-                *bcast_addr = (struct hw_addr_data) {
+        தேர்வு (arp_type) {
+        நிலை ARPHRD_ETHER:
+                *bcast_addr = (கட்டமைப்பு hw_addr_data) {
                         .length = ETH_ALEN,
                         .ether = {{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }},
                 };
-                return 0;
-        case ARPHRD_INFINIBAND:
-                *bcast_addr = (struct hw_addr_data) {
+                திரும்பு 0;
+        நிலை ARPHRD_INFINIBAND:
+                *bcast_addr = (கட்டமைப்பு hw_addr_data) {
                         .length = INFINIBAND_ALEN,
                         .infiniband = {
                                 0x00, 0xff, 0xff, 0xff, 0xff, 0x12, 0x40, 0x1b,
@@ -324,8 +324,8 @@ int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type)
                                 0xff, 0xff, 0xff, 0xff,
                         },
                 };
-                return 0;
-        default:
-                return -EAFNOSUPPORT;
+                திரும்பு 0;
+        இயல்பு:
+                திரும்பு -EAFNOSUPPORT;
         }
 }

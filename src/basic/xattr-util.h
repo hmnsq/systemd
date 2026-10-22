@@ -1,59 +1,59 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
-int getxattr_at_malloc(int fd, const char *path, const char *name, int at_flags, char **ret, size_t *ret_size);
-static inline int getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
+முழு getxattr_at_malloc(முழு fd, மாறிலி எழுத்து *path, மாறிலி எழுத்து *name, முழு at_flags, எழுத்து **ret, size_t *ret_size);
+நிலையான உள்வரி முழு getxattr_malloc(மாறிலி எழுத்து *path, மாறிலி எழுத்து *name, எழுத்து **ret, size_t *ret_size) {
+        திரும்பு getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
 }
-static inline int lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
+நிலையான உள்வரி முழு lgetxattr_malloc(மாறிலி எழுத்து *path, மாறிலி எழுத்து *name, எழுத்து **ret, size_t *ret_size) {
+        திரும்பு getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
 }
-static inline int fgetxattr_malloc(int fd, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
-}
-
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags);
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv);
-
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret);
-static inline int listxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
-}
-static inline int llistxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, 0, ret);
-}
-static inline int flistxattr_malloc(int fd, char **ret) {
-        return listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+நிலையான உள்வரி முழு fgetxattr_malloc(முழு fd, மாறிலி எழுத்து *name, எழுத்து **ret, size_t *ret_size) {
+        திரும்பு getxattr_at_malloc(fd, வெற்று, name, AT_EMPTY_PATH, ret, ret_size);
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
+முழு getxattr_at_bool(முழு fd, மாறிலி எழுத்து *path, மாறிலி எழுத்து *name, முழு at_flags);
+முழு getxattr_at_strv(முழு fd, மாறிலி எழுத்து *path, மாறிலி எழுத்து *name, முழு at_flags, எழுத்து ***ret_strv);
+
+முழு listxattr_at_malloc(முழு fd, மாறிலி எழுத்து *path, முழு at_flags, எழுத்து **ret);
+நிலையான உள்வரி முழு listxattr_malloc(மாறிலி எழுத்து *path, எழுத்து **ret) {
+        திரும்பு listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
+}
+நிலையான உள்வரி முழு llistxattr_malloc(மாறிலி எழுத்து *path, எழுத்து **ret) {
+        திரும்பு listxattr_at_malloc(AT_FDCWD, path, 0, ret);
+}
+நிலையான உள்வரி முழு flistxattr_malloc(முழு fd, எழுத்து **ret) {
+        திரும்பு listxattr_at_malloc(fd, வெற்று, AT_EMPTY_PATH, ret);
+}
+
+முழு xsetxattr_full(
+                முழு fd,
+                மாறிலி எழுத்து *path,
+                முழு at_flags,
+                மாறிலி எழுத்து *name,
+                மாறிலி எழுத்து *மதிப்பு,
                 size_t size,
-                int xattr_flags);
-static inline int xsetxattr(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+                முழு xattr_flags);
+நிலையான உள்வரி முழு xsetxattr(
+                முழு fd,
+                மாறிலி எழுத்து *path,
+                முழு at_flags,
+                மாறிலி எழுத்து *name,
+                மாறிலி எழுத்து *மதிப்பு) {
+        திரும்பு xsetxattr_full(fd, path, at_flags, name, மதிப்பு, SIZE_MAX, 0);
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);
+முழு xsetxattr_strv(முழு fd, மாறிலி எழுத்து *path, முழு at_flags, மாறிலி எழுத்து *name, எழுத்து * மாறிலி *l);
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name);
+முழு xremovexattr(முழு fd, மாறிலி எழுத்து *path, முழு at_flags, மாறிலி எழுத்து *name);
 
-int fd_setcrtime(int fd, usec_t usec);
-int getcrtime_at(int fd, const char *path, int at_flags, usec_t *ret);
-static inline int fd_getcrtime(int fd, usec_t *ret) {
-        return getcrtime_at(fd, NULL, 0, ret);
+முழு fd_setcrtime(முழு fd, usec_t usec);
+முழு getcrtime_at(முழு fd, மாறிலி எழுத்து *path, முழு at_flags, usec_t *ret);
+நிலையான உள்வரி முழு fd_getcrtime(முழு fd, usec_t *ret) {
+        திரும்பு getcrtime_at(fd, வெற்று, 0, ret);
 }
 
-bool xattr_is_acl(const char *name);
-bool xattr_is_selinux(const char *name);
+bool xattr_is_acl(மாறிலி எழுத்து *name);
+bool xattr_is_selinux(மாறிலி எழுத்து *name);

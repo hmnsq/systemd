@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "stat-util.h"
+#அந்தர்பாவ "forward.h"
+#அந்தர்பாவ "stat-util.h"
 
 #define FILESYSTEM_MAGIC_MAX 10
 
-typedef enum FilesystemGroups {
+வகைவரை எண்ணிக்கை FilesystemGroups {
         /* Please leave BASIC_API first and KNOWN last, but sort the rest alphabetically */
         FILESYSTEM_SET_BASIC_API,
         FILESYSTEM_SET_ANONYMOUS,
@@ -23,19 +23,19 @@ typedef enum FilesystemGroups {
         _FILESYSTEM_SET_INVALID = -EINVAL,
 } FilesystemGroups;
 
-typedef struct FilesystemSet {
-        const char *name;
-        const char *help;
-        const char *value;
+வகைவரை கட்டமைப்பு FilesystemSet {
+        மாறிலி எழுத்து *name;
+        மாறிலி எழுத்து *help;
+        மாறிலி எழுத்து *மதிப்பு;
 } FilesystemSet;
 
-extern const FilesystemSet filesystem_sets[];
+வெளி மாறிலி FilesystemSet filesystem_sets[];
 
-const FilesystemSet *filesystem_set_find(const char *name);
+மாறிலி FilesystemSet *filesystem_set_find(மாறிலி எழுத்து *name);
 
-const char* fs_type_to_string(statfs_f_type_t magic);
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret);
-bool fs_in_group(const struct statfs *s, enum FilesystemGroups fs_group);
+மாறிலி எழுத்து* fs_type_to_string(statfs_f_type_t magic);
+முழு fs_type_from_string(மாறிலி எழுத்து *name, மாறிலி statfs_f_type_t **ret);
+bool fs_in_group(மாறிலி கட்டமைப்பு statfs *s, எண்ணிக்கை FilesystemGroups fs_group);
 
 /* gperf prototypes */
-const struct FilesystemMagic* filesystems_gperf_lookup(const char *str, GPERF_LEN_TYPE length);
+மாறிலி கட்டமைப்பு FilesystemMagic* filesystems_gperf_lookup(மாறிலி எழுத்து *str, GPERF_LEN_TYPE length);

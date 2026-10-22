@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#அந்தர்பாவ <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#அந்தர்பாவ "parse-util.h"
+#அந்தர்பாவ "stdio-util.h"
+#அந்தர்பாவ "string-table.h"
+#அந்தர்பாவ "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+மாறிலி எழுத்து* string_table_lookup_to_string(மாறிலி எழுத்து * மாறிலி *table, size_t len, ssize_t i) {
+        எனில் (i < 0 || i >= (ssize_t) len)
+                திரும்பு வெற்று;
 
-        assert(table);
+        ப்ரதிஜ்ஞா(table);
 
-        return table[i];
+        திரும்பு table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(மாறிலி எழுத்து * மாறிலி *table, size_t len, மாறிலி எழுத்து *சாவி) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        எனில் (!சாவி)
+                திரும்பு -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        க்கு (size_t i = 0; i < len; ++i)
+                எனில் (streq_ptr(table[i], சாவி))
+                        திரும்பு (ssize_t) i;
 
-        return -EINVAL;
+        திரும்பு -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(மாறிலி எழுத்து * மாறிலி *table, size_t len, மாறிலி எழுத்து *சாவி, ssize_t yes) {
+        எனில் (!சாவி)
+                திரும்பு -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        முழு b = parse_boolean(சாவி);
+        எனில் (b == 0)
+                திரும்பு 0;
+        எனில் (b > 0)
+                திரும்பு yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        திரும்பு string_table_lookup_from_string(table, len, சாவி);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+முழு string_table_lookup_to_string_fallback(மாறிலி எழுத்து * மாறிலி *table, size_t len, ssize_t i, size_t max, எழுத்து **ret) {
+        எழுத்து *s;
 
-        assert(table);
-        assert(ret);
+        ப்ரதிஜ்ஞா(table);
+        ப்ரதிஜ்ஞா(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        எனில் (i < 0 || i > (ssize_t) max)
+                திரும்பு -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        எனில் (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        இல்லையெனில்
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        எனில் (!s)
+                திரும்பு -ENOMEM;
 
         *ret = s;
-        return 0;
+        திரும்பு 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(மாறிலி எழுத்து * மாறிலி *table, size_t len, மாறிலி எழுத்து *s, size_t max) {
+        எனில் (!s)
+                திரும்பு -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        எனில் (i >= 0)
+                திரும்பு i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        எனில் (safe_atou(s, &u) < 0)
+                திரும்பு -EINVAL;
+        எனில் (u > max)
+                திரும்பு -EINVAL;
 
-        return u;
+        திரும்பு u;
 }

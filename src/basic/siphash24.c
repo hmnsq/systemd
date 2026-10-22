@@ -19,52 +19,52 @@
     coding style)
 */
 
-#include <stdio.h>
+#அந்தர்பாவ <stdio.h>
 
-#include "iovec-util.h"
-#include "siphash24.h"
-#include "string-util.h"
-#include "unaligned.h"
+#அந்தர்பாவ "iovec-util.h"
+#அந்தர்பாவ "siphash24.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "unaligned.h"
 
 /* The round is small enough that it is worth inlining at every call site, but large enough that gcc's
  * -O2 inlining budget declines to do so on its own, leaving a call/ret and a reload of the state around
  * six rounds of ~14 ALU ops. clang inlines it either way, and the SipHash reference implementation this
  * file is derived from inlines the round manually, by writing it as a macro. */
-static inline _always_inline_ uint64_t rotate_left(uint64_t x, uint8_t b) {
-        assert(b < 64);
+நிலையான உள்வரி _always_inline_ uint64_t rotate_இடது(uint64_t x, uint8_t b) {
+        ப்ரதிஜ்ஞா(b < 64);
 
-        return (x << b) | (x >> (64 - b));
+        திரும்பு (x << b) | (x >> (64 - b));
 }
 
-static inline _always_inline_ void sipround(struct siphash *state) {
-        assert(state);
+நிலையான உள்வரி _always_inline_ வெறுமை sipround(கட்டமைப்பு siphash *state) {
+        ப்ரதிஜ்ஞா(state);
 
         state->v0 += state->v1;
-        state->v1 = rotate_left(state->v1, 13);
+        state->v1 = rotate_இடது(state->v1, 13);
         state->v1 ^= state->v0;
-        state->v0 = rotate_left(state->v0, 32);
+        state->v0 = rotate_இடது(state->v0, 32);
         state->v2 += state->v3;
-        state->v3 = rotate_left(state->v3, 16);
+        state->v3 = rotate_இடது(state->v3, 16);
         state->v3 ^= state->v2;
         state->v0 += state->v3;
-        state->v3 = rotate_left(state->v3, 21);
+        state->v3 = rotate_இடது(state->v3, 21);
         state->v3 ^= state->v0;
         state->v2 += state->v1;
-        state->v1 = rotate_left(state->v1, 17);
+        state->v1 = rotate_இடது(state->v1, 17);
         state->v1 ^= state->v2;
-        state->v2 = rotate_left(state->v2, 32);
+        state->v2 = rotate_இடது(state->v2, 32);
 }
 
-static inline _always_inline_ void siphash24_init_inline(struct siphash *state, const uint8_t k[static 16]) {
+நிலையான உள்வரி _always_inline_ வெறுமை siphash24_init_inline(கட்டமைப்பு siphash *state, மாறிலி uint8_t k[நிலையான 16]) {
         uint64_t k0, k1;
 
-        assert(state);
-        assert(k);
+        ப்ரதிஜ்ஞா(state);
+        ப்ரதிஜ்ஞா(k);
 
         k0 = unaligned_read_le64(k);
         k1 = unaligned_read_le64(k + 8);
 
-        *state = (struct siphash) {
+        *state = (கட்டமைப்பு siphash) {
                 /* "somepseudorandomlygeneratedbytes" */
                 .v0 = 0x736f6d6570736575ULL ^ k0,
                 .v1 = 0x646f72616e646f6dULL ^ k1,
@@ -75,37 +75,37 @@ static inline _always_inline_ void siphash24_init_inline(struct siphash *state, 
         };
 }
 
-void siphash24_init(struct siphash *state, const uint8_t k[static 16]) {
+வெறுமை siphash24_init(கட்டமைப்பு siphash *state, மாறிலி uint8_t k[நிலையான 16]) {
         siphash24_init_inline(state, k);
 }
 
 /* The input is read through a byte pointer, which may alias *state. Without restrict, gcc stores the
  * state back to memory after every block. */
-static inline _always_inline_ void siphash24_compress_inline(
-                const void *restrict _in,
+நிலையான உள்வரி _always_inline_ வெறுமை siphash24_compress_inline(
+                மாறிலி வெறுமை *restrict _in,
                 size_t inlen,
-                struct siphash *restrict state) {
+                கட்டமைப்பு siphash *restrict state) {
 
-        const uint8_t *in = ASSERT_PTR(_in);
-        const uint8_t *end = in + inlen;
-        size_t left = state->inlen & 7;
+        மாறிலி uint8_t *in = ASSERT_PTR(_in);
+        மாறிலி uint8_t *end = in + inlen;
+        size_t இடது = state->inlen & 7;
         uint64_t m;
 
-        assert(state);
+        ப்ரதிஜ்ஞா(state);
 
         /* Update total length */
         state->inlen += inlen;
 
         /* If padding exists, fill it out */
-        if (left > 0) {
-                for ( ; in < end && left < 8; in ++, left ++)
-                        state->padding |= ((uint64_t) *in) << (left * 8);
+        எனில் (இடது > 0) {
+                க்கு ( ; in < end && இடது < 8; in ++, இடது ++)
+                        state->padding |= ((uint64_t) *in) << (இடது * 8);
 
-                if (in == end && left < 8)
+                எனில் (in == end && இடது < 8)
                         /* We did not have enough input to fill out the padding completely */
-                        return;
+                        திரும்பு;
 
-#if ENABLE_DEBUG_SIPHASH
+#எனில் ENABLE_DEBUG_SIPHASH
                 printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
                 printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
                 printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -121,11 +121,11 @@ static inline _always_inline_ void siphash24_compress_inline(
                 state->padding = 0;
         }
 
-        end -= (state->inlen % sizeof(uint64_t));
+        end -= (state->inlen % அளவு(uint64_t));
 
-        for ( ; in < end; in += 8) {
+        க்கு ( ; in < end; in += 8) {
                 m = unaligned_read_le64(in);
-#if ENABLE_DEBUG_SIPHASH
+#எனில் ENABLE_DEBUG_SIPHASH
                 printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
                 printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
                 printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -138,60 +138,60 @@ static inline _always_inline_ void siphash24_compress_inline(
                 state->v0 ^= m;
         }
 
-        left = state->inlen & 7;
-        switch (left) {
-                case 7:
+        இடது = state->inlen & 7;
+        தேர்வு (இடது) {
+                நிலை 7:
                         state->padding |= ((uint64_t) in[6]) << 48;
                         _fallthrough_;
-                case 6:
+                நிலை 6:
                         state->padding |= ((uint64_t) in[5]) << 40;
                         _fallthrough_;
-                case 5:
+                நிலை 5:
                         state->padding |= ((uint64_t) in[4]) << 32;
                         _fallthrough_;
-                case 4:
+                நிலை 4:
                         state->padding |= ((uint64_t) in[3]) << 24;
                         _fallthrough_;
-                case 3:
+                நிலை 3:
                         state->padding |= ((uint64_t) in[2]) << 16;
                         _fallthrough_;
-                case 2:
+                நிலை 2:
                         state->padding |= ((uint64_t) in[1]) <<  8;
                         _fallthrough_;
-                case 1:
+                நிலை 1:
                         state->padding |= ((uint64_t) in[0]);
                         _fallthrough_;
-                case 0:
-                        break;
+                நிலை 0:
+                        நிறுத்து;
         }
 }
 
-void siphash24_compress(const void *in, size_t inlen, struct siphash *state) {
+வெறுமை siphash24_compress(மாறிலி வெறுமை *in, size_t inlen, கட்டமைப்பு siphash *state) {
         siphash24_compress_inline(in, inlen, state);
 }
 
-void siphash24_compress_string(const char *in, struct siphash *state) {
+வெறுமை siphash24_compress_string(மாறிலி எழுத்து *in, கட்டமைப்பு siphash *state) {
         siphash24_compress_safe(in, strlen_ptr(in), state);
 }
 
-void siphash24_compress_iovec(const struct iovec *iov, struct siphash *state) {
-        assert(iovec_is_valid(iov));
-        assert(state);
+வெறுமை siphash24_compress_iovec(மாறிலி கட்டமைப்பு iovec *iov, கட்டமைப்பு siphash *state) {
+        ப்ரதிஜ்ஞா(iovec_is_valid(iov));
+        ப்ரதிஜ்ஞா(state);
 
-        if (!iovec_is_set(iov))
-                return;
+        எனில் (!iovec_is_set(iov))
+                திரும்பு;
 
         siphash24_compress(iov->iov_base, iov->iov_len, state);
 }
 
-static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash *state) {
+நிலையான உள்வரி _always_inline_ uint64_t siphash24_finalize_inline(கட்டமைப்பு siphash *state) {
         uint64_t b;
 
-        assert(state);
+        ப்ரதிஜ்ஞா(state);
 
         b = state->padding | (((uint64_t) state->inlen) << 56);
 
-#if ENABLE_DEBUG_SIPHASH
+#எனில் ENABLE_DEBUG_SIPHASH
         printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
         printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
         printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -204,7 +204,7 @@ static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash 
         sipround(state);
         state->v0 ^= b;
 
-#if ENABLE_DEBUG_SIPHASH
+#எனில் ENABLE_DEBUG_SIPHASH
         printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
         printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
         printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -217,31 +217,31 @@ static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash 
         sipround(state);
         sipround(state);
 
-        return state->v0 ^ state->v1 ^ state->v2  ^ state->v3;
+        திரும்பு state->v0 ^ state->v1 ^ state->v2  ^ state->v3;
 }
 
-uint64_t siphash24_finalize(struct siphash *state) {
-        return siphash24_finalize_inline(state);
+uint64_t siphash24_finalize(கட்டமைப்பு siphash *state) {
+        திரும்பு siphash24_finalize_inline(state);
 }
 
-uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]) {
-        struct siphash state;
+uint64_t siphash24(மாறிலி வெறுமை *in, size_t inlen, மாறிலி uint8_t k[நிலையான 16]) {
+        கட்டமைப்பு siphash state;
 
-        assert(in);
-        assert(k);
+        ப்ரதிஜ்ஞா(in);
+        ப்ரதிஜ்ஞா(k);
 
         /* Calls to the exported functions go through the PLT and keep the state in memory. */
         siphash24_init_inline(&state, k);
         siphash24_compress_inline(in, inlen, &state);
 
-        return siphash24_finalize_inline(&state);
+        திரும்பு siphash24_finalize_inline(&state);
 }
 
-uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]) {
+uint64_t siphash24_uint64(uint64_t in, மாறிலி uint8_t k[நிலையான 16]) {
         uint64_t b = UINT64_C(8) << 56;
-        struct siphash state;
+        கட்டமைப்பு siphash state;
 
-        assert(k);
+        ப்ரதிஜ்ஞா(k);
 
         /* This returns the same value as siphash24() over the 8 byte little-endian encoding of in. It
          * does not buffer partial input like siphash24_compress(), so gcc keeps the state in registers. */
@@ -264,9 +264,9 @@ uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]) {
         sipround(&state);
         sipround(&state);
 
-        return state.v0 ^ state.v1 ^ state.v2 ^ state.v3;
+        திரும்பு state.v0 ^ state.v1 ^ state.v2 ^ state.v3;
 }
 
-uint64_t siphash24_string(const char *s, const uint8_t k[static 16]) {
-        return siphash24(s, strlen(s) + 1, k);
+uint64_t siphash24_string(மாறிலி எழுத்து *s, மாறிலி uint8_t k[நிலையான 16]) {
+        திரும்பு siphash24(s, strlen(s) + 1, k);
 }

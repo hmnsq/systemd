@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#அந்தர்பாவ <unistd.h>
 
-#include "login-util.h"
-#include "string-util.h"
+#அந்தர்பாவ "login-util.h"
+#அந்தர்பாவ "string-util.h"
 
-bool session_id_valid(const char *id) {
+bool session_id_valid(மாறிலி எழுத்து *id) {
 
-        if (isempty(id))
-                return false;
+        எனில் (isempty(id))
+                திரும்பு false;
 
-        return in_charset(id, ALPHANUMERICAL);
+        திரும்பு in_charset(id, ALPHANUMERICAL);
 }
 
-bool logind_running(void) {
-        return access("/run/systemd/seats/", F_OK) >= 0;
+bool logind_running(வெறுமை) {
+        திரும்பு access("/run/systemd/seats/", F_OK) >= 0;
 }

@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#அந்தர்பாவ "forward.h"
 
 /* Limits the use of ANSI colors to a subset. */
-typedef enum ColorMode {
+வகைவரை எண்ணிக்கை ColorMode {
         COLOR_OFF,        /* No colors, monochrome output. */
         COLOR_16,         /* Only the base 16 colors. */
         COLOR_256,        /* Only 256 colors. */
@@ -26,19 +26,19 @@ typedef enum ColorMode {
 
 DECLARE_STRING_TABLE_LOOKUP(color_mode, ColorMode);
 
-ColorMode get_color_mode(void);
-static inline bool colors_enabled(void) {
+ColorMode get_color_mode(வெறுமை);
+நிலையான உள்வரி bool colors_enabled(வெறுமை) {
         /* Returns true if colors are considered supported on our stdout. */
-        return get_color_mode() != COLOR_OFF;
+        திரும்பு get_color_mode() != COLOR_OFF;
 }
 
-ColorMode parse_systemd_colors(void);
+ColorMode parse_systemd_colors(வெறுமை);
 
-bool underline_enabled(void);
+bool underline_enabled(வெறுமை);
 
-void reset_ansi_feature_caches(void);
+வெறுமை reset_ansi_feature_caches(வெறுமை);
 
-bool looks_like_ansi_color_code(const char *str);
+bool looks_like_ansi_color_code(மாறிலி எழுத்து *str);
 
 /* Regular colors */
 #define ANSI_BLACK   "\x1B[0;30m" /* Some type of grey usually. */
@@ -109,8 +109,8 @@ bool looks_like_ansi_color_code(const char *str);
 #define ANSI_NORMAL "\x1B[0m"
 
 #define DEFINE_ANSI_FUNC(name, NAME)                            \
-        static inline const char* ansi_##name(void) {           \
-                return colors_enabled() ? ANSI_##NAME : "";     \
+        நிலையான உள்வரி மாறிலி எழுத்து* ansi_##name(வெறுமை) {           \
+                திரும்பு colors_enabled() ? ANSI_##NAME : "";     \
         }
 
 /* NB: in 256 mode we always emit the fallback color first, in order to deal with terminals with
@@ -120,12 +120,12 @@ bool looks_like_ansi_color_code(const char *str);
  * reflect the correct status. */
 
 #define DEFINE_ANSI_FUNC_256(name, NAME, FALLBACK)                              \
-        static inline const char* ansi_##name(void) {                           \
-                switch (get_color_mode()) {                                     \
-                        case COLOR_OFF: return "";                              \
-                        case COLOR_16: return ANSI_##FALLBACK;                  \
-                        case COLOR_256: return ANSI_##FALLBACK ANSI_##NAME;     \
-                        default: return ANSI_##NAME;                            \
+        நிலையான உள்வரி மாறிலி எழுத்து* ansi_##name(வெறுமை) {                           \
+                தேர்வு (get_color_mode()) {                                     \
+                        நிலை COLOR_OFF: திரும்பு "";                              \
+                        நிலை COLOR_16: திரும்பு ANSI_##FALLBACK;                  \
+                        நிலை COLOR_256: திரும்பு ANSI_##FALLBACK ANSI_##NAME;     \
+                        இயல்பு: திரும்பு ANSI_##NAME;                            \
                 }                                                               \
         }
 
@@ -161,52 +161,52 @@ DEFINE_ANSI_FUNC(highlight_cyan,        HIGHLIGHT_CYAN);
 DEFINE_ANSI_FUNC_256(highlight_grey,    HIGHLIGHT_GREY, HIGHLIGHT_GREY_FALLBACK);
 DEFINE_ANSI_FUNC(highlight_white,       HIGHLIGHT_WHITE);
 
-static inline const char* _ansi_highlight_yellow(void) {
-        return colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
+நிலையான உள்வரி மாறிலி எழுத்து* _ansi_highlight_yellow(வெறுமை) {
+        திரும்பு colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
 }
 
-static inline const char* ansi_highlight_green_red(bool b) {
-        return b ? ansi_highlight_green() : ansi_highlight_red();
+நிலையான உள்வரி மாறிலி எழுத்து* ansi_highlight_green_red(bool b) {
+        திரும்பு b ? ansi_highlight_green() : ansi_highlight_red();
 }
 
-static inline const char* ansi_underline(void) {
-        return underline_enabled() ? ANSI_UNDERLINE : "";
+நிலையான உள்வரி மாறிலி எழுத்து* ansi_underline(வெறுமை) {
+        திரும்பு underline_enabled() ? ANSI_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline(void) {
-        return underline_enabled() ? ANSI_ADD_UNDERLINE : "";
+நிலையான உள்வரி மாறிலி எழுத்து* ansi_add_underline(வெறுமை) {
+        திரும்பு underline_enabled() ? ANSI_ADD_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline_grey(void) {
-        return underline_enabled() ?
+நிலையான உள்வரி மாறிலி எழுத்து* ansi_add_underline_grey(வெறுமை) {
+        திரும்பு underline_enabled() ?
                 (colors_enabled() ? ANSI_ADD_UNDERLINE_GREY : ANSI_ADD_UNDERLINE) : "";
 }
 
-static inline const char* ansi_italics(void) {
+நிலையான உள்வரி மாறிலி எழுத்து* ansi_italics(வெறுமை) {
         /* We hook italics also into the underline checks, close enough */
-        return underline_enabled() ? ANSI_ITALICS : "";
+        திரும்பு underline_enabled() ? ANSI_ITALICS : "";
 }
 
-static inline const char* ansi_add_italics(void) {
-        return underline_enabled() ? ANSI_ADD_ITALICS : "";
+நிலையான உள்வரி மாறிலி எழுத்து* ansi_add_italics(வெறுமை) {
+        திரும்பு underline_enabled() ? ANSI_ADD_ITALICS : "";
 }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE(name, NAME)                          \
-        static inline const char* ansi_##name##_underline(void) {       \
-                return underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
+        நிலையான உள்வரி மாறிலி எழுத்து* ansi_##name##_underline(வெறுமை) {       \
+                திரும்பு underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
                         ansi_##name();                                  \
         }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE_256(name, NAME, FALLBACK)                                            \
-        static inline const char* ansi_##name##_underline(void) {                                       \
-                if (!underline_enabled())                                                               \
-                        return ansi_##name();                                                           \
+        நிலையான உள்வரி மாறிலி எழுத்து* ansi_##name##_underline(வெறுமை) {                                       \
+                எனில் (!underline_enabled())                                                               \
+                        திரும்பு ansi_##name();                                                           \
                                                                                                         \
-                switch (get_color_mode()) {                                                             \
-                        case COLOR_OFF: return "";                                                      \
-                        case COLOR_16: return ANSI_##FALLBACK##_UNDERLINE;                              \
-                        case COLOR_256: return ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
-                        default: return ANSI_##NAME##_UNDERLINE;                                        \
+                தேர்வு (get_color_mode()) {                                                             \
+                        நிலை COLOR_OFF: திரும்பு "";                                                      \
+                        நிலை COLOR_16: திரும்பு ANSI_##FALLBACK##_UNDERLINE;                              \
+                        நிலை COLOR_256: திரும்பு ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
+                        இயல்பு: திரும்பு ANSI_##NAME##_UNDERLINE;                                        \
                 }                                                                                       \
         }
 

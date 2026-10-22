@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#அந்தர்பாவ <stdio.h>
+#அந்தர்பாவ <stdlib.h>
+#அந்தர்பாவ <string.h>
 
-#include "errno-list.h"
+#அந்தர்பாவ "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+நிலையான மாறிலி கட்டமைப்பு errno_name* lookup_errno(பதிவு மாறிலி எழுத்து *str,
+                                             பதிவு GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#அந்தர்பாவ "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+முழு errno_from_name(மாறிலி எழுத்து *name) {
+        மாறிலி கட்டமைப்பு errno_name *sc;
 
-        assert(name);
+        ப்ரதிஜ்ஞா(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        எனில் (!sc)
+                திரும்பு -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        ப்ரதிஜ்ஞா(sc->id > 0);
+        திரும்பு sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+மாறிலி எழுத்து* errno_name_no_fallback(முழு id) {
+        எனில் (id == 0) /* To stay in line with our implementation below.  */
+                திரும்பு வெற்று;
 
-        return strerrorname_np(ABS(id));
+        திரும்பு strerrorname_np(ABS(id));
 }
-#else
+#இல்லையெனில்
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+மாறிலி எழுத்து* errno_name_no_fallback(முழு id) {
+        எனில் (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        எனில் ((size_t) id >= ELEMENTSOF(errno_names))
+                திரும்பு வெற்று;
 
-        return errno_names[id];
+        திரும்பு errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+மாறிலி எழுத்து* errno_name(முழு id, எழுத்து buf[நிலையான ERRNO_NAME_BUF_LEN]) {
+        மாறிலி எழுத்து *a = errno_name_no_fallback(id);
+        எனில் (a)
+                திரும்பு a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        திரும்பு buf;
 }

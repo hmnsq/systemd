@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "replace-var.h"
+#அந்தர்பாவ "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+நிலையான முழு get_variable(மாறிலி எழுத்து *b, எழுத்து **r) {
         size_t k;
-        char *t;
+        எழுத்து *t;
 
-        assert(b);
-        assert(r);
+        ப்ரதிஜ்ஞா(b);
+        ப்ரதிஜ்ஞா(r);
 
-        if (*b != '@')
-                return 0;
+        எனில் (*b != '@')
+                திரும்பு 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        எனில் (k <= 0 || b[k+1] != '@')
+                திரும்பு 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        எனில் (!t)
+                திரும்பு -ENOMEM;
 
         *r = t;
-        return 1;
+        திரும்பு 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
+எழுத்து* replace_var(மாறிலி எழுத்து *text, எழுத்து *(*lookup)(மாறிலி எழுத்து *variable, வெறுமை *userdata), வெறுமை *userdata) {
+        எழுத்து *r, *t;
+        மாறிலி எழுத்து *f;
         size_t l;
 
-        assert(text);
-        assert(lookup);
+        ப்ரதிஜ்ஞா(text);
+        ப்ரதிஜ்ஞா(lookup);
 
         l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        r = new(எழுத்து, l+1);
+        எனில் (!r)
+                திரும்பு வெற்று;
 
         f = text;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
+        போது (*f) {
+                _cleanup_free_ எழுத்து *v = வெற்று, *n = வெற்று;
+                எழுத்து *a;
+                முழு k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                எனில் (k < 0)
+                        செல் oom;
+                எனில் (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        தொடர்;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                எனில் (!n)
+                        செல் oom;
 
                 skip = strlen(v) + 2;
 
                 d = t - r;
                 nl = l - skip + strlen(n);
                 a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                எனில் (!a)
+                        செல் oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        திரும்பு r;
 
 oom:
-        return mfree(r);
+        திரும்பு mfree(r);
 }

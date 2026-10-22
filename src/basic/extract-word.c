@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "utf8.h"
+#அந்தர்பாவ "alloc-util.h"
+#அந்தர்பாவ "escape.h"
+#அந்தர்பாவ "extract-word.h"
+#அந்தர்பாவ "log.h"
+#அந்தர்பாவ "string-util.h"
+#அந்தர்பாவ "utf8.h"
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
-        _cleanup_free_ char *s = NULL;
+முழு extract_first_word(மாறிலி எழுத்து **p, எழுத்து **ret, மாறிலி எழுத்து *separators, ExtractFlags flags) {
+        _cleanup_free_ எழுத்து *s = வெற்று;
         size_t sz = 0;
-        char quote = 0;                 /* 0 or ' or " */
+        எழுத்து quote = 0;                 /* 0 or ' or " */
         bool backslash = false;         /* whether we've just seen a backslash */
-        char c;
-        int r;
+        எழுத்து c;
+        முழு r;
 
-        assert(p);
-        assert(ret);
-        assert(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
+        ப்ரதிஜ்ஞா(p);
+        ப்ரதிஜ்ஞா(ret);
+        ப்ரதிஜ்ஞா(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
 
         /* Bail early if called after last value or with no input */
-        if (!*p)
-                goto finish;
+        எனில் (!*p)
+                செல் finish;
         c = **p;
 
-        if (!separators)
+        எனில் (!separators)
                 separators = WHITESPACE;
 
         /* Parses the first word of a string, and returns it in
@@ -32,36 +32,36 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
          * (because of an uneven number of quotes or similar), leaves
          * the pointer *p at the first invalid character. */
 
-        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
-                if (!GREEDY_REALLOC(s, sz+1))
-                        return -ENOMEM;
+        எனில் (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
+                எனில் (!GREEDY_REALLOC(s, sz+1))
+                        திரும்பு -ENOMEM;
 
-        for (;; (*p)++, c = **p) {
-                if (c == 0)
-                        goto finish_force_terminate;
-                else if (strchr(separators, c)) {
-                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+        க்கு (;; (*p)++, c = **p) {
+                எனில் (c == 0)
+                        செல் finish_force_terminate;
+                இல்லையெனில் எனில் (strchr(separators, c)) {
+                        எனில் (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                எனில் (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                         (*p)++;
-                                goto finish_force_next;
+                                செல் finish_force_next;
                         }
-                } else {
+                } இல்லையெனில் {
                         /* We found a non-blank character, so we will always
                          * want to return a string (even if it is empty),
                          * allocate it here. */
-                        if (!GREEDY_REALLOC(s, sz+1))
-                                return -ENOMEM;
-                        break;
+                        எனில் (!GREEDY_REALLOC(s, sz+1))
+                                திரும்பு -ENOMEM;
+                        நிறுத்து;
                 }
         }
 
-        for (;; (*p)++, c = **p) {
-                if (backslash) {
-                        if (!GREEDY_REALLOC(s, sz+7))
-                                return -ENOMEM;
+        க்கு (;; (*p)++, c = **p) {
+                எனில் (backslash) {
+                        எனில் (!GREEDY_REALLOC(s, sz+7))
+                                திரும்பு -ENOMEM;
 
-                        if (c == 0) {
-                                if ((flags & EXTRACT_UNESCAPE_RELAX) &&
+                        எனில் (c == 0) {
+                                எனில் ((flags & EXTRACT_UNESCAPE_RELAX) &&
                                     (quote == 0 || flags & EXTRACT_RELAX)) {
                                         /* If we find an unquoted trailing backslash and we're in
                                          * EXTRACT_UNESCAPE_RELAX mode, keep it verbatim in the
@@ -71,211 +71,211 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
                                          * mode, EXTRACT_UNESCAPE_RELAX mode does not allow them.
                                          */
                                         s[sz++] = '\\';
-                                        goto finish_force_terminate;
+                                        செல் finish_force_terminate;
                                 }
-                                if (flags & EXTRACT_RELAX)
-                                        goto finish_force_terminate;
-                                return -EINVAL;
+                                எனில் (flags & EXTRACT_RELAX)
+                                        செல் finish_force_terminate;
+                                திரும்பு -EINVAL;
                         }
 
-                        if (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
+                        எனில் (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
                                 bool eight_bit = false;
                                 char32_t u;
 
-                                if ((flags & EXTRACT_CUNESCAPE) &&
+                                எனில் ((flags & EXTRACT_CUNESCAPE) &&
                                     (r = cunescape_one(*p, SIZE_MAX, &u, &eight_bit, false)) >= 0) {
                                         /* A valid escaped sequence */
-                                        assert(r >= 1);
+                                        ப்ரதிஜ்ஞா(r >= 1);
 
                                         (*p) += r - 1;
 
-                                        if (eight_bit)
+                                        எனில் (eight_bit)
                                                 s[sz++] = u;
-                                        else
+                                        இல்லையெனில்
                                                 sz += utf8_encode_unichar(s + sz, u);
-                                } else if ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
+                                } இல்லையெனில் எனில் ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
                                            (strchr(separators, **p) || **p == '\\'))
                                         /* An escaped separator char or the escape char itself */
                                         s[sz++] = c;
-                                else if (flags & EXTRACT_UNESCAPE_RELAX) {
+                                இல்லையெனில் எனில் (flags & EXTRACT_UNESCAPE_RELAX) {
                                         s[sz++] = '\\';
                                         s[sz++] = c;
-                                } else
-                                        return -EINVAL;
-                        } else
+                                } இல்லையெனில்
+                                        திரும்பு -EINVAL;
+                        } இல்லையெனில்
                                 s[sz++] = c;
 
                         backslash = false;
 
-                } else if (quote != 0) {     /* inside either single or double quotes */
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0) {
-                                        if (flags & EXTRACT_RELAX)
-                                                goto finish_force_terminate;
-                                        return -EINVAL;
-                                } else if (c == quote) {        /* found the end quote */
+                } இல்லையெனில் எனில் (quote != 0) {     /* inside either single or double quotes */
+                        க்கு (;; (*p)++, c = **p) {
+                                எனில் (c == 0) {
+                                        எனில் (flags & EXTRACT_RELAX)
+                                                செல் finish_force_terminate;
+                                        திரும்பு -EINVAL;
+                                } இல்லையெனில் எனில் (c == quote) {        /* found the end quote */
                                         quote = 0;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        எனில் (flags & EXTRACT_UNQUOTE)
+                                                நிறுத்து;
+                                } இல்லையெனில் எனில் (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
+                                        நிறுத்து;
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                எனில் (!GREEDY_REALLOC(s, sz+2))
+                                        திரும்பு -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote == 0)
-                                        break;
+                                எனில் (quote == 0)
+                                        நிறுத்து;
                         }
 
-                } else {
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0)
-                                        goto finish_force_terminate;
-                                else if (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
+                } இல்லையெனில் {
+                        க்கு (;; (*p)++, c = **p) {
+                                எனில் (c == 0)
+                                        செல் finish_force_terminate;
+                                இல்லையெனில் எனில் (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
                                         quote = c;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        எனில் (flags & EXTRACT_UNQUOTE)
+                                                நிறுத்து;
+                                } இல்லையெனில் எனில் (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
-                                } else if (strchr(separators, c)) {
-                                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        நிறுத்து;
+                                } இல்லையெனில் எனில் (strchr(separators, c)) {
+                                        எனில் (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                                எனில் (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                         (*p)++;
-                                                goto finish_force_next;
+                                                செல் finish_force_next;
                                         }
-                                        if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        எனில் (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                 /* Skip additional coalesced separators. */
-                                                for (;; (*p)++, c = **p) {
-                                                        if (c == 0)
-                                                                goto finish_force_terminate;
-                                                        if (!strchr(separators, c))
-                                                                break;
+                                                க்கு (;; (*p)++, c = **p) {
+                                                        எனில் (c == 0)
+                                                                செல் finish_force_terminate;
+                                                        எனில் (!strchr(separators, c))
+                                                                நிறுத்து;
                                                 }
-                                        goto finish;
+                                        செல் finish;
 
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                எனில் (!GREEDY_REALLOC(s, sz+2))
+                                        திரும்பு -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote != 0)
-                                        break;
+                                எனில் (quote != 0)
+                                        நிறுத்து;
                         }
                 }
         }
 
 finish_force_terminate:
-        *p = NULL;
+        *p = வெற்று;
 finish:
-        if (!s) {
-                *p = NULL;
-                *ret = NULL;
-                return 0;
+        எனில் (!s) {
+                *p = வெற்று;
+                *ret = வெற்று;
+                திரும்பு 0;
         }
 
 finish_force_next:
         s[sz] = 0;
         *ret = TAKE_PTR(s);
 
-        return 1;
+        திரும்பு 1;
 }
 
-int extract_first_word_and_warn(
-                const char **p,
-                char **ret,
-                const char *separators,
+முழு extract_first_word_and_warn(
+                மாறிலி எழுத்து **p,
+                எழுத்து **ret,
+                மாறிலி எழுத்து *separators,
                 ExtractFlags flags,
-                const char *unit,
-                const char *filename,
-                unsigned line,
-                const char *rvalue) {
+                மாறிலி எழுத்து *unit,
+                மாறிலி எழுத்து *filename,
+                unsigned வரி,
+                மாறிலி எழுத்து *rvalue) {
 
         /* Try to unquote it, if it fails, warn about it and try again
          * but this time using EXTRACT_UNESCAPE_RELAX to keep the
          * backslashes verbatim in invalid escape sequences. */
 
-        const char *save;
-        int r;
+        மாறிலி எழுத்து *save;
+        முழு r;
 
-        assert(p);
-        assert(ret);
+        ப்ரதிஜ்ஞா(p);
+        ப்ரதிஜ்ஞா(ret);
 
         save = *p;
         r = extract_first_word(p, ret, separators, flags);
-        if (r >= 0)
-                return r;
+        எனில் (r >= 0)
+                திரும்பு r;
 
-        if (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
+        எனில் (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
 
                 /* Retry it with EXTRACT_UNESCAPE_RELAX. */
                 *p = save;
                 r = extract_first_word(p, ret, separators, flags|EXTRACT_UNESCAPE_RELAX);
-                if (r >= 0) {
+                எனில் (r >= 0) {
                         /* It worked this time, hence it must have been an invalid escape sequence. */
-                        log_syntax(unit, LOG_WARNING, filename, line, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
-                        return r;
+                        log_syntax(unit, LOG_WARNING, filename, வரி, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
+                        திரும்பு r;
                 }
 
                 /* If it's still EINVAL; then it must be unbalanced quoting, report this. */
-                if (r == -EINVAL)
-                        return log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
+                எனில் (r == -EINVAL)
+                        திரும்பு log_syntax(unit, LOG_ERR, filename, வரி, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
         }
 
         /* Can be any error, report it */
-        return log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
+        திரும்பு log_syntax(unit, LOG_ERR, filename, வரி, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
 }
 
 /* We pass ExtractFlags as unsigned int (to avoid undefined behaviour when passing
  * an object that undergoes default argument promotion as an argument to va_start).
  * Let's make sure that ExtractFlags fits into an unsigned int. */
-assert_cc(sizeof(enum ExtractFlags) <= sizeof(unsigned));
+assert_cc(அளவு(எண்ணிக்கை ExtractFlags) <= அளவு(unsigned));
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
+முழு extract_many_சொற்கள்_internal(மாறிலி எழுத்து **p, மாறிலி எழுத்து *separators, unsigned flags, ...) {
         va_list ap;
         unsigned n = 0;
-        int r;
+        முழு r;
 
         /* Parses a number of words from a string, stripping any quotes if necessary. */
 
-        assert(p);
+        ப்ரதிஜ்ஞா(p);
 
         /* Count how many words are expected */
         va_start(ap, flags);
-        while (va_arg(ap, char**))
+        போது (va_arg(ap, எழுத்து**))
                 n++;
         va_end(ap);
 
-        if (n == 0)
-                return 0;
+        எனில் (n == 0)
+                திரும்பு 0;
 
         /* Read all words into a temporary array */
-        char **l = newa0(char*, n);
+        எழுத்து **l = newa0(எழுத்து*, n);
         unsigned c;
 
-        for (c = 0; c < n; c++) {
+        க்கு (c = 0; c < n; c++) {
                 r = extract_first_word(p, &l[c], separators, flags);
-                if (r < 0) {
+                எனில் (r < 0) {
                         free_many_charp(l, c);
-                        return r;
+                        திரும்பு r;
                 }
-                if (r == 0)
-                        break;
+                எனில் (r == 0)
+                        நிறுத்து;
         }
 
         /* If we managed to parse all words, return them in the passed in parameters */
         va_start(ap, flags);
         FOREACH_ARRAY(i, l, n) {
-                char **v = ASSERT_PTR(va_arg(ap, char**));
+                எழுத்து **v = ASSERT_PTR(va_arg(ap, எழுத்து**));
                 *v = *i;
         }
         va_end(ap);
 
-        return c;
+        திரும்பு c;
 }
