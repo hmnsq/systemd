@@ -1,51 +1,51 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
 
-#include "ansi-color.h"
-#include "process-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "terminal-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ansi-color.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "process-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-table.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strv.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "terminal-util.h"
 
-static volatile int cached_color_mode = _COLOR_MODE_INVALID;
-static volatile int cached_underline_enabled = -1;
+ਸਥਿਰ ਅਸਥਿਰ ਪੂਰਨ cached_color_ਬਹੁਲਕ = COLOR_ਬਹੁਲਕ_INVALID;
+ਸਥਿਰ ਅਸਥਿਰ ਪੂਰਨ cached_underline_enabled = -1;
 
-bool underline_enabled(void) {
+bool underline_enabled(ਖਾਲੀ) {
 
-        if (cached_underline_enabled < 0) {
+        ਜੇ (cached_underline_enabled < 0) {
 
                 /* The Linux console doesn't support underlining, turn it off, but only there. */
 
-                if (colors_enabled())
+                ਜੇ (colors_enabled())
                         cached_underline_enabled = !streq_ptr(getenv("TERM"), "linux");
-                else
+                ਨਹੀਂਤਾਂ
                         cached_underline_enabled = false;
         }
 
-        return cached_underline_enabled;
+        ਵਾਪਸ cached_underline_enabled;
 }
 
-void reset_ansi_feature_caches(void) {
-        cached_color_mode = _COLOR_MODE_INVALID;
+ਖਾਲੀ reset_ansi_feature_caches(ਖਾਲੀ) {
+        cached_color_ਬਹੁਲਕ = COLOR_ਬਹੁਲਕ_INVALID;
         cached_underline_enabled = -1;
 }
 
-ColorMode parse_systemd_colors(void) {
-        const char *e;
+Color_ਬਹੁਲਕ parse_systemd_colors(ਖਾਲੀ) {
+        ਅਚਲ ਅੱਖਰ *e;
 
         /* Note: do not log in this function, to avoid infinite recursion issues, as the log functions call
          * this when deciding whether to color the output. */
 
         e = getenv("SYSTEMD_COLORS");
-        if (!e)
-                return _COLOR_MODE_INVALID;
+        ਜੇ (!e)
+                ਵਾਪਸ COLOR_ਬਹੁਲਕ_INVALID;
 
-        return color_mode_from_string(e);
+        ਵਾਪਸ color_ਬਹੁਲਕ_from_string(e);
 }
 
-static ColorMode get_color_mode_impl(void) {
+ਸਥਿਰ Color_ਬਹੁਲਕ get_color_ਬਹੁਲਕ_impl(ਖਾਲੀ) {
         /* Note: do not log in this function, to avoid infinite recursion issues, as the log functions call
          * this when deciding whether to color the output. */
 
@@ -54,37 +54,37 @@ static ColorMode get_color_mode_impl(void) {
          * unrestricted color output. */
 
         /* First, we check $SYSTEMD_COLORS, which is the explicit way to change the mode. */
-        ColorMode m = parse_systemd_colors();
-        if (m >= 0 && m < _COLOR_MODE_FIXED_MAX)
-                return m;
+        Color_ਬਹੁਲਕ m = parse_systemd_colors();
+        ਜੇ (m >= 0 && m < COLOR_ਬਹੁਲਕ_FIXED_MAX)
+                ਵਾਪਸ m;
 
         /* If SYSTEMD_COLORS=true was set explicitly, skip the environment checks below — the user
          * explicitly requested colors, so honor it even when stdout is piped or $NO_COLOR is set. */
-        if (m != COLOR_TRUE) {
+        ਜੇ (m != COLOR_TRUE) {
                 /* Check for the presence of $NO_COLOR; value is ignored. */
-                if (getenv("NO_COLOR"))
-                        return COLOR_OFF;
+                ਜੇ (getenv("NO_COLOR"))
+                        ਵਾਪਸ COLOR_OFF;
 
                 /* Turn colors off unless we are on a TTY. And if we are on a TTY we turn it off if $TERM
                  * is set to "dumb". There's one special tweak though: if we are PID 1 then we do not check
                  * whether we are connected to a TTY, because we don't keep /dev/console open continuously
                  * due to fear of SAK, and hence things are a bit weird. */
-                if (getpid_cached() == 1 ? getenv_terminal_is_dumb() : terminal_is_dumb())
-                        return COLOR_OFF;
+                ਜੇ (getpid_cached() == 1 ? getenv_terminal_is_dumb() : terminal_is_dumb())
+                        ਵਾਪਸ COLOR_OFF;
         }
 
         /* We failed to figure out any reason to *disable* colors. Let's see how many colors we shall use. */
-        if (m == COLOR_AUTO_16)
-                return COLOR_16;
-        if (m == COLOR_AUTO_256)
-                return COLOR_256;
-        if (m == COLOR_AUTO_24BIT)
-                return COLOR_24BIT;
+        ਜੇ (m == COLOR_AUTO_16)
+                ਵਾਪਸ COLOR_16;
+        ਜੇ (m == COLOR_AUTO_256)
+                ਵਾਪਸ COLOR_256;
+        ਜੇ (m == COLOR_AUTO_24_ਦੋਆਧਾਰੀ_ਅੰਕ)
+                ਵਾਪਸ COLOR_24_ਦੋਆਧਾਰੀ_ਅੰਕ;
 
-        if (STRPTR_IN_SET(getenv("COLORTERM"),
+        ਜੇ (STRPTR_ਵਿੱਚ_ਸੈੱਟ(getenv("COLORTERM"),
                           "truecolor",
                           "24bit"))
-                return COLOR_24BIT;
+                ਵਾਪਸ COLOR_24_ਦੋਆਧਾਰੀ_ਅੰਕ;
 
         /* Note that the Linux console can only display 16 colors. We still enable 256 color mode
          * even for PID1 output though (which typically goes to the Linux console), since the Linux
@@ -92,30 +92,30 @@ static ColorMode get_color_mode_impl(void) {
          * color in the 16 color palette (since kernel 3.16). Doing 256 colors is nice for people who
          * invoke systemd in a container or via a serial link or such, and use a true 256 color
          * terminal to do so. */
-        return COLOR_256;
+        ਵਾਪਸ COLOR_256;
 }
 
-ColorMode get_color_mode(void) {
-        if (cached_color_mode < 0) {
-                cached_color_mode = get_color_mode_impl();
-                assert(cached_color_mode >= 0 && cached_color_mode < _COLOR_MODE_FIXED_MAX);
+Color_ਬਹੁਲਕ get_color_ਬਹੁਲਕ(ਖਾਲੀ) {
+        ਜੇ (cached_color_ਬਹੁਲਕ < 0) {
+                cached_color_ਬਹੁਲਕ = get_color_ਬਹੁਲਕ_impl();
+                ਪ੍ਰਤਿਜ੍ਞਾ(cached_color_ਬਹੁਲਕ >= 0 && cached_color_ਬਹੁਲਕ < COLOR_ਬਹੁਲਕ_FIXED_MAX);
         }
 
-        return cached_color_mode;
+        ਵਾਪਸ cached_color_ਬਹੁਲਕ;
 }
 
-static const char* const color_mode_table[_COLOR_MODE_MAX] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ color_ਬਹੁਲਕ_ਸਾਰਣੀ[COLOR_ਬਹੁਲਕ_MAX] = {
         [COLOR_OFF]        = "off",
         [COLOR_16]         = "16",
         [COLOR_256]        = "256",
-        [COLOR_24BIT]      = "24bit",
+        [COLOR_24_ਦੋਆਧਾਰੀ_ਅੰਕ]      = "24bit",
         [COLOR_AUTO_16]    = "auto-16",
         [COLOR_AUTO_256]   = "auto-256",
-        [COLOR_AUTO_24BIT] = "auto-24bit",
+        [COLOR_AUTO_24_ਦੋਆਧਾਰੀ_ਅੰਕ] = "auto-24bit",
         [COLOR_TRUE]       = "true",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(color_mode, ColorMode, COLOR_TRUE);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP_WITH_BOOLEAN(color_ਬਹੁਲਕ, Color_ਬਹੁਲਕ, COLOR_TRUE);
 
 /*
  * Check that the string is formatted like an ANSI color code, i.e. that it consists of one or more
@@ -125,19 +125,19 @@ DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(color_mode, ColorMode, COLOR_TRUE);
  * ANSI color codes while rejecting anything that would result in garbled output (such as injecting
  * text or changing the type of escape code).
  */
-bool looks_like_ansi_color_code(const char *str) {
-        assert(str);
+bool looks_like_ansi_color_ਕੋਡ(ਅਚਲ ਅੱਖਰ *str) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(str);
 
         bool prev_char_was_digit = false;
 
-        for (char c = *str; c != '\0'; c = *(++str)) {
-                if (ascii_isdigit(c))
+        ਲਈ (ਅੱਖਰ c = *str; c != '\0'; c = *(++str)) {
+                ਜੇ (ascii_isdigit(c))
                         prev_char_was_digit = true;
-                else if (prev_char_was_digit && c == ';')
+                ਨਹੀਂਤਾਂ ਜੇ (prev_char_was_digit && c == ';')
                         prev_char_was_digit = false;
-                else
-                        return false;
+                ਨਹੀਂਤਾਂ
+                        ਵਾਪਸ false;
         }
 
-        return prev_char_was_digit;
+        ਵਾਪਸ prev_char_was_digit;
 }

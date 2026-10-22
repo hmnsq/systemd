@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: CC0-1.0 */
 
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-struct siphash {
+ਬਣਤਰ siphash {
         uint64_t v0;
         uint64_t v1;
         uint64_t v2;
@@ -13,35 +13,35 @@ struct siphash {
         size_t inlen;
 };
 
-void siphash24_init(struct siphash *state, const uint8_t k[static 16]);
-void siphash24_compress(const void *in, size_t inlen, struct siphash *state);
-#define siphash24_compress_byte(byte, state) siphash24_compress((const uint8_t[]) { (byte) }, 1, (state))
-#define siphash24_compress_typesafe(in, state)                  \
-        siphash24_compress(&(in), sizeof(typeof(in)), (state))
+ਖਾਲੀ siphash24_init(ਬਣਤਰ siphash *state, ਅਚਲ uint8_t k[ਸਥਿਰ 16]);
+ਖਾਲੀ siphash24_compress(ਅਚਲ ਖਾਲੀ *ਵਿੱਚ, size_t inlen, ਬਣਤਰ siphash *state);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ siphash24_compress_byte(byte, state) siphash24_compress((ਅਚਲ uint8_t[]) { (byte) }, 1, (state))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ siphash24_compress_typesafe(ਵਿੱਚ, state)                  \
+        siphash24_compress(&(ਵਿੱਚ), ਆਕਾਰ(typeof(ਵਿੱਚ)), (state))
 
-static inline void siphash24_compress_boolean(bool in, struct siphash *state) {
-        siphash24_compress_byte(in, state);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ siphash24_compress_boolean(bool ਵਿੱਚ, ਬਣਤਰ siphash *state) {
+        siphash24_compress_byte(ਵਿੱਚ, state);
 }
 
-static inline void siphash24_compress_usec_t(usec_t in, struct siphash *state) {
-        uint64_t u = htole64(in);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ siphash24_compress_usec_t(usec_t ਵਿੱਚ, ਬਣਤਰ siphash *state) {
+        uint64_t u = htole64(ਵਿੱਚ);
         siphash24_compress_typesafe(u, state);
 }
 
-static inline void siphash24_compress_safe(const void *in, size_t inlen, struct siphash *state) {
-        if (inlen == 0)
-                return;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ siphash24_compress_ਸੁਰੱਖਿਅਤ(ਅਚਲ ਖਾਲੀ *ਵਿੱਚ, size_t inlen, ਬਣਤਰ siphash *state) {
+        ਜੇ (inlen == 0)
+                ਵਾਪਸ;
 
-        siphash24_compress(in, inlen, state);
+        siphash24_compress(ਵਿੱਚ, inlen, state);
 }
 
-void siphash24_compress_string(const char *in, struct siphash *state);
-void siphash24_compress_iovec(const struct iovec *iov, struct siphash *state);
+ਖਾਲੀ siphash24_compress_string(ਅਚਲ ਅੱਖਰ *ਵਿੱਚ, ਬਣਤਰ siphash *state);
+ਖਾਲੀ siphash24_compress_iovec(ਅਚਲ ਬਣਤਰ iovec *iov, ਬਣਤਰ siphash *state);
 
-uint64_t siphash24_finalize(struct siphash *state);
+uint64_t siphash24_finalize(ਬਣਤਰ siphash *state);
 
-uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]);
+uint64_t siphash24(ਅਚਲ ਖਾਲੀ *ਵਿੱਚ, size_t inlen, ਅਚਲ uint8_t k[ਸਥਿਰ 16]);
 
-uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]);
+uint64_t siphash24_uint64(uint64_t ਵਿੱਚ, ਅਚਲ uint8_t k[ਸਥਿਰ 16]);
 
-uint64_t siphash24_string(const char *s, const uint8_t k[static 16]);
+uint64_t siphash24_string(ਅਚਲ ਅੱਖਰ *s, ਅਚਲ uint8_t k[ਸਥਿਰ 16]);

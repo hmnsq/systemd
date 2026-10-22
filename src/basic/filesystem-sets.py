@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
-import shlex
-import subprocess
-import sys
-from collections.abc import Iterator
+ਆਯਾਤ shlex
+ਆਯਾਤ subprocess
+ਆਯਾਤ sys
+ਤਃ collections.abc ਆਯਾਤ Iterator
 
-NAME_TO_MAGIC = {
+NAME_ਮੰਜ਼ਿਲ_MAGIC = {
     'apparmorfs':      ['AAFS_MAGIC'],
     'adfs':            ['ADFS_SUPER_MAGIC'],
     'affs':            ['AFFS_SUPER_MAGIC'],
@@ -131,7 +131,7 @@ NAME_TO_MAGIC = {
 # System magics are sometimes not unique, because file systems got new
 # revisions or got renamed. Let's prefer newer over older here, and thus ignore
 # the old names.
-OBSOLETE_NAMES = {
+OBSOLETE_ਨਾਂ = {
     'cpuset',    # magic taken over by cgroupfs
     'devtmpfs',  # not a file system of its own, but just a "named superblock" of tmpfs
     'ext2',      # ext4 is the newest revision of ext2 + ext3
@@ -247,13 +247,13 @@ FILESYSTEM_SETS = [
     (
         '@known',
         'All known filesystems declared in the kernel',
-        *NAME_TO_MAGIC.keys(),
+        *NAME_ਮੰਜ਼ਿਲ_MAGIC.ਕੁੰਜੀਆਂ(),
     ),
 ]
 
 
-def generate_gperf():
-    print('''\
+ਪਰਿਭਾਸ਼ਾ generate_gperf():
+    ਛਾਪੋ('''\
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 %{
 #if __GNUC__ >= 15
@@ -279,12 +279,12 @@ struct FilesystemMagic;
 %struct-type
 %includes
 %%''')
-    for name, magics in NAME_TO_MAGIC.items():
-        print(f'{name + ",":16} {{{", ".join(magics)}}}')
+    ਲਈ name, magics ਵਿੱਚ NAME_ਮੰਜ਼ਿਲ_MAGIC.ਚੀਜ਼ਾਂ():
+        ਛਾਪੋ(f'{name + ",":16} {{{", ".join(magics)}}}')
 
 
-def generate_fs_type_to_string():
-    print('''\
+ਪਰਿਭਾਸ਼ਾ generate_fs_type_ਮੰਜ਼ਿਲ_string():
+    ਛਾਪੋ('''\
 #include <linux/magic.h>
 #include "filesystems.h"
 
@@ -296,100 +296,100 @@ def generate_fs_type_to_string():
 const char* fs_type_to_string(statfs_f_type_t magic) {
         switch (magic) {''')
 
-    for name, magics in NAME_TO_MAGIC.items():
-        if name in OBSOLETE_NAMES:
-            continue
-        for magic in magics:
-            print(f'        case (statfs_f_type_t) {magic}:')
-        print(f'                return "{name}";')
+    ਲਈ name, magics ਵਿੱਚ NAME_ਮੰਜ਼ਿਲ_MAGIC.ਚੀਜ਼ਾਂ():
+        ਜੇ name ਵਿੱਚ OBSOLETE_ਨਾਂ:
+            ਜਾਰੀ
+        ਲਈ magic ਵਿੱਚ magics:
+            ਛਾਪੋ(f'        case (statfs_f_type_t) {magic}:')
+        ਛਾਪੋ(f'                return "{name}";')
 
-    print('''\
+    ਛਾਪੋ('''\
         }
         return NULL;
 }''')
 
 
-def generate_fs_in_group():
-    print('bool fs_in_group(const struct statfs *st, FilesystemGroups fs_group) {')
-    print('        switch (fs_group) {')
+ਪਰਿਭਾਸ਼ਾ generate_fs_ਵਿੱਚ_ਸਮੂਹ():
+    ਛਾਪੋ('bool fs_in_group(const struct statfs *st, FilesystemGroups fs_group) {')
+    ਛਾਪੋ('        switch (fs_group) {')
 
-    for name, _, *filesystems in FILESYSTEM_SETS:
-        magics = sorted(set(sum((NAME_TO_MAGIC[fs] for fs in filesystems), start=[])))
-        enum = 'FILESYSTEM_SET_' + name[1:].upper().replace('-', '_')
-        print(f'        case {enum}:')
-        opts = '\n                    || '.join(f'F_TYPE_EQUAL(st->f_type, {magic})' for magic in magics)
-        print(f'                return {opts};')
+    ਲਈ name, _, *filesystems ਵਿੱਚ FILESYSTEM_SETS:
+        magics = sorted(ਸੈੱਟ(ਜੋੜ((NAME_ਮੰਜ਼ਿਲ_MAGIC[fs] ਲਈ fs ਵਿੱਚ filesystems), ਸ਼ੁਰੂ=[])))
+        enum = 'FILESYSTEM_SET_' + name[1:].ਉੱਤਲਾ().replace('-', '_')
+        ਛਾਪੋ(f'        case {enum}:')
+        opts = '\n                    || '.join(f'F_TYPE_EQUAL(st->f_type, {magic})' ਲਈ magic ਵਿੱਚ magics)
+        ਛਾਪੋ(f'                return {opts};')
 
-    print('        default: assert_not_reached();')
-    print('        }')
-    print('}')
-
-
-def generate_filesystem_sets():
-    print('const FilesystemSet filesystem_sets[_FILESYSTEM_SET_MAX] = {')
-
-    for name, desc, *filesystems in FILESYSTEM_SETS:
-        enum = 'FILESYSTEM_SET_' + name[1:].upper().replace('-', '_')
-
-        print(f'        [{enum}] = {{')
-        print(f'                .name = "{name}",')
-        print(f'                .help = "{desc}",')
-        print('                .value =')
-        for filesystem in filesystems:
-            print(f'                "{filesystem}\\0"')
-        print('        },')
-
-    print('};')
+    ਛਾਪੋ('        default: assert_not_reached();')
+    ਛਾਪੋ('        }')
+    ਛਾਪੋ('}')
 
 
-def magic_defines(args: list[str]) -> Iterator[str]:
-    cpp = shlex.split(args[0])
-    include_dirs = args[1:]
-    out = subprocess.check_output(
+ਪਰਿਭਾਸ਼ਾ generate_filesystem_sets():
+    ਛਾਪੋ('const FilesystemSet filesystem_sets[_FILESYSTEM_SET_MAX] = {')
+
+    ਲਈ name, desc, *filesystems ਵਿੱਚ FILESYSTEM_SETS:
+        enum = 'FILESYSTEM_SET_' + name[1:].ਉੱਤਲਾ().replace('-', '_')
+
+        ਛਾਪੋ(f'        [{enum}] = {{')
+        ਛਾਪੋ(f'                .name = "{name}",')
+        ਛਾਪੋ(f'                .help = "{desc}",')
+        ਛਾਪੋ('                .value =')
+        ਲਈ filesystem ਵਿੱਚ filesystems:
+            ਛਾਪੋ(f'                "{filesystem}\\0"')
+        ਛਾਪੋ('        },')
+
+    ਛਾਪੋ('};')
+
+
+ਪਰਿਭਾਸ਼ਾ magic_ਨਿਰਧਾਰਤ_ਕਰਦਾ(ਦਲੀਲਾਂ: list[str]) -> Iterator[str]:
+    cpp = shlex.ਵੰਡੋ(ਦਲੀਲਾਂ[0])
+    include_dirs = ਦਲੀਲਾਂ[1:]
+    ਬਾਹਰਲਾ = subprocess.check_output(
         [*cpp, '-dM', '-include', 'linux/magic.h', *include_dirs, '-'],
         stdin=subprocess.DEVNULL,
-        text=True,
+        ਪਾਠ=ਸੱਚ,
     )
-    for line in out.splitlines():
-        _, name, *rest = line.split()
-        if (
-            '_MAGIC' in name
-            and rest
-            and rest[0].startswith('0x')
-            and name
-            not in {
+    ਲਈ ਸਤਰ ਵਿੱਚ ਬਾਹਰਲਾ.splitlines():
+        _, name, *rest = ਸਤਰ.ਵੰਡੋ()
+        ਜੇ (
+            '_MAGIC' ਵਿੱਚ name
+            ਅਤੇ rest
+            ਅਤੇ rest[0].startswith('0x')
+            ਅਤੇ name
+            ਨਹੀਂ ਵਿੱਚ {
                 'STACK_END_MAGIC',
                 'MTD_INODE_FS_MAGIC',
                 'FUTEXFS_SUPER_MAGIC',
                 'CRAMFS_MAGIC_WEND',
             }
         ):
-            yield name
+            ਦਿਓ name
 
 
-def check(args: list[str]) -> None:
-    kernel_magics = set(magic_defines(args))
-    our_magics = set(sum(NAME_TO_MAGIC.values(), start=[]))
+ਪਰਿਭਾਸ਼ਾ check(ਦਲੀਲਾਂ: list[str]) -> ਕੁਝ_ਨਹੀਂ:
+    kernel_magics = ਸੈੱਟ(magic_ਨਿਰਧਾਰਤ_ਕਰਦਾ(ਦਲੀਲਾਂ))
+    our_magics = ਸੈੱਟ(ਜੋੜ(NAME_ਮੰਜ਼ਿਲ_MAGIC.values(), ਸ਼ੁਰੂ=[]))
     extra = kernel_magics - our_magics
-    if extra:
+    ਜੇ extra:
         sys.exit(f'kernel knows additional filesystem magics: {", ".join(sorted(extra))}')
 
 
-if __name__ == '__main__':
-    args = sys.argv[1:]
+ਜੇ __name__ == '__main__':
+    ਦਲੀਲਾਂ = sys.argv[1:]
 
-    for i, arg in enumerate(args):
-        if arg == 'gperf':
+    ਲਈ i, arg ਵਿੱਚ enumerate(ਦਲੀਲਾਂ):
+        ਜੇ arg == 'gperf':
             generate_gperf()
-        elif arg == 'fs-type-to-string':
-            generate_fs_type_to_string()
-        elif arg == 'filesystem-sets':
+        ਜਾਂਜੇ arg == 'fs-type-to-string':
+            generate_fs_type_ਮੰਜ਼ਿਲ_string()
+        ਜਾਂਜੇ arg == 'filesystem-sets':
             generate_filesystem_sets()
-        elif arg == 'fs-in-group':
-            generate_fs_in_group()
-        elif arg == 'check':
+        ਜਾਂਜੇ arg == 'fs-in-group':
+            generate_fs_ਵਿੱਚ_ਸਮੂਹ()
+        ਜਾਂਜੇ arg == 'check':
             # 'check' must be the last command; pass the remaining arguments to check().
-            check(args[i + 1 :])
-            break
-        else:
-            raise ValueError
+            check(ਦਲੀਲਾਂ[i + 1 :])
+            ਰੋਕੋ
+        ਨਹੀਂਤਾਂ:
+            ਉਠਾਓ ਮੁੱਲ_Error

@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "keyring-util.h"
-#include "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "keyring-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+ਪੂਰਨ keyring_read(ਕੁੰਜੀ_serial_t serial, ਖਾਲੀ **ret, size_t *ret_ਮਾਪ) {
         size_t bufsize = 100;
 
-        for (;;) {
-                _cleanup_(erase_and_freep) uint8_t *buf = NULL;
-                long n;
+        ਲਈ (;;) {
+                _cleanup_(erase_and_freep) uint8_t *buf = ਨਿਰਾ;
+                ਲੰਮਾ n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                ਜੇ (!buf)
+                        ਵਾਪਸ -ENOMEM;
 
-                n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                n = keyctl(KEYCTL_READ, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ) serial, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ) buf, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ) bufsize, 0);
+                ਜੇ (n < 0)
+                        ਵਾਪਸ -errno;
 
-                if ((size_t) n <= bufsize) {
+                ਜੇ ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        ਜੇ (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
-                                *ret_size = n;
+                        ਜੇ (ret_ਮਾਪ)
+                                *ret_ਮਾਪ = n;
 
-                        return 0;
+                        ਵਾਪਸ 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
-        _cleanup_free_ char *tuple = NULL;
+ਪੂਰਨ keyring_describe(ਕੁੰਜੀ_serial_t serial, ਅੱਖਰ **ret) {
+        _cleanup_free_ ਅੱਖਰ *tuple = ਨਿਰਾ;
         size_t sz = 64;
-        int c;
+        ਪੂਰਨ c;
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        for (;;) {
-                tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+        ਲਈ (;;) {
+                tuple = new(ਅੱਖਰ, sz);
+                ਜੇ (!tuple)
+                        ਵਾਪਸ log_oom_debug();
 
-                c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                c = keyctl(KEYCTL_DESCRIBE, serial, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ) tuple, sz, 0);
+                ਜੇ (c < 0)
+                        ਵਾਪਸ log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
-                        break;
+                ਜੇ ((size_t) c <= sz)
+                        ਰੋਕੋ;
 
                 sz = c;
-                free(tuple);
+                ਮੁਕਤ(tuple);
         }
 
         /* The kernel returns a final NUL in the string, verify that. */
-        assert(tuple[c-1] == 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(tuple[c-1] == 0);
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        ਵਾਪਸ 0;
 }

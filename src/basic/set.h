@@ -1,125 +1,125 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
-#include "hashmap.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "hashmap.h"
 
-#define set_free_and_replace(a, b)              \
-        free_and_replace_full(a, b, set_free)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_free_and_replace(a, b)              \
+        free_and_replace_ਭਰਿਆ(a, b, ਸੈੱਟ_free)
 
-Set* set_new(const struct hash_ops *hash_ops);
+ਸੈੱਟ_2* ਸੈੱਟ_new(ਅਚਲ ਬਣਤਰ hash_ops *hash_ops);
 
-static inline Set* set_free(Set *s) {
-        return (Set*) _hashmap_free(HASHMAP_BASE(s));
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਸੈੱਟ_2* ਸੈੱਟ_free(ਸੈੱਟ_2 *s) {
+        ਵਾਪਸ (ਸੈੱਟ_2*) _hashmap_free(HASHMAP_ਅਧਾਰ(s));
 }
 
-#define set_copy(s) ((Set*) _hashmap_copy(HASHMAP_BASE(s)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_copy(s) ((ਸੈੱਟ_2*) _hashmap_copy(HASHMAP_ਅਧਾਰ(s)))
 
-int set_ensure_allocated(Set **s, const struct hash_ops *hash_ops);
+ਪੂਰਨ ਸੈੱਟ_ensure_allocated(ਸੈੱਟ_2 **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops);
 
-int set_put(Set *s, const void *key);
+ਪੂਰਨ ਸੈੱਟ_put(ਸੈੱਟ_2 *s, ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ);
 /* no set_update */
 /* no set_replace */
-static inline void *set_get(const Set *s, const void *key) {
-        return _hashmap_get(HASHMAP_BASE((Set *) s), key);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *ਸੈੱਟ_get(ਅਚਲ ਸੈੱਟ_2 *s, ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ) {
+        ਵਾਪਸ _hashmap_get(HASHMAP_ਅਧਾਰ((ਸੈੱਟ_2 *) s), ਕੁੰਜੀ);
 }
 /* no set_get2 */
 
-static inline bool set_contains(const Set *s, const void *key) {
-        return _hashmap_contains(HASHMAP_BASE((Set *) s), key);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਸੈੱਟ_ਸ਼ਾਮਲ_ਹੈ(ਅਚਲ ਸੈੱਟ_2 *s, ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ) {
+        ਵਾਪਸ hashmap_ਸ਼ਾਮਲ_ਹੈ_2(HASHMAP_ਅਧਾਰ((ਸੈੱਟ_2 *) s), ਕੁੰਜੀ);
 }
 
-static inline void *set_remove(Set *s, const void *key) {
-        return _hashmap_remove(HASHMAP_BASE(s), key);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *ਸੈੱਟ_remove(ਸੈੱਟ_2 *s, ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ) {
+        ਵਾਪਸ _hashmap_remove(HASHMAP_ਅਧਾਰ(s), ਕੁੰਜੀ);
 }
 
 /* no set_remove2 */
 /* no set_remove_value */
-int set_remove_and_put(Set *s, const void *old_key, const void *new_key);
+ਪੂਰਨ ਸੈੱਟ_remove_and_put(ਸੈੱਟ_2 *s, ਅਚਲ ਖਾਲੀ *old_ਕੁੰਜੀ, ਅਚਲ ਖਾਲੀ *new_ਕੁੰਜੀ);
 /* no set_remove_and_replace */
-int set_merge(Set *s, Set *other);
+ਪੂਰਨ ਸੈੱਟ_ਮਿਲਾਓ(ਸੈੱਟ_2 *s, ਸੈੱਟ_2 *other);
 
-static inline int set_reserve(Set *h, unsigned entries_add) {
-        return _hashmap_reserve(HASHMAP_BASE(h), entries_add);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਸੈੱਟ_reserve(ਸੈੱਟ_2 *h, ਬਿਨਾਨਿਸ਼ਾਨੀ entries_ਜੋੜੋ) {
+        ਵਾਪਸ _hashmap_reserve(HASHMAP_ਅਧਾਰ(h), entries_ਜੋੜੋ);
 }
 
-static inline int set_move(Set *s, Set *other) {
-        return _hashmap_move(HASHMAP_BASE(s), HASHMAP_BASE(other));
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਸੈੱਟ_move(ਸੈੱਟ_2 *s, ਸੈੱਟ_2 *other) {
+        ਵਾਪਸ _hashmap_move(HASHMAP_ਅਧਾਰ(s), HASHMAP_ਅਧਾਰ(other));
 }
 
-static inline int set_move_one(Set *s, Set *other, const void *key) {
-        return _hashmap_move_one(HASHMAP_BASE(s), HASHMAP_BASE(other), key);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਸੈੱਟ_move_one(ਸੈੱਟ_2 *s, ਸੈੱਟ_2 *other, ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ) {
+        ਵਾਪਸ _hashmap_move_one(HASHMAP_ਅਧਾਰ(s), HASHMAP_ਅਧਾਰ(other), ਕੁੰਜੀ);
 }
 
-static inline unsigned set_size(const Set *s) {
-        return _hashmap_size(HASHMAP_BASE((Set *) s));
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਸੈੱਟ_ਮਾਪ(ਅਚਲ ਸੈੱਟ_2 *s) {
+        ਵਾਪਸ hashmap_ਮਾਪ(HASHMAP_ਅਧਾਰ((ਸੈੱਟ_2 *) s));
 }
 
-static inline bool set_isempty(const Set *s) {
-        return set_size(s) == 0;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਸੈੱਟ_isempty(ਅਚਲ ਸੈੱਟ_2 *s) {
+        ਵਾਪਸ ਸੈੱਟ_ਮਾਪ(s) == 0;
 }
 
-static inline unsigned set_buckets(const Set *s) {
-        return _hashmap_buckets(HASHMAP_BASE((Set *) s));
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਸੈੱਟ_buckets(ਅਚਲ ਸੈੱਟ_2 *s) {
+        ਵਾਪਸ _hashmap_buckets(HASHMAP_ਅਧਾਰ((ਸੈੱਟ_2 *) s));
 }
 
-static inline bool set_iterate(const Set *s, Iterator *i, void **value) {
-        return _hashmap_iterate(HASHMAP_BASE((Set*) s), i, value, NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਸੈੱਟ_iterate(ਅਚਲ ਸੈੱਟ_2 *s, Iterator *i, ਖਾਲੀ **ਮੁੱਲ) {
+        ਵਾਪਸ _hashmap_iterate(HASHMAP_ਅਧਾਰ((ਸੈੱਟ_2*) s), i, ਮੁੱਲ, ਨਿਰਾ);
 }
 
-static inline void set_clear(Set *s) {
-        _hashmap_clear(HASHMAP_BASE(s));
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ ਸੈੱਟ_clear(ਸੈੱਟ_2 *s) {
+        _hashmap_clear(HASHMAP_ਅਧਾਰ(s));
 }
 
-static inline void *set_steal_first(Set *s) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(s), true, NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *ਸੈੱਟ_steal_ਪਹਿਲਾ(ਸੈੱਟ_2 *s) {
+        ਵਾਪਸ hashmap_ਪਹਿਲਾ_ਕੁੰਜੀ_and_ਮੁੱਲ(HASHMAP_ਅਧਾਰ(s), true, ਨਿਰਾ);
 }
 
 /* no set_steal_first_key */
 /* no set_first_key */
 
-static inline void *set_first(const Set *s) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE((Set *) s), false, NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *ਸੈੱਟ_ਪਹਿਲਾ(ਅਚਲ ਸੈੱਟ_2 *s) {
+        ਵਾਪਸ hashmap_ਪਹਿਲਾ_ਕੁੰਜੀ_and_ਮੁੱਲ(HASHMAP_ਅਧਾਰ((ਸੈੱਟ_2 *) s), false, ਨਿਰਾ);
 }
 
 /* no set_next */
 
-static inline char **set_get_strv(Set *s) {
-        return _hashmap_get_strv(HASHMAP_BASE(s));
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ **ਸੈੱਟ_get_strv(ਸੈੱਟ_2 *s) {
+        ਵਾਪਸ _hashmap_get_strv(HASHMAP_ਅਧਾਰ(s));
 }
 
-char** set_to_strv(Set **s);
+ਅੱਖਰ** ਸੈੱਟ_ਮੰਜ਼ਿਲ_strv(ਸੈੱਟ_2 **s);
 
-int set_ensure_put(Set **s, const struct hash_ops *hash_ops, const void *key);
+ਪੂਰਨ ਸੈੱਟ_ensure_put(ਸੈੱਟ_2 **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops, ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ);
 
-int set_ensure_consume(Set **s, const struct hash_ops *hash_ops, void *key);
+ਪੂਰਨ ਸੈੱਟ_ensure_consume(ਸੈੱਟ_2 **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops, ਖਾਲੀ *ਕੁੰਜੀ);
 
-int set_consume(Set *s, void *value);
+ਪੂਰਨ ਸੈੱਟ_consume(ਸੈੱਟ_2 *s, ਖਾਲੀ *ਮੁੱਲ);
 
-int set_put_strndup_full(Set **s, const struct hash_ops *hash_ops, const char *p, size_t n);
-#define set_put_strdup_full(s, hash_ops, p) set_put_strndup_full(s, hash_ops, p, SIZE_MAX)
-#define set_put_strndup(s, p, n) set_put_strndup_full(s, &string_hash_ops_free, p, n)
-#define set_put_strdup(s, p) set_put_strndup(s, p, SIZE_MAX)
+ਪੂਰਨ ਸੈੱਟ_put_strndup_ਭਰਿਆ(ਸੈੱਟ_2 **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops, ਅਚਲ ਅੱਖਰ *p, size_t n);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_put_strdup_ਭਰਿਆ(s, hash_ops, p) ਸੈੱਟ_put_strndup_ਭਰਿਆ(s, hash_ops, p, SIZE_MAX)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_put_strndup(s, p, n) ਸੈੱਟ_put_strndup_ਭਰਿਆ(s, &string_hash_ops_free, p, n)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_put_strdup(s, p) ਸੈੱਟ_put_strndup(s, p, SIZE_MAX)
 
-int set_put_strdupv_full(Set **s, const struct hash_ops *hash_ops, char **l);
-#define set_put_strdupv(s, l) set_put_strdupv_full(s, &string_hash_ops_free, l)
+ਪੂਰਨ ਸੈੱਟ_put_strdupv_ਭਰਿਆ(ਸੈੱਟ_2 **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops, ਅੱਖਰ **l);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_put_strdupv(s, l) ਸੈੱਟ_put_strdupv_ਭਰਿਆ(s, &string_hash_ops_free, l)
 
-int set_put_strsplit(Set *s, const char *v, const char *separators, ExtractFlags flags);
+ਪੂਰਨ ਸੈੱਟ_put_strsplit(ਸੈੱਟ_2 *s, ਅਚਲ ਅੱਖਰ *v, ਅਚਲ ਅੱਖਰ *separators, ਕੱਢੋ_Flags flags);
 
-#define _SET_FOREACH(e, s, i) \
-        for (Iterator i = ITERATOR_FIRST; set_iterate((s), &i, (void**)&(e)); )
-#define SET_FOREACH(e, s) \
-        _SET_FOREACH(e, s, UNIQ_T(i, UNIQ))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_FOREACH_2(e, s, i) \
+        ਲਈ (Iterator i = ITERATOR_ਪਹਿਲਾ; ਸੈੱਟ_iterate((s), &i, (ਖਾਲੀ**)&(e)); )
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_FOREACH(e, s) \
+        ਸੈੱਟ_FOREACH_2(e, s, UNIQ_T(i, UNIQ))
 
-#define SET_FOREACH_MOVE(e, d, s)                                       \
-        for (; ({ e = set_first(s); assert_se(!e || set_move_one(d, s, e) >= 0); e; }); )
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_FOREACH_MOVE(e, d, s)                                       \
+        ਲਈ (; ({ e = ਸੈੱਟ_ਪਹਿਲਾ(s); assert_se(!e || ਸੈੱਟ_move_one(d, s, e) >= 0); e; }); )
 
-DEFINE_TRIVIAL_CLEANUP_FUNC(Set*, set_free);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ਸੈੱਟ_2*, ਸੈੱਟ_free);
 
-#define _cleanup_set_free_ _cleanup_(set_freep)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_ਸੈੱਟ_free _cleanup_(ਸੈੱਟ_freep)
 
-int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **ret);
+ਪੂਰਨ ਸੈੱਟ_strjoin(ਸੈੱਟ_2 *s, ਅਚਲ ਅੱਖਰ *separator, bool wrap_with_separator, ਅੱਖਰ **ret);
 
-bool set_equal(Set *a, Set *b);
+bool ਸੈੱਟ_equal(ਸੈੱਟ_2 *a, ਸੈੱਟ_2 *b);
 
-bool set_fnmatch(Set *include_patterns, Set *exclude_patterns, const char *needle);
+bool ਸੈੱਟ_fnmatch(ਸੈੱਟ_2 *include_patterns, ਸੈੱਟ_2 *exclude_patterns, ਅਚਲ ਅੱਖਰ *needle);

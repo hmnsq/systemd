@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/if_arp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/if_infiniband.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "arphrd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ arphrd_name* lookup_arphrd(ਰਜਿਸਟਰ ਅਚਲ ਅੱਖਰ *str, ਰਜਿਸਟਰ GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#ਅਨ੍ਤਰ੍ਭਾਵ "arphrd-from-name.inc"
+#ਅਨ੍ਤਰ੍ਭਾਵ "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+ਪੂਰਨ arphrd_from_name(ਅਚਲ ਅੱਖਰ *name) {
+        ਅਚਲ ਬਣਤਰ arphrd_name *sc;
 
-        assert(name);
+        ਪ੍ਰਤਿਜ੍ਞਾ(name);
 
-        sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_arphrd(name, ਲੜੀ_ਲੰਬਾਈ(name));
+        ਜੇ (!sc)
+                ਵਾਪਸ -EINVAL;
 
-        return sc->id;
+        ਵਾਪਸ sc->id;
 }
 
-size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+size_t arphrd_ਮੰਜ਼ਿਲ_hw_addr_len(uint16_t arphrd) {
+        ਚੋਣ (arphrd) {
+        ਹਾਲਤ ARPHRD_ETHER:
+                ਵਾਪਸ ETH_ALEN;
+        ਹਾਲਤ ARPHRD_INFINIBAND:
+                ਵਾਪਸ INFINIBAND_ALEN;
+        ਹਾਲਤ ARPHRD_TUNNEL:
+        ਹਾਲਤ ARPHRD_SIT:
+        ਹਾਲਤ ARPHRD_IPGRE:
+                ਵਾਪਸ ਆਕਾਰ(ਬਣਤਰ in_addr);
+        ਹਾਲਤ ARPHRD_TUNNEL6:
+        ਹਾਲਤ ARPHRD_IP6GRE:
+                ਵਾਪਸ ਆਕਾਰ(ਬਣਤਰ in6_addr);
+        ਮੂਲ:
+                ਵਾਪਸ 0;
         }
 }

@@ -1,218 +1,218 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-seq.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "glyph-util.h"
-#include "gunicode.h"
-#include "locale-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "memstream-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "ansi-seq.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "extract-word.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "glyph-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "gunicode.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "locale-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "memory-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "memstream-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "path-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strv.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "utf8.h"
 
-char* first_word(const char *s, const char *word) {
-        assert(s);
-        assert(word);
+ਅੱਖਰ* ਪਹਿਲਾ_ਸ਼ਬਦ(ਅਚਲ ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *ਸ਼ਬਦ) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਸ਼ਬਦ);
 
         /* Checks if the string starts with the specified word, either followed by NUL or by whitespace.
          * Returns a pointer to the NUL or the first character after the whitespace. */
 
-        if (isempty(word))
-                return (char*) s;
+        ਜੇ (isempty(ਸ਼ਬਦ))
+                ਵਾਪਸ (ਅੱਖਰ*) s;
 
-        const char *p = startswith(s, word);
-        if (!p)
-                return NULL;
-        if (*p == '\0')
-                return (char*) p;
+        ਅਚਲ ਅੱਖਰ *p = startswith(s, ਸ਼ਬਦ);
+        ਜੇ (!p)
+                ਵਾਪਸ ਨਿਰਾ;
+        ਜੇ (*p == '\0')
+                ਵਾਪਸ (ਅੱਖਰ*) p;
 
-        const char *nw = skip_leading_chars(p, WHITESPACE);
-        if (p == nw)
-                return NULL;
+        ਅਚਲ ਅੱਖਰ *nw = skip_leading_chars(p, WHITESPACE);
+        ਜੇ (p == nw)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return (char*) nw;
+        ਵਾਪਸ (ਅੱਖਰ*) nw;
 }
 
-char* strextendn(char **x, const char *s, size_t l) {
-        assert(x);
-        assert(s || l == 0);
+ਅੱਖਰ* strextendn(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *s, size_t l) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(x);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s || l == 0);
 
-        if (l > 0)
+        ਜੇ (l > 0)
                 l = strnlen(s, l); /* ignore trailing noise */
 
-        if (l > 0 || !*x) {
+        ਜੇ (l > 0 || !*x) {
                 size_t q;
-                char *m;
+                ਅੱਖਰ *m;
 
                 q = strlen_ptr(*x);
                 m = realloc(*x, q + l + 1);
-                if (!m)
-                        return NULL;
+                ਜੇ (!m)
+                        ਵਾਪਸ ਨਿਰਾ;
 
                 *mempcpy_typesafe(m + q, s, l) = 0;
 
                 *x = m;
         }
 
-        return *x;
+        ਵਾਪਸ *x;
 }
 
-char* strstrip(char *s) {
-        if (!s)
-                return NULL;
+ਅੱਖਰ* strstrip(ਅੱਖਰ *s) {
+        ਜੇ (!s)
+                ਵਾਪਸ ਨਿਰਾ;
 
         /* Drops trailing whitespace. Modifies the string in place. Returns pointer to first non-space character */
 
-        return delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
+        ਵਾਪਸ delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
 }
 
-char* delete_chars(char *s, const char *bad) {
-        char *f, *t;
+ਅੱਖਰ* delete_chars(ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *bad) {
+        ਅੱਖਰ *f, *t;
 
         /* Drops all specified bad characters, regardless where in the string */
 
-        if (!s)
-                return NULL;
+        ਜੇ (!s)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (!bad)
+        ਜੇ (!bad)
                 bad = WHITESPACE;
 
-        for (f = s, t = s; *f; f++) {
-                if (strchr(bad, *f))
-                        continue;
+        ਲਈ (f = s, t = s; *f; f++) {
+                ਜੇ (strchr(bad, *f))
+                        ਜਾਰੀ;
 
                 *(t++) = *f;
         }
 
         *t = 0;
 
-        return s;
+        ਵਾਪਸ s;
 }
 
-char* delete_trailing_chars(char *s, const char *bad) {
-        char *c = s;
+ਅੱਖਰ* delete_trailing_chars(ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *bad) {
+        ਅੱਖਰ *c = s;
 
         /* Drops all specified bad characters, at the end of the string */
 
-        if (!s)
-                return NULL;
+        ਜੇ (!s)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (!bad)
+        ਜੇ (!bad)
                 bad = WHITESPACE;
 
-        for (char *p = s; *p; p++)
-                if (!strchr(bad, *p))
+        ਲਈ (ਅੱਖਰ *p = s; *p; p++)
+                ਜੇ (!strchr(bad, *p))
                         c = p + 1;
 
         *c = 0;
 
-        return s;
+        ਵਾਪਸ s;
 }
 
-char* truncate_nl_full(char *s, size_t *ret_len) {
+ਅੱਖਰ* truncate_nl_ਭਰਿਆ(ਅੱਖਰ *s, size_t *ret_len) {
         size_t n;
 
-        assert(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
         n = strcspn(s, NEWLINE);
         s[n] = '\0';
-        if (ret_len)
+        ਜੇ (ret_len)
                 *ret_len = n;
-        return s;
+        ਵਾਪਸ s;
 }
 
-char ascii_tolower(char x) {
+ਅੱਖਰ ascii_tolower(ਅੱਖਰ x) {
 
-        if (x >= 'A' && x <= 'Z')
-                return x - 'A' + 'a';
+        ਜੇ (x >= 'A' && x <= 'Z')
+                ਵਾਪਸ x - 'A' + 'a';
 
-        return x;
+        ਵਾਪਸ x;
 }
 
-char ascii_toupper(char x) {
+ਅੱਖਰ ascii_toupper(ਅੱਖਰ x) {
 
-        if (x >= 'a' && x <= 'z')
-                return x - 'a' + 'A';
+        ਜੇ (x >= 'a' && x <= 'z')
+                ਵਾਪਸ x - 'a' + 'A';
 
-        return x;
+        ਵਾਪਸ x;
 }
 
-char* ascii_strlower(char *s) {
-        assert(s);
+ਅੱਖਰ* ascii_strlower(ਅੱਖਰ *s) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        for (char *p = s; *p; p++)
+        ਲਈ (ਅੱਖਰ *p = s; *p; p++)
                 *p = ascii_tolower(*p);
 
-        return s;
+        ਵਾਪਸ s;
 }
 
-char* ascii_strupper(char *s) {
-        assert(s);
+ਅੱਖਰ* ascii_strupper(ਅੱਖਰ *s) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        for (char *p = s; *p; p++)
+        ਲਈ (ਅੱਖਰ *p = s; *p; p++)
                 *p = ascii_toupper(*p);
 
-        return s;
+        ਵਾਪਸ s;
 }
 
-char* ascii_strlower_n(char *s, size_t n) {
-        assert(n <= 0 || s);
+ਅੱਖਰ* ascii_strlower_n(ਅੱਖਰ *s, size_t n) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(n <= 0 || s);
 
-        if (n <= 0)
-                return s;
+        ਜੇ (n <= 0)
+                ਵਾਪਸ s;
 
-        for (size_t i = 0; i < n; i++)
+        ਲਈ (size_t i = 0; i < n; i++)
                 s[i] = ascii_tolower(s[i]);
 
-        return s;
+        ਵਾਪਸ s;
 }
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n) {
+ਪੂਰਨ ascii_strcasecmp_n(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b, size_t n) {
 
-        assert(a);
-        assert(b);
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
-        for (; n > 0; a++, b++, n--) {
-                int x, y;
+        ਲਈ (; n > 0; a++, b++, n--) {
+                ਪੂਰਨ x, y;
 
-                x = (int) (uint8_t) ascii_tolower(*a);
-                y = (int) (uint8_t) ascii_tolower(*b);
+                x = (ਪੂਰਨ) (uint8_t) ascii_tolower(*a);
+                y = (ਪੂਰਨ) (uint8_t) ascii_tolower(*b);
 
-                if (x != y)
-                        return x - y;
+                ਜੇ (x != y)
+                        ਵਾਪਸ x - y;
         }
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m) {
-        int r;
+ਪੂਰਨ ascii_strcasecmp_nn(ਅਚਲ ਅੱਖਰ *a, size_t n, ਅਚਲ ਅੱਖਰ *b, size_t m) {
+        ਪੂਰਨ r;
 
         r = ascii_strcasecmp_n(a, b, MIN(n, m));
-        if (r != 0)
-                return r;
+        ਜੇ (r != 0)
+                ਵਾਪਸ r;
 
-        return CMP(n, m);
+        ਵਾਪਸ CMP(n, m);
 }
 
-bool chars_intersect(const char *a, const char *b) {
+bool chars_intersect(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) {
         /* Returns true if any of the chars in a are in b. */
-        for (const char *p = a; *p; p++)
-                if (strchr(b, *p))
-                        return true;
+        ਲਈ (ਅਚਲ ਅੱਖਰ *p = a; *p; p++)
+                ਜੇ (strchr(b, *p))
+                        ਵਾਪਸ true;
 
-        return false;
+        ਵਾਪਸ false;
 }
 
-bool string_has_cc(const char *p, const char *ok) {
-        assert(p);
+bool string_has_cc(ਅਚਲ ਅੱਖਰ *p, ਅਚਲ ਅੱਖਰ *ok) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(p);
 
         /*
          * Check if a string contains control characters. If 'ok' is
@@ -220,121 +220,121 @@ bool string_has_cc(const char *p, const char *ok) {
          * considered OK.
          */
 
-        for (const char *t = p; *t; t++) {
-                if (ok && strchr(ok, *t))
-                        continue;
+        ਲਈ (ਅਚਲ ਅੱਖਰ *t = p; *t; t++) {
+                ਜੇ (ok && strchr(ok, *t))
+                        ਜਾਰੀ;
 
-                if (char_is_cc(*t))
-                        return true;
+                ਜੇ (char_is_cc(*t))
+                        ਵਾਪਸ true;
         }
 
-        return false;
+        ਵਾਪਸ false;
 }
 
-static int write_ellipsis(char *buf, bool unicode) {
-        const char *s = glyph_full(GLYPH_ELLIPSIS, unicode);
-        assert(strlen(s) == 3);
-        memcpy(buf, s, 3);
-        return 3;
+ਸਥਿਰ ਪੂਰਨ write_ellipsis(ਅੱਖਰ *buf, bool unicode) {
+        ਅਚਲ ਅੱਖਰ *s = glyph_ਭਰਿਆ(GLYPH_ELLIPSIS, unicode);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਲੜੀ_ਲੰਬਾਈ(s) == 3);
+        ਸਮ੍ਰਿਤੀ_ਨਕਲ(buf, s, 3);
+        ਵਾਪਸ 3;
 }
 
-static size_t ansi_sequence_length(const char *s, size_t len) {
-        assert(s);
+ਸਥਿਰ size_t ansi_sequence_ਲੰਮਾਈ(ਅਚਲ ਅੱਖਰ *s, size_t len) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        if (len < 2)
-                return 0;
+        ਜੇ (len < 2)
+                ਵਾਪਸ 0;
 
-        if (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
-                return 0;  /* Not the start of a sequence */
+        ਜੇ (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
+                ਵਾਪਸ 0;  /* Not the start of a sequence */
 
-        if (s[1] == 0x5B) { /* [, start of CSI sequence */
+        ਜੇ (s[1] == 0x5B) { /* [, start of CSI sequence */
                 size_t i = 2;
 
-                if (i == len)
-                        return 0;
+                ਜੇ (i == len)
+                        ਵਾਪਸ 0;
 
-                while (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
-                        if (++i == len)
-                                return 0;
-                while (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
-                        if (++i == len)
-                                return 0;
-                if (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
-                        return i + 1;
-                return 0;  /* Bad sequence */
+                ਜਦੋਂ (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
+                        ਜੇ (++i == len)
+                                ਵਾਪਸ 0;
+                ਜਦੋਂ (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
+                        ਜੇ (++i == len)
+                                ਵਾਪਸ 0;
+                ਜੇ (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
+                        ਵਾਪਸ i + 1;
+                ਵਾਪਸ 0;  /* Bad sequence */
 
-        } else if (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
-                return 2;
+        } ਨਹੀਂਤਾਂ ਜੇ (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
+                ਵਾਪਸ 2;
 
-        return 0;  /* Bad escape? */
+        ਵਾਪਸ 0;  /* Bad escape? */
 }
 
-static bool string_has_ansi_sequence(const char *s, size_t len) {
-        const char *t = s;
+ਸਥਿਰ bool string_has_ansi_sequence(ਅਚਲ ਅੱਖਰ *s, size_t len) {
+        ਅਚਲ ਅੱਖਰ *t = s;
 
-        while ((t = memchr(t, 0x1B, len - (t - s)))) {
-                if (ansi_sequence_length(t, len - (t - s)) > 0)
-                        return true;
+        ਜਦੋਂ ((t = memchr(t, 0x1B, len - (t - s)))) {
+                ਜੇ (ansi_sequence_ਲੰਮਾਈ(t, len - (t - s)) > 0)
+                        ਵਾਪਸ true;
                 t++;
         }
-        return false;
+        ਵਾਪਸ false;
 }
 
-static size_t previous_ansi_sequence(const char *s, size_t length, const char **ret_where) {
+ਸਥਿਰ size_t ਪਿਛਲਾ_ansi_sequence(ਅਚਲ ਅੱਖਰ *s, size_t length, ਅਚਲ ਅੱਖਰ **ret_where) {
 
-        assert(s);
-        assert(ret_where);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_where);
 
         /* Locate the previous ANSI sequence and save its start in *ret_where and return length. */
 
-        if (length < 2) {
+        ਜੇ (length < 2) {
                 /* Need at least two bytes for an ANSI sequence */
-                *ret_where = NULL;
-                return 0;
+                *ret_where = ਨਿਰਾ;
+                ਵਾਪਸ 0;
         }
 
-        for (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
-                size_t slen = ansi_sequence_length(s + i, length - i);
-                if (slen > 0) {
+        ਲਈ (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
+                size_t slen = ansi_sequence_ਲੰਮਾਈ(s + i, length - i);
+                ਜੇ (slen > 0) {
                         *ret_where = s + i;
-                        return slen;
+                        ਵਾਪਸ slen;
                 }
 
-                if (i == 0)
-                        break;
+                ਜੇ (i == 0)
+                        ਰੋਕੋ;
         }
 
-        *ret_where = NULL;
-        return 0;
+        *ret_where = ਨਿਰਾ;
+        ਵਾਪਸ 0;
 }
 
-static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
+ਸਥਿਰ ਅੱਖਰ *ascii_ellipsize_mem(ਅਚਲ ਅੱਖਰ *s, size_t old_ਲੰਮਾਈ, size_t new_ਲੰਮਾਈ, ਬਿਨਾਨਿਸ਼ਾਨੀ percent) {
         size_t x, need_space, suffix_len;
-        char *t;
+        ਅੱਖਰ *t;
 
-        assert(s);
-        assert(percent <= 100);
-        assert(new_length != SIZE_MAX);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(percent <= 100);
+        ਪ੍ਰਤਿਜ੍ਞਾ(new_ਲੰਮਾਈ != SIZE_MAX);
 
-        if (old_length <= new_length)
-                return strndup(s, old_length);
+        ਜੇ (old_ਲੰਮਾਈ <= new_ਲੰਮਾਈ)
+                ਵਾਪਸ strndup(s, old_ਲੰਮਾਈ);
 
         /* Special case short ellipsations */
-        switch (new_length) {
+        ਚੋਣ (new_ਲੰਮਾਈ) {
 
-        case 0:
-                return strdup("");
+        ਹਾਲਤ 0:
+                ਵਾਪਸ strdup("");
 
-        case 1:
-                if (is_locale_utf8())
-                        return strdup("…");
-                else
-                        return strdup(".");
+        ਹਾਲਤ 1:
+                ਜੇ (is_locale_utf8())
+                        ਵਾਪਸ strdup("…");
+                ਨਹੀਂਤਾਂ
+                        ਵਾਪਸ strdup(".");
 
-        case 2:
-                if (!is_locale_utf8())
-                        return strdup("..");
-                break;
+        ਹਾਲਤ 2:
+                ਜੇ (!is_locale_utf8())
+                        ਵਾਪਸ strdup("..");
+                ਰੋਕੋ;
         }
 
         /* Calculate how much space the ellipsis will take up. If we are in UTF-8 mode we only need space for one
@@ -342,54 +342,54 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
          * either for the UTF-8 encoded character or for three ASCII characters. */
         need_space = is_locale_utf8() ? 1 : 3;
 
-        t = new(char, new_length+3);
-        if (!t)
-                return NULL;
+        t = new(ਅੱਖਰ, new_ਲੰਮਾਈ+3);
+        ਜੇ (!t)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        assert(new_length >= need_space);
+        ਪ੍ਰਤਿਜ੍ਞਾ(new_ਲੰਮਾਈ >= need_space);
 
-        x = ((new_length - need_space) * percent + 50) / 100;
-        assert(x <= new_length - need_space);
+        x = ((new_ਲੰਮਾਈ - need_space) * percent + 50) / 100;
+        ਪ੍ਰਤਿਜ੍ਞਾ(x <= new_ਲੰਮਾਈ - need_space);
 
         write_ellipsis(mempcpy(t, s, x), /* unicode= */ false);
-        suffix_len = new_length - x - need_space;
-        memcpy(t + x + 3, s + old_length - suffix_len, suffix_len);
+        suffix_len = new_ਲੰਮਾਈ - x - need_space;
+        ਸਮ੍ਰਿਤੀ_ਨਕਲ(t + x + 3, s + old_ਲੰਮਾਈ - suffix_len, suffix_len);
         *(t + x + 3 + suffix_len) = '\0';
 
-        return t;
+        ਵਾਪਸ t;
 }
 
 /* Walk backwards from 'end' (exclusive) to the start of the last complete UTF-8 character, without
  * descending below 'start', validate it and return a pointer to its first byte, optionally decoding it
  * into *ret_c. Returns NULL on a truncated or otherwise malformed sequence. */
-static const char* find_previous_unichar(const char *start, const char *end, char32_t *ret_c) {
-        const char *p;
-        int r;
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਲੱਭੋ_ਪਿਛਲਾ_unichar(ਅਚਲ ਅੱਖਰ *ਸ਼ੁਰੂ, ਅਚਲ ਅੱਖਰ *ਸਿਰਾ, char32_t *ret_c) {
+        ਅਚਲ ਅੱਖਰ *p;
+        ਪੂਰਨ r;
 
-        assert(start);
-        assert(end);
-        assert(end > start);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਸ਼ੁਰੂ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਸਿਰਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਸਿਰਾ > ਸ਼ੁਰੂ);
 
-        for (p = end; p > start; ) {
+        ਲਈ (p = ਸਿਰਾ; p > ਸ਼ੁਰੂ; ) {
                 p--;
-                if (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
-                        break;
+                ਜੇ (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
+                        ਰੋਕੋ;
         }
 
-        r = utf8_encoded_valid_unichar(p, end - p);
-        if (r < 0 || p + r != end)
-                return NULL;
+        r = utf8_encoded_valid_unichar(p, ਸਿਰਾ - p);
+        ਜੇ (r < 0 || p + r != ਸਿਰਾ)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (ret_c)
-                assert_se(utf8_encoded_to_unichar(p, ret_c) == r);
+        ਜੇ (ret_c)
+                assert_se(utf8_encoded_ਮੰਜ਼ਿਲ_unichar(p, ret_c) == r);
 
-        return p;
+        ਵਾਪਸ p;
 }
 
-char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
+ਅੱਖਰ* ellipsize_mem(ਅਚਲ ਅੱਖਰ *s, size_t old_ਲੰਮਾਈ, size_t new_ਲੰਮਾਈ, ਬਿਨਾਨਿਸ਼ਾਨੀ percent) {
         size_t x, k, len, len2;
-        const char *i, *j;
-        int r;
+        ਅਚਲ ਅੱਖਰ *i, *j;
+        ਪੂਰਨ r;
 
         /* Note that 'old_length' refers to bytes in the string, while 'new_length' refers to character cells taken up
          * on screen. This distinction doesn't matter for ASCII strings, but it does matter for non-ASCII UTF-8
@@ -403,139 +403,139 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
          * the current locale is UTF-8.
          */
 
-        assert(s);
-        assert(percent <= 100);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(percent <= 100);
 
-        if (new_length == SIZE_MAX)
-                return strndup(s, old_length);
+        ਜੇ (new_ਲੰਮਾਈ == SIZE_MAX)
+                ਵਾਪਸ strndup(s, old_ਲੰਮਾਈ);
 
-        if (new_length == 0)
-                return strdup("");
+        ਜੇ (new_ਲੰਮਾਈ == 0)
+                ਵਾਪਸ strdup("");
 
-        bool has_ansi_seq = string_has_ansi_sequence(s, old_length);
+        bool has_ansi_seq = string_has_ansi_sequence(s, old_ਲੰਮਾਈ);
 
         /* If no multibyte characters or ANSI sequences, use ascii_ellipsize_mem for speed. It equates
          * bytes with character cells, which holds for ASCII except for the tab, which
          * unichar_console_width() counts as 8 cells. */
-        if (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
-                return ascii_ellipsize_mem(s, old_length, new_length, percent);
+        ਜੇ (!has_ansi_seq && ascii_is_valid_n(s, old_ਲੰਮਾਈ) && !memchr(s, '\t', old_ਲੰਮਾਈ))
+                ਵਾਪਸ ascii_ellipsize_mem(s, old_ਲੰਮਾਈ, new_ਲੰਮਾਈ, percent);
 
-        x = (new_length - 1) * percent / 100;
-        assert(x <= new_length - 1);
+        x = (new_ਲੰਮਾਈ - 1) * percent / 100;
+        ਪ੍ਰਤਿਜ੍ਞਾ(x <= new_ਲੰਮਾਈ - 1);
 
         k = 0;
-        for (i = s; i < s + old_length; ) {
-                size_t slen = has_ansi_seq ? ansi_sequence_length(i, old_length - (i - s)) : 0;
-                if (slen > 0) {
+        ਲਈ (i = s; i < s + old_ਲੰਮਾਈ; ) {
+                size_t slen = has_ansi_seq ? ansi_sequence_ਲੰਮਾਈ(i, old_ਲੰਮਾਈ - (i - s)) : 0;
+                ਜੇ (slen > 0) {
                         i += slen;
-                        continue;  /* ANSI sequences don't take up any space in output */
+                        ਜਾਰੀ;  /* ANSI sequences don't take up any space in output */
                 }
 
-                r = utf8_encoded_valid_unichar(i, s + old_length - i);
-                if (r < 0)
-                        return NULL;
+                r = utf8_encoded_valid_unichar(i, s + old_ਲੰਮਾਈ - i);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ ਨਿਰਾ;
 
                 char32_t c;
-                assert_se(utf8_encoded_to_unichar(i, &c) == r);
+                assert_se(utf8_encoded_ਮੰਜ਼ਿਲ_unichar(i, &c) == r);
 
-                int w = unichar_console_width(c);
-                if (k + w > x)
-                        break;
+                ਪੂਰਨ w = unichar_console_ਚੌੜਾਈ(c);
+                ਜੇ (k + w > x)
+                        ਰੋਕੋ;
 
                 k += w;
                 i += r;
         }
 
-        const char *ansi_start = s + old_length;
+        ਅਚਲ ਅੱਖਰ *ansi_ਸ਼ੁਰੂ = s + old_ਲੰਮਾਈ;
         size_t ansi_len = 0;
 
-        for (const char *t = j = s + old_length; t > i && k < new_length; ) {
+        ਲਈ (ਅਚਲ ਅੱਖਰ *t = j = s + old_ਲੰਮਾਈ; t > i && k < new_ਲੰਮਾਈ; ) {
                 char32_t c;
-                int w;
-                const char *tt;
+                ਪੂਰਨ w;
+                ਅਚਲ ਅੱਖਰ *tt;
 
-                if (has_ansi_seq && ansi_start >= t)
+                ਜੇ (has_ansi_seq && ansi_ਸ਼ੁਰੂ >= t)
                         /* Figure out the previous ANSI sequence, if any */
-                        ansi_len = previous_ansi_sequence(s, t - s, &ansi_start);
+                        ansi_len = ਪਿਛਲਾ_ansi_sequence(s, t - s, &ansi_ਸ਼ੁਰੂ);
 
                 /* If the sequence extends all the way to the current position, skip it. */
-                if (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
-                        t = ansi_start;
-                        continue;
+                ਜੇ (has_ansi_seq && ansi_len > 0 && ansi_ਸ਼ੁਰੂ + ansi_len == t) {
+                        t = ansi_ਸ਼ੁਰੂ;
+                        ਜਾਰੀ;
                 }
 
                 /* Find the previous complete UTF-8 character inside the retained suffix. */
-                tt = find_previous_unichar(i, t, &c);
-                if (!tt)
-                        return NULL;
+                tt = ਲੱਭੋ_ਪਿਛਲਾ_unichar(i, t, &c);
+                ਜੇ (!tt)
+                        ਵਾਪਸ ਨਿਰਾ;
 
-                w = unichar_console_width(c);
-                if (k + w > new_length)
-                        break;
+                w = unichar_console_ਚੌੜਾਈ(c);
+                ਜੇ (k + w > new_ਲੰਮਾਈ)
+                        ਰੋਕੋ;
 
                 k += w;
                 j = t = tt;  /* j should always point to the first "real" character */
         }
 
         /* We don't actually need to ellipsize */
-        if (i >= j)
-                return memdup_suffix0(s, old_length);
+        ਜੇ (i >= j)
+                ਵਾਪਸ memdup_suffix0(s, old_ਲੰਮਾਈ);
 
-        if (k >= new_length) {
+        ਜੇ (k >= new_ਲੰਮਾਈ) {
                 /* Make space for ellipsis, if required and possible. We know that the edge character is not
                  * part of an ANSI sequence (because then we'd skip it). If the last character we looked at
                  * was wide, we don't need to make space.
                  * Move the edge by one complete UTF-8 character within the input slice. */
-                if (j < s + old_length) {
-                        r = utf8_encoded_valid_unichar(j, s + old_length - j);
-                        if (r < 0)
-                                return NULL;
+                ਜੇ (j < s + old_ਲੰਮਾਈ) {
+                        r = utf8_encoded_valid_unichar(j, s + old_ਲੰਮਾਈ - j);
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ ਨਿਰਾ;
 
                         j += r;
-                } else if (i > s) {
-                        const char *tt = find_previous_unichar(s, i, NULL);
-                        if (!tt)
-                                return NULL;
+                } ਨਹੀਂਤਾਂ ਜੇ (i > s) {
+                        ਅਚਲ ਅੱਖਰ *tt = ਲੱਭੋ_ਪਿਛਲਾ_unichar(s, i, ਨਿਰਾ);
+                        ਜੇ (!tt)
+                                ਵਾਪਸ ਨਿਰਾ;
 
                         i = tt;
                 }
         }
 
         len = i - s;
-        len2 = s + old_length - j;
+        len2 = s + old_ਲੰਮਾਈ - j;
 
         /* If we have ANSI, allow the same length as the source string + ellipsis. It'd be too involved to
          * figure out what exact space is needed. Strings with ANSI sequences are most likely to be fairly
          * short anyway. */
-        size_t alloc_len = has_ansi_seq ? old_length + 3 + 1 : len + 3 + len2 + 1;
+        size_t alloc_len = has_ansi_seq ? old_ਲੰਮਾਈ + 3 + 1 : len + 3 + len2 + 1;
 
-        char *e = new(char, alloc_len);
-        if (!e)
-                return NULL;
+        ਅੱਖਰ *e = new(ਅੱਖਰ, alloc_len);
+        ਜੇ (!e)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        memcpy_safe(e, s, len);
+        memcpy_ਸੁਰੱਖਿਅਤ(e, s, len);
         write_ellipsis(e + len, /* unicode= */ true);
 
-        char *dst = e + len + 3;
+        ਅੱਖਰ *dst = e + len + 3;
 
-        if (has_ansi_seq)
+        ਜੇ (has_ansi_seq)
                 /* Copy over any ANSI sequences in full */
-                for (const char *p = s + len; p < j; ) {
-                        size_t slen = ansi_sequence_length(p, j - p);
-                        if (slen > 0) {
+                ਲਈ (ਅਚਲ ਅੱਖਰ *p = s + len; p < j; ) {
+                        size_t slen = ansi_sequence_ਲੰਮਾਈ(p, j - p);
+                        ਜੇ (slen > 0) {
                                 dst = mempcpy(dst, p, slen);
                                 p += slen;
-                        } else
-                                p = utf8_next_char(p);
+                        } ਨਹੀਂਤਾਂ
+                                p = utf8_ਅਗਲਾ_char(p);
                 }
 
-        memcpy_safe(dst, j, len2);
+        memcpy_ਸੁਰੱਖਿਅਤ(dst, j, len2);
         dst[len2] = '\0';
 
-        return e;
+        ਵਾਪਸ e;
 }
 
-char* cellescape(char *buf, size_t len, const char *s) {
+ਅੱਖਰ* cellescape(ਅੱਖਰ *buf, size_t len, ਅਚਲ ਅੱਖਰ *s) {
         /* Escape and ellipsize s into buffer buf of size len. Only non-control ASCII
          * characters are copied as they are, everything else is escaped. The result
          * is different then if escaping and ellipsization was performed in two
@@ -548,30 +548,30 @@ char* cellescape(char *buf, size_t len, const char *s) {
          * very end.
          */
 
-        size_t i = 0, last_char_width[4] = {}, k = 0;
+        size_t i = 0, ਆਖਰੀ_char_ਚੌੜਾਈ[4] = {}, k = 0;
 
-        assert(buf);
-        assert(len > 0); /* at least a terminating NUL */
-        assert(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(buf);
+        ਪ੍ਰਤਿਜ੍ਞਾ(len > 0); /* at least a terminating NUL */
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        for (;;) {
-                char four[4];
-                int w;
+        ਲਈ (;;) {
+                ਅੱਖਰ four[4];
+                ਪੂਰਨ w;
 
-                if (*s == 0) /* terminating NUL detected? then we are done! */
-                        goto done;
+                ਜੇ (*s == 0) /* terminating NUL detected? then we are done! */
+                        ਜਾਓ ਪੂਰਾ;
 
                 w = cescape_char(*s, four);
-                if (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
+                ਜੇ (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
                                       * ellipsize at the previous location */
-                        break;
+                        ਰੋਕੋ;
 
                 /* OK, there was space, let's add this escaped character to the buffer */
-                memcpy(buf + i, four, w);
+                ਸਮ੍ਰਿਤੀ_ਨਕਲ(buf + i, four, w);
                 i += w;
 
                 /* And remember its width in the ring buffer */
-                last_char_width[k] = w;
+                ਆਖਰੀ_char_ਚੌੜਾਈ[k] = w;
                 k = (k + 1) % 4;
 
                 s++;
@@ -579,101 +579,101 @@ char* cellescape(char *buf, size_t len, const char *s) {
 
         /* Ellipsation is necessary. This means we might need to truncate the string again to make space for 4
          * characters ideally, but the buffer is shorter than that in the first place take what we can get */
-        for (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
+        ਲਈ (size_t j = 0; j < ELEMENTSOF(ਆਖਰੀ_char_ਚੌੜਾਈ); j++) {
 
-                if (i + 4 <= len) /* nice, we reached our space goal */
-                        break;
+                ਜੇ (i + 4 <= len) /* nice, we reached our space goal */
+                        ਰੋਕੋ;
 
                 k = k == 0 ? 3 : k - 1;
-                if (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
-                        break;
+                ਜੇ (ਆਖਰੀ_char_ਚੌੜਾਈ[k] == 0) /* bummer, we reached the beginning of the strings */
+                        ਰੋਕੋ;
 
-                assert(i >= last_char_width[k]);
-                i -= last_char_width[k];
+                ਪ੍ਰਤਿਜ੍ਞਾ(i >= ਆਖਰੀ_char_ਚੌੜਾਈ[k]);
+                i -= ਆਖਰੀ_char_ਚੌੜਾਈ[k];
         }
 
-        if (i + 4 <= len) /* yay, enough space */
+        ਜੇ (i + 4 <= len) /* yay, enough space */
                 i += write_ellipsis(buf + i, /* unicode= */ false);
-        else if (i + 3 <= len) { /* only space for ".." */
+        ਨਹੀਂਤਾਂ ਜੇ (i + 3 <= len) { /* only space for ".." */
                 buf[i++] = '.';
                 buf[i++] = '.';
-        } else if (i + 2 <= len) /* only space for a single "." */
+        } ਨਹੀਂਤਾਂ ਜੇ (i + 2 <= len) /* only space for a single "." */
                 buf[i++] = '.';
-        else
-                assert(i + 1 <= len);
+        ਨਹੀਂਤਾਂ
+                ਪ੍ਰਤਿਜ੍ਞਾ(i + 1 <= len);
 
-done:
+ਪੂਰਾ:
         buf[i] = '\0';
-        return buf;
+        ਵਾਪਸ buf;
 }
 
-char* strshorten(char *s, size_t l) {
-        assert(s);
+ਅੱਖਰ* strshorten(ਅੱਖਰ *s, size_t l) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        if (l >= SIZE_MAX-1) /* Would not change anything */
-                return s;
+        ਜੇ (l >= SIZE_MAX-1) /* Would not change anything */
+                ਵਾਪਸ s;
 
-        if (strnlen(s, l+1) > l)
+        ਜੇ (strnlen(s, l+1) > l)
                 s[l] = 0;
 
-        return s;
+        ਵਾਪਸ s;
 }
 
-int strgrowpad0(char **s, size_t l) {
+ਪੂਰਨ strgrowpad0(ਅੱਖਰ **s, size_t l) {
         size_t sz;
 
-        assert(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        if (*s) {
-                sz = strlen(*s) + 1;
-                if (sz >= l) /* never shrink */
-                        return 0;
-        } else
+        ਜੇ (*s) {
+                sz = ਲੜੀ_ਲੰਬਾਈ(*s) + 1;
+                ਜੇ (sz >= l) /* never shrink */
+                        ਵਾਪਸ 0;
+        } ਨਹੀਂਤਾਂ
                 sz = 0;
 
-        char *q = realloc(*s, l);
-        if (!q)
-                return -ENOMEM;
+        ਅੱਖਰ *q = realloc(*s, l);
+        ਜੇ (!q)
+                ਵਾਪਸ -ENOMEM;
 
         *s = q;
 
         memzero(*s + sz, l - sz);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-char* strreplace(const char *text, const char *old_string, const char *new_string) {
+ਅੱਖਰ* strreplace(ਅਚਲ ਅੱਖਰ *ਪਾਠ, ਅਚਲ ਅੱਖਰ *old_string, ਅਚਲ ਅੱਖਰ *new_string) {
         size_t l, old_len, new_len;
-        char *t, *ret = NULL;
-        const char *f;
+        ਅੱਖਰ *t, *ret = ਨਿਰਾ;
+        ਅਚਲ ਅੱਖਰ *f;
 
-        assert(old_string);
-        assert(new_string);
+        ਪ੍ਰਤਿਜ੍ਞਾ(old_string);
+        ਪ੍ਰਤਿਜ੍ਞਾ(new_string);
 
-        if (!text)
-                return NULL;
+        ਜੇ (!ਪਾਠ)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        old_len = strlen(old_string);
-        new_len = strlen(new_string);
+        old_len = ਲੜੀ_ਲੰਬਾਈ(old_string);
+        new_len = ਲੜੀ_ਲੰਬਾਈ(new_string);
 
-        l = strlen(text);
-        if (!GREEDY_REALLOC(ret, l+1))
-                return NULL;
+        l = ਲੜੀ_ਲੰਬਾਈ(ਪਾਠ);
+        ਜੇ (!GREEDY_REALLOC(ret, l+1))
+                ਵਾਪਸ ਨਿਰਾ;
 
-        f = text;
+        f = ਪਾਠ;
         t = ret;
-        while (*f) {
+        ਜਦੋਂ (*f) {
                 size_t d, nl;
 
-                if (!startswith(f, old_string)) {
+                ਜੇ (!startswith(f, old_string)) {
                         *(t++) = *(f++);
-                        continue;
+                        ਜਾਰੀ;
                 }
 
                 d = t - ret;
                 nl = l - old_len + new_len;
 
-                if (!GREEDY_REALLOC(ret, nl + 1))
-                        return mfree(ret);
+                ਜੇ (!GREEDY_REALLOC(ret, nl + 1))
+                        ਵਾਪਸ mfree(ret);
 
                 l = nl;
                 t = ret + d;
@@ -683,58 +683,58 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
         }
 
         *t = 0;
-        return ret;
+        ਵਾਪਸ ret;
 }
 
-static void advance_offsets(
+ਸਥਿਰ ਖਾਲੀ advance_offsets(
                 ssize_t diff,
                 size_t offsets[2], /* note: we can't use [static 2] here, since this may be NULL */
-                size_t shift[static 2],
-                size_t size) {
+                size_t ਖਿਸਕਾਓ[ਸਥਿਰ 2],
+                size_t ਮਾਪ) {
 
-        if (!offsets)
-                return;
+        ਜੇ (!offsets)
+                ਵਾਪਸ;
 
-        assert(shift);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਖਿਸਕਾਓ);
 
-        if ((size_t) diff < offsets[0])
-                shift[0] += size;
-        if ((size_t) diff < offsets[1])
-                shift[1] += size;
+        ਜੇ ((size_t) diff < offsets[0])
+                ਖਿਸਕਾਓ[0] += ਮਾਪ;
+        ਜੇ ((size_t) diff < offsets[1])
+                ਖਿਸਕਾਓ[1] += ਮਾਪ;
 }
 
-static void retract_offsets(
+ਸਥਿਰ ਖਾਲੀ retract_offsets(
                 size_t begin,
-                size_t end,
+                size_t ਸਿਰਾ,
                 size_t offsets[2], /* note: we can't use [static 2] here, since this may be NULL */
-                size_t shift[static 2]) {
+                size_t ਖਿਸਕਾਓ[ਸਥਿਰ 2]) {
 
         /* The input range [begin, end) was dropped from the output: offsets past it move back by its
          * length, offsets inside it collapse onto its beginning. The shift is tracked in unsigned modular
          * arithmetic, which is fine as the sum of all shifts applied to an offset is never negative: at most
          * as many bytes can be dropped before an offset as there are bytes before it. */
 
-        if (!offsets)
-                return;
+        ਜੇ (!offsets)
+                ਵਾਪਸ;
 
-        assert(shift);
-        assert(begin <= end);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਖਿਸਕਾਓ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(begin <= ਸਿਰਾ);
 
-        for (size_t k = 0; k < 2; k++)
-                if (offsets[k] > begin)
-                        shift[k] -= MIN(offsets[k], end) - begin;
+        ਲਈ (size_t k = 0; k < 2; k++)
+                ਜੇ (offsets[k] > begin)
+                        ਖਿਸਕਾਓ[k] -= MIN(offsets[k], ਸਿਰਾ) - begin;
 }
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
-        _cleanup_(ansi_seq_parser_done) AnsiSeqParser parser = {};
-        _cleanup_(memstream_done) MemStream m = {};
-        const char *begin = NULL;
-        size_t isz, shift[2] = {}, n_carriage_returns = 0;
+ਅੱਖਰ* strip_tab_ansi(ਅੱਖਰ **ibuf, size_t *_isz, size_t highlight[2]) {
+        _cleanup_(ansi_seq_parser_ਪੂਰਾ) AnsiSeqParser parser = {};
+        _cleanup_(memstream_ਪੂਰਾ) Mem_ਧਾਰਾ m = {};
+        ਅਚਲ ਅੱਖਰ *begin = ਨਿਰਾ;
+        size_t isz, ਖਿਸਕਾਓ[2] = {}, n_carriage_returns = 0;
         FILE *f;
 
-        assert(ibuf);
-        assert(*ibuf);
-        POINTER_MAY_BE_NULL(_isz);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ibuf);
+        ਪ੍ਰਤਿਜ੍ਞਾ(*ibuf);
+        ਸੂਚਕ_MAY_BE_NULL(_isz);
 
         /* This does three things:
          *
@@ -748,41 +748,41 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
          * call is supposed to suppress formatting noise (including what terminal_urlify() and friends
          * generate), but nothing else. */
 
-        isz = _isz ? *_isz : strlen(*ibuf);
+        isz = _isz ? *_isz : ਲੜੀ_ਲੰਬਾਈ(*ibuf);
 
         /* Note we turn off internal locking on f for performance reasons. It's safe to do so since we
          * created f here and it doesn't leave our scope. */
         f = memstream_init(&m);
-        if (!f)
-                return NULL;
+        ਜੇ (!f)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        for (const char *i = *ibuf; i < *ibuf + isz; i++) {
-                int e;
+        ਲਈ (ਅਚਲ ਅੱਖਰ *i = *ibuf; i < *ibuf + isz; i++) {
+                ਪੂਰਨ e;
 
-                for (;;) {
+                ਲਈ (;;) {
                         e = ansi_seq_parser_feed(&parser, *i);
-                        if (e < 0)
-                                return NULL;
-                        if (e != ANSI_SEQ_EVENT_ABORT)
-                                break;
+                        ਜੇ (e < 0)
+                                ਵਾਪਸ ਨਿਰਾ;
+                        ਜੇ (e != ANSI_SEQ_EVENT_ABORT)
+                                ਰੋਕੋ;
 
                         /* Eat up bogus sequences. The aborted sequence is over (and dropped, up to but
                          * excluding the current character, which is fed again), hence forget about it, so
                          * that the next sequence flushes pending carriage returns again. */
-                        if (begin) {
-                                retract_offsets(begin - *ibuf, i - *ibuf, highlight, shift);
-                                begin = NULL;
+                        ਜੇ (begin) {
+                                retract_offsets(begin - *ibuf, i - *ibuf, highlight, ਖਿਸਕਾਓ);
+                                begin = ਨਿਰਾ;
                         }
                 }
 
-                switch (e) {
+                ਚੋਣ (e) {
 
-                case ANSI_SEQ_EVENT_TEXT:
-                        if (*i == '\r') {
+                ਹਾਲਤ ANSI_SEQ_EVENT_ਪਾਠ:
+                        ਜੇ (*i == '\r') {
                                 n_carriage_returns++;
-                                continue;
+                                ਜਾਰੀ;
                         }
-                        if (*i == '\n') {
+                        ਜੇ (*i == '\n') {
                                 /* Ignore carriage returns before new line. They are dropped from the output,
                                  * hence the offsets need to account for them. (Note that pending carriage
                                  * returns always immediately precede the current character, since anything
@@ -791,72 +791,72 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
                                                 (size_t) (i - *ibuf) - n_carriage_returns,
                                                 i - *ibuf,
                                                 highlight,
-                                                shift);
+                                                ਖਿਸਕਾਓ);
                                 n_carriage_returns = 0;
                         }
-                        for (; n_carriage_returns > 0; n_carriage_returns--)
+                        ਲਈ (; n_carriage_returns > 0; n_carriage_returns--)
                                 fputc('\r', f);
 
-                        if (*i == '\t') {
+                        ਜੇ (*i == '\t') {
                                 fputs("        ", f);
-                                advance_offsets(i - *ibuf, highlight, shift, 7);
-                        } else
+                                advance_offsets(i - *ibuf, highlight, ਖਿਸਕਾਓ, 7);
+                        } ਨਹੀਂਤਾਂ
                                 fputc(*i, f);
 
-                        break;
+                        ਰੋਕੋ;
 
-                case ANSI_SEQ_EVENT_SEQUENCE:
-                        if (!begin) {
+                ਹਾਲਤ ANSI_SEQ_EVENT_SEQUENCE:
+                        ਜੇ (!begin) {
                                 /* This starts a new sequence, flush any pending carriage returns first */
-                                for (; n_carriage_returns > 0; n_carriage_returns--)
+                                ਲਈ (; n_carriage_returns > 0; n_carriage_returns--)
                                         fputc('\r', f);
 
                                 begin = i;
                         }
-                        break;
+                        ਰੋਕੋ;
 
-                case ANSI_SEQ_EVENT_END:
+                ਹਾਲਤ ANSI_SEQ_EVENT_ਸਿਰਾ:
                         /* A complete sequence, drop it (the current character is its last one) */
-                        assert(begin);
-                        retract_offsets(begin - *ibuf, i + 1 - *ibuf, highlight, shift);
-                        begin = NULL;
-                        break;
+                        ਪ੍ਰਤਿਜ੍ਞਾ(begin);
+                        retract_offsets(begin - *ibuf, i + 1 - *ibuf, highlight, ਖਿਸਕਾਓ);
+                        begin = ਨਿਰਾ;
+                        ਰੋਕੋ;
 
-                default:
+                ਮੂਲ:
                         assert_not_reached();
                 }
         }
 
         /* If the input ends in the middle of a sequence the truncated sequence is dropped as well, hence
          * the offsets need to account for it, too. */
-        if (begin)
-                retract_offsets(begin - *ibuf, isz, highlight, shift);
+        ਜੇ (begin)
+                retract_offsets(begin - *ibuf, isz, highlight, ਖਿਸਕਾਓ);
 
         /* Trailing carriage returns are dropped, too */
-        retract_offsets(isz - n_carriage_returns, isz, highlight, shift);
+        retract_offsets(isz - n_carriage_returns, isz, highlight, ਖਿਸਕਾਓ);
 
-        char *obuf;
-        if (memstream_finalize(&m, &obuf, _isz) < 0)
-                return NULL;
+        ਅੱਖਰ *obuf;
+        ਜੇ (memstream_finalize(&m, &obuf, _isz) < 0)
+                ਵਾਪਸ ਨਿਰਾ;
 
         free_and_replace(*ibuf, obuf);
 
-        if (highlight) {
-                highlight[0] += shift[0];
-                highlight[1] += shift[1];
+        ਜੇ (highlight) {
+                highlight[0] += ਖਿਸਕਾਓ[0];
+                highlight[1] += ਖਿਸਕਾਓ[1];
         }
 
-        return *ibuf;
+        ਵਾਪਸ *ibuf;
 }
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
-        _cleanup_free_ char *buffer = NULL;
+ਅੱਖਰ* strextendv_with_separator(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *separator, va_list ap) {
+        _cleanup_free_ ਅੱਖਰ *ਬਫਰ = ਨਿਰਾ;
         size_t f, l, l_separator;
         bool need_separator;
-        char *nr, *p;
+        ਅੱਖਰ *nr, *p;
 
-        if (!x)
-                x = &buffer;
+        ਜੇ (!x)
+                x = &ਬਫਰ;
 
         l = f = strlen_ptr(*x);
 
@@ -865,23 +865,23 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
 
         va_list aq;
         va_copy(aq, ap);
-        for (const char *t;;) {
+        ਲਈ (ਅਚਲ ਅੱਖਰ *t;;) {
                 size_t n;
 
-                t = va_arg(aq, const char *);
-                if (!t)
-                        break;
-                if (t == POINTER_MAX)
-                        continue;
+                t = va_arg(aq, ਅਚਲ ਅੱਖਰ *);
+                ਜੇ (!t)
+                        ਰੋਕੋ;
+                ਜੇ (t == ਸੂਚਕ_MAX)
+                        ਜਾਰੀ;
 
-                n = strlen(t);
+                n = ਲੜੀ_ਲੰਬਾਈ(t);
 
-                if (need_separator)
+                ਜੇ (need_separator)
                         n += l_separator;
 
-                if (n >= SIZE_MAX - l) {
+                ਜੇ (n >= SIZE_MAX - l) {
                         va_end(aq);
-                        return NULL;
+                        ਵਾਪਸ ਨਿਰਾ;
                 }
 
                 l += n;
@@ -891,23 +891,23 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
 
         need_separator = !isempty(*x);
 
-        nr = realloc(*x, GREEDY_ALLOC_ROUND_UP(l+1));
-        if (!nr)
-                return NULL;
+        nr = realloc(*x, GREEDY_ALLOC_ਗੇੜਾ_ਉੱਪਰ(l+1));
+        ਜੇ (!nr)
+                ਵਾਪਸ ਨਿਰਾ;
 
         *x = nr;
         p = nr + f;
 
-        for (;;) {
-                const char *t;
+        ਲਈ (;;) {
+                ਅਚਲ ਅੱਖਰ *t;
 
-                t = va_arg(ap, const char *);
-                if (!t)
-                        break;
-                if (t == POINTER_MAX)
-                        continue;
+                t = va_arg(ap, ਅਚਲ ਅੱਖਰ *);
+                ਜੇ (!t)
+                        ਰੋਕੋ;
+                ਜੇ (t == ਸੂਚਕ_MAX)
+                        ਜਾਰੀ;
 
-                if (need_separator && separator)
+                ਜੇ (need_separator && separator)
                         p = stpcpy(p, separator);
 
                 p = stpcpy(p, t);
@@ -915,342 +915,342 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
                 need_separator = true;
         }
 
-        assert(p == nr + l);
+        ਪ੍ਰਤਿਜ੍ਞਾ(p == nr + l);
         *p = 0;
 
         /* If no buffer to extend was passed in return the start of the buffer */
-        if (buffer)
-                return TAKE_PTR(buffer);
+        ਜੇ (ਬਫਰ)
+                ਵਾਪਸ TAKE_PTR(ਬਫਰ);
 
         /* Otherwise we extended the buffer: return the end */
-        return p;
+        ਵਾਪਸ p;
 }
 
-char* strextend_with_separator_internal(char **x, const char *separator, ...) {
+ਅੱਖਰ* strextend_with_separator_ਅੰਦਰੂਨੀ(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *separator, ...) {
         va_list ap;
-        char *ret;
+        ਅੱਖਰ *ret;
 
         va_start(ap, separator);
         ret = strextendv_with_separator(x, separator, ap);
         va_end(ap);
 
-        return ret;
+        ਵਾਪਸ ret;
 }
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) {
+ਪੂਰਨ strextendf_with_separator(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *separator, ਅਚਲ ਅੱਖਰ *format, ...) {
         size_t m, a, l_separator;
         va_list ap;
-        int l;
+        ਪੂਰਨ l;
 
         /* Appends a formatted string to the specified string. Don't use this in inner loops, since then
          * we'll spend a tonload of time in determining the length of the string passed in, over and over
          * again. */
 
-        assert(x);
-        assert(format);
+        ਪ੍ਰਤਿਜ੍ਞਾ(x);
+        ਪ੍ਰਤਿਜ੍ਞਾ(format);
 
         l_separator = isempty(*x) ? 0 : strlen_ptr(separator);
 
         /* Let's try to use the allocated buffer, if there's room at the end still. Otherwise let's extend by 64 chars. */
-        if (*x) {
-                m = strlen(*x);
-                a = MALLOC_SIZEOF_SAFE(*x);
-                assert(a >= m + 1);
-        } else
+        ਜੇ (*x) {
+                m = ਲੜੀ_ਲੰਬਾਈ(*x);
+                a = MALLOC_SIZEOF_ਸੁਰੱਖਿਅਤ(*x);
+                ਪ੍ਰਤਿਜ੍ਞਾ(a >= m + 1);
+        } ਨਹੀਂਤਾਂ
                 m = a = 0;
 
-        if (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
-                char *n;
+        ਜੇ (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
+                ਅੱਖਰ *n;
 
-                if (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
-                        return -ENOMEM;
-                if (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
-                        return -ENOMEM;
+                ਜੇ (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
+                        ਵਾਪਸ -ENOMEM;
+                ਜੇ (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
+                        ਵਾਪਸ -ENOMEM;
 
                 n = realloc(*x, m + 64 + l_separator);
-                if (!n)
-                        return -ENOMEM;
+                ਜੇ (!n)
+                        ਵਾਪਸ -ENOMEM;
 
                 *x = n;
-                a = MALLOC_SIZEOF_SAFE(*x);
+                a = MALLOC_SIZEOF_ਸੁਰੱਖਿਅਤ(*x);
         }
 
         /* Now, let's try to format the string into it */
-        memcpy_safe(*x + m, separator, l_separator);
+        memcpy_ਸੁਰੱਖਿਅਤ(*x + m, separator, l_separator);
         va_start(ap, format);
         l = vsnprintf(*x + m + l_separator, a - m - l_separator, format, ap);
         va_end(ap);
 
-        assert(l >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(l >= 0);
 
-        if ((size_t) l < a - m - l_separator) {
-                char *n;
+        ਜੇ ((size_t) l < a - m - l_separator) {
+                ਅੱਖਰ *n;
 
                 /* Nice! This worked. We are done. But first, let's return the extra space we don't
                  * need. This should be a cheap operation, since we only lower the allocation size here,
                  * never increase. */
                 n = realloc(*x, m + (size_t) l + l_separator + 1);
-                if (n)
+                ਜੇ (n)
                         *x = n;
-        } else {
-                char *n;
+        } ਨਹੀਂਤਾਂ {
+                ਅੱਖਰ *n;
 
                 /* Wasn't enough. Then let's allocate exactly what we need. */
 
-                if (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
-                        goto oom;
-                if (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
-                        goto oom;
+                ਜੇ (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
+                        ਜਾਓ oom;
+                ਜੇ (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
+                        ਜਾਓ oom;
 
                 a = m + (size_t) l + l_separator + 1;
                 n = realloc(*x, a);
-                if (!n)
-                        goto oom;
+                ਜੇ (!n)
+                        ਜਾਓ oom;
                 *x = n;
 
                 va_start(ap, format);
                 l = vsnprintf(*x + m + l_separator, a - m - l_separator, format, ap);
                 va_end(ap);
 
-                assert((size_t) l < a - m - l_separator);
+                ਪ੍ਰਤਿਜ੍ਞਾ((size_t) l < a - m - l_separator);
         }
 
-        return 0;
+        ਵਾਪਸ 0;
 
 oom:
         /* truncate the bytes added after memcpy_safe() again */
         (*x)[m] = 0;
-        return -ENOMEM;
+        ਵਾਪਸ -ENOMEM;
 }
 
-char* strrep(const char *s, size_t n) {
-        char *ret, *p;
+ਅੱਖਰ* strrep(ਅਚਲ ਅੱਖਰ *s, size_t n) {
+        ਅੱਖਰ *ret, *p;
         size_t l;
 
-        assert(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        l = strlen(s);
-        if (!MUL_ASSIGN_SAFE(&l, n))
-                return NULL;
-        if (!INC_SAFE(&l, 1))
-                return NULL;
+        l = ਲੜੀ_ਲੰਬਾਈ(s);
+        ਜੇ (!MUL_ਸੌਂਪੋ_ਸੁਰੱਖਿਅਤ(&l, n))
+                ਵਾਪਸ ਨਿਰਾ;
+        ਜੇ (!INC_ਸੁਰੱਖਿਅਤ(&l, 1))
+                ਵਾਪਸ ਨਿਰਾ;
 
-        p = ret = malloc(l);
-        if (!ret)
-                return NULL;
+        p = ret = ਸਮ੍ਰਿਤੀ_ਦਿਓ(l);
+        ਜੇ (!ret)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        for (size_t i = 0; i < n; i++)
+        ਲਈ (size_t i = 0; i < n; i++)
                 p = stpcpy(p, s);
 
         *p = 0;
-        return ret;
+        ਵਾਪਸ ret;
 }
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second) {
-        assert(s);
-        assert(!isempty(sep));
+ਪੂਰਨ ਵੰਡੋ_pair(ਅਚਲ ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *sep, ਅੱਖਰ **ret_ਪਹਿਲਾ, ਅੱਖਰ **ret_ਦੂਜਾ) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!isempty(sep));
 
-        const char *x = strstr(s, sep);
-        if (!x)
-                return -EINVAL;
+        ਅਚਲ ਅੱਖਰ *x = ਲੜੀ_ਖੋਜ(s, sep);
+        ਜੇ (!x)
+                ਵਾਪਸ -EINVAL;
 
-        _cleanup_free_ char *a = NULL;
-        if (ret_first) {
+        _cleanup_free_ ਅੱਖਰ *a = ਨਿਰਾ;
+        ਜੇ (ret_ਪਹਿਲਾ) {
                 a = strndup(s, x - s);
-                if (!a)
-                        return -ENOMEM;
+                ਜੇ (!a)
+                        ਵਾਪਸ -ENOMEM;
         }
 
-        _cleanup_free_ char *b = NULL;
-        if (ret_second) {
-                b = strdup(x + strlen(sep));
-                if (!b)
-                        return -ENOMEM;
+        _cleanup_free_ ਅੱਖਰ *b = ਨਿਰਾ;
+        ਜੇ (ret_ਦੂਜਾ) {
+                b = strdup(x + ਲੜੀ_ਲੰਬਾਈ(sep));
+                ਜੇ (!b)
+                        ਵਾਪਸ -ENOMEM;
         }
 
-        if (ret_first)
-                *ret_first = TAKE_PTR(a);
-        if (ret_second)
-                *ret_second = TAKE_PTR(b);
-        return 0;
+        ਜੇ (ret_ਪਹਿਲਾ)
+                *ret_ਪਹਿਲਾ = TAKE_PTR(a);
+        ਜੇ (ret_ਦੂਜਾ)
+                *ret_ਦੂਜਾ = TAKE_PTR(b);
+        ਵਾਪਸ 0;
 }
 
-int free_and_strdup(char **p, const char *s) {
-        char *t;
+ਪੂਰਨ free_and_strdup(ਅੱਖਰ **p, ਅਚਲ ਅੱਖਰ *s) {
+        ਅੱਖਰ *t;
 
-        assert(p);
+        ਪ੍ਰਤਿਜ੍ਞਾ(p);
 
         /* Replaces a string pointer with a strdup()ed new string,
          * possibly freeing the old one. */
 
-        if (streq_ptr(*p, s))
-                return 0;
+        ਜੇ (streq_ptr(*p, s))
+                ਵਾਪਸ 0;
 
-        if (s) {
+        ਜੇ (s) {
                 t = strdup(s);
-                if (!t)
-                        return -ENOMEM;
-        } else
-                t = NULL;
+                ਜੇ (!t)
+                        ਵਾਪਸ -ENOMEM;
+        } ਨਹੀਂਤਾਂ
+                t = ਨਿਰਾ;
 
         free_and_replace(*p, t);
 
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-int free_and_strdup_warn(char **p, const char *s) {
-        int r;
+ਪੂਰਨ free_and_strdup_warn(ਅੱਖਰ **p, ਅਚਲ ਅੱਖਰ *s) {
+        ਪੂਰਨ r;
 
         r = free_and_strdup(p, s);
-        if (r < 0)
-                return log_oom();
-        return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ log_oom();
+        ਵਾਪਸ r;
 }
 
-int free_and_strndup(char **p, const char *s, size_t l) {
-        char *t;
+ਪੂਰਨ free_and_strndup(ਅੱਖਰ **p, ਅਚਲ ਅੱਖਰ *s, size_t l) {
+        ਅੱਖਰ *t;
 
-        assert(p);
-        assert(s || l == 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(p);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s || l == 0);
 
         /* Replaces a string pointer with a strndup()ed new string,
          * freeing the old one. */
 
-        if (!*p && !s)
-                return 0;
+        ਜੇ (!*p && !s)
+                ਵਾਪਸ 0;
 
-        if (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
-                return 0;
+        ਜੇ (*p && s && strneq(*p, s, l) && (l > ਲੜੀ_ਲੰਬਾਈ(*p) || (*p)[l] == '\0'))
+                ਵਾਪਸ 0;
 
-        if (s) {
+        ਜੇ (s) {
                 t = strndup(s, l);
-                if (!t)
-                        return -ENOMEM;
-        } else
-                t = NULL;
+                ਜੇ (!t)
+                        ਵਾਪਸ -ENOMEM;
+        } ਨਹੀਂਤਾਂ
+                t = ਨਿਰਾ;
 
         free_and_replace(*p, t);
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-int strdup_to_full(char **ret, const char *src) {
-        if (!src) {
-                if (ret)
-                        *ret = NULL;
+ਪੂਰਨ strdup_ਮੰਜ਼ਿਲ_ਭਰਿਆ(ਅੱਖਰ **ret, ਅਚਲ ਅੱਖਰ *src) {
+        ਜੇ (!src) {
+                ਜੇ (ret)
+                        *ret = ਨਿਰਾ;
 
-                return 0;
-        } else {
-                if (ret) {
-                        char *t = strdup(src);
-                        if (!t)
-                                return -ENOMEM;
+                ਵਾਪਸ 0;
+        } ਨਹੀਂਤਾਂ {
+                ਜੇ (ret) {
+                        ਅੱਖਰ *t = strdup(src);
+                        ਜੇ (!t)
+                                ਵਾਪਸ -ENOMEM;
                         *ret = t;
                 }
 
-                return 1;
+                ਵਾਪਸ 1;
         }
 };
 
-bool string_is_safe(const char *p, StringSafeFlags flags) {
+bool string_is_ਸੁਰੱਖਿਅਤ(ਅਚਲ ਅੱਖਰ *p, String_ਸੁਰੱਖਿਅਤ_Flags flags) {
 
         /* Baseline checks are:
          *   • No control characters (i.e. 0…31 + 127)
          *   • UTF-8 valid (well, technically we skip this test if STRING_ASCII is set, since that is a tighter test)
          */
 
-        if (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
-                return false;
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, STRING_ALLOW_ਖਾਲੀ_ਥਾਵਾਂ) ? !p : isempty(p))
+                ਵਾਪਸ false;
 
-        if (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
-                return false;
+        ਜੇ (!FLAGS_ਸੈੱਟ(flags, STRING_ASCII) && !utf8_is_valid(p))
+                ਵਾਪਸ false;
 
-        for (const char *t = p; *t; t++) {
+        ਲਈ (ਅਚਲ ਅੱਖਰ *t = p; *t; t++) {
                 /* never allow control characters, except for new line */
-                if ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
-                        return false;
+                ਜੇ ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
+                        ਵਾਪਸ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
-                        return false;
+                ਜੇ (!FLAGS_ਸੈੱਟ(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
+                        ਵਾਪਸ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
-                        return false;
+                ਜੇ (!FLAGS_ਸੈੱਟ(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
+                        ਵਾਪਸ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
-                        return false;
+                ਜੇ (!FLAGS_ਸੈੱਟ(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
+                        ਵਾਪਸ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
-                        return false;
+                ਜੇ (!FLAGS_ਸੈੱਟ(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
+                        ਵਾਪਸ false;
 
-                if (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
-                        return false;
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
+                        ਵਾਪਸ false;
 
-                if (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
-                        return false;
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
+                        ਵਾਪਸ false;
         }
 
-        if (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
-                return false;
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, STRING_FILENAME) && !filename_is_valid(p))
+                ਵਾਪਸ false;
 
-        if (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
-                return false;
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
+                ਵਾਪਸ false;
 
-        return true;
+        ਵਾਪਸ true;
 }
 
-char* str_realloc(char *p) {
+ਅੱਖਰ* str_realloc(ਅੱਖਰ *p) {
         /* Reallocate *p to actual size. Ignore failure, and return the original string on error. */
 
-        if (!p)
-                return NULL;
+        ਜੇ (!p)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return realloc(p, strlen(p) + 1) ?: p;
+        ਵਾਪਸ realloc(p, ਲੜੀ_ਲੰਬਾਈ(p) + 1) ?: p;
 }
 
-char* string_erase(char *x) {
-        if (!x)
-                return NULL;
+ਅੱਖਰ* string_erase(ਅੱਖਰ *x) {
+        ਜੇ (!x)
+                ਵਾਪਸ ਨਿਰਾ;
 
         /* A delicious drop of snake-oil! To be called on memory where we stored passphrases or so, after we
          * used them. */
-        explicit_bzero_safe(x, strlen(x));
-        return x;
+        explicit_bzero_ਸੁਰੱਖਿਅਤ(x, ਲੜੀ_ਲੰਬਾਈ(x));
+        ਵਾਪਸ x;
 }
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
-        const char *p = s, *e = s;
+ਪੂਰਨ string_truncate_ਸਤਰਾਂ(ਅਚਲ ਅੱਖਰ *s, size_t n_ਸਤਰਾਂ, ਅੱਖਰ **ret) {
+        ਅਚਲ ਅੱਖਰ *p = s, *e = s;
         bool truncation_applied = false;
-        char *copy;
+        ਅੱਖਰ *copy;
         size_t n = 0;
 
-        assert(s);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
         /* Truncate after the specified number of lines. Returns > 0 if a truncation was applied or == 0 if
          * there were fewer lines in the string anyway. Trailing newlines on input are ignored, and not
          * generated either. */
 
-        for (;;) {
+        ਲਈ (;;) {
                 size_t k;
 
                 k = strcspn(p, "\n");
 
-                if (p[k] == 0) {
-                        if (k == 0) /* final empty line */
-                                break;
+                ਜੇ (p[k] == 0) {
+                        ਜੇ (k == 0) /* final empty line */
+                                ਰੋਕੋ;
 
-                        if (n >= n_lines) /* above threshold */
-                                break;
+                        ਜੇ (n >= n_ਸਤਰਾਂ) /* above threshold */
+                                ਰੋਕੋ;
 
                         e = p + k; /* last line to include */
-                        break;
+                        ਰੋਕੋ;
                 }
 
-                assert(p[k] == '\n');
+                ਪ੍ਰਤਿਜ੍ਞਾ(p[k] == '\n');
 
-                if (n >= n_lines)
-                        break;
+                ਜੇ (n >= n_ਸਤਰਾਂ)
+                        ਰੋਕੋ;
 
-                if (k > 0)
+                ਜੇ (k > 0)
                         e = p + k;
 
                 p += k + 1;
@@ -1258,27 +1258,27 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         }
 
         /* e points after the last character we want to keep */
-        if (isempty(e))
+        ਜੇ (isempty(e))
                 copy = strdup(s);
-        else {
-                if (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
+        ਨਹੀਂਤਾਂ {
+                ਜੇ (!ਵਿੱਚ_charset(e, "\n")) /* We only consider things truncated if we remove something that
                                            * isn't a new-line or a series of them */
                         truncation_applied = true;
 
                 copy = strndup(s, e - s);
         }
-        if (!copy)
-                return -ENOMEM;
+        ਜੇ (!copy)
+                ਵਾਪਸ -ENOMEM;
 
         *ret = copy;
-        return truncation_applied;
+        ਵਾਪਸ truncation_applied;
 }
 
-int string_extract_line(const char *s, size_t i, char **ret) {
-        const char *p = s;
+ਪੂਰਨ string_ਕੱਢੋ_ਸਤਰ(ਅਚਲ ਅੱਖਰ *s, size_t i, ਅੱਖਰ **ret) {
+        ਅਚਲ ਅੱਖਰ *p = s;
         size_t c = 0;
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
         /* Extract the i'nth line from the specified string. Returns > 0 if there are more lines after that,
          * and == 0 if we are looking at the last line or already beyond the last line. As special
@@ -1286,148 +1286,148 @@ int string_extract_line(const char *s, size_t i, char **ret) {
          * NULL, indicating the input string should be used as is, and avoid a memory allocation for a very
          * common case. */
 
-        for (;;) {
-                const char *q;
+        ਲਈ (;;) {
+                ਅਚਲ ਅੱਖਰ *q;
 
                 q = strchr(p, '\n');
-                if (i == c) {
+                ਜੇ (i == c) {
                         /* The line we are looking for! */
 
-                        if (q) {
-                                char *m;
+                        ਜੇ (q) {
+                                ਅੱਖਰ *m;
 
                                 m = strndup(p, q - p);
-                                if (!m)
-                                        return -ENOMEM;
+                                ਜੇ (!m)
+                                        ਵਾਪਸ -ENOMEM;
 
                                 *ret = m;
-                                return !isempty(q + 1); /* More coming? */
-                        } else
+                                ਵਾਪਸ !isempty(q + 1); /* More coming? */
+                        } ਨਹੀਂਤਾਂ
                                 /* Tell the caller to use the input string if equal */
-                                return strdup_to(ret, p != s ? p : NULL);
+                                ਵਾਪਸ strdup_ਮੰਜ਼ਿਲ(ret, p != s ? p : ਨਿਰਾ);
                 }
 
-                if (!q)
+                ਜੇ (!q)
                         /* No more lines, return empty line */
-                        return strdup_to(ret, "");
+                        ਵਾਪਸ strdup_ਮੰਜ਼ਿਲ(ret, "");
 
                 p = q + 1;
                 c++;
         }
 }
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
+ਪੂਰਨ string_ਸ਼ਾਮਲ_ਹੈ_ਸ਼ਬਦ_strv(ਅਚਲ ਅੱਖਰ *string, ਅਚਲ ਅੱਖਰ *separators, ਅੱਖਰ * ਅਚਲ *ਸ਼ਬਦ_3, ਅਚਲ ਅੱਖਰ **ret_ਸ਼ਬਦ) {
         /* In the default mode with no separators specified, we split on whitespace and coalesce separators. */
-        const ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
-        const char *found = NULL;
-        int r;
+        ਅਚਲ ਕੱਢੋ_Flags flags = separators ? ਕੱਢੋ_DONT_COALESCE_SEPARATORS : 0;
+        ਅਚਲ ਅੱਖਰ *ਮਿਲਿਆ = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        for (;;) {
-                _cleanup_free_ char *w = NULL;
+        ਲਈ (;;) {
+                _cleanup_free_ ਅੱਖਰ *w = ਨਿਰਾ;
 
-                r = extract_first_word(&string, &w, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = ਕੱਢੋ_ਪਹਿਲਾ_ਸ਼ਬਦ(&string, &w, separators, flags);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
+                ਜੇ (r == 0)
+                        ਰੋਕੋ;
 
-                found = strv_find(words, w);
-                if (found)
-                        break;
+                ਮਿਲਿਆ = strv_ਲੱਭੋ(ਸ਼ਬਦ_3, w);
+                ਜੇ (ਮਿਲਿਆ)
+                        ਰੋਕੋ;
         }
 
-        if (ret_word)
-                *ret_word = found;
-        return !!found;
+        ਜੇ (ret_ਸ਼ਬਦ)
+                *ret_ਸ਼ਬਦ = ਮਿਲਿਆ;
+        ਵਾਪਸ !!ਮਿਲਿਆ;
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok) {
-        if (!s1 && !s2)
-                return true;
-        if (!s1 || !s2)
-                return false;
+bool streq_skip_trailing_chars(ਅਚਲ ਅੱਖਰ *s1, ਅਚਲ ਅੱਖਰ *s2, ਅਚਲ ਅੱਖਰ *ok) {
+        ਜੇ (!s1 && !s2)
+                ਵਾਪਸ true;
+        ਜੇ (!s1 || !s2)
+                ਵਾਪਸ false;
 
-        if (!ok)
+        ਜੇ (!ok)
                 ok = WHITESPACE;
 
-        for (; *s1 && *s2; s1++, s2++)
-                if (*s1 != *s2)
-                        break;
+        ਲਈ (; *s1 && *s2; s1++, s2++)
+                ਜੇ (*s1 != *s2)
+                        ਰੋਕੋ;
 
-        return in_charset(s1, ok) && in_charset(s2, ok);
+        ਵਾਪਸ ਵਿੱਚ_charset(s1, ok) && ਵਿੱਚ_charset(s2, ok);
 }
 
-char* string_replace_char(char *str, char old_char, char new_char) {
-        assert(str);
-        assert(old_char != '\0');
-        assert(new_char != '\0');
-        assert(old_char != new_char);
+ਅੱਖਰ* string_replace_char(ਅੱਖਰ *str, ਅੱਖਰ old_char, ਅੱਖਰ new_char) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(str);
+        ਪ੍ਰਤਿਜ੍ਞਾ(old_char != '\0');
+        ਪ੍ਰਤਿਜ੍ਞਾ(new_char != '\0');
+        ਪ੍ਰਤਿਜ੍ਞਾ(old_char != new_char);
 
-        for (char *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
+        ਲਈ (ਅੱਖਰ *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
                 *p = new_char;
 
-        return str;
+        ਵਾਪਸ str;
 }
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
-        char *b;
+ਪੂਰਨ make_cstring(ਅਚਲ ਖਾਲੀ *s, size_t n, Make_CString_ਬਹੁਲਕ ਬਹੁਲਕ, ਅੱਖਰ **ret) {
+        ਅੱਖਰ *b;
 
-        assert(s || n == 0);
-        assert(mode >= 0);
-        assert(mode < _MAKE_CSTRING_MODE_MAX);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s || n == 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਬਹੁਲਕ >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਬਹੁਲਕ < MAKE_CSTRING_ਬਹੁਲਕ_MAX);
 
         /* Converts a sized character buffer into a NUL-terminated NUL string, refusing if there are embedded
          * NUL bytes. Whether to expect a trailing NUL byte can be specified via 'mode' */
 
-        if (n == 0) {
-                if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+        ਜੇ (n == 0) {
+                ਜੇ (ਬਹੁਲਕ == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        ਵਾਪਸ -EINVAL;
 
-                if (!ret)
-                        return 0;
+                ਜੇ (!ret)
+                        ਵਾਪਸ 0;
 
-                b = new0(char, 1);
-        } else {
-                const uint8_t *nul;
+                b = new0(ਅੱਖਰ, 1);
+        } ਨਹੀਂਤਾਂ {
+                ਅਚਲ uint8_t *nul;
 
                 nul = memchr(s, 0, n);
-                if (nul) {
-                        if (nul < (const uint8_t*) s + n - 1 || /* embedded NUL? */
-                            mode == MAKE_CSTRING_REFUSE_TRAILING_NUL)
-                                return -EINVAL;
+                ਜੇ (nul) {
+                        ਜੇ (nul < (ਅਚਲ uint8_t*) s + n - 1 || /* embedded NUL? */
+                            ਬਹੁਲਕ == MAKE_CSTRING_REFUSE_TRAILING_NUL)
+                                ਵਾਪਸ -EINVAL;
 
                         n--;
-                } else if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+                } ਨਹੀਂਤਾਂ ਜੇ (ਬਹੁਲਕ == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        ਵਾਪਸ -EINVAL;
 
-                if (!ret)
-                        return 0;
+                ਜੇ (!ret)
+                        ਵਾਪਸ 0;
 
                 b = memdup_suffix0(s, n);
         }
-        if (!b)
-                return -ENOMEM;
+        ਜੇ (!b)
+                ਵਾਪਸ -ENOMEM;
 
         *ret = b;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-size_t strspn_from_end(const char *str, const char *accept) {
+size_t strspn_from_ਸਿਰਾ(ਅਚਲ ਅੱਖਰ *str, ਅਚਲ ਅੱਖਰ *accept) {
         size_t n = 0;
 
-        if (isempty(str))
-                return 0;
+        ਜੇ (isempty(str))
+                ਵਾਪਸ 0;
 
-        if (isempty(accept))
-                return 0;
+        ਜੇ (isempty(accept))
+                ਵਾਪਸ 0;
 
-        for (const char *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
+        ਲਈ (ਅਚਲ ਅੱਖਰ *p = str + ਲੜੀ_ਲੰਬਾਈ(str); p > str && strchr(accept, p[-1]); p--)
                 n++;
 
-        return n;
+        ਵਾਪਸ n;
 }
 
-size_t strnspn(const char *str, const char *accept, size_t n) {
+size_t strnspn(ਅਚਲ ਅੱਖਰ *str, ਅਚਲ ਅੱਖਰ *accept, size_t n) {
         size_t i;
 
         /* Like strspn(), but reads at most 'n' bytes from 'str'. Returns the length of the initial
@@ -1435,98 +1435,98 @@ size_t strnspn(const char *str, const char *accept, size_t n) {
          * NUL byte too. Unlike strspn() this is safe on a buffer that is not NUL terminated within
          * 'n' bytes. */
 
-        assert(str || n == 0);
-        assert(accept);
+        ਪ੍ਰਤਿਜ੍ਞਾ(str || n == 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(accept);
 
-        for (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
+        ਲਈ (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
                 ;
 
-        return i;
+        ਵਾਪਸ i;
 }
 
-char* strdupspn(const char *a, const char *accept) {
-        if (isempty(a) || isempty(accept))
-                return strdup("");
+ਅੱਖਰ* strdupspn(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *accept) {
+        ਜੇ (isempty(a) || isempty(accept))
+                ਵਾਪਸ strdup("");
 
-        return strndup(a, strspn(a, accept));
+        ਵਾਪਸ strndup(a, strspn(a, accept));
 }
 
-char* strdupcspn(const char *a, const char *reject) {
-        if (isempty(a))
-                return strdup("");
-        if (isempty(reject))
-                return strdup(a);
+ਅੱਖਰ* strdupcspn(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *reject) {
+        ਜੇ (isempty(a))
+                ਵਾਪਸ strdup("");
+        ਜੇ (isempty(reject))
+                ਵਾਪਸ strdup(a);
 
-        return strndup(a, strcspn(a, reject));
+        ਵਾਪਸ strndup(a, strcspn(a, reject));
 }
 
-char* find_line_startswith_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+ਅੱਖਰ* ਲੱਭੋ_ਸਤਰ_startswith_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(haystack);
+        ਪ੍ਰਤਿਜ੍ਞਾ(needle);
 
         /* Finds the first line in 'haystack' that starts with the specified string. Returns a pointer to the
          * first character after it */
 
-        char *p = (char*) strstr(haystack, needle);
-        if (!p)
-                return NULL;
+        ਅੱਖਰ *p = (ਅੱਖਰ*) ਲੜੀ_ਖੋਜ(haystack, needle);
+        ਜੇ (!p)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (p > haystack)
-                while (p[-1] != '\n') {
-                        p = strstr(p + 1, needle);
-                        if (!p)
-                                return NULL;
+        ਜੇ (p > haystack)
+                ਜਦੋਂ (p[-1] != '\n') {
+                        p = ਲੜੀ_ਖੋਜ(p + 1, needle);
+                        ਜੇ (!p)
+                                ਵਾਪਸ ਨਿਰਾ;
                 }
 
-        return p + strlen(needle);
+        ਵਾਪਸ p + ਲੜੀ_ਲੰਬਾਈ(needle);
 }
 
-char* find_line_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+ਅੱਖਰ* ਲੱਭੋ_ਸਤਰ_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(haystack);
+        ਪ੍ਰਤਿਜ੍ਞਾ(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * beginning of the line */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        ਅੱਖਰ *p = (ਅੱਖਰ*) ਲੱਭੋ_ਸਤਰ_startswith(haystack, needle);
+        ਜੇ (!p)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (*p == 0 || strchr(NEWLINE, *p))
-                return p - strlen(needle);
+        ਜੇ (*p == 0 || strchr(NEWLINE, *p))
+                ਵਾਪਸ p - ਲੜੀ_ਲੰਬਾਈ(needle);
 
-        return NULL;
+        ਵਾਪਸ ਨਿਰਾ;
 }
 
-char* find_line_after_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+ਅੱਖਰ* ਲੱਭੋ_ਸਤਰ_after_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(haystack);
+        ਪ੍ਰਤਿਜ੍ਞਾ(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * next line after it */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        ਅੱਖਰ *p = (ਅੱਖਰ*) ਲੱਭੋ_ਸਤਰ_startswith(haystack, needle);
+        ਜੇ (!p)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (*p == 0)
-                return p;
-        if (strchr(NEWLINE, *p))
-                return p + 1;
+        ਜੇ (*p == 0)
+                ਵਾਪਸ p;
+        ਜੇ (strchr(NEWLINE, *p))
+                ਵਾਪਸ p + 1;
 
-        return NULL;
+        ਵਾਪਸ ਨਿਰਾ;
 }
 
-bool version_is_valid(const char *s, VersionFlags flags) {
+bool ਸੰਸਕਰਣ_is_valid(ਅਚਲ ਅੱਖਰ *s, ਸੰਸਕਰਣ_Flags flags) {
 
         /* Validates a version string superficially. This does not process the version string in any
          * semantical way, it mostly just validates that its charset is reasonable. */
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
-                return false;
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, ਸੰਸਕਰਣ_ALLOW_ਖਾਲੀ_ਥਾਵਾਂ) ? !s : isempty(s))
+                ਵਾਪਸ false;
 
-        if (!filename_part_is_valid(s))
-                return false;
+        ਜੇ (!filename_part_is_valid(s))
+                ਵਾਪਸ false;
 
         /* We always allow all characters specified by the UAPI.10 Version Specification, i.e. 0-9, a-z, A-Z,
          * ".", "-", "~", "^".
@@ -1549,69 +1549,69 @@ bool version_is_valid(const char *s, VersionFlags flags) {
          *
          * → https://uapi-group.org/specifications/specs/version_format_specification/ */
 
-        char charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
-        size_t l = strlen(charset);
+        ਅੱਖਰ charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
+        size_t l = ਲੜੀ_ਲੰਬਾਈ(charset);
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, ਸੰਸਕਰਣ_ALLOW_UNDERSCORE))
                 charset[l++] = '_';
-        if (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, ਸੰਸਕਰਣ_ALLOW_PLUS))
                 charset[l++] = '+';
 
-        return in_charset(s, charset);
+        ਵਾਪਸ ਵਿੱਚ_charset(s, charset);
 }
 
-ssize_t strlevenshtein(const char *x, const char *y) {
-        _cleanup_free_ size_t *t0 = NULL, *t1 = NULL, *t2 = NULL;
+ssize_t strlevenshtein(ਅਚਲ ਅੱਖਰ *x, ਅਚਲ ਅੱਖਰ *y) {
+        _cleanup_free_ size_t *t0 = ਨਿਰਾ, *t1 = ਨਿਰਾ, *t2 = ਨਿਰਾ;
         size_t xl, yl;
 
         /* This is inspired from the Linux kernel's Levenshtein implementation */
 
-        if (streq_ptr(x, y))
-                return 0;
+        ਜੇ (streq_ptr(x, y))
+                ਵਾਪਸ 0;
 
         xl = strlen_ptr(x);
-        if (xl > SSIZE_MAX)
-                return -E2BIG;
+        ਜੇ (xl > SSIZE_MAX)
+                ਵਾਪਸ -E2BIG;
 
         yl = strlen_ptr(y);
-        if (yl > SSIZE_MAX)
-                return -E2BIG;
+        ਜੇ (yl > SSIZE_MAX)
+                ਵਾਪਸ -E2BIG;
 
-        if (isempty(x))
-                return yl;
-        if (isempty(y))
-                return xl;
+        ਜੇ (isempty(x))
+                ਵਾਪਸ yl;
+        ਜੇ (isempty(y))
+                ਵਾਪਸ xl;
 
         t0 = new0(size_t, yl + 1);
-        if (!t0)
-                return -ENOMEM;
+        ਜੇ (!t0)
+                ਵਾਪਸ -ENOMEM;
         t1 = new0(size_t, yl + 1);
-        if (!t1)
-                return -ENOMEM;
+        ਜੇ (!t1)
+                ਵਾਪਸ -ENOMEM;
         t2 = new0(size_t, yl + 1);
-        if (!t2)
-                return -ENOMEM;
+        ਜੇ (!t2)
+                ਵਾਪਸ -ENOMEM;
 
-        for (size_t i = 0; i <= yl; i++)
+        ਲਈ (size_t i = 0; i <= yl; i++)
                 t1[i] = i;
 
-        for (size_t i = 0; i < xl; i++) {
+        ਲਈ (size_t i = 0; i < xl; i++) {
                 t2[0] = i + 1;
 
-                for (size_t j = 0; j < yl; j++) {
+                ਲਈ (size_t j = 0; j < yl; j++) {
                         /* Substitution */
                         t2[j+1] = t1[j] + (x[i] != y[j]);
 
-                        /* Swap */
-                        if (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
+                        /*ਅਦਲਾ_ਬਦਲੀ*/
+                        ਜੇ (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
                                 t2[j+1] = t0[j-1] + 1;
 
                         /* Deletion */
-                        if (t2[j+1] > t1[j+1] + 1)
+                        ਜੇ (t2[j+1] > t1[j+1] + 1)
                                 t2[j+1] = t1[j+1] + 1;
 
                         /* Insertion */
-                        if (t2[j+1] > t2[j] + 1)
+                        ਜੇ (t2[j+1] > t2[j] + 1)
                                 t2[j+1] = t2[j] + 1;
                 }
 
@@ -1621,55 +1621,55 @@ ssize_t strlevenshtein(const char *x, const char *y) {
                 t2 = dummy;
         }
 
-        return t1[yl];
+        ਵਾਪਸ t1[yl];
 }
 
-char* strrstr_internal(const char *haystack, const char *needle) {
+ਅੱਖਰ* strrstr_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) {
         /* Like strstr() but returns the last rather than the first occurrence of "needle" in "haystack". */
 
-        if (!haystack || !needle)
-                return NULL;
+        ਜੇ (!haystack || !needle)
+                ਵਾਪਸ ਨਿਰਾ;
 
         /* Special case: for the empty string we return the very last possible occurrence, i.e. *after* the
          * last char, not before. */
-        if (needle[0] == 0)
-                return (char*) strchr(haystack, 0);
+        ਜੇ (needle[0] == 0)
+                ਵਾਪਸ (ਅੱਖਰ*) strchr(haystack, 0);
 
         /* Special case: for single character strings, just use optimized strrchr() */
-        if (needle[1] == 0)
-                return (char*) strrchr(haystack, needle[0]);
+        ਜੇ (needle[1] == 0)
+                ਵਾਪਸ (ਅੱਖਰ*) strrchr(haystack, needle[0]);
 
-        for (const char *p = strstr(haystack, needle), *q; p; p = q) {
-                q = strstr(p + 1, needle);
-                if (!q)
-                        return (char*) p;
+        ਲਈ (ਅਚਲ ਅੱਖਰ *p = ਲੜੀ_ਖੋਜ(haystack, needle), *q; p; p = q) {
+                q = ਲੜੀ_ਖੋਜ(p + 1, needle);
+                ਜੇ (!q)
+                        ਵਾਪਸ (ਅੱਖਰ*) p;
         }
-        return NULL;
+        ਵਾਪਸ ਨਿਰਾ;
 }
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
+ਅੱਖਰ* strrstr_no_case_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) {
+        ਜੇ (!haystack || !needle)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        for (const char *p = strchr(haystack, 0); p > haystack; p--)
-                if (startswith_no_case(p, needle))
-                        return (char*) p;
+        ਲਈ (ਅਚਲ ਅੱਖਰ *p = strchr(haystack, 0); p > haystack; p--)
+                ਜੇ (startswith_no_case(p, needle))
+                        ਵਾਪਸ (ਅੱਖਰ*) p;
 
-        return startswith_no_case(haystack, needle) ? (char*) haystack : NULL;
+        ਵਾਪਸ startswith_no_case(haystack, needle) ? (ਅੱਖਰ*) haystack : ਨਿਰਾ;
 }
 
-size_t str_common_prefix(const char *a, const char *b) {
-        assert(a);
-        assert(b);
+size_t str_common_ਅਗੇਤਰ(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
         /* Returns the length of the common prefix of the two specified strings, or SIZE_MAX in case the
          * strings are fully identical. */
 
-        for (size_t n = 0;; n++) {
-                char c = a[n];
-                if (c != b[n])
-                        return n;
-                if (c == 0)
-                        return SIZE_MAX;
+        ਲਈ (size_t n = 0;; n++) {
+                ਅੱਖਰ c = a[n];
+                ਜੇ (c != b[n])
+                        ਵਾਪਸ n;
+                ਜੇ (c == 0)
+                        ਵਾਪਸ SIZE_MAX;
         }
 }

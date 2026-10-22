@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-typedef struct UIDRangeEntry {
-        uid_t start, nr;
-} UIDRangeEntry;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ UIDRange_ਇੰਦਰਾਜ {
+        uid_t ਸ਼ੁਰੂ, nr;
+} UIDRange_ਇੰਦਰਾਜ;
 
-typedef struct UIDRange {
-        UIDRangeEntry *entries;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ UIDRange {
+        UIDRange_ਇੰਦਰਾਜ *entries;
         size_t n_entries;
 } UIDRange;
 
 UIDRange* uid_range_free(UIDRange *range);
 DEFINE_TRIVIAL_CLEANUP_FUNC(UIDRange*, uid_range_free);
 
-int uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce);
-static inline int uid_range_add(UIDRange **range, uid_t start, uid_t nr) {
-        return uid_range_add_internal(range, start, nr, true);
+ਪੂਰਨ uid_range_ਜੋੜੋ_ਅੰਦਰੂਨੀ(UIDRange **range, uid_t ਸ਼ੁਰੂ, uid_t nr, bool coalesce);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ uid_range_ਜੋੜੋ(UIDRange **range, uid_t ਸ਼ੁਰੂ, uid_t nr) {
+        ਵਾਪਸ uid_range_ਜੋੜੋ_ਅੰਦਰੂਨੀ(range, ਸ਼ੁਰੂ, nr, true);
 }
-int uid_range_add_str_full(UIDRange **range, const char *s, bool coalesce);
-static inline int uid_range_add_str(UIDRange **range, const char *s) {
-        return uid_range_add_str_full(range, s, true);
-}
-
-int uid_range_next_lower(const UIDRange *range, uid_t *uid);
-
-bool uid_range_covers(const UIDRange *range, uid_t start, uid_t nr);
-static inline bool uid_range_contains(const UIDRange *range, uid_t uid) {
-        return uid_range_covers(range, uid, 1);
+ਪੂਰਨ uid_range_ਜੋੜੋ_str_ਭਰਿਆ(UIDRange **range, ਅਚਲ ਅੱਖਰ *s, bool coalesce);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ uid_range_ਜੋੜੋ_str(UIDRange **range, ਅਚਲ ਅੱਖਰ *s) {
+        ਵਾਪਸ uid_range_ਜੋੜੋ_str_ਭਰਿਆ(range, s, true);
 }
 
-int uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range);
+ਪੂਰਨ uid_range_ਅਗਲਾ_ਹੇਠਲਾ(ਅਚਲ UIDRange *range, uid_t *uid);
 
-static inline size_t uid_range_entries(const UIDRange *range) {
-        return range ? range->n_entries : 0;
+bool uid_range_covers(ਅਚਲ UIDRange *range, uid_t ਸ਼ੁਰੂ, uid_t nr);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool uid_range_ਸ਼ਾਮਲ_ਹੈ(ਅਚਲ UIDRange *range, uid_t uid) {
+        ਵਾਪਸ uid_range_covers(range, uid, 1);
 }
 
-unsigned uid_range_size(const UIDRange *range) _pure_;
-bool uid_range_is_empty(const UIDRange *range) _pure_;
+ਪੂਰਨ uid_map_read_one(FILE *f, uid_t *ret_ਅਧਾਰ, uid_t *ret_ਖਿਸਕਾਓ, uid_t *ret_range);
 
-bool uid_range_equal(const UIDRange *a, const UIDRange *b);
+ਸਥਿਰ ਸਤਰਅੰਦਰ size_t uid_range_entries(ਅਚਲ UIDRange *range) {
+        ਵਾਪਸ range ? range->n_entries : 0;
+}
 
-typedef enum UIDRangeUsernsMode {
+ਬਿਨਾਨਿਸ਼ਾਨੀ uid_range_ਮਾਪ(ਅਚਲ UIDRange *range) ਸ਼ੁੱਧ;
+bool uid_range_is_ਖਾਲੀ_ਥਾਵਾਂ(ਅਚਲ UIDRange *range) ਸ਼ੁੱਧ;
+
+bool uid_range_equal(ਅਚਲ UIDRange *a, ਅਚਲ UIDRange *b);
+
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ UIDRange_Userns_ਬਹੁਲਕ {
         UID_RANGE_USERNS_INSIDE,
         UID_RANGE_USERNS_OUTSIDE,
         GID_RANGE_USERNS_INSIDE,
         GID_RANGE_USERNS_OUTSIDE,
-        _UID_RANGE_USERNS_MODE_MAX,
-        _UID_RANGE_USERNS_MODE_INVALID = -EINVAL,
-} UIDRangeUsernsMode;
+        UID_RANGE_USERNS_ਬਹੁਲਕ_MAX,
+        UID_RANGE_USERNS_ਬਹੁਲਕ_INVALID = -EINVAL,
+} UIDRange_Userns_ਬਹੁਲਕ;
 
-int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns(const char *path, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_full(path, mode, true, ret);
+ਪੂਰਨ uid_range_ਲੱਦੋ_userns_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, UIDRange_Userns_ਬਹੁਲਕ ਬਹੁਲਕ, bool coalesce, UIDRange **ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ uid_range_ਲੱਦੋ_userns(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, UIDRange_Userns_ਬਹੁਲਕ ਬਹੁਲਕ, UIDRange **ret) {
+        ਵਾਪਸ uid_range_ਲੱਦੋ_userns_ਭਰਿਆ(ਰਸਤਾ, ਬਹੁਲਕ, true, ret);
 }
-int uid_range_load_userns_by_fd_full(int userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns_by_fd(int userns_fd, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_by_fd_full(userns_fd, mode, true, ret);
+ਪੂਰਨ uid_range_ਲੱਦੋ_userns_by_fd_ਭਰਿਆ(ਪੂਰਨ userns_fd, UIDRange_Userns_ਬਹੁਲਕ ਬਹੁਲਕ, bool coalesce, UIDRange **ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ uid_range_ਲੱਦੋ_userns_by_fd(ਪੂਰਨ userns_fd, UIDRange_Userns_ਬਹੁਲਕ ਬਹੁਲਕ, UIDRange **ret) {
+        ਵਾਪਸ uid_range_ਲੱਦੋ_userns_by_fd_ਭਰਿਆ(userns_fd, ਬਹੁਲਕ, true, ret);
 }
 
-bool uid_range_overlaps(const UIDRange *range, uid_t start, uid_t nr);
+bool uid_range_overlaps(ਅਚਲ UIDRange *range, uid_t ਸ਼ੁਰੂ, uid_t nr);
 
-int uid_range_clip(UIDRange *range, uid_t min, uid_t max);
-int uid_range_partition(UIDRange *range, uid_t size);
-int uid_range_copy(const UIDRange *range, UIDRange **ret);
-int uid_range_remove(UIDRange *range, uid_t start, uid_t size);
-int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret);
-int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret);
+ਪੂਰਨ uid_range_clip(UIDRange *range, uid_t min, uid_t max);
+ਪੂਰਨ uid_range_ਹਿੱਸੇ_ਕਰੋ(UIDRange *range, uid_t ਮਾਪ);
+ਪੂਰਨ uid_range_copy(ਅਚਲ UIDRange *range, UIDRange **ret);
+ਪੂਰਨ uid_range_remove(UIDRange *range, uid_t ਸ਼ੁਰੂ, uid_t ਮਾਪ);
+ਪੂਰਨ uid_range_translate(ਅਚਲ UIDRange *outside, ਅਚਲ UIDRange *inside, uid_t uid, uid_t *ret);
+ਪੂਰਨ uid_range_translate_userns_fd(ਪੂਰਨ userns_fd, UIDRange_Userns_ਬਹੁਲਕ ਬਹੁਲਕ, uid_t uid, uid_t *ret);
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret);
+ਪੂਰਨ uid_map_ਖੋਜ_ਜੜ੍ਹ(pid_t pid, UIDRange_Userns_ਬਹੁਲਕ ਬਹੁਲਕ, uid_t *ret);
 
-uid_t uid_range_base(const UIDRange *range);
+uid_t uid_range_ਅਧਾਰ(ਅਚਲ UIDRange *range);

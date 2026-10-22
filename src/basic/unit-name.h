@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-#define UNIT_NAME_MAX 256
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(ਅਚਲ ਅੱਖਰ *n, UnitNameFlags flags) ਸ਼ੁੱਧ;
+bool unit_ਅਗੇਤਰ_is_valid(ਅਚਲ ਅੱਖਰ *p) ਸ਼ੁੱਧ;
+bool unit_instance_is_valid(ਅਚਲ ਅੱਖਰ *i) ਸ਼ੁੱਧ;
+bool unit_suffix_is_valid(ਅਚਲ ਅੱਖਰ *s) ਸ਼ੁੱਧ;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+ਪੂਰਨ unit_name_ਮੰਜ਼ਿਲ_ਅਗੇਤਰ(ਅਚਲ ਅੱਖਰ *n, ਅੱਖਰ **ret);
+UnitNameFlags unit_name_ਮੰਜ਼ਿਲ_instance(ਅਚਲ ਅੱਖਰ *n, ਅੱਖਰ **ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ UnitNameFlags unit_name_classify(ਅਚਲ ਅੱਖਰ *n) {
+        ਵਾਪਸ unit_name_ਮੰਜ਼ਿਲ_instance(n, ਨਿਰਾ);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+ਪੂਰਨ unit_name_ਮੰਜ਼ਿਲ_ਅਗੇਤਰ_and_instance(ਅਚਲ ਅੱਖਰ *n, ਅੱਖਰ **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_ਮੰਜ਼ਿਲ_type(ਅਚਲ ਅੱਖਰ *n) ਸ਼ੁੱਧ;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+ਪੂਰਨ unit_name_change_suffix(ਅਚਲ ਅੱਖਰ *n, ਅਚਲ ਅੱਖਰ *suffix, ਅੱਖਰ **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+ਪੂਰਨ unit_name_build(ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ, ਅਚਲ ਅੱਖਰ *instance, ਅਚਲ ਅੱਖਰ *suffix, ਅੱਖਰ **ret);
+ਪੂਰਨ unit_name_build_from_type(ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ, ਅਚਲ ਅੱਖਰ *instance, UnitType type, ਅੱਖਰ **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+ਅੱਖਰ* unit_name_escape(ਅਚਲ ਅੱਖਰ *f);
+ਪੂਰਨ unit_name_unescape(ਅਚਲ ਅੱਖਰ *f, ਅੱਖਰ **ret);
+ਪੂਰਨ unit_name_ਰਸਤਾ_escape(ਅਚਲ ਅੱਖਰ *f, ਅੱਖਰ **ret);
+ਪੂਰਨ unit_name_ਰਸਤਾ_unescape(ਅਚਲ ਅੱਖਰ *f, ਅੱਖਰ **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+ਪੂਰਨ unit_name_replace_instance_ਭਰਿਆ(
+                ਅਚਲ ਅੱਖਰ *original,
+                ਅਚਲ ਅੱਖਰ *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                ਅੱਖਰ **ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ unit_name_replace_instance(ਅਚਲ ਅੱਖਰ *original, ਅਚਲ ਅੱਖਰ *instance, ਅੱਖਰ **ret) {
+        ਵਾਪਸ unit_name_replace_instance_ਭਰਿਆ(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+ਪੂਰਨ unit_name_template(ਅਚਲ ਅੱਖਰ *f, ਅੱਖਰ **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+ਪੂਰਨ unit_name_hash_long(ਅਚਲ ਅੱਖਰ *name, ਅੱਖਰ **ret);
+bool unit_name_is_hashed(ਅਚਲ ਅੱਖਰ *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+ਪੂਰਨ unit_name_from_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *suffix, ਅੱਖਰ **ret);
+ਪੂਰਨ unit_name_from_ਰਸਤਾ_instance(ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *suffix, ਅੱਖਰ **ret);
+ਪੂਰਨ unit_name_ਮੰਜ਼ਿਲ_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *name, ਅੱਖਰ **ret);
 
-typedef enum UnitNameMangle {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+ਪੂਰਨ unit_name_mangle_with_suffix(ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *operation, UnitNameMangle flags, ਅਚਲ ਅੱਖਰ *suffix, ਅੱਖਰ **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ unit_name_mangle(ਅਚਲ ਅੱਖਰ *name, UnitNameMangle flags, ਅੱਖਰ **ret) {
+        ਵਾਪਸ unit_name_mangle_with_suffix(name, ਨਿਰਾ, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+ਪੂਰਨ ਟੁਕੜਾ_build_ਮਾਪਾ_ਟੁਕੜਾ(ਅਚਲ ਅੱਖਰ *ਟੁਕੜਾ, ਅੱਖਰ **ret);
+ਪੂਰਨ ਟੁਕੜਾ_build_subslice(ਅਚਲ ਅੱਖਰ *ਟੁਕੜਾ, ਅਚਲ ਅੱਖਰ *name, ਅੱਖਰ **ret);
+bool ਟੁਕੜਾ_name_is_valid(ਅਚਲ ਅੱਖਰ *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_ਅਗੇਤਰ_equal(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b);

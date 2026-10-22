@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "audit-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fileio.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parse-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "pidref.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "process-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "stat-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "user-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+ਸਥਿਰ ਪੂਰਨ audit_read_ਖੇਤਰ(ਅਚਲ PidRef *pid, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅੱਖਰ **ret) {
+        ਪੂਰਨ r;
 
-        assert(field);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਖੇਤਰ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        ਜੇ (!pidref_is_ਸੈੱਟ(pid))
+                ਵਾਪਸ -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        ਜੇ (detect_container() > 0)
+                ਵਾਪਸ -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        ਅਚਲ ਅੱਖਰ *p = procfs_file_alloca(pid->pid, ਖੇਤਰ);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ ਅੱਖਰ *s = ਨਿਰਾ;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_ਭਰਿਆ_virtual_file(p, &s, /* ret_size= */ ਨਿਰਾ);
+        ਜੇ (r == -ENOENT) {
+                ਜੇ (proc_mounted() == 0)
+                        ਵਾਪਸ -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } ਨਹੀਂਤਾਂ ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        ਜੇ (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                ਵਾਪਸ -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ਪੂਰਨ audit_session_from_pid(ਅਚਲ PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ ਅੱਖਰ *s = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        r = audit_read_ਖੇਤਰ(pid, "sessionid", &s);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         uint32_t u;
-        r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        r = ਸੁਰੱਖਿਅਤ_atou32(s, &u);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        ਜੇ (!audit_session_is_valid(u))
+                ਵਾਪਸ -ENODATA;
 
-        if (ret_id)
+        ਜੇ (ret_id)
                 *ret_id = u;
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ਪੂਰਨ audit_loginuid_from_pid(ਅਚਲ PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ ਅੱਖਰ *s = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        r = audit_read_ਖੇਤਰ(pid, "loginuid", &s);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        ਜੇ (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                ਵਾਪਸ -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        ਵਾਪਸ parse_uid(s, ret_uid);
 }

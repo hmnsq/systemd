@@ -1,64 +1,64 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
 
-#include "env-util.h"
-#include "errno-util.h"
-#include "initrd-util.h"
-#include "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "env-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "errno-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "initrd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
 
-static int saved_in_initrd = -1;
+ਸਥਿਰ ਪੂਰਨ saved_ਵਿੱਚ_initrd = -1;
 
-bool in_initrd(void) {
-        int r;
+bool ਵਿੱਚ_initrd(ਖਾਲੀ) {
+        ਪੂਰਨ r;
 
-        if (saved_in_initrd >= 0)
-                return saved_in_initrd;
+        ਜੇ (saved_ਵਿੱਚ_initrd >= 0)
+                ਵਾਪਸ saved_ਵਿੱਚ_initrd;
 
         /* If /etc/initrd-release exists, we're in an initrd.
          * This can be overridden by setting SYSTEMD_IN_INITRD=0|1.
          */
 
         r = secure_getenv_bool("SYSTEMD_IN_INITRD");
-        if (r < 0 && r != -ENXIO)
+        ਜੇ (r < 0 && r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_IN_INITRD, ignoring: %m");
 
-        if (r >= 0)
-                saved_in_initrd = r > 0;
-        else {
+        ਜੇ (r >= 0)
+                saved_ਵਿੱਚ_initrd = r > 0;
+        ਨਹੀਂਤਾਂ {
                 r = RET_NERRNO(access("/etc/initrd-release", F_OK));
-                if (r < 0 && r != -ENOENT)
+                ਜੇ (r < 0 && r != -ENOENT)
                         log_debug_errno(r, "Failed to check if /etc/initrd-release exists, assuming it does not: %m");
-                saved_in_initrd = r >= 0;
+                saved_ਵਿੱਚ_initrd = r >= 0;
         }
 
-        return saved_in_initrd;
+        ਵਾਪਸ saved_ਵਿੱਚ_initrd;
 }
 
-void in_initrd_force(bool value) {
-        saved_in_initrd = value;
+ਖਾਲੀ ਵਿੱਚ_initrd_force(bool ਮੁੱਲ) {
+        saved_ਵਿੱਚ_initrd = ਮੁੱਲ;
 }
 
-int in_first_boot(void) {
-        static int first_boot_env_parse_cached = -1;
-        int r;
+ਪੂਰਨ ਵਿੱਚ_ਪਹਿਲਾ_boot(ਖਾਲੀ) {
+        ਸਥਿਰ ਪੂਰਨ ਪਹਿਲਾ_boot_env_parse_cached = -1;
+        ਪੂਰਨ r;
 
-        if (first_boot_env_parse_cached >= 0)
-                return first_boot_env_parse_cached;
+        ਜੇ (ਪਹਿਲਾ_boot_env_parse_cached >= 0)
+                ਵਾਪਸ ਪਹਿਲਾ_boot_env_parse_cached;
 
         r = secure_getenv_bool("SYSTEMD_FIRST_BOOT");
-        if (r >= 0)
-                return (first_boot_env_parse_cached = r);
-        if (r != -ENXIO)
+        ਜੇ (r >= 0)
+                ਵਾਪਸ (ਪਹਿਲਾ_boot_env_parse_cached = r);
+        ਜੇ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_FIRST_BOOT, ignoring: %m");
 
         /* This is not cached and must *never* be cached, other parts of systemd write it to signal
          * an update to the first-boot state. */
         r = RET_NERRNO(access("/run/systemd/first-boot", F_OK));
-        if (r >= 0)
-                return true;
-        if (r == -ENOENT)
-                return false;
+        ਜੇ (r >= 0)
+                ਵਾਪਸ true;
+        ਜੇ (r == -ENOENT)
+                ਵਾਪਸ false;
 
-        return log_debug_errno(r, "Failed to check /run/systemd/first-boot: %m");
+        ਵਾਪਸ log_debug_errno(r, "Failed to check /run/systemd/first-boot: %m");
 }

@@ -1,150 +1,150 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "dlfcn-util.h"
-#include "errno-util.h"
-#include "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "dlfcn-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "errno-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
 
-void* safe_dlclose(void *dl) {
-        if (!dl)
-                return NULL;
+ਖਾਲੀ* ਸੁਰੱਖਿਅਤ_dlclose(ਖਾਲੀ *dl) {
+        ਜੇ (!dl)
+                ਵਾਪਸ ਨਿਰਾ;
 
         assert_se(dlclose(dl) == 0);
-        return NULL;
+        ਵਾਪਸ ਨਿਰਾ;
 }
 
-static int dlsym_many_or_warnv(void *dl, int log_level, va_list ap) {
-        void (**fn)(void);
+ਸਥਿਰ ਪੂਰਨ dlsym_many_or_warnv(ਖਾਲੀ *dl, ਪੂਰਨ log_level, va_list ap) {
+        ਖਾਲੀ (**fn)(ਖਾਲੀ);
 
         /* Tries to resolve a bunch of function symbols, and logs an error about if it cannot resolve one of
          * them. Note that this function possibly modifies the supplied function pointers if the whole
          * operation fails. */
 
-        while ((fn = va_arg(ap, typeof(fn)))) {
-                void (*tfn)(void);
-                const char *symbol;
+        ਜਦੋਂ ((fn = va_arg(ap, typeof(fn)))) {
+                ਖਾਲੀ (*tfn)(ਖਾਲੀ);
+                ਅਚਲ ਅੱਖਰ *ਚਿੰਨ੍ਹ;
 
-                symbol = va_arg(ap, typeof(symbol));
+                ਚਿੰਨ੍ਹ = va_arg(ap, typeof(ਚਿੰਨ੍ਹ));
 
-                tfn = (typeof(tfn)) dlsym(dl, symbol);
-                if (!tfn)
-                        return log_full_errno(log_level,
+                tfn = (typeof(tfn)) dlsym(dl, ਚਿੰਨ੍ਹ);
+                ਜੇ (!tfn)
+                        ਵਾਪਸ log_ਭਰਿਆ_errno(log_level,
                                               SYNTHETIC_ERRNO(ELIBBAD),
-                                              "Can't find symbol %s: %s", symbol, dlerror());
+                                              "Can't find symbol %s: %s", ਚਿੰਨ੍ਹ, dlerror());
                 *fn = tfn;
         }
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int dlsym_many_or_warn_sentinel(void *dl, int log_level, ...) {
+ਪੂਰਨ dlsym_many_or_warn_sentinel(ਖਾਲੀ *dl, ਪੂਰਨ log_level, ...) {
         va_list ap;
-        int r;
+        ਪੂਰਨ r;
 
         va_start(ap, log_level);
         r = dlsym_many_or_warnv(dl, log_level, ap);
         va_end(ap);
 
-        return r;
+        ਵਾਪਸ r;
 }
 
-int dlopen_verbose(void **dlp, const char *filename, int log_level) {
-        int r;
+ਪੂਰਨ dlopen_verbose(ਖਾਲੀ **dlp, ਅਚਲ ਅੱਖਰ *filename, ਪੂਰਨ log_level) {
+        ਪੂਰਨ r;
 
-        assert(dlp);
+        ਪ੍ਰਤਿਜ੍ਞਾ(dlp);
 
-        if (*dlp)
-                return 0; /* Already loaded */
+        ਜੇ (*dlp)
+                ਵਾਪਸ 0; /* Already loaded */
 
-        _cleanup_(dlclosep) void *dl = NULL;
-        const char *dle = NULL;
-        r = dlopen_safe(filename, &dl, &dle);
-        if (r < 0)
-                return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+        _cleanup_(dlclosep) ਖਾਲੀ *dl = ਨਿਰਾ;
+        ਅਚਲ ਅੱਖਰ *dle = ਨਿਰਾ;
+        r = dlopen_ਸੁਰੱਖਿਅਤ(filename, &dl, &dle);
+        ਜੇ (r < 0)
+                ਵਾਪਸ log_ਭਰਿਆ_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                                       "Shared library '%s' is not available: %s", filename, dle ?: STRERROR(r));
 
         log_debug("Loaded shared library '%s' via dlopen().", filename);
         *dlp = TAKE_PTR(dl);
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_level, ...) {
-        int r;
+ਪੂਰਨ dlopen_many_sym_or_warn_sentinel(ਖਾਲੀ **dlp, ਅਚਲ ਅੱਖਰ *filename, ਪੂਰਨ log_level, ...) {
+        ਪੂਰਨ r;
 
-        assert(dlp);
+        ਪ੍ਰਤਿਜ੍ਞਾ(dlp);
 
-        if (*dlp)
-                return 0; /* Already loaded */
+        ਜੇ (*dlp)
+                ਵਾਪਸ 0; /* Already loaded */
 
-        _cleanup_(dlclosep) void *dl = NULL;
+        _cleanup_(dlclosep) ਖਾਲੀ *dl = ਨਿਰਾ;
         r = dlopen_verbose(&dl, filename, log_level);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         va_list ap;
         va_start(ap, log_level);
         r = dlsym_many_or_warnv(dl, log_level, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         /* Note that we never release the reference here, because there's no real reason to. After all this
          * was traditionally a regular shared library dependency which lives forever too. */
         *dlp = TAKE_PTR(dl);
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-static bool dlopen_blocked = false;
+ਸਥਿਰ bool dlopen_blocked = false;
 
-void block_dlopen(void) {
+ਖਾਲੀ ਖੰਡ_dlopen(ਖਾਲੀ) {
         dlopen_blocked = true;
 }
 
-int dlopen_safe(const char *filename, void **ret, const char **reterr_dlerror) {
-#if BUILD_STATIC
-        return log_debug_errno(SYNTHETIC_ERRNO(EOPNOTSUPP),
+ਪੂਰਨ dlopen_ਸੁਰੱਖਿਅਤ(ਅਚਲ ਅੱਖਰ *filename, ਖਾਲੀ **ret, ਅਚਲ ਅੱਖਰ **reterr_dlerror) {
+#ਜੇ BUILD_STATIC
+        ਵਾਪਸ log_debug_errno(SYNTHETIC_ERRNO(EOPNOTSUPP),
                                "dlopen is not supported in static builds, cannot load %s.", filename);
-#else
-        _cleanup_(dlclosep) void *dl = NULL;
-        int r;
+#ਨਹੀਂਤਾਂ
+        _cleanup_(dlclosep) ਖਾਲੀ *dl = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(filename);
+        ਪ੍ਰਤਿਜ੍ਞਾ(filename);
 
         /* A wrapper around dlopen(), that takes dlopen_blocked into account, and tries to normalize the
          * error reporting a bit. */
 
-        int flags = RTLD_NOW|RTLD_NODELETE; /* Always set RTLD_NOW + RTLD_NODELETE, for security reasons */
+        ਪੂਰਨ flags = RTLD_NOW|RTLD_NODELETE; /* Always set RTLD_NOW + RTLD_NODELETE, for security reasons */
 
         /* If dlopen() is blocked we'll still try it, but set RTLD_NOLOAD, so that it will still work if
          * already loaded (for example because the binary linked to things regularly), but fail if not. */
-        if (dlopen_blocked)
+        ਜੇ (dlopen_blocked)
                 flags |= RTLD_NOLOAD;
 
         errno = 0;
         dl = dlopen(filename, flags);
-        if (!dl) {
-                if (dlopen_blocked) {
-                        (void) dlerror(); /* consume error, so that no later call will return it */
+        ਜੇ (!dl) {
+                ਜੇ (dlopen_blocked) {
+                        (ਖਾਲੀ) dlerror(); /* consume error, so that no later call will return it */
 
-                        if (reterr_dlerror)
-                                *reterr_dlerror = NULL;
+                        ਜੇ (reterr_dlerror)
+                                *reterr_dlerror = ਨਿਰਾ;
 
-                        return log_debug_errno(SYNTHETIC_ERRNO(EPERM), "Refusing loading of '%s', as loading further dlopen() modules has been blocked.", filename);
+                        ਵਾਪਸ log_debug_errno(SYNTHETIC_ERRNO(EPERM), "Refusing loading of '%s', as loading further dlopen() modules has been blocked.", filename);
                 }
 
                 r = errno_or_else(ENOPKG);
 
-                if (reterr_dlerror)
+                ਜੇ (reterr_dlerror)
                         *reterr_dlerror = dlerror();
-                else
-                        (void) dlerror(); /* consume error, so that no later call will return it */
+                ਨਹੀਂਤਾਂ
+                        (ਖਾਲੀ) dlerror(); /* consume error, so that no later call will return it */
 
-                return r;
+                ਵਾਪਸ r;
         }
 
-        if (ret)
+        ਜੇ (ret)
                 *ret = TAKE_PTR(dl);
 
-        return 0;
-#endif
+        ਵਾਪਸ 0;
+#ਜੇ_ਅੰਤ
 }

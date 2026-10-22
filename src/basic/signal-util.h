@@ -1,85 +1,85 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <signal.h>     /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ <signal.h>     /* IWYU pragma: export */
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-int reset_all_signal_handlers(void);
-int reset_signal_mask(void);
+ਪੂਰਨ reset_all_signal_handlers(ਖਾਲੀ);
+ਪੂਰਨ reset_signal_ਨਕਾਬ(ਖਾਲੀ);
 
-int sigaction_many_internal(const struct sigaction *sa, ...);
+ਪੂਰਨ sigaction_many_ਅੰਦਰੂਨੀ(ਅਚਲ ਬਣਤਰ sigaction *sa, ...);
 
-#define ignore_signals(...)                                             \
-        sigaction_many_internal(                                        \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ignore_ਸੰਕੇਤ(...)                                             \
+        sigaction_many_ਅੰਦਰੂਨੀ(                                        \
                         &sigaction_ignore,                              \
                         __VA_ARGS__,                                    \
                         -1)
 
-#define default_signals(...)                                            \
-        sigaction_many_internal(                                        \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ default_ਸੰਕੇਤ(...)                                            \
+        sigaction_many_ਅੰਦਰੂਨੀ(                                        \
                         &sigaction_default,                             \
                         __VA_ARGS__,                                    \
                         -1)
 
-#define sigaction_many(sa, ...)                                         \
-        sigaction_many_internal(sa, __VA_ARGS__, -1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ sigaction_many(sa, ...)                                         \
+        sigaction_many_ਅੰਦਰੂਨੀ(sa, __VA_ARGS__, -1)
 
-int sigset_add_many_internal(sigset_t *ss, ...);
-#define sigset_add_many(...) sigset_add_many_internal(__VA_ARGS__, -1)
+ਪੂਰਨ sigset_ਜੋੜੋ_many_ਅੰਦਰੂਨੀ(sigset_t *ss, ...);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ sigset_ਜੋੜੋ_many(...) sigset_ਜੋੜੋ_many_ਅੰਦਰੂਨੀ(__VA_ARGS__, -1)
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...);
-#define sigprocmask_many(...) sigprocmask_many_internal(__VA_ARGS__, -1)
+ਪੂਰਨ sigprocmask_many_ਅੰਦਰੂਨੀ(ਪੂਰਨ how, sigset_t *ret_old_ਨਕਾਬ, ...);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ sigprocmask_many(...) sigprocmask_many_ਅੰਦਰੂਨੀ(__VA_ARGS__, -1)
 
-DECLARE_STRING_TABLE_LOOKUP(signal, int);
-const char* signal_code_to_string(int signo, int code) _const_;
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(ਸੰਕੇਤ, ਪੂਰਨ);
+ਅਚਲ ਅੱਖਰ* signal_ਕੋਡ_ਮੰਜ਼ਿਲ_string(ਪੂਰਨ signo, ਪੂਰਨ ਕੋਡ) _const_;
 
-void nop_signal_handler(int sig);
+ਖਾਲੀ nop_signal_handler(ਪੂਰਨ sig);
 
-static inline void block_signals_reset(sigset_t **ss) {
-        assert(ss);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ ਖੰਡ_ਸੰਕੇਤ_reset(sigset_t **ss) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(ss);
 
-        if (!*ss)
-                return;
+        ਜੇ (!*ss)
+                ਵਾਪਸ;
 
-        assert_log(sigprocmask(SIG_SETMASK, *ss, NULL) >= 0);
+        assert_log(sigprocmask(SIG_SETMASK, *ss, ਨਿਰਾ) >= 0);
 }
 
-#define BLOCK_SIGNALS(...)                                              \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਖੰਡ_ਸੰਕੇਤ_2(...)                                              \
         sigset_t _saved_sigset;                                         \
-        _cleanup_(block_signals_reset) _unused_ sigset_t *_saved_sigsetp = \
+        _cleanup_(ਖੰਡ_ਸੰਕੇਤ_reset) ਅਣਵਰਤਿਆ sigset_t *_saved_sigsetp = \
                 assert_log(sigprocmask_many(SIG_BLOCK, &_saved_sigset, __VA_ARGS__) >= 0) ? \
-                &_saved_sigset : NULL;
+                &_saved_sigset : ਨਿਰਾ;
 
-#define SIGNO_INVALID (-EINVAL)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIGNO_INVALID (-EINVAL)
 
-static inline bool SIGNAL_VALID(int signo) {
-        return signo > 0 && signo < _NSIG;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool SIGNAL_VALID(ਪੂਰਨ signo) {
+        ਵਾਪਸ signo > 0 && signo < _NSIG;
 }
 
-static inline const char* signal_to_string_with_check(int n) {
-        if (!SIGNAL_VALID(n))
-                return NULL;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* signal_ਮੰਜ਼ਿਲ_string_with_check(ਪੂਰਨ n) {
+        ਜੇ (!SIGNAL_VALID(n))
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return signal_to_string(n);
+        ਵਾਪਸ signal_ਮੰਜ਼ਿਲ_string(n);
 }
 
-int signal_is_blocked(int sig);
+ਪੂਰਨ signal_is_blocked(ਪੂਰਨ sig);
 
-int autoreaping_enabled(void);
+ਪੂਰਨ autoreaping_enabled(ਖਾਲੀ);
 
-int pop_pending_signal_internal(int sig, ...);
-#define pop_pending_signal(...) pop_pending_signal_internal(__VA_ARGS__, -1)
+ਪੂਰਨ ਕੱਢੋ_pending_signal_ਅੰਦਰੂਨੀ(ਪੂਰਨ sig, ...);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਕੱਢੋ_pending_signal(...) ਕੱਢੋ_pending_signal_ਅੰਦਰੂਨੀ(__VA_ARGS__, -1)
 
-void propagate_signal(int sig, siginfo_t *siginfo);
+ਖਾਲੀ propagate_signal(ਪੂਰਨ sig, siginfo_t *siginfo);
 
-extern const struct sigaction sigaction_ignore;
-extern const struct sigaction sigaction_default;
-extern const struct sigaction sigaction_nop_nocldstop;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ sigaction sigaction_ignore;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ sigaction sigaction_default;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ sigaction sigaction_nop_nocldstop;
 
-int parse_signo(const char *s, int *ret);
+ਪੂਰਨ parse_signo(ਅਚਲ ਅੱਖਰ *s, ਪੂਰਨ *ret);
 
-static inline bool si_code_from_process(int si_code) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool si_ਕੋਡ_from_process(ਪੂਰਨ si_code) {
         /* Returns true if the .si_code field of siginfo_t or the .ssi_code field of struct signalfd_siginfo
          * indicate that the signal originates from a userspace process, and hence the .si_pid/.ssi_pid field
          * is valid. This check is not obvious, since on one hand SI_USER/SI_QUEUE are supposed to be the
@@ -98,7 +98,7 @@ static inline bool si_code_from_process(int si_code) {
          *
          * From: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html */
 
-        return si_code < 0 || IN_SET(si_code, SI_USER, SI_QUEUE);
+        ਵਾਪਸ si_code < 0 || ਵਿੱਚ_ਸੈੱਟ(si_code, SI_USER, SI_QUEUE);
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext);
+ਖਾਲੀ sigterm_process_ਸਮੂਹ_handler(ਪੂਰਨ ਸੰਕੇਤ, siginfo_t *info, ਖਾਲੀ *ucontext);

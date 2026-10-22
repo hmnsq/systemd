@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "sha256.h"
-#include "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "hexdecoct.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sha256.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        struct sha256_ctx ctx;
-        uint64_t total_size = 0;
+ਪੂਰਨ sha256_fd(ਪੂਰਨ fd, uint64_t max_ਮਾਪ, uint8_t ret[ਸਥਿਰ SHA256_DIGEST_ਮਾਪ]) {
+        ਬਣਤਰ sha256_ctx ctx;
+        uint64_t ਕੁੱਲ_ਮਾਪ = 0;
 
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
         sha256_init_ctx(&ctx);
 
-        for (;;) {
-                uint8_t buffer[64 * 1024];
+        ਲਈ (;;) {
+                uint8_t ਬਫਰ[64 * 1024];
                 ssize_t n;
 
-                n = read(fd, buffer, sizeof(buffer));
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = ਪਠ(fd, ਬਫਰ, ਆਕਾਰ(ਬਫਰ));
+                ਜੇ (n < 0)
+                        ਵਾਪਸ -errno;
+                ਜੇ (n == 0)
+                        ਰੋਕੋ;
 
-                if (!INC_SAFE(&total_size, n) || total_size > max_size)
-                        return -EFBIG;
+                ਜੇ (!INC_ਸੁਰੱਖਿਅਤ(&ਕੁੱਲ_ਮਾਪ, n) || ਕੁੱਲ_ਮਾਪ > max_ਮਾਪ)
+                        ਵਾਪਸ -EFBIG;
 
-                sha256_process_bytes(buffer, n, &ctx);
+                sha256_process_ਬਾਈਟਾਂ(ਬਫਰ, n, &ctx);
         }
 
-        sha256_finish_ctx(&ctx, ret);
-        return 0;
+        sha256_ਅੰਤ_ctx(&ctx, ret);
+        ਵਾਪਸ 0;
 }
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        _cleanup_free_ uint8_t *data = NULL;
-        size_t size = 0;
-        int r;
+ਪੂਰਨ parse_sha256(ਅਚਲ ਅੱਖਰ *s, uint8_t ret[ਸਥਿਰ SHA256_DIGEST_ਮਾਪ]) {
+        _cleanup_free_ uint8_t *ਅੰਕੜੇ = ਨਿਰਾ;
+        size_t ਮਾਪ = 0;
+        ਪੂਰਨ r;
 
-        if (!sha256_is_valid(s))
-                return -EINVAL;
+        ਜੇ (!sha256_is_valid(s))
+                ਵਾਪਸ -EINVAL;
 
-        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (void**) &data, &size);
-        if (r < 0)
-                return r;
-        assert(size == SHA256_DIGEST_SIZE);
+        r = unhexmem_ਭਰਿਆ(s, SHA256_DIGEST_ਮਾਪ * 2, false, (ਖਾਲੀ**) &ਅੰਕੜੇ, &ਮਾਪ);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਮਾਪ == SHA256_DIGEST_ਮਾਪ);
 
-        memcpy(ret, data, size);
-        return 0;
+        ਸਮ੍ਰਿਤੀ_ਨਕਲ(ret, ਅੰਕੜੇ, ਮਾਪ);
+        ਵਾਪਸ 0;
 }
 
-bool sha256_is_valid(const char *s) {
-        return s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
+bool sha256_is_valid(ਅਚਲ ਅੱਖਰ *s) {
+        ਵਾਪਸ s && ਵਿੱਚ_charset(s, HEXDIGITS) && (ਲੜੀ_ਲੰਬਾਈ(s) == SHA256_DIGEST_ਮਾਪ * 2);
 }
 
-char* sha256_direct_hex(const void *buffer, size_t sz) {
-        assert(buffer || sz == 0);
+ਅੱਖਰ* sha256_ਸਿੱਧਾ_hex(ਅਚਲ ਖਾਲੀ *ਬਫਰ, size_t sz) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਬਫਰ || sz == 0);
 
-        if (sz == SIZE_MAX)
-                sz = strlen(buffer);
+        ਜੇ (sz == SIZE_MAX)
+                sz = ਲੜੀ_ਲੰਬਾਈ(ਬਫਰ);
 
-        return hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
+        ਵਾਪਸ hexmem(SHA256_ਸਿੱਧਾ(ਬਫਰ, sz), SHA256_DIGEST_ਮਾਪ);
 }

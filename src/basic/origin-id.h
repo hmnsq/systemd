@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <pthread.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <pthread.h>
 
-#include "process-util.h"
-#include "random-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "process-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "random-util.h"
 
 /* This pattern needs to be repeated exactly in multiple modules, so macro it.
  * To ensure an object is not passed into a different module (e.g.: when two shared objects statically
@@ -12,26 +12,26 @@
  * other, see https://github.com/systemd/systemd/issues/27216), create a random static global random
  * (mixed with PID, so that we can also check for reuse after fork) that is stored in the object and
  * checked by public API on use. */
-#define _DEFINE_ORIGIN_ID_HELPERS(type, name, scope)                  \
-static uint64_t origin_id;                                            \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _DEFINE_ORIGIN_ID_HELPERS(type, name, scope)                  \
+ਸਥਿਰ uint64_t origin_id;                                            \
                                                                       \
-static void origin_id_initialize(void) {                              \
+ਸਥਿਰ ਖਾਲੀ origin_id_initialize(ਖਾਲੀ) {                              \
         origin_id = random_u64();                                     \
 }                                                                     \
                                                                       \
-static uint64_t origin_id_query(void) {                               \
-        static pthread_once_t once = PTHREAD_ONCE_INIT;               \
+ਸਥਿਰ uint64_t origin_id_query(ਖਾਲੀ) {                               \
+        ਸਥਿਰ pthread_once_t once = PTHREAD_ONCE_INIT;               \
         assert_se(pthread_once(&once, origin_id_initialize) == 0);    \
-        return origin_id ^ getpid_cached();                           \
+        ਵਾਪਸ origin_id ^ getpid_cached();                           \
 }                                                                     \
                                                                       \
 scope bool name##_origin_changed(type *p) {                           \
-        assert(p);                                                    \
-        return p->origin_id != origin_id_query();                     \
+        ਪ੍ਰਤਿਜ੍ਞਾ(p);                                                    \
+        ਵਾਪਸ p->origin_id != origin_id_query();                     \
 }
 
-#define DEFINE_ORIGIN_ID_HELPERS(type, name)                          \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DEFINE_ORIGIN_ID_HELPERS(type, name)                          \
         _DEFINE_ORIGIN_ID_HELPERS(type, name,);
 
-#define DEFINE_PRIVATE_ORIGIN_ID_HELPERS(type, name)                  \
-        _DEFINE_ORIGIN_ID_HELPERS(type, name, static);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DEFINE_ਨਿੱਜੀ_ORIGIN_ID_HELPERS(type, name)                  \
+        _DEFINE_ORIGIN_ID_HELPERS(type, name, ਸਥਿਰ);

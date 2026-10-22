@@ -1,52 +1,52 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/if.h>
-#include <linux/if_arp.h>
-#include <linux/if_ether.h>
-#include <linux/if_infiniband.h>
-#include <linux/pkt_sched.h>
-#include <mqueue.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/ip.h>
-#include <poll.h>
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/if.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/if_arp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/if_ether.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/if_infiniband.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/pkt_sched.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <mqueue.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <net/if.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <netdb.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/ip.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <poll.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/ioctl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "format-ifname.h"
-#include "format-util.h"
-#include "in-addr-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "random-util.h"
-#include "socket-util.h"
-#include "sparse-endian.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "sysctl-util.h"
-#include "user-util.h"
-#include "xattr-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "errno-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "escape.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "format-ifname.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "format-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "in-addr-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "io-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "memory-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parse-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "path-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "pidref.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "process-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "random-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "socket-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sparse-endian.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-table.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strv.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "sysctl-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "user-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "xattr-util.h"
 
-#if ENABLE_IDN
+#ਜੇ ENABLE_IDN
 #  define IDN_FLAGS NI_IDN
-#else
+#ਨਹੀਂਤਾਂ
 #  define IDN_FLAGS 0
-#endif
+#ਜੇ_ਅੰਤ
 
-static const char* const socket_address_type_table[] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ socket_ਪਤਾ_type_ਸਾਰਣੀ[] = {
         [SOCK_STREAM] =    "Stream",
         [SOCK_DGRAM] =     "Datagram",
         [SOCK_RAW] =       "Raw",
@@ -55,605 +55,605 @@ static const char* const socket_address_type_table[] = {
         [SOCK_DCCP] =      "DatagramCongestionControl",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP(socket_ਪਤਾ_type, ਪੂਰਨ);
 
-int socket_address_verify(const SocketAddress *a, bool strict) {
-        assert(a);
+ਪੂਰਨ socket_ਪਤਾ_verify(ਅਚਲ Socket_ਪਤਾ *a, bool strict) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
 
         /* With 'strict' we enforce additional sanity constraints which are not set by the standard,
          * but should only apply to sockets we create ourselves. */
 
-        switch (socket_address_family(a)) {
+        ਚੋਣ (socket_ਪਤਾ_family(a)) {
 
-        case AF_INET:
-                if (a->size != sizeof(struct sockaddr_in))
-                        return -EINVAL;
+        ਹਾਲਤ AF_INET:
+                ਜੇ (a->ਮਾਪ != ਆਕਾਰ(ਬਣਤਰ sockaddr_in))
+                        ਵਾਪਸ -EINVAL;
 
-                if (a->sockaddr.in.sin_port == 0)
-                        return -EINVAL;
+                ਜੇ (a->sockaddr.ਵਿੱਚ.sin_port == 0)
+                        ਵਾਪਸ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        ਵਾਪਸ -EINVAL;
 
-                return 0;
+                ਵਾਪਸ 0;
 
-        case AF_INET6:
-                if (a->size != sizeof(struct sockaddr_in6))
-                        return -EINVAL;
+        ਹਾਲਤ AF_INET6:
+                ਜੇ (a->ਮਾਪ != ਆਕਾਰ(ਬਣਤਰ sockaddr_in6))
+                        ਵਾਪਸ -EINVAL;
 
-                if (a->sockaddr.in6.sin6_port == 0)
-                        return -EINVAL;
+                ਜੇ (a->sockaddr.in6.sin6_port == 0)
+                        ਵਾਪਸ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        ਵਾਪਸ -EINVAL;
 
-                return 0;
+                ਵਾਪਸ 0;
 
-        case AF_UNIX:
-                if (a->size < offsetof(struct sockaddr_un, sun_path))
-                        return -EINVAL;
-                if (a->size > sizeof(struct sockaddr_un) + !strict)
+        ਹਾਲਤ AF_UNIX:
+                ਜੇ (a->ਮਾਪ < offsetof(ਬਣਤਰ sockaddr_un, sun_path))
+                        ਵਾਪਸ -EINVAL;
+                ਜੇ (a->ਮਾਪ > ਆਕਾਰ(ਬਣਤਰ sockaddr_un) + !strict)
                         /* If !strict, allow one extra byte, since getsockname() on Linux will append
                          * a NUL byte if we have path sockets that are above sun_path's full size. */
-                        return -EINVAL;
+                        ਵਾਪਸ -EINVAL;
 
-                if (a->size > offsetof(struct sockaddr_un, sun_path) &&
+                ਜੇ (a->ਮਾਪ > offsetof(ਬਣਤਰ sockaddr_un, sun_path) &&
                     a->sockaddr.un.sun_path[0] != 0 &&
                     strict) {
                         /* Only validate file system sockets here, and only in strict mode */
-                        const char *e;
+                        ਅਚਲ ਅੱਖਰ *e;
 
-                        e = memchr(a->sockaddr.un.sun_path, 0, sizeof(a->sockaddr.un.sun_path));
-                        if (e) {
+                        e = memchr(a->sockaddr.un.sun_path, 0, ਆਕਾਰ(a->sockaddr.un.sun_path));
+                        ਜੇ (e) {
                                 /* If there's an embedded NUL byte, make sure the size of the socket address matches it */
-                                if (a->size != offsetof(struct sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
-                                        return -EINVAL;
-                        } else {
+                                ਜੇ (a->ਮਾਪ != offsetof(ਬਣਤਰ sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
+                                        ਵਾਪਸ -EINVAL;
+                        } ਨਹੀਂਤਾਂ {
                                 /* If there's no embedded NUL byte, then the size needs to match the whole
                                  * structure or the structure with one extra NUL byte suffixed. (Yeah, Linux is awful,
                                  * and considers both equivalent: getsockname() even extends sockaddr_un beyond its
                                  * size if the path is non NUL terminated.) */
-                                if (!IN_SET(a->size, sizeof(a->sockaddr.un.sun_path), sizeof(a->sockaddr.un.sun_path)+1))
-                                        return -EINVAL;
+                                ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(a->ਮਾਪ, ਆਕਾਰ(a->sockaddr.un.sun_path), ਆਕਾਰ(a->sockaddr.un.sun_path)+1))
+                                        ਵਾਪਸ -EINVAL;
                         }
                 }
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
-                        return -EINVAL;
+                ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
+                        ਵਾਪਸ -EINVAL;
 
-                return 0;
+                ਵਾਪਸ 0;
 
-        case AF_NETLINK:
+        ਹਾਲਤ AF_NETLINK:
 
-                if (a->size != sizeof(struct sockaddr_nl))
-                        return -EINVAL;
+                ਜੇ (a->ਮਾਪ != ਆਕਾਰ(ਬਣਤਰ sockaddr_nl))
+                        ਵਾਪਸ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
-                        return -EINVAL;
+                ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(a->type, 0, SOCK_RAW, SOCK_DGRAM))
+                        ਵਾਪਸ -EINVAL;
 
-                return 0;
+                ਵਾਪਸ 0;
 
-        case AF_VSOCK:
-                if (a->size != sizeof(struct sockaddr_vm))
-                        return -EINVAL;
+        ਹਾਲਤ AF_VSOCK:
+                ਜੇ (a->ਮਾਪ != ਆਕਾਰ(ਬਣਤਰ sockaddr_vm))
+                        ਵਾਪਸ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        ਵਾਪਸ -EINVAL;
 
-                return 0;
+                ਵਾਪਸ 0;
 
-        default:
-                return -EAFNOSUPPORT;
+        ਮੂਲ:
+                ਵਾਪਸ -EAFNOSUPPORT;
         }
 }
 
-int socket_address_print(const SocketAddress *a, char **ret) {
-        int r;
+ਪੂਰਨ socket_ਪਤਾ_print(ਅਚਲ Socket_ਪਤਾ *a, ਅੱਖਰ **ret) {
+        ਪੂਰਨ r;
 
-        assert(a);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        r = socket_address_verify(a, false); /* We do non-strict validation, because we want to be
+        r = socket_ਪਤਾ_verify(a, false); /* We do non-strict validation, because we want to be
                                               * able to pretty-print any socket the kernel considers
                                               * valid. We still need to do validation to know if we
                                               * can meaningfully print the address. */
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (socket_address_family(a) == AF_NETLINK) {
-                _cleanup_free_ char *sfamily = NULL;
+        ਜੇ (socket_ਪਤਾ_family(a) == AF_NETLINK) {
+                _cleanup_free_ ਅੱਖਰ *sfamily = ਨਿਰਾ;
 
-                r = netlink_family_to_string_alloc(a->protocol, &sfamily);
-                if (r < 0)
-                        return r;
+                r = netlink_family_ਮੰਜ਼ਿਲ_string_alloc(a->protocol, &sfamily);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
                 r = asprintf(ret, "%s %u", sfamily, a->sockaddr.nl.nl_groups);
-                if (r < 0)
-                        return -ENOMEM;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ -ENOMEM;
 
-                return 0;
+                ਵਾਪਸ 0;
         }
 
-        return sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
+        ਵਾਪਸ sockaddr_pretty(&a->sockaddr.sa, a->ਮਾਪ, false, true, ret);
 }
 
-bool socket_address_can_accept(const SocketAddress *a) {
-        assert(a);
+bool socket_ਪਤਾ_can_accept(ਅਚਲ Socket_ਪਤਾ *a) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
 
-        return
-                IN_SET(a->type, SOCK_STREAM, SOCK_SEQPACKET);
+        ਵਾਪਸ
+                ਵਿੱਚ_ਸੈੱਟ(a->type, SOCK_STREAM, SOCK_SEQPACKET);
 }
 
-bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) {
-        assert(a);
-        assert(b);
+bool socket_ਪਤਾ_equal(ਅਚਲ Socket_ਪਤਾ *a, ਅਚਲ Socket_ਪਤਾ *b) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
         /* Invalid addresses are unequal to all */
-        if (socket_address_verify(a, false) < 0 ||
-            socket_address_verify(b, false) < 0)
-                return false;
+        ਜੇ (socket_ਪਤਾ_verify(a, false) < 0 ||
+            socket_ਪਤਾ_verify(b, false) < 0)
+                ਵਾਪਸ false;
 
-        if (a->type != b->type)
-                return false;
+        ਜੇ (a->type != b->type)
+                ਵਾਪਸ false;
 
-        if (socket_address_family(a) != socket_address_family(b))
-                return false;
+        ਜੇ (socket_ਪਤਾ_family(a) != socket_ਪਤਾ_family(b))
+                ਵਾਪਸ false;
 
-        switch (socket_address_family(a)) {
+        ਚੋਣ (socket_ਪਤਾ_family(a)) {
 
-        case AF_INET:
-                if (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
-                        return false;
+        ਹਾਲਤ AF_INET:
+                ਜੇ (a->sockaddr.ਵਿੱਚ.sin_addr.s_addr != b->sockaddr.ਵਿੱਚ.sin_addr.s_addr)
+                        ਵਾਪਸ false;
 
-                if (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
-                        return false;
+                ਜੇ (a->sockaddr.ਵਿੱਚ.sin_port != b->sockaddr.ਵਿੱਚ.sin_port)
+                        ਵਾਪਸ false;
 
-                break;
+                ਰੋਕੋ;
 
-        case AF_INET6:
-                if (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, sizeof(a->sockaddr.in6.sin6_addr)) != 0)
-                        return false;
+        ਹਾਲਤ AF_INET6:
+                ਜੇ (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, ਆਕਾਰ(a->sockaddr.in6.sin6_addr)) != 0)
+                        ਵਾਪਸ false;
 
-                if (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
-                        return false;
+                ਜੇ (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
+                        ਵਾਪਸ false;
 
-                break;
+                ਰੋਕੋ;
 
-        case AF_UNIX:
-                if (a->size <= offsetof(struct sockaddr_un, sun_path) ||
-                    b->size <= offsetof(struct sockaddr_un, sun_path))
-                        return false;
+        ਹਾਲਤ AF_UNIX:
+                ਜੇ (a->ਮਾਪ <= offsetof(ਬਣਤਰ sockaddr_un, sun_path) ||
+                    b->ਮਾਪ <= offsetof(ਬਣਤਰ sockaddr_un, sun_path))
+                        ਵਾਪਸ false;
 
-                if ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
-                        return false;
+                ਜੇ ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
+                        ਵਾਪਸ false;
 
-                if (a->sockaddr.un.sun_path[0]) {
-                        if (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
-                                return false;
-                } else {
-                        if (a->size != b->size)
-                                return false;
+                ਜੇ (a->sockaddr.un.sun_path[0]) {
+                        ਜੇ (!ਰਸਤਾ_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
+                                ਵਾਪਸ false;
+                } ਨਹੀਂਤਾਂ {
+                        ਜੇ (a->ਮਾਪ != b->ਮਾਪ)
+                                ਵਾਪਸ false;
 
-                        if (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
-                                return false;
+                        ਜੇ (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->ਮਾਪ) != 0)
+                                ਵਾਪਸ false;
                 }
 
-                break;
+                ਰੋਕੋ;
 
-        case AF_NETLINK:
-                if (a->protocol != b->protocol)
-                        return false;
+        ਹਾਲਤ AF_NETLINK:
+                ਜੇ (a->protocol != b->protocol)
+                        ਵਾਪਸ false;
 
-                if (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
-                        return false;
+                ਜੇ (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
+                        ਵਾਪਸ false;
 
-                break;
+                ਰੋਕੋ;
 
-        case AF_VSOCK:
-                if (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
-                        return false;
+        ਹਾਲਤ AF_VSOCK:
+                ਜੇ (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
+                        ਵਾਪਸ false;
 
-                if (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
-                        return false;
+                ਜੇ (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
+                        ਵਾਪਸ false;
 
-                break;
+                ਰੋਕੋ;
 
-        default:
+        ਮੂਲ:
                 /* Cannot compare, so we assume the addresses are different */
-                return false;
+                ਵਾਪਸ false;
         }
 
-        return true;
+        ਵਾਪਸ true;
 }
 
-const char* socket_address_get_path(const SocketAddress *a) {
-        assert(a);
+ਅਚਲ ਅੱਖਰ* socket_ਪਤਾ_get_ਰਸਤਾ(ਅਚਲ Socket_ਪਤਾ *a) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
 
-        if (socket_address_family(a) != AF_UNIX)
-                return NULL;
+        ਜੇ (socket_ਪਤਾ_family(a) != AF_UNIX)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (a->sockaddr.un.sun_path[0] == 0)
-                return NULL;
+        ਜੇ (a->sockaddr.un.sun_path[0] == 0)
+                ਵਾਪਸ ਨਿਰਾ;
 
         /* Note that this is only safe because we know that there's an extra NUL byte after the sockaddr_un
          * structure. On Linux AF_UNIX file system socket addresses don't have to be NUL terminated if they take up the
          * full sun_path space. */
-        assert_cc(sizeof(union sockaddr_union) >= sizeof(struct sockaddr_un)+1);
-        return a->sockaddr.un.sun_path;
+        assert_cc(ਆਕਾਰ(ਸੰਘ sockaddr_union) >= ਆਕਾਰ(ਬਣਤਰ sockaddr_un)+1);
+        ਵਾਪਸ a->sockaddr.un.sun_path;
 }
 
-bool socket_ipv6_is_supported(void) {
-        static int cached = -1;
+bool socket_ipv6_is_supported(ਖਾਲੀ) {
+        ਸਥਿਰ ਪੂਰਨ cached = -1;
 
-        if (cached < 0) {
+        ਜੇ (cached < 0) {
 
-                if (access("/proc/net/if_inet6", F_OK) < 0) {
+                ਜੇ (access("/proc/net/if_inet6", F_OK) < 0) {
 
-                        if (errno != ENOENT) {
+                        ਜੇ (errno != ENOENT) {
                                 log_debug_errno(errno, "Unexpected error when checking whether /proc/net/if_inet6 exists: %m");
-                                return false;
+                                ਵਾਪਸ false;
                         }
 
                         cached = false;
-                } else
+                } ਨਹੀਂਤਾਂ
                         cached = true;
         }
 
-        return cached;
+        ਵਾਪਸ cached;
 }
 
-bool socket_ipv6_is_enabled(void) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+bool socket_ipv6_is_enabled(ਖਾਲੀ) {
+        _cleanup_free_ ਅੱਖਰ *v = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
         /* Much like socket_ipv6_is_supported(), but also checks that the sysctl that disables IPv6 on all
          * interfaces isn't turned on */
 
-        if (!socket_ipv6_is_supported())
-                return false;
+        ਜੇ (!socket_ipv6_is_supported())
+                ਵਾਪਸ false;
 
         r = sysctl_read_ip_property(AF_INET6, "all", "disable_ipv6", &v);
-        if (r < 0) {
+        ਜੇ (r < 0) {
                 log_debug_errno(r, "Unexpected error reading 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                ਵਾਪਸ true;
         }
 
         r = parse_boolean(v);
-        if (r < 0) {
+        ਜੇ (r < 0) {
                 log_debug_errno(r, "Failed to pare 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                ਵਾਪਸ true;
         }
 
-        return !r;
+        ਵਾਪਸ !r;
 }
 
-bool socket_address_matches_fd(const SocketAddress *a, int fd) {
-        SocketAddress b;
+bool socket_ਪਤਾ_matches_fd(ਅਚਲ Socket_ਪਤਾ *a, ਪੂਰਨ fd) {
+        Socket_ਪਤਾ b;
         socklen_t solen;
 
-        assert(a);
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
-        b.size = sizeof(b.sockaddr);
-        if (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
-                return false;
+        b.ਮਾਪ = ਆਕਾਰ(b.sockaddr);
+        ਜੇ (getsockname(fd, &b.sockaddr.sa, &b.ਮਾਪ) < 0)
+                ਵਾਪਸ false;
 
-        if (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
-                return false;
+        ਜੇ (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
+                ਵਾਪਸ false;
 
-        solen = sizeof(b.type);
-        if (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
-                return false;
+        solen = ਆਕਾਰ(b.type);
+        ਜੇ (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
+                ਵਾਪਸ false;
 
-        if (b.type != a->type)
-                return false;
+        ਜੇ (b.type != a->type)
+                ਵਾਪਸ false;
 
-        if (a->protocol != 0)  {
-                solen = sizeof(b.protocol);
-                if (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
-                        return false;
+        ਜੇ (a->protocol != 0)  {
+                solen = ਆਕਾਰ(b.protocol);
+                ਜੇ (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
+                        ਵਾਪਸ false;
 
-                if (b.protocol != a->protocol)
-                        return false;
+                ਜੇ (b.protocol != a->protocol)
+                        ਵਾਪਸ false;
         }
 
-        return socket_address_equal(a, &b);
+        ਵਾਪਸ socket_ਪਤਾ_equal(a, &b);
 }
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
-        const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
+ਪੂਰਨ sockaddr_ਪੋਰਟ(ਅਚਲ ਬਣਤਰ sockaddr *_sa, ਬਿਨਾਨਿਸ਼ਾਨੀ *ret_ਪੋਰਟ) {
+        ਅਚਲ ਸੰਘ sockaddr_union *sa = (ਅਚਲ ਸੰਘ sockaddr_union*) _sa;
 
         /* Note, this returns the port as 'unsigned' rather than 'uint16_t', as AF_VSOCK knows larger ports */
 
-        assert(sa);
-        assert(ret_port);
+        ਪ੍ਰਤਿਜ੍ਞਾ(sa);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_ਪੋਰਟ);
 
-        switch (sa->sa.sa_family) {
+        ਚੋਣ (sa->sa.sa_family) {
 
-        case AF_INET:
-                *ret_port = be16toh(sa->in.sin_port);
-                return 0;
+        ਹਾਲਤ AF_INET:
+                *ret_ਪੋਰਟ = be16toh(sa->ਵਿੱਚ.sin_port);
+                ਵਾਪਸ 0;
 
-        case AF_INET6:
-                *ret_port = be16toh(sa->in6.sin6_port);
-                return 0;
+        ਹਾਲਤ AF_INET6:
+                *ret_ਪੋਰਟ = be16toh(sa->in6.sin6_port);
+                ਵਾਪਸ 0;
 
-        case AF_VSOCK:
-                *ret_port = sa->vm.svm_port;
-                return 0;
+        ਹਾਲਤ AF_VSOCK:
+                *ret_ਪੋਰਟ = sa->vm.svm_port;
+                ਵਾਪਸ 0;
 
-        default:
-                return -EAFNOSUPPORT;
+        ਮੂਲ:
+                ਵਾਪਸ -EAFNOSUPPORT;
         }
 }
 
-const union in_addr_union *sockaddr_in_addr(const struct sockaddr *_sa) {
-        const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
+ਅਚਲ ਸੰਘ ਵਿੱਚ_addr_union *sockaddr_ਵਿੱਚ_addr(ਅਚਲ ਬਣਤਰ sockaddr *_sa) {
+        ਅਚਲ ਸੰਘ sockaddr_union *sa = (ਅਚਲ ਸੰਘ sockaddr_union*) _sa;
 
-        if (!sa)
-                return NULL;
+        ਜੇ (!sa)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        switch (sa->sa.sa_family) {
+        ਚੋਣ (sa->sa.sa_family) {
 
-        case AF_INET:
-                return (const union in_addr_union*) &sa->in.sin_addr;
+        ਹਾਲਤ AF_INET:
+                ਵਾਪਸ (ਅਚਲ ਸੰਘ ਵਿੱਚ_addr_union*) &sa->ਵਿੱਚ.sin_addr;
 
-        case AF_INET6:
-                return (const union in_addr_union*) &sa->in6.sin6_addr;
+        ਹਾਲਤ AF_INET6:
+                ਵਾਪਸ (ਅਚਲ ਸੰਘ ਵਿੱਚ_addr_union*) &sa->in6.sin6_addr;
 
-        default:
-                return NULL;
+        ਮੂਲ:
+                ਵਾਪਸ ਨਿਰਾ;
         }
 }
 
-int sockaddr_set_in_addr(
-                union sockaddr_union *u,
-                int family,
-                const union in_addr_union *a,
+ਪੂਰਨ sockaddr_ਸੈੱਟ_ਵਿੱਚ_addr(
+                ਸੰਘ sockaddr_union *u,
+                ਪੂਰਨ family,
+                ਅਚਲ ਸੰਘ ਵਿੱਚ_addr_union *a,
                 uint16_t port) {
 
-        assert(u);
-        assert(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(u);
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
 
-        switch (family) {
+        ਚੋਣ (family) {
 
-        case AF_INET:
-                u->in = (struct sockaddr_in) {
+        ਹਾਲਤ AF_INET:
+                u->ਵਿੱਚ = (ਬਣਤਰ sockaddr_in) {
                         .sin_family = AF_INET,
-                        .sin_addr = a->in,
+                        .sin_addr = a->ਵਿੱਚ,
                         .sin_port = htobe16(port),
                 };
 
-                return 0;
+                ਵਾਪਸ 0;
 
-        case AF_INET6:
-                u->in6 = (struct sockaddr_in6) {
+        ਹਾਲਤ AF_INET6:
+                u->in6 = (ਬਣਤਰ sockaddr_in6) {
                         .sin6_family = AF_INET6,
                         .sin6_addr = a->in6,
                         .sin6_port = htobe16(port),
                 };
 
-                return 0;
+                ਵਾਪਸ 0;
 
-        default:
-                return -EAFNOSUPPORT;
+        ਮੂਲ:
+                ਵਾਪਸ -EAFNOSUPPORT;
 
         }
 }
 
-int sockaddr_pretty(
-                const struct sockaddr *_sa,
+ਪੂਰਨ sockaddr_pretty(
+                ਅਚਲ ਬਣਤਰ sockaddr *_sa,
                 socklen_t salen,
                 bool translate_ipv6,
-                bool include_port,
-                char **ret) {
+                bool include_ਪੋਰਟ,
+                ਅੱਖਰ **ret) {
 
-        union sockaddr_union *sa = (union sockaddr_union*) _sa;
-        char *p;
-        int r;
+        ਸੰਘ sockaddr_union *sa = (ਸੰਘ sockaddr_union*) _sa;
+        ਅੱਖਰ *p;
+        ਪੂਰਨ r;
 
-        assert(sa);
-        assert(salen >= sizeof(sa->sa.sa_family));
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(sa);
+        ਪ੍ਰਤਿਜ੍ਞਾ(salen >= ਆਕਾਰ(sa->sa.sa_family));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        switch (sa->sa.sa_family) {
+        ਚੋਣ (sa->sa.sa_family) {
 
-        case AF_INET: {
+        ਹਾਲਤ AF_INET: {
                 uint32_t a;
 
-                a = be32toh(sa->in.sin_addr.s_addr);
+                a = be32toh(sa->ਵਿੱਚ.sin_addr.s_addr);
 
-                if (include_port)
+                ਜੇ (include_ਪੋਰਟ)
                         r = asprintf(&p,
                                      "%u.%u.%u.%u:%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF,
-                                     be16toh(sa->in.sin_port));
-                else
+                                     be16toh(sa->ਵਿੱਚ.sin_port));
+                ਨਹੀਂਤਾਂ
                         r = asprintf(&p,
                                      "%u.%u.%u.%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF);
-                if (r < 0)
-                        return -ENOMEM;
-                break;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ -ENOMEM;
+                ਰੋਕੋ;
         }
 
-        case AF_INET6: {
-                static const unsigned char ipv4_prefix[] = {
+        ਹਾਲਤ AF_INET6: {
+                ਸਥਿਰ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ ipv4_ਅਗੇਤਰ[] = {
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF
                 };
 
-                if (translate_ipv6 &&
-                    memcmp(&sa->in6.sin6_addr, ipv4_prefix, sizeof(ipv4_prefix)) == 0) {
-                        const uint8_t *a = sa->in6.sin6_addr.s6_addr+12;
-                        if (include_port)
+                ਜੇ (translate_ipv6 &&
+                    memcmp(&sa->in6.sin6_addr, ipv4_ਅਗੇਤਰ, ਆਕਾਰ(ipv4_ਅਗੇਤਰ)) == 0) {
+                        ਅਚਲ uint8_t *a = sa->in6.sin6_addr.s6_addr+12;
+                        ਜੇ (include_ਪੋਰਟ)
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u:%u",
                                              a[0], a[1], a[2], a[3],
                                              be16toh(sa->in6.sin6_port));
-                        else
+                        ਨਹੀਂਤਾਂ
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u",
                                              a[0], a[1], a[2], a[3]);
-                        if (r < 0)
-                                return -ENOMEM;
-                } else {
-                        const char *a = IN6_ADDR_TO_STRING(&sa->in6.sin6_addr);
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ -ENOMEM;
+                } ਨਹੀਂਤਾਂ {
+                        ਅਚਲ ਅੱਖਰ *a = IN6_ADDR_ਮੰਜ਼ਿਲ_STRING(&sa->in6.sin6_addr);
 
-                        if (include_port) {
-                                if (asprintf(&p,
+                        ਜੇ (include_ਪੋਰਟ) {
+                                ਜੇ (asprintf(&p,
                                              "[%s]:%u%s%s",
                                              a,
                                              be16toh(sa->in6.sin6_port),
                                              sa->in6.sin6_scope_id != 0 ? "%" : "",
-                                             FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX)) < 0)
-                                        return -ENOMEM;
-                        } else {
-                                if (sa->in6.sin6_scope_id != 0)
-                                        p = strjoin(a, "%", FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX));
-                                else
+                                             FORMAT_IFNAME_ਭਰਿਆ(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX)) < 0)
+                                        ਵਾਪਸ -ENOMEM;
+                        } ਨਹੀਂਤਾਂ {
+                                ਜੇ (sa->in6.sin6_scope_id != 0)
+                                        p = strjoin(a, "%", FORMAT_IFNAME_ਭਰਿਆ(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX));
+                                ਨਹੀਂਤਾਂ
                                         p = strdup(a);
-                                if (!p)
-                                        return -ENOMEM;
+                                ਜੇ (!p)
+                                        ਵਾਪਸ -ENOMEM;
                         }
                 }
 
-                break;
+                ਰੋਕੋ;
         }
 
-        case AF_UNIX:
-                if (salen <= offsetof(struct sockaddr_un, sun_path) ||
-                    (sa->un.sun_path[0] == 0 && salen == offsetof(struct sockaddr_un, sun_path) + 1))
+        ਹਾਲਤ AF_UNIX:
+                ਜੇ (salen <= offsetof(ਬਣਤਰ sockaddr_un, sun_path) ||
+                    (sa->un.sun_path[0] == 0 && salen == offsetof(ਬਣਤਰ sockaddr_un, sun_path) + 1))
                         /* The name must have at least one character (and the leading NUL does not count) */
                         p = strdup("<unnamed>");
-                else {
+                ਨਹੀਂਤਾਂ {
                         /* Note that we calculate the path pointer here through the .un_buffer[] field, in order to
                          * outtrick bounds checking tools such as ubsan, which are too smart for their own good: on
                          * Linux the kernel may return sun_path[] data one byte longer than the declared size of the
                          * field. */
-                        char *path = (char*) sa->un_buffer + offsetof(struct sockaddr_un, sun_path);
-                        size_t path_len = salen - offsetof(struct sockaddr_un, sun_path);
+                        ਅੱਖਰ *ਰਸਤਾ = (ਅੱਖਰ*) sa->un_ਬਫਰ + offsetof(ਬਣਤਰ sockaddr_un, sun_path);
+                        size_t ਰਸਤਾ_len = salen - offsetof(ਬਣਤਰ sockaddr_un, sun_path);
 
-                        if (path[0] == 0) {
+                        ਜੇ (ਰਸਤਾ[0] == 0) {
                                 /* Abstract socket. When parsing address information from, we
                                  * explicitly reject overly long paths and paths with embedded NULs.
                                  * But we might get such a socket from the outside. Let's return
                                  * something meaningful and printable in this case. */
 
-                                _cleanup_free_ char *e = NULL;
+                                _cleanup_free_ ਅੱਖਰ *e = ਨਿਰਾ;
 
-                                e = cescape_length(path + 1, path_len - 1);
-                                if (!e)
-                                        return -ENOMEM;
+                                e = cescape_ਲੰਮਾਈ(ਰਸਤਾ + 1, ਰਸਤਾ_len - 1);
+                                ਜੇ (!e)
+                                        ਵਾਪਸ -ENOMEM;
 
                                 p = strjoin("@", e);
-                        } else {
-                                if (path[path_len - 1] == '\0')
+                        } ਨਹੀਂਤਾਂ {
+                                ਜੇ (ਰਸਤਾ[ਰਸਤਾ_len - 1] == '\0')
                                         /* We expect a terminating NUL and don't print it */
-                                        path_len--;
+                                        ਰਸਤਾ_len--;
 
-                                p = cescape_length(path, path_len);
+                                p = cescape_ਲੰਮਾਈ(ਰਸਤਾ, ਰਸਤਾ_len);
                         }
                 }
-                if (!p)
-                        return -ENOMEM;
+                ਜੇ (!p)
+                        ਵਾਪਸ -ENOMEM;
 
-                break;
+                ਰੋਕੋ;
 
-        case AF_VSOCK:
-                if (include_port) {
-                        if (sa->vm.svm_cid == VMADDR_CID_ANY)
+        ਹਾਲਤ AF_VSOCK:
+                ਜੇ (include_ਪੋਰਟ) {
+                        ਜੇ (sa->vm.svm_cid == VMADDR_CID_ANY)
                                 r = asprintf(&p, "vsock::%u", sa->vm.svm_port);
-                        else
+                        ਨਹੀਂਤਾਂ
                                 r = asprintf(&p, "vsock:%u:%u", sa->vm.svm_cid, sa->vm.svm_port);
-                } else
+                } ਨਹੀਂਤਾਂ
                         r = asprintf(&p, "vsock:%u", sa->vm.svm_cid);
-                if (r < 0)
-                        return -ENOMEM;
-                break;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ -ENOMEM;
+                ਰੋਕੋ;
 
-        default:
-                return -EOPNOTSUPP;
+        ਮੂਲ:
+                ਵਾਪਸ -EOPNOTSUPP;
         }
 
         *ret = p;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int getpeername_pretty(int fd, bool include_port, char **ret) {
-        union sockaddr_union sa;
-        socklen_t salen = sizeof(sa);
-        int r;
+ਪੂਰਨ getpeername_pretty(ਪੂਰਨ fd, bool include_ਪੋਰਟ, ਅੱਖਰ **ret) {
+        ਸੰਘ sockaddr_union sa;
+        socklen_t salen = ਆਕਾਰ(sa);
+        ਪੂਰਨ r;
 
-        assert(fd >= 0);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (getpeername(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        ਜੇ (getpeername(fd, &sa.sa, &salen) < 0)
+                ਵਾਪਸ -errno;
 
-        if (sa.sa.sa_family == AF_UNIX) {
-                struct ucred ucred = UCRED_INVALID;
+        ਜੇ (sa.sa.sa_family == AF_UNIX) {
+                ਬਣਤਰ ucred ucred = UCRED_INVALID;
 
                 /* UNIX connection sockets are anonymous, so let's use
                  * PID/UID as pretty credentials instead */
 
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                if (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
-                        return -ENOMEM;
+                ਜੇ (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
+                        ਵਾਪਸ -ENOMEM;
 
-                return 0;
+                ਵਾਪਸ 0;
         }
 
         /* For remote sockets we translate IPv6 addresses back to IPv4
          * if applicable, since that's nicer. */
 
-        return sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
+        ਵਾਪਸ sockaddr_pretty(&sa.sa, salen, true, include_ਪੋਰਟ, ret);
 }
 
-int getsockname_pretty(int fd, char **ret) {
-        union sockaddr_union sa;
-        socklen_t salen = sizeof(sa);
+ਪੂਰਨ getsockname_pretty(ਪੂਰਨ fd, ਅੱਖਰ **ret) {
+        ਸੰਘ sockaddr_union sa;
+        socklen_t salen = ਆਕਾਰ(sa);
 
-        assert(fd >= 0);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (getsockname(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        ਜੇ (getsockname(fd, &sa.sa, &salen) < 0)
+                ਵਾਪਸ -errno;
 
         /* For local sockets we do not translate IPv6 addresses back
          * to IPv6 if applicable, since this is usually used for
          * listening sockets where the difference between IPv4 and
          * IPv6 matters. */
 
-        return sockaddr_pretty(&sa.sa, salen, false, true, ret);
+        ਵਾਪਸ sockaddr_pretty(&sa.sa, salen, false, true, ret);
 }
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **ret) {
-        char host[NI_MAXHOST];
-        int r;
+ਪੂਰਨ socknameinfo_pretty(ਅਚਲ ਬਣਤਰ sockaddr *sa, socklen_t salen, ਅੱਖਰ **ret) {
+        ਅੱਖਰ host[NI_MAXHOST];
+        ਪੂਰਨ r;
 
-        assert(sa);
-        assert(salen >= sizeof(sa_family_t));
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(sa);
+        ਪ੍ਰਤਿਜ੍ਞਾ(salen >= ਆਕਾਰ(sa_family_t));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        r = getnameinfo(sa, salen, host, sizeof(host), /* service= */ NULL, /* service_len= */ 0, IDN_FLAGS);
-        if (r != 0) {
-                if (r == EAI_MEMORY)
-                        return log_oom_debug();
-                if (r == EAI_SYSTEM)
+        r = getnameinfo(sa, salen, host, ਆਕਾਰ(host), /* service= */ ਨਿਰਾ, /* service_len= */ 0, IDN_FLAGS);
+        ਜੇ (r != 0) {
+                ਜੇ (r == EAI_MEMORY)
+                        ਵਾਪਸ log_oom_debug();
+                ਜੇ (r == EAI_SYSTEM)
                         log_debug_errno(errno, "getnameinfo() failed, ignoring: %m");
-                else
+                ਨਹੀਂਤਾਂ
                         log_debug("getnameinfo() failed, ignoring: %s", gai_strerror(r));
 
-                return sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
+                ਵਾਪਸ sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
         }
 
-        return strdup_to(ret, host);
+        ਵਾਪਸ strdup_ਮੰਜ਼ਿਲ(ret, host);
 }
 
-static const char* const netlink_family_table[] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ netlink_family_ਸਾਰਣੀ[] = {
         [NETLINK_ROUTE]          = "route",
         [NETLINK_FIREWALL]       = "firewall",
         [NETLINK_INET_DIAG]      = "inet-diag",
@@ -674,384 +674,384 @@ static const char* const netlink_family_table[] = {
         [NETLINK_RDMA]           = "rdma",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int, INT_MAX);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP_WITH_FALLBACK(netlink_family, ਪੂਰਨ, ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ);
 
-bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b) {
-        assert(a);
-        assert(b);
+bool sockaddr_equal(ਅਚਲ ਸੰਘ sockaddr_union *a, ਅਚਲ ਸੰਘ sockaddr_union *b) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
-        if (a->sa.sa_family != b->sa.sa_family)
-                return false;
+        ਜੇ (a->sa.sa_family != b->sa.sa_family)
+                ਵਾਪਸ false;
 
-        if (a->sa.sa_family == AF_INET)
-                return a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
+        ਜੇ (a->sa.sa_family == AF_INET)
+                ਵਾਪਸ a->ਵਿੱਚ.sin_addr.s_addr == b->ਵਿੱਚ.sin_addr.s_addr;
 
-        if (a->sa.sa_family == AF_INET6)
-                return memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, sizeof(a->in6.sin6_addr)) == 0;
+        ਜੇ (a->sa.sa_family == AF_INET6)
+                ਵਾਪਸ memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, ਆਕਾਰ(a->in6.sin6_addr)) == 0;
 
-        if (a->sa.sa_family == AF_VSOCK)
-                return a->vm.svm_cid == b->vm.svm_cid;
+        ਜੇ (a->sa.sa_family == AF_VSOCK)
+                ਵਾਪਸ a->vm.svm_cid == b->vm.svm_cid;
 
-        return false;
+        ਵਾਪਸ false;
 }
 
-int fd_set_sndbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+ਪੂਰਨ fd_ਸੈੱਟ_sndbuf(ਪੂਰਨ fd, size_t n, bool increase) {
+        ਪੂਰਨ r, ਮੁੱਲ;
+        socklen_t l = ਆਕਾਰ(ਮੁੱਲ);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        ਜੇ (n > ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ)
+                ਵਾਪਸ -ERANGE;
 
-        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &ਮੁੱਲ, &l);
+        ਜੇ (r >= 0 && l == ਆਕਾਰ(ਮੁੱਲ) && increase ? (size_t) ਮੁੱਲ >= n*2 : (size_t) ਮੁੱਲ == n*2)
+                ਵਾਪਸ 0;
 
         /* First, try to set the buffer size with SO_SNDBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUF, n);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         /* SO_SNDBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
-        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        l = ਆਕਾਰ(ਮੁੱਲ);
+        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &ਮੁੱਲ, &l);
+        ਜੇ (r >= 0 && l == ਆਕਾਰ(ਮੁੱਲ) && increase ? (size_t) ਮੁੱਲ >= n*2 : (size_t) ਮੁੱਲ == n*2)
+                ਵਾਪਸ 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUFFORCE, n);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-int fd_set_rcvbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+ਪੂਰਨ fd_ਸੈੱਟ_rcvbuf(ਪੂਰਨ fd, size_t n, bool increase) {
+        ਪੂਰਨ r, ਮੁੱਲ;
+        socklen_t l = ਆਕਾਰ(ਮੁੱਲ);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        ਜੇ (n > ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ)
+                ਵਾਪਸ -ERANGE;
 
-        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &ਮੁੱਲ, &l);
+        ਜੇ (r >= 0 && l == ਆਕਾਰ(ਮੁੱਲ) && increase ? (size_t) ਮੁੱਲ >= n*2 : (size_t) ਮੁੱਲ == n*2)
+                ਵਾਪਸ 0;
 
         /* First, try to set the buffer size with SO_RCVBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUF, n);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         /* SO_RCVBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
-        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        l = ਆਕਾਰ(ਮੁੱਲ);
+        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &ਮੁੱਲ, &l);
+        ਜੇ (r >= 0 && l == ਆਕਾਰ(ਮੁੱਲ) && increase ? (size_t) ਮੁੱਲ >= n*2 : (size_t) ਮੁੱਲ == n*2)
+                ਵਾਪਸ 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUFFORCE, n);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-static const char* const ip_tos_table[] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ ip_tos_ਸਾਰਣੀ[] = {
         [IPTOS_LOWDELAY]    = "low-delay",
         [IPTOS_THROUGHPUT]  = "throughput",
         [IPTOS_RELIABILITY] = "reliability",
         [IPTOS_LOWCOST]     = "low-cost",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int, 0xff);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP_WITH_FALLBACK(ip_tos, ਪੂਰਨ, 0xff);
 
-bool ifname_valid_char(char a) {
-        if ((unsigned char) a >= 127U)
-                return false;
+bool ifname_valid_char(ਅੱਖਰ a) {
+        ਜੇ ((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ) a >= 127U)
+                ਵਾਪਸ false;
 
-        if ((unsigned char) a <= 32U)
-                return false;
+        ਜੇ ((ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ) a <= 32U)
+                ਵਾਪਸ false;
 
-        if (IN_SET(a,
+        ਜੇ (ਵਿੱਚ_ਸੈੱਟ(a,
                    ':',  /* colons are used by the legacy "alias" interface logic */
                    '/',  /* slashes cannot work, since we need to use network interfaces in sysfs paths, and in paths slashes are separators */
                    '%')) /* %d is used in the kernel's weird foo%d format string naming feature which we really really don't want to ever run into by accident */
-                return false;
+                ਵਾਪਸ false;
 
-        return true;
+        ਵਾਪਸ true;
 }
 
-bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
+bool ifname_valid_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *p, IfnameValidFlags flags) {
         bool numeric = true;
 
         /* Checks whether a network interface name is valid. This is inspired by dev_valid_name() in the kernel sources
          * but slightly stricter, as we only allow non-control, non-space ASCII characters in the interface name. We
          * also don't permit names that only container numbers, to avoid confusion with numeric interface indexes. */
 
-        assert(!(flags & ~_IFNAME_VALID_ALL));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(flags & ~_IFNAME_VALID_ALL));
 
-        if (isempty(p))
-                return false;
+        ਜੇ (isempty(p))
+                ਵਾਪਸ false;
 
         /* A valid ifindex? If so, it's valid iff IFNAME_VALID_NUMERIC is set */
-        if (parse_ifindex(p) >= 0)
-                return flags & IFNAME_VALID_NUMERIC;
+        ਜੇ (parse_ifindex(p) >= 0)
+                ਵਾਪਸ flags & IFNAME_VALID_NUMERIC;
 
-        if (flags & IFNAME_VALID_ALTERNATIVE) {
-                if (strlen(p) >= ALTIFNAMSIZ)
-                        return false;
-        } else {
-                if (strlen(p) >= IFNAMSIZ)
-                        return false;
+        ਜੇ (flags & IFNAME_VALID_ALTERNATIVE) {
+                ਜੇ (ਲੜੀ_ਲੰਬਾਈ(p) >= ALTIFNAMSIZ)
+                        ਵਾਪਸ false;
+        } ਨਹੀਂਤਾਂ {
+                ਜੇ (ਲੜੀ_ਲੰਬਾਈ(p) >= IFNAMSIZ)
+                        ਵਾਪਸ false;
         }
 
-        if (dot_or_dot_dot(p))
-                return false;
+        ਜੇ (dot_or_dot_dot(p))
+                ਵਾਪਸ false;
 
         /* Let's refuse "all" and "default" as interface name, to avoid collisions with the special sysctl
          * directories /proc/sys/net/{ipv4,ipv6}/conf/{all,default} */
-        if (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
-                return false;
+        ਜੇ (!FLAGS_ਸੈੱਟ(flags, IFNAME_VALID_SPECIAL) && STR_ਵਿੱਚ_ਸੈੱਟ(p, "all", "default"))
+                ਵਾਪਸ false;
 
-        for (const char *t = p; *t; t++) {
-                if (!ifname_valid_char(*t))
-                        return false;
+        ਲਈ (ਅਚਲ ਅੱਖਰ *t = p; *t; t++) {
+                ਜੇ (!ifname_valid_char(*t))
+                        ਵਾਪਸ false;
 
                 numeric = numeric && ascii_isdigit(*t);
         }
 
         /* It's fully numeric but didn't parse as valid ifindex above? if so, it must be too large or zero or
          * so, let's refuse that. */
-        if (numeric)
-                return false;
+        ਜੇ (numeric)
+                ਵਾਪਸ false;
 
-        return true;
+        ਵਾਪਸ true;
 }
 
-bool address_label_valid(const char *p) {
+bool ਪਤਾ_label_valid(ਅਚਲ ਅੱਖਰ *p) {
 
-        POINTER_MAY_BE_NULL(p);
+        ਸੂਚਕ_MAY_BE_NULL(p);
 
-        if (isempty(p))
-                return false;
+        ਜੇ (isempty(p))
+                ਵਾਪਸ false;
 
-        if (strlen(p) >= IFNAMSIZ)
-                return false;
+        ਜੇ (ਲੜੀ_ਲੰਬਾਈ(p) >= IFNAMSIZ)
+                ਵਾਪਸ false;
 
-        while (*p) {
-                if ((uint8_t) *p >= 127U)
-                        return false;
+        ਜਦੋਂ (*p) {
+                ਜੇ ((uint8_t) *p >= 127U)
+                        ਵਾਪਸ false;
 
-                if ((uint8_t) *p <= 31U)
-                        return false;
+                ਜੇ ((uint8_t) *p <= 31U)
+                        ਵਾਪਸ false;
                 p++;
         }
 
-        return true;
+        ਵਾਪਸ true;
 }
 
-int getpeercred(int fd, struct ucred *ucred) {
-        socklen_t n = sizeof(struct ucred);
-        struct ucred u;
+ਪੂਰਨ getpeercred(ਪੂਰਨ fd, ਬਣਤਰ ucred *ucred) {
+        socklen_t n = ਆਕਾਰ(ਬਣਤਰ ucred);
+        ਬਣਤਰ ucred u;
 
-        assert(fd >= 0);
-        assert(ucred);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ucred);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
-                return -errno;
+        ਜੇ (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
+                ਵਾਪਸ -errno;
 
-        if (n != sizeof(struct ucred))
-                return -EIO;
+        ਜੇ (n != ਆਕਾਰ(ਬਣਤਰ ucred))
+                ਵਾਪਸ -EIO;
 
         /* Check if the data is actually useful and not suppressed due to namespacing issues */
-        if (!pid_is_valid(u.pid))
-                return -ENODATA;
+        ਜੇ (!pid_is_valid(u.pid))
+                ਵਾਪਸ -ENODATA;
 
         /* Note that we don't check UID/GID here, as namespace translation works differently there: instead of
          * receiving in "invalid" user/group we get the overflow UID/GID. */
 
         *ucred = u;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int getpeersec(int fd, char **ret) {
-        _cleanup_free_ char *s = NULL;
+ਪੂਰਨ getpeersec(ਪੂਰਨ fd, ਅੱਖਰ **ret) {
+        _cleanup_free_ ਅੱਖਰ *s = ਨਿਰਾ;
         socklen_t n = 64;
 
-        assert(fd >= 0);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        for (;;) {
-                s = new0(char, n+1);
-                if (!s)
-                        return -ENOMEM;
+        ਲਈ (;;) {
+                s = new0(ਅੱਖਰ, n+1);
+                ਜੇ (!s)
+                        ਵਾਪਸ -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
+                ਜੇ (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
                         s[n] = 0;
-                        break;
+                        ਰੋਕੋ;
                 }
 
-                if (errno != ERANGE)
-                        return -errno;
+                ਜੇ (errno != ERANGE)
+                        ਵਾਪਸ -errno;
 
                 s = mfree(s);
         }
 
-        if (isempty(s))
-                return -EOPNOTSUPP;
+        ਜੇ (isempty(s))
+                ਵਾਪਸ -EOPNOTSUPP;
 
         *ret = TAKE_PTR(s);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int getpeergroups(int fd, gid_t **ret) {
-        socklen_t n = sizeof(gid_t) * 64U;
-        _cleanup_free_ gid_t *d = NULL;
+ਪੂਰਨ getpeergroups(ਪੂਰਨ fd, gid_t **ret) {
+        socklen_t n = ਆਕਾਰ(gid_t) * 64U;
+        _cleanup_free_ gid_t *d = ਨਿਰਾ;
 
-        assert(fd >= 0);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max > 0)
-                n = MAX(n, sizeof(gid_t) * (socklen_t) ngroups_max);
+        ਪੂਰਨ ngroups_max = sysconf_ngroups_max();
+        ਜੇ (ngroups_max > 0)
+                n = MAX(n, ਆਕਾਰ(gid_t) * (socklen_t) ngroups_max);
 
-        for (;;) {
-                d = malloc(n);
-                if (!d)
-                        return -ENOMEM;
+        ਲਈ (;;) {
+                d = ਸਮ੍ਰਿਤੀ_ਦਿਓ(n);
+                ਜੇ (!d)
+                        ਵਾਪਸ -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
-                        break;
+                ਜੇ (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
+                        ਰੋਕੋ;
 
-                if (errno != ERANGE)
-                        return -errno;
+                ਜੇ (errno != ERANGE)
+                        ਵਾਪਸ -errno;
 
                 d = mfree(d);
         }
 
-        assert_se(n % sizeof(gid_t) == 0);
-        n /= sizeof(gid_t);
+        assert_se(n % ਆਕਾਰ(gid_t) == 0);
+        n /= ਆਕਾਰ(gid_t);
 
-        if (n > INT_MAX)
-                return -E2BIG;
+        ਜੇ (n > ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ)
+                ਵਾਪਸ -E2BIG;
 
         *ret = TAKE_PTR(d);
 
-        return (int) n;
+        ਵਾਪਸ (ਪੂਰਨ) n;
 }
 
-int getpeerpidfd(int fd) {
-        socklen_t n = sizeof(int);
-        int pidfd = -EBADF;
+ਪੂਰਨ getpeerpidfd(ਪੂਰਨ fd) {
+        socklen_t n = ਆਕਾਰ(ਪੂਰਨ);
+        ਪੂਰਨ pidfd = -EBADF;
 
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
-                return -errno;
+        ਜੇ (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
+                ਵਾਪਸ -errno;
 
-        if (n != sizeof(int))
-                return -EIO;
+        ਜੇ (n != ਆਕਾਰ(ਪੂਰਨ))
+                ਵਾਪਸ -EIO;
 
-        return pidfd;
+        ਵਾਪਸ pidfd;
 }
 
-int getpeerpidref(int fd, PidRef *ret) {
-        int r;
+ਪੂਰਨ getpeerpidref(ਪੂਰਨ fd, PidRef *ret) {
+        ਪੂਰਨ r;
 
-        assert(fd >= 0);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        int pidfd = getpeerpidfd(fd);
-        if (pidfd < 0) {
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
-                        return pidfd;
+        ਪੂਰਨ pidfd = getpeerpidfd(fd);
+        ਜੇ (pidfd < 0) {
+                ਜੇ (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
+                        ਵਾਪਸ pidfd;
 
-                struct ucred ucred;
+                ਬਣਤਰ ucred ucred;
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                return pidref_set_pid(ret, ucred.pid);
+                ਵਾਪਸ pidref_ਸੈੱਟ_pid(ret, ucred.pid);
         }
 
-        return pidref_set_pidfd_consume(ret, pidfd);
+        ਵਾਪਸ pidref_ਸੈੱਟ_pidfd_consume(ret, pidfd);
 }
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
-                const struct iovec *iov, size_t iovlen,
-                const struct sockaddr *sa, socklen_t len,
-                int flags) {
+                ਪੂਰਨ transport_fd,
+                ਪੂਰਨ fd,
+                ਅਚਲ ਬਣਤਰ iovec *iov, size_t iovlen,
+                ਅਚਲ ਬਣਤਰ sockaddr *sa, socklen_t len,
+                ਪੂਰਨ flags) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control = {};
-        struct msghdr mh = {
-                .msg_name = (struct sockaddr*) sa,
+        CMSG_ਬਫਰ_TYPE(CMSG_SPACE(ਆਕਾਰ(ਪੂਰਨ))) control = {};
+        ਬਣਤਰ msghdr mh = {
+                .msg_name = (ਬਣਤਰ sockaddr*) sa,
                 .msg_namelen = len,
-                .msg_iov = (struct iovec *)iov,
+                .msg_iov = (ਬਣਤਰ iovec *)iov,
                 .msg_iovlen = iovlen,
         };
         ssize_t k;
 
-        assert(transport_fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(transport_fd >= 0);
 
         /*
          * We need either an FD or data to send.
          * If there's nothing, return an error.
          */
-        if (fd < 0 && !iov)
-                return -EINVAL;
+        ਜੇ (fd < 0 && !iov)
+                ਵਾਪਸ -EINVAL;
 
-        if (fd >= 0) {
-                struct cmsghdr *cmsg;
+        ਜੇ (fd >= 0) {
+                ਬਣਤਰ cmsghdr *cmsg;
 
                 mh.msg_control = &control;
-                mh.msg_controllen = sizeof(control);
+                mh.msg_controllen = ਆਕਾਰ(control);
 
                 cmsg = CMSG_FIRSTHDR(&mh);
                 cmsg->cmsg_level = SOL_SOCKET;
                 cmsg->cmsg_type = SCM_RIGHTS;
-                cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-                memcpy(CMSG_DATA(cmsg), &fd, sizeof(int));
+                cmsg->cmsg_len = CMSG_LEN(ਆਕਾਰ(ਪੂਰਨ));
+                ਸਮ੍ਰਿਤੀ_ਨਕਲ(CMSG_DATA(cmsg), &fd, ਆਕਾਰ(ਪੂਰਨ));
         }
         k = sendmsg(transport_fd, &mh, MSG_NOSIGNAL | flags);
-        if (k < 0)
-                return (ssize_t) -errno;
+        ਜੇ (k < 0)
+                ਵਾਪਸ (ssize_t) -errno;
 
-        return k;
+        ਵਾਪਸ k;
 }
 
-int send_one_fd_sa(
-                int transport_fd,
-                int fd,
-                const struct sockaddr *sa, socklen_t len,
-                int flags) {
+ਪੂਰਨ send_one_fd_sa(
+                ਪੂਰਨ transport_fd,
+                ਪੂਰਨ fd,
+                ਅਚਲ ਬਣਤਰ sockaddr *sa, socklen_t len,
+                ਪੂਰਨ flags) {
 
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
-        return (int) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
+        ਵਾਪਸ (ਪੂਰਨ) send_one_fd_iov_sa(transport_fd, fd, ਨਿਰਾ, 0, sa, len, flags);
 }
 
 ssize_t receive_one_fd_iov(
-                int transport_fd,
-                struct iovec *iov, size_t iovlen,
-                int flags,
-                int *ret_fd) {
+                ਪੂਰਨ transport_fd,
+                ਬਣਤਰ iovec *iov, size_t iovlen,
+                ਪੂਰਨ flags,
+                ਪੂਰਨ *ret_fd) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control;
-        struct msghdr mh = {
+        CMSG_ਬਫਰ_TYPE(CMSG_SPACE(ਆਕਾਰ(ਪੂਰਨ))) control;
+        ਬਣਤਰ msghdr mh = {
                 .msg_control = &control,
-                .msg_controllen = sizeof(control),
+                .msg_controllen = ਆਕਾਰ(control),
                 .msg_iov = iov,
                 .msg_iovlen = iovlen,
         };
-        struct cmsghdr *found;
+        ਬਣਤਰ cmsghdr *ਮਿਲਿਆ;
         ssize_t k;
 
-        assert(transport_fd >= 0);
-        assert(ret_fd);
+        ਪ੍ਰਤਿਜ੍ਞਾ(transport_fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_fd);
 
         /*
          * Receive a single FD via @transport_fd. We don't care for
@@ -1061,44 +1061,44 @@ ssize_t receive_one_fd_iov(
          * combination with send_one_fd().
          */
 
-        k = recvmsg_safe(transport_fd, &mh, MSG_CMSG_CLOEXEC | flags);
-        if (k < 0)
-                return k;
+        k = recvmsg_ਸੁਰੱਖਿਅਤ(transport_fd, &mh, MSG_CMSG_CLOEXEC | flags);
+        ਜੇ (k < 0)
+                ਵਾਪਸ k;
 
-        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(sizeof(int)));
-        if (!found) {
+        ਮਿਲਿਆ = cmsg_ਲੱਭੋ(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(ਆਕਾਰ(ਪੂਰਨ)));
+        ਜੇ (!ਮਿਲਿਆ) {
                 cmsg_close_all(&mh);
 
                 /* If didn't receive an FD or any data, return an error. */
-                if (k == 0)
-                        return -EIO;
+                ਜੇ (k == 0)
+                        ਵਾਪਸ -EIO;
         }
 
-        if (found)
-                *ret_fd = *CMSG_TYPED_DATA(found, int);
-        else
+        ਜੇ (ਮਿਲਿਆ)
+                *ret_fd = *CMSG_TYPED_ਅੰਕੜੇ(ਮਿਲਿਆ, ਪੂਰਨ);
+        ਨਹੀਂਤਾਂ
                 *ret_fd = -EBADF;
 
-        return k;
+        ਵਾਪਸ k;
 }
 
-int receive_one_fd(int transport_fd, int flags) {
-        int fd;
+ਪੂਰਨ receive_one_fd(ਪੂਰਨ transport_fd, ਪੂਰਨ flags) {
+        ਪੂਰਨ fd;
         ssize_t k;
 
-        k = receive_one_fd_iov(transport_fd, NULL, 0, flags, &fd);
-        if (k == 0)
-                return fd;
+        k = receive_one_fd_iov(transport_fd, ਨਿਰਾ, 0, flags, &fd);
+        ਜੇ (k == 0)
+                ਵਾਪਸ fd;
 
         /* k must be negative, since receive_one_fd_iov() only returns
          * a positive value if data was received through the iov. */
-        assert(k < 0);
-        return (int) k;
+        ਪ੍ਰਤਿਜ੍ਞਾ(k < 0);
+        ਵਾਪਸ (ਪੂਰਨ) k;
 }
 
-ssize_t next_datagram_size_fd(int fd) {
+ssize_t ਅਗਲਾ_datagram_ਮਾਪ_fd(ਪੂਰਨ fd) {
         ssize_t l;
-        int k;
+        ਪੂਰਨ k;
 
         /* This is a bit like FIONREAD/SIOCINQ, however a bit more powerful. The difference being: recv(MSG_PEEK) will
          * actually cause the next datagram in the queue to be validated regarding checksums, which FIONREAD doesn't
@@ -1106,17 +1106,17 @@ ssize_t next_datagram_size_fd(int fd) {
          * actually matches what we will read with recvmsg() next, as otherwise we might end up allocating a buffer of
          * the wrong size. */
 
-        l = recv(fd, NULL, 0, MSG_PEEK|MSG_TRUNC);
-        if (l < 0) {
-                if (IN_SET(errno, EOPNOTSUPP, EFAULT))
-                        goto fallback;
+        l = recv(fd, ਨਿਰਾ, 0, MSG_PEEK|MSG_TRUNC);
+        ਜੇ (l < 0) {
+                ਜੇ (ਵਿੱਚ_ਸੈੱਟ(errno, EOPNOTSUPP, EFAULT))
+                        ਜਾਓ fallback;
 
-                return -errno;
+                ਵਾਪਸ -errno;
         }
-        if (l == 0)
-                goto fallback;
+        ਜੇ (l == 0)
+                ਜਾਓ fallback;
 
-        return l;
+        ਵਾਪਸ l;
 
 fallback:
         k = 0;
@@ -1124,192 +1124,192 @@ fallback:
         /* Some sockets (AF_PACKET) do not support null-sized recv() with MSG_TRUNC set, let's fall back to FIONREAD
          * for them. Checksums don't matter for raw sockets anyway, hence this should be fine. */
 
-        if (ioctl(fd, FIONREAD, &k) < 0)
-                return -errno;
+        ਜੇ (ioctl(fd, FIONREAD, &k) < 0)
+                ਵਾਪਸ -errno;
 
-        return (ssize_t) k;
+        ਵਾਪਸ (ssize_t) k;
 }
 
 /* Put a limit on how many times will attempt to call accept4(). We loop
  * only on "transient" errors, but let's make sure we don't loop forever. */
-#define MAX_FLUSH_ITERATIONS 1024
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MAX_FLUSH_ITERATIONS 1024
 
-int flush_accept(int fd) {
+ਪੂਰਨ flush_accept(ਪੂਰਨ fd) {
 
-        int r, b;
-        socklen_t l = sizeof(b);
+        ਪੂਰਨ r, b;
+        socklen_t l = ਆਕਾਰ(b);
 
         /* Similar to flush_fd() but flushes all incoming connections by accepting and immediately closing
          * them. */
 
-        if (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
-                return -errno;
+        ਜੇ (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
+                ਵਾਪਸ -errno;
 
-        assert(l == sizeof(b));
-        if (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
+        ਪ੍ਰਤਿਜ੍ਞਾ(l == ਆਕਾਰ(b));
+        ਜੇ (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
                  * return EOPNOTSUPP if the fd is not a listening socket, which we should treat as a fatal
                  * error, or in case the incoming TCP connection triggered a network issue, which we want to
                  * treat as a transient error. Thus, let's rule out the first reason for EOPNOTSUPP early, so
                  * we can loop safely on transient errors below. */
-                return -ENOTTY;
+                ਵਾਪਸ -ENOTTY;
 
-        for (unsigned iteration = 0;; iteration++) {
-                int cfd;
+        ਲਈ (ਬਿਨਾਨਿਸ਼ਾਨੀ iteration = 0;; iteration++) {
+                ਪੂਰਨ cfd;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
-                        continue;
-                if (r <= 0)
-                        return r;
+                ਜੇ (r == -EINTR)
+                        ਜਾਰੀ;
+                ਜੇ (r <= 0)
+                        ਵਾਪਸ r;
 
-                if (iteration >= MAX_FLUSH_ITERATIONS)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
+                ਜੇ (iteration >= MAX_FLUSH_ITERATIONS)
+                        ਵਾਪਸ log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
                                                "Failed to flush connections within " STRINGIFY(MAX_FLUSH_ITERATIONS) " iterations.");
 
-                cfd = accept4(fd, NULL, NULL, SOCK_NONBLOCK|SOCK_CLOEXEC);
-                if (cfd < 0) {
-                        if (errno == EAGAIN)
-                                return 0;
+                cfd = accept4(fd, ਨਿਰਾ, ਨਿਰਾ, SOCK_NONBLOCK|SOCK_CLOEXEC);
+                ਜੇ (cfd < 0) {
+                        ਜੇ (errno == EAGAIN)
+                                ਵਾਪਸ 0;
 
-                        if (ERRNO_IS_ACCEPT_AGAIN(errno))
-                                continue;
+                        ਜੇ (ERRNO_IS_ACCEPT_AGAIN(errno))
+                                ਜਾਰੀ;
 
-                        return -errno;
+                        ਵਾਪਸ -errno;
                 }
 
-                safe_close(cfd);
+                ਸੁਰੱਖਿਅਤ_close(cfd);
         }
 }
 
-ssize_t flush_mqueue(int fd) {
-        _cleanup_free_ char *buf = NULL;
-        struct mq_attr attr;
-        ssize_t count = 0;
-        int r;
+ssize_t flush_mqueue(ਪੂਰਨ fd) {
+        _cleanup_free_ ਅੱਖਰ *buf = ਨਿਰਾ;
+        ਬਣਤਰ mq_attr attr;
+        ssize_t ਗਿਣਤੀ_2 = 0;
+        ਪੂਰਨ r;
 
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
         /* Similar to flush_fd() but flushes all messages from a POSIX message queue. */
 
-        for (;;) {
+        ਲਈ (;;) {
                 ssize_t l;
 
                 r = fd_wait_for_event(fd, POLLIN, /* timeout= */ 0);
-                if (r == -EINTR)
-                        continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                ਜੇ (r == -EINTR)
+                        ਜਾਰੀ;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
+                ਜੇ (r == 0)
+                        ਵਾਪਸ ਗਿਣਤੀ_2;
 
-                if (!buf) {
+                ਜੇ (!buf) {
                         /* Buffer must be at least as large as mq_msgsize. */
-                        if (mq_getattr(fd, &attr) < 0)
-                                return -errno;
+                        ਜੇ (mq_getattr(fd, &attr) < 0)
+                                ਵਾਪਸ -errno;
 
-                        buf = malloc(attr.mq_msgsize);
-                        if (!buf)
-                                return -ENOMEM;
+                        buf = ਸਮ੍ਰਿਤੀ_ਦਿਓ(attr.mq_msgsize);
+                        ਜੇ (!buf)
+                                ਵਾਪਸ -ENOMEM;
                 }
 
-                l = mq_receive(fd, buf, attr.mq_msgsize, /* msg_prio= */ NULL);
-                if (l < 0) {
-                        if (errno == EINTR)
-                                continue;
+                l = mq_receive(fd, buf, attr.mq_msgsize, /* msg_prio= */ ਨਿਰਾ);
+                ਜੇ (l < 0) {
+                        ਜੇ (errno == EINTR)
+                                ਜਾਰੀ;
 
-                        if (errno == EAGAIN)
-                                return count;
+                        ਜੇ (errno == EAGAIN)
+                                ਵਾਪਸ ਗਿਣਤੀ_2;
 
-                        return -errno;
+                        ਵਾਪਸ -errno;
                 }
 
-                count += l;
+                ਗਿਣਤੀ_2 += l;
         }
 }
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length) {
-        struct cmsghdr *cmsg;
+ਬਣਤਰ cmsghdr* cmsg_ਲੱਭੋ(ਬਣਤਰ msghdr *mh, ਪੂਰਨ level, ਪੂਰਨ type, socklen_t length) {
+        ਬਣਤਰ cmsghdr *cmsg;
 
-        assert(mh);
+        ਪ੍ਰਤਿਜ੍ਞਾ(mh);
 
         CMSG_FOREACH(cmsg, mh)
-                if (cmsg->cmsg_level == level &&
+                ਜੇ (cmsg->cmsg_level == level &&
                     cmsg->cmsg_type == type &&
                     (length == (socklen_t) -1 || length == cmsg->cmsg_len))
-                        return cmsg;
+                        ਵਾਪਸ cmsg;
 
-        return NULL;
+        ਵਾਪਸ ਨਿਰਾ;
 }
 
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len) {
-        struct cmsghdr *cmsg;
+ਖਾਲੀ* cmsg_ਲੱਭੋ_and_copy_ਅੰਕੜੇ(ਬਣਤਰ msghdr *mh, ਪੂਰਨ level, ਪੂਰਨ type, ਖਾਲੀ *buf, size_t buf_len) {
+        ਬਣਤਰ cmsghdr *cmsg;
 
-        assert(mh);
-        assert(buf);
-        assert(buf_len > 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(mh);
+        ਪ੍ਰਤਿਜ੍ਞਾ(buf);
+        ਪ੍ਰਤਿਜ੍ਞਾ(buf_len > 0);
 
         /* This is similar to cmsg_find_data(), but copy the found data to buf. This should be typically used
          * when reading possibly unaligned data such as timestamp, as time_t is 64-bit and size_t is 32-bit on
          * RISCV32. See issue #27241. */
 
-        cmsg = cmsg_find(mh, level, type, CMSG_LEN(buf_len));
-        if (!cmsg)
-                return NULL;
+        cmsg = cmsg_ਲੱਭੋ(mh, level, type, CMSG_LEN(buf_len));
+        ਜੇ (!cmsg)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
+        ਵਾਪਸ memcpy_ਸੁਰੱਖਿਅਤ(buf, CMSG_DATA(cmsg), buf_len);
 }
 
-size_t sockaddr_ll_len(const struct sockaddr_ll *sa) {
+size_t sockaddr_ll_len(ਅਚਲ ਬਣਤਰ sockaddr_ll *sa) {
         /* Certain hardware address types (e.g Infiniband) do not fit into sll_addr
          * (8 bytes) and run over the structure. This function returns the correct size that
          * must be passed to kernel. */
 
-        assert(sa->sll_family == AF_PACKET);
+        ਪ੍ਰਤਿਜ੍ਞਾ(sa->sll_family == AF_PACKET);
 
-        size_t mac_len = sizeof(sa->sll_addr);
+        size_t mac_len = ਆਕਾਰ(sa->sll_addr);
 
-        if (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
+        ਜੇ (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
                 mac_len = MAX(mac_len, (size_t) ETH_ALEN);
-        if (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
+        ਜੇ (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
                 mac_len = MAX(mac_len, (size_t) INFINIBAND_ALEN);
 
-        return offsetof(struct sockaddr_ll, sll_addr) + mac_len;
+        ਵਾਪਸ offsetof(ਬਣਤਰ sockaddr_ll, sll_addr) + mac_len;
 }
 
-size_t sockaddr_un_len(const struct sockaddr_un *sa) {
+size_t sockaddr_un_len(ਅਚਲ ਬਣਤਰ sockaddr_un *sa) {
         /* Covers only file system and abstract AF_UNIX socket addresses, but not unnamed socket addresses. */
 
-        assert(sa->sun_family == AF_UNIX);
+        ਪ੍ਰਤਿਜ੍ਞਾ(sa->sun_family == AF_UNIX);
 
-        return offsetof(struct sockaddr_un, sun_path) +
+        ਵਾਪਸ offsetof(ਬਣਤਰ sockaddr_un, sun_path) +
                 (sa->sun_path[0] == 0 ?
-                        1 + strnlen(sa->sun_path+1, sizeof(sa->sun_path)-1) :
-                        strnlen(sa->sun_path, sizeof(sa->sun_path))+1);
+                        1 + strnlen(sa->sun_path+1, ਆਕਾਰ(sa->sun_path)-1) :
+                        strnlen(sa->sun_path, ਆਕਾਰ(sa->sun_path))+1);
 }
 
-size_t sockaddr_len(const union sockaddr_union *sa) {
-        assert(sa);
+size_t sockaddr_len(ਅਚਲ ਸੰਘ sockaddr_union *sa) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(sa);
 
-        switch (sa->sa.sa_family) {
-        case AF_INET:
-                return sizeof(struct sockaddr_in);
-        case AF_INET6:
-                return sizeof(struct sockaddr_in6);
-        case AF_UNIX:
-                return sockaddr_un_len(&sa->un);
-        case AF_PACKET:
-                return sockaddr_ll_len(&sa->ll);
-        case AF_NETLINK:
-                return sizeof(struct sockaddr_nl);
-        case AF_VSOCK:
-                return sizeof(struct sockaddr_vm);
-        default:
+        ਚੋਣ (sa->sa.sa_family) {
+        ਹਾਲਤ AF_INET:
+                ਵਾਪਸ ਆਕਾਰ(ਬਣਤਰ sockaddr_in);
+        ਹਾਲਤ AF_INET6:
+                ਵਾਪਸ ਆਕਾਰ(ਬਣਤਰ sockaddr_in6);
+        ਹਾਲਤ AF_UNIX:
+                ਵਾਪਸ sockaddr_un_len(&sa->un);
+        ਹਾਲਤ AF_PACKET:
+                ਵਾਪਸ sockaddr_ll_len(&sa->ll);
+        ਹਾਲਤ AF_NETLINK:
+                ਵਾਪਸ ਆਕਾਰ(ਬਣਤਰ sockaddr_nl);
+        ਹਾਲਤ AF_VSOCK:
+                ਵਾਪਸ ਆਕਾਰ(ਬਣਤਰ sockaddr_vm);
+        ਮੂਲ:
                 assert_not_reached();
         }
 }
 
-int socket_ioctl_fd(void) {
-        int fd;
+ਪੂਰਨ socket_ioctl_fd(ਖਾਲੀ) {
+        ਪੂਰਨ fd;
 
         /* Create a socket to invoke the various network interface ioctl()s on. Traditionally only AF_INET was good for
          * that. Since kernel 4.6 AF_NETLINK works for this too. We first try to use AF_INET hence, but if that's not
@@ -1317,148 +1317,148 @@ int socket_ioctl_fd(void) {
          * generic AF_NETLINK. */
 
         fd = socket(AF_INET, SOCK_DGRAM|SOCK_CLOEXEC, 0);
-        if (fd < 0)
+        ਜੇ (fd < 0)
                 fd = socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC, NETLINK_GENERIC);
-        if (fd < 0)
-                return -errno;
+        ਜੇ (fd < 0)
+                ਵਾਪਸ -errno;
 
-        return fd;
+        ਵਾਪਸ fd;
 }
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa) {
-        const char *p, * nul;
+ਪੂਰਨ sockaddr_un_unlink(ਅਚਲ ਬਣਤਰ sockaddr_un *sa) {
+        ਅਚਲ ਅੱਖਰ *p, * nul;
 
-        assert(sa);
+        ਪ੍ਰਤਿਜ੍ਞਾ(sa);
 
-        if (sa->sun_family != AF_UNIX)
-                return -EPROTOTYPE;
+        ਜੇ (sa->sun_family != AF_UNIX)
+                ਵਾਪਸ -EPROTOTYPE;
 
-        if (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
-                return 0;
+        ਜੇ (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
+                ਵਾਪਸ 0;
 
         /* The path in .sun_path is not necessarily NUL terminated. Let's fix that. */
-        nul = memchr(sa->sun_path, 0, sizeof(sa->sun_path));
-        if (nul)
+        nul = memchr(sa->sun_path, 0, ਆਕਾਰ(sa->sun_path));
+        ਜੇ (nul)
                 p = sa->sun_path;
-        else
-                p = memdupa_suffix0(sa->sun_path, sizeof(sa->sun_path));
+        ਨਹੀਂਤਾਂ
+                p = memdupa_suffix0(sa->sun_path, ਆਕਾਰ(sa->sun_path));
 
-        if (unlink(p) < 0)
-                return -errno;
+        ਜੇ (unlink(p) < 0)
+                ਵਾਪਸ -errno;
 
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
+ਪੂਰਨ sockaddr_un_ਸੈੱਟ_ਰਸਤਾ(ਬਣਤਰ sockaddr_un *ret, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) {
         size_t l;
 
-        assert(ret);
-        assert(path);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
 
         /* Initialize ret->sun_path from the specified argument. This will interpret paths starting with '@' as
          * abstract namespace sockets, and those starting with '/' as regular filesystem sockets. It won't accept
          * anything else (i.e. no relative paths), to avoid ambiguities. Note that this function cannot be used to
          * reference paths in the abstract namespace that include NUL bytes in the name. */
 
-        l = strlen(path);
-        if (l < 2)
-                return -EINVAL;
-        if (!IN_SET(path[0], '/', '@'))
-                return -EINVAL;
+        l = ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ);
+        ਜੇ (l < 2)
+                ਵਾਪਸ -EINVAL;
+        ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(ਰਸਤਾ[0], '/', '@'))
+                ਵਾਪਸ -EINVAL;
 
         /* Don't allow paths larger than the space in sockaddr_un. Note that we are a tiny bit more restrictive than
          * the kernel is: we insist on NUL termination (both for abstract namespace and regular file system socket
          * addresses!), which the kernel doesn't. We do this to reduce chance of incompatibility with other apps that
          * do not expect non-NUL terminated file system path. */
-        if (l+1 > sizeof(ret->sun_path))
-                return path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
+        ਜੇ (l+1 > ਆਕਾਰ(ret->sun_path))
+                ਵਾਪਸ ਰਸਤਾ[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
                                                                   * too long to fit into a sockaddr_un, but
                                                                   * is a file system path, and thus might be
                                                                   * connectible via O_PATH indirection. */
 
-        *ret = (struct sockaddr_un) {
+        *ret = (ਬਣਤਰ sockaddr_un) {
                 .sun_family = AF_UNIX,
         };
 
-        if (path[0] == '@') {
+        ਜੇ (ਰਸਤਾ[0] == '@') {
                 /* Abstract namespace socket */
-                memcpy(ret->sun_path + 1, path + 1, l); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
+                ਸਮ੍ਰਿਤੀ_ਨਕਲ(ret->sun_path + 1, ਰਸਤਾ + 1, l); /* copy *with* trailing NUL byte */
+                ਵਾਪਸ (ਪੂਰਨ) (offsetof(ਬਣਤਰ sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
 
-        } else {
-                assert(path[0] == '/');
+        } ਨਹੀਂਤਾਂ {
+                ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ[0] == '/');
 
                 /* File system socket */
-                memcpy(ret->sun_path, path, l + 1); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
+                ਸਮ੍ਰਿਤੀ_ਨਕਲ(ret->sun_path, ਰਸਤਾ, l + 1); /* copy *with* trailing NUL byte */
+                ਵਾਪਸ (ਪੂਰਨ) (offsetof(ਬਣਤਰ sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
         }
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret) {
-        int v;
-        socklen_t sl = sizeof(v);
+ਪੂਰਨ getsockopt_int(ਪੂਰਨ fd, ਪੂਰਨ level, ਪੂਰਨ optname, ਪੂਰਨ *ret) {
+        ਪੂਰਨ v;
+        socklen_t sl = ਆਕਾਰ(v);
 
-        assert(fd >= 0);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (getsockopt(fd, level, optname, &v, &sl) < 0)
-                return negative_errno();
-        if (sl != sizeof(v))
-                return -EIO;
+        ਜੇ (getsockopt(fd, level, optname, &v, &sl) < 0)
+                ਵਾਪਸ negative_errno();
+        ਜੇ (sl != ਆਕਾਰ(v))
+                ਵਾਪਸ -EIO;
 
         *ret = v;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int socket_bind_to_ifname(int fd, const char *ifname) {
-        assert(fd >= 0);
+ਪੂਰਨ socket_bind_ਮੰਜ਼ਿਲ_ifname(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ifname) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
         /* Call with NULL to drop binding */
 
-        return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
+        ਵਾਪਸ RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
 }
 
-int socket_bind_to_ifindex(int fd, int ifindex) {
-        assert(fd >= 0);
+ਪੂਰਨ socket_bind_ਮੰਜ਼ਿਲ_ifindex(ਪੂਰਨ fd, ਪੂਰਨ ifindex) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
-        if (ifindex <= 0)
+        ਜੇ (ifindex <= 0)
                 /* Drop binding */
-                return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
+                ਵਾਪਸ RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ਨਿਰਾ, 0));
 
-        return setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
+        ਵਾਪਸ setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
 }
 
-int socket_autobind(int fd, char **ret_name) {
-        _cleanup_free_ char *name = NULL;
+ਪੂਰਨ socket_autobind(ਪੂਰਨ fd, ਅੱਖਰ **ret_name) {
+        _cleanup_free_ ਅੱਖਰ *name = ਨਿਰਾ;
         uint64_t random;
-        int r;
+        ਪੂਰਨ r;
 
         /* Generate a random abstract socket name and bind fd to it. This is modeled after the kernel
          * "autobind" feature, but uses 64-bit random number internally. */
 
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
         random = random_u64();
 
-        if (asprintf(&name, "@%" PRIu64, random) < 0)
-                return -ENOMEM;
+        ਜੇ (asprintf(&name, "@%" PRIu64, random) < 0)
+                ਵਾਪਸ -ENOMEM;
 
-        union sockaddr_union sa;
-        assert_cc(DECIMAL_STR_MAX(uint64_t) < sizeof(sa.un.sun_path));
+        ਸੰਘ sockaddr_union sa;
+        assert_cc(DECIMAL_STR_MAX(uint64_t) < ਆਕਾਰ(sa.un.sun_path));
 
-        r = sockaddr_un_set_path(&sa.un, name);
-        if (r < 0)
-                return r;
+        r = sockaddr_un_ਸੈੱਟ_ਰਸਤਾ(&sa.un, name);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (bind(fd, &sa.sa, r) < 0)
-                return -errno;
+        ਜੇ (bind(fd, &sa.sa, r) < 0)
+                ਵਾਪਸ -errno;
 
-        if (ret_name)
+        ਜੇ (ret_name)
                 *ret_name = TAKE_PTR(name);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
+ssize_t recvmsg_ਸੁਰੱਖਿਅਤ(ਪੂਰਨ sockfd, ਬਣਤਰ msghdr *msg, ਪੂਰਨ flags) {
         ssize_t n;
 
         /* A wrapper around recvmsg() that checks for MSG_CTRUNC and MSG_TRUNC, and turns them into an error,
@@ -1466,457 +1466,457 @@ ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
          *
          * Note that unlike our usual coding style this might modify *msg on failure. */
 
-        assert(sockfd >= 0);
-        assert(msg);
+        ਪ੍ਰਤਿਜ੍ਞਾ(sockfd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(msg);
 
         n = recvmsg(sockfd, msg, flags);
-        if (n < 0)
-                return -errno;
+        ਜੇ (n < 0)
+                ਵਾਪਸ -errno;
 
-        if (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
-            (!FLAGS_SET(flags, MSG_PEEK) && FLAGS_SET(msg->msg_flags, MSG_TRUNC))) {
+        ਜੇ (FLAGS_ਸੈੱਟ(msg->msg_flags, MSG_CTRUNC) ||
+            (!FLAGS_ਸੈੱਟ(flags, MSG_PEEK) && FLAGS_ਸੈੱਟ(msg->msg_flags, MSG_TRUNC))) {
                 cmsg_close_all(msg);
-                return FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
+                ਵਾਪਸ FLAGS_ਸੈੱਟ(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
         }
 
-        return n;
+        ਵਾਪਸ n;
 }
 
-int socket_get_family(int fd) {
-        int af;
-        socklen_t sl = sizeof(af);
+ਪੂਰਨ socket_get_family(ਪੂਰਨ fd) {
+        ਪੂਰਨ af;
+        socklen_t sl = ਆਕਾਰ(af);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
-                return -errno;
+        ਜੇ (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
+                ਵਾਪਸ -errno;
 
-        if (sl != sizeof(af))
-                return -EINVAL;
+        ਜੇ (sl != ਆਕਾਰ(af))
+                ਵਾਪਸ -EINVAL;
 
-        return af;
+        ਵਾਪਸ af;
 }
 
-int socket_set_recvpktinfo(int fd, int af, bool b) {
+ਪੂਰਨ socket_ਸੈੱਟ_recvpktinfo(ਪੂਰਨ fd, ਪੂਰਨ af, bool b) {
 
-        if (af == AF_UNSPEC) {
+        ਜੇ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ਜੇ (af < 0)
+                        ਵਾਪਸ af;
         }
 
-        switch (af) {
+        ਚੋਣ (af) {
 
-        case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
+        ਹਾਲਤ AF_INET:
+                ਵਾਪਸ setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
 
-        case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
+        ਹਾਲਤ AF_INET6:
+                ਵਾਪਸ setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
 
-        case AF_NETLINK:
-                return setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
+        ਹਾਲਤ AF_NETLINK:
+                ਵਾਪਸ setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
 
-        case AF_PACKET:
-                return setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
+        ਹਾਲਤ AF_PACKET:
+                ਵਾਪਸ setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
 
-        default:
-                return -EAFNOSUPPORT;
+        ਮੂਲ:
+                ਵਾਪਸ -EAFNOSUPPORT;
         }
 }
 
-int socket_set_unicast_if(int fd, int af, int ifi) {
+ਪੂਰਨ socket_ਸੈੱਟ_unicast_if(ਪੂਰਨ fd, ਪੂਰਨ af, ਪੂਰਨ ifi) {
         be32_t ifindex_be = htobe32(ifi);
 
-        if (af == AF_UNSPEC) {
+        ਜੇ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ਜੇ (af < 0)
+                        ਵਾਪਸ af;
         }
 
-        switch (af) {
+        ਚੋਣ (af) {
 
-        case AF_INET:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+        ਹਾਲਤ AF_INET:
+                ਵਾਪਸ RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, ਆਕਾਰ(ifindex_be)));
 
-        case AF_INET6:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+        ਹਾਲਤ AF_INET6:
+                ਵਾਪਸ RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, ਆਕਾਰ(ifindex_be)));
 
-        default:
-                return -EAFNOSUPPORT;
+        ਮੂਲ:
+                ਵਾਪਸ -EAFNOSUPPORT;
         }
 }
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val) {
-        if (af == AF_UNSPEC) {
+ਪੂਰਨ socket_ਸੈੱਟ_option(ਪੂਰਨ fd, ਪੂਰਨ af, ਪੂਰਨ opt_ipv4, ਪੂਰਨ opt_ipv6, ਪੂਰਨ val) {
+        ਜੇ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ਜੇ (af < 0)
+                        ਵਾਪਸ af;
         }
 
-        switch (af) {
+        ਚੋਣ (af) {
 
-        case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
+        ਹਾਲਤ AF_INET:
+                ਵਾਪਸ setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
 
-        case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
+        ਹਾਲਤ AF_INET6:
+                ਵਾਪਸ setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
 
-        default:
-                return -EAFNOSUPPORT;
+        ਮੂਲ:
+                ਵਾਪਸ -EAFNOSUPPORT;
         }
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret) {
-        int mtu, r;
+ਪੂਰਨ socket_get_mtu(ਪੂਰਨ fd, ਪੂਰਨ af, size_t *ret) {
+        ਪੂਰਨ mtu, r;
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (af == AF_UNSPEC) {
+        ਜੇ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ਜੇ (af < 0)
+                        ਵਾਪਸ af;
         }
 
-        switch (af) {
+        ਚੋਣ (af) {
 
-        case AF_INET:
+        ਹਾਲਤ AF_INET:
                 r = getsockopt_int(fd, IPPROTO_IP, IP_MTU, &mtu);
-                break;
+                ਰੋਕੋ;
 
-        case AF_INET6:
+        ਹਾਲਤ AF_INET6:
                 r = getsockopt_int(fd, IPPROTO_IPV6, IPV6_MTU, &mtu);
-                break;
+                ਰੋਕੋ;
 
-        default:
-                return -EAFNOSUPPORT;
+        ਮੂਲ:
+                ਵਾਪਸ -EAFNOSUPPORT;
         }
 
-        if (r < 0)
-                return r;
-        if (mtu <= 0)
-                return -EINVAL;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਜੇ (mtu <= 0)
+                ਵਾਪਸ -EINVAL;
 
         *ret = (size_t) mtu;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-static int connect_unix_path_simple(int fd, const char *path) {
-        union sockaddr_union sa = {
+ਸਥਿਰ ਪੂਰਨ connect_unix_ਰਸਤਾ_simple(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) {
+        ਸੰਘ sockaddr_union sa = {
                 .un.sun_family = AF_UNIX,
         };
         size_t l;
 
-        assert(fd >= 0);
-        assert(path);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
 
-        l = strlen(path);
-        assert(l > 0);
-        assert(l < sizeof(sa.un.sun_path));
+        l = ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(l > 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(l < ਆਕਾਰ(sa.un.sun_path));
 
-        memcpy(sa.un.sun_path, path, l + 1);
-        return RET_NERRNO(connect(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + l + 1));
+        ਸਮ੍ਰਿਤੀ_ਨਕਲ(sa.un.sun_path, ਰਸਤਾ, l + 1);
+        ਵਾਪਸ RET_NERRNO(connect(fd, &sa.sa, offsetof(ਬਣਤਰ sockaddr_un, sun_path) + l + 1));
 }
 
-static int connect_unix_inode(int fd, int inode_fd) {
-        assert(fd >= 0);
-        assert(inode_fd >= 0);
+ਸਥਿਰ ਪੂਰਨ connect_unix_inode(ਪੂਰਨ fd, ਪੂਰਨ inode_fd) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(inode_fd >= 0);
 
-        return connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
+        ਵਾਪਸ connect_unix_ਰਸਤਾ_simple(fd, FORMAT_PROC_FD_ਰਸਤਾ(inode_fd));
 }
 
-int connect_unix_path(int fd, int dir_fd, const char *path) {
-        _cleanup_close_ int inode_fd = -EBADF;
+ਪੂਰਨ connect_unix_ਰਸਤਾ(ਪੂਰਨ fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) {
+        _cleanup_close_ ਪੂਰਨ inode_fd = -EBADF;
 
-        assert(fd >= 0);
-        assert(wildcard_fd_is_valid(dir_fd));
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(wildcard_fd_is_valid(dir_fd));
 
         /* Connects to the specified AF_UNIX socket in the file system. Works around the 108 byte size limit
          * in sockaddr_un, by going via O_PATH if needed. This hence works for any kind of path. */
 
-        if (!path) {
-                if (dir_fd < 0)
-                        return -EISDIR;
+        ਜੇ (!ਰਸਤਾ) {
+                ਜੇ (dir_fd < 0)
+                        ਵਾਪਸ -EISDIR;
 
-                return connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
+                ਵਾਪਸ connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
         }
 
         /* Refuse zero length path early, to make sure AF_UNIX stack won't mistake this for an abstract
          * namespace path, since first char is NUL */
-        if (isempty(path))
-                return -EINVAL;
+        ਜੇ (isempty(ਰਸਤਾ))
+                ਵਾਪਸ -EINVAL;
 
         /* Shortcut for the simple case */
-        if (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(struct sockaddr_un, sun_path))
-                return connect_unix_path_simple(fd, path);
+        ਜੇ (dir_fd == AT_FDCWD && ਲੜੀ_ਲੰਬਾਈ(ਰਸਤਾ) < sizeof_ਖੇਤਰ(ਬਣਤਰ sockaddr_un, sun_path))
+                ਵਾਪਸ connect_unix_ਰਸਤਾ_simple(fd, ਰਸਤਾ);
 
         /* If dir_fd is specified, then we need to go the indirect O_PATH route, because connectat() does not
          * exist. If the path is too long, we also need to take the indirect route, since we can't fit this
          * into a sockaddr_un directly. */
 
-        if (dir_fd == XAT_FDROOT) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        ਜੇ (dir_fd == XAT_FDROOT) {
+                _cleanup_free_ ਅੱਖਰ *j = strjoin("/", ਰਸਤਾ);
+                ਜੇ (!j)
+                        ਵਾਪਸ -ENOMEM;
 
-                inode_fd = open(j, O_PATH|O_CLOEXEC);
-        } else
-                inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC);
-        if (inode_fd < 0)
-                return -errno;
+                inode_fd = open(j, O_ਰਸਤਾ|O_CLOEXEC);
+        } ਨਹੀਂਤਾਂ
+                inode_fd = openat(dir_fd, ਰਸਤਾ, O_ਰਸਤਾ|O_CLOEXEC);
+        ਜੇ (inode_fd < 0)
+                ਵਾਪਸ -errno;
 
-        return connect_unix_inode(fd, inode_fd);
+        ਵਾਪਸ connect_unix_inode(fd, inode_fd);
 }
 
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s) {
-        struct sockaddr_un un;
-        int r;
+ਪੂਰਨ socket_ਪਤਾ_parse_unix(Socket_ਪਤਾ *ret_ਪਤਾ, ਅਚਲ ਅੱਖਰ *s) {
+        ਬਣਤਰ sockaddr_un un;
+        ਪੂਰਨ r;
 
-        assert(ret_address);
-        assert(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_ਪਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        if (!IN_SET(*s, '/', '@'))
-                return -EPROTO;
+        ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(*s, '/', '@'))
+                ਵਾਪਸ -EPROTO;
 
-        r = sockaddr_un_set_path(&un, s);
-        if (r < 0)
-                return r;
+        r = sockaddr_un_ਸੈੱਟ_ਰਸਤਾ(&un, s);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        *ret_address = (SocketAddress) {
+        *ret_ਪਤਾ = (Socket_ਪਤਾ) {
                 .sockaddr.un = un,
-                .size = r,
+                .ਮਾਪ = r,
         };
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int socket_address_equal_unix(const char *a, const char *b) {
-        SocketAddress socket_a, socket_b;
-        int r;
+ਪੂਰਨ socket_ਪਤਾ_equal_unix(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) {
+        Socket_ਪਤਾ socket_a, socket_b;
+        ਪੂਰਨ r;
 
-        assert(a);
-        assert(b);
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
-        r = socket_address_parse_unix(&socket_a, a);
-        if (r < 0)
-                return r;
+        r = socket_ਪਤਾ_parse_unix(&socket_a, a);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        r = socket_address_parse_unix(&socket_b, b);
-        if (r < 0)
-                return r;
+        r = socket_ਪਤਾ_parse_unix(&socket_b, b);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
+        ਵਾਪਸ sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret) {
-        int r;
+ਪੂਰਨ vsock_parse_ਪੋਰਟ(ਅਚਲ ਅੱਖਰ *s, ਬਿਨਾਨਿਸ਼ਾਨੀ *ret) {
+        ਪੂਰਨ r;
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (!s)
-                return -EINVAL;
+        ਜੇ (!s)
+                ਵਾਪਸ -EINVAL;
 
-        unsigned u;
-        r = safe_atou(s, &u);
-        if (r < 0)
-                return r;
+        ਬਿਨਾਨਿਸ਼ਾਨੀ u;
+        r = ਸੁਰੱਖਿਅਤ_atou(s, &u);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         /* Port 0 is apparently valid and not special in AF_VSOCK (unlike on IP). But VMADDR_PORT_ANY
          * (UINT32_MAX) is. Hence refuse that. */
 
-        if (u == VMADDR_PORT_ANY)
-                return -EINVAL;
+        ਜੇ (u == VMADDR_PORT_ANY)
+                ਵਾਪਸ -EINVAL;
 
         *ret = u;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int vsock_parse_cid(const char *s, unsigned *ret) {
-        assert(ret);
+ਪੂਰਨ vsock_parse_cid(ਅਚਲ ਅੱਖਰ *s, ਬਿਨਾਨਿਸ਼ਾਨੀ *ret) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (!s)
-                return -EINVAL;
+        ਜੇ (!s)
+                ਵਾਪਸ -EINVAL;
 
         /* Parsed an AF_VSOCK "CID". This is a 32bit entity, and the usual type is "unsigned". We recognize
          * the four special CIDs as strings, and otherwise parse the numeric CIDs. */
 
-        if (streq(s, "hypervisor"))
+        ਜੇ (streq(s, "hypervisor"))
                 *ret = VMADDR_CID_HYPERVISOR;
-        else if (streq(s, "local"))
+        ਨਹੀਂਤਾਂ ਜੇ (streq(s, "local"))
                 *ret = VMADDR_CID_LOCAL;
-        else if (streq(s, "host"))
+        ਨਹੀਂਤਾਂ ਜੇ (streq(s, "host"))
                 *ret = VMADDR_CID_HOST;
-        else if (STR_IN_SET(s, "any", "-1"))
+        ਨਹੀਂਤਾਂ ਜੇ (STR_ਵਿੱਚ_ਸੈੱਟ(s, "any", "-1"))
                 *ret = VMADDR_CID_ANY;
-        else
-                return safe_atou(s, ret);
+        ਨਹੀਂਤਾਂ
+                ਵਾਪਸ ਸੁਰੱਖਿਅਤ_atou(s, ret);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
+ਪੂਰਨ socket_ਪਤਾ_parse_vsock(Socket_ਪਤਾ *ret_ਪਤਾ, ਅਚਲ ਅੱਖਰ *s) {
         /* AF_VSOCK socket in vsock:cid:port notation */
-        _cleanup_free_ char *n = NULL;
-        const char *e, *cid_start;
-        unsigned port, cid;
-        int type, r;
+        _cleanup_free_ ਅੱਖਰ *n = ਨਿਰਾ;
+        ਅਚਲ ਅੱਖਰ *e, *cid_ਸ਼ੁਰੂ;
+        ਬਿਨਾਨਿਸ਼ਾਨੀ port, cid;
+        ਪੂਰਨ type, r;
 
-        assert(ret_address);
-        assert(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_ਪਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
 
-        if ((cid_start = startswith(s, "vsock:")))
+        ਜੇ ((cid_ਸ਼ੁਰੂ = startswith(s, "vsock:")))
                 type = 0;
-        else if ((cid_start = startswith(s, "vsock-dgram:")))
+        ਨਹੀਂਤਾਂ ਜੇ ((cid_ਸ਼ੁਰੂ = startswith(s, "vsock-dgram:")))
                 type = SOCK_DGRAM;
-        else if ((cid_start = startswith(s, "vsock-seqpacket:")))
+        ਨਹੀਂਤਾਂ ਜੇ ((cid_ਸ਼ੁਰੂ = startswith(s, "vsock-seqpacket:")))
                 type = SOCK_SEQPACKET;
-        else if ((cid_start = startswith(s, "vsock-stream:")))
+        ਨਹੀਂਤਾਂ ਜੇ ((cid_ਸ਼ੁਰੂ = startswith(s, "vsock-stream:")))
                 type = SOCK_STREAM;
-        else
-                return -EPROTO;
+        ਨਹੀਂਤਾਂ
+                ਵਾਪਸ -EPROTO;
 
-        e = strchr(cid_start, ':');
-        if (!e)
-                return -EINVAL;
+        e = strchr(cid_ਸ਼ੁਰੂ, ':');
+        ਜੇ (!e)
+                ਵਾਪਸ -EINVAL;
 
-        r = vsock_parse_port(e+1, &port);
-        if (r < 0)
-                return r;
+        r = vsock_parse_ਪੋਰਟ(e+1, &port);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        n = strndup(cid_start, e - cid_start);
-        if (!n)
-                return -ENOMEM;
+        n = strndup(cid_ਸ਼ੁਰੂ, e - cid_ਸ਼ੁਰੂ);
+        ਜੇ (!n)
+                ਵਾਪਸ -ENOMEM;
 
-        if (isempty(n))
+        ਜੇ (isempty(n))
                 cid = VMADDR_CID_ANY;
-        else {
+        ਨਹੀਂਤਾਂ {
                 r = vsock_parse_cid(n, &cid);
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
         }
 
-        *ret_address = (SocketAddress) {
+        *ret_ਪਤਾ = (Socket_ਪਤਾ) {
                 .sockaddr.vm = {
                         .svm_family = AF_VSOCK,
                         .svm_cid = cid,
                         .svm_port = port,
                 },
                 .type = type,
-                .size = sizeof(struct sockaddr_vm),
+                .ਮਾਪ = ਆਕਾਰ(ਬਣਤਰ sockaddr_vm),
         };
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups) {
-        _cleanup_free_ uint32_t *groups = NULL;
+ਪੂਰਨ netlink_socket_get_multicast_groups(ਪੂਰਨ fd, size_t *ret_len, uint32_t **ret_groups) {
+        _cleanup_free_ uint32_t *groups = ਨਿਰਾ;
         socklen_t len = 0, old_len;
 
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
-                return -errno;
+        ਜੇ (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, ਨਿਰਾ, &len) < 0)
+                ਵਾਪਸ -errno;
 
-        if (len == 0)
-                goto finalize;
+        ਜੇ (len == 0)
+                ਜਾਓ finalize;
 
         groups = new0(uint32_t, len);
-        if (!groups)
-                return -ENOMEM;
+        ਜੇ (!groups)
+                ਵਾਪਸ -ENOMEM;
 
         old_len = len;
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
-                return -errno;
+        ਜੇ (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
+                ਵਾਪਸ -errno;
 
-        if (old_len != len)
-                return -EIO;
+        ਜੇ (old_len != len)
+                ਵਾਪਸ -EIO;
 
 finalize:
-        if (ret_len)
+        ਜੇ (ret_len)
                 *ret_len = len;
-        if (ret_groups)
+        ਜੇ (ret_groups)
                 *ret_groups = TAKE_PTR(groups);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int socket_get_cookie(int fd, uint64_t *ret) {
-        assert(fd >= 0);
+ਪੂਰਨ socket_get_cookie(ਪੂਰਨ fd, uint64_t *ret) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
         uint64_t cookie = 0;
-        socklen_t cookie_len = sizeof(cookie);
-        if (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
-                return -errno;
+        socklen_t cookie_len = ਆਕਾਰ(cookie);
+        ਜੇ (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
+                ਵਾਪਸ -errno;
 
-        assert(cookie_len == sizeof(cookie));
-        if (ret)
+        ਪ੍ਰਤਿਜ੍ਞਾ(cookie_len == ਆਕਾਰ(cookie));
+        ਜੇ (ret)
                 *ret = cookie;
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-void cmsg_close_all(struct msghdr *mh) {
-        assert(mh);
+ਖਾਲੀ cmsg_close_all(ਬਣਤਰ msghdr *mh) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(mh);
 
-        struct cmsghdr *cmsg;
+        ਬਣਤਰ cmsghdr *cmsg;
         CMSG_FOREACH(cmsg, mh) {
-                if (cmsg->cmsg_level != SOL_SOCKET)
-                        continue;
+                ਜੇ (cmsg->cmsg_level != SOL_SOCKET)
+                        ਜਾਰੀ;
 
-                if (cmsg->cmsg_type == SCM_RIGHTS)
-                        close_many(CMSG_TYPED_DATA(cmsg, int),
-                                   (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-                else if (cmsg->cmsg_type == SCM_PIDFD) {
-                        assert(cmsg->cmsg_len == CMSG_LEN(sizeof(int)));
-                        safe_close(*CMSG_TYPED_DATA(cmsg, int));
+                ਜੇ (cmsg->cmsg_type == SCM_RIGHTS)
+                        close_many(CMSG_TYPED_ਅੰਕੜੇ(cmsg, ਪੂਰਨ),
+                                   (cmsg->cmsg_len - CMSG_LEN(0)) / ਆਕਾਰ(ਪੂਰਨ));
+                ਨਹੀਂਤਾਂ ਜੇ (cmsg->cmsg_type == SCM_PIDFD) {
+                        ਪ੍ਰਤਿਜ੍ਞਾ(cmsg->cmsg_len == CMSG_LEN(ਆਕਾਰ(ਪੂਰਨ)));
+                        ਸੁਰੱਖਿਅਤ_close(*CMSG_TYPED_ਅੰਕੜੇ(cmsg, ਪੂਰਨ));
                 }
         }
 }
 
-int tos_to_priority(uint8_t tos) {
+ਪੂਰਨ tos_ਮੰਜ਼ਿਲ_ਤਰਜੀਹ(uint8_t tos) {
         /* Map the IP Precedence (top 3 bits of the TOS field) to Linux internal packet priorities
          * (TC_PRIO_*). This exactly mirrors the standard Linux kernel IP precedence-to-priority mapping
          * (rt_tos2priority) to ensure consistent behavior when explicitly setting SO_PRIORITY. */
-        switch (IPTOS_PREC(tos)) {
-        case IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
-        case IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
-                return TC_PRIO_CONTROL;
+        ਚੋਣ (IPTOS_PREC(tos)) {
+        ਹਾਲਤ IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
+        ਹਾਲਤ IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
+                ਵਾਪਸ TC_PRIO_CONTROL;
 
-        case IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
-        case IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
-                return TC_PRIO_INTERACTIVE;
+        ਹਾਲਤ IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
+        ਹਾਲਤ IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
+                ਵਾਪਸ TC_PRIO_INTERACTIVE;
 
-        case IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
-        case IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
-                return TC_PRIO_INTERACTIVE_BULK;
+        ਹਾਲਤ IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
+        ਹਾਲਤ IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
+                ਵਾਪਸ TC_PRIO_INTERACTIVE_BULK;
 
-        case IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
-                return TC_PRIO_BULK;
+        ਹਾਲਤ IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
+                ਵਾਪਸ TC_PRIO_BULK;
 
-        case IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
-        default:
-                return TC_PRIO_BESTEFFORT;
+        ਹਾਲਤ IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
+        ਮੂਲ:
+                ਵਾਪਸ TC_PRIO_BESTEFFORT;
         }
 }
 
-int socket_xattr_supported(void) {
-        int r;
+ਪੂਰਨ socket_xattr_supported(ਖਾਲੀ) {
+        ਪੂਰਨ r;
 
         // FIXME: Drop this check once Linux 7.1 becomes our baseline
 
-        static int cached = -1;
-        if (cached >= 0)
-                return cached;
+        ਸਥਿਰ ਪੂਰਨ cached = -1;
+        ਜੇ (cached >= 0)
+                ਵਾਪਸ cached;
 
-        _cleanup_close_ int fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ ਪੂਰਨ fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
+        ਜੇ (fd < 0)
+                ਵਾਪਸ -errno;
 
         /* Old kernels return EPERM. But let's also check for more appropriate error codes, to be friendly to
          * seccomp policies */
-        r = xsetxattr(fd, /* path= */ NULL, AT_EMPTY_PATH, "user.testxxx", "1");
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
-                return (cached = false);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set test xattr on socket: %m");
+        r = xsetxattr(fd, /* path= */ ਨਿਰਾ, AT_ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ, "user.testxxx", "1");
+        ਜੇ (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
+                ਵਾਪਸ (cached = false);
+        ਜੇ (r < 0)
+                ਵਾਪਸ log_debug_errno(r, "Failed to set test xattr on socket: %m");
 
-        return (cached = true);
+        ਵਾਪਸ (cached = true);
 }

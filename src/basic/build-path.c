@@ -1,129 +1,129 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <elf.h>
-#include <fcntl.h>
-#include <link.h>
-#include <stdlib.h>
-#include <sys/auxv.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <elf.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <link.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/auxv.h>
 
-#include "alloc-util.h"
-#include "build-path.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "unistd.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "build-path.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "path-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "process-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "unistd.h"
 
-static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
-        size_t runpath_index = SIZE_MAX, rpath_index = SIZE_MAX;
-        const char *strtab = NULL;
+ਸਥਿਰ ਪੂਰਨ get_runpath_from_dynamic(ਅਚਲ ElfW(Dyn) *d, ElfW(Addr) bias, ਅਚਲ ਅੱਖਰ **ret) {
+        size_t runpath_ਸੂਚਕਾਂਕ = SIZE_MAX, rpath_ਸੂਚਕਾਂਕ = SIZE_MAX;
+        ਅਚਲ ਅੱਖਰ *strtab = ਨਿਰਾ;
 
-        assert(d);
+        ਪ੍ਰਤਿਜ੍ਞਾ(d);
 
         /* Iterates through the PT_DYNAMIC section to find the DT_RUNPATH/DT_RPATH entries */
 
-        for (; d->d_tag != DT_NULL; d++) {
+        ਲਈ (; d->d_tag != DT_NULL; d++) {
 
-                switch (d->d_tag) {
+                ਚੋਣ (d->d_tag) {
 
-                case DT_RUNPATH:
-                        runpath_index = (size_t) d->d_un.d_val;
-                        break;
+                ਹਾਲਤ DT_RUNPATH:
+                        runpath_ਸੂਚਕਾਂਕ = (size_t) d->d_un.d_val;
+                        ਰੋਕੋ;
 
-                case DT_RPATH:
-                        rpath_index = (size_t) d->d_un.d_val;
-                        break;
+                ਹਾਲਤ DT_RPATH:
+                        rpath_ਸੂਚਕਾਂਕ = (size_t) d->d_un.d_val;
+                        ਰੋਕੋ;
 
-                case DT_STRTAB:
+                ਹਾਲਤ DT_STRTAB:
                         /* On MIPS, RISC-V, or with musl, DT_STRTAB records an offset, not a valid address,
                          * so it has to be adjusted using the bias calculated earlier. */
-                        if (d->d_un.d_val != 0)
-                                strtab = (const char *) ((uintptr_t) d->d_un.d_val
-#if defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
+                        ਜੇ (d->d_un.d_val != 0)
+                                strtab = (ਅਚਲ ਅੱਖਰ *) ((uintptr_t) d->d_un.d_val
+#ਜੇ defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
                                          + bias
-#endif
+#ਜੇ_ਅੰਤ
                                 );
-                        break;
+                        ਰੋਕੋ;
                 }
 
                 /* runpath wins, hence if we have the table and runpath we can exit the loop early */
-                if (strtab && runpath_index != SIZE_MAX)
-                        break;
+                ਜੇ (strtab && runpath_ਸੂਚਕਾਂਕ != SIZE_MAX)
+                        ਰੋਕੋ;
         }
 
-        if (!strtab)
-                return -ENOTRECOVERABLE;
+        ਜੇ (!strtab)
+                ਵਾਪਸ -ENOTRECOVERABLE;
 
         /* According to ld.so runpath wins if both runpath and rpath are defined. */
-        if (runpath_index != SIZE_MAX) {
-                if (ret)
-                        *ret = strtab + runpath_index;
-                return 1;
+        ਜੇ (runpath_ਸੂਚਕਾਂਕ != SIZE_MAX) {
+                ਜੇ (ret)
+                        *ret = strtab + runpath_ਸੂਚਕਾਂਕ;
+                ਵਾਪਸ 1;
         }
 
-        if (rpath_index != SIZE_MAX) {
-                if (ret)
-                        *ret = strtab + rpath_index;
-                return 1;
+        ਜੇ (rpath_ਸੂਚਕਾਂਕ != SIZE_MAX) {
+                ਜੇ (ret)
+                        *ret = strtab + rpath_ਸੂਚਕਾਂਕ;
+                ਵਾਪਸ 1;
         }
 
-        if (ret)
-                *ret = NULL;
+        ਜੇ (ret)
+                *ret = ਨਿਰਾ;
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-static int get_runpath(const char **ret) {
-        unsigned long phdr, phent, phnum;
+ਸਥਿਰ ਪੂਰਨ get_runpath(ਅਚਲ ਅੱਖਰ **ret) {
+        ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ phdr, phent, phnum;
 
         /* Finds the rpath/runpath in the program headers of the main executable we are running in */
 
         phdr = getauxval(AT_PHDR);      /* Start offset of phdr */
-        if (phdr == 0)
-                return -ENOTRECOVERABLE;
+        ਜੇ (phdr == 0)
+                ਵਾਪਸ -ENOTRECOVERABLE;
 
         phnum = getauxval(AT_PHNUM);    /* Number of entries in phdr */
-        if (phnum == 0)
-                return -ENOTRECOVERABLE;
+        ਜੇ (phnum == 0)
+                ਵਾਪਸ -ENOTRECOVERABLE;
 
         phent = getauxval(AT_PHENT);    /* Size of entries in phdr */
-        if (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
-                return -ENOTRECOVERABLE;
+        ਜੇ (phent < ਆਕਾਰ(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
+                ਵਾਪਸ -ENOTRECOVERABLE;
 
         ElfW(Addr) bias = 0, dyn = 0;
-        bool found_bias = false, found_dyn = false;
+        bool ਮਿਲਿਆ_bias = false, ਮਿਲਿਆ_dyn = false;
 
         /* Iterate through the Phdr structures to find the PT_PHDR and PT_DYNAMIC sections */
-        for (unsigned long i = 0; i < phnum; i++) {
-                const ElfW(Phdr) *p = (const ElfW(Phdr)*) (phdr + (i * phent));
+        ਲਈ (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ i = 0; i < phnum; i++) {
+                ਅਚਲ ElfW(Phdr) *p = (ਅਚਲ ElfW(Phdr)*) (phdr + (i * phent));
 
-                switch (p->p_type) {
+                ਚੋਣ (p->p_type) {
 
-                case PT_PHDR:
-                        if (p->p_vaddr > phdr) /* safety overflow check */
-                                return -ENOTRECOVERABLE;
+                ਹਾਲਤ PT_PHDR:
+                        ਜੇ (p->p_vaddr > phdr) /* safety overflow check */
+                                ਵਾਪਸ -ENOTRECOVERABLE;
 
                         bias = (ElfW(Addr)) phdr - p->p_vaddr;
-                        found_bias = true;
-                        break;
+                        ਮਿਲਿਆ_bias = true;
+                        ਰੋਕੋ;
 
-                case PT_DYNAMIC:
+                ਹਾਲਤ PT_DYNAMIC:
                         dyn = p->p_vaddr;
-                        found_dyn = true;
-                        break;
+                        ਮਿਲਿਆ_dyn = true;
+                        ਰੋਕੋ;
                 }
 
-                if (found_bias && found_dyn)
-                        break;
+                ਜੇ (ਮਿਲਿਆ_bias && ਮਿਲਿਆ_dyn)
+                        ਰੋਕੋ;
         }
 
-        if (!found_dyn)
-                return -ENOTRECOVERABLE;
+        ਜੇ (!ਮਿਲਿਆ_dyn)
+                ਵਾਪਸ -ENOTRECOVERABLE;
 
-        return get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
+        ਵਾਪਸ get_runpath_from_dynamic((ਅਚਲ ElfW(Dyn)*) (bias + dyn), bias, ret);
 }
 
-int get_build_exec_dir(char **ret) {
-        int r;
+ਪੂਰਨ get_build_exec_dir(ਅੱਖਰ **ret) {
+        ਪੂਰਨ r;
 
         /* Returns the build execution directory if we are invoked in a build environment. Specifically, this
          * checks if the main program binary has an rpath/runpath set (i.e. an explicit directory where to
@@ -151,140 +151,140 @@ int get_build_exec_dir(char **ret) {
          *     -NOTRECOVERABLE  → Dynamic binary information missing?
          */
 
-        static int runpath_cached = -ERRNO_MAX-1;
-        if (runpath_cached == -ERRNO_MAX-1) {
-                const char *runpath = NULL;
+        ਸਥਿਰ ਪੂਰਨ runpath_cached = -ERRNO_MAX-1;
+        ਜੇ (runpath_cached == -ERRNO_MAX-1) {
+                ਅਚਲ ਅੱਖਰ *runpath = ਨਿਰਾ;
 
                 runpath_cached = get_runpath(&runpath);
 
                 /* We only care if the runpath starts with $ORIGIN/ */
-                if (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
+                ਜੇ (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
                         runpath_cached = 0;
         }
-        if (runpath_cached < 0)
-                return runpath_cached;
-        if (runpath_cached == 0)
-                return -ENOEXEC;
+        ਜੇ (runpath_cached < 0)
+                ਵਾਪਸ runpath_cached;
+        ਜੇ (runpath_cached == 0)
+                ਵਾਪਸ -ENOEXEC;
 
-        _cleanup_free_ char *exe = NULL;
+        _cleanup_free_ ਅੱਖਰ *exe = ਨਿਰਾ;
         r = get_process_exe(0, &exe);
-        if (r < 0)
-                return runpath_cached = r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ runpath_cached = r;
 
-        return path_extract_directory(exe, ret);
+        ਵਾਪਸ ਰਸਤਾ_ਕੱਢੋ_directory(exe, ret);
 }
 
-static int find_build_dir_binary(const char *fn, char **ret) {
-        int r;
+ਸਥਿਰ ਪੂਰਨ ਲੱਭੋ_build_dir_ਦੁਆਧਾਰੀ(ਅਚਲ ਅੱਖਰ *fn, ਅੱਖਰ **ret) {
+        ਪੂਰਨ r;
 
-        assert(fn);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fn);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        _cleanup_free_ char *build_dir = NULL;
+        _cleanup_free_ ਅੱਖਰ *build_dir = ਨਿਰਾ;
         r = get_build_exec_dir(&build_dir);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        _cleanup_free_ char *np = path_join(build_dir, fn);
-        if (!np)
-                return -ENOMEM;
+        _cleanup_free_ ਅੱਖਰ *np = ਰਸਤਾ_join(build_dir, fn);
+        ਜੇ (!np)
+                ਵਾਪਸ -ENOMEM;
 
         *ret = TAKE_PTR(np);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-static int find_environment_binary(const char *fn, const char **ret) {
+ਸਥਿਰ ਪੂਰਨ ਲੱਭੋ_environment_ਦੁਆਧਾਰੀ(ਅਚਲ ਅੱਖਰ *fn, ਅਚਲ ਅੱਖਰ **ret) {
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
         /* If a path such as /usr/lib/systemd/systemd-foobar is specified, then this will check for an
          * environment variable SYSTEMD_FOOBAR_PATH and return it if set. */
 
-        _cleanup_free_ char *s = strdup(fn);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ ਅੱਖਰ *s = strdup(fn);
+        ਜੇ (!s)
+                ਵਾਪਸ -ENOMEM;
 
         ascii_strupper(s);
         string_replace_char(s, '-', '_');
 
-        if (!strextend(&s, "_PATH"))
-                return -ENOMEM;
+        ਜੇ (!strextend(&s, "_PATH"))
+                ਵਾਪਸ -ENOMEM;
 
-        const char *e;
+        ਅਚਲ ਅੱਖਰ *e;
         e = secure_getenv(s);
-        if (!e)
-                return -ENXIO;
+        ਜੇ (!e)
+                ਵਾਪਸ -ENXIO;
 
         *ret = e;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int invoke_callout_binary(const char *path, char *const argv[]) {
-        int r;
+ਪੂਰਨ invoke_callout_ਦੁਆਧਾਰੀ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ *ਅਚਲ argv[]) {
+        ਪੂਰਨ r;
 
-        assert(path);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
 
         /* Just like execv(), but tries to execute the specified binary in the build dir instead, if known */
 
-        _cleanup_free_ char *fn = NULL;
-        r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        _cleanup_free_ ਅੱਖਰ *fn = ਨਿਰਾ;
+        r = ਰਸਤਾ_ਕੱਢੋ_filename(ਰਸਤਾ, &fn);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਜੇ (r == O_DIRECTORY) /* Uh? */
+                ਵਾਪਸ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        ਅਚਲ ਅੱਖਰ *e;
+        ਜੇ (ਲੱਭੋ_environment_ਦੁਆਧਾਰੀ(fn, &e) >= 0) {
                 /* If there's an explicit environment variable set for this binary, prefer it */
                 execv(e, argv);
-                return -errno; /* The environment variable counts, let's fail otherwise */
+                ਵਾਪਸ -errno; /* The environment variable counts, let's fail otherwise */
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0)
+        _cleanup_free_ ਅੱਖਰ *np = ਨਿਰਾ;
+        ਜੇ (ਲੱਭੋ_build_dir_ਦੁਆਧਾਰੀ(fn, &np) >= 0)
                 execv(np, argv);
 
-        execvp(path, argv);
-        return -errno;
+        execvp(ਰਸਤਾ, argv);
+        ਵਾਪਸ -errno;
 }
 
-int pin_callout_binary(const char *path, char **ret_path) {
-        int r, fd;
+ਪੂਰਨ pin_callout_ਦੁਆਧਾਰੀ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ **ret_ਰਸਤਾ) {
+        ਪੂਰਨ r, fd;
 
-        assert(path);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
 
         /* Similar to invoke_callout_binary(), but pins (i.e. O_PATH opens) the binary instead of executing
          * it, also optionally provides the path to the binary. */
 
-        _cleanup_free_ char *fn = NULL;
-        r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        _cleanup_free_ ਅੱਖਰ *fn = ਨਿਰਾ;
+        r = ਰਸਤਾ_ਕੱਢੋ_filename(ਰਸਤਾ, &fn);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਜੇ (r == O_DIRECTORY) /* Uh? */
+                ਵਾਪਸ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        ਅਚਲ ਅੱਖਰ *e;
+        ਜੇ (ਲੱਭੋ_environment_ਦੁਆਧਾਰੀ(fn, &e) >= 0) {
                 /* The environment variable counts. We'd fail if the executable is not available/invalid. */
-                r = open_and_check_executable(e, /* root= */ NULL, ret_path, &fd);
-                if (r < 0)
-                        return r;
+                r = open_and_check_executable(e, /* root= */ ਨਿਰਾ, ret_ਰਸਤਾ, &fd);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                return fd;
+                ਵਾਪਸ fd;
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0) {
-                r = open_and_check_executable(np, /* root= */ NULL, ret_path, &fd);
-                if (r >= 0)
-                        return fd;
+        _cleanup_free_ ਅੱਖਰ *np = ਨਿਰਾ;
+        ਜੇ (ਲੱਭੋ_build_dir_ਦੁਆਧਾਰੀ(fn, &np) >= 0) {
+                r = open_and_check_executable(np, /* root= */ ਨਿਰਾ, ret_ਰਸਤਾ, &fd);
+                ਜੇ (r >= 0)
+                        ਵਾਪਸ fd;
         }
 
-        r = find_executable_full(path, /* root= */ NULL,
-                                 /* exec_search_path= */ NULL, /* use_path_envvar= */ true,
-                                 ret_path, &fd);
-        if (r < 0)
-                return r;
+        r = ਲੱਭੋ_executable_ਭਰਿਆ(ਰਸਤਾ, /* root= */ ਨਿਰਾ,
+                                 /* exec_search_path= */ ਨਿਰਾ, /* use_path_envvar= */ true,
+                                 ret_ਰਸਤਾ, &fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return fd;
+        ਵਾਪਸ fd;
 }

@@ -1,21 +1,21 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/magic.h>
-#include <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/magic.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "glyph-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "user-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "chase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "errno-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fileio.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fs-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "glyph-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "path-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "stat-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strv.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "user-util.h"
 
 /* Flags that prevent us from taking any of the early shortcuts: either they change the path resolution
  * semantics (e.g. CHASE_NONEXISTENT, CHASE_PARENT, CHASE_STEP) or ask for per-component validation that a
@@ -27,30 +27,30 @@
  *   - CHASE_MUST_BE_{DIRECTORY,REGULAR,SOCKET}: xopenat_full() can enforce these via O_DIRECTORY,
  *     XO_REGULAR and XO_SOCKET. Shortcut callers that don't go through xopenat_full() (stat/access
  *     paths) must include CHASE_MUST_BE_ANY in their local mask to still bail on these. */
-#define CHASE_NO_SHORTCUT_MASK                          \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CHASE_NO_SHORTCUT_ਨਕਾਬ                          \
         (CHASE_NONEXISTENT |                            \
          CHASE_NO_AUTOFS |                              \
-         CHASE_SAFE |                                   \
-         CHASE_STEP |                                   \
+         CHASE_ਸੁਰੱਖਿਅਤ |                                   \
+         CHASE_ਕਦਮ |                                   \
          CHASE_PROHIBIT_SYMLINKS |                      \
-         CHASE_PARENT |                                 \
+         CHASE_ਮਾਪਾ |                                 \
          CHASE_MKDIR_0755)
 
-#define CHASE_MUST_BE_ANY \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CHASE_MUST_BE_ANY \
         (CHASE_MUST_BE_DIRECTORY|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)
 
-static int chase_statx(int fd, struct statx *ret) {
-        return xstatx_full(fd,
-                        /* path= */ NULL,
+ਸਥਿਰ ਪੂਰਨ chase_statx(ਪੂਰਨ fd, ਬਣਤਰ statx *ret) {
+        ਵਾਪਸ xstatx_ਭਰਿਆ(fd,
+                        /* path= */ ਨਿਰਾ,
                         /* statx_flags= */ 0,
-                        XSTATX_MNT_ID_BEST,
+                        XSTATX_MNT_ID_ਉੱਤਮ,
                         STATX_TYPE|STATX_UID|STATX_INO,
                         /* optional_mask= */ 0,
                         /* mandatory_attributes= */ 0,
                         ret);
 }
 
-static int chase_openat2(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags) {
+ਸਥਿਰ ਪੂਰਨ chase_openat2(ਪੂਰਨ ਜੜ੍ਹ_fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags chase_flags) {
         /* Open the target of a chase operation via openat2(), translating the relevant ChaseFlags into
          * RESOLVE_* and O_* flags and verifying MUST_BE_REGULAR/SOCKET via fstat after the open. Returns
          * -EOPNOTSUPP when openat2() is unavailable (older kernels) or blocked by a seccomp filter
@@ -58,52 +58,52 @@ static int chase_openat2(int root_fd, int dir_fd, const char *path, ChaseFlags c
          * fallback path) — the verdict is cached so subsequent calls in the same process skip the syscall
          * entirely. */
 
-        static bool can_openat2 = true;
-        int r;
+        ਸਥਿਰ bool can_openat2 = true;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(wildcard_fd_is_valid(dir_fd));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(wildcard_fd_is_valid(dir_fd));
 
-        if (!can_openat2)
-                return -EOPNOTSUPP;
+        ਜੇ (!can_openat2)
+                ਵਾਪਸ -EOPNOTSUPP;
 
         /* openat2() can handle everything the regular shortcut handles, plus a real root boundary (via
          * RESOLVE_IN_ROOT) and CHASE_PROHIBIT_SYMLINKS (via RESOLVE_NO_SYMLINKS). It cannot model the other
          * CHASE_NO_SHORTCUT flags, cannot trigger automounts on O_PATH fds, and RESOLVE_IN_ROOT requires
          * the dirfd to be the root. Bail out so the caller falls back to the regular chase loop. */
-        if ((chase_flags & (CHASE_NO_SHORTCUT_MASK & ~CHASE_PROHIBIT_SYMLINKS)) != 0)
-                return -EOPNOTSUPP;
-        if (FLAGS_SET(chase_flags, CHASE_TRIGGER_AUTOFS))
-                return -EOPNOTSUPP;
-        if (root_fd != XAT_FDROOT && root_fd != dir_fd)
-                return -EOPNOTSUPP;
+        ਜੇ ((chase_flags & (CHASE_NO_SHORTCUT_ਨਕਾਬ & ~CHASE_PROHIBIT_SYMLINKS)) != 0)
+                ਵਾਪਸ -EOPNOTSUPP;
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_TRIGGER_AUTOFS))
+                ਵਾਪਸ -EOPNOTSUPP;
+        ਜੇ (ਜੜ੍ਹ_fd != XAT_FDROOT && ਜੜ੍ਹ_fd != dir_fd)
+                ਵਾਪਸ -EOPNOTSUPP;
 
-        _cleanup_close_ int dir_fd_local = -EBADF;
-        if (dir_fd == XAT_FDROOT) {
-                if (path_is_absolute(path))
+        _cleanup_close_ ਪੂਰਨ dir_fd_local = -EBADF;
+        ਜੇ (dir_fd == XAT_FDROOT) {
+                ਜੇ (ਰਸਤਾ_is_absolute(ਰਸਤਾ))
                         dir_fd = AT_FDCWD;
-                else {
-                        dir_fd_local = open("/", O_CLOEXEC|O_DIRECTORY|O_PATH);
-                        if (dir_fd_local < 0)
-                                return -errno;
+                ਨਹੀਂਤਾਂ {
+                        dir_fd_local = open("/", O_CLOEXEC|O_DIRECTORY|O_ਰਸਤਾ);
+                        ਜੇ (dir_fd_local < 0)
+                                ਵਾਪਸ -errno;
                         dir_fd = dir_fd_local;
                 }
         }
 
-        struct open_how how = {
-                .flags = O_PATH|O_CLOEXEC,
+        ਬਣਤਰ open_how how = {
+                .flags = O_ਰਸਤਾ|O_CLOEXEC,
         };
-        if (FLAGS_SET(chase_flags, CHASE_NOFOLLOW))
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_NOFOLLOW))
                 how.flags |= O_NOFOLLOW;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_DIRECTORY))
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_MUST_BE_DIRECTORY))
                 how.flags |= O_DIRECTORY;
-        if (root_fd != XAT_FDROOT)
-                how.resolve |= RESOLVE_IN_ROOT;
-        if (FLAGS_SET(chase_flags, CHASE_PROHIBIT_SYMLINKS))
+        ਜੇ (ਜੜ੍ਹ_fd != XAT_FDROOT)
+                how.resolve |= RESOLVE_ਵਿੱਚ_ਜੜ੍ਹ;
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_PROHIBIT_SYMLINKS))
                 how.resolve |= RESOLVE_NO_SYMLINKS;
 
-        _cleanup_close_ int fd = openat2(dir_fd, path, &how, sizeof(how));
-        if (fd < 0) {
+        _cleanup_close_ ਪੂਰਨ fd = openat2(dir_fd, ਰਸਤਾ, &how, ਆਕਾਰ(how));
+        ਜੇ (fd < 0) {
                 /* ENOSYS: kernel too old or seccomp filter (systemd's filter returns ENOSYS).
                  * EPERM: Some seccomp profiles of container runtimes use EPERM rather than ENOSYS.
                  * But EPERM might also be returned because we can't access some component of the path. So
@@ -116,139 +116,139 @@ static int chase_openat2(int root_fd, int dir_fd, const char *path, ChaseFlags c
                  * fires reliably while we're still setting up a mount tree. Fall back to the
                  * regular chase loop, which handles root boundaries without openat2(). Don't
                  * cache this — the condition is per-call, not a kernel/sandbox capability. */
-                if (errno == ENOSYS)
+                ਜੇ (errno == ENOSYS)
                         can_openat2 = false;
-                if (IN_SET(errno, ENOSYS, EPERM, EAGAIN))
-                        return -EOPNOTSUPP;
-                return -errno;
+                ਜੇ (ਵਿੱਚ_ਸੈੱਟ(errno, ENOSYS, EPERM, EAGAIN))
+                        ਵਾਪਸ -EOPNOTSUPP;
+                ਵਾਪਸ -errno;
         }
 
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_REGULAR)) {
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_MUST_BE_REGULAR)) {
                 r = fd_verify_regular(fd);
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
         }
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_SOCKET)) {
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_MUST_BE_SOCKET)) {
                 r = fd_verify_socket(fd);
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
         }
 
-        return TAKE_FD(fd);
+        ਵਾਪਸ TAKE_FD(fd);
 }
 
-static int chase_xopenat(int dir_fd, const char *path, ChaseFlags chase_flags, int open_flags, XOpenFlags xopen_flags) {
+ਸਥਿਰ ਪੂਰਨ chase_xopenat(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags chase_flags, ਪੂਰਨ open_flags, XOpenFlags xopen_flags) {
         /* Wrapper around xopenat_full() that translates CHASE_NOFOLLOW, CHASE_MUST_BE_* and
          * CHASE_TRIGGER_AUTOFS into their xopenat_full() counterparts. Used by shortcuts that want to open
          * the final target of a chase operation: they all want O_NOFOLLOW honoured, MUST_BE_* verified on
          * the opened inode, and automounts triggered if requested. */
 
-        if (FLAGS_SET(chase_flags, CHASE_NOFOLLOW))
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_NOFOLLOW))
                 open_flags |= O_NOFOLLOW;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_DIRECTORY))
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_MUST_BE_DIRECTORY))
                 open_flags |= O_DIRECTORY;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_REGULAR))
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_MUST_BE_REGULAR))
                 xopen_flags |= XO_REGULAR;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_SOCKET))
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_MUST_BE_SOCKET))
                 xopen_flags |= XO_SOCKET;
         /* Only needed for O_PATH since plain open() already triggers automounts */
-        if (FLAGS_SET(chase_flags, CHASE_TRIGGER_AUTOFS) && FLAGS_SET(open_flags, O_PATH))
+        ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_TRIGGER_AUTOFS) && FLAGS_ਸੈੱਟ(open_flags, O_ਰਸਤਾ))
                 xopen_flags |= XO_TRIGGER_AUTOMOUNT;
 
-        return xopenat_full(dir_fd, path, open_flags, xopen_flags, MODE_INVALID);
+        ਵਾਪਸ xopenat_ਭਰਿਆ(dir_fd, ਰਸਤਾ, open_flags, xopen_flags, ਬਹੁਲਕ_INVALID);
 }
 
-static bool uid_unsafe_transition(uid_t a, uid_t b) {
+ਸਥਿਰ bool uid_unsafe_transition(uid_t a, uid_t b) {
         /* Returns true if the transition from a to b is safe, i.e. that we never transition from
          * unprivileged to privileged files or directories. Why bother? So that unprivileged code can't
          * symlink to privileged files making us believe we read something safe even though it isn't safe in
          * the specific context we open it in. */
 
-        if (a == 0) /* Transitioning from privileged to unprivileged is always fine */
-                return false;
+        ਜੇ (a == 0) /* Transitioning from privileged to unprivileged is always fine */
+                ਵਾਪਸ false;
 
-        return a != b; /* Otherwise we need to stay within the same UID */
+        ਵਾਪਸ a != b; /* Otherwise we need to stay within the same UID */
 }
 
-int statx_unsafe_transition(const struct statx *a, const struct statx *b) {
-        assert(a);
-        assert(b);
+ਪੂਰਨ statx_unsafe_transition(ਅਚਲ ਬਣਤਰ statx *a, ਅਚਲ ਬਣਤਰ statx *b) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
-        if (!FLAGS_SET(a->stx_mask, STATX_UID) || !FLAGS_SET(b->stx_mask, STATX_UID))
-                return -ENODATA;
+        ਜੇ (!FLAGS_ਸੈੱਟ(a->stx_ਨਕਾਬ, STATX_UID) || !FLAGS_ਸੈੱਟ(b->stx_ਨਕਾਬ, STATX_UID))
+                ਵਾਪਸ -ENODATA;
 
-        return uid_unsafe_transition(a->stx_uid, b->stx_uid);
+        ਵਾਪਸ uid_unsafe_transition(a->stx_uid, b->stx_uid);
 }
 
-bool stat_unsafe_transition(const struct stat *a, const struct stat *b) {
-        assert(a);
-        assert(b);
+bool stat_unsafe_transition(ਅਚਲ ਬਣਤਰ stat *a, ਅਚਲ ਬਣਤਰ stat *b) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
-        return uid_unsafe_transition(a->st_uid, b->st_uid);
+        ਵਾਪਸ uid_unsafe_transition(a->st_uid, b->st_uid);
 }
 
-static int log_unsafe_transition(int a, int b, const char *path, ChaseFlags flags) {
-        _cleanup_free_ char *n1 = NULL, *n2 = NULL, *user_a = NULL, *user_b = NULL;
-        struct stat st;
+ਸਥਿਰ ਪੂਰਨ log_unsafe_transition(ਪੂਰਨ a, ਪੂਰਨ b, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags flags) {
+        _cleanup_free_ ਅੱਖਰ *n1 = ਨਿਰਾ, *n2 = ਨਿਰਾ, *user_a = ਨਿਰਾ, *user_b = ਨਿਰਾ;
+        ਬਣਤਰ stat st;
 
-        if (!FLAGS_SET(flags, CHASE_WARN))
-                return -ENOLINK;
+        ਜੇ (!FLAGS_ਸੈੱਟ(flags, CHASE_WARN))
+                ਵਾਪਸ -ENOLINK;
 
-        (void) fd_get_path(a, &n1);
-        (void) fd_get_path(b, &n2);
+        (ਖਾਲੀ) fd_get_ਰਸਤਾ(a, &n1);
+        (ਖਾਲੀ) fd_get_ਰਸਤਾ(b, &n2);
 
-        if (fstat(a, &st) == 0)
-                user_a = uid_to_name(st.st_uid);
-        if (fstat(b, &st) == 0)
-                user_b = uid_to_name(st.st_uid);
+        ਜੇ (fstat(a, &st) == 0)
+                user_a = uid_ਮੰਜ਼ਿਲ_name(st.st_uid);
+        ਜੇ (fstat(b, &st) == 0)
+                user_b = uid_ਮੰਜ਼ਿਲ_name(st.st_uid);
 
-        return log_warning_errno(SYNTHETIC_ERRNO(ENOLINK),
+        ਵਾਪਸ log_warning_errno(SYNTHETIC_ERRNO(ENOLINK),
                                  "Detected unsafe path transition %s (owned by %s) %s %s (owned by %s) during canonicalization of %s.",
-                                 strna(n1), strna(user_a), glyph(GLYPH_ARROW_RIGHT), strna(n2), strna(user_b), path);
+                                 strna(n1), strna(user_a), glyph(GLYPH_ARROW_ਸੱਜਾ), strna(n2), strna(user_b), ਰਸਤਾ);
 }
 
-static int log_autofs_mount_point(int fd, const char *path, ChaseFlags flags) {
-        _cleanup_free_ char *n1 = NULL;
+ਸਥਿਰ ਪੂਰਨ log_autofs_mount_ਬਿੰਦੂ(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags flags) {
+        _cleanup_free_ ਅੱਖਰ *n1 = ਨਿਰਾ;
 
-        if (!FLAGS_SET(flags, CHASE_WARN))
-                return -EREMOTE;
+        ਜੇ (!FLAGS_ਸੈੱਟ(flags, CHASE_WARN))
+                ਵਾਪਸ -EREMOTE;
 
-        (void) fd_get_path(fd, &n1);
+        (ਖਾਲੀ) fd_get_ਰਸਤਾ(fd, &n1);
 
-        return log_warning_errno(SYNTHETIC_ERRNO(EREMOTE),
+        ਵਾਪਸ log_warning_errno(SYNTHETIC_ERRNO(EREMOTE),
                                  "Detected autofs mount point '%s' during canonicalization of '%s'.",
-                                 strna(n1), path);
+                                 strna(n1), ਰਸਤਾ);
 }
 
-static int log_prohibited_symlink(int fd, ChaseFlags flags) {
-        _cleanup_free_ char *n1 = NULL;
+ਸਥਿਰ ਪੂਰਨ log_prohibited_symlink(ਪੂਰਨ fd, ChaseFlags flags) {
+        _cleanup_free_ ਅੱਖਰ *n1 = ਨਿਰਾ;
 
-        assert(fd >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
 
-        if (!FLAGS_SET(flags, CHASE_WARN))
-                return -ELOOP;
+        ਜੇ (!FLAGS_ਸੈੱਟ(flags, CHASE_WARN))
+                ਵਾਪਸ -ELOOP;
 
-        (void) fd_get_path(fd, &n1);
+        (ਖਾਲੀ) fd_get_ਰਸਤਾ(fd, &n1);
 
-        return log_warning_errno(SYNTHETIC_ERRNO(ELOOP),
+        ਵਾਪਸ log_warning_errno(SYNTHETIC_ERRNO(ELOOP),
                                  "Detected symlink where no symlink is allowed at '%s', refusing.",
                                  strna(n1));
 }
 
-int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **ret_path, int *ret_fd) {
-        int r;
+ਪੂਰਨ chaseat(ਪੂਰਨ ਜੜ੍ਹ_fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags flags, ਅੱਖਰ **ret_ਰਸਤਾ, ਪੂਰਨ *ret_fd) {
+        ਪੂਰਨ r;
 
-        assert(!FLAGS_SET(flags, CHASE_PREFIX_ROOT));
-        assert(!FLAGS_SET(flags, CHASE_STEP|CHASE_EXTRACT_FILENAME));
-        assert(!FLAGS_SET(flags, CHASE_NO_AUTOFS|CHASE_TRIGGER_AUTOFS));
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(wildcard_fd_is_valid(root_fd));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!FLAGS_ਸੈੱਟ(flags, CHASE_ਅਗੇਤਰ_ਜੜ੍ਹ));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!FLAGS_ਸੈੱਟ(flags, CHASE_ਕਦਮ|CHASE_ਕੱਢੋ_FILENAME));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!FLAGS_ਸੈੱਟ(flags, CHASE_NO_AUTOFS|CHASE_TRIGGER_AUTOFS));
+        ਪ੍ਰਤਿਜ੍ਞਾ(wildcard_fd_is_valid(dir_fd));
+        ਪ੍ਰਤਿਜ੍ਞਾ(wildcard_fd_is_valid(ਜੜ੍ਹ_fd));
         /* AT_FDCWD for dir_fd is only allowed when there is no chroot boundary: otherwise the current
          * working directory might live outside root_fd's subtree. */
-        assert(dir_fd != AT_FDCWD || IN_SET(root_fd, AT_FDCWD, XAT_FDROOT));
+        ਪ੍ਰਤਿਜ੍ਞਾ(dir_fd != AT_FDCWD || ਵਿੱਚ_ਸੈੱਟ(ਜੜ੍ਹ_fd, AT_FDCWD, XAT_FDROOT));
 
-        if (FLAGS_SET(flags, CHASE_STEP))
-                assert(!ret_fd);
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਕਦਮ))
+                ਪ੍ਰਤਿਜ੍ਞਾ(!ret_fd);
 
         /* This function resolves symlinks of the path relative to the given directory file descriptor.
          * The root directory file descriptor sets the chroot boundary: symlinks may not escape it, and
@@ -308,76 +308,76 @@ int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **
 
         /* We treat AT_FDCWD as XAT_FDROOT for a more seamless migration for all callers of chaseat() before
          * it was reworked to support separate root_fd and dir_fd arguments. */
-        if (root_fd == AT_FDCWD)
-                root_fd = XAT_FDROOT;
-        else {
-                r = dir_fd_is_root(root_fd);
-                if (r < 0)
-                        return r;
-                if (r > 0)
-                        root_fd = XAT_FDROOT;
+        ਜੇ (ਜੜ੍ਹ_fd == AT_FDCWD)
+                ਜੜ੍ਹ_fd = XAT_FDROOT;
+        ਨਹੀਂਤਾਂ {
+                r = dir_fd_is_ਜੜ੍ਹ(ਜੜ੍ਹ_fd);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
+                ਜੇ (r > 0)
+                        ਜੜ੍ਹ_fd = XAT_FDROOT;
         }
 
         /* If dir_fd points to the host's root directory and there is no chroot boundary, normalize it
          * to XAT_FDROOT so the shortcut path can kick in. */
-        r = dir_fd_is_root(dir_fd);
-        if (r < 0)
-                return r;
-        if (r > 0 && root_fd == XAT_FDROOT)
+        r = dir_fd_is_ਜੜ੍ਹ(dir_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਜੇ (r > 0 && ਜੜ੍ਹ_fd == XAT_FDROOT)
                 dir_fd = XAT_FDROOT;
 
         /* dir_fd == XAT_FDROOT means "start at root_fd". An absolute path is always resolved relative to
          * root_fd, regardless of what dir_fd points to. */
-        if (dir_fd == XAT_FDROOT || path_is_absolute(path))
-                dir_fd = root_fd;
+        ਜੇ (dir_fd == XAT_FDROOT || ਰਸਤਾ_is_absolute(ਰਸਤਾ))
+                dir_fd = ਜੜ੍ਹ_fd;
 
-        if (isempty(path))
-                path = ".";
+        ਜੇ (isempty(ਰਸਤਾ))
+                ਰਸਤਾ = ".";
 
         bool append_trail_slash = false;
-        if (ENDSWITH_SET(path, "/", "/.")) {
+        ਜੇ (ENDSWITH_ਸੈੱਟ(ਰਸਤਾ, "/", "/.")) {
                 flags |= CHASE_MUST_BE_DIRECTORY;
-                if (FLAGS_SET(flags, CHASE_TRAIL_SLASH))
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_TRAIL_SLASH))
                         append_trail_slash = true;
-        } else if (dot_or_dot_dot(path) || endswith(path, "/.."))
+        } ਨਹੀਂਤਾਂ ਜੇ (dot_or_dot_dot(ਰਸਤਾ) || endswith(ਰਸਤਾ, "/.."))
                 flags |= CHASE_MUST_BE_DIRECTORY;
 
-        if (FLAGS_SET(flags, CHASE_PARENT))
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਮਾਪਾ))
                 flags |= CHASE_MUST_BE_DIRECTORY;
 
         /* If multiple flags are set now, fail immediately */
-        if (FLAGS_SET(flags, CHASE_MUST_BE_DIRECTORY) + FLAGS_SET(flags, CHASE_MUST_BE_REGULAR) + FLAGS_SET(flags, CHASE_MUST_BE_SOCKET) > 1)
-                return -EBADSLT;
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_MUST_BE_DIRECTORY) + FLAGS_ਸੈੱਟ(flags, CHASE_MUST_BE_REGULAR) + FLAGS_ਸੈੱਟ(flags, CHASE_MUST_BE_SOCKET) > 1)
+                ਵਾਪਸ -EBADSLT;
 
-        if (!ret_path) {
-                r = chase_openat2(root_fd, dir_fd, path, flags);
-                if (r >= 0) {
-                        if (ret_fd)
+        ਜੇ (!ret_ਰਸਤਾ) {
+                r = chase_openat2(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, flags);
+                ਜੇ (r >= 0) {
+                        ਜੇ (ret_fd)
                                 *ret_fd = r;
-                        else
-                                safe_close(r);
+                        ਨਹੀਂਤਾਂ
+                                ਸੁਰੱਖਿਅਤ_close(r);
 
-                        return 1;
+                        ਵਾਪਸ 1;
                 }
-                if (r != -EOPNOTSUPP)
-                        return r;
+                ਜੇ (r != -EOPNOTSUPP)
+                        ਵਾਪਸ r;
         }
 
-        if (root_fd == XAT_FDROOT && !ret_path && (flags & CHASE_NO_SHORTCUT_MASK) == 0) {
+        ਜੇ (ਜੜ੍ਹ_fd == XAT_FDROOT && !ret_ਰਸਤਾ && (flags & CHASE_NO_SHORTCUT_ਨਕਾਬ) == 0) {
                 /* Shortcut the common case where we don't have a real root boundary and no fancy features
                  * are requested: open the target directly via xopenat_full() which applies any MUST_BE_*
                  * verification and automount triggering for us. */
 
-                r = chase_xopenat(dir_fd, path, flags, O_PATH|O_CLOEXEC, /* xopen_flags= */ 0);
-                if (r < 0)
-                        return r;
+                r = chase_xopenat(dir_fd, ਰਸਤਾ, flags, O_ਰਸਤਾ|O_CLOEXEC, /* xopen_flags= */ 0);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                if (ret_fd)
+                ਜੇ (ret_fd)
                         *ret_fd = r;
-                else
-                        safe_close(r);
+                ਨਹੀਂਤਾਂ
+                        ਸੁਰੱਖਿਅਤ_close(r);
 
-                return 1;
+                ਵਾਪਸ 1;
         }
 
         /* Decide whether to return an absolute or relative path.
@@ -392,70 +392,70 @@ int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **
          * dir_fd, the loop below rebases onto root_fd and switches to an absolute result at that
          * point — it is not handled here.
          */
-        bool need_absolute = (root_fd == XAT_FDROOT || dir_fd != root_fd) && (dir_fd == XAT_FDROOT || path_is_absolute(path));
+        bool need_absolute = (ਜੜ੍ਹ_fd == XAT_FDROOT || dir_fd != ਜੜ੍ਹ_fd) && (dir_fd == XAT_FDROOT || ਰਸਤਾ_is_absolute(ਰਸਤਾ));
 
-        _cleanup_free_ char *done = NULL;
-        if (need_absolute) {
-                done = strdup("/");
-                if (!done)
-                        return -ENOMEM;
+        _cleanup_free_ ਅੱਖਰ *ਪੂਰਾ = ਨਿਰਾ;
+        ਜੇ (need_absolute) {
+                ਪੂਰਾ = strdup("/");
+                ਜੇ (!ਪੂਰਾ)
+                        ਵਾਪਸ -ENOMEM;
         }
 
-        _cleanup_close_ int fd = xopenat(dir_fd, NULL, O_CLOEXEC|O_DIRECTORY|O_PATH);
-        if (fd < 0)
-                return fd;
+        _cleanup_close_ ਪੂਰਨ fd = xopenat(dir_fd, ਨਿਰਾ, O_CLOEXEC|O_DIRECTORY|O_ਰਸਤਾ);
+        ਜੇ (fd < 0)
+                ਵਾਪਸ fd;
 
-        struct statx stx;
+        ਬਣਤਰ statx stx;
         r = chase_statx(fd, &stx);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         /* Remember stat data of the root, so that we can recognize it later during .. handling. Only
          * needed when there is an actual chroot boundary — with root_fd == XAT_FDROOT the boundary
          * check in the .. loop below is skipped and root_stx is never consulted. */
-        struct statx root_stx;
-        if (root_fd != XAT_FDROOT) {
-                if (root_fd == dir_fd)
-                        root_stx = stx;
-                else {
-                        r = chase_statx(root_fd, &root_stx);
-                        if (r < 0)
-                                return r;
+        ਬਣਤਰ statx ਜੜ੍ਹ_stx;
+        ਜੇ (ਜੜ੍ਹ_fd != XAT_FDROOT) {
+                ਜੇ (ਜੜ੍ਹ_fd == dir_fd)
+                        ਜੜ੍ਹ_stx = stx;
+                ਨਹੀਂਤਾਂ {
+                        r = chase_statx(ਜੜ੍ਹ_fd, &ਜੜ੍ਹ_stx);
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
                 }
         }
 
-        _cleanup_free_ char *buffer = strdup(path);
-        if (!buffer)
-                return -ENOMEM;
+        _cleanup_free_ ਅੱਖਰ *ਬਫਰ = strdup(ਰਸਤਾ);
+        ਜੇ (!ਬਫਰ)
+                ਵਾਪਸ -ENOMEM;
 
-        const char *todo = buffer;
+        ਅਚਲ ਅੱਖਰ *todo = ਬਫਰ;
         bool exists = true;
-        for (unsigned n_steps = 0;; n_steps++) {
-                _cleanup_free_ char *first = NULL;
-                _cleanup_close_ int child = -EBADF;
-                struct statx stx_child;
-                const char *e;
+        ਲਈ (ਬਿਨਾਨਿਸ਼ਾਨੀ n_ਕਦਮਾਂ = 0;; n_ਕਦਮਾਂ++) {
+                _cleanup_free_ ਅੱਖਰ *ਪਹਿਲਾ = ਨਿਰਾ;
+                _cleanup_close_ ਪੂਰਨ ਬੱਚਾ = -EBADF;
+                ਬਣਤਰ statx stx_ਬੱਚਾ;
+                ਅਚਲ ਅੱਖਰ *e;
 
                 /* If people change our tree behind our back, they might send us in circles. Put a limit on
                  * things */
-                if (n_steps > CHASE_MAX)
-                        return -ELOOP;
+                ਜੇ (n_ਕਦਮਾਂ > CHASE_MAX)
+                        ਵਾਪਸ -ELOOP;
 
-                r = path_find_first_component(&todo, /* accept_dot_dot= */ true, &e);
-                if (r < 0)
-                        return r;
-                if (r == 0) /* We reached the end. */
-                        break;
+                r = ਰਸਤਾ_ਲੱਭੋ_ਪਹਿਲਾ_component(&todo, /* accept_dot_dot= */ true, &e);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
+                ਜੇ (r == 0) /* We reached the end. */
+                        ਰੋਕੋ;
 
-                first = strndup(e, r);
-                if (!first)
-                        return -ENOMEM;
+                ਪਹਿਲਾ = strndup(e, r);
+                ਜੇ (!ਪਹਿਲਾ)
+                        ਵਾਪਸ -ENOMEM;
 
                 /* Two dots? Then chop off the last bit of what we already found out. */
-                if (streq(first, "..")) {
-                        _cleanup_free_ char *parent = NULL;
-                        _cleanup_close_ int fd_parent = -EBADF;
-                        struct statx stx_parent;
+                ਜੇ (streq(ਪਹਿਲਾ, "..")) {
+                        _cleanup_free_ ਅੱਖਰ *ਮਾਪਾ = ਨਿਰਾ;
+                        _cleanup_close_ ਪੂਰਨ fd_ਮਾਪਾ = -EBADF;
+                        ਬਣਤਰ statx stx_ਮਾਪਾ;
 
                         /* If we already are at the top, then going up will not change anything. This is
                          * in-line with how the kernel handles this. We check this both by path and by
@@ -467,388 +467,388 @@ int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **
                          * The path-based fast path is only valid when the caller started at the root fd:
                          * otherwise 'done' being empty just means we haven't descended past the starting
                          * dir_fd, not that we're at the chroot boundary. */
-                        if (root_fd != XAT_FDROOT) {
-                                bool is_root = root_fd == dir_fd && empty_or_root(done);
-                                if (!is_root && statx_inode_same(&stx, &root_stx)) {
-                                        r = statx_mount_same(&stx, &root_stx);
-                                        if (r < 0)
-                                                return r;
+                        ਜੇ (ਜੜ੍ਹ_fd != XAT_FDROOT) {
+                                bool is_ਜੜ੍ਹ = ਜੜ੍ਹ_fd == dir_fd && ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਪੂਰਾ);
+                                ਜੇ (!is_ਜੜ੍ਹ && statx_inode_same(&stx, &ਜੜ੍ਹ_stx)) {
+                                        r = statx_mount_same(&stx, &ਜੜ੍ਹ_stx);
+                                        ਜੇ (r < 0)
+                                                ਵਾਪਸ r;
 
-                                        is_root = r > 0;
+                                        is_ਜੜ੍ਹ = r > 0;
                                 }
-                                if (is_root) {
-                                        if (FLAGS_SET(flags, CHASE_STEP))
-                                                goto chased_one;
-                                        continue;
+                                ਜੇ (is_ਜੜ੍ਹ) {
+                                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਕਦਮ))
+                                                ਜਾਓ chased_one;
+                                        ਜਾਰੀ;
                                 }
                         }
 
-                        fd_parent = openat(fd, "..", O_CLOEXEC|O_NOFOLLOW|O_PATH|O_DIRECTORY);
-                        if (fd_parent < 0)
-                                return -errno;
+                        fd_ਮਾਪਾ = openat(fd, "..", O_CLOEXEC|O_NOFOLLOW|O_ਰਸਤਾ|O_DIRECTORY);
+                        ਜੇ (fd_ਮਾਪਾ < 0)
+                                ਵਾਪਸ -errno;
 
-                        r = chase_statx(fd_parent, &stx_parent);
-                        if (r < 0)
-                                return r;
+                        r = chase_statx(fd_ਮਾਪਾ, &stx_ਮਾਪਾ);
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
 
                         /* If we opened the same directory, that _may_ indicate that we're at the host root
                          * directory. Let's confirm that in more detail with dir_fd_is_root(). And if so,
                          * going up won't change anything. */
-                        if (statx_inode_same(&stx_parent, &stx)) {
-                                r = dir_fd_is_root(fd);
-                                if (r < 0)
-                                        return r;
-                                if (r > 0) {
-                                        if (FLAGS_SET(flags, CHASE_STEP))
-                                                goto chased_one;
-                                        continue;
+                        ਜੇ (statx_inode_same(&stx_ਮਾਪਾ, &stx)) {
+                                r = dir_fd_is_ਜੜ੍ਹ(fd);
+                                ਜੇ (r < 0)
+                                        ਵਾਪਸ r;
+                                ਜੇ (r > 0) {
+                                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਕਦਮ))
+                                                ਜਾਓ chased_one;
+                                        ਜਾਰੀ;
                                 }
                         }
 
-                        r = path_extract_directory(done, &parent);
-                        if (r >= 0) {
-                                assert(!need_absolute || path_is_absolute(parent));
-                                free_and_replace(done, parent);
-                        } else if (r == -EDESTADDRREQ) {
+                        r = ਰਸਤਾ_ਕੱਢੋ_directory(ਪੂਰਾ, &ਮਾਪਾ);
+                        ਜੇ (r >= 0) {
+                                ਪ੍ਰਤਿਜ੍ਞਾ(!need_absolute || ਰਸਤਾ_is_absolute(ਮਾਪਾ));
+                                free_and_replace(ਪੂਰਾ, ਮਾਪਾ);
+                        } ਨਹੀਂਤਾਂ ਜੇ (r == -EDESTADDRREQ) {
                                 /* 'done' contains filename only (i.e. no slash). */
-                                assert(!need_absolute);
-                                done = mfree(done);
-                        } else if (r == -EADDRNOTAVAIL) {
+                                ਪ੍ਰਤਿਜ੍ਞਾ(!need_absolute);
+                                ਪੂਰਾ = mfree(ਪੂਰਾ);
+                        } ਨਹੀਂਤਾਂ ਜੇ (r == -EADDRNOTAVAIL) {
                                 /* 'done' is "/". This branch should already be handled above via the
                                  * is_root check. */
                                 assert_not_reached();
-                        } else if (r == -EINVAL) {
+                        } ਨਹੀਂਤਾਂ ਜੇ (r == -EINVAL) {
                                 /* 'done' is empty (we haven't descended past the starting dir_fd yet), or
                                  * ends with '..'. In both cases we're traversing above the starting point
                                  * (valid when root_fd is XAT_FDROOT, or when dir_fd was below root_fd to
                                  * start with), so record another '..' in 'done'. */
-                                assert(!need_absolute);
+                                ਪ੍ਰਤਿਜ੍ਞਾ(!need_absolute);
 
-                                if (!isempty(done) && !path_is_valid(done))
-                                        return -EINVAL;
+                                ਜੇ (!isempty(ਪੂਰਾ) && !ਰਸਤਾ_is_valid(ਪੂਰਾ))
+                                        ਵਾਪਸ -EINVAL;
 
-                                if (!path_extend(&done, ".."))
-                                        return -ENOMEM;
-                        } else
-                                return r;
+                                ਜੇ (!ਰਸਤਾ_extend(&ਪੂਰਾ, ".."))
+                                        ਵਾਪਸ -ENOMEM;
+                        } ਨਹੀਂਤਾਂ
+                                ਵਾਪਸ r;
 
-                        if (FLAGS_SET(flags, CHASE_STEP))
-                                goto chased_one;
+                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਕਦਮ))
+                                ਜਾਓ chased_one;
 
-                        if (FLAGS_SET(flags, CHASE_SAFE)) {
-                                r = statx_unsafe_transition(&stx, &stx_parent);
-                                if (r < 0)
-                                        return r;
-                                if (r > 0)
-                                        return log_unsafe_transition(fd, fd_parent, path, flags);
+                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਸੁਰੱਖਿਅਤ)) {
+                                r = statx_unsafe_transition(&stx, &stx_ਮਾਪਾ);
+                                ਜੇ (r < 0)
+                                        ਵਾਪਸ r;
+                                ਜੇ (r > 0)
+                                        ਵਾਪਸ log_unsafe_transition(fd, fd_ਮਾਪਾ, ਰਸਤਾ, flags);
                         }
 
                         /* If the path ends on a "..", and CHASE_PARENT is specified then our current 'fd' is
                          * the child of the returned normalized path, not the parent as requested. To correct
                          * this we have to go *two* levels up. */
-                        if (FLAGS_SET(flags, CHASE_PARENT) && isempty(todo)) {
-                                _cleanup_close_ int fd_grandparent = -EBADF;
-                                struct statx stx_grandparent;
+                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਮਾਪਾ) && isempty(todo)) {
+                                _cleanup_close_ ਪੂਰਨ fd_grandparent = -EBADF;
+                                ਬਣਤਰ statx stx_grandparent;
 
-                                fd_grandparent = openat(fd_parent, "..", O_CLOEXEC|O_NOFOLLOW|O_PATH|O_DIRECTORY);
-                                if (fd_grandparent < 0)
-                                        return -errno;
+                                fd_grandparent = openat(fd_ਮਾਪਾ, "..", O_CLOEXEC|O_NOFOLLOW|O_ਰਸਤਾ|O_DIRECTORY);
+                                ਜੇ (fd_grandparent < 0)
+                                        ਵਾਪਸ -errno;
 
                                 r = chase_statx(fd_grandparent, &stx_grandparent);
-                                if (r < 0)
-                                        return r;
+                                ਜੇ (r < 0)
+                                        ਵਾਪਸ r;
 
-                                if (FLAGS_SET(flags, CHASE_SAFE)) {
-                                        r = statx_unsafe_transition(&stx_parent, &stx_grandparent);
-                                        if (r < 0)
-                                                return r;
-                                        if (r > 0)
-                                                return log_unsafe_transition(fd_parent, fd_grandparent, path, flags);
+                                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਸੁਰੱਖਿਅਤ)) {
+                                        r = statx_unsafe_transition(&stx_ਮਾਪਾ, &stx_grandparent);
+                                        ਜੇ (r < 0)
+                                                ਵਾਪਸ r;
+                                        ਜੇ (r > 0)
+                                                ਵਾਪਸ log_unsafe_transition(fd_ਮਾਪਾ, fd_grandparent, ਰਸਤਾ, flags);
                                 }
 
                                 stx = stx_grandparent;
                                 close_and_replace(fd, fd_grandparent);
-                                break;
+                                ਰੋਕੋ;
                         }
 
                         /* update fd and stat */
-                        stx = stx_parent;
-                        close_and_replace(fd, fd_parent);
-                        continue;
+                        stx = stx_ਮਾਪਾ;
+                        close_and_replace(fd, fd_ਮਾਪਾ);
+                        ਜਾਰੀ;
                 }
 
                 /* Otherwise let's pin it by file descriptor, via O_PATH. */
-                child = r = xopenat_full(fd, first,
-                                         O_PATH|O_NOFOLLOW|O_CLOEXEC,
-                                         FLAGS_SET(flags, CHASE_TRIGGER_AUTOFS) ? XO_TRIGGER_AUTOMOUNT : 0,
-                                         MODE_INVALID);
-                if (r < 0) {
-                        if (r != -ENOENT)
-                                return r;
+                ਬੱਚਾ = r = xopenat_ਭਰਿਆ(fd, ਪਹਿਲਾ,
+                                         O_ਰਸਤਾ|O_NOFOLLOW|O_CLOEXEC,
+                                         FLAGS_ਸੈੱਟ(flags, CHASE_TRIGGER_AUTOFS) ? XO_TRIGGER_AUTOMOUNT : 0,
+                                         ਬਹੁਲਕ_INVALID);
+                ਜੇ (r < 0) {
+                        ਜੇ (r != -ENOENT)
+                                ਵਾਪਸ r;
 
-                        if (!isempty(todo) && !path_is_safe(todo)) /* Refuse parent/mkdir handling if suffix contains ".." or something weird */
-                                return r;
+                        ਜੇ (!isempty(todo) && !ਰਸਤਾ_is_ਸੁਰੱਖਿਅਤ(todo)) /* Refuse parent/mkdir handling if suffix contains ".." or something weird */
+                                ਵਾਪਸ r;
 
-                        if (FLAGS_SET(flags, CHASE_MKDIR_0755) && (!isempty(todo) || !(flags & (CHASE_PARENT|CHASE_NONEXISTENT)))) {
-                                child = xopenat(fd,
-                                                first,
-                                                O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_PATH|O_CLOEXEC);
-                                if (child < 0)
-                                        return child;
-                        } else if (FLAGS_SET(flags, CHASE_PARENT) && isempty(todo)) {
-                                if (!path_extend(&done, first))
-                                        return -ENOMEM;
+                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_MKDIR_0755) && (!isempty(todo) || !(flags & (CHASE_ਮਾਪਾ|CHASE_NONEXISTENT)))) {
+                                ਬੱਚਾ = xopenat(fd,
+                                                ਪਹਿਲਾ,
+                                                O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_ਰਸਤਾ|O_CLOEXEC);
+                                ਜੇ (ਬੱਚਾ < 0)
+                                        ਵਾਪਸ ਬੱਚਾ;
+                        } ਨਹੀਂਤਾਂ ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਮਾਪਾ) && isempty(todo)) {
+                                ਜੇ (!ਰਸਤਾ_extend(&ਪੂਰਾ, ਪਹਿਲਾ))
+                                        ਵਾਪਸ -ENOMEM;
 
-                                break;
-                        } else if (FLAGS_SET(flags, CHASE_NONEXISTENT)) {
-                                if (!path_extend(&done, first, todo))
-                                        return -ENOMEM;
+                                ਰੋਕੋ;
+                        } ਨਹੀਂਤਾਂ ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_NONEXISTENT)) {
+                                ਜੇ (!ਰਸਤਾ_extend(&ਪੂਰਾ, ਪਹਿਲਾ, todo))
+                                        ਵਾਪਸ -ENOMEM;
 
                                 exists = false;
-                                break;
-                        } else
-                                return r;
+                                ਰੋਕੋ;
+                        } ਨਹੀਂਤਾਂ
+                                ਵਾਪਸ r;
                 }
 
-                r = chase_statx(child, &stx_child);
-                if (r < 0)
-                        return r;
+                r = chase_statx(ਬੱਚਾ, &stx_ਬੱਚਾ);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                if (FLAGS_SET(flags, CHASE_SAFE)) {
-                        r = statx_unsafe_transition(&stx, &stx_child);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return log_unsafe_transition(fd, child, path, flags);
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਸੁਰੱਖਿਅਤ)) {
+                        r = statx_unsafe_transition(&stx, &stx_ਬੱਚਾ);
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
+                        ਜੇ (r > 0)
+                                ਵਾਪਸ log_unsafe_transition(fd, ਬੱਚਾ, ਰਸਤਾ, flags);
                 }
 
-                if (FLAGS_SET(flags, CHASE_NO_AUTOFS) &&
-                    fd_is_fs_type(child, AUTOFS_SUPER_MAGIC) > 0)
-                        return log_autofs_mount_point(child, path, flags);
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_NO_AUTOFS) &&
+                    fd_is_fs_type(ਬੱਚਾ, AUTOFS_SUPER_MAGIC) > 0)
+                        ਵਾਪਸ log_autofs_mount_ਬਿੰਦੂ(ਬੱਚਾ, ਰਸਤਾ, flags);
 
-                if (S_ISLNK(stx_child.stx_mode) && !(FLAGS_SET(flags, CHASE_NOFOLLOW) && isempty(todo))) {
-                        _cleanup_free_ char *destination = NULL;
+                ਜੇ (S_ISLNK(stx_ਬੱਚਾ.stx_ਬਹੁਲਕ) && !(FLAGS_ਸੈੱਟ(flags, CHASE_NOFOLLOW) && isempty(todo))) {
+                        _cleanup_free_ ਅੱਖਰ *destination = ਨਿਰਾ;
 
-                        if (FLAGS_SET(flags, CHASE_PROHIBIT_SYMLINKS))
-                                return log_prohibited_symlink(child, flags);
+                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_PROHIBIT_SYMLINKS))
+                                ਵਾਪਸ log_prohibited_symlink(ਬੱਚਾ, flags);
 
-                        r = readlinkat_malloc(fd, first, &destination);
-                        if (r < 0)
-                                return r;
-                        if (isempty(destination))
-                                return -EINVAL;
+                        r = readlinkat_malloc(fd, ਪਹਿਲਾ, &destination);
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
+                        ਜੇ (isempty(destination))
+                                ਵਾਪਸ -EINVAL;
 
-                        if (path_is_absolute(destination)) {
+                        ਜੇ (ਰਸਤਾ_is_absolute(destination)) {
 
                                 /* An absolute destination. Start the loop from the beginning, but use the
                                  * root file descriptor as base. */
 
-                                safe_close(fd);
-                                fd = fd_reopen(root_fd, O_CLOEXEC|O_PATH|O_DIRECTORY);
-                                if (fd < 0)
-                                        return fd;
+                                ਸੁਰੱਖਿਅਤ_close(fd);
+                                fd = fd_reopen(ਜੜ੍ਹ_fd, O_CLOEXEC|O_ਰਸਤਾ|O_DIRECTORY);
+                                ਜੇ (fd < 0)
+                                        ਵਾਪਸ fd;
 
                                 r = chase_statx(fd, &stx);
-                                if (r < 0)
-                                        return r;
+                                ਜੇ (r < 0)
+                                        ਵਾਪਸ r;
 
-                                if (FLAGS_SET(flags, CHASE_SAFE)) {
-                                        r = statx_unsafe_transition(&stx_child, &stx);
-                                        if (r < 0)
-                                                return r;
-                                        if (r > 0)
-                                                return log_unsafe_transition(child, fd, path, flags);
+                                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਸੁਰੱਖਿਅਤ)) {
+                                        r = statx_unsafe_transition(&stx_ਬੱਚਾ, &stx);
+                                        ਜੇ (r < 0)
+                                                ਵਾਪਸ r;
+                                        ਜੇ (r > 0)
+                                                ਵਾਪਸ log_unsafe_transition(ਬੱਚਾ, fd, ਰਸਤਾ, flags);
                                 }
 
-                                if (dir_fd != root_fd)
+                                ਜੇ (dir_fd != ਜੜ੍ਹ_fd)
                                         need_absolute = true;
 
-                                r = free_and_strdup(&done, need_absolute ? "/" : NULL);
-                                if (r < 0)
-                                        return r;
+                                r = free_and_strdup(&ਪੂਰਾ, need_absolute ? "/" : ਨਿਰਾ);
+                                ਜੇ (r < 0)
+                                        ਵਾਪਸ r;
                         }
 
                         /* Prefix what's left to do with what we just read, and start the loop again, but
                          * remain in the current directory. */
-                        if (!path_extend(&destination, todo))
-                                return -ENOMEM;
+                        ਜੇ (!ਰਸਤਾ_extend(&destination, todo))
+                                ਵਾਪਸ -ENOMEM;
 
-                        free_and_replace(buffer, destination);
-                        todo = buffer;
+                        free_and_replace(ਬਫਰ, destination);
+                        todo = ਬਫਰ;
 
-                        if (FLAGS_SET(flags, CHASE_STEP))
-                                goto chased_one;
+                        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਕਦਮ))
+                                ਜਾਓ chased_one;
 
-                        continue;
+                        ਜਾਰੀ;
                 }
 
                 /* If this is not a symlink, then let's just add the name we read to what we already verified. */
-                if (!path_extend(&done, first))
-                        return -ENOMEM;
+                ਜੇ (!ਰਸਤਾ_extend(&ਪੂਰਾ, ਪਹਿਲਾ))
+                        ਵਾਪਸ -ENOMEM;
 
-                if (FLAGS_SET(flags, CHASE_PARENT) && isempty(todo))
-                        break;
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਮਾਪਾ) && isempty(todo))
+                        ਰੋਕੋ;
 
                 /* And iterate again, but go one directory further down. */
-                stx = stx_child;
-                close_and_replace(fd, child);
+                stx = stx_ਬੱਚਾ;
+                close_and_replace(fd, ਬੱਚਾ);
         }
 
-        if (exists) {
-                if (FLAGS_SET(flags, CHASE_MUST_BE_DIRECTORY)) {
+        ਜੇ (exists) {
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_MUST_BE_DIRECTORY)) {
                         r = statx_verify_directory(&stx);
-                        if (r < 0)
-                                return r;
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
                 }
 
-                if (FLAGS_SET(flags, CHASE_MUST_BE_REGULAR)) {
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_MUST_BE_REGULAR)) {
                         r = statx_verify_regular(&stx);
-                        if (r < 0)
-                                return r;
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
                 }
 
-                if (FLAGS_SET(flags, CHASE_MUST_BE_SOCKET)) {
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_MUST_BE_SOCKET)) {
                         r = statx_verify_socket(&stx);
-                        if (r < 0)
-                                return r;
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
                 }
         }
 
-        if (ret_path) {
-                if (FLAGS_SET(flags, CHASE_EXTRACT_FILENAME) && done) {
-                        _cleanup_free_ char *f = NULL;
+        ਜੇ (ret_ਰਸਤਾ) {
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਕੱਢੋ_FILENAME) && ਪੂਰਾ) {
+                        _cleanup_free_ ਅੱਖਰ *f = ਨਿਰਾ;
 
-                        r = path_extract_filename(done, &f);
-                        if (r < 0 && r != -EADDRNOTAVAIL)
-                                return r;
+                        r = ਰਸਤਾ_ਕੱਢੋ_filename(ਪੂਰਾ, &f);
+                        ਜੇ (r < 0 && r != -EADDRNOTAVAIL)
+                                ਵਾਪਸ r;
 
                         /* If we get EADDRNOTAVAIL we clear done and it will get reinitialized by the next block. */
-                        free_and_replace(done, f);
+                        free_and_replace(ਪੂਰਾ, f);
                 }
 
-                if (!done) {
-                        assert(!need_absolute || FLAGS_SET(flags, CHASE_EXTRACT_FILENAME));
-                        done = strdup(".");
-                        if (!done)
-                                return -ENOMEM;
+                ਜੇ (!ਪੂਰਾ) {
+                        ਪ੍ਰਤਿਜ੍ਞਾ(!need_absolute || FLAGS_ਸੈੱਟ(flags, CHASE_ਕੱਢੋ_FILENAME));
+                        ਪੂਰਾ = strdup(".");
+                        ਜੇ (!ਪੂਰਾ)
+                                ਵਾਪਸ -ENOMEM;
                 }
 
-                if (append_trail_slash)
-                        if (!strextend(&done, "/"))
-                                return -ENOMEM;
+                ਜੇ (append_trail_slash)
+                        ਜੇ (!strextend(&ਪੂਰਾ, "/"))
+                                ਵਾਪਸ -ENOMEM;
 
-                *ret_path = TAKE_PTR(done);
+                *ret_ਰਸਤਾ = TAKE_PTR(ਪੂਰਾ);
         }
 
-        if (ret_fd) {
-                if (exists) {
+        ਜੇ (ret_fd) {
+                ਜੇ (exists) {
                         /* Return the O_PATH fd we currently are looking to the caller. It can translate it
                          * to a proper fd by opening /proc/self/fd/xyz. */
-                        assert(fd >= 0);
+                        ਪ੍ਰਤਿਜ੍ਞਾ(fd >= 0);
                         *ret_fd = TAKE_FD(fd);
-                } else
+                } ਨਹੀਂਤਾਂ
                         *ret_fd = -EBADF;
         }
 
-        if (FLAGS_SET(flags, CHASE_STEP))
-                return 1;
+        ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਕਦਮ))
+                ਵਾਪਸ 1;
 
-        return exists;
+        ਵਾਪਸ exists;
 
 chased_one:
-        if (ret_path) {
-                const char *e;
+        ਜੇ (ret_ਰਸਤਾ) {
+                ਅਚਲ ਅੱਖਰ *e;
 
-                if (!done) {
-                        assert(!need_absolute);
-                        done = strdup(append_trail_slash ? "./" : ".");
-                        if (!done)
-                                return -ENOMEM;
+                ਜੇ (!ਪੂਰਾ) {
+                        ਪ੍ਰਤਿਜ੍ਞਾ(!need_absolute);
+                        ਪੂਰਾ = strdup(append_trail_slash ? "./" : ".");
+                        ਜੇ (!ਪੂਰਾ)
+                                ਵਾਪਸ -ENOMEM;
                 }
 
                 /* todo may contain slashes at the beginning. */
-                r = path_find_first_component(&todo, /* accept_dot_dot= */ true, &e);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        *ret_path = TAKE_PTR(done);
-                else {
-                        char *c;
+                r = ਰਸਤਾ_ਲੱਭੋ_ਪਹਿਲਾ_component(&todo, /* accept_dot_dot= */ true, &e);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
+                ਜੇ (r == 0)
+                        *ret_ਰਸਤਾ = TAKE_PTR(ਪੂਰਾ);
+                ਨਹੀਂਤਾਂ {
+                        ਅੱਖਰ *c;
 
-                        c = path_join(done, e);
-                        if (!c)
-                                return -ENOMEM;
+                        c = ਰਸਤਾ_join(ਪੂਰਾ, e);
+                        ਜੇ (!c)
+                                ਵਾਪਸ -ENOMEM;
 
-                        *ret_path = c;
+                        *ret_ਰਸਤਾ = c;
                 }
         }
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase(const char *path, const char *root, ChaseFlags flags, char **ret_path, int *ret_fd) {
-        _cleanup_free_ char *root_abs = NULL, *absolute = NULL, *p = NULL;
-        _cleanup_close_ int fd = -EBADF, pfd = -EBADF;
-        int r;
+ਪੂਰਨ chase(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ChaseFlags flags, ਅੱਖਰ **ret_ਰਸਤਾ, ਪੂਰਨ *ret_fd) {
+        _cleanup_free_ ਅੱਖਰ *ਜੜ੍ਹ_abs = ਨਿਰਾ, *absolute = ਨਿਰਾ, *p = ਨਿਰਾ;
+        _cleanup_close_ ਪੂਰਨ fd = -EBADF, pfd = -EBADF;
+        ਪੂਰਨ r;
 
-        assert(path);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
 
-        if (isempty(path))
-                return -EINVAL;
+        ਜੇ (isempty(ਰਸਤਾ))
+                ਵਾਪਸ -EINVAL;
 
-        r = empty_or_root_harder_to_null(&root);
-        if (r < 0)
-                return r;
+        r = ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ_harder_ਮੰਜ਼ਿਲ_null(&ਜੜ੍ਹ);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         /* A root directory of "/" or "" is identical to "/". */
-        if (empty_or_root(root))
-                root = "/";
-        else {
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return r;
+        ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ))
+                ਜੜ੍ਹ = "/";
+        ਨਹੀਂਤਾਂ {
+                r = ਰਸਤਾ_make_absolute_cwd(ਜੜ੍ਹ, &ਜੜ੍ਹ_abs);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
                 /* Simplify the root directory, so that it has no duplicate slashes and nothing at the
                  * end. While we won't resolve the root path we still simplify it. */
-                root = path_simplify(root_abs);
+                ਜੜ੍ਹ = ਰਸਤਾ_simplify(ਜੜ੍ਹ_abs);
 
-                assert(path_is_absolute(root));
-                assert(!empty_or_root(root));
+                ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_is_absolute(ਜੜ੍ਹ));
+                ਪ੍ਰਤਿਜ੍ਞਾ(!ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ));
 
-                if (FLAGS_SET(flags, CHASE_PREFIX_ROOT)) {
-                        absolute = path_join(root, path);
-                        if (!absolute)
-                                return -ENOMEM;
+                ਜੇ (FLAGS_ਸੈੱਟ(flags, CHASE_ਅਗੇਤਰ_ਜੜ੍ਹ)) {
+                        absolute = ਰਸਤਾ_join(ਜੜ੍ਹ, ਰਸਤਾ);
+                        ਜੇ (!absolute)
+                                ਵਾਪਸ -ENOMEM;
                 }
         }
 
-        if (!absolute) {
-                r = path_make_absolute_cwd(path, &absolute);
-                if (r < 0)
-                        return r;
+        ਜੇ (!absolute) {
+                r = ਰਸਤਾ_make_absolute_cwd(ਰਸਤਾ, &absolute);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
         }
 
-        path = path_startswith(absolute, root);
-        if (!path)
-                return log_full_errno(FLAGS_SET(flags, CHASE_WARN) ? LOG_WARNING : LOG_DEBUG,
+        ਰਸਤਾ = ਰਸਤਾ_startswith(absolute, ਜੜ੍ਹ);
+        ਜੇ (!ਰਸਤਾ)
+                ਵਾਪਸ log_ਭਰਿਆ_errno(FLAGS_ਸੈੱਟ(flags, CHASE_WARN) ? LOG_WARNING : LOG_DEBUG,
                                       SYNTHETIC_ERRNO(ECHRNG),
                                       "Specified path '%s' is outside of specified root directory '%s', refusing to resolve.",
-                                      absolute, root);
+                                      absolute, ਜੜ੍ਹ);
 
-        if (empty_or_root(root))
+        ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ))
                 fd = XAT_FDROOT;
-        else {
-                fd = open(root, O_CLOEXEC|O_DIRECTORY|O_PATH);
-                if (fd < 0)
-                        return -errno;
+        ਨਹੀਂਤਾਂ {
+                fd = open(ਜੜ੍ਹ, O_CLOEXEC|O_DIRECTORY|O_ਰਸਤਾ);
+                ਜੇ (fd < 0)
+                        ਵਾਪਸ -errno;
         }
 
-        r = chaseat(fd, fd, path, flags & ~CHASE_PREFIX_ROOT, ret_path ? &p : NULL, ret_fd ? &pfd : NULL);
-        if (r < 0)
-                return r;
+        r = chaseat(fd, fd, ਰਸਤਾ, flags & ~CHASE_ਅਗੇਤਰ_ਜੜ੍ਹ, ret_ਰਸਤਾ ? &p : ਨਿਰਾ, ret_fd ? &pfd : ਨਿਰਾ);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (ret_path) {
-                if (!FLAGS_SET(flags, CHASE_EXTRACT_FILENAME)) {
+        ਜੇ (ret_ਰਸਤਾ) {
+                ਜੇ (!FLAGS_ਸੈੱਟ(flags, CHASE_ਕੱਢੋ_FILENAME)) {
 
                         /* When "root" points to the root directory, the result of chaseat() is always
                          * absolute, hence it is not necessary to prefix with the root. When "root" points to
@@ -857,525 +857,525 @@ int chase(const char *path, const char *root, ChaseFlags flags, char **ret_path,
                          * As a special case, chaseat() may return "." or "./", which are normalized too,
                          * but we need to drop "." before merging with root. */
 
-                        if (empty_or_root(root))
-                                assert(path_is_absolute(p));
-                        else {
-                                char *q;
+                        ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ))
+                                ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_is_absolute(p));
+                        ਨਹੀਂਤਾਂ {
+                                ਅੱਖਰ *q;
 
-                                assert(!path_is_absolute(p));
+                                ਪ੍ਰਤਿਜ੍ਞਾ(!ਰਸਤਾ_is_absolute(p));
 
-                                q = path_join(root, p + STR_IN_SET(p, ".", "./"));
-                                if (!q)
-                                        return -ENOMEM;
+                                q = ਰਸਤਾ_join(ਜੜ੍ਹ, p + STR_ਵਿੱਚ_ਸੈੱਟ(p, ".", "./"));
+                                ਜੇ (!q)
+                                        ਵਾਪਸ -ENOMEM;
 
                                 free_and_replace(p, q);
                         }
                 }
 
-                *ret_path = TAKE_PTR(p);
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
         }
 
-        if (ret_fd)
+        ਜੇ (ret_fd)
                 *ret_fd = TAKE_FD(pfd);
 
-        return r;
+        ਵਾਪਸ r;
 }
 
-int chaseat_prefix_root(const char *path, const char *root, char **ret) {
-        char *q;
-        int r;
+ਪੂਰਨ chaseat_ਅਗੇਤਰ_ਜੜ੍ਹ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ਅੱਖਰ **ret) {
+        ਅੱਖਰ *q;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
         /* This is mostly for prefixing the result of chaseat(). */
 
-        if (!path_is_absolute(path)) {
-                _cleanup_free_ char *root_abs = NULL;
+        ਜੇ (!ਰਸਤਾ_is_absolute(ਰਸਤਾ)) {
+                _cleanup_free_ ਅੱਖਰ *ਜੜ੍ਹ_abs = ਨਿਰਾ;
 
-                r = empty_or_root_harder_to_null(&root);
-                if (r < 0 && r != -ENOENT)
-                        return r;
+                r = ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ_harder_ਮੰਜ਼ਿਲ_null(&ਜੜ੍ਹ);
+                ਜੇ (r < 0 && r != -ENOENT)
+                        ਵਾਪਸ r;
 
                 /* If the dir_fd points to the root directory, chaseat() always returns an absolute path. */
-                if (empty_or_root(root))
-                        return -EINVAL;
+                ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ))
+                        ਵਾਪਸ -EINVAL;
 
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return r;
+                r = ਰਸਤਾ_make_absolute_cwd(ਜੜ੍ਹ, &ਜੜ੍ਹ_abs);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                root = path_simplify(root_abs);
+                ਜੜ੍ਹ = ਰਸਤਾ_simplify(ਜੜ੍ਹ_abs);
 
-                q = path_join(root, path + (path[0] == '.' && IN_SET(path[1], '/', '\0')));
-        } else
-                q = strdup(path);
-        if (!q)
-                return -ENOMEM;
+                q = ਰਸਤਾ_join(ਜੜ੍ਹ, ਰਸਤਾ + (ਰਸਤਾ[0] == '.' && ਵਿੱਚ_ਸੈੱਟ(ਰਸਤਾ[1], '/', '\0')));
+        } ਨਹੀਂਤਾਂ
+                q = strdup(ਰਸਤਾ);
+        ਜੇ (!q)
+                ਵਾਪਸ -ENOMEM;
 
         *ret = q;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_extract_filename(const char *path, const char *root, char **ret) {
-        int r;
+ਪੂਰਨ chase_ਕੱਢੋ_filename(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ਅੱਖਰ **ret) {
+        ਪੂਰਨ r;
 
         /* This is similar to path_extract_filename(), but takes root directory.
          * The result should be consistent with chase() with CHASE_EXTRACT_FILENAME. */
 
-        assert(path);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (isempty(path))
-                return -EINVAL;
+        ਜੇ (isempty(ਰਸਤਾ))
+                ਵਾਪਸ -EINVAL;
 
-        if (!path_is_absolute(path))
-                return -EINVAL;
+        ਜੇ (!ਰਸਤਾ_is_absolute(ਰਸਤਾ))
+                ਵਾਪਸ -EINVAL;
 
-        r = empty_or_root_harder_to_null(&root);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        r = ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ_harder_ਮੰਜ਼ਿਲ_null(&ਜੜ੍ਹ);
+        ਜੇ (r < 0 && r != -ENOENT)
+                ਵਾਪਸ r;
 
-        if (!empty_or_root(root)) {
-                _cleanup_free_ char *root_abs = NULL;
+        ਜੇ (!ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ)) {
+                _cleanup_free_ ਅੱਖਰ *ਜੜ੍ਹ_abs = ਨਿਰਾ;
 
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return r;
+                r = ਰਸਤਾ_make_absolute_cwd(ਜੜ੍ਹ, &ਜੜ੍ਹ_abs);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                path = path_startswith(path, root_abs);
-                if (!path)
-                        return -EINVAL;
+                ਰਸਤਾ = ਰਸਤਾ_startswith(ਰਸਤਾ, ਜੜ੍ਹ_abs);
+                ਜੇ (!ਰਸਤਾ)
+                        ਵਾਪਸ -EINVAL;
         }
 
-        if (!isempty(path)) {
-                r = path_extract_filename(path, ret);
-                if (r != -EADDRNOTAVAIL)
-                        return r;
+        ਜੇ (!isempty(ਰਸਤਾ)) {
+                r = ਰਸਤਾ_ਕੱਢੋ_filename(ਰਸਤਾ, ret);
+                ਜੇ (r != -EADDRNOTAVAIL)
+                        ਵਾਪਸ r;
         }
 
-        return strdup_to(ret, ".");
+        ਵਾਪਸ strdup_ਮੰਜ਼ਿਲ(ret, ".");
 }
 
-int chase_and_open(
-                const char *path,
-                const char *root,
+ਪੂਰਨ chase_and_open(
+                ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ,
                 ChaseFlags chase_flags,
-                int open_flags,
-                char **ret_path) {
+                ਪੂਰਨ open_flags,
+                ਅੱਖਰ **ret_ਰਸਤਾ) {
 
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        const char *open_name = NULL;
-        int r;
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ, *fname = ਨਿਰਾ;
+        ਅਚਲ ਅੱਖਰ *open_name = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ)));
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0)
+        ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ) && !ret_ਰਸਤਾ && (chase_flags & CHASE_NO_SHORTCUT_ਨਕਾਬ) == 0)
                 /* Shortcut this call if none of the special features of this call are requested */
-                return chase_xopenat(AT_FDCWD, path, chase_flags, open_flags, /* xopen_flags= */ 0);
+                ਵਾਪਸ chase_xopenat(AT_FDCWD, ਰਸਤਾ, chase_flags, open_flags, /* xopen_flags= */ 0);
 
-        r = chase(path, root, (CHASE_PARENT|chase_flags)&~CHASE_MUST_BE_REGULAR, &p, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(ਰਸਤਾ, ਜੜ੍ਹ, (CHASE_ਮਾਪਾ|chase_flags)&~CHASE_MUST_BE_REGULAR, &p, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_fd >= 0);
 
-        if (!FLAGS_SET(chase_flags, CHASE_PARENT)) {
-                if (FLAGS_SET(chase_flags, CHASE_EXTRACT_FILENAME))
+        ਜੇ (!FLAGS_ਸੈੱਟ(chase_flags, CHASE_ਮਾਪਾ)) {
+                ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_ਕੱਢੋ_FILENAME))
                         /* chase() with CHASE_EXTRACT_FILENAME already returns just the filename in
                          * p — use it directly without redundant extraction. */
                         open_name = p;
-                else {
-                        r = chase_extract_filename(p, root, &fname);
-                        if (r < 0)
-                                return r;
+                ਨਹੀਂਤਾਂ {
+                        r = chase_ਕੱਢੋ_filename(p, ਜੜ੍ਹ, &fname);
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
                         open_name = fname;
                 }
         }
 
-        r = chase_xopenat(path_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
-        if (r < 0)
-                return r;
+        r = chase_xopenat(ਰਸਤਾ_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return r;
+        ਵਾਪਸ r;
 }
 
-int chase_and_opendir(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
+ਪੂਰਨ chase_and_opendir(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ChaseFlags chase_flags, ਅੱਖਰ **ret_ਰਸਤਾ, DIR **ret_dir) {
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ;
         DIR *d;
-        int r;
+        ਪੂਰਨ r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
-        assert(ret_dir);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_dir);
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0) {
+        ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ) && !ret_ਰਸਤਾ && (chase_flags & CHASE_NO_SHORTCUT_ਨਕਾਬ) == 0) {
                 /* Shortcut this call if none of the special features of this call are requested */
-                d = opendir(path);
-                if (!d)
-                        return -errno;
+                d = opendir(ਰਸਤਾ);
+                ਜੇ (!d)
+                        ਵਾਪਸ -errno;
 
                 *ret_dir = d;
-                return 0;
+                ਵਾਪਸ 0;
         }
 
-        r = chase(path, root, chase_flags|CHASE_MUST_BE_DIRECTORY, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(ਰਸਤਾ, ਜੜ੍ਹ, chase_flags|CHASE_MUST_BE_DIRECTORY, ret_ਰਸਤਾ ? &p : ਨਿਰਾ, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_fd >= 0);
 
-        d = xopendirat(path_fd, /* path= */ NULL, /* flags= */ 0);
-        if (!d)
-                return -errno;
+        d = xopendirat(ਰਸਤਾ_fd, /* path= */ ਨਿਰਾ, /* flags= */ 0);
+        ਜੇ (!d)
+                ਵਾਪਸ -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
         *ret_dir = d;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_stat(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+ਪੂਰਨ chase_and_stat(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ChaseFlags chase_flags, ਅੱਖਰ **ret_ਰਸਤਾ, ਬਣਤਰ stat *ret_stat) {
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
-        assert(ret_stat);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_stat);
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ) && !ret_ਰਸਤਾ && (chase_flags & (CHASE_NO_SHORTCUT_ਨਕਾਬ|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. We can't
                  * take the shortcut if CHASE_MUST_BE_* is set because fstatat() alone does not verify the
                  * inode type. */
-                return RET_NERRNO(fstatat(AT_FDCWD, path, ret_stat,
-                                          FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                ਵਾਪਸ RET_NERRNO(fstatat(AT_FDCWD, ਰਸਤਾ, ret_stat,
+                                          FLAGS_ਸੈੱਟ(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chase(path, root, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(ਰਸਤਾ, ਜੜ੍ਹ, chase_flags, ret_ਰਸਤਾ ? &p : ਨਿਰਾ, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_fd >= 0);
 
-        if (fstat(path_fd, ret_stat) < 0)
-                return -errno;
+        ਜੇ (fstat(ਰਸਤਾ_fd, ret_stat) < 0)
+                ਵਾਪਸ -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_access(const char *path, const char *root, ChaseFlags chase_flags, int access_mode, char **ret_path) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+ਪੂਰਨ chase_and_access(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ChaseFlags chase_flags, ਪੂਰਨ access_ਬਹੁਲਕ, ਅੱਖਰ **ret_ਰਸਤਾ) {
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ)));
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਜੜ੍ਹ) && !ret_ਰਸਤਾ && (chase_flags & (CHASE_NO_SHORTCUT_ਨਕਾਬ|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. */
-                return RET_NERRNO(faccessat(AT_FDCWD, path, access_mode,
-                                            FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                ਵਾਪਸ RET_NERRNO(faccessat(AT_FDCWD, ਰਸਤਾ, access_ਬਹੁਲਕ,
+                                            FLAGS_ਸੈੱਟ(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chase(path, root, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(ਰਸਤਾ, ਜੜ੍ਹ, chase_flags, ret_ਰਸਤਾ ? &p : ਨਿਰਾ, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_fd >= 0);
 
-        r = access_fd(path_fd, access_mode);
-        if (r < 0)
-                return r;
+        r = access_fd(ਰਸਤਾ_fd, access_ਬਹੁਲਕ);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_fopen_unlocked(
-                const char *path,
-                const char *root,
+ਪੂਰਨ chase_and_fopen_unlocked(
+                ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ,
                 ChaseFlags chase_flags,
-                const char *open_flags,
-                char **ret_path,
+                ਅਚਲ ਅੱਖਰ *open_flags,
+                ਅੱਖਰ **ret_ਰਸਤਾ,
                 FILE **ret_file) {
 
-        _cleanup_free_ char *final_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int mode_flags, r;
+        _cleanup_free_ ਅੱਖਰ *final_ਰਸਤਾ = ਨਿਰਾ;
+        _cleanup_close_ ਪੂਰਨ fd = -EBADF;
+        ਪੂਰਨ ਬਹੁਲਕ_flags, r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT|CHASE_MUST_BE_DIRECTORY|CHASE_MUST_BE_SOCKET)));
-        assert(open_flags);
-        assert(ret_file);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ|CHASE_ਮਾਪਾ|CHASE_MUST_BE_DIRECTORY|CHASE_MUST_BE_SOCKET)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(open_flags);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_file);
 
-        mode_flags = fopen_mode_to_flags(open_flags);
-        if (mode_flags < 0)
-                return mode_flags;
+        ਬਹੁਲਕ_flags = fopen_ਬਹੁਲਕ_ਮੰਜ਼ਿਲ_flags(open_flags);
+        ਜੇ (ਬਹੁਲਕ_flags < 0)
+                ਵਾਪਸ ਬਹੁਲਕ_flags;
 
-        fd = chase_and_open(path, root, chase_flags, mode_flags, ret_path ? &final_path : NULL);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_open(ਰਸਤਾ, ਜੜ੍ਹ, chase_flags, ਬਹੁਲਕ_flags, ret_ਰਸਤਾ ? &final_ਰਸਤਾ : ਨਿਰਾ);
+        ਜੇ (fd < 0)
+                ਵਾਪਸ fd;
 
         r = take_fdopen_unlocked(&fd, open_flags, ret_file);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(final_path);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(final_ਰਸਤਾ);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_unlink(const char *path, const char *root, ChaseFlags chase_flags, int unlink_flags, char **ret_path) {
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+ਪੂਰਨ chase_and_unlink(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ChaseFlags chase_flags, ਪੂਰਨ unlink_flags, ਅੱਖਰ **ret_ਰਸਤਾ) {
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ, *fname = ਨਿਰਾ;
+        _cleanup_close_ ਪੂਰਨ fd = -EBADF;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_EXTRACT_FILENAME|CHASE_MKDIR_0755)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ|CHASE_ਮਾਪਾ|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_ਕੱਢੋ_FILENAME|CHASE_MKDIR_0755)));
 
-        fd = chase_and_open(path, root, chase_flags|CHASE_PARENT|CHASE_NOFOLLOW, O_PATH|O_DIRECTORY|O_CLOEXEC, &p);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_open(ਰਸਤਾ, ਜੜ੍ਹ, chase_flags|CHASE_ਮਾਪਾ|CHASE_NOFOLLOW, O_ਰਸਤਾ|O_DIRECTORY|O_CLOEXEC, &p);
+        ਜੇ (fd < 0)
+                ਵਾਪਸ fd;
 
-        r = path_extract_filename(p, &fname);
-        if (r < 0)
-                return r;
+        r = ਰਸਤਾ_ਕੱਢੋ_filename(p, &fname);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (unlinkat(fd, fname, unlink_flags) < 0)
-                return -errno;
+        ਜੇ (unlinkat(fd, fname, unlink_flags) < 0)
+                ਵਾਪਸ -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_open_parent(const char *path, const char *root, ChaseFlags chase_flags, char **ret_filename) {
-        int pfd, r;
+ਪੂਰਨ chase_and_open_ਮਾਪਾ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ChaseFlags chase_flags, ਅੱਖਰ **ret_filename) {
+        ਪੂਰਨ pfd, r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ)));
 
-        r = chase(path, root, CHASE_PARENT|CHASE_EXTRACT_FILENAME|chase_flags, ret_filename, &pfd);
-        if (r < 0)
-                return r;
+        r = chase(ਰਸਤਾ, ਜੜ੍ਹ, CHASE_ਮਾਪਾ|CHASE_ਕੱਢੋ_FILENAME|chase_flags, ret_filename, &pfd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return pfd;
+        ਵਾਪਸ pfd;
 }
 
-int chase_and_openat(
-                int root_fd,
-                int dir_fd,
-                const char *path,
+ਪੂਰਨ chase_and_openat(
+                ਪੂਰਨ ਜੜ੍ਹ_fd,
+                ਪੂਰਨ dir_fd,
+                ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
                 ChaseFlags chase_flags,
-                int open_flags,
-                char **ret_path) {
+                ਪੂਰਨ open_flags,
+                ਅੱਖਰ **ret_ਰਸਤਾ) {
 
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        const char *open_name = NULL;
-        int r;
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ, *fname = ਨਿਰਾ;
+        ਅਚਲ ਅੱਖਰ *open_name = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_MUST_BE_SOCKET)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ|CHASE_MUST_BE_SOCKET)));
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0)
+        ਜੇ (ਜੜ੍ਹ_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_ਰਸਤਾ && (chase_flags & CHASE_NO_SHORTCUT_ਨਕਾਬ) == 0)
                 /* Shortcut this call if none of the special features of this call are requested */
-                return chase_xopenat(dir_fd, path, chase_flags, open_flags, /* xopen_flags= */ 0);
+                ਵਾਪਸ chase_xopenat(dir_fd, ਰਸਤਾ, chase_flags, open_flags, /* xopen_flags= */ 0);
 
-        r = chaseat(root_fd, dir_fd, path, (chase_flags|CHASE_PARENT)&~CHASE_MUST_BE_REGULAR, &p, &path_fd);
-        if (r < 0)
-                return r;
+        r = chaseat(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, (chase_flags|CHASE_ਮਾਪਾ)&~CHASE_MUST_BE_REGULAR, &p, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (!FLAGS_SET(chase_flags, CHASE_PARENT)) {
-                if (FLAGS_SET(chase_flags, CHASE_EXTRACT_FILENAME))
+        ਜੇ (!FLAGS_ਸੈੱਟ(chase_flags, CHASE_ਮਾਪਾ)) {
+                ਜੇ (FLAGS_ਸੈੱਟ(chase_flags, CHASE_ਕੱਢੋ_FILENAME))
                         /* chaseat() with CHASE_EXTRACT_FILENAME already returns just the filename in
                          * p — use it directly without redundant extraction. */
                         open_name = p;
-                else {
-                        r = path_extract_filename(p, &fname);
-                        if (r < 0 && r != -EADDRNOTAVAIL)
-                                return r;
+                ਨਹੀਂਤਾਂ {
+                        r = ਰਸਤਾ_ਕੱਢੋ_filename(p, &fname);
+                        ਜੇ (r < 0 && r != -EADDRNOTAVAIL)
+                                ਵਾਪਸ r;
                         open_name = fname;
                 }
         }
 
-        r = chase_xopenat(path_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
-        if (r < 0)
-                return r;
+        r = chase_xopenat(ਰਸਤਾ_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return r;
+        ਵਾਪਸ r;
 }
 
-int chase_and_opendirat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
+ਪੂਰਨ chase_and_opendirat(ਪੂਰਨ ਜੜ੍ਹ_fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags chase_flags, ਅੱਖਰ **ret_ਰਸਤਾ, DIR **ret_dir) {
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ;
         DIR *d;
-        int r;
+        ਪੂਰਨ r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
-        assert(ret_dir);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_dir);
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0) {
+        ਜੇ (ਜੜ੍ਹ_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_ਰਸਤਾ && (chase_flags & CHASE_NO_SHORTCUT_ਨਕਾਬ) == 0) {
                 /* Shortcut this call if none of the special features of this call are requested */
-                d = opendir(path);
-                if (!d)
-                        return -errno;
+                d = opendir(ਰਸਤਾ);
+                ਜੇ (!d)
+                        ਵਾਪਸ -errno;
 
                 *ret_dir = d;
-                return 0;
+                ਵਾਪਸ 0;
         }
 
-        r = chaseat(root_fd, dir_fd, path, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chaseat(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, chase_flags, ret_ਰਸਤਾ ? &p : ਨਿਰਾ, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_fd >= 0);
 
-        d = xopendirat(path_fd, /* path= */ NULL, /* flags= */ 0);
-        if (!d)
-                return -errno;
+        d = xopendirat(ਰਸਤਾ_fd, /* path= */ ਨਿਰਾ, /* flags= */ 0);
+        ਜੇ (!d)
+                ਵਾਪਸ -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
         *ret_dir = d;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_statat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+ਪੂਰਨ chase_and_statat(ਪੂਰਨ ਜੜ੍ਹ_fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags chase_flags, ਅੱਖਰ **ret_ਰਸਤਾ, ਬਣਤਰ stat *ret_stat) {
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
-        assert(ret_stat);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_stat);
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ਜੇ (ਜੜ੍ਹ_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_ਰਸਤਾ && (chase_flags & (CHASE_NO_SHORTCUT_ਨਕਾਬ|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. We can't
                  * take the shortcut if CHASE_MUST_BE_* is set because fstatat() alone does not verify the
                  * inode type. */
-                return RET_NERRNO(fstatat(AT_FDCWD, path, ret_stat,
-                                          FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                ਵਾਪਸ RET_NERRNO(fstatat(AT_FDCWD, ਰਸਤਾ, ret_stat,
+                                          FLAGS_ਸੈੱਟ(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chaseat(root_fd, dir_fd, path, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chaseat(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, chase_flags, ret_ਰਸਤਾ ? &p : ਨਿਰਾ, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_fd >= 0);
 
-        if (fstat(path_fd, ret_stat) < 0)
-                return -errno;
+        ਜੇ (fstat(ਰਸਤਾ_fd, ret_stat) < 0)
+                ਵਾਪਸ -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_accessat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int access_mode, char **ret_path) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+ਪੂਰਨ chase_and_accessat(ਪੂਰਨ ਜੜ੍ਹ_fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags chase_flags, ਪੂਰਨ access_ਬਹੁਲਕ, ਅੱਖਰ **ret_ਰਸਤਾ) {
+        _cleanup_close_ ਪੂਰਨ ਰਸਤਾ_fd = -EBADF;
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ)));
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ਜੇ (ਜੜ੍ਹ_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_ਰਸਤਾ && (chase_flags & (CHASE_NO_SHORTCUT_ਨਕਾਬ|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. */
-                return RET_NERRNO(faccessat(AT_FDCWD, path, access_mode,
-                                            FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                ਵਾਪਸ RET_NERRNO(faccessat(AT_FDCWD, ਰਸਤਾ, access_ਬਹੁਲਕ,
+                                            FLAGS_ਸੈੱਟ(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chaseat(root_fd, dir_fd, path, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chaseat(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, chase_flags, ret_ਰਸਤਾ ? &p : ਨਿਰਾ, &ਰਸਤਾ_fd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ_fd >= 0);
 
-        r = access_fd(path_fd, access_mode);
-        if (r < 0)
-                return r;
+        r = access_fd(ਰਸਤਾ_fd, access_ਬਹੁਲਕ);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_fopenat_unlocked(
-                int root_fd,
-                int dir_fd,
-                const char *path,
+ਪੂਰਨ chase_and_fopenat_unlocked(
+                ਪੂਰਨ ਜੜ੍ਹ_fd,
+                ਪੂਰਨ dir_fd,
+                ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
                 ChaseFlags chase_flags,
-                const char *open_flags,
-                char **ret_path,
+                ਅਚਲ ਅੱਖਰ *open_flags,
+                ਅੱਖਰ **ret_ਰਸਤਾ,
                 FILE **ret_file) {
 
-        _cleanup_free_ char *final_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int mode_flags, r;
+        _cleanup_free_ ਅੱਖਰ *final_ਰਸਤਾ = ਨਿਰਾ;
+        _cleanup_close_ ਪੂਰਨ fd = -EBADF;
+        ਪੂਰਨ ਬਹੁਲਕ_flags, r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT)));
-        assert(open_flags);
-        assert(ret_file);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ|CHASE_ਮਾਪਾ)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(open_flags);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_file);
 
-        mode_flags = fopen_mode_to_flags(open_flags);
-        if (mode_flags < 0)
-                return mode_flags;
+        ਬਹੁਲਕ_flags = fopen_ਬਹੁਲਕ_ਮੰਜ਼ਿਲ_flags(open_flags);
+        ਜੇ (ਬਹੁਲਕ_flags < 0)
+                ਵਾਪਸ ਬਹੁਲਕ_flags;
 
-        fd = chase_and_openat(root_fd, dir_fd, path, chase_flags, mode_flags, ret_path ? &final_path : NULL);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_openat(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, chase_flags, ਬਹੁਲਕ_flags, ret_ਰਸਤਾ ? &final_ਰਸਤਾ : ਨਿਰਾ);
+        ਜੇ (fd < 0)
+                ਵਾਪਸ fd;
 
         r = take_fdopen_unlocked(&fd, open_flags, ret_file);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(final_path);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(final_ਰਸਤਾ);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_unlinkat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int unlink_flags, char **ret_path) {
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+ਪੂਰਨ chase_and_unlinkat(ਪੂਰਨ ਜੜ੍ਹ_fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags chase_flags, ਪੂਰਨ unlink_flags, ਅੱਖਰ **ret_ਰਸਤਾ) {
+        _cleanup_free_ ਅੱਖਰ *p = ਨਿਰਾ, *fname = ਨਿਰਾ;
+        _cleanup_close_ ਪੂਰਨ fd = -EBADF;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_EXTRACT_FILENAME|CHASE_MKDIR_0755)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ|CHASE_ਮਾਪਾ|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_ਕੱਢੋ_FILENAME|CHASE_MKDIR_0755)));
 
-        fd = chase_and_openat(root_fd, dir_fd, path, chase_flags|CHASE_PARENT|CHASE_NOFOLLOW, O_PATH|O_DIRECTORY|O_CLOEXEC, &p);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_openat(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, chase_flags|CHASE_ਮਾਪਾ|CHASE_NOFOLLOW, O_ਰਸਤਾ|O_DIRECTORY|O_CLOEXEC, &p);
+        ਜੇ (fd < 0)
+                ਵਾਪਸ fd;
 
-        r = path_extract_filename(p, &fname);
-        if (r < 0)
-                return r;
+        r = ਰਸਤਾ_ਕੱਢੋ_filename(p, &fname);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (unlinkat(fd, fname, unlink_flags) < 0)
-                return -errno;
+        ਜੇ (unlinkat(fd, fname, unlink_flags) < 0)
+                ਵਾਪਸ -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ਜੇ (ret_ਰਸਤਾ)
+                *ret_ਰਸਤਾ = TAKE_PTR(p);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int chase_and_open_parent_at(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_filename) {
-        int pfd, r;
+ਪੂਰਨ chase_and_open_ਮਾਪਾ_at(ਪੂਰਨ ਜੜ੍ਹ_fd, ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ChaseFlags chase_flags, ਅੱਖਰ **ret_filename) {
+        ਪੂਰਨ pfd, r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ਪ੍ਰਤਿਜ੍ਞਾ(!(chase_flags & (CHASE_NONEXISTENT|CHASE_ਕਦਮ)));
 
-        r = chaseat(root_fd, dir_fd, path, CHASE_PARENT|CHASE_EXTRACT_FILENAME|chase_flags, ret_filename, &pfd);
-        if (r < 0)
-                return r;
+        r = chaseat(ਜੜ੍ਹ_fd, dir_fd, ਰਸਤਾ, CHASE_ਮਾਪਾ|CHASE_ਕੱਢੋ_FILENAME|chase_flags, ret_filename, &pfd);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return pfd;
+        ਵਾਪਸ pfd;
 }

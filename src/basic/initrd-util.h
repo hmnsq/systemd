@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-bool in_initrd(void);
-void in_initrd_force(bool value);
+bool ਵਿੱਚ_initrd(ਖਾਲੀ);
+ਖਾਲੀ ਵਿੱਚ_initrd_force(bool ਮੁੱਲ);
 
-int in_first_boot(void);
+ਪੂਰਨ ਵਿੱਚ_ਪਹਿਲਾ_boot(ਖਾਲੀ);

@@ -1,229 +1,229 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "alloc-util.h"
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-#include "../fundamental/string-util.h" /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ "../fundamental/string-util.h" /* IWYU pragma: export */
 
-static inline char* strstr_ptr_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
-        return (char*) strstr(haystack, needle);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* strstr_ptr_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) {
+        ਜੇ (!haystack || !needle)
+                ਵਾਪਸ ਨਿਰਾ;
+        ਵਾਪਸ (ਅੱਖਰ*) ਲੜੀ_ਖੋਜ(haystack, needle);
 }
 
-#define strstr_ptr(haystack, needle) \
-        const_generic(haystack, strstr_ptr_internal(haystack, needle))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strstr_ptr(haystack, needle) \
+        const_generic(haystack, strstr_ptr_ਅੰਦਰੂਨੀ(haystack, needle))
 
-static inline char* strstrafter_internal(const char *haystack, const char *needle) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* strstrafter_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) {
         /* Returns NULL if not found, or pointer to first character after needle if found */
 
-        char *p = (char*) strstr_ptr(haystack, needle);
-        if (!p)
-                return NULL;
+        ਅੱਖਰ *p = (ਅੱਖਰ*) strstr_ptr(haystack, needle);
+        ਜੇ (!p)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return p + strlen(needle);
+        ਵਾਪਸ p + ਲੜੀ_ਲੰਬਾਈ(needle);
 }
 
-#define strstrafter(haystack, needle) \
-        const_generic(haystack, strstrafter_internal(haystack, needle))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strstrafter(haystack, needle) \
+        const_generic(haystack, strstrafter_ਅੰਦਰੂਨੀ(haystack, needle))
 
-static inline const char* strnull(const char *s) {
-        return s ?: "(null)";
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* strnull(ਅਚਲ ਅੱਖਰ *s) {
+        ਵਾਪਸ s ?: "(null)";
 }
 
-static inline const char* strna(const char *s) {
-        return s ?: "n/a";
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* strna(ਅਚਲ ਅੱਖਰ *s) {
+        ਵਾਪਸ s ?: "n/a";
 }
 
-static inline const char* true_false(bool b) {
-        return b ? "true" : "false";
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* true_false(bool b) {
+        ਵਾਪਸ b ? "true" : "false";
 }
 
-static inline const char* plus_minus(bool b) {
-        return b ? "+" : "-";
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* plus_minus(bool b) {
+        ਵਾਪਸ b ? "+" : "-";
 }
 
-static inline const char* one_zero(bool b) {
-        return b ? "1" : "0";
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* one_zero(bool b) {
+        ਵਾਪਸ b ? "1" : "0";
 }
 
-static inline const char* enable_disable(bool b) {
-        return b ? "enable" : "disable";
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* enable_disable(bool b) {
+        ਵਾਪਸ b ? "enable" : "disable";
 }
 
-static inline const char* enabled_disabled(bool b) {
-        return b ? "enabled" : "disabled";
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* enabled_disabled(bool b) {
+        ਵਾਪਸ b ? "enabled" : "disabled";
 }
 
 /* This macro's return pointer will have the "const" qualifier set or unset the same way as the input
  * pointer. */
-#define empty_to_null(p)                                \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਖਾਲੀ_ਥਾਵਾਂ_ਮੰਜ਼ਿਲ_null(p)                                \
         ({                                              \
-                const char *_p = (p);                   \
-                (typeof(p)) (isempty(_p) ? NULL : _p);  \
+                ਅਚਲ ਅੱਖਰ *_p = (p);                   \
+                (typeof(p)) (isempty(_p) ? ਨਿਰਾ : _p);  \
         })
 
-static inline const char* empty_to_na(const char *p) {
-        return isempty(p) ? "n/a" : p;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* ਖਾਲੀ_ਥਾਵਾਂ_ਮੰਜ਼ਿਲ_na(ਅਚਲ ਅੱਖਰ *p) {
+        ਵਾਪਸ isempty(p) ? "n/a" : p;
 }
 
-static inline const char* empty_to_dash(const char *str) {
-        return isempty(str) ? "-" : str;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* ਖਾਲੀ_ਥਾਵਾਂ_ਮੰਜ਼ਿਲ_dash(ਅਚਲ ਅੱਖਰ *str) {
+        ਵਾਪਸ isempty(str) ? "-" : str;
 }
 
-static inline bool empty_or_dash(const char *str) {
-        return !str ||
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਖਾਲੀ_ਥਾਵਾਂ_or_dash(ਅਚਲ ਅੱਖਰ *str) {
+        ਵਾਪਸ !str ||
                 str[0] == 0 ||
                 (str[0] == '-' && str[1] == 0);
 }
 
-static inline const char* empty_or_dash_to_null(const char *p) {
-        return empty_or_dash(p) ? NULL : p;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* ਖਾਲੀ_ਥਾਵਾਂ_or_dash_ਮੰਜ਼ਿਲ_null(ਅਚਲ ਅੱਖਰ *p) {
+        ਵਾਪਸ ਖਾਲੀ_ਥਾਵਾਂ_or_dash(p) ? ਨਿਰਾ : p;
 }
-#define empty_or_dash_to_null(p)                                \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਖਾਲੀ_ਥਾਵਾਂ_or_dash_ਮੰਜ਼ਿਲ_null(p)                                \
         ({                                                      \
-                const char *_p = (p);                           \
-                (typeof(p)) (empty_or_dash(_p) ? NULL : _p);    \
+                ਅਚਲ ਅੱਖਰ *_p = (p);                           \
+                (typeof(p)) (ਖਾਲੀ_ਥਾਵਾਂ_or_dash(_p) ? ਨਿਰਾ : _p);    \
         })
 
-char* first_word(const char *s, const char *word) _pure_;
+ਅੱਖਰ* ਪਹਿਲਾ_ਸ਼ਬਦ(ਅਚਲ ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *ਸ਼ਬਦ) ਸ਼ੁੱਧ;
 
-char* strextendn(char **x, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+ਅੱਖਰ* strextendn(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-#define strjoin(a, ...) strextend_with_separator_internal(NULL, NULL, a, __VA_ARGS__, NULL)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strjoin(a, ...) strextend_with_separator_ਅੰਦਰੂਨੀ(ਨਿਰਾ, ਨਿਰਾ, a, __VA_ARGS__, ਨਿਰਾ)
 
-#define strjoina(a, ...)                                                \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strjoina(a, ...)                                                \
         ({                                                              \
-                const char *_appendees_[] = { a, __VA_ARGS__ };         \
-                char *_d_, *_p_;                                        \
+                ਅਚਲ ਅੱਖਰ *_appendees_[] = { a, __VA_ARGS__ };         \
+                ਅੱਖਰ *_d_, *_p_;                                        \
                 size_t _len_ = 0;                                       \
                 size_t _i_;                                             \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
-                        _len_ += strlen(_appendees_[_i_]);              \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                ਲਈ (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                        _len_ += ਲੜੀ_ਲੰਬਾਈ(_appendees_[_i_]);              \
+                _p_ = _d_ = newa(ਅੱਖਰ, _len_ + 1);                      \
+                ਲਈ (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _p_ = stpcpy(_p_, _appendees_[_i_]);            \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-char* strstrip(char *s);
-char* delete_chars(char *s, const char *bad);
-char* delete_trailing_chars(char *s, const char *bad);
-char* truncate_nl_full(char *s, size_t *ret_len);
-static inline char* truncate_nl(char *s) {
-        return truncate_nl_full(s, NULL);
+ਅੱਖਰ* strstrip(ਅੱਖਰ *s);
+ਅੱਖਰ* delete_chars(ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *bad);
+ਅੱਖਰ* delete_trailing_chars(ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *bad);
+ਅੱਖਰ* truncate_nl_ਭਰਿਆ(ਅੱਖਰ *s, size_t *ret_len);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* truncate_nl(ਅੱਖਰ *s) {
+        ਵਾਪਸ truncate_nl_ਭਰਿਆ(s, ਨਿਰਾ);
 }
 
-static inline char* skip_leading_chars(const char *s, const char *bad) {
-        if (!s)
-                return NULL;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* skip_leading_chars(ਅਚਲ ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *bad) {
+        ਜੇ (!s)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (!bad)
+        ਜੇ (!bad)
                 bad = WHITESPACE;
 
-        return (char*) s + strspn(s, bad);
+        ਵਾਪਸ (ਅੱਖਰ*) s + strspn(s, bad);
 }
 
-char ascii_tolower(char x) _const_;
-char* ascii_strlower(char *s);
-char* ascii_strlower_n(char *s, size_t n);
+ਅੱਖਰ ascii_tolower(ਅੱਖਰ x) _const_;
+ਅੱਖਰ* ascii_strlower(ਅੱਖਰ *s);
+ਅੱਖਰ* ascii_strlower_n(ਅੱਖਰ *s, size_t n);
 
-char ascii_toupper(char x) _const_;
-char* ascii_strupper(char *s);
+ਅੱਖਰ ascii_toupper(ਅੱਖਰ x) _const_;
+ਅੱਖਰ* ascii_strupper(ਅੱਖਰ *s);
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n);
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m);
+ਪੂਰਨ ascii_strcasecmp_n(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b, size_t n);
+ਪੂਰਨ ascii_strcasecmp_nn(ਅਚਲ ਅੱਖਰ *a, size_t n, ਅਚਲ ਅੱਖਰ *b, size_t m);
 
-bool chars_intersect(const char *a, const char *b) _pure_;
+bool chars_intersect(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) ਸ਼ੁੱਧ;
 
-static inline bool _pure_ in_charset(const char *s, const char *charset) {
-        assert(s);
-        assert(charset);
-        return s[strspn(s, charset)] == '\0';
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਸ਼ੁੱਧ ਵਿੱਚ_charset(ਅਚਲ ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *charset) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(s);
+        ਪ੍ਰਤਿਜ੍ਞਾ(charset);
+        ਵਾਪਸ s[strspn(s, charset)] == '\0';
 }
 
-static inline bool char_is_cc(char p) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool char_is_cc(ਅੱਖਰ p) {
         /* char is unsigned on some architectures, e.g. aarch64. So, compiler may warn the condition
          * p >= 0 is always true. See #19543. Hence, let's cast to unsigned before the comparison. Note
          * that the cast in the right hand side is redundant, as according to the C standard, compilers
          * automatically cast a signed value to unsigned when comparing with an unsigned variable. Just
          * for safety and readability. */
-        return (uint8_t) p < (uint8_t) ' ' || p == 127;
+        ਵਾਪਸ (uint8_t) p < (uint8_t) ' ' || p == 127;
 }
-bool string_has_cc(const char *p, const char *ok) _pure_;
+bool string_has_cc(ਅਚਲ ਅੱਖਰ *p, ਅਚਲ ਅੱਖਰ *ok) ਸ਼ੁੱਧ;
 
-char* ellipsize_mem(const char *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
-static inline char* ellipsize(const char *s, size_t length, unsigned percent) {
-        return ellipsize_mem(s, strlen(s), length, percent);
+ਅੱਖਰ* ellipsize_mem(ਅਚਲ ਅੱਖਰ *s, size_t old_ਲੰਮਾਈ_ਬਾਈਟਾਂ, size_t new_ਲੰਮਾਈ_columns, ਬਿਨਾਨਿਸ਼ਾਨੀ percent);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* ellipsize(ਅਚਲ ਅੱਖਰ *s, size_t length, ਬਿਨਾਨਿਸ਼ਾਨੀ percent) {
+        ਵਾਪਸ ellipsize_mem(s, ਲੜੀ_ਲੰਬਾਈ(s), length, percent);
 }
 
-char* cellescape(char *buf, size_t len, const char *s);
+ਅੱਖਰ* cellescape(ਅੱਖਰ *buf, size_t len, ਅਚਲ ਅੱਖਰ *s);
 
 /* This limit is arbitrary, enough to give some idea what the string contains */
-#define CELLESCAPE_DEFAULT_LENGTH 64
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CELLESCAPE_DEFAULT_ਲੰਮਾਈ 64
 
-char* strshorten(char *s, size_t l);
+ਅੱਖਰ* strshorten(ਅੱਖਰ *s, size_t l);
 
-int strgrowpad0(char **s, size_t l);
+ਪੂਰਨ strgrowpad0(ਅੱਖਰ **s, size_t l);
 
-char* strreplace(const char *text, const char *old_string, const char *new_string);
+ਅੱਖਰ* strreplace(ਅਚਲ ਅੱਖਰ *ਪਾਠ, ਅਚਲ ਅੱਖਰ *old_string, ਅਚਲ ਅੱਖਰ *new_string);
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]);
+ਅੱਖਰ* strip_tab_ansi(ਅੱਖਰ **ibuf, size_t *_isz, size_t highlight[2]);
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap);
-char* strextend_with_separator_internal(char **x, const char *separator, ...) _sentinel_;
-#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, NULL)
-#define strextend(x, ...) strextend_with_separator_internal(x, NULL, __VA_ARGS__, NULL)
+ਅੱਖਰ* strextendv_with_separator(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *separator, va_list ap);
+ਅੱਖਰ* strextend_with_separator_ਅੰਦਰੂਨੀ(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *separator, ...) _sentinel_;
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strextend_with_separator(x, separator, ...) strextend_with_separator_ਅੰਦਰੂਨੀ(x, separator, __VA_ARGS__, ਨਿਰਾ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strextend(x, ...) strextend_with_separator_ਅੰਦਰੂਨੀ(x, ਨਿਰਾ, __VA_ARGS__, ਨਿਰਾ)
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) _printf_(3,4);
-#define strextendf(x, ...) strextendf_with_separator(x, NULL, __VA_ARGS__)
+ਪੂਰਨ strextendf_with_separator(ਅੱਖਰ **x, ਅਚਲ ਅੱਖਰ *separator, ਅਚਲ ਅੱਖਰ *format, ...) _printf_(3,4);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strextendf(x, ...) strextendf_with_separator(x, ਨਿਰਾ, __VA_ARGS__)
 
-#define strprepend_with_separator(x, separator, ...)                            \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strprepend_with_separator(x, separator, ...)                            \
         ({                                                                      \
-                char **_p_ = ASSERT_PTR(x), *_s_;                               \
-                _s_ = strextend_with_separator_internal(NULL, (separator), __VA_ARGS__, empty_to_null(*_p_), NULL); \
-                if (_s_) {                                                      \
-                        free(*_p_);                                             \
+                ਅੱਖਰ **_p_ = ASSERT_PTR(x), *_s_;                               \
+                _s_ = strextend_with_separator_ਅੰਦਰੂਨੀ(ਨਿਰਾ, (separator), __VA_ARGS__, ਖਾਲੀ_ਥਾਵਾਂ_ਮੰਜ਼ਿਲ_null(*_p_), ਨਿਰਾ); \
+                ਜੇ (_s_) {                                                      \
+                        ਮੁਕਤ(*_p_);                                             \
                         *_p_ = _s_;                                             \
                 }                                                               \
                 _s_;                                                            \
         })
-#define strprepend(x, ...) strprepend_with_separator(x, NULL, __VA_ARGS__)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strprepend(x, ...) strprepend_with_separator(x, ਨਿਰਾ, __VA_ARGS__)
 
-char* strrep(const char *s, size_t n);
+ਅੱਖਰ* strrep(ਅਚਲ ਅੱਖਰ *s, size_t n);
 
-#define strrepa(s, n)                                                   \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strrepa(s, n)                                                   \
         ({                                                              \
-                const char *_sss_ = (s);                                \
-                size_t _nnn_ = (n), _len_ = strlen(_sss_);              \
-                assert_se(MUL_ASSIGN_SAFE(&_len_, _nnn_));              \
-                char *_d_, *_p_;                                        \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
+                ਅਚਲ ਅੱਖਰ *_sss_ = (s);                                \
+                size_t _nnn_ = (n), _len_ = ਲੜੀ_ਲੰਬਾਈ(_sss_);              \
+                assert_se(MUL_ਸੌਂਪੋ_ਸੁਰੱਖਿਅਤ(&_len_, _nnn_));              \
+                ਅੱਖਰ *_d_, *_p_;                                        \
+                _p_ = _d_ = newa(ਅੱਖਰ, _len_ + 1);                      \
+                ਲਈ (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
                         _p_ = stpcpy(_p_, _sss_);                       \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second);
+ਪੂਰਨ ਵੰਡੋ_pair(ਅਚਲ ਅੱਖਰ *s, ਅਚਲ ਅੱਖਰ *sep, ਅੱਖਰ **ret_ਪਹਿਲਾ, ਅੱਖਰ **ret_ਦੂਜਾ);
 
-int free_and_strdup(char **p, const char *s);
-int free_and_strdup_warn(char **p, const char *s);
-int free_and_strndup(char **p, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+ਪੂਰਨ free_and_strdup(ਅੱਖਰ **p, ਅਚਲ ਅੱਖਰ *s);
+ਪੂਰਨ free_and_strdup_warn(ਅੱਖਰ **p, ਅਚਲ ਅੱਖਰ *s);
+ਪੂਰਨ free_and_strndup(ਅੱਖਰ **p, ਅਚਲ ਅੱਖਰ *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-int strdup_to_full(char **ret, const char *src);
-static inline int strdup_to(char **ret, const char *src) {
-        int r = strdup_to_full(ASSERT_PTR(ret), src);
-        return r < 0 ? r : 0;  /* Suppress return value of 1. */
+ਪੂਰਨ strdup_ਮੰਜ਼ਿਲ_ਭਰਿਆ(ਅੱਖਰ **ret, ਅਚਲ ਅੱਖਰ *src);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ strdup_ਮੰਜ਼ਿਲ(ਅੱਖਰ **ret, ਅਚਲ ਅੱਖਰ *src) {
+        ਪੂਰਨ r = strdup_ਮੰਜ਼ਿਲ_ਭਰਿਆ(ASSERT_PTR(ret), src);
+        ਵਾਪਸ r < 0 ? r : 0;  /* Suppress return value of 1. */
 }
 
-typedef enum StringSafeFlags {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ String_ਸੁਰੱਖਿਅਤ_Flags {
         STRING_ASCII               = 1 << 0, /* Verify string is 7-Bit ASCII (rather than just UTF-8) */
-        STRING_ALLOW_EMPTY         = 1 << 1, /* Allow empty strings */
+        STRING_ALLOW_ਖਾਲੀ_ਥਾਵਾਂ         = 1 << 1, /* Allow empty strings */
         STRING_ALLOW_NEWLINES      = 1 << 2, /* Allow newlines (\n) */
         STRING_ALLOW_BACKSLASHES   = 1 << 3, /* Allow backslashes (\) */
         STRING_ALLOW_QUOTES        = 1 << 4, /* Allow quotes (" or ') */
@@ -231,12 +231,12 @@ typedef enum StringSafeFlags {
         STRING_FILENAME            = 1 << 6, /* Verify the string is valid as regular filename */
         STRING_FILENAME_PART       = 1 << 7, /* Verify the string is valid as part of a regular filename */
         STRING_DISALLOW_WHITESPACE = 1 << 8, /* Refuse whitespace (space, tab, newline, …) */
-} StringSafeFlags;
+} String_ਸੁਰੱਖਿਅਤ_Flags;
 
-bool string_is_safe(const char *p, StringSafeFlags flags) _pure_;
+bool string_is_ਸੁਰੱਖਿਅਤ(ਅਚਲ ਅੱਖਰ *p, String_ਸੁਰੱਖਿਅਤ_Flags flags) ਸ਼ੁੱਧ;
 
 DISABLE_WARNING_STRINGOP_TRUNCATION;
-static inline void strncpy_exact(char *buf, const char *src, size_t buf_len) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ strncpy_exact(ਅੱਖਰ *buf, ਅਚਲ ਅੱਖਰ *src, size_t buf_len) {
         strncpy(buf, src, buf_len);
 }
 REENABLE_WARNING;
@@ -244,94 +244,94 @@ REENABLE_WARNING;
 /* Like startswith_no_case(), but operates on arbitrary memory blocks.
  * It works only for ASCII strings.
  */
-static inline void* memory_startswith_no_case(const void *p, size_t sz, const char *token) {
-        assert(token);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ* ਸਮ੍ਰਿਤੀ_startswith_no_case(ਅਚਲ ਖਾਲੀ *p, size_t sz, ਅਚਲ ਅੱਖਰ *token) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(token);
 
-        size_t n = strlen(token);
-        if (sz < n)
-                return NULL;
+        size_t n = ਲੜੀ_ਲੰਬਾਈ(token);
+        ਜੇ (sz < n)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        assert(p);
+        ਪ੍ਰਤਿਜ੍ਞਾ(p);
 
-        for (size_t i = 0; i < n; i++)
-                if (ascii_tolower(((char *)p)[i]) != ascii_tolower(token[i]))
-                        return NULL;
+        ਲਈ (size_t i = 0; i < n; i++)
+                ਜੇ (ascii_tolower(((ਅੱਖਰ *)p)[i]) != ascii_tolower(token[i]))
+                        ਵਾਪਸ ਨਿਰਾ;
 
-        return (uint8_t*) p + n;
+        ਵਾਪਸ (uint8_t*) p + n;
 }
 
-char* str_realloc(char *p);
-char* string_erase(char *x);
+ਅੱਖਰ* str_realloc(ਅੱਖਰ *p);
+ਅੱਖਰ* string_erase(ਅੱਖਰ *x);
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret);
-int string_extract_line(const char *s, size_t i, char **ret);
+ਪੂਰਨ string_truncate_ਸਤਰਾਂ(ਅਚਲ ਅੱਖਰ *s, size_t n_ਸਤਰਾਂ, ਅੱਖਰ **ret);
+ਪੂਰਨ string_ਕੱਢੋ_ਸਤਰ(ਅਚਲ ਅੱਖਰ *s, size_t i, ਅੱਖਰ **ret);
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
-static inline int string_contains_word(const char *string, const char *separators, const char *word) {
-        return string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
+ਪੂਰਨ string_ਸ਼ਾਮਲ_ਹੈ_ਸ਼ਬਦ_strv(ਅਚਲ ਅੱਖਰ *string, ਅਚਲ ਅੱਖਰ *separators, ਅੱਖਰ * ਅਚਲ *ਸ਼ਬਦ_3, ਅਚਲ ਅੱਖਰ **ret_ਸ਼ਬਦ);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ string_ਸ਼ਾਮਲ_ਹੈ_ਸ਼ਬਦ(ਅਚਲ ਅੱਖਰ *string, ਅਚਲ ਅੱਖਰ *separators, ਅਚਲ ਅੱਖਰ *ਸ਼ਬਦ) {
+        ਵਾਪਸ string_ਸ਼ਾਮਲ_ਹੈ_ਸ਼ਬਦ_strv(string, separators, STRV_MAKE(ਸ਼ਬਦ), ਨਿਰਾ);
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok);
+bool streq_skip_trailing_chars(ਅਚਲ ਅੱਖਰ *s1, ਅਚਲ ਅੱਖਰ *s2, ਅਚਲ ਅੱਖਰ *ok);
 
-char* string_replace_char(char *str, char old_char, char new_char);
+ਅੱਖਰ* string_replace_char(ਅੱਖਰ *str, ਅੱਖਰ old_char, ਅੱਖਰ new_char);
 
-typedef enum MakeCStringMode {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ Make_CString_ਬਹੁਲਕ {
         MAKE_CSTRING_REFUSE_TRAILING_NUL,
         MAKE_CSTRING_ALLOW_TRAILING_NUL,
         MAKE_CSTRING_REQUIRE_TRAILING_NUL,
-        _MAKE_CSTRING_MODE_MAX,
-        _MAKE_CSTRING_MODE_INVALID = -1,
-} MakeCStringMode;
+        MAKE_CSTRING_ਬਹੁਲਕ_MAX,
+        MAKE_CSTRING_ਬਹੁਲਕ_INVALID = -1,
+} Make_CString_ਬਹੁਲਕ;
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret);
+ਪੂਰਨ make_cstring(ਅਚਲ ਖਾਲੀ *s, size_t n, Make_CString_ਬਹੁਲਕ ਬਹੁਲਕ, ਅੱਖਰ **ret);
 
-size_t strspn_from_end(const char *str, const char *accept) _pure_;
-size_t strnspn(const char *str, const char *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
+size_t strspn_from_ਸਿਰਾ(ਅਚਲ ਅੱਖਰ *str, ਅਚਲ ਅੱਖਰ *accept) ਸ਼ੁੱਧ;
+size_t strnspn(ਅਚਲ ਅੱਖਰ *str, ਅਚਲ ਅੱਖਰ *accept, size_t n) ਸ਼ੁੱਧ _nonnull_if_nonzero_(1, 3);
 
-char* strdupspn(const char *a, const char *accept);
-char* strdupcspn(const char *a, const char *reject);
+ਅੱਖਰ* strdupspn(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *accept);
+ਅੱਖਰ* strdupcspn(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *reject);
 
 /* These are like strdupa()/strndupa(), but honour ALLOCA_MAX */
-#define strdupa_safe(s)                                                 \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strdupa_ਸੁਰੱਖਿਅਤ(s)                                                 \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strlen(_t));                \
+                ਅਚਲ ਅੱਖਰ *_t = (s);                                   \
+                (ਅੱਖਰ*) memdupa_suffix0(_t, ਲੜੀ_ਲੰਬਾਈ(_t));                \
         })
 
-#define strndupa_safe(s, n)                                             \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strndupa_ਸੁਰੱਖਿਅਤ(s, n)                                             \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strnlen(_t, n));            \
+                ਅਚਲ ਅੱਖਰ *_t = (s);                                   \
+                (ਅੱਖਰ*) memdupa_suffix0(_t, strnlen(_t, n));            \
         })
 
-char* find_line_startswith_internal(const char *haystack, const char *needle);
-#define find_line_startswith(haystack, needle) \
-        const_generic(haystack, find_line_startswith_internal(haystack, needle))
+ਅੱਖਰ* ਲੱਭੋ_ਸਤਰ_startswith_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਲੱਭੋ_ਸਤਰ_startswith(haystack, needle) \
+        const_generic(haystack, ਲੱਭੋ_ਸਤਰ_startswith_ਅੰਦਰੂਨੀ(haystack, needle))
 
-char* find_line_internal(const char *haystack, const char *needle);
-#define find_line(haystack, needle) \
-        const_generic(haystack, find_line_internal(haystack, needle))
+ਅੱਖਰ* ਲੱਭੋ_ਸਤਰ_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਲੱਭੋ_ਸਤਰ(haystack, needle) \
+        const_generic(haystack, ਲੱਭੋ_ਸਤਰ_ਅੰਦਰੂਨੀ(haystack, needle))
 
-char* find_line_after_internal(const char *haystack, const char *needle);
-#define find_line_after(haystack, needle) \
-        const_generic(haystack, find_line_after_internal(haystack, needle))
+ਅੱਖਰ* ਲੱਭੋ_ਸਤਰ_after_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਲੱਭੋ_ਸਤਰ_after(haystack, needle) \
+        const_generic(haystack, ਲੱਭੋ_ਸਤਰ_after_ਅੰਦਰੂਨੀ(haystack, needle))
 
-typedef enum VersionFlags {
-        VERSION_ALLOW_EMPTY      = 1 << 0,
-        VERSION_ALLOW_UNDERSCORE = 1 << 1, /* Allow "_" as separator (recommended separator) */
-        VERSION_ALLOW_PLUS       = 1 << 2, /* Allow "+" as separator (sometimes used as separator for boot attempt counters) */
-} VersionFlags;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਸੰਸਕਰਣ_Flags {
+        ਸੰਸਕਰਣ_ALLOW_ਖਾਲੀ_ਥਾਵਾਂ      = 1 << 0,
+        ਸੰਸਕਰਣ_ALLOW_UNDERSCORE = 1 << 1, /* Allow "_" as separator (recommended separator) */
+        ਸੰਸਕਰਣ_ALLOW_PLUS       = 1 << 2, /* Allow "+" as separator (sometimes used as separator for boot attempt counters) */
+} ਸੰਸਕਰਣ_Flags;
 
-bool version_is_valid(const char *s, VersionFlags flags) _pure_;
+bool ਸੰਸਕਰਣ_is_valid(ਅਚਲ ਅੱਖਰ *s, ਸੰਸਕਰਣ_Flags flags) ਸ਼ੁੱਧ;
 
-ssize_t strlevenshtein(const char *x, const char *y);
+ssize_t strlevenshtein(ਅਚਲ ਅੱਖਰ *x, ਅਚਲ ਅੱਖਰ *y);
 
-char* strrstr_internal(const char *haystack, const char *needle) _pure_;
-#define strrstr(haystack, needle) \
-        const_generic(haystack, strrstr_internal(haystack, needle))
+ਅੱਖਰ* strrstr_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) ਸ਼ੁੱਧ;
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strrstr(haystack, needle) \
+        const_generic(haystack, strrstr_ਅੰਦਰੂਨੀ(haystack, needle))
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) _pure_;
-#define strrstr_no_case(haystack, needle) \
-        const_generic(haystack, strrstr_no_case_internal(haystack, needle))
+ਅੱਖਰ* strrstr_no_case_ਅੰਦਰੂਨੀ(ਅਚਲ ਅੱਖਰ *haystack, ਅਚਲ ਅੱਖਰ *needle) ਸ਼ੁੱਧ;
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ strrstr_no_case(haystack, needle) \
+        const_generic(haystack, strrstr_no_case_ਅੰਦਰੂਨੀ(haystack, needle))
 
-size_t str_common_prefix(const char *a, const char *b) _pure_;
+size_t str_common_ਅਗੇਤਰ(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) ਸ਼ੁੱਧ;

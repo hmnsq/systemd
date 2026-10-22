@@ -1,193 +1,193 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-#define PATH_SPLIT_BIN(x) x "sbin:" x "bin"
-#define PATH_SPLIT_BIN_NULSTR(x) x "sbin\0" x "bin\0"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_ਵੰਡੋ_BIN(x) x "sbin:" x "bin"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_ਵੰਡੋ_BIN_NULSTR(x) x "sbin\0" x "bin\0"
 
-#define PATH_MERGED_BIN(x) x "bin"
-#define PATH_MERGED_BIN_NULSTR(x) x "bin\0"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_MERGED_BIN(x) x "bin"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_MERGED_BIN_NULSTR(x) x "bin\0"
 
-#define DEFAULT_PATH_WITH_FULL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
-#define DEFAULT_PATH_WITH_LOCAL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
-#define DEFAULT_PATH_WITHOUT_SBIN PATH_MERGED_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DEFAULT_ਰਸਤਾ_WITH_ਭਰਿਆ_SBIN ਰਸਤਾ_ਵੰਡੋ_BIN("/usr/local/") ":" ਰਸਤਾ_ਵੰਡੋ_BIN("/usr/") EXTRA_EXEC_ਖੋਜ_ਰਸਤਾ_SUFFIX
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DEFAULT_ਰਸਤਾ_WITH_LOCAL_SBIN ਰਸਤਾ_ਵੰਡੋ_BIN("/usr/local/") ":" ਰਸਤਾ_MERGED_BIN("/usr/") EXTRA_EXEC_ਖੋਜ_ਰਸਤਾ_SUFFIX
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DEFAULT_ਰਸਤਾ_WITHOUT_SBIN ਰਸਤਾ_MERGED_BIN("/usr/local/") ":" ਰਸਤਾ_MERGED_BIN("/usr/") EXTRA_EXEC_ਖੋਜ_ਰਸਤਾ_SUFFIX
 
-#define DEFAULT_PATH_COMPAT PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") ":" PATH_SPLIT_BIN("/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ DEFAULT_ਰਸਤਾ_COMPAT ਰਸਤਾ_ਵੰਡੋ_BIN("/usr/local/") ":" ਰਸਤਾ_ਵੰਡੋ_BIN("/usr/") ":" ਰਸਤਾ_ਵੰਡੋ_BIN("/") EXTRA_EXEC_ਖੋਜ_ਰਸਤਾ_SUFFIX
 
-const char* default_PATH(void);
+ਅਚਲ ਅੱਖਰ* default_ਰਸਤਾ(ਖਾਲੀ);
 
-static inline const char* default_user_PATH(void) {
-#ifdef DEFAULT_USER_PATH
-        return DEFAULT_USER_PATH EXTRA_EXEC_SEARCH_PATH_SUFFIX;
-#else
-        return default_PATH();
-#endif
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* default_user_ਰਸਤਾ(ਖਾਲੀ) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ DEFAULT_USER_ਰਸਤਾ
+        ਵਾਪਸ DEFAULT_USER_ਰਸਤਾ EXTRA_EXEC_ਖੋਜ_ਰਸਤਾ_SUFFIX;
+#ਨਹੀਂਤਾਂ
+        ਵਾਪਸ default_ਰਸਤਾ();
+#ਜੇ_ਅੰਤ
 }
 
-bool is_path(const char *p) _pure_;
+bool is_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *p) ਸ਼ੁੱਧ;
 
-static inline bool path_is_absolute(const char *p) {
-        if (!p) /* A NULL pointer is definitely not an absolute path */
-                return false;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਰਸਤਾ_is_absolute(ਅਚਲ ਅੱਖਰ *p) {
+        ਜੇ (!p) /* A NULL pointer is definitely not an absolute path */
+                ਵਾਪਸ false;
 
-        return p[0] == '/';
+        ਵਾਪਸ p[0] == '/';
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret);
-char* path_make_absolute(const char *p, const char *prefix);
-int safe_getcwd(char **ret);
-int path_make_absolute_cwd(const char *p, char **ret);
-int path_make_relative(const char *from, const char *to, char **ret);
-int path_make_relative_parent(const char *from_child, const char *to, char **ret);
+ਪੂਰਨ ਰਸਤਾ_ਵੰਡੋ_and_make_absolute(ਅਚਲ ਅੱਖਰ *p, ਅੱਖਰ ***ret);
+ਅੱਖਰ* ਰਸਤਾ_make_absolute(ਅਚਲ ਅੱਖਰ *p, ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ);
+ਪੂਰਨ ਸੁਰੱਖਿਅਤ_getcwd(ਅੱਖਰ **ret);
+ਪੂਰਨ ਰਸਤਾ_make_absolute_cwd(ਅਚਲ ਅੱਖਰ *p, ਅੱਖਰ **ret);
+ਪੂਰਨ ਰਸਤਾ_make_relative(ਅਚਲ ਅੱਖਰ *from, ਅਚਲ ਅੱਖਰ *to, ਅੱਖਰ **ret);
+ਪੂਰਨ ਰਸਤਾ_make_relative_ਮਾਪਾ(ਅਚਲ ਅੱਖਰ *from_ਬੱਚਾ, ਅਚਲ ਅੱਖਰ *to, ਅੱਖਰ **ret);
 
-typedef enum PathStartWithFlags {
-        PATH_STARTSWITH_REFUSE_DOT_DOT       = 1U << 0,
-        PATH_STARTSWITH_RETURN_LEADING_SLASH = 1U << 1,
-} PathStartWithFlags;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਰਸਤਾ_ਸ਼ੁਰੂ_With_Flags {
+        ਰਸਤਾ_STARTSWITH_REFUSE_DOT_DOT       = 1U << 0,
+        ਰਸਤਾ_STARTSWITH_RETURN_LEADING_SLASH = 1U << 1,
+} ਰਸਤਾ_ਸ਼ੁਰੂ_With_Flags;
 
-char* path_startswith_full(const char *path, const char *prefix, PathStartWithFlags flags) _pure_;
-static inline char* path_startswith(const char *path, const char *prefix) {
-        return path_startswith_full(path, prefix, 0);
+ਅੱਖਰ* ਰਸਤਾ_startswith_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ, ਰਸਤਾ_ਸ਼ੁਰੂ_With_Flags flags) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* ਰਸਤਾ_startswith(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ) {
+        ਵਾਪਸ ਰਸਤਾ_startswith_ਭਰਿਆ(ਰਸਤਾ, ਅਗੇਤਰ, 0);
 }
 
-int path_compare(const char *a, const char *b) _pure_;
-static inline bool path_equal(const char *a, const char *b) {
-        return path_compare(a, b) == 0;
+ਪੂਰਨ ਰਸਤਾ_compare(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਰਸਤਾ_equal(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) {
+        ਵਾਪਸ ਰਸਤਾ_compare(a, b) == 0;
 }
 
-int path_compare_filename(const char *a, const char *b);
-static inline bool path_equal_filename(const char *a, const char *b) {
-        return path_compare_filename(a, b) == 0;
+ਪੂਰਨ ਰਸਤਾ_compare_filename(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਰਸਤਾ_equal_filename(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b) {
+        ਵਾਪਸ ਰਸਤਾ_compare_filename(a, b) == 0;
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags);
-static inline bool path_equal_or_inode_same(const char *a, const char *b, int flags) {
-        return path_equal_or_inode_same_full(a, b, flags) > 0;
+ਪੂਰਨ ਰਸਤਾ_equal_or_inode_same_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b, ਪੂਰਨ flags);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਰਸਤਾ_equal_or_inode_same(ਅਚਲ ਅੱਖਰ *a, ਅਚਲ ਅੱਖਰ *b, ਪੂਰਨ flags) {
+        ਵਾਪਸ ਰਸਤਾ_equal_or_inode_same_ਭਰਿਆ(a, b, flags) > 0;
 }
 
-char* path_extend_internal(char **x, ...);
-#define path_extend(x, ...) path_extend_internal(x, __VA_ARGS__, POINTER_MAX)
-#define path_join(...) path_extend_internal(NULL, __VA_ARGS__, POINTER_MAX)
+ਅੱਖਰ* ਰਸਤਾ_extend_ਅੰਦਰੂਨੀ(ਅੱਖਰ **x, ...);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_extend(x, ...) ਰਸਤਾ_extend_ਅੰਦਰੂਨੀ(x, __VA_ARGS__, ਸੂਚਕ_MAX)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_join(...) ਰਸਤਾ_extend_ਅੰਦਰੂਨੀ(ਨਿਰਾ, __VA_ARGS__, ਸੂਚਕ_MAX)
 
-char* skip_leading_slash(const char *p) _pure_;
+ਅੱਖਰ* skip_leading_slash(ਅਚਲ ਅੱਖਰ *p) ਸ਼ੁੱਧ;
 
-typedef enum PathSimplifyFlags {
-        PATH_SIMPLIFY_KEEP_TRAILING_SLASH = 1 << 0,
-} PathSimplifyFlags;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਰਸਤਾ_Simplify_Flags {
+        ਰਸਤਾ_SIMPLIFY_KEEP_TRAILING_SLASH = 1 << 0,
+} ਰਸਤਾ_Simplify_Flags;
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags);
-static inline char* path_simplify(char *path) {
-        return path_simplify_full(path, 0);
+ਅੱਖਰ* ਰਸਤਾ_simplify_ਭਰਿਆ(ਅੱਖਰ *ਰਸਤਾ, ਰਸਤਾ_Simplify_Flags flags);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* ਰਸਤਾ_simplify(ਅੱਖਰ *ਰਸਤਾ) {
+        ਵਾਪਸ ਰਸਤਾ_simplify_ਭਰਿਆ(ਰਸਤਾ, 0);
 }
 
-int path_simplify_alloc(const char *path, char **ret);
+ਪੂਰਨ ਰਸਤਾ_simplify_alloc(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ **ret);
 
 /* Note: the search terminates on the first NULL item. */
-#define PATH_IN_SET(p, ...) path_strv_contains(STRV_MAKE(__VA_ARGS__), p)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_ਵਿੱਚ_ਸੈੱਟ(p, ...) ਰਸਤਾ_strv_ਸ਼ਾਮਲ_ਹੈ(STRV_MAKE(__VA_ARGS__), p)
 
-char* path_startswith_strv(const char *p, char * const *strv);
-#define PATH_STARTSWITH_SET(p, ...) path_startswith_strv(p, STRV_MAKE(__VA_ARGS__))
+ਅੱਖਰ* ਰਸਤਾ_startswith_strv(ਅਚਲ ਅੱਖਰ *p, ਅੱਖਰ * ਅਚਲ *strv);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_STARTSWITH_ਸੈੱਟ(p, ...) ਰਸਤਾ_startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-int path_strv_make_absolute_cwd(char **l);
-char** path_strv_resolve(char **l, const char *root);
-char** path_strv_resolve_uniq(char **l, const char *root);
+ਪੂਰਨ ਰਸਤਾ_strv_make_absolute_cwd(ਅੱਖਰ **l);
+ਅੱਖਰ** ਰਸਤਾ_strv_resolve(ਅੱਖਰ **l, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ);
+ਅੱਖਰ** ਰਸਤਾ_strv_resolve_uniq(ਅੱਖਰ **l, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ);
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd);
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
-                bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd);
-static inline int find_executable(const char *name, char **ret_filename) {
-        return find_executable_full(name, /* root= */ NULL, NULL, true, ret_filename, NULL);
+ਪੂਰਨ open_and_check_executable(ਅਚਲ ਅੱਖਰ *name, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ਅੱਖਰ **ret_ਰਸਤਾ, ਪੂਰਨ *ret_fd);
+ਪੂਰਨ ਲੱਭੋ_executable_ਭਰਿਆ(
+                ਅਚਲ ਅੱਖਰ *name,
+                ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ,
+                ਅੱਖਰ * ਅਚਲ *exec_ਖੋਜ_ਰਸਤਾ,
+                bool use_ਰਸਤਾ_envvar,
+                ਅੱਖਰ **ret_filename,
+                ਪੂਰਨ *ret_fd);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਲੱਭੋ_executable(ਅਚਲ ਅੱਖਰ *name, ਅੱਖਰ **ret_filename) {
+        ਵਾਪਸ ਲੱਭੋ_executable_ਭਰਿਆ(name, /* root= */ ਨਿਰਾ, ਨਿਰਾ, true, ret_filename, ਨਿਰਾ);
 }
 
-int fsck_exists(void);
-int fsck_exists_for_fstype(const char *fstype);
+ਪੂਰਨ fsck_exists(ਖਾਲੀ);
+ਪੂਰਨ fsck_exists_for_fstype(ਅਚਲ ਅੱਖਰ *fstype);
 
 /* Iterates through the path prefixes of the specified path, going up
  * the tree, to root. Also returns "" (and not "/"!) for the root
  * directory. Excludes the specified directory itself */
-#define PATH_FOREACH_PREFIX(prefix, path)                               \
-        for (char *_slash = ({                                          \
-                                path_simplify(strcpy(prefix, path));    \
-                                streq(prefix, "/") ? NULL : strrchr(prefix, '/'); \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_FOREACH_ਅਗੇਤਰ(ਅਗੇਤਰ, ਰਸਤਾ)                               \
+        ਲਈ (ਅੱਖਰ *_slash = ({                                          \
+                                ਰਸਤਾ_simplify(strcpy(ਅਗੇਤਰ, ਰਸਤਾ));    \
+                                streq(ਅਗੇਤਰ, "/") ? ਨਿਰਾ : strrchr(ਅਗੇਤਰ, '/'); \
                         });                                             \
              _slash && ((*_slash = 0), true);                           \
-             _slash = strrchr((prefix), '/'))
+             _slash = strrchr((ਅਗੇਤਰ), '/'))
 
 /* Same as PATH_FOREACH_PREFIX but also includes the specified path itself */
-#define PATH_FOREACH_PREFIX_MORE(prefix, path)                          \
-        for (char *_slash = ({                                          \
-                                path_simplify(strcpy(prefix, path));    \
-                                if (streq(prefix, "/"))                 \
-                                        prefix[0] = 0;                  \
-                                strrchr(prefix, 0);                     \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_FOREACH_ਅਗੇਤਰ_ਹੋਰ(ਅਗੇਤਰ, ਰਸਤਾ)                          \
+        ਲਈ (ਅੱਖਰ *_slash = ({                                          \
+                                ਰਸਤਾ_simplify(strcpy(ਅਗੇਤਰ, ਰਸਤਾ));    \
+                                ਜੇ (streq(ਅਗੇਤਰ, "/"))                 \
+                                        ਅਗੇਤਰ[0] = 0;                  \
+                                strrchr(ਅਗੇਤਰ, 0);                     \
                         });                                             \
              _slash && ((*_slash = 0), true);                           \
-             _slash = strrchr((prefix), '/'))
+             _slash = strrchr((ਅਗੇਤਰ), '/'))
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret);
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret);
-const char* last_path_component(const char *path);
+ਪੂਰਨ ਰਸਤਾ_ਲੱਭੋ_ਪਹਿਲਾ_component(ਅਚਲ ਅੱਖਰ **p, bool accept_dot_dot, ਅਚਲ ਅੱਖਰ **ret);
+ਪੂਰਨ ਰਸਤਾ_ਲੱਭੋ_ਆਖਰੀ_component(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool accept_dot_dot, ਅਚਲ ਅੱਖਰ **ਅਗਲਾ_2, ਅਚਲ ਅੱਖਰ **ret);
+ਅਚਲ ਅੱਖਰ* ਆਖਰੀ_ਰਸਤਾ_component(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename);
-static inline int path_extract_filename(const char *path, char **ret) {
-        return path_split_prefix_filename(path, NULL, ret);
+ਪੂਰਨ ਰਸਤਾ_ਵੰਡੋ_ਅਗੇਤਰ_filename(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ **ret_dir, ਅੱਖਰ **ret_filename);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਰਸਤਾ_ਕੱਢੋ_filename(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ **ret) {
+        ਵਾਪਸ ਰਸਤਾ_ਵੰਡੋ_ਅਗੇਤਰ_filename(ਰਸਤਾ, ਨਿਰਾ, ret);
 }
-static inline int path_extract_directory(const char *path, char **ret) {
-        int r = path_split_prefix_filename(path, ret, NULL);
-        return r < 0 ? r : 0; /* suppress O_DIRECTORY */
-}
-
-bool filename_part_is_valid(const char *p) _pure_;
-bool filename_is_valid(const char *p) _pure_;
-bool path_is_valid_full(const char *p, bool accept_dot_dot) _pure_;
-static inline bool path_is_valid(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ true);
-}
-static inline bool path_is_safe(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ false);
-}
-bool path_is_normalized(const char *p) _pure_;
-static inline bool filename_or_absolute_path_is_valid(const char *p) {
-        if (path_is_absolute(p))
-                return path_is_valid(p);
-
-        return filename_is_valid(p);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਰਸਤਾ_ਕੱਢੋ_directory(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ **ret) {
+        ਪੂਰਨ r = ਰਸਤਾ_ਵੰਡੋ_ਅਗੇਤਰ_filename(ਰਸਤਾ, ret, ਨਿਰਾ);
+        ਵਾਪਸ r < 0 ? r : 0; /* suppress O_DIRECTORY */
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret);
+bool filename_part_is_valid(ਅਚਲ ਅੱਖਰ *p) ਸ਼ੁੱਧ;
+bool filename_is_valid(ਅਚਲ ਅੱਖਰ *p) ਸ਼ੁੱਧ;
+bool ਰਸਤਾ_is_valid_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *p, bool accept_dot_dot) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਰਸਤਾ_is_valid(ਅਚਲ ਅੱਖਰ *p) {
+        ਵਾਪਸ ਰਸਤਾ_is_valid_ਭਰਿਆ(p, /* accept_dot_dot= */ true);
+}
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਰਸਤਾ_is_ਸੁਰੱਖਿਅਤ(ਅਚਲ ਅੱਖਰ *p) {
+        ਵਾਪਸ ਰਸਤਾ_is_valid_ਭਰਿਆ(p, /* accept_dot_dot= */ false);
+}
+bool ਰਸਤਾ_is_normalized(ਅਚਲ ਅੱਖਰ *p) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool filename_or_absolute_ਰਸਤਾ_is_valid(ਅਚਲ ਅੱਖਰ *p) {
+        ਜੇ (ਰਸਤਾ_is_absolute(p))
+                ਵਾਪਸ ਰਸਤਾ_is_valid(p);
 
-bool hidden_or_backup_file(const char *filename) _pure_;
+        ਵਾਪਸ filename_is_valid(p);
+}
 
-bool is_device_path(const char *path) _pure_;
+ਪੂਰਨ file_ਵਿੱਚ_same_dir(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *filename, ਅੱਖਰ **ret);
 
-bool valid_device_node_path(const char *path) _pure_;
-bool valid_device_allow_pattern(const char *path) _pure_;
+bool hidden_or_backup_file(ਅਚਲ ਅੱਖਰ *filename) ਸ਼ੁੱਧ;
 
-bool dot_or_dot_dot(const char *path) _pure_;
+bool is_device_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) ਸ਼ੁੱਧ;
 
-bool path_implies_directory(const char *path) _pure_;
+bool valid_device_ਗੰਢ_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) ਸ਼ੁੱਧ;
+bool valid_device_allow_ਨਮੂਨਾ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) ਸ਼ੁੱਧ;
 
-static inline const char* skip_dev_prefix(const char *p) {
-        const char *e;
+bool dot_or_dot_dot(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) ਸ਼ੁੱਧ;
+
+bool ਰਸਤਾ_ਸਿੱਟਾ_ਦਿੰਦਾ_directory(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) ਸ਼ੁੱਧ;
+
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ ਅੱਖਰ* skip_dev_ਅਗੇਤਰ(ਅਚਲ ਅੱਖਰ *p) {
+        ਅਚਲ ਅੱਖਰ *e;
 
         /* Drop any /dev prefix if there is any */
 
-        e = path_startswith(p, "/dev/");
+        e = ਰਸਤਾ_startswith(p, "/dev/");
 
-        return e ?: p;
+        ਵਾਪਸ e ?: p;
 }
 
-bool empty_or_root(const char *path) _pure_;
-const char* empty_to_root(const char *path) _pure_;
-int empty_or_root_harder_to_null(const char **path);
+bool ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) ਸ਼ੁੱਧ;
+ਅਚਲ ਅੱਖਰ* ਖਾਲੀ_ਥਾਵਾਂ_ਮੰਜ਼ਿਲ_ਜੜ੍ਹ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) ਸ਼ੁੱਧ;
+ਪੂਰਨ ਖਾਲੀ_ਥਾਵਾਂ_or_ਜੜ੍ਹ_harder_ਮੰਜ਼ਿਲ_null(ਅਚਲ ਅੱਖਰ **ਰਸਤਾ);
 
-bool path_strv_contains(char * const *l, const char *path);
-bool prefixed_path_strv_contains(char * const *l, const char *path);
+bool ਰਸਤਾ_strv_ਸ਼ਾਮਲ_ਹੈ(ਅੱਖਰ * ਅਚਲ *l, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
+bool prefixed_ਰਸਤਾ_strv_ਸ਼ਾਮਲ_ਹੈ(ਅੱਖਰ * ਅਚਲ *l, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret);
+ਪੂਰਨ ਰਸਤਾ_glob_can_ਮੇਲ(ਅਚਲ ਅੱਖਰ *ਨਮੂਨਾ, ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ, ਅੱਖਰ **ret);

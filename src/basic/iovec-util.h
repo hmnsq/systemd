@@ -1,60 +1,60 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ iovec iovec_nul_byte; /* Points to a single NUL byte */
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ iovec iovec_ਖਾਲੀ_ਥਾਵਾਂ;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+ਪੂਰਨ iovec_alloc(size_t n, ਬਣਤਰ iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_ਕੁੱਲ_ਮਾਪ(ਅਚਲ ਬਣਤਰ iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(ਬਣਤਰ iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+ਬਣਤਰ iovec* iovec_make_string(ਬਣਤਰ iovec *iovec, ਅਚਲ ਅੱਖਰ *s);
 
-#define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IOVEC_MAKE_STRING(s) \
+        *iovec_make_string(&(ਬਣਤਰ iovec) {}, s)
 
-#define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CONST_IOVEC_MAKE_STRING(s)              \
+        (ਅਚਲ ਬਣਤਰ iovec) {                  \
+                .iov_base = (ਅੱਖਰ*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
-#define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IOVEC_MAKE_BYTE(c)                                      \
+        (ਅਚਲ ਬਣਤਰ iovec) {                                  \
+                .iov_base = (ਅੱਖਰ*) ((ਅਚਲ ਅੱਖਰ[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
-#define IOVEC_ALLOCA(n)                              \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IOVEC_ALLOCA(n)                              \
         ({                                           \
                 size_t _n_ = (n);                    \
-                IOVEC_MAKE(alloca_safe(_n_), _n_);   \
+                IOVEC_MAKE(alloca_ਸੁਰੱਖਿਅਤ(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+ਖਾਲੀ iovec_erase(ਬਣਤਰ iovec *iovec);
+ਖਾਲੀ iovec_ਪੂਰਾ_erase(ਬਣਤਰ iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+ਅੱਖਰ* ਸੈੱਟ_iovec_string_ਖੇਤਰ(ਬਣਤਰ iovec *iovec, size_t *n_iovec, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅਚਲ ਅੱਖਰ *ਮੁੱਲ);
+ਅੱਖਰ* ਸੈੱਟ_iovec_string_ਖੇਤਰ_free(ਬਣਤਰ iovec *iovec, size_t *n_iovec, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅੱਖਰ *ਮੁੱਲ);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+ਖਾਲੀ iovec_array_free(ਬਣਤਰ iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+ਪੂਰਨ iovec_memcmp(ਅਚਲ ਬਣਤਰ iovec *a, ਅਚਲ ਬਣਤਰ iovec *b) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool iovec_equal(ਅਚਲ ਬਣਤਰ iovec *a, ਅਚਲ ਬਣਤਰ iovec *b) {
+        ਵਾਪਸ iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+ਬਣਤਰ iovec* iovec_memdup(ਅਚਲ ਬਣਤਰ iovec *ਸਰੋਤ, ਬਣਤਰ iovec *ret);
+ਪੂਰਨ iovec_ਪੂਰਾ_and_memdup(ਬਣਤਰ iovec *iovec, ਅਚਲ ਬਣਤਰ iovec *ਸਰੋਤ);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+ਬਣਤਰ iovec* iovec_append(ਬਣਤਰ iovec *iovec, ਅਚਲ ਬਣਤਰ iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+ਬਣਤਰ iovec* iovec_consume(ਬਣਤਰ iovec *iovec, size_t n);

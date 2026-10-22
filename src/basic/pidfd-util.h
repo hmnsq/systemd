@@ -1,24 +1,24 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <sys/pidfd.h>          /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/pidfd.h>          /* IWYU pragma: export */
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd);
+ਪੂਰਨ pidfd_get_namespace(ਪੂਰਨ fd, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ns_type_cmd);
 
-int pidfd_get_info(int fd, struct pidfd_info *info);
-int pidfd_info_mask_is_supported(uint64_t mask);
+ਪੂਰਨ pidfd_get_info(ਪੂਰਨ fd, ਬਣਤਰ pidfd_info *info);
+ਪੂਰਨ pidfd_info_ਨਕਾਬ_is_supported(uint64_t ਨਕਾਬ_3);
 
-int pidfd_get_pid(int fd, pid_t *ret);
-int pidfd_verify_pid(int pidfd, pid_t pid);
+ਪੂਰਨ pidfd_get_pid(ਪੂਰਨ fd, pid_t *ret);
+ਪੂਰਨ pidfd_verify_pid(ਪੂਰਨ pidfd, pid_t pid);
 
-int pidfd_get_ppid(int fd, pid_t *ret);
-int pidfd_get_uid(int fd, uid_t *ret);
-int pidfd_get_cgroupid(int fd, uint64_t *ret);
+ਪੂਰਨ pidfd_get_ppid(ਪੂਰਨ fd, pid_t *ret);
+ਪੂਰਨ pidfd_get_uid(ਪੂਰਨ fd, uid_t *ret);
+ਪੂਰਨ pidfd_get_cgroupid(ਪੂਰਨ fd, uint64_t *ret);
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret);
-int pidfd_get_inode_id(int fd, uint64_t *ret);
-int pidfd_get_inode_id_self_cached(uint64_t *ret);
+ਪੂਰਨ pidfd_get_inode_id_impl(ਪੂਰਨ fd, uint64_t *ret);
+ਪੂਰਨ pidfd_get_inode_id(ਪੂਰਨ fd, uint64_t *ret);
+ਪੂਰਨ pidfd_get_inode_id_self_cached(uint64_t *ret);
 
-int pidfd_check_pidfs(int pid_fd);
+ਪੂਰਨ pidfd_check_pidfs(ਪੂਰਨ pid_fd);

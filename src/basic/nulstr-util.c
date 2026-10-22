@@ -1,24 +1,24 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "nulstr-util.h"
-#include "set.h"
-#include "string-util.h"
-#include "strv.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "nulstr-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "set.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strv.h"
 
-const char* nulstr_get(const char *nulstr, const char *needle) {
-        if (!nulstr)
-                return NULL;
+ਅਚਲ ਅੱਖਰ* nulstr_get(ਅਚਲ ਅੱਖਰ *nulstr, ਅਚਲ ਅੱਖਰ *needle) {
+        ਜੇ (!nulstr)
+                ਵਾਪਸ ਨਿਰਾ;
 
         NULSTR_FOREACH(i, nulstr)
-                if (streq(i, needle))
-                        return i;
+                ਜੇ (streq(i, needle))
+                        ਵਾਪਸ i;
 
-        return NULL;
+        ਵਾਪਸ ਨਿਰਾ;
 }
 
-char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) {
-        _cleanup_strv_free_ char **v = NULL;
+ਅੱਖਰ** strv_parse_nulstr_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *s, size_t l, bool drop_trailing_nuls) {
+        _cleanup_strv_free_ ਅੱਖਰ **v = ਨਿਰਾ;
         size_t c = 0, i = 0;
 
         /* l is the length of the input data, which will be split at NULs into elements of the resulting
@@ -29,49 +29,49 @@ char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) 
          * Note that contrary to a normal nulstr which cannot contain empty strings, because the input data
          * is terminated by any two consequent NUL bytes, this parser accepts empty strings in s. */
 
-        assert(s || l <= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(s || l <= 0);
 
-        if (drop_trailing_nuls)
-                while (l > 0 && s[l-1] == '\0')
+        ਜੇ (drop_trailing_nuls)
+                ਜਦੋਂ (l > 0 && s[l-1] == '\0')
                         l--;
 
-        if (l <= 0)
-                return new0(char*, 1);
+        ਜੇ (l <= 0)
+                ਵਾਪਸ new0(ਅੱਖਰ*, 1);
 
-        for (const char *p = s; p < s + l; p++)
-                if (*p == 0)
+        ਲਈ (ਅਚਲ ਅੱਖਰ *p = s; p < s + l; p++)
+                ਜੇ (*p == 0)
                         c++;
 
-        if (s[l-1] != 0)
+        ਜੇ (s[l-1] != 0)
                 c++;
 
-        v = new0(char*, c+1);
-        if (!v)
-                return NULL;
+        v = new0(ਅੱਖਰ*, c+1);
+        ਜੇ (!v)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        for (const char *p = s; p < s + l;) {
-                const char *e;
+        ਲਈ (ਅਚਲ ਅੱਖਰ *p = s; p < s + l;) {
+                ਅਚਲ ਅੱਖਰ *e;
 
                 e = memchr(p, 0, s + l - p);
 
                 v[i] = memdup_suffix0(p, e ? e - p : s + l - p);
-                if (!v[i])
-                        return NULL;
+                ਜੇ (!v[i])
+                        ਵਾਪਸ ਨਿਰਾ;
                 i++;
 
-                if (!e)
-                        break;
+                ਜੇ (!e)
+                        ਰੋਕੋ;
 
                 p = e + 1;
         }
 
-        assert(i == c);
+        ਪ੍ਰਤਿਜ੍ਞਾ(i == c);
 
-        return TAKE_PTR(v);
+        ਵਾਪਸ TAKE_PTR(v);
 }
 
-char** strv_split_nulstr(const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+ਅੱਖਰ** strv_ਵੰਡੋ_nulstr(ਅਚਲ ਅੱਖਰ *s) {
+        _cleanup_strv_free_ ਅੱਖਰ **l = ਨਿਰਾ;
 
         /* This parses a nulstr, without specification of size, and stops at an empty string. This cannot
          * parse nulstrs with embedded empty strings hence, as an empty string is an end marker. Use
@@ -79,14 +79,14 @@ char** strv_split_nulstr(const char *s) {
          * size to be specified) */
 
         NULSTR_FOREACH(i, s)
-                if (strv_extend(&l, i) < 0)
-                        return NULL;
+                ਜੇ (strv_extend(&l, i) < 0)
+                        ਵਾਪਸ ਨਿਰਾ;
 
-        return l ? TAKE_PTR(l) : strv_new(NULL);
+        ਵਾਪਸ l ? TAKE_PTR(l) : strv_new(ਨਿਰਾ);
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
-        _cleanup_free_ char *m = NULL;
+ਪੂਰਨ strv_make_nulstr(ਅੱਖਰ * ਅਚਲ *l, ਅੱਖਰ **ret, size_t *ret_ਮਾਪ) {
+        _cleanup_free_ ਅੱਖਰ *m = ਨਿਰਾ;
         size_t n = 0;
 
         /* Builds a nulstr and returns it together with the size. An extra NUL byte will be appended (⚠️ but
@@ -99,48 +99,48 @@ int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
          * NUL bytes (which it will, if not empty). To ensure that this assumption *always* holds, we'll
          * return a buffer with two NUL bytes in that case, but return a size of zero. */
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
         STRV_FOREACH(i, l) {
                 size_t z;
 
-                z = strlen(*i) + 1;
+                z = ਲੜੀ_ਲੰਬਾਈ(*i) + 1;
 
-                if (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
-                        return -ENOMEM;
+                ਜੇ (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
+                        ਵਾਪਸ -ENOMEM;
 
-                memcpy(m + n, *i, z);
+                ਸਮ੍ਰਿਤੀ_ਨਕਲ(m + n, *i, z);
                 n += z;
         }
 
-        if (!m) {
+        ਜੇ (!m) {
                 /* return a buffer with an extra NUL, so that the assumption that we always have two trailing NULs holds */
-                m = new0(char, 2);
-                if (!m)
-                        return -ENOMEM;
+                m = new0(ਅੱਖਰ, 2);
+                ਜੇ (!m)
+                        ਵਾਪਸ -ENOMEM;
 
                 n = 0;
-        } else
+        } ਨਹੀਂਤਾਂ
                 /* Extra NUL is not counted in size returned */
                 m[n] = '\0';
 
         *ret = TAKE_PTR(m);
-        if (ret_size)
-                *ret_size = n;
+        ਜੇ (ret_ਮਾਪ)
+                *ret_ਮਾਪ = n;
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
+ਪੂਰਨ ਸੈੱਟ_make_nulstr(ਸੈੱਟ_2 *s, ਅੱਖਰ **ret, size_t *ret_ਮਾਪ) {
         /* Use _cleanup_free_ instead of _cleanup_strv_free_ because we need to clean the strv only, not
          * the strings owned by the set. */
-        _cleanup_free_ char **strv = NULL;
+        _cleanup_free_ ਅੱਖਰ **strv = ਨਿਰਾ;
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        strv = set_get_strv(s);
-        if (!strv)
-                return -ENOMEM;
+        strv = ਸੈੱਟ_get_strv(s);
+        ਜੇ (!strv)
+                ਵਾਪਸ -ENOMEM;
 
-        return strv_make_nulstr(strv, ret, ret_size);
+        ਵਾਪਸ strv_make_nulstr(strv, ret, ret_ਮਾਪ);
 }

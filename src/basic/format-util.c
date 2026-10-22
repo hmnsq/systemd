@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "format-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "format-util.h"
 
-char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
-        typedef struct {
-                const char *suffix;
-                uint64_t factor;
-        } suffix_table;
-        static const suffix_table table_iec[] = {
+ਅੱਖਰ* format_ਬਾਈਟਾਂ_ਭਰਿਆ(ਅੱਖਰ *buf, size_t l, uint64_t t, Format_ਬਾਈਟਾਂ_Flag flag) {
+        ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ {
+                ਅਚਲ ਅੱਖਰ *suffix;
+                uint64_t ਗੁਣਕ;
+        } suffix_ਸਾਰਣੀ;
+        ਸਥਿਰ ਅਚਲ suffix_ਸਾਰਣੀ ਸਾਰਣੀ_iec[] = {
                 { "E", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "P", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "T", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "G", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "M", UINT64_C(1024)*UINT64_C(1024) },
                 { "K", UINT64_C(1024) },
-        }, table_si[] = {
+        }, ਸਾਰਣੀ_si[] = {
                 { "E", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
                 { "P", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
                 { "T", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
@@ -22,43 +22,43 @@ char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
                 { "M", UINT64_C(1000)*UINT64_C(1000) },
                 { "K", UINT64_C(1000) },
         };
-        const suffix_table *table;
+        ਅਚਲ suffix_ਸਾਰਣੀ *ਸਾਰਣੀ;
         size_t n;
 
-        assert(buf);
-        assert_cc(ELEMENTSOF(table_iec) == ELEMENTSOF(table_si));
+        ਪ੍ਰਤਿਜ੍ਞਾ(buf);
+        assert_cc(ELEMENTSOF(ਸਾਰਣੀ_iec) == ELEMENTSOF(ਸਾਰਣੀ_si));
 
-        if (t == UINT64_MAX)
-                return NULL;
+        ਜੇ (t == UINT64_MAX)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        table = flag & FORMAT_BYTES_USE_IEC ? table_iec : table_si;
-        n = ELEMENTSOF(table_iec);
+        ਸਾਰਣੀ = flag & FORMAT_ਬਾਈਟਾਂ_USE_IEC ? ਸਾਰਣੀ_iec : ਸਾਰਣੀ_si;
+        n = ELEMENTSOF(ਸਾਰਣੀ_iec);
 
-        for (size_t i = 0; i < n; i++)
-                if (t >= table[i].factor) {
+        ਲਈ (size_t i = 0; i < n; i++)
+                ਜੇ (t >= ਸਾਰਣੀ[i].ਗੁਣਕ) {
                         uint64_t remainder = i != n - 1 ?
-                                (t / table[i + 1].factor * 10 / table[n - 1].factor) % 10 :
-                                (t * 10 / table[i].factor) % 10;
+                                (t / ਸਾਰਣੀ[i + 1].ਗੁਣਕ * 10 / ਸਾਰਣੀ[n - 1].ਗੁਣਕ) % 10 :
+                                (t * 10 / ਸਾਰਣੀ[i].ਗੁਣਕ) % 10;
 
-                        if (FLAGS_SET(flag, FORMAT_BYTES_ALWAYS_POINT) ||
-                            (FLAGS_SET(flag, FORMAT_BYTES_BELOW_POINT) && remainder > 0))
-                                (void) snprintf(buf, l,
+                        ਜੇ (FLAGS_ਸੈੱਟ(flag, FORMAT_ਬਾਈਟਾਂ_ALWAYS_ਬਿੰਦੂ) ||
+                            (FLAGS_ਸੈੱਟ(flag, FORMAT_ਬਾਈਟਾਂ_ਹੇਠਾਂ_ਬਿੰਦੂ) && remainder > 0))
+                                (ਖਾਲੀ) snprintf(buf, l,
                                                 "%" PRIu64 ".%" PRIu64 "%s",
-                                                t / table[i].factor,
+                                                t / ਸਾਰਣੀ[i].ਗੁਣਕ,
                                                 remainder,
-                                                table[i].suffix);
-                        else
-                                (void) snprintf(buf, l,
+                                                ਸਾਰਣੀ[i].suffix);
+                        ਨਹੀਂਤਾਂ
+                                (ਖਾਲੀ) snprintf(buf, l,
                                                 "%" PRIu64 "%s",
-                                                t / table[i].factor,
-                                                table[i].suffix);
+                                                t / ਸਾਰਣੀ[i].ਗੁਣਕ,
+                                                ਸਾਰਣੀ[i].suffix);
 
-                        goto finish;
+                        ਜਾਓ ਅੰਤ;
                 }
 
-        (void) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_BYTES_TRAILING_B ? "B" : "");
+        (ਖਾਲੀ) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_ਬਾਈਟਾਂ_TRAILING_B ? "B" : "");
 
-finish:
+ਅੰਤ:
         buf[l-1] = 0;
-        return buf;
+        ਵਾਪਸ buf;
 }

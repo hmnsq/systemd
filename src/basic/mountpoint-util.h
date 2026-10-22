@@ -1,92 +1,92 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
 /* The limit used for /dev itself. 4MB should be enough since device nodes and symlinks don't
  * consume any space and udev isn't supposed to create regular file either. There's no limit on the
  * max number of inodes since such limit is hard to guess especially on large storage array
  * systems. */
-#define TMPFS_LIMITS_DEV             ",size=4m"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_DEV             ",size=4m"
 
 /* The limit used for /dev in private namespaces. 4MB for contents of regular files. The number of
  * inodes should be relatively low in private namespaces but for now use a 64k limit. */
-#define TMPFS_LIMITS_PRIVATE_DEV     ",size=4m,nr_inodes=64k"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_ਨਿੱਜੀ_DEV     ",size=4m,nr_inodes=64k"
 
 /* Very little, if any use expected */
-#define TMPFS_LIMITS_EMPTY_OR_ALMOST ",size=4m,nr_inodes=1k"
-#define TMPFS_LIMITS_SYS             TMPFS_LIMITS_EMPTY_OR_ALMOST
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_ਖਾਲੀ_ਥਾਵਾਂ_OR_ALMOST ",size=4m,nr_inodes=1k"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_SYS             TMPFS_LIMITS_ਖਾਲੀ_ਥਾਵਾਂ_OR_ALMOST
 
 /* On an extremely small device with only 256MB of RAM, 20% of RAM should be enough for the re-execution of
  * PID1 because 16MB of free space is required. */
-#define TMPFS_LIMITS_RUN             ",size=20%,nr_inodes=800k"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_ਲੜੀਵਾਰ             ",size=20%,nr_inodes=800k"
 
 /* The limit used for various nested tmpfs mounts, in particular for guests started by systemd-nspawn.
  * 10% of RAM (using 16GB of RAM as a baseline) translates to 400k inodes (assuming 4k each) and 25%
  * translates to 1M inodes.
  * (On the host, /tmp is configured through a .mount unit file.) */
-#define NESTED_TMPFS_LIMITS          ",size=10%,nr_inodes=400k"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ NESTED_TMPFS_LIMITS          ",size=10%,nr_inodes=400k"
 
 /* More space for volatile root and /var */
-#define TMPFS_LIMITS_VAR             ",size=25%,nr_inodes=1m"
-#define TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
-#define TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_VAR             ",size=25%,nr_inodes=1m"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
 
-bool is_name_to_handle_at_fatal_error(int err);
+bool is_name_ਮੰਜ਼ਿਲ_handle_at_fatal_error(ਪੂਰਨ err);
 
-int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_try_fid(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_u64(int fd, const char *path, uint64_t *ret);
-static inline int path_to_handle_u64(const char *path, uint64_t *ret) {
-        return name_to_handle_at_u64(AT_FDCWD, path, ret);
+ਪੂਰਨ name_ਮੰਜ਼ਿਲ_handle_at_loop(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਬਣਤਰ file_handle **ret_handle, ਪੂਰਨ *ret_mnt_id, uint64_t *ret_unique_mnt_id, ਪੂਰਨ flags);
+ਪੂਰਨ name_ਮੰਜ਼ਿਲ_handle_at_try_fid(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਬਣਤਰ file_handle **ret_handle, ਪੂਰਨ *ret_mnt_id, uint64_t *ret_unique_mnt_id, ਪੂਰਨ flags);
+ਪੂਰਨ name_ਮੰਜ਼ਿਲ_handle_at_u64(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, uint64_t *ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਰਸਤਾ_ਮੰਜ਼ਿਲ_handle_u64(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, uint64_t *ret) {
+        ਵਾਪਸ name_ਮੰਜ਼ਿਲ_handle_at_u64(AT_FDCWD, ਰਸਤਾ, ret);
 }
-static inline int fd_to_handle_u64(int fd, uint64_t *ret) {
-        return name_to_handle_at_u64(fd, NULL, ret);
-}
-
-bool file_handle_equal(const struct file_handle *a, const struct file_handle *b);
-struct file_handle* file_handle_dup(const struct file_handle *fh);
-
-int path_get_mnt_id_at(int dir_fd, const char *path, int *ret);
-static inline int path_get_mnt_id(const char *path, int *ret) {
-        return path_get_mnt_id_at(AT_FDCWD, path, ret);
-}
-int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
-
-int is_mount_point_at(int dir_fd, const char *path, int flags);
-int path_is_mount_point_full(const char *path, const char *root, int flags);
-static inline int path_is_mount_point(const char *path) {
-        return path_is_mount_point_full(path, NULL, 0);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ fd_ਮੰਜ਼ਿਲ_handle_u64(ਪੂਰਨ fd, uint64_t *ret) {
+        ਵਾਪਸ name_ਮੰਜ਼ਿਲ_handle_at_u64(fd, ਨਿਰਾ, ret);
 }
 
-bool fstype_is_network(const char *fstype);
-bool fstype_needs_quota(const char *fstype);
-bool fstype_has_internal_quota(const char *fstype);
-bool fstype_is_api_vfs(const char *fstype);
-bool fstype_is_blockdev_backed(const char *fstype);
-bool fstype_is_ro(const char *fsype);
-bool fstype_can_discard(const char *fstype);
-bool fstype_can_ownership(const char *fstype);
-bool fstype_can_uid_gid(const char *fstype);
-bool fstype_can_fmask_dmask(const char *fstype);
+bool file_handle_equal(ਅਚਲ ਬਣਤਰ file_handle *a, ਅਚਲ ਬਣਤਰ file_handle *b);
+ਬਣਤਰ file_handle* file_handle_dup(ਅਚਲ ਬਣਤਰ file_handle *fh);
 
-const char* fstype_norecovery_option(const char *fstype);
+ਪੂਰਨ ਰਸਤਾ_get_mnt_id_at(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਪੂਰਨ *ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਰਸਤਾ_get_mnt_id(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਪੂਰਨ *ret) {
+        ਵਾਪਸ ਰਸਤਾ_get_mnt_id_at(AT_FDCWD, ਰਸਤਾ, ret);
+}
+ਪੂਰਨ ਰਸਤਾ_get_unique_mnt_id_at(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, uint64_t *ret);
 
-int dev_is_devtmpfs(void);
+ਪੂਰਨ is_mount_ਬਿੰਦੂ_at(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਪੂਰਨ flags);
+ਪੂਰਨ ਰਸਤਾ_is_mount_ਬਿੰਦੂ_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ, ਪੂਰਨ flags);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਰਸਤਾ_is_mount_ਬਿੰਦੂ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) {
+        ਵਾਪਸ ਰਸਤਾ_is_mount_ਬਿੰਦੂ_ਭਰਿਆ(ਰਸਤਾ, ਨਿਰਾ, 0);
+}
 
-int mount_nofollow(
-                const char *source,
-                const char *target,
-                const char *filesystemtype,
-                unsigned long mountflags,
-                const void *data);
+bool fstype_is_ਜਾਲ(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_needs_quota(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_has_ਅੰਦਰੂਨੀ_quota(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_is_api_vfs(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_is_blockdev_backed(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_is_ro(ਅਚਲ ਅੱਖਰ *fsype);
+bool fstype_can_discard(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_can_ownership(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_can_uid_gid(ਅਚਲ ਅੱਖਰ *fstype);
+bool fstype_can_fmask_dmask(ਅਚਲ ਅੱਖਰ *fstype);
 
-const char* mount_propagation_flag_to_string(unsigned long flags);
-int mount_propagation_flag_from_string(const char *name, unsigned long *ret);
-bool mount_propagation_flag_is_valid(unsigned long flag);
+ਅਚਲ ਅੱਖਰ* fstype_norecovery_option(ਅਚਲ ਅੱਖਰ *fstype);
 
-bool mount_new_api_supported(void);
+ਪੂਰਨ dev_is_devtmpfs(ਖਾਲੀ);
 
-int mount_option_supported(const char *fstype, const char *key, const char *value);
+ਪੂਰਨ mount_nofollow(
+                ਅਚਲ ਅੱਖਰ *ਸਰੋਤ,
+                ਅਚਲ ਅੱਖਰ *ਨਿਸ਼ਾਨਾ,
+                ਅਚਲ ਅੱਖਰ *filesystemtype,
+                ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ mountflags,
+                ਅਚਲ ਖਾਲੀ *ਅੰਕੜੇ);
 
-bool path_below_api_vfs(const char *p);
+ਅਚਲ ਅੱਖਰ* mount_ਪ੍ਰਸਾਰ_flag_ਮੰਜ਼ਿਲ_string(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags);
+ਪੂਰਨ mount_ਪ੍ਰਸਾਰ_flag_from_string(ਅਚਲ ਅੱਖਰ *name, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ *ret);
+bool mount_ਪ੍ਰਸਾਰ_flag_is_valid(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flag);
+
+bool mount_new_api_supported(ਖਾਲੀ);
+
+ਪੂਰਨ mount_option_supported(ਅਚਲ ਅੱਖਰ *fstype, ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ, ਅਚਲ ਅੱਖਰ *ਮੁੱਲ);
+
+bool ਰਸਤਾ_ਹੇਠਾਂ_api_vfs(ਅਚਲ ਅੱਖਰ *p);

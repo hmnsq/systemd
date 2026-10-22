@@ -5,11 +5,11 @@
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
 
-#include <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
 
-#include "gunicode.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "gunicode.h"
 
-#define unichar uint32_t
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ unichar uint32_t
 
 /**
  * g_utf8_prev_char:
@@ -24,36 +24,36 @@
  *
  * Return value: a pointer to the found character.
  **/
-char *
-utf8_prev_char (const char *p)
+ਅੱਖਰ *
+utf8_prev_char (ਅਚਲ ਅੱਖਰ *p)
 {
-  assert(p);
+  ਪ੍ਰਤਿਜ੍ਞਾ(p);
 
-  for (;;)
+  ਲਈ (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      ਜੇ ((*p & 0xc0) != 0x80)
+        ਵਾਪਸ (ਅੱਖਰ *)p;
     }
 }
 
-struct Interval
+ਬਣਤਰ Interval
 {
-  unichar start, end;
+  unichar ਸ਼ੁਰੂ, ਸਿਰਾ;
 };
 
-static int
-interval_compare (const void *key, const void *elt)
+ਸਥਿਰ ਪੂਰਨ
+interval_compare (ਅਚਲ ਖਾਲੀ *ਕੁੰਜੀ, ਅਚਲ ਖਾਲੀ *elt)
 {
-  unichar c = (unichar) (long) (key);
-  struct Interval *interval = (struct Interval *)elt;
+  unichar c = (unichar) (ਲੰਮਾ) (ਕੁੰਜੀ);
+  ਬਣਤਰ Interval *interval = (ਬਣਤਰ Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  ਜੇ (c < interval->ਸ਼ੁਰੂ)
+    ਵਾਪਸ -1;
+  ਜੇ (c > interval->ਸਿਰਾ)
+    ਵਾਪਸ +1;
 
-  return 0;
+  ਵਾਪਸ 0;
 }
 
 /*
@@ -82,7 +82,7 @@ bool
 unichar_iswide (unichar c)
 {
   /* See NOTE earlier for how to update this table. */
-  static const struct Interval wide[] = {
+  ਸਥਿਰ ਅਚਲ ਬਣਤਰ Interval wide[] = {
     {0x1100, 0x115F}, {0x2329, 0x232A}, {0x2E80, 0x2E99}, {0x2E9B, 0x2EF3},
     {0x2F00, 0x2FD5}, {0x2FF0, 0x2FFB}, {0x3000, 0x303E}, {0x3041, 0x3096},
     {0x3099, 0x30FF}, {0x3105, 0x312D}, {0x3131, 0x318E}, {0x3190, 0x31BA},
@@ -96,14 +96,14 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  ਜੇ (bsearch ((ਖਾਲੀ *)(uintptr_t)c, wide, ELEMENTSOF(wide), ਆਕਾਰ wide[0],
                interval_compare))
-    return true;
+    ਵਾਪਸ true;
 
-  return false;
+  ਵਾਪਸ false;
 }
 
-const char utf8_skip_data[256] = {
+ਅਚਲ ਅੱਖਰ utf8_skip_ਅੰਕੜੇ[256] = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

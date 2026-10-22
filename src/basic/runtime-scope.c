@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "runtime-scope.h"
-#include "string-table.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "runtime-scope.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-table.h"
 
-static const char* const runtime_scope_table[_RUNTIME_SCOPE_MAX] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ runtime_scope_ਸਾਰਣੀ[_RUNTIME_SCOPE_MAX] = {
         [RUNTIME_SCOPE_SYSTEM] = "system",
         [RUNTIME_SCOPE_USER]   = "user",
         [RUNTIME_SCOPE_GLOBAL] = "global",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(runtime_scope, RuntimeScope);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP(runtime_scope, RuntimeScope);
 
-static const char* const runtime_scope_cmdline_option_table[_RUNTIME_SCOPE_MAX] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ runtime_scope_cmdline_option_ਸਾਰਣੀ[_RUNTIME_SCOPE_MAX] = {
         [RUNTIME_SCOPE_SYSTEM] = "--system",
         [RUNTIME_SCOPE_USER]   = "--user",
         [RUNTIME_SCOPE_GLOBAL] = "--global",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_TO_STRING(runtime_scope_cmdline_option, RuntimeScope);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP_ਮੰਜ਼ਿਲ_STRING(runtime_scope_cmdline_option, RuntimeScope);

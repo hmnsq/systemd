@@ -11,135 +11,135 @@
  * occur outside of a loop where this is the preferred behavior.
  */
 
-#include <stdio.h>
-#include <string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string.h>
 
-#include "strxcpyx.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+size_t strnpcpy_ਭਰਿਆ(ਅੱਖਰ **dest, size_t ਮਾਪ, ਅਚਲ ਅੱਖਰ *src, size_t len, bool *ret_truncated) {
         bool truncated = false;
 
-        assert(dest);
-        assert(src);
+        ਪ੍ਰਤਿਜ੍ਞਾ(dest);
+        ਪ੍ਰਤਿਜ੍ਞਾ(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        ਜੇ (ਮਾਪ == 0) {
+                ਜੇ (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                ਵਾਪਸ 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
-                        *dest = mempcpy(*dest, src, size-1);
-                size = 0;
+        ਜੇ (len >= ਮਾਪ) {
+                ਜੇ (ਮਾਪ > 1)
+                        *dest = mempcpy(*dest, src, ਮਾਪ-1);
+                ਮਾਪ = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } ਨਹੀਂਤਾਂ ਜੇ (len > 0) {
                 *dest = mempcpy(*dest, src, len);
-                size -= len;
+                ਮਾਪ -= len;
         }
 
-        if (ret_truncated)
+        ਜੇ (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        ਵਾਪਸ ਮਾਪ;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strpcpy_ਭਰਿਆ(ਅੱਖਰ **dest, size_t ਮਾਪ, ਅਚਲ ਅੱਖਰ *src, bool *ret_truncated) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(dest);
+        ਪ੍ਰਤਿਜ੍ਞਾ(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        ਵਾਪਸ strnpcpy_ਭਰਿਆ(dest, ਮਾਪ, src, ਲੜੀ_ਲੰਬਾਈ(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyf_ਭਰਿਆ(ਅੱਖਰ **dest, size_t ਮਾਪ, bool *ret_truncated, ਅਚਲ ਅੱਖਰ *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        ਪੂਰਨ i;
 
-        assert(dest);
-        assert(src);
+        ਪ੍ਰਤਿਜ੍ਞਾ(dest);
+        ਪ੍ਰਤਿਜ੍ਞਾ(src);
 
         va_start(va, src);
-        i = vsnprintf(*dest, size, src, va);
+        i = vsnprintf(*dest, ਮਾਪ, src, va);
         va_end(va);
 
-        assert(i >= 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(i >= 0);
 
-        if (i < (int) size) {
+        ਜੇ (i < (ਪੂਰਨ) ਮਾਪ) {
                 *dest += i;
-                size -= i;
-        } else {
-                size = 0;
+                ਮਾਪ -= i;
+        } ਨਹੀਂਤਾਂ {
+                ਮਾਪ = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        ਜੇ (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        ਵਾਪਸ ਮਾਪ;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyl_ਭਰਿਆ(ਅੱਖਰ **dest, size_t ਮਾਪ, bool *ret_truncated, ਅਚਲ ਅੱਖਰ *src, ...) {
         bool truncated = false;
         va_list va;
 
-        assert(dest);
-        assert(src);
+        ਪ੍ਰਤਿਜ੍ਞਾ(dest);
+        ਪ੍ਰਤਿਜ੍ਞਾ(src);
 
         va_start(va, src);
-        do {
+        ਕਰੋ {
                 bool t;
 
-                size = strpcpy_full(dest, size, src, &t);
+                ਮਾਪ = strpcpy_ਭਰਿਆ(dest, ਮਾਪ, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, ਅੱਖਰ *);
+        } ਜਦੋਂ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ਜੇ (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        ਵਾਪਸ ਮਾਪ;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+size_t strnscpy_ਭਰਿਆ(ਅੱਖਰ *dest, size_t ਮਾਪ, ਅਚਲ ਅੱਖਰ *src, size_t len, bool *ret_truncated) {
+        ਅੱਖਰ *s;
 
-        assert(dest);
-        assert(src);
+        ਪ੍ਰਤਿਜ੍ਞਾ(dest);
+        ਪ੍ਰਤਿਜ੍ਞਾ(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        ਵਾਪਸ strnpcpy_ਭਰਿਆ(&s, ਮਾਪ, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strscpy_ਭਰਿਆ(ਅੱਖਰ *dest, size_t ਮਾਪ, ਅਚਲ ਅੱਖਰ *src, bool *ret_truncated) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(dest);
+        ਪ੍ਰਤਿਜ੍ਞਾ(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        ਵਾਪਸ strnscpy_ਭਰਿਆ(dest, ਮਾਪ, src, ਲੜੀ_ਲੰਬਾਈ(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strscpyl_ਭਰਿਆ(ਅੱਖਰ *dest, size_t ਮਾਪ, bool *ret_truncated, ਅਚਲ ਅੱਖਰ *src, ...) {
         bool truncated = false;
         va_list va;
-        char *s;
+        ਅੱਖਰ *s;
 
-        assert(dest);
-        assert(src);
+        ਪ੍ਰਤਿਜ੍ਞਾ(dest);
+        ਪ੍ਰਤਿਜ੍ਞਾ(src);
 
         va_start(va, src);
         s = dest;
-        do {
+        ਕਰੋ {
                 bool t;
 
-                size = strpcpy_full(&s, size, src, &t);
+                ਮਾਪ = strpcpy_ਭਰਿਆ(&s, ਮਾਪ, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, ਅੱਖਰ *);
+        } ਜਦੋਂ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ਜੇ (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        ਵਾਪਸ ਮਾਪ;
 }

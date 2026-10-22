@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-typedef enum RuntimeScope {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ RuntimeScope {
         RUNTIME_SCOPE_SYSTEM,           /* for the system */
         RUNTIME_SCOPE_USER,             /* for a user */
         RUNTIME_SCOPE_GLOBAL,           /* for all users */
@@ -11,22 +11,22 @@ typedef enum RuntimeScope {
         _RUNTIME_SCOPE_INVALID = -EINVAL,
 } RuntimeScope;
 
-DECLARE_STRING_TABLE_LOOKUP(runtime_scope, RuntimeScope);
-DECLARE_STRING_TABLE_LOOKUP_TO_STRING(runtime_scope_cmdline_option, RuntimeScope);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(runtime_scope, RuntimeScope);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP_ਮੰਜ਼ਿਲ_STRING(runtime_scope_cmdline_option, RuntimeScope);
 
-static inline mode_t runtime_scope_to_socket_mode(RuntimeScope scope) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ mode_t runtime_scope_ਮੰਜ਼ਿਲ_socket_ਬਹੁਲਕ(RuntimeScope scope) {
         /* Returns the right socket mode to use for binding AF_UNIX sockets intended for the specified
          * scope. If system mode is selected the whole system can connect to it, if user mode is selected
          * only the user can connect to it. */
 
-        switch (scope) {
-        case RUNTIME_SCOPE_SYSTEM:
-                return 0666;
+        ਚੋਣ (scope) {
+        ਹਾਲਤ RUNTIME_SCOPE_SYSTEM:
+                ਵਾਪਸ 0666;
 
-        case RUNTIME_SCOPE_USER:
-                return 0600;
+        ਹਾਲਤ RUNTIME_SCOPE_USER:
+                ਵਾਪਸ 0600;
 
-        default:
-                return MODE_INVALID;
+        ਮੂਲ:
+                ਵਾਪਸ ਬਹੁਲਕ_INVALID;
         }
 }

@@ -1,48 +1,48 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-char octchar(int x) _const_;
-int unoctchar(char c) _const_;
+ਅੱਖਰ octchar(ਪੂਰਨ x) _const_;
+ਪੂਰਨ unoctchar(ਅੱਖਰ c) _const_;
 
-char decchar(int x) _const_;
-int undecchar(char c) _const_;
+ਅੱਖਰ decchar(ਪੂਰਨ x) _const_;
+ਪੂਰਨ undecchar(ਅੱਖਰ c) _const_;
 
-char hexchar(int x) _const_;
-int unhexchar(char c) _const_;
+ਅੱਖਰ hexchar(ਪੂਰਨ x) _const_;
+ਪੂਰਨ unhexchar(ਅੱਖਰ c) _const_;
 
-char* hexmem(const void *p, size_t l) _nonnull_if_nonzero_(1, 2);
-int unhexmem_full(const char *p, size_t l, bool secure, void **ret_data, size_t *ret_size) _nonnull_if_nonzero_(1, 2);
-static inline int unhexmem(const char *p, void **ret_data, size_t *ret_size) {
-        return unhexmem_full(p, SIZE_MAX, false, ret_data, ret_size);
+ਅੱਖਰ* hexmem(ਅਚਲ ਖਾਲੀ *p, size_t l) _nonnull_if_nonzero_(1, 2);
+ਪੂਰਨ unhexmem_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *p, size_t l, bool secure, ਖਾਲੀ **ret_ਅੰਕੜੇ, size_t *ret_ਮਾਪ) _nonnull_if_nonzero_(1, 2);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ unhexmem(ਅਚਲ ਅੱਖਰ *p, ਖਾਲੀ **ret_ਅੰਕੜੇ, size_t *ret_ਮਾਪ) {
+        ਵਾਪਸ unhexmem_ਭਰਿਆ(p, SIZE_MAX, false, ret_ਅੰਕੜੇ, ret_ਮਾਪ);
 }
 
-char base32hexchar(int x) _const_;
-int unbase32hexchar(char c) _const_;
+ਅੱਖਰ base32hexchar(ਪੂਰਨ x) _const_;
+ਪੂਰਨ unbase32hexchar(ਅੱਖਰ c) _const_;
 
-char base64char(int x) _const_;
-char urlsafe_base64char(int x) _const_;
-int unbase64char(char c) _const_;
+ਅੱਖਰ base64char(ਪੂਰਨ x) _const_;
+ਅੱਖਰ urlsafe_base64char(ਪੂਰਨ x) _const_;
+ਪੂਰਨ unbase64char(ਅੱਖਰ c) _const_;
 
-char* base32hexmem(const void *p, size_t l, bool padding) _nonnull_if_nonzero_(1, 2);
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *len) _nonnull_if_nonzero_(1, 2);
+ਅੱਖਰ* base32hexmem(ਅਚਲ ਖਾਲੀ *p, size_t l, bool padding) _nonnull_if_nonzero_(1, 2);
+ਪੂਰਨ unbase32hexmem(ਅਚਲ ਅੱਖਰ *p, size_t l, bool padding, ਖਾਲੀ **mem, size_t *len) _nonnull_if_nonzero_(1, 2);
 
-ssize_t base64mem_full(const void *p, size_t l, size_t line_break, char **ret) _nonnull_if_nonzero_(1, 2);
-static inline ssize_t base64mem(const void *p, size_t l, char **ret) {
-        return base64mem_full(p, l, SIZE_MAX, ret);
+ssize_t base64mem_ਭਰਿਆ(ਅਚਲ ਖਾਲੀ *p, size_t l, size_t ਸਤਰ_break, ਅੱਖਰ **ret) _nonnull_if_nonzero_(1, 2);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ssize_t base64mem(ਅਚਲ ਖਾਲੀ *p, size_t l, ਅੱਖਰ **ret) {
+        ਵਾਪਸ base64mem_ਭਰਿਆ(p, l, SIZE_MAX, ret);
 }
 
 ssize_t base64_append(
-                char **prefix,
+                ਅੱਖਰ **ਅਗੇਤਰ,
                 size_t plen,
-                const void *p,
+                ਅਚਲ ਖਾਲੀ *p,
                 size_t l,
                 size_t indent,
                 size_t width);
-int unbase64mem_full(const char *p, size_t l, bool secure, void **ret_data, size_t *ret_size) _nonnull_if_nonzero_(1, 2);
-static inline int unbase64mem(const char *p, void **ret_data, size_t *ret_size) {
-        return unbase64mem_full(p, SIZE_MAX, false, ret_data, ret_size);
+ਪੂਰਨ unbase64mem_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *p, size_t l, bool secure, ਖਾਲੀ **ret_ਅੰਕੜੇ, size_t *ret_ਮਾਪ) _nonnull_if_nonzero_(1, 2);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ unbase64mem(ਅਚਲ ਅੱਖਰ *p, ਖਾਲੀ **ret_ਅੰਕੜੇ, size_t *ret_ਮਾਪ) {
+        ਵਾਪਸ unbase64mem_ਭਰਿਆ(p, SIZE_MAX, false, ret_ਅੰਕੜੇ, ret_ਮਾਪ);
 }
 
-void hexdump(FILE *f, const void *p, size_t s) _nonnull_if_nonzero_(2, 3);
+ਖਾਲੀ hexdump(FILE *f, ਅਚਲ ਖਾਲੀ *p, size_t s) _nonnull_if_nonzero_(2, 3);

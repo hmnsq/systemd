@@ -1,115 +1,115 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <poll.h>
-#include <sys/wait.h>
-#include <unistd.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <poll.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/wait.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fiber-ops.h"
-#include "format-util.h"
-#include "hash-funcs.h"
-#include "io-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "pidfd-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "siphash24.h"
-#include "time-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "errno-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fiber-ops.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "format-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "hash-funcs.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "io-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parse-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "pidfd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "pidref.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "process-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "siphash24.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "time-util.h"
 
-int pidref_acquire_pidfd_id(PidRef *pidref) {
-        int r;
+ਪੂਰਨ pidref_acquire_pidfd_id(PidRef *pidref) {
+        ਪੂਰਨ r;
 
-        assert(pidref);
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        ਜੇ (!pidref_is_ਸੈੱਟ(pidref))
+                ਵਾਪਸ -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ਜੇ (pidref_is_remote(pidref))
+                ਵਾਪਸ -EREMOTE;
 
-        if (pidref->fd < 0)
-                return -ENOMEDIUM;
+        ਜੇ (pidref->fd < 0)
+                ਵਾਪਸ -ENOMEDIUM;
 
-        if (pidref->fd_id > 0)
-                return 0;
+        ਜੇ (pidref->fd_id > 0)
+                ਵਾਪਸ 0;
 
         r = pidfd_get_inode_id(pidref->fd, &pidref->fd_id);
-        if (r < 0) {
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
+        ਜੇ (r < 0) {
+                ਜੇ (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
                         log_debug_errno(r, "Failed to get inode number of pidfd for pid " PID_FMT ": %m",
                                         pidref->pid);
-                return r;
+                ਵਾਪਸ r;
         }
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
 bool pidref_equal(PidRef *a, PidRef *b) {
 
         /* If this is the very same structure, it definitely refers to the same process */
-        if (a == b)
-                return true;
+        ਜੇ (a == b)
+                ਵਾਪਸ true;
 
-        if (!pidref_is_set(a))
-                return !pidref_is_set(b);
+        ਜੇ (!pidref_is_ਸੈੱਟ(a))
+                ਵਾਪਸ !pidref_is_ਸੈੱਟ(b);
 
-        if (!pidref_is_set(b))
-                return false;
+        ਜੇ (!pidref_is_ਸੈੱਟ(b))
+                ਵਾਪਸ false;
 
-        if (a->pid != b->pid)
-                return false;
+        ਜੇ (a->pid != b->pid)
+                ਵਾਪਸ false;
 
-        if (pidref_is_remote(a)) {
+        ਜੇ (pidref_is_remote(a)) {
                 /* If one is remote and the other isn't, they are not the same */
-                if (!pidref_is_remote(b))
-                        return false;
+                ਜੇ (!pidref_is_remote(b))
+                        ਵਾਪਸ false;
 
                 /* If both are remote, compare fd IDs if we have both, otherwise don't bother, and cut things short */
-                if (a->fd_id == 0 || b->fd_id == 0)
-                        return true;
-        } else {
+                ਜੇ (a->fd_id == 0 || b->fd_id == 0)
+                        ਵਾਪਸ true;
+        } ਨਹੀਂਤਾਂ {
                 /* If the other side is remote, then this is not the same */
-                if (pidref_is_remote(b))
-                        return false;
+                ਜੇ (pidref_is_remote(b))
+                        ਵਾਪਸ false;
 
                 /* PID1 cannot exit, hence it cannot change pidfs ids, hence no point in comparing them, we
                  * can shortcut things */
-                if (a->pid == 1)
-                        return true;
+                ਜੇ (a->pid == 1)
+                        ਵਾਪਸ true;
 
                 /* Try to compare pidfds using their inode numbers. This way we can ensure that we
                  * don't spuriously consider two PidRefs equal if the pid has been reused once. Note
                  * that we ignore all errors here, not only EOPNOTSUPP, as fstat() might fail due to
                  * many reasons. */
-                if (pidref_acquire_pidfd_id(a) < 0 || pidref_acquire_pidfd_id(b) < 0)
-                        return true;
+                ਜੇ (pidref_acquire_pidfd_id(a) < 0 || pidref_acquire_pidfd_id(b) < 0)
+                        ਵਾਪਸ true;
         }
 
-        return a->fd_id == b->fd_id;
+        ਵਾਪਸ a->fd_id == b->fd_id;
 }
 
-int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags) {
+ਪੂਰਨ pidref_ਸੈੱਟ_pid_ਭਰਿਆ(PidRef *pidref, pid_t pid, ਬਿਨਾਨਿਸ਼ਾਨੀ flags) {
         uint64_t pidfdid = 0;
-        int fd;
+        ਪੂਰਨ fd;
 
-        assert(pidref);
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
-        if (pid < 0)
-                return -ESRCH;
-        if (pid == 0) {
+        ਜੇ (pid < 0)
+                ਵਾਪਸ -ESRCH;
+        ਜੇ (pid == 0) {
                 pid = getpid_cached();
-                (void) pidfd_get_inode_id_self_cached(&pidfdid);
+                (ਖਾਲੀ) pidfd_get_inode_id_self_cached(&pidfdid);
         }
 
         fd = pidfd_open(pid, flags);
-        if (fd < 0) {
+        ਜੇ (fd < 0) {
                 /* Graceful fallback in case the kernel is out of fds.
                  * The PIDFD_THREAD flag is supported since kernel v6.9 (64bef697d33b75fc06c5789b3f8108680271529f). */
-                if (!(ERRNO_IS_RESOURCE(errno) || (errno == EINVAL && FLAGS_SET(flags, PIDFD_THREAD))))
-                        return log_debug_errno(errno, "Failed to open pidfd for pid " PID_FMT ": %m", pid);
+                ਜੇ (!(ERRNO_IS_RESOURCE(errno) || (errno == EINVAL && FLAGS_ਸੈੱਟ(flags, PIDFD_THREAD))))
+                        ਵਾਪਸ log_debug_errno(errno, "Failed to open pidfd for pid " PID_FMT ": %m", pid);
 
                 fd = -EBADF;
         }
@@ -120,172 +120,172 @@ int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags) {
                 .fd_id = pidfdid,
         };
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int pidref_set_pid_and_pidfd_id(
+ਪੂਰਨ pidref_ਸੈੱਟ_pid_and_pidfd_id(
                 PidRef *pidref,
                 pid_t pid,
                 uint64_t pidfd_id) {
 
-        int r;
+        ਪੂਰਨ r;
 
-        assert(pidref);
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
-        _cleanup_(pidref_done) PidRef n = PIDREF_NULL;
-        r = pidref_set_pid(&n, pid);
-        if (r < 0)
-                return r;
+        _cleanup_(pidref_ਪੂਰਾ) PidRef n = PIDREF_NULL;
+        r = pidref_ਸੈੱਟ_pid(&n, pid);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (pidfd_id > 0) {
+        ਜੇ (pidfd_id > 0) {
                 r = pidref_acquire_pidfd_id(&n);
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                if (n.fd_id != pidfd_id)
-                        return -ESRCH;
+                ਜੇ (n.fd_id != pidfd_id)
+                        ਵਾਪਸ -ESRCH;
         }
 
         *pidref = TAKE_PIDREF(n);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int pidref_set_pidstr_full(PidRef *pidref, const char *pid, unsigned flags) {
+ਪੂਰਨ pidref_ਸੈੱਟ_pidstr_ਭਰਿਆ(PidRef *pidref, ਅਚਲ ਅੱਖਰ *pid, ਬਿਨਾਨਿਸ਼ਾਨੀ flags) {
         pid_t nr;
-        int r;
+        ਪੂਰਨ r;
 
-        assert(pidref);
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
         r = parse_pid(pid, &nr);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return pidref_set_pid_full(pidref, nr, flags);
+        ਵਾਪਸ pidref_ਸੈੱਟ_pid_ਭਰਿਆ(pidref, nr, flags);
 }
 
-int pidref_set_pidfd(PidRef *pidref, int fd) {
-        int r;
+ਪੂਰਨ pidref_ਸੈੱਟ_pidfd(PidRef *pidref, ਪੂਰਨ fd) {
+        ਪੂਰਨ r;
 
-        assert(pidref);
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
-        if (fd < 0)
-                return -EBADF;
+        ਜੇ (fd < 0)
+                ਵਾਪਸ -EBADF;
 
-        int fd_copy = fcntl(fd, F_DUPFD_CLOEXEC, 3);
-        if (fd_copy < 0) {
+        ਪੂਰਨ fd_copy = fcntl(fd, F_DUPFD_CLOEXEC, 3);
+        ਜੇ (fd_copy < 0) {
                 pid_t pid;
 
-                if (!ERRNO_IS_RESOURCE(errno))
-                        return -errno;
+                ਜੇ (!ERRNO_IS_RESOURCE(errno))
+                        ਵਾਪਸ -errno;
 
                 /* Graceful fallback if we are out of fds */
                 r = pidfd_get_pid(fd, &pid);
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
                 *pidref = PIDREF_MAKE_FROM_PID(pid);
-                return 0;
+                ਵਾਪਸ 0;
         }
 
-        return pidref_set_pidfd_consume(pidref, fd_copy);
+        ਵਾਪਸ pidref_ਸੈੱਟ_pidfd_consume(pidref, fd_copy);
 }
 
-int pidref_set_pidfd_take(PidRef *pidref, int fd) {
+ਪੂਰਨ pidref_ਸੈੱਟ_pidfd_take(PidRef *pidref, ਪੂਰਨ fd) {
         pid_t pid;
-        int r;
+        ਪੂਰਨ r;
 
-        assert(pidref);
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
-        if (fd < 0)
-                return -EBADF;
+        ਜੇ (fd < 0)
+                ਵਾਪਸ -EBADF;
 
         r = pidfd_get_pid(fd, &pid);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         *pidref = (PidRef) {
                 .fd = fd,
                 .pid = pid,
         };
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int pidref_set_pidfd_consume(PidRef *pidref, int fd) {
-        int r;
+ਪੂਰਨ pidref_ਸੈੱਟ_pidfd_consume(PidRef *pidref, ਪੂਰਨ fd) {
+        ਪੂਰਨ r;
 
-        r = pidref_set_pidfd_take(pidref, fd);
-        if (r < 0)
-                safe_close(fd);
+        r = pidref_ਸੈੱਟ_pidfd_take(pidref, fd);
+        ਜੇ (r < 0)
+                ਸੁਰੱਖਿਅਤ_close(fd);
 
-        return r;
+        ਵਾਪਸ r;
 }
 
-int pidref_set_parent(PidRef *ret) {
-        _cleanup_(pidref_done) PidRef parent = PIDREF_NULL;
+ਪੂਰਨ pidref_ਸੈੱਟ_ਮਾਪਾ(PidRef *ret) {
+        _cleanup_(pidref_ਪੂਰਾ) PidRef ਮਾਪਾ = PIDREF_NULL;
         pid_t ppid;
-        int r;
+        ਪੂਰਨ r;
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
         /* Acquires a pidref to our parent process. Deals with the fact that parent processes might exit, and
          * we get reparented to other processes, with our old parent's PID already being recycled. */
 
         ppid = getppid();
-        for (;;) {
-                r = pidref_set_pid(&parent, ppid);
-                if (r < 0)
-                        return r;
+        ਲਈ (;;) {
+                r = pidref_ਸੈੱਟ_pid(&ਮਾਪਾ, ppid);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
 
-                if (parent.fd < 0) /* If pidfds are not available, then we are done */
-                        break;
+                ਜੇ (ਮਾਪਾ.fd < 0) /* If pidfds are not available, then we are done */
+                        ਰੋਕੋ;
 
                 pid_t now_ppid = getppid();
-                if (now_ppid == ppid) /* If our ppid is still the same, then we are done */
-                        break;
+                ਜੇ (now_ppid == ppid) /* If our ppid is still the same, then we are done */
+                        ਰੋਕੋ;
 
                 /* Otherwise let's try again with the new ppid */
                 ppid = now_ppid;
-                pidref_done(&parent);
+                pidref_ਪੂਰਾ(&ਮਾਪਾ);
         }
 
-        *ret = TAKE_PIDREF(parent);
-        return 0;
+        *ret = TAKE_PIDREF(ਮਾਪਾ);
+        ਵਾਪਸ 0;
 }
 
-void pidref_done(PidRef *pidref) {
-        assert(pidref);
+ਖਾਲੀ pidref_ਪੂਰਾ(PidRef *pidref) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
         *pidref = (PidRef) {
-                .fd = safe_close(pidref->fd),
+                .fd = ਸੁਰੱਖਿਅਤ_close(pidref->fd),
         };
 }
 
 PidRef* pidref_free(PidRef *pidref) {
         /* Regularly, this is an embedded structure. But sometimes we want it on the heap too */
-        if (!pidref)
-                return NULL;
+        ਜੇ (!pidref)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        pidref_done(pidref);
-        return mfree(pidref);
+        pidref_ਪੂਰਾ(pidref);
+        ਵਾਪਸ mfree(pidref);
 }
 
-int pidref_copy(const PidRef *pidref, PidRef *ret) {
-        _cleanup_(pidref_done) PidRef copy = PIDREF_NULL;
+ਪੂਰਨ pidref_copy(ਅਚਲ PidRef *pidref, PidRef *ret) {
+        _cleanup_(pidref_ਪੂਰਾ) PidRef copy = PIDREF_NULL;
 
         /* If NULL is passed we'll generate a PidRef that refers to no process. This makes it easy to
          * copy pidref fields that might or might not reference a process yet. */
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (pidref) {
-                if (pidref_is_remote(pidref)) /* Propagate remote flag */
+        ਜੇ (pidref) {
+                ਜੇ (pidref_is_remote(pidref)) /* Propagate remote flag */
                         copy.fd = -EREMOTE;
-                else if (pidref->fd >= 0) {
+                ਨਹੀਂਤਾਂ ਜੇ (pidref->fd >= 0) {
                         copy.fd = fcntl(pidref->fd, F_DUPFD_CLOEXEC, 3);
-                        if (copy.fd < 0) {
-                                if (!ERRNO_IS_RESOURCE(errno))
-                                        return -errno;
+                        ਜੇ (copy.fd < 0) {
+                                ਜੇ (!ERRNO_IS_RESOURCE(errno))
+                                        ਵਾਪਸ -errno;
 
                                 copy.fd = -EBADF;
                         }
@@ -296,92 +296,92 @@ int pidref_copy(const PidRef *pidref, PidRef *ret) {
         }
 
         *ret = TAKE_PIDREF(copy);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int pidref_dup(const PidRef *pidref, PidRef **ret) {
-        _cleanup_(pidref_freep) PidRef *dup_pidref = NULL;
-        int r;
+ਪੂਰਨ pidref_dup(ਅਚਲ PidRef *pidref, PidRef **ret) {
+        _cleanup_(pidref_freep) PidRef *dup_pidref = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
         /* Allocates a new PidRef on the heap, making it a copy of the specified pidref. This does not try to
          * acquire a pidfd if we don't have one yet! */
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
         dup_pidref = newdup(PidRef, &PIDREF_NULL, 1);
-        if (!dup_pidref)
-                return -ENOMEM;
+        ਜੇ (!dup_pidref)
+                ਵਾਪਸ -ENOMEM;
 
         r = pidref_copy(pidref, dup_pidref);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         *ret = TAKE_PTR(dup_pidref);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int pidref_new_from_pid(pid_t pid, PidRef **ret) {
-        _cleanup_(pidref_freep) PidRef *n = NULL;
-        int r;
+ਪੂਰਨ pidref_new_from_pid(pid_t pid, PidRef **ret) {
+        _cleanup_(pidref_freep) PidRef *n = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (pid < 0)
-                return -ESRCH;
+        ਜੇ (pid < 0)
+                ਵਾਪਸ -ESRCH;
 
         n = new(PidRef, 1);
-        if (!n)
-                return -ENOMEM;
+        ਜੇ (!n)
+                ਵਾਪਸ -ENOMEM;
 
         *n = PIDREF_NULL;
 
-        r = pidref_set_pid(n, pid);
-        if (r < 0)
-                return r;
+        r = pidref_ਸੈੱਟ_pid(n, pid);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int pidref_kill(const PidRef *pidref, int sig) {
+ਪੂਰਨ pidref_kill(ਅਚਲ PidRef *pidref, ਪੂਰਨ sig) {
 
-        if (!pidref)
-                return -ESRCH;
+        ਜੇ (!pidref)
+                ਵਾਪਸ -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ਜੇ (pidref_is_remote(pidref))
+                ਵਾਪਸ -EREMOTE;
 
-        if (pidref->fd >= 0)
-                return RET_NERRNO(pidfd_send_signal(pidref->fd, sig, NULL, 0));
+        ਜੇ (pidref->fd >= 0)
+                ਵਾਪਸ RET_NERRNO(pidfd_send_signal(pidref->fd, sig, ਨਿਰਾ, 0));
 
-        if (pidref->pid > 0)
-                return RET_NERRNO(kill(pidref->pid, sig));
+        ਜੇ (pidref->pid > 0)
+                ਵਾਪਸ RET_NERRNO(kill(pidref->pid, sig));
 
-        return -ESRCH;
+        ਵਾਪਸ -ESRCH;
 }
 
-int pidref_kill_and_sigcont(const PidRef *pidref, int sig) {
-        int r;
+ਪੂਰਨ pidref_kill_and_sigcont(ਅਚਲ PidRef *pidref, ਪੂਰਨ sig) {
+        ਪੂਰਨ r;
 
         r = pidref_kill(pidref, sig);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (!IN_SET(sig, SIGCONT, SIGKILL))
-                (void) pidref_kill(pidref, SIGCONT);
+        ਜੇ (!ਵਿੱਚ_ਸੈੱਟ(sig, SIGCONT, SIGKILL))
+                (ਖਾਲੀ) pidref_kill(pidref, SIGCONT);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int pidref_sigqueue(const PidRef *pidref, int sig, int value) {
+ਪੂਰਨ pidref_sigqueue(ਅਚਲ PidRef *pidref, ਪੂਰਨ sig, ਪੂਰਨ ਮੁੱਲ) {
 
-        if (!pidref)
-                return -ESRCH;
+        ਜੇ (!pidref)
+                ਵਾਪਸ -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ਜੇ (pidref_is_remote(pidref))
+                ਵਾਪਸ -EREMOTE;
 
-        if (pidref->fd >= 0) {
+        ਜੇ (pidref->fd >= 0) {
                 siginfo_t si;
 
                 /* We can't use structured initialization here, since the structure contains various unions
@@ -392,170 +392,170 @@ int pidref_sigqueue(const PidRef *pidref, int sig, int value) {
                 si.si_code = SI_QUEUE;
                 si.si_pid = getpid_cached();
                 si.si_uid = getuid();
-                si.si_value.sival_int = value;
+                si.si_value.sival_int = ਮੁੱਲ;
 
-                return RET_NERRNO(pidfd_send_signal(pidref->fd, sig, &si, 0));
+                ਵਾਪਸ RET_NERRNO(pidfd_send_signal(pidref->fd, sig, &si, 0));
         }
 
-        if (pidref->pid > 0)
-                return RET_NERRNO(sigqueue(pidref->pid, sig, (const union sigval) { .sival_int = value }));
+        ਜੇ (pidref->pid > 0)
+                ਵਾਪਸ RET_NERRNO(sigqueue(pidref->pid, sig, (ਅਚਲ ਸੰਘ sigval) { .sival_int = ਮੁੱਲ }));
 
-        return -ESRCH;
+        ਵਾਪਸ -ESRCH;
 }
 
-int pidref_verify(const PidRef *pidref) {
-        int r;
+ਪੂਰਨ pidref_verify(ਅਚਲ PidRef *pidref) {
+        ਪੂਰਨ r;
 
         /* This is a helper that is supposed to be called after reading information from procfs via a
          * PidRef. It ensures that the PID we track still matches the PIDFD we pin. If this value differs
          * after a procfs read, we might have read the data from a recycled PID. */
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        ਜੇ (!pidref_is_ਸੈੱਟ(pidref))
+                ਵਾਪਸ -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ਜੇ (pidref_is_remote(pidref))
+                ਵਾਪਸ -EREMOTE;
 
-        if (pidref->pid == 1)
-                return 1; /* PID 1 can never go away, hence never be recycled to a different process → return 1 */
+        ਜੇ (pidref->pid == 1)
+                ਵਾਪਸ 1; /* PID 1 can never go away, hence never be recycled to a different process → return 1 */
 
-        if (pidref->fd < 0)
-                return 0; /* If we don't have a pidfd we cannot validate it, hence we assume it's all OK → return 0 */
+        ਜੇ (pidref->fd < 0)
+                ਵਾਪਸ 0; /* If we don't have a pidfd we cannot validate it, hence we assume it's all OK → return 0 */
 
         r = pidfd_verify_pid(pidref->fd, pidref->pid);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        return 1; /* We have a pidfd and it still points to the PID we have, hence all is *really* OK → return 1 */
+        ਵਾਪਸ 1; /* We have a pidfd and it still points to the PID we have, hence all is *really* OK → return 1 */
 }
 
 bool pidref_is_self(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return false;
+        ਜੇ (!pidref_is_ਸੈੱਟ(pidref))
+                ਵਾਪਸ false;
 
-        if (pidref_is_remote(pidref))
-                return false;
+        ਜੇ (pidref_is_remote(pidref))
+                ਵਾਪਸ false;
 
-        if (pidref->pid != getpid_cached())
-                return false;
+        ਜੇ (pidref->pid != getpid_cached())
+                ਵਾਪਸ false;
 
         /* PID1 cannot exit, hence no point in comparing pidfd IDs, they can never change */
-        if (pidref->pid == 1)
-                return true;
+        ਜੇ (pidref->pid == 1)
+                ਵਾਪਸ true;
 
         /* Also compare pidfd ID if we can get it */
-        if (pidref_acquire_pidfd_id(pidref) < 0)
-                return true;
+        ਜੇ (pidref_acquire_pidfd_id(pidref) < 0)
+                ਵਾਪਸ true;
 
         uint64_t self_id;
-        if (pidfd_get_inode_id_self_cached(&self_id) < 0)
-                return true;
+        ਜੇ (pidfd_get_inode_id_self_cached(&self_id) < 0)
+                ਵਾਪਸ true;
 
-        return pidref->fd_id == self_id;
+        ਵਾਪਸ pidref->fd_id == self_id;
 }
 
-int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si) {
-        int r;
+ਪੂਰਨ pidref_wait_for_terminate_ਭਰਿਆ(PidRef *pidref, usec_t timeout, siginfo_t *ret_si) {
+        ਪੂਰਨ r;
 
-        assert(timeout > 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(timeout > 0);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        ਜੇ (!pidref_is_ਸੈੱਟ(pidref))
+                ਵਾਪਸ -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ਜੇ (pidref_is_remote(pidref))
+                ਵਾਪਸ -EREMOTE;
 
-        if (pidref->pid == 1 || pidref_is_self(pidref))
-                return -ECHILD;
+        ਜੇ (pidref->pid == 1 || pidref_is_self(pidref))
+                ਵਾਪਸ -ECHILD;
 
-        if (pidref->fd < 0 && (timeout != USEC_INFINITY || fiber_ops_is_set()))
-                return -ENOMEDIUM;
+        ਜੇ (pidref->fd < 0 && (timeout != USEC_INFINITY || fiber_ops_is_ਸੈੱਟ()))
+                ਵਾਪਸ -ENOMEDIUM;
 
-        usec_t ts = timeout == USEC_INFINITY ? USEC_INFINITY : usec_add(now(CLOCK_MONOTONIC), timeout);
+        usec_t ts = timeout == USEC_INFINITY ? USEC_INFINITY : usec_ਜੋੜੋ(now(CLOCK_MONOTONIC), timeout);
 
         /* Poll the pidfd before waitid() if either there's a finite timeout (so we can honor it) or
          * we're on a fiber (so fd_wait_for_event() can suspend us instead of blocking the event loop
          * inside waitid()). Otherwise let waitid() block directly. The precondition above guarantees
          * pidref->fd >= 0 in both cases. */
-        bool poll_first = ts != USEC_INFINITY || fiber_ops_is_set();
+        bool poll_ਪਹਿਲਾ = ts != USEC_INFINITY || fiber_ops_is_ਸੈੱਟ();
 
-        for (;;) {
-                if (poll_first) {
-                        usec_t left;
+        ਲਈ (;;) {
+                ਜੇ (poll_ਪਹਿਲਾ) {
+                        usec_t ਖੱਬਾ;
 
-                        if (ts == USEC_INFINITY)
-                                left = USEC_INFINITY;
-                        else {
-                                left = usec_sub_unsigned(ts, now(CLOCK_MONOTONIC));
-                                if (left == 0)
-                                        return -ETIMEDOUT;
+                        ਜੇ (ts == USEC_INFINITY)
+                                ਖੱਬਾ = USEC_INFINITY;
+                        ਨਹੀਂਤਾਂ {
+                                ਖੱਬਾ = usec_sub_unsigned(ts, now(CLOCK_MONOTONIC));
+                                ਜੇ (ਖੱਬਾ == 0)
+                                        ਵਾਪਸ -ETIMEDOUT;
                         }
 
-                        r = fd_wait_for_event(pidref->fd, POLLIN, left);
-                        if (r == 0)
-                                return -ETIMEDOUT;
-                        if (r == -EINTR)
-                                continue;
-                        if (r < 0)
-                                return r;
+                        r = fd_wait_for_event(pidref->fd, POLLIN, ਖੱਬਾ);
+                        ਜੇ (r == 0)
+                                ਵਾਪਸ -ETIMEDOUT;
+                        ਜੇ (r == -EINTR)
+                                ਜਾਰੀ;
+                        ਜੇ (r < 0)
+                                ਵਾਪਸ r;
                 }
 
                 siginfo_t si = {};
 
-                if (pidref->fd >= 0)
+                ਜੇ (pidref->fd >= 0)
                         r = RET_NERRNO(waitid(P_PIDFD, pidref->fd, &si, WEXITED));
-                else
+                ਨਹੀਂਤਾਂ
                         r = RET_NERRNO(waitid(P_PID, pidref->pid, &si, WEXITED));
-                if (r >= 0) {
-                        if (ret_si)
+                ਜੇ (r >= 0) {
+                        ਜੇ (ret_si)
                                 *ret_si = si;
-                        return 0;
+                        ਵਾਪਸ 0;
                 }
-                if (r != -EINTR)
-                        return r;
+                ਜੇ (r != -EINTR)
+                        ਵਾਪਸ r;
         }
 }
 
-bool pidref_is_automatic(const PidRef *pidref) {
-        return pidref && pid_is_automatic(pidref->pid);
+bool pidref_is_automatic(ਅਚਲ PidRef *pidref) {
+        ਵਾਪਸ pidref && pid_is_automatic(pidref->pid);
 }
 
-void pidref_hash_func(const PidRef *pidref, struct siphash *state) {
-        assert(pidref);
+ਖਾਲੀ pidref_hash_func(ਅਚਲ PidRef *pidref, ਬਣਤਰ siphash *state) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(pidref);
 
         siphash24_compress_typesafe(pidref->pid, state);
 }
 
-int pidref_compare_func(const PidRef *a, const PidRef *b) {
-        int r;
+ਪੂਰਨ pidref_compare_func(ਅਚਲ PidRef *a, ਅਚਲ PidRef *b) {
+        ਪੂਰਨ r;
 
-        assert(a);
-        assert(b);
+        ਪ੍ਰਤਿਜ੍ਞਾ(a);
+        ਪ੍ਰਤਿਜ੍ਞਾ(b);
 
-        r = CMP(pidref_is_set(a), pidref_is_set(b));
-        if (r != 0)
-                return r;
+        r = CMP(pidref_is_ਸੈੱਟ(a), pidref_is_ਸੈੱਟ(b));
+        ਜੇ (r != 0)
+                ਵਾਪਸ r;
 
         r = CMP(pidref_is_automatic(a), pidref_is_automatic(b));
-        if (r != 0)
-                return r;
+        ਜੇ (r != 0)
+                ਵਾਪਸ r;
 
         r = CMP(pidref_is_remote(a), pidref_is_remote(b));
-        if (r != 0)
-                return r;
+        ਜੇ (r != 0)
+                ਵਾਪਸ r;
 
         r = CMP(a->pid, b->pid);
-        if (r != 0)
-                return r;
+        ਜੇ (r != 0)
+                ਵਾਪਸ r;
 
-        if (a->fd_id != 0 && b->fd_id != 0)
-                return CMP(a->fd_id, b->fd_id);
+        ਜੇ (a->fd_id != 0 && b->fd_id != 0)
+                ਵਾਪਸ CMP(a->fd_id, b->fd_id);
 
-        return 0;
+        ਵਾਪਸ 0;
 }
 
 DEFINE_HASH_OPS(pidref_hash_ops, PidRef, pidref_hash_func, pidref_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(pidref_hash_ops_free,
+DEFINE_HASH_OPS_WITH_ਕੁੰਜੀ_DESTRUCTOR(pidref_hash_ops_free,
                                     PidRef, pidref_hash_func, pidref_compare_func,
                                     pidref_free);

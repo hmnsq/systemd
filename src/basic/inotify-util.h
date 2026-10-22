@@ -1,34 +1,34 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <sys/inotify.h>        /* IWYU pragma: export */
-#include <syslog.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/inotify.h>        /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ <syslog.h>
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-#define INOTIFY_EVENT_MAX (offsetof(struct inotify_event, name) + NAME_MAX + 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ INOTIFY_EVENT_MAX (offsetof(ਬਣਤਰ inotify_event, name) + NAME_MAX + 1)
 
 /* This evaluates arguments multiple times */
-#define FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, log_level)            \
-        for (struct inotify_event *e = NULL;                            \
-             inotify_event_next(&buffer, sz, &e, log_level); )
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FOREACH_INOTIFY_EVENT_ਭਰਿਆ(e, ਬਫਰ, sz, log_level)            \
+        ਲਈ (ਬਣਤਰ inotify_event *e = ਨਿਰਾ;                            \
+             inotify_event_ਅਗਲਾ(&ਬਫਰ, sz, &e, log_level); )
 
-#define FOREACH_INOTIFY_EVENT(e, buffer, sz)                    \
-        FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, LOG_DEBUG)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FOREACH_INOTIFY_EVENT(e, ਬਫਰ, sz)                    \
+        FOREACH_INOTIFY_EVENT_ਭਰਿਆ(e, ਬਫਰ, sz, LOG_DEBUG)
 
-#define FOREACH_INOTIFY_EVENT_WARN(e, buffer, sz)               \
-        FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, LOG_WARNING)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FOREACH_INOTIFY_EVENT_WARN(e, ਬਫਰ, sz)               \
+        FOREACH_INOTIFY_EVENT_ਭਰਿਆ(e, ਬਫਰ, sz, LOG_WARNING)
 
-union inotify_event_buffer {
-        struct inotify_event ev;
+ਸੰਘ inotify_event_ਬਫਰ {
+        ਬਣਤਰ inotify_event ev;
         uint8_t raw[INOTIFY_EVENT_MAX];
 };
 
-bool inotify_event_next(
-                union inotify_event_buffer *buffer,
-                size_t size,
-                struct inotify_event **iterator,
-                int log_level);
+bool inotify_event_ਅਗਲਾ(
+                ਸੰਘ inotify_event_ਬਫਰ *ਬਫਰ,
+                size_t ਮਾਪ,
+                ਬਣਤਰ inotify_event **iterator,
+                ਪੂਰਨ log_level);
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask);
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask);
+ਪੂਰਨ inotify_ਜੋੜੋ_watch_fd(ਪੂਰਨ fd, ਪੂਰਨ what, uint32_t ਨਕਾਬ_3);
+ਪੂਰਨ inotify_ਜੋੜੋ_watch_and_warn(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *pathname, uint32_t ਨਕਾਬ_3);

@@ -1,198 +1,198 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "iovec-util.h"
-#include "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "iovec-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
 
-static const uint8_t nul_byte = 0;
+ਸਥਿਰ ਅਚਲ uint8_t nul_byte = 0;
 
-const struct iovec iovec_nul_byte = {
-        .iov_base = (void*) &nul_byte,
+ਅਚਲ ਬਣਤਰ iovec iovec_nul_byte = {
+        .iov_base = (ਖਾਲੀ*) &nul_byte,
         .iov_len = 1,
 };
 
-const struct iovec iovec_empty = {
-        .iov_base = (void*) &nul_byte,
+ਅਚਲ ਬਣਤਰ iovec iovec_ਖਾਲੀ_ਥਾਵਾਂ = {
+        .iov_base = (ਖਾਲੀ*) &nul_byte,
         .iov_len = 0,
 };
 
-int iovec_alloc(size_t n, struct iovec *ret) {
-        assert(ret);
+ਪੂਰਨ iovec_alloc(size_t n, ਬਣਤਰ iovec *ret) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        void *buf = malloc(n ?: 1);
-        if (!buf)
-                return -ENOMEM;
+        ਖਾਲੀ *buf = ਸਮ੍ਰਿਤੀ_ਦਿਓ(n ?: 1);
+        ਜੇ (!buf)
+                ਵਾਪਸ -ENOMEM;
 
         *ret = IOVEC_MAKE(buf, n);
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) {
-        size_t sum = 0;
+size_t iovec_ਕੁੱਲ_ਮਾਪ(ਅਚਲ ਬਣਤਰ iovec *iovec, size_t n) {
+        size_t ਜੋੜ = 0;
 
-        assert(iovec || n == 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec || n == 0);
 
         FOREACH_ARRAY(j, iovec, n) {
-                if (j->iov_len > SIZE_MAX - sum)
-                        return SIZE_MAX; /* Indicate overflow. */
-                sum += j->iov_len;
+                ਜੇ (j->iov_len > SIZE_MAX - ਜੋੜ)
+                        ਵਾਪਸ SIZE_MAX; /* Indicate overflow. */
+                ਜੋੜ += j->iov_len;
         }
 
-        return sum;
+        ਵਾਪਸ ਜੋੜ;
 }
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) {
-        assert(iovec || n == 0);
+bool iovec_inc_many(ਬਣਤਰ iovec *iovec, size_t n, size_t k) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec || n == 0);
 
         /* Returns true if there is nothing else to send (bytes written cover all of the iovec),
          * false if there's still work to do. */
 
         bool have = false;
         FOREACH_ARRAY(j, iovec, n) {
-                if (j->iov_len == 0)
-                        continue;
-                if (k == 0)
-                        return false;
+                ਜੇ (j->iov_len == 0)
+                        ਜਾਰੀ;
+                ਜੇ (k == 0)
+                        ਵਾਪਸ false;
 
                 size_t sub = MIN(j->iov_len, k);
                 iovec_inc(j, sub);
                 k -= sub;
 
-                have = have || iovec_is_set(j);
+                have = have || iovec_is_ਸੈੱਟ(j);
         }
 
-        assert(k == 0); /* Anything else would mean that we wrote more bytes than available,
+        ਪ੍ਰਤਿਜ੍ਞਾ(k == 0); /* Anything else would mean that we wrote more bytes than available,
                          * or the kernel reported writing more bytes than sent. */
 
-        return !have;
+        ਵਾਪਸ !have;
 }
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s) {
-        assert(iovec);
+ਬਣਤਰ iovec* iovec_make_string(ਬਣਤਰ iovec *iovec, ਅਚਲ ਅੱਖਰ *s) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec);
 
         *iovec = IOVEC_MAKE(s, strlen_ptr(s));
-        return iovec;
+        ਵਾਪਸ iovec;
 }
 
-void iovec_erase(struct iovec *iovec) {
-        assert(iovec);
+ਖਾਲੀ iovec_erase(ਬਣਤਰ iovec *iovec) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec);
 
         /* Unlike iovec_done_erase(), which derives the buffer size with MALLOC_SIZEOF_SAFE(), this uses
          * iov_len as the buffer size. Hence, it can be used with iovec referring to a static array or a
          * buffer allocated on the stack. */
-        explicit_bzero_safe(iovec->iov_base, iovec->iov_len);
+        explicit_bzero_ਸੁਰੱਖਿਅਤ(iovec->iov_base, iovec->iov_len);
 }
 
-void iovec_done_erase(struct iovec *iovec) {
-        assert(iovec);
+ਖਾਲੀ iovec_ਪੂਰਾ_erase(ਬਣਤਰ iovec *iovec) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec);
 
         iovec->iov_base = erase_and_free(iovec->iov_base);
         iovec->iov_len = 0;
 }
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value) {
-        char *x;
+ਅੱਖਰ* ਸੈੱਟ_iovec_string_ਖੇਤਰ(ਬਣਤਰ iovec *iovec, size_t *n_iovec, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅਚਲ ਅੱਖਰ *ਮੁੱਲ) {
+        ਅੱਖਰ *x;
 
-        assert(iovec);
-        assert(n_iovec);
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec);
+        ਪ੍ਰਤਿਜ੍ਞਾ(n_iovec);
 
-        x = strjoin(field, value);
-        if (x)
+        x = strjoin(ਖੇਤਰ, ਮੁੱਲ);
+        ਜੇ (x)
                 iovec[(*n_iovec)++] = IOVEC_MAKE_STRING(x);
-        return x;
+        ਵਾਪਸ x;
 }
 
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value) {
-        char *x;
+ਅੱਖਰ* ਸੈੱਟ_iovec_string_ਖੇਤਰ_free(ਬਣਤਰ iovec *iovec, size_t *n_iovec, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅੱਖਰ *ਮੁੱਲ) {
+        ਅੱਖਰ *x;
 
-        assert(iovec);
-        assert(n_iovec);
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec);
+        ਪ੍ਰਤਿਜ੍ਞਾ(n_iovec);
 
-        x = set_iovec_string_field(iovec, n_iovec, field, value);
-        free(value);
-        return x;
+        x = ਸੈੱਟ_iovec_string_ਖੇਤਰ(iovec, n_iovec, ਖੇਤਰ, ਮੁੱਲ);
+        ਮੁਕਤ(ਮੁੱਲ);
+        ਵਾਪਸ x;
 }
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) {
-        assert(iovec || n_iovec == 0);
+ਖਾਲੀ iovec_array_free(ਬਣਤਰ iovec *iovec, size_t n_iovec) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec || n_iovec == 0);
 
         FOREACH_ARRAY(i, iovec, n_iovec)
-                free(i->iov_base);
+                ਮੁਕਤ(i->iov_base);
 
-        free(iovec);
+        ਮੁਕਤ(iovec);
 }
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) {
+ਪੂਰਨ iovec_memcmp(ਅਚਲ ਬਣਤਰ iovec *a, ਅਚਲ ਬਣਤਰ iovec *b) {
 
-        if (a == b)
-                return 0;
+        ਜੇ (a == b)
+                ਵਾਪਸ 0;
 
-        return memcmp_nn(a ? a->iov_base : NULL,
+        ਵਾਪਸ memcmp_nn(a ? a->iov_base : ਨਿਰਾ,
                          a ? a->iov_len : 0,
-                         b ? b->iov_base : NULL,
+                         b ? b->iov_base : ਨਿਰਾ,
                          b ? b->iov_len : 0);
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret) {
-        assert(ret);
+ਬਣਤਰ iovec* iovec_memdup(ਅਚਲ ਬਣਤਰ iovec *ਸਰੋਤ, ਬਣਤਰ iovec *ret) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (!iovec_is_set(source))
-                *ret = (struct iovec) {};
-        else {
-                void *p = memdup(source->iov_base, source->iov_len);
-                if (!p)
-                        return NULL;
+        ਜੇ (!iovec_is_ਸੈੱਟ(ਸਰੋਤ))
+                *ret = (ਬਣਤਰ iovec) {};
+        ਨਹੀਂਤਾਂ {
+                ਖਾਲੀ *p = memdup(ਸਰੋਤ->iov_base, ਸਰੋਤ->iov_len);
+                ਜੇ (!p)
+                        ਵਾਪਸ ਨਿਰਾ;
 
-                *ret = IOVEC_MAKE(p, source->iov_len);
+                *ret = IOVEC_MAKE(p, ਸਰੋਤ->iov_len);
         }
 
-        return ret;
+        ਵਾਪਸ ret;
 }
 
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source) {
-        assert(iovec);
+ਪੂਰਨ iovec_ਪੂਰਾ_and_memdup(ਬਣਤਰ iovec *iovec, ਅਚਲ ਬਣਤਰ iovec *ਸਰੋਤ) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec);
 
-        if (iovec_equal(iovec, source))
-                return 0;
+        ਜੇ (iovec_equal(iovec, ਸਰੋਤ))
+                ਵਾਪਸ 0;
 
-        struct iovec copy;
-        if (!iovec_memdup(source, &copy))
-                return -ENOMEM;
+        ਬਣਤਰ iovec copy;
+        ਜੇ (!iovec_memdup(ਸਰੋਤ, &copy))
+                ਵਾਪਸ -ENOMEM;
 
-        iovec_done(iovec);
+        iovec_ਪੂਰਾ(iovec);
         *iovec = copy;
-        return 1;
+        ਵਾਪਸ 1;
 }
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append) {
-        assert(iovec_is_valid(iovec));
+ਬਣਤਰ iovec* iovec_append(ਬਣਤਰ iovec *iovec, ਅਚਲ ਬਣਤਰ iovec *append) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(iovec_is_valid(iovec));
 
-        if (!iovec_is_set(append))
-                return iovec;
+        ਜੇ (!iovec_is_ਸੈੱਟ(append))
+                ਵਾਪਸ iovec;
 
-        if (!greedy_realloc_append(&iovec->iov_base, &iovec->iov_len, append->iov_base, append->iov_len, 1))
-                return NULL;
+        ਜੇ (!greedy_realloc_append(&iovec->iov_base, &iovec->iov_len, append->iov_base, append->iov_len, 1))
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return iovec;
+        ਵਾਪਸ iovec;
 }
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n) {
+ਬਣਤਰ iovec* iovec_consume(ਬਣਤਰ iovec *iovec, size_t n) {
 
         /* Similar to iovec_inc(), but instead of moving the pointer ahead we copy the data via memmove() and
          * thus the pointer stays fixed, but the data moves */
 
-        if (!iovec)
-                return NULL;
+        ਜੇ (!iovec)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (n > iovec->iov_len)
-                return NULL;
+        ਜੇ (n > iovec->iov_len)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        if (n == 0) /* NOP — note that this is fine on an empty (or even unset) iovec, so that consuming an
+        ਜੇ (n == 0) /* NOP — note that this is fine on an empty (or even unset) iovec, so that consuming an
                      * iovec we already fully drained continues to be a valid (if pointless) operation. */
-                return iovec;
+                ਵਾਪਸ iovec;
 
         iovec->iov_len -= n;
 
         memmove(ASSERT_PTR(iovec->iov_base), (uint8_t*) iovec->iov_base + n, iovec->iov_len);
-        return iovec;
+        ਵਾਪਸ iovec;
 }

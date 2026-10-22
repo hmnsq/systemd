@@ -1,21 +1,21 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
 /* Ideally the Iterator would be an opaque struct, but it is instantiated
  * by hashmap users, so the definition has to be here. Do not use its fields
  * directly. */
-typedef struct Iterator {
-        const void *next_key; /* expected value of that entry's key pointer */
-        unsigned idx;         /* index of an entry to be iterated next */
-#if ENABLE_DEBUG_HASHMAP
-        unsigned put_count;   /* hashmap's put_count recorded at start of iteration */
-        unsigned rem_count;   /* hashmap's rem_count in previous iteration */
-        unsigned prev_idx;    /* idx in previous iteration */
-#endif
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ Iterator {
+        ਅਚਲ ਖਾਲੀ *ਅਗਲਾ_ਕੁੰਜੀ; /* expected value of that entry's key pointer */
+        ਬਿਨਾਨਿਸ਼ਾਨੀ idx;         /* index of an entry to be iterated next */
+#ਜੇ ENABLE_DEBUG_HASHMAP
+        ਬਿਨਾਨਿਸ਼ਾਨੀ put_ਗਿਣਤੀ;   /* hashmap's put_count recorded at start of iteration */
+        ਬਿਨਾਨਿਸ਼ਾਨੀ rem_ਗਿਣਤੀ;   /* hashmap's rem_count in previous iteration */
+        ਬਿਨਾਨਿਸ਼ਾਨੀ prev_idx;    /* idx in previous iteration */
+#ਜੇ_ਅੰਤ
 } Iterator;
 
-#define _IDX_ITERATOR_FIRST (UINT_MAX - 1)
-#define ITERATOR_FIRST ((Iterator) { .idx = _IDX_ITERATOR_FIRST, .next_key = NULL })
-#define ITERATOR_IS_FIRST(i) ((i).idx == _IDX_ITERATOR_FIRST)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IDX_ITERATOR_ਪਹਿਲਾ (UINT_MAX - 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ITERATOR_ਪਹਿਲਾ ((Iterator) { .idx = IDX_ITERATOR_ਪਹਿਲਾ, .ਅਗਲਾ_ਕੁੰਜੀ = ਨਿਰਾ })
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ITERATOR_IS_ਪਹਿਲਾ(i) ((i).idx == IDX_ITERATOR_ਪਹਿਲਾ)

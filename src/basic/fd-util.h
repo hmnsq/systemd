@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <dirent.h>
-#include <fcntl.h>
-#include <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <dirent.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
 /* maximum length of fdname */
-#define FDNAME_MAX 255
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FDNAME_MAX 255
 
 /* Make sure we can distinguish fd 0 and NULL */
-#define FD_TO_PTR(fd) INT_TO_PTR((fd)+1)
-#define PTR_TO_FD(p) (PTR_TO_INT(p)-1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FD_ਮੰਜ਼ਿਲ_PTR(fd) INT_ਮੰਜ਼ਿਲ_PTR((fd)+1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PTR_ਮੰਜ਼ਿਲ_FD(p) (PTR_ਮੰਜ਼ਿਲ_INT(p)-1)
 
 /* Useful helpers for initializing pipe(), socketpair() or stdio fd arrays */
-#define EBADF_PAIR { -EBADF, -EBADF }
-#define EBADF_TRIPLET { -EBADF, -EBADF, -EBADF }
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ EBADF_PAIR { -EBADF, -EBADF }
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ EBADF_TRIPLET { -EBADF, -EBADF, -EBADF }
 
 /* So O_LARGEFILE is generally implied by glibc, and defined to zero hence, because we only build in LFS
  * mode. However, when invoking fcntl(F_GETFL) the flag is ORed into the result anyway — glibc does not mask
@@ -26,10 +26,10 @@
  * are hexa and others are octal; duplicated as-is from the kernel definitions):
  * - alpha, arm, arm64, m68k, mips, parisc, powerpc, sparc: each has a specific value;
  * - others: they use the "generic" value (defined in include/uapi/asm-generic/fcntl.h) */
-#if O_LARGEFILE != 0
+#ਜੇ O_LARGEFILE != 0
 #  define RAW_O_LARGEFILE O_LARGEFILE
-#else
-#  if defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
+#ਨਹੀਂਤਾਂ
+#  ਜੇ defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
 #    define RAW_O_LARGEFILE 0400000
 #  elif defined(__mips__)
 #    define RAW_O_LARGEFILE 0x2000
@@ -39,185 +39,185 @@
 #    define RAW_O_LARGEFILE 0200000
 #  elif defined(__sparc__)
 #    define RAW_O_LARGEFILE 0x40000
-#  else
+#  ਨਹੀਂਤਾਂ
 #    define RAW_O_LARGEFILE 00100000
 #  endif
-#endif
+#ਜੇ_ਅੰਤ
 
 /* On musl, O_ACCMODE is defined as (03|O_SEARCH), unlike glibc which defines it as
  * (O_RDONLY|O_WRONLY|O_RDWR). Additionally, O_SEARCH is simply defined as O_PATH. This changes the behaviour
  * of O_ACCMODE in certain situations, which we don't want. This definition is copied from glibc and works
  * around the problems with musl's definition. */
-#define O_ACCMODE_STRICT (O_RDONLY|O_WRONLY|O_RDWR)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ O_ACCMODE_STRICT (O_RDONLY|O_WRONLY|O_RDWR)
 
 /* The default, minimum, and maximum values of /proc/sys/fs/nr_open. See kernel's fs/file.c.
  * These values have been unchanged since kernel-2.6.26:
  * https://github.com/torvalds/linux/commit/eceea0b3df05ed262ae32e0c6340cc7a3626632d */
-#define NR_OPEN_DEFAULT ((unsigned) (1024 * 1024))
-#define NR_OPEN_MINIMUM ((unsigned) (sizeof(long) * 8))
-#define NR_OPEN_MAXIMUM ((unsigned) (CONST_MIN((size_t) INT_MAX, SIZE_MAX / __SIZEOF_POINTER__) & ~(sizeof(long) * 8 - 1)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ NR_OPEN_DEFAULT ((ਬਿਨਾਨਿਸ਼ਾਨੀ) (1024 * 1024))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ NR_OPEN_MINIMUM ((ਬਿਨਾਨਿਸ਼ਾਨੀ) (ਆਕਾਰ(ਲੰਮਾ) * 8))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ NR_OPEN_ਵੱਧ_ਤੋਂ_ਵੱਧ ((ਬਿਨਾਨਿਸ਼ਾਨੀ) (CONST_MIN((size_t) ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ, SIZE_MAX / __SIZEOF_POINTER__) & ~(ਆਕਾਰ(ਲੰਮਾ) * 8 - 1)))
 
 /* A special fd that can be passed in various helpers instead of an fd indicating the root dir. Inspired by,
  * and an alternative to AT_FDCWD. We use specific negative value that is outside of the negative errno
  * range, to avoid any potential ambiguities. */
-#define XAT_FDROOT -8192
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ XAT_FDROOT -8192
 assert_cc(XAT_FDROOT != AT_FDCWD);
 assert_cc(XAT_FDROOT < -ERRNO_MAX);
 
 /* Checks whether the specified fd is acceptable as a *at() directory fd that supports the two "wildcard"
  * values: it's either a regular, valid fd (i.e. >= 0), or one of the special AT_FDCWD/XAT_FDROOT values. */
-static inline bool wildcard_fd_is_valid(int fd) {
-        return fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool wildcard_fd_is_valid(ਪੂਰਨ fd) {
+        ਵਾਪਸ fd >= 0 || ਵਿੱਚ_ਸੈੱਟ(fd, AT_FDCWD, XAT_FDROOT);
 }
 
-int close_nointr(int fd);
-int safe_close(int fd);
-void safe_close_pair(int p[static 2]);
+ਪੂਰਨ close_nointr(ਪੂਰਨ fd);
+ਪੂਰਨ ਸੁਰੱਖਿਅਤ_close(ਪੂਰਨ fd);
+ਖਾਲੀ ਸੁਰੱਖਿਅਤ_close_pair(ਪੂਰਨ p[ਸਥਿਰ 2]);
 
-static inline int safe_close_above_stdio(int fd) {
-        if (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
-                return -EBADF;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਸੁਰੱਖਿਅਤ_close_above_stdio(ਪੂਰਨ fd) {
+        ਜੇ (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
+                ਵਾਪਸ -EBADF;
 
-        return safe_close(fd);
+        ਵਾਪਸ ਸੁਰੱਖਿਅਤ_close(fd);
 }
 
-static inline void* close_fd_ptr(void *p) {
-        safe_close(PTR_TO_FD(p));
-        return NULL;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ* close_fd_ptr(ਖਾਲੀ *p) {
+        ਸੁਰੱਖਿਅਤ_close(PTR_ਮੰਜ਼ਿਲ_FD(p));
+        ਵਾਪਸ ਨਿਰਾ;
 }
 
-void close_many(const int fds[], size_t n_fds);
-void close_many_unset(int fds[], size_t n_fds);
-void close_many_and_free(int *fds, size_t n_fds);
+ਖਾਲੀ close_many(ਅਚਲ ਪੂਰਨ fds[], size_t n_fds);
+ਖਾਲੀ close_many_unset(ਪੂਰਨ fds[], size_t n_fds);
+ਖਾਲੀ close_many_and_free(ਪੂਰਨ *fds, size_t n_fds);
 
-int fclose_nointr(FILE *f);
-FILE* safe_fclose(FILE *f);
-DIR* safe_closedir(DIR *d);
+ਪੂਰਨ fclose_nointr(FILE *f);
+FILE* ਸੁਰੱਖਿਅਤ_fclose(FILE *f);
+DIR* ਸੁਰੱਖਿਅਤ_closedir(DIR *d);
 
-static inline void closep(int *fd) {
-        safe_close(*fd);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ closep(ਪੂਰਨ *fd) {
+        ਸੁਰੱਖਿਅਤ_close(*fd);
 }
 
-static inline void close_pairp(int (*p)[2]) {
-        safe_close_pair(*p);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ close_pairp(ਪੂਰਨ (*p)[2]) {
+        ਸੁਰੱਖਿਅਤ_close_pair(*p);
 }
 
-static inline void fclosep(FILE **f) {
-        safe_fclose(*f);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ fclosep(FILE **f) {
+        ਸੁਰੱਖਿਅਤ_fclose(*f);
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, pclose, NULL);
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_ਭਰਿਆ(FILE*, pclose, ਨਿਰਾ);
+DEFINE_TRIVIAL_CLEANUP_FUNC_ਭਰਿਆ(DIR*, closedir, ਨਿਰਾ);
 
-#define _cleanup_close_ _cleanup_(closep)
-#define _cleanup_fclose_ _cleanup_(fclosep)
-#define _cleanup_pclose_ _cleanup_(pclosep)
-#define _cleanup_closedir_ _cleanup_(closedirp)
-#define _cleanup_close_pair_ _cleanup_(close_pairp)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _cleanup_close_ _cleanup_(closep)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _cleanup_fclose_ _cleanup_(fclosep)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _cleanup_pclose_ _cleanup_(pclosep)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _cleanup_closedir_ _cleanup_(closedirp)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _cleanup_close_pair_ _cleanup_(close_pairp)
 
-int fd_nonblock(int fd, bool nonblock);
-int stdio_disable_nonblock(void);
+ਪੂਰਨ fd_nonblock(ਪੂਰਨ fd, bool nonblock);
+ਪੂਰਨ stdio_disable_nonblock(ਖਾਲੀ);
 
-void nonblock_resetp(int *fd);
+ਖਾਲੀ nonblock_resetp(ਪੂਰਨ *fd);
 
-int fd_cloexec(int fd, bool cloexec);
-int fd_cloexec_many(const int fds[], size_t n_fds, bool cloexec);
+ਪੂਰਨ fd_cloexec(ਪੂਰਨ fd, bool cloexec);
+ਪੂਰਨ fd_cloexec_many(ਅਚਲ ਪੂਰਨ fds[], size_t n_fds, bool cloexec);
 
-int get_max_fd(void);
+ਪੂਰਨ get_max_fd(ਖਾਲੀ);
 
-int close_all_fds(const int except[], size_t n_except);
-int close_all_fds_without_malloc(const int except[], size_t n_except);
-int close_all_fds_frugal(const int except[], size_t n_except);
+ਪੂਰਨ close_all_fds(ਅਚਲ ਪੂਰਨ except[], size_t n_except);
+ਪੂਰਨ close_all_fds_without_malloc(ਅਚਲ ਪੂਰਨ except[], size_t n_except);
+ਪੂਰਨ close_all_fds_frugal(ਅਚਲ ਪੂਰਨ except[], size_t n_except);
 
-int pack_fds(int fds[], size_t n);
+ਪੂਰਨ pack_fds(ਪੂਰਨ fds[], size_t n);
 
-int fd_validate(int fd);
-int same_fd(int a, int b);
+ਪੂਰਨ fd_validate(ਪੂਰਨ fd);
+ਪੂਰਨ same_fd(ਪੂਰਨ a, ਪੂਰਨ b);
 
-bool fdname_is_valid(const char *s);
+bool fdname_is_valid(ਅਚਲ ਅੱਖਰ *s);
 
-int fd_get_path(int fd, char **ret);
+ਪੂਰਨ fd_get_ਰਸਤਾ(ਪੂਰਨ fd, ਅੱਖਰ **ret);
 
-int move_fd(int from, int to, int cloexec);
+ਪੂਰਨ move_fd(ਪੂਰਨ from, ਪੂਰਨ to, ਪੂਰਨ cloexec);
 
-int fd_move_above_stdio(int fd);
+ਪੂਰਨ fd_move_above_stdio(ਪੂਰਨ fd);
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);
+ਪੂਰਨ rearrange_stdio(ਪੂਰਨ original_ਨਿਵੇਸ਼_fd, ਪੂਰਨ original_output_fd, ਪੂਰਨ original_error_fd);
 
-static inline int make_null_stdio(void) {
-        return rearrange_stdio(-EBADF, -EBADF, -EBADF);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ make_null_stdio(ਖਾਲੀ) {
+        ਵਾਪਸ rearrange_stdio(-EBADF, -EBADF, -EBADF);
 }
 
 /* Like TAKE_PTR() but for file descriptors, resetting them to -EBADF */
-#define TAKE_FD(fd) TAKE_GENERIC(fd, int, -EBADF)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ TAKE_FD(fd) TAKE_GENERIC(fd, ਪੂਰਨ, -EBADF)
 
 /* Like free_and_replace(), but for file descriptors */
-#define close_and_replace(a, b)                 \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ close_and_replace(a, b)                 \
         ({                                      \
-                int *_fdp_ = &(a);              \
-                safe_close(*_fdp_);             \
+                ਪੂਰਨ *_fdp_ = &(a);              \
+                ਸੁਰੱਖਿਅਤ_close(*_fdp_);             \
                 *_fdp_ = TAKE_FD(b);            \
                 0;                              \
         })
 
-int fd_reopen(int fd, int flags);
-int fd_reopen_propagate_append_and_position(int fd, int flags);
-int fd_reopen_condition(int fd, int flags, int mask, int *ret_new_fd);
+ਪੂਰਨ fd_reopen(ਪੂਰਨ fd, ਪੂਰਨ flags);
+ਪੂਰਨ fd_reopen_propagate_append_and_position(ਪੂਰਨ fd, ਪੂਰਨ flags);
+ਪੂਰਨ fd_reopen_condition(ਪੂਰਨ fd, ਪੂਰਨ flags, ਪੂਰਨ ਨਕਾਬ_3, ਪੂਰਨ *ret_new_fd);
 
-int fd_is_opath(int fd);
-int fd_vet_accmode(int fd, int mode);
-int fd_is_writable(int fd);
+ਪੂਰਨ fd_is_opath(ਪੂਰਨ fd);
+ਪੂਰਨ fd_vet_accmode(ਪੂਰਨ fd, ਪੂਰਨ ਬਹੁਲਕ);
+ਪੂਰਨ fd_is_writable(ਪੂਰਨ fd);
 
-int fd_verify_safe_flags_full(int fd, int extra_flags);
-static inline int fd_verify_safe_flags(int fd) {
-        return fd_verify_safe_flags_full(fd, 0);
+ਪੂਰਨ fd_verify_ਸੁਰੱਖਿਅਤ_flags_ਭਰਿਆ(ਪੂਰਨ fd, ਪੂਰਨ extra_flags);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ fd_verify_ਸੁਰੱਖਿਅਤ_flags(ਪੂਰਨ fd) {
+        ਵਾਪਸ fd_verify_ਸੁਰੱਖਿਅਤ_flags_ਭਰਿਆ(fd, 0);
 }
 
-unsigned read_nr_open(void);
-int fd_get_diskseq(int fd, uint64_t *ret);
+ਬਿਨਾਨਿਸ਼ਾਨੀ read_nr_open(ਖਾਲੀ);
+ਪੂਰਨ fd_get_diskseq(ਪੂਰਨ fd, uint64_t *ret);
 
-int path_is_root_at(int dir_fd, const char *path);
-static inline int path_is_root(const char *path) {
-        return path_is_root_at(AT_FDCWD, path);
+ਪੂਰਨ ਰਸਤਾ_is_ਜੜ੍ਹ_at(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਰਸਤਾ_is_ਜੜ੍ਹ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ) {
+        ਵਾਪਸ ਰਸਤਾ_is_ਜੜ੍ਹ_at(AT_FDCWD, ਰਸਤਾ);
 }
-static inline int dir_fd_is_root(int dir_fd) {
-        return dir_fd == XAT_FDROOT ? true : path_is_root_at(dir_fd, NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ dir_fd_is_ਜੜ੍ਹ(ਪੂਰਨ dir_fd) {
+        ਵਾਪਸ dir_fd == XAT_FDROOT ? true : ਰਸਤਾ_is_ਜੜ੍ਹ_at(dir_fd, ਨਿਰਾ);
 }
-static inline int dir_fd_is_root_or_cwd(int dir_fd) {
-        return IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_root_at(dir_fd, NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ dir_fd_is_ਜੜ੍ਹ_or_cwd(ਪੂਰਨ dir_fd) {
+        ਵਾਪਸ ਵਿੱਚ_ਸੈੱਟ(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : ਰਸਤਾ_is_ਜੜ੍ਹ_at(dir_fd, ਨਿਰਾ);
 }
 
-int fds_inode_and_mount_same(int fd1, int fd2);
+ਪੂਰਨ fds_inode_and_mount_same(ਪੂਰਨ fd1, ਪੂਰਨ fd2);
 
-int resolve_xat_fdroot(int *fd, const char **path, char **ret_buffer);
+ਪੂਰਨ resolve_xat_fdroot(ਪੂਰਨ *fd, ਅਚਲ ਅੱਖਰ **ਰਸਤਾ, ਅੱਖਰ **ret_ਬਫਰ);
 
 /* The maximum length a buffer for a /proc/self/fd/<fd> path needs */
-#define PROC_FD_PATH_MAX \
-        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(int))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROC_FD_ਰਸਤਾ_MAX \
+        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(ਪੂਰਨ))
 
-char* format_proc_fd_path(char buf[static PROC_FD_PATH_MAX], int fd);
+ਅੱਖਰ* format_proc_fd_ਰਸਤਾ(ਅੱਖਰ buf[ਸਥਿਰ PROC_FD_ਰਸਤਾ_MAX], ਪੂਰਨ fd);
 
-#define FORMAT_PROC_FD_PATH(fd) \
-        format_proc_fd_path((char[PROC_FD_PATH_MAX]) {}, (fd))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FORMAT_PROC_FD_ਰਸਤਾ(fd) \
+        format_proc_fd_ਰਸਤਾ((ਅੱਖਰ[PROC_FD_ਰਸਤਾ_MAX]) {}, (fd))
 
 /* The maximum length a buffer for a /proc/<pid>/fd/<fd> path needs */
-#define PROC_PID_FD_PATH_MAX \
-        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(int))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PROC_PID_FD_ਰਸਤਾ_MAX \
+        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(ਪੂਰਨ))
 
-char* format_proc_pid_fd_path(char buf[static PROC_PID_FD_PATH_MAX], pid_t pid, int fd);
+ਅੱਖਰ* format_proc_pid_fd_ਰਸਤਾ(ਅੱਖਰ buf[ਸਥਿਰ PROC_PID_FD_ਰਸਤਾ_MAX], pid_t pid, ਪੂਰਨ fd);
 
 /* Kinda the same as FORMAT_PROC_FD_PATH(), but goes by PID rather than "self" symlink */
-#define FORMAT_PROC_PID_FD_PATH(pid, fd)                                \
-        format_proc_pid_fd_path((char[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FORMAT_PROC_PID_FD_ਰਸਤਾ(pid, fd)                                \
+        format_proc_pid_fd_ਰਸਤਾ((ਅੱਖਰ[PROC_PID_FD_ਰਸਤਾ_MAX]) {}, (pid), (fd))
 
-int proc_fd_enoent_errno(void);
+ਪੂਰਨ proc_fd_enoent_errno(ਖਾਲੀ);
 
-const char* accmode_to_string(int flags);
+ਅਚਲ ਅੱਖਰ* accmode_ਮੰਜ਼ਿਲ_string(ਪੂਰਨ flags);
 
 /* Like ASSERT_PTR, but for fds */
-#define ASSERT_FD(fd)                           \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ASSERT_FD(fd)                           \
         ({                                      \
-                int _fd_ = (fd);                \
-                assert(_fd_ >= 0);              \
+                ਪੂਰਨ _fd_ = (fd);                \
+                ਪ੍ਰਤਿਜ੍ਞਾ(_fd_ >= 0);              \
                 _fd_;                           \
         })

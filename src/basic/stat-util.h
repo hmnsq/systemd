@@ -1,169 +1,169 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <sys/stat.h>           /* IWYU pragma: export */
-#include <sys/statfs.h>         /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>           /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/statfs.h>         /* IWYU pragma: export */
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-int stat_verify_regular(const struct stat *st);
-int statx_verify_regular(const struct statx *stx);
-int verify_regular_at(int fd, const char *path, bool follow);
-int fd_verify_regular(int fd);
+ਪੂਰਨ stat_verify_regular(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ statx_verify_regular(ਅਚਲ ਬਣਤਰ statx *stx);
+ਪੂਰਨ verify_regular_at(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool follow);
+ਪੂਰਨ fd_verify_regular(ਪੂਰਨ fd);
 
-int stat_verify_directory(const struct stat *st);
-int statx_verify_directory(const struct statx *stx);
-int fd_verify_directory(int fd);
-int is_dir_at(int fd, const char *path, bool follow);
-int is_dir(const char *path, bool follow);
+ਪੂਰਨ stat_verify_directory(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ statx_verify_directory(ਅਚਲ ਬਣਤਰ statx *stx);
+ਪੂਰਨ fd_verify_directory(ਪੂਰਨ fd);
+ਪੂਰਨ is_dir_at(ਪੂਰਨ fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool follow);
+ਪੂਰਨ is_dir(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool follow);
 
-int stat_verify_symlink(const struct stat *st);
-int fd_verify_symlink(int fd);
-int is_symlink(const char *path);
+ਪੂਰਨ stat_verify_symlink(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ fd_verify_symlink(ਪੂਰਨ fd);
+ਪੂਰਨ is_symlink(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 
-int stat_verify_socket(const struct stat *st);
-int statx_verify_socket(const struct statx *stx);
-int fd_verify_socket(int fd);
-int is_socket(const char *path);
+ਪੂਰਨ stat_verify_socket(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ statx_verify_socket(ਅਚਲ ਬਣਤਰ statx *stx);
+ਪੂਰਨ fd_verify_socket(ਪੂਰਨ fd);
+ਪੂਰਨ is_socket(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 
-int stat_verify_linked(const struct stat *st);
-int fd_verify_linked(int fd);
+ਪੂਰਨ stat_verify_linked(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ fd_verify_linked(ਪੂਰਨ fd);
 
-int stat_verify_block(const struct stat *st);
-int fd_verify_block(int fd);
+ਪੂਰਨ stat_verify_ਖੰਡ(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ fd_verify_ਖੰਡ(ਪੂਰਨ fd);
 
-int stat_verify_char(const struct stat *st);
+ਪੂਰਨ stat_verify_char(ਅਚਲ ਬਣਤਰ stat *st);
 
-int stat_verify_device_node(const struct stat *st);
-int is_device_node(const char *path);
+ਪੂਰਨ stat_verify_device_ਗੰਢ(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ is_device_ਗੰਢ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 
-int stat_verify_regular_or_block(const struct stat *st);
-int fd_verify_regular_or_block(int fd);
+ਪੂਰਨ stat_verify_regular_or_ਖੰਡ(ਅਚਲ ਬਣਤਰ stat *st);
+ਪੂਰਨ fd_verify_regular_or_ਖੰਡ(ਪੂਰਨ fd);
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup);
-static inline int dir_is_empty(const char *path, bool ignore_hidden_or_backup) {
-        return dir_is_empty_at(AT_FDCWD, path, ignore_hidden_or_backup);
+ਪੂਰਨ dir_is_ਖਾਲੀ_ਥਾਵਾਂ_at(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool ignore_hidden_or_backup);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ dir_is_ਖਾਲੀ_ਥਾਵਾਂ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, bool ignore_hidden_or_backup) {
+        ਵਾਪਸ dir_is_ਖਾਲੀ_ਥਾਵਾਂ_at(AT_FDCWD, ਰਸਤਾ, ignore_hidden_or_backup);
 }
 
-bool stat_may_be_dev_null(struct stat *st) _pure_;
-bool stat_is_empty(struct stat *st) _pure_;
-static inline bool null_or_empty(struct stat *st) {
-        return stat_may_be_dev_null(st) || stat_is_empty(st);
+bool stat_may_be_dev_null(ਬਣਤਰ stat *st) ਸ਼ੁੱਧ;
+bool stat_is_ਖਾਲੀ_ਥਾਵਾਂ(ਬਣਤਰ stat *st) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool null_or_ਖਾਲੀ_ਥਾਵਾਂ(ਬਣਤਰ stat *st) {
+        ਵਾਪਸ stat_may_be_dev_null(st) || stat_is_ਖਾਲੀ_ਥਾਵਾਂ(st);
 }
-int null_or_empty_path_with_root(const char *fn, const char *root);
+ਪੂਰਨ null_or_ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ_with_ਜੜ੍ਹ(ਅਚਲ ਅੱਖਰ *fn, ਅਚਲ ਅੱਖਰ *ਜੜ੍ਹ);
 
-static inline int null_or_empty_path(const char *fn) {
-        return null_or_empty_path_with_root(fn, NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ null_or_ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *fn) {
+        ਵਾਪਸ null_or_ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ_with_ਜੜ੍ਹ(fn, ਨਿਰਾ);
 }
 
-typedef enum XStatXFlags {
-        XSTATX_MNT_ID_BEST = 1 << 0, /* Like STATX_MNT_ID_UNIQUE if available, STATX_MNT_ID otherwise */
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ XStatXFlags {
+        XSTATX_MNT_ID_ਉੱਤਮ = 1 << 0, /* Like STATX_MNT_ID_UNIQUE if available, STATX_MNT_ID otherwise */
 } XStatXFlags;
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+ਪੂਰਨ xstatx_ਭਰਿਆ(ਪੂਰਨ fd,
+                ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                ਪੂਰਨ statx_flags,
                 XStatXFlags xstatx_flags,
-                unsigned mandatory_mask,
-                unsigned optional_mask,
-                uint64_t mandatory_attributes,
-                struct statx *ret);
+                ਬਿਨਾਨਿਸ਼ਾਨੀ mandatory_ਨਕਾਬ,
+                ਬਿਨਾਨਿਸ਼ਾਨੀ optional_ਨਕਾਬ,
+                uint64_t mandatory_ਗੁਣ,
+                ਬਣਤਰ statx *ret);
 
-static inline int xstatx(
-                int fd,
-                const char *path,
-                int statx_flags,
-                unsigned mandatory_mask,
-                struct statx *ret) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ xstatx(
+                ਪੂਰਨ fd,
+                ਅਚਲ ਅੱਖਰ *ਰਸਤਾ,
+                ਪੂਰਨ statx_flags,
+                ਬਿਨਾਨਿਸ਼ਾਨੀ mandatory_ਨਕਾਬ,
+                ਬਣਤਰ statx *ret) {
 
-        return xstatx_full(fd, path, statx_flags, 0, mandatory_mask, 0, 0, ret);
+        ਵਾਪਸ xstatx_ਭਰਿਆ(fd, ਰਸਤਾ, statx_flags, 0, mandatory_ਨਕਾਬ, 0, 0, ret);
 }
 
-int fd_is_read_only_fs(int fd);
-int path_is_read_only_fs(const char *path);
+ਪੂਰਨ fd_is_read_only_fs(ਪੂਰਨ fd);
+ਪੂਰਨ ਰਸਤਾ_is_read_only_fs(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags);
-static inline int inode_same(const char *filea, const char *fileb, int flags) {
-        return inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
+ਪੂਰਨ inode_same_at(ਪੂਰਨ fda, ਅਚਲ ਅੱਖਰ *filea, ਪੂਰਨ fdb, ਅਚਲ ਅੱਖਰ *fileb, ਪੂਰਨ flags);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ inode_same(ਅਚਲ ਅੱਖਰ *filea, ਅਚਲ ਅੱਖਰ *fileb, ਪੂਰਨ flags) {
+        ਵਾਪਸ inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
 }
-static inline int fd_inode_same(int fda, int fdb) {
-        return inode_same_at(fda, NULL, fdb, NULL, AT_EMPTY_PATH);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ fd_inode_same(ਪੂਰਨ fda, ਪੂਰਨ fdb) {
+        ਵਾਪਸ inode_same_at(fda, ਨਿਰਾ, fdb, ਨਿਰਾ, AT_ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ);
 }
 
 /* The .f_type field of struct statfs is really weird defined on
  * different archs. Let's give its type a name. */
-typedef typeof_field(struct statfs, f_type) statfs_f_type_t;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ typeof_ਖੇਤਰ(ਬਣਤਰ statfs, f_type) statfs_f_type_t;
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) _pure_;
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value);
-static inline int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
-        return is_fs_type_at(fd, NULL, magic_value);
+bool is_fs_type(ਅਚਲ ਬਣਤਰ statfs *s, statfs_f_type_t magic_ਮੁੱਲ) ਸ਼ੁੱਧ;
+ਪੂਰਨ is_fs_type_at(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, statfs_f_type_t magic_ਮੁੱਲ);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ fd_is_fs_type(ਪੂਰਨ fd, statfs_f_type_t magic_ਮੁੱਲ) {
+        ਵਾਪਸ is_fs_type_at(fd, ਨਿਰਾ, magic_ਮੁੱਲ);
 }
-static inline int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
-        return is_fs_type_at(AT_FDCWD, path, magic_value);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ਰਸਤਾ_is_fs_type(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, statfs_f_type_t magic_ਮੁੱਲ) {
+        ਵਾਪਸ is_fs_type_at(AT_FDCWD, ਰਸਤਾ, magic_ਮੁੱਲ);
 }
 
-bool is_temporary_fs(const struct statfs *s) _pure_;
-bool is_network_fs(const struct statfs *s) _pure_;
+bool is_temporary_fs(ਅਚਲ ਬਣਤਰ statfs *s) ਸ਼ੁੱਧ;
+bool is_ਜਾਲ_fs(ਅਚਲ ਬਣਤਰ statfs *s) ਸ਼ੁੱਧ;
 
-int fd_is_temporary_fs(int fd);
-int fd_is_network_fs(int fd);
+ਪੂਰਨ fd_is_temporary_fs(ਪੂਰਨ fd);
+ਪੂਰਨ fd_is_ਜਾਲ_fs(ਪੂਰਨ fd);
 
-int path_is_temporary_fs(const char *path);
-int path_is_network_fs(const char *path);
+ਪੂਰਨ ਰਸਤਾ_is_temporary_fs(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
+ਪੂਰਨ ਰਸਤਾ_is_ਜਾਲ_fs(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ);
 
 /* Because statfs.t_type can be int on some architectures, we have to cast
  * the const magic to the type, otherwise the compiler warns about
  * signed/unsigned comparison, because the magic can be 32 bit unsigned.
  */
-#define F_TYPE_EQUAL(a, b) (a == (typeof(a)) b)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ F_TYPE_EQUAL(a, b) (a == (typeof(a)) b)
 
-int proc_mounted(void);
+ਪੂਰਨ proc_mounted(ਖਾਲੀ);
 
-bool stat_inode_same(const struct stat *a, const struct stat *b);
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b);
+bool stat_inode_same(ਅਚਲ ਬਣਤਰ stat *a, ਅਚਲ ਬਣਤਰ stat *b);
+bool stat_inode_unmodified(ਅਚਲ ਬਣਤਰ stat *a, ਅਚਲ ਬਣਤਰ stat *b);
 
-bool statx_inode_same(const struct statx *a, const struct statx *b);
-int statx_mount_same(const struct statx *a, const struct statx *b);
+bool statx_inode_same(ਅਚਲ ਬਣਤਰ statx *a, ਅਚਲ ਬਣਤਰ statx *b);
+ਪੂਰਨ statx_mount_same(ਅਚਲ ਬਣਤਰ statx *a, ਅਚਲ ਬਣਤਰ statx *b);
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret);
+ਪੂਰਨ xstatfsat(ਪੂਰਨ dir_fd, ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਬਣਤਰ statfs *ret);
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) _pure_;
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) _pure_;
+usec_t statx_timestamp_ਲੱਦੋ(ਅਚਲ ਬਣਤਰ statx_timestamp *ts) ਸ਼ੁੱਧ;
+nsec_t statx_timestamp_ਲੱਦੋ_nsec(ਅਚਲ ਬਣਤਰ statx_timestamp *ts) ਸ਼ੁੱਧ;
 
 /* This compares inode number, backing device and inode type, but not modification info */
-void inode_hash_func(const struct stat *q, struct siphash *state);
-int inode_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_hash_ops;
+ਖਾਲੀ inode_hash_func(ਅਚਲ ਬਣਤਰ stat *q, ਬਣਤਰ siphash *state);
+ਪੂਰਨ inode_compare_func(ਅਚਲ ਬਣਤਰ stat *a, ਅਚਲ ਬਣਤਰ stat *b);
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ hash_ops inode_hash_ops;
 
 /* This is a more thorough version of the above, and also checks the mtimes, the size, and the rdev. It does
  * not check "external" attributes such as access mode or ownership. */
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state);
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_unmodified_hash_ops;
+ਖਾਲੀ inode_unmodified_hash_func(ਅਚਲ ਬਣਤਰ stat *q, ਬਣਤਰ siphash *state);
+ਪੂਰਨ inode_unmodified_compare_func(ਅਚਲ ਬਣਤਰ stat *a, ਅਚਲ ਬਣਤਰ stat *b);
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ hash_ops inode_unmodified_hash_ops;
 
-DECLARE_STRING_TABLE_LOOKUP(inode_type, mode_t);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(inode_type, mode_t);
 
 /* Macros that check whether the stat/statx structures have been initialized already. For "struct stat" we
  * use a check for .st_dev being non-zero, since the kernel unconditionally fills that in, mapping the file
  * to its originating superblock, regardless if the fs is block based or virtual (we also check for .st_mode
  * being MODE_INVALID, since we use that as an invalid marker for separate mode_t fields). For "struct statx"
  * we use the .stx_mask field, which must be non-zero if any of the fields have already been initialized. */
-static inline bool stat_is_set(const struct stat *st) {
-        return st && st->st_dev != 0 && st->st_mode != MODE_INVALID;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool stat_is_ਸੈੱਟ(ਅਚਲ ਬਣਤਰ stat *st) {
+        ਵਾਪਸ st && st->st_dev != 0 && st->st_mode != ਬਹੁਲਕ_INVALID;
 }
-static inline bool statx_is_set(const struct statx *sx) {
-        return sx && sx->stx_mask != 0;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool statx_is_ਸੈੱਟ(ਅਚਲ ਬਣਤਰ statx *sx) {
+        ਵਾਪਸ sx && sx->stx_ਨਕਾਬ != 0;
 }
-static inline bool statfs_is_set(const struct statfs *sfs) {
-        return sfs && sfs->f_type != 0;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool statfs_is_ਸੈੱਟ(ਅਚਲ ਬਣਤਰ statfs *sfs) {
+        ਵਾਪਸ sfs && sfs->f_type != 0;
 }
 
-static inline bool inode_type_can_hardlink(mode_t m) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool inode_type_can_hardlink(mode_t m) {
         /* returns true for all inode types that support hardlinks on linux. Note this is effectively all
          * inode types except for directories (and those weird misc fds such as eventfds() that have no inode
          * type). */
-        return IN_SET(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
+        ਵਾਪਸ ਵਿੱਚ_ਸੈੱਟ(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret);
+ਪੂਰਨ vfs_free_ਬਾਈਟਾਂ(ਪੂਰਨ fd, uint64_t *ret);

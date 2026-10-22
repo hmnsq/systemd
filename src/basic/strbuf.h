@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-struct strbuf {
-        char *buf;
+ਬਣਤਰ strbuf {
+        ਅੱਖਰ *buf;
         size_t len;
-        struct strbuf_node *root;
+        ਬਣਤਰ strbuf_ਗੰਢ *ਜੜ੍ਹ;
 
-        size_t nodes_count;
-        size_t in_count;
-        size_t in_len;
+        size_t nodes_ਗਿਣਤੀ;
+        size_t ਵਿੱਚ_ਗਿਣਤੀ;
+        size_t ਵਿੱਚ_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_ਗਿਣਤੀ;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+ਬਣਤਰ strbuf_ਗੰਢ {
+        size_t ਮੁੱਲ_off;
+        size_t ਮੁੱਲ_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        ਬਣਤਰ strbuf_ਬੱਚਾ_ਇੰਦਰਾਜ *children;
+        uint8_t children_ਗਿਣਤੀ;
 };
 
-struct strbuf_child_entry {
+ਬਣਤਰ strbuf_ਬੱਚਾ_ਇੰਦਰਾਜ {
         uint8_t c;
-        struct strbuf_node *child;
+        ਬਣਤਰ strbuf_ਗੰਢ *ਬੱਚਾ;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+ਬਣਤਰ strbuf* strbuf_new(ਖਾਲੀ);
+ssize_t strbuf_ਜੋੜੋ_string_ਭਰਿਆ(ਬਣਤਰ strbuf *str, ਅਚਲ ਅੱਖਰ *s, size_t len);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ssize_t strbuf_ਜੋੜੋ_string(ਬਣਤਰ strbuf *str, ਅਚਲ ਅੱਖਰ *s) {
+        ਵਾਪਸ strbuf_ਜੋੜੋ_string_ਭਰਿਆ(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+ਖਾਲੀ strbuf_complete(ਬਣਤਰ strbuf *str);
+ਬਣਤਰ strbuf* strbuf_free(ਬਣਤਰ strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ਬਣਤਰ strbuf*, strbuf_free);

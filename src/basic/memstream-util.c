@@ -1,75 +1,75 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "memstream-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fileio.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "log.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "memstream-util.h"
 
-void memstream_done(MemStream *m) {
-        assert(m);
+ਖਾਲੀ memstream_ਪੂਰਾ(Mem_ਧਾਰਾ *m) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(m);
 
         /* First, close file stream, as the buffer may be reallocated on close. */
-        safe_fclose(m->f);
+        ਸੁਰੱਖਿਅਤ_fclose(m->f);
 
         /* Then, free buffer. */
-        free(m->buf);
+        ਮੁਕਤ(m->buf);
 }
 
-FILE* memstream_init(MemStream *m) {
-        assert(m);
-        assert(!m->f);
+FILE* memstream_init(Mem_ਧਾਰਾ *m) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(m);
+        ਪ੍ਰਤਿਜ੍ਞਾ(!m->f);
 
         m->f = open_memstream_unlocked(&m->buf, &m->sz);
-        return m->f;
+        ਵਾਪਸ m->f;
 }
 
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
-        int r;
+ਪੂਰਨ memstream_finalize(Mem_ਧਾਰਾ *m, ਅੱਖਰ **ret_buf, size_t *ret_ਮਾਪ) {
+        ਪੂਰਨ r;
 
-        assert(m);
-        assert(m->f);
-        assert(ret_buf);
+        ਪ੍ਰਤਿਜ੍ਞਾ(m);
+        ਪ੍ਰਤਿਜ੍ਞਾ(m->f);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret_buf);
 
         /* Add terminating NUL, so that the output buffer is a valid string. */
         fputc('\0', m->f);
 
         r = fflush_and_check(m->f);
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        m->f = safe_fclose(m->f);
+        m->f = ਸੁਰੱਖਿਅਤ_fclose(m->f);
 
         /* On fclose(), the buffer may be reallocated, and may trigger OOM. */
-        if (!m->buf)
-                return -ENOMEM;
+        ਜੇ (!m->buf)
+                ਵਾਪਸ -ENOMEM;
 
-        assert(m->sz > 0);
+        ਪ੍ਰਤਿਜ੍ਞਾ(m->sz > 0);
 
         *ret_buf = TAKE_PTR(m->buf);
-        if (ret_size)
-                *ret_size = m->sz - 1;
+        ਜੇ (ret_ਮਾਪ)
+                *ret_ਮਾਪ = m->sz - 1;
 
         m->sz = 0; /* For safety when the MemStream object will be reused later. */
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                MemStream *m) {
+ਪੂਰਨ memstream_dump_ਅੰਦਰੂਨੀ(
+                ਪੂਰਨ level,
+                ਪੂਰਨ error,
+                ਅਚਲ ਅੱਖਰ *file,
+                ਪੂਰਨ ਸਤਰ,
+                ਅਚਲ ਅੱਖਰ *func,
+                Mem_ਧਾਰਾ *m) {
 
-        _cleanup_free_ char *buf = NULL;
-        int r;
+        _cleanup_free_ ਅੱਖਰ *buf = ਨਿਰਾ;
+        ਪੂਰਨ r;
 
-        assert(m);
+        ਪ੍ਰਤਿਜ੍ਞਾ(m);
 
-        r = memstream_finalize(m, &buf, NULL);
-        if (r < 0)
-                return log_full_errno(level, r, "Failed to flush memstream: %m");
+        r = memstream_finalize(m, &buf, ਨਿਰਾ);
+        ਜੇ (r < 0)
+                ਵਾਪਸ log_ਭਰਿਆ_errno(level, r, "Failed to flush memstream: %m");
 
-        return log_dump_internal(level, error, file, line, func, buf);
+        ਵਾਪਸ log_dump_ਅੰਦਰੂਨੀ(level, error, file, ਸਤਰ, func, buf);
 }

@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
-#include "hashmap.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "hashmap.h"
 
-typedef struct OrderedSet OrderedSet;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ Ordered_ਸੈੱਟ Ordered_ਸੈੱਟ;
 
-static inline OrderedSet* ordered_set_new(const struct hash_ops *ops) {
-        return (OrderedSet*) ordered_hashmap_new(ops);
+ਸਥਿਰ ਸਤਰਅੰਦਰ Ordered_ਸੈੱਟ* ordered_ਸੈੱਟ_new(ਅਚਲ ਬਣਤਰ hash_ops *ops) {
+        ਵਾਪਸ (Ordered_ਸੈੱਟ*) ordered_hashmap_new(ops);
 }
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops);
+ਪੂਰਨ ordered_ਸੈੱਟ_ensure_allocated(Ordered_ਸੈੱਟ **s, ਅਚਲ ਬਣਤਰ hash_ops *ops);
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p);
+ਪੂਰਨ ordered_ਸੈੱਟ_ensure_put(Ordered_ਸੈੱਟ **s, ਅਚਲ ਬਣਤਰ hash_ops *ops, ਖਾਲੀ *p);
 
-static inline void ordered_set_clear(OrderedSet *s) {
-        return ordered_hashmap_clear((OrderedHashmap*) s);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ ordered_ਸੈੱਟ_clear(Ordered_ਸੈੱਟ *s) {
+        ਵਾਪਸ ordered_hashmap_clear((OrderedHashmap*) s);
 }
 
-static inline OrderedSet* ordered_set_free(OrderedSet *s) {
-        return (OrderedSet*) ordered_hashmap_free((OrderedHashmap*) s);
+ਸਥਿਰ ਸਤਰਅੰਦਰ Ordered_ਸੈੱਟ* ordered_ਸੈੱਟ_free(Ordered_ਸੈੱਟ *s) {
+        ਵਾਪਸ (Ordered_ਸੈੱਟ*) ordered_hashmap_free((OrderedHashmap*) s);
 }
 
-static inline int ordered_set_contains(OrderedSet *s, const void *p) {
-        return ordered_hashmap_contains((OrderedHashmap*) s, p);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ordered_ਸੈੱਟ_ਸ਼ਾਮਲ_ਹੈ(Ordered_ਸੈੱਟ *s, ਅਚਲ ਖਾਲੀ *p) {
+        ਵਾਪਸ ordered_hashmap_ਸ਼ਾਮਲ_ਹੈ((OrderedHashmap*) s, p);
 }
 
-static inline int ordered_set_put(OrderedSet *s, void *p) {
-        return ordered_hashmap_put((OrderedHashmap*) s, p, p);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ordered_ਸੈੱਟ_put(Ordered_ਸੈੱਟ *s, ਖਾਲੀ *p) {
+        ਵਾਪਸ ordered_hashmap_put((OrderedHashmap*) s, p, p);
 }
 
-static inline void *ordered_set_get(OrderedSet *s, const void *p) {
-        return ordered_hashmap_get((OrderedHashmap*) s, p);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *ordered_ਸੈੱਟ_get(Ordered_ਸੈੱਟ *s, ਅਚਲ ਖਾਲੀ *p) {
+        ਵਾਪਸ ordered_hashmap_get((OrderedHashmap*) s, p);
 }
 
-static inline unsigned ordered_set_size(OrderedSet *s) {
-        return ordered_hashmap_size((OrderedHashmap*) s);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ordered_ਸੈੱਟ_ਮਾਪ(Ordered_ਸੈੱਟ *s) {
+        ਵਾਪਸ ordered_hashmap_ਮਾਪ((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_isempty(OrderedSet *s) {
-        return ordered_hashmap_isempty((OrderedHashmap*) s);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ordered_ਸੈੱਟ_isempty(Ordered_ਸੈੱਟ *s) {
+        ਵਾਪਸ ordered_hashmap_isempty((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_iterate(OrderedSet *s, Iterator *i, void **value) {
-        return ordered_hashmap_iterate((OrderedHashmap*) s, i, value, NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ordered_ਸੈੱਟ_iterate(Ordered_ਸੈੱਟ *s, Iterator *i, ਖਾਲੀ **ਮੁੱਲ) {
+        ਵਾਪਸ ordered_hashmap_iterate((OrderedHashmap*) s, i, ਮੁੱਲ, ਨਿਰਾ);
 }
 
-static inline void* ordered_set_remove(OrderedSet *s, void *p) {
-        return ordered_hashmap_remove((OrderedHashmap*) s, p);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ* ordered_ਸੈੱਟ_remove(Ordered_ਸੈੱਟ *s, ਖਾਲੀ *p) {
+        ਵਾਪਸ ordered_hashmap_remove((OrderedHashmap*) s, p);
 }
 
-static inline void* ordered_set_first(OrderedSet *s) {
-        return ordered_hashmap_first((OrderedHashmap*) s);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ* ordered_ਸੈੱਟ_ਪਹਿਲਾ(Ordered_ਸੈੱਟ *s) {
+        ਵਾਪਸ ordered_hashmap_ਪਹਿਲਾ((OrderedHashmap*) s);
 }
 
-static inline void* ordered_set_steal_first(OrderedSet *s) {
-        return ordered_hashmap_steal_first((OrderedHashmap*) s);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ* ordered_ਸੈੱਟ_steal_ਪਹਿਲਾ(Ordered_ਸੈੱਟ *s) {
+        ਵਾਪਸ ordered_hashmap_steal_ਪਹਿਲਾ((OrderedHashmap*) s);
 }
 
-static inline char** ordered_set_get_strv(OrderedSet *s) {
-        return _hashmap_get_strv(HASHMAP_BASE((OrderedHashmap*) s));
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ** ordered_ਸੈੱਟ_get_strv(Ordered_ਸੈੱਟ *s) {
+        ਵਾਪਸ _hashmap_get_strv(HASHMAP_ਅਧਾਰ((OrderedHashmap*) s));
 }
 
-static inline int ordered_set_reserve(OrderedSet *s, unsigned entries_add) {
-        return ordered_hashmap_reserve((OrderedHashmap*) s, entries_add);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ ordered_ਸੈੱਟ_reserve(Ordered_ਸੈੱਟ *s, ਬਿਨਾਨਿਸ਼ਾਨੀ entries_ਜੋੜੋ) {
+        ਵਾਪਸ ordered_hashmap_reserve((OrderedHashmap*) s, entries_ਜੋੜੋ);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p);
+ਪੂਰਨ ordered_ਸੈੱਟ_consume(Ordered_ਸੈੱਟ *s, ਖਾਲੀ *p);
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p);
-#define ordered_set_put_strdup(s, p) ordered_set_put_strdup_full(s, &string_hash_ops_free, p)
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l);
-#define ordered_set_put_strdupv(s, l) ordered_set_put_strdupv_full(s, &string_hash_ops_free, l)
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l);
-#define ordered_set_put_string_set(s, l) ordered_set_put_string_set_full(s, &string_hash_ops_free, l)
+ਪੂਰਨ ordered_ਸੈੱਟ_put_strdup_ਭਰਿਆ(Ordered_ਸੈੱਟ **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops, ਅਚਲ ਅੱਖਰ *p);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ordered_ਸੈੱਟ_put_strdup(s, p) ordered_ਸੈੱਟ_put_strdup_ਭਰਿਆ(s, &string_hash_ops_free, p)
+ਪੂਰਨ ordered_ਸੈੱਟ_put_strdupv_ਭਰਿਆ(Ordered_ਸੈੱਟ **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops, ਅੱਖਰ **l);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ordered_ਸੈੱਟ_put_strdupv(s, l) ordered_ਸੈੱਟ_put_strdupv_ਭਰਿਆ(s, &string_hash_ops_free, l)
+ਪੂਰਨ ordered_ਸੈੱਟ_put_string_ਸੈੱਟ_ਭਰਿਆ(Ordered_ਸੈੱਟ **s, ਅਚਲ ਬਣਤਰ hash_ops *hash_ops, Ordered_ਸੈੱਟ *l);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ordered_ਸੈੱਟ_put_string_ਸੈੱਟ(s, l) ordered_ਸੈੱਟ_put_string_ਸੈੱਟ_ਭਰਿਆ(s, &string_hash_ops_free, l)
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s);
+ਖਾਲੀ ordered_ਸੈੱਟ_print(FILE *f, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, Ordered_ਸੈੱਟ *s);
 
-#define _ORDERED_SET_FOREACH(e, s, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (void**)&(e)); )
-#define ORDERED_SET_FOREACH(e, s) \
-        _ORDERED_SET_FOREACH(e, s, UNIQ_T(i, UNIQ))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ORDERED_ਸੈੱਟ_FOREACH_2(e, s, i) \
+        ਲਈ (Iterator i = ITERATOR_ਪਹਿਲਾ; ordered_ਸੈੱਟ_iterate((s), &i, (ਖਾਲੀ**)&(e)); )
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ORDERED_ਸੈੱਟ_FOREACH(e, s) \
+        ORDERED_ਸੈੱਟ_FOREACH_2(e, s, UNIQ_T(i, UNIQ))
 
-DEFINE_TRIVIAL_CLEANUP_FUNC(OrderedSet*, ordered_set_free);
+DEFINE_TRIVIAL_CLEANUP_FUNC(Ordered_ਸੈੱਟ*, ordered_ਸੈੱਟ_free);
 
-#define _cleanup_ordered_set_free_ _cleanup_(ordered_set_freep)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ cleanup_ordered_ਸੈੱਟ_free _cleanup_(ordered_ਸੈੱਟ_freep)

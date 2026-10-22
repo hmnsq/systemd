@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-typedef struct Prioq Prioq;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ Prioq Prioq;
 
-#define PRIOQ_IDX_NULL (UINT_MAX)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PRIOQ_IDX_NULL (UINT_MAX)
 
 Prioq* prioq_new(compare_func_t compare);
 Prioq* prioq_free(Prioq *q);
 DEFINE_TRIVIAL_CLEANUP_FUNC(Prioq*, prioq_free);
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
+ਪੂਰਨ prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
 
-int prioq_put(Prioq *q, void *data, unsigned *idx);
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx);
-#define prioq_ensure_put(q, compare_func, data, idx)                    \
+ਪੂਰਨ prioq_put(Prioq *q, ਖਾਲੀ *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ *idx);
+ਪੂਰਨ _prioq_ensure_put(Prioq **q, compare_func_t compare_func, ਖਾਲੀ *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ *idx);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ prioq_ensure_put(q, compare_func, ਅੰਕੜੇ, idx)                    \
         ({                                                              \
-                int (*_func_)(const typeof((data)[0])*, const typeof((data)[0])*) = compare_func; \
-                _prioq_ensure_put(q, (compare_func_t) _func_, data, idx); \
+                ਪੂਰਨ (*_func_)(ਅਚਲ typeof((ਅੰਕੜੇ)[0])*, ਅਚਲ typeof((ਅੰਕੜੇ)[0])*) = compare_func; \
+                _prioq_ensure_put(q, (compare_func_t) _func_, ਅੰਕੜੇ, idx); \
         })
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx);
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx);
+ਪੂਰਨ prioq_remove(Prioq *q, ਖਾਲੀ *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ *idx);
+ਖਾਲੀ prioq_reshuffle(Prioq *q, ਖਾਲੀ *ਅੰਕੜੇ, ਬਿਨਾਨਿਸ਼ਾਨੀ *idx);
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) _pure_;
-static inline void *prioq_peek(Prioq *q) {
-        return prioq_peek_by_index(q, 0);
+ਖਾਲੀ* prioq_peek_by_ਸੂਚਕਾਂਕ(Prioq *q, ਬਿਨਾਨਿਸ਼ਾਨੀ idx) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *prioq_peek(Prioq *q) {
+        ਵਾਪਸ prioq_peek_by_ਸੂਚਕਾਂਕ(q, 0);
 }
-void* prioq_pop(Prioq *q);
+ਖਾਲੀ* prioq_ਕੱਢੋ(Prioq *q);
 
-#define PRIOQ_FOREACH_ITEM(q, p)                                \
-        for (unsigned _i = 0; (p = prioq_peek_by_index(q, _i)); _i++)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PRIOQ_FOREACH_ਵਸਤੂ(q, p)                                \
+        ਲਈ (ਬਿਨਾਨਿਸ਼ਾਨੀ _i = 0; (p = prioq_peek_by_ਸੂਚਕਾਂਕ(q, _i)); _i++)
 
-unsigned prioq_size(Prioq *q) _pure_;
-bool prioq_isempty(Prioq *q) _pure_;
+ਬਿਨਾਨਿਸ਼ਾਨੀ prioq_ਮਾਪ(Prioq *q) ਸ਼ੁੱਧ;
+bool prioq_isempty(Prioq *q) ਸ਼ੁੱਧ;

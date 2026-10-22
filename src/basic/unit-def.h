@@ -1,42 +1,42 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
 /* The enum order is used to order unit jobs in the job queue
  * when other criteria (cpu weight, nice level) are identical.
  * In this case service units have the highest priority. */
-typedef enum UnitType {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ UnitType {
         UNIT_SERVICE,
         UNIT_MOUNT,
-        UNIT_SWAP,
+        UNIT_ਅਦਲਾ_ਬਦਲੀ,
         UNIT_SOCKET,
-        UNIT_TARGET,
+        UNIT_ਨਿਸ਼ਾਨਾ,
         UNIT_DEVICE,
         UNIT_AUTOMOUNT,
         UNIT_TIMER,
-        UNIT_PATH,
-        UNIT_SLICE,
+        UNIT_ਰਸਤਾ,
+        UNIT_ਟੁਕੜਾ,
         UNIT_SCOPE,
         _UNIT_TYPE_MAX,
         _UNIT_TYPE_INVALID = -EINVAL,
         _UNIT_TYPE_ERRNO_MAX = -ERRNO_MAX, /* Ensure the whole errno range fits into this enum */
 } UnitType;
 
-typedef enum UnitLoadState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ Unit_ਲੱਦੋ_State {
         UNIT_STUB,
         UNIT_LOADED,
-        UNIT_NOT_FOUND,    /* error condition #1: unit file not found */
+        UNIT_NOT_ਮਿਲਿਆ,    /* error condition #1: unit file not found */
         UNIT_BAD_SETTING,  /* error condition #2: we couldn't parse some essential unit file setting */
         UNIT_ERROR,        /* error condition #3: other "system" error, catchall for the rest */
         UNIT_MERGED,
         UNIT_MASKED,
-        _UNIT_LOAD_STATE_MAX,
-        _UNIT_LOAD_STATE_INVALID = -EINVAL,
-} UnitLoadState;
+        UNIT_ਲੱਦੋ_STATE_MAX,
+        UNIT_ਲੱਦੋ_STATE_INVALID = -EINVAL,
+} Unit_ਲੱਦੋ_State;
 
-typedef enum UnitActiveState {
-        UNIT_ACTIVE,
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ Unit_ਸਰਗਰਮ_State {
+        UNIT_ਸਰਗਰਮ,
         UNIT_RELOADING,
         UNIT_INACTIVE,
         UNIT_FAILED,
@@ -44,33 +44,33 @@ typedef enum UnitActiveState {
         UNIT_DEACTIVATING,
         UNIT_MAINTENANCE,
         UNIT_REFRESHING,
-        _UNIT_ACTIVE_STATE_MAX,
-        _UNIT_ACTIVE_STATE_INVALID = -EINVAL,
-} UnitActiveState;
+        UNIT_ਸਰਗਰਮ_STATE_MAX,
+        UNIT_ਸਰਗਰਮ_STATE_INVALID = -EINVAL,
+} Unit_ਸਰਗਰਮ_State;
 
-typedef enum FreezerState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ FreezerState {
         FREEZER_RUNNING,
         FREEZER_FREEZING, /* freezing due to user request */
         FREEZER_FROZEN,
-        FREEZER_FREEZING_BY_PARENT, /* freezing as a result of parent slice freezing */
-        FREEZER_FROZEN_BY_PARENT,
+        FREEZER_FREEZING_BY_ਮਾਪਾ, /* freezing as a result of parent slice freezing */
+        FREEZER_FROZEN_BY_ਮਾਪਾ,
         FREEZER_THAWING,
         _FREEZER_STATE_MAX,
         _FREEZER_STATE_INVALID = -EINVAL,
 } FreezerState;
 
-typedef enum UnitMarker {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ UnitMarker {
         UNIT_MARKER_NEEDS_RELOAD,
         UNIT_MARKER_NEEDS_RESTART,
         UNIT_MARKER_NEEDS_STOP,
-        UNIT_MARKER_NEEDS_START,
+        UNIT_MARKER_NEEDS_ਸ਼ੁਰੂ,
         _UNIT_MARKER_MAX,
         _UNIT_MARKER_INVALID = -EINVAL,
 } UnitMarker;
 
-typedef enum AutomountState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ AutomountState {
         AUTOMOUNT_DEAD,
-        AUTOMOUNT_WAITING,
+        AUTOMOUNT_ਉਡੀਕ,
         AUTOMOUNT_RUNNING,
         AUTOMOUNT_FAILED,
         _AUTOMOUNT_STATE_MAX,
@@ -79,7 +79,7 @@ typedef enum AutomountState {
 
 /* We simply watch devices, we cannot plug/unplug them. That
  * simplifies the state engine greatly */
-typedef enum DeviceState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ DeviceState {
         DEVICE_DEAD,
         DEVICE_TENTATIVE, /* mounted or swapped, but not (yet) announced by udev */
         DEVICE_PLUGGED,   /* announced by udev */
@@ -87,10 +87,10 @@ typedef enum DeviceState {
         _DEVICE_STATE_INVALID = -EINVAL,
 } DeviceState;
 
-typedef enum MountState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ MountState {
         MOUNT_DEAD,
         MOUNT_MOUNTING,               /* /usr/bin/mount is running, but the mount is not done yet. */
-        MOUNT_MOUNTING_DONE,          /* /usr/bin/mount is running, and the mount is done. */
+        MOUNT_MOUNTING_ਪੂਰਾ,          /* /usr/bin/mount is running, and the mount is done. */
         MOUNT_MOUNTED,
         MOUNT_REMOUNTING,
         MOUNT_UNMOUNTING,
@@ -104,18 +104,18 @@ typedef enum MountState {
         _MOUNT_STATE_INVALID = -EINVAL,
 } MountState;
 
-typedef enum PathState {
-        PATH_DEAD,
-        PATH_WAITING,
-        PATH_RUNNING,
-        PATH_FAILED,
-        _PATH_STATE_MAX,
-        _PATH_STATE_INVALID = -EINVAL,
-} PathState;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਰਸਤਾ_State {
+        ਰਸਤਾ_DEAD,
+        ਰਸਤਾ_ਉਡੀਕ,
+        ਰਸਤਾ_RUNNING,
+        ਰਸਤਾ_FAILED,
+        ਰਸਤਾ_STATE_MAX,
+        ਰਸਤਾ_STATE_INVALID = -EINVAL,
+} ਰਸਤਾ_State;
 
-typedef enum ScopeState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ScopeState {
         SCOPE_DEAD,
-        SCOPE_START_CHOWN,
+        SCOPE_ਸ਼ੁਰੂ_CHOWN,
         SCOPE_RUNNING,
         SCOPE_ABANDONED,
         SCOPE_STOP_SIGTERM,
@@ -125,12 +125,12 @@ typedef enum ScopeState {
         _SCOPE_STATE_INVALID = -EINVAL,
 } ScopeState;
 
-typedef enum ServiceState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ServiceState {
         SERVICE_DEAD,
         SERVICE_CONDITION,
-        SERVICE_START_PRE,
-        SERVICE_START,
-        SERVICE_START_POST,
+        SERVICE_ਸ਼ੁਰੂ_PRE,
+        SERVICE_ਸ਼ੁਰੂ,
+        SERVICE_ਸ਼ੁਰੂ_POST,
         SERVICE_RUNNING,
         SERVICE_RUNNING_REVALIDATING,   /* Temporarily waiting for the D-Bus name to reappear */
         SERVICE_EXITED,                 /* Nothing is running anymore, but RemainAfterExit is true hence this is OK */
@@ -160,19 +160,19 @@ typedef enum ServiceState {
         _SERVICE_STATE_INVALID = -EINVAL,
 } ServiceState;
 
-typedef enum SliceState {
-        SLICE_DEAD,
-        SLICE_ACTIVE,
-        _SLICE_STATE_MAX,
-        _SLICE_STATE_INVALID = -EINVAL,
-} SliceState;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਟੁਕੜਾ_State {
+        ਟੁਕੜਾ_DEAD,
+        ਟੁਕੜਾ_ਸਰਗਰਮ,
+        ਟੁਕੜਾ_STATE_MAX,
+        ਟੁਕੜਾ_STATE_INVALID = -EINVAL,
+} ਟੁਕੜਾ_State;
 
-typedef enum SocketState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ SocketState {
         SOCKET_DEAD,
-        SOCKET_START_PRE,
-        SOCKET_START_OPEN,
-        SOCKET_START_CHOWN,
-        SOCKET_START_POST,
+        SOCKET_ਸ਼ੁਰੂ_PRE,
+        SOCKET_ਸ਼ੁਰੂ_OPEN,
+        SOCKET_ਸ਼ੁਰੂ_CHOWN,
+        SOCKET_ਸ਼ੁਰੂ_POST,
         SOCKET_LISTENING,
         SOCKET_DEFERRED,
         SOCKET_RUNNING,
@@ -188,30 +188,30 @@ typedef enum SocketState {
         _SOCKET_STATE_INVALID = -EINVAL,
 } SocketState;
 
-typedef enum SwapState {
-        SWAP_DEAD,
-        SWAP_ACTIVATING,               /* /sbin/swapon is running, but the swap not yet enabled. */
-        SWAP_ACTIVATING_DONE,          /* /sbin/swapon is running, and the swap is done. */
-        SWAP_ACTIVE,
-        SWAP_DEACTIVATING,
-        SWAP_DEACTIVATING_SIGTERM,
-        SWAP_DEACTIVATING_SIGKILL,
-        SWAP_FAILED,
-        SWAP_CLEANING,
-        _SWAP_STATE_MAX,
-        _SWAP_STATE_INVALID = -EINVAL,
-} SwapState;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਅਦਲਾ_ਬਦਲੀ_State {
+        ਅਦਲਾ_ਬਦਲੀ_DEAD,
+        ਅਦਲਾ_ਬਦਲੀ_ACTIVATING,               /* /sbin/swapon is running, but the swap not yet enabled. */
+        ਅਦਲਾ_ਬਦਲੀ_ACTIVATING_ਪੂਰਾ,          /* /sbin/swapon is running, and the swap is done. */
+        ਅਦਲਾ_ਬਦਲੀ_ਸਰਗਰਮ,
+        ਅਦਲਾ_ਬਦਲੀ_DEACTIVATING,
+        ਅਦਲਾ_ਬਦਲੀ_DEACTIVATING_SIGTERM,
+        ਅਦਲਾ_ਬਦਲੀ_DEACTIVATING_SIGKILL,
+        ਅਦਲਾ_ਬਦਲੀ_FAILED,
+        ਅਦਲਾ_ਬਦਲੀ_CLEANING,
+        ਅਦਲਾ_ਬਦਲੀ_STATE_MAX,
+        ਅਦਲਾ_ਬਦਲੀ_STATE_INVALID = -EINVAL,
+} ਅਦਲਾ_ਬਦਲੀ_State;
 
-typedef enum TargetState {
-        TARGET_DEAD,
-        TARGET_ACTIVE,
-        _TARGET_STATE_MAX,
-        _TARGET_STATE_INVALID = -EINVAL,
-} TargetState;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਨਿਸ਼ਾਨਾ_State {
+        ਨਿਸ਼ਾਨਾ_DEAD,
+        ਨਿਸ਼ਾਨਾ_ਸਰਗਰਮ,
+        ਨਿਸ਼ਾਨਾ_STATE_MAX,
+        ਨਿਸ਼ਾਨਾ_STATE_INVALID = -EINVAL,
+} ਨਿਸ਼ਾਨਾ_State;
 
-typedef enum TimerState {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ TimerState {
         TIMER_DEAD,
-        TIMER_WAITING,
+        TIMER_ਉਡੀਕ,
         TIMER_RUNNING,
         TIMER_ELAPSED,
         TIMER_FAILED,
@@ -219,65 +219,65 @@ typedef enum TimerState {
         _TIMER_STATE_INVALID = -EINVAL,
 } TimerState;
 
-typedef enum UnitDependency {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ UnitDependency {
         /* Positive dependencies */
         UNIT_REQUIRES,
         UNIT_REQUISITE,
-        UNIT_WANTS,
-        UNIT_BINDS_TO,
-        UNIT_PART_OF,
+        UNIT_ਚਾਹੁੰਦਾ,
+        UNIT_BINDS_ਮੰਜ਼ਿਲ,
+        UNIT_PART_ਦਾ,
         UNIT_UPHOLDS,
 
         /* Inverse of the above */
         UNIT_REQUIRED_BY,             /* inverse of 'requires' is 'required_by' */
-        UNIT_REQUISITE_OF,            /* inverse of 'requisite' is 'requisite_of' */
+        UNIT_REQUISITE_ਦਾ,            /* inverse of 'requisite' is 'requisite_of' */
         UNIT_WANTED_BY,               /* inverse of 'wants' */
         UNIT_BOUND_BY,                /* inverse of 'binds_to' */
-        UNIT_CONSISTS_OF,             /* inverse of 'part_of' */
+        UNIT_CONSISTS_ਦਾ,             /* inverse of 'part_of' */
         UNIT_UPHELD_BY,               /* inverse of 'uphold' */
 
         /* Negative dependencies */
         UNIT_CONFLICTS,               /* inverse of 'conflicts' is 'conflicted_by' */
         UNIT_CONFLICTED_BY,
 
-        /* Order */
+        /*ਕ੍ਰਮ*/
         UNIT_BEFORE,                  /* inverse of 'before' is 'after' and vice versa */
         UNIT_AFTER,
 
         /* OnSuccess= + OnFailure= */
         UNIT_ON_SUCCESS,
-        UNIT_ON_SUCCESS_OF,
+        UNIT_ON_SUCCESS_ਦਾ,
         UNIT_ON_FAILURE,
-        UNIT_ON_FAILURE_OF,
+        UNIT_ON_FAILURE_ਦਾ,
 
         /* Triggers (i.e. a socket triggers a service) */
         UNIT_TRIGGERS,
         UNIT_TRIGGERED_BY,
 
         /* Propagate reloads */
-        UNIT_PROPAGATES_RELOAD_TO,
+        UNIT_PROPAGATES_RELOAD_ਮੰਜ਼ਿਲ,
         UNIT_RELOAD_PROPAGATED_FROM,
 
         /* Propagate stops */
-        UNIT_PROPAGATES_STOP_TO,
+        UNIT_PROPAGATES_STOP_ਮੰਜ਼ਿਲ,
         UNIT_STOP_PROPAGATED_FROM,
 
         /* Joins namespace of */
-        UNIT_JOINS_NAMESPACE_OF,
+        UNIT_JOINS_NAMESPACE_ਦਾ,
 
         /* Reference information for GC logic */
         UNIT_REFERENCES,              /* Inverse of 'references' is 'referenced_by' */
         UNIT_REFERENCED_BY,
 
         /* Slice= */
-        UNIT_IN_SLICE,
-        UNIT_SLICE_OF,
+        UNIT_ਵਿੱਚ_ਟੁਕੜਾ,
+        UNIT_ਟੁਕੜਾ_ਦਾ,
 
         _UNIT_DEPENDENCY_MAX,
         _UNIT_DEPENDENCY_INVALID = -EINVAL,
 } UnitDependency;
 
-typedef enum NotifyAccess {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ NotifyAccess {
         NOTIFY_NONE,
         NOTIFY_ALL,
         NOTIFY_MAIN,
@@ -286,22 +286,22 @@ typedef enum NotifyAccess {
         _NOTIFY_ACCESS_INVALID = -EINVAL,
 } NotifyAccess;
 
-typedef enum JobMode {
-        JOB_FAIL,                 /* Fail if a conflicting job is already queued */
-        JOB_LENIENT,              /* Fail if any conflicting unit is active (even weaker than JOB_FAIL) */
-        JOB_REPLACE,              /* Replace an existing conflicting job */
-        JOB_REPLACE_IRREVERSIBLY, /* Like JOB_REPLACE + produce irreversible jobs */
-        JOB_ISOLATE,              /* Start a unit, and stop all others */
-        JOB_FLUSH,                /* Flush out all other queued jobs when queueing this one */
-        JOB_IGNORE_DEPENDENCIES,  /* Ignore both requirement and ordering dependencies */
-        JOB_IGNORE_REQUIREMENTS,  /* Ignore requirement dependencies */
-        JOB_TRIGGERING,           /* Adds TRIGGERED_BY dependencies to the same transaction */
-        JOB_RESTART_DEPENDENCIES, /* A "start" job for the specified unit becomes "restart" for depending units */
-        _JOB_MODE_MAX,
-        _JOB_MODE_INVALID = -EINVAL,
-} JobMode;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ਕੰਮ_ਬਹੁਲਕ {
+        ਕੰਮ_FAIL,                 /* Fail if a conflicting job is already queued */
+        ਕੰਮ_LENIENT,              /* Fail if any conflicting unit is active (even weaker than JOB_FAIL) */
+        ਕੰਮ_REPLACE,              /* Replace an existing conflicting job */
+        ਕੰਮ_REPLACE_IRREVERSIBLY, /* Like JOB_REPLACE + produce irreversible jobs */
+        ਕੰਮ_ISOLATE,              /* Start a unit, and stop all others */
+        ਕੰਮ_FLUSH,                /* Flush out all other queued jobs when queueing this one */
+        ਕੰਮ_IGNORE_DEPENDENCIES,  /* Ignore both requirement and ordering dependencies */
+        ਕੰਮ_IGNORE_REQUIREMENTS,  /* Ignore requirement dependencies */
+        ਕੰਮ_TRIGGERING,           /* Adds TRIGGERED_BY dependencies to the same transaction */
+        ਕੰਮ_RESTART_DEPENDENCIES, /* A "start" job for the specified unit becomes "restart" for depending units */
+        ਕੰਮ_ਬਹੁਲਕ_MAX,
+        ਕੰਮ_ਬਹੁਲਕ_INVALID = -EINVAL,
+} ਕੰਮ_ਬਹੁਲਕ;
 
-typedef enum ExecDirectoryType {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ ExecDirectoryType {
         EXEC_DIRECTORY_RUNTIME,
         EXEC_DIRECTORY_STATE,
         EXEC_DIRECTORY_CACHE,
@@ -311,41 +311,41 @@ typedef enum ExecDirectoryType {
         _EXEC_DIRECTORY_TYPE_INVALID = -EINVAL,
 } ExecDirectoryType;
 
-char* unit_dbus_path_from_name(const char *name);
-int unit_name_from_dbus_path(const char *path, char **name);
+ਅੱਖਰ* unit_dbus_ਰਸਤਾ_from_name(ਅਚਲ ਅੱਖਰ *name);
+ਪੂਰਨ unit_name_from_dbus_ਰਸਤਾ(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, ਅੱਖਰ **name);
 
-const char* unit_dbus_interface_from_type(UnitType t);
-const char* unit_dbus_interface_from_name(const char *name);
+ਅਚਲ ਅੱਖਰ* unit_dbus_interface_from_type(UnitType t);
+ਅਚਲ ਅੱਖਰ* unit_dbus_interface_from_name(ਅਚਲ ਅੱਖਰ *name);
 
-DECLARE_STRING_TABLE_LOOKUP(unit_type, UnitType);
-void unit_types_list(void);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(unit_type, UnitType);
+ਖਾਲੀ unit_types_list(ਖਾਲੀ);
 
-DECLARE_STRING_TABLE_LOOKUP(unit_load_state, UnitLoadState);
-DECLARE_STRING_TABLE_LOOKUP(unit_active_state, UnitActiveState);
-const char* unit_type_to_capitalized_string(UnitType t);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(unit_ਲੱਦੋ_state, Unit_ਲੱਦੋ_State);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(unit_ਸਰਗਰਮ_state, Unit_ਸਰਗਰਮ_State);
+ਅਚਲ ਅੱਖਰ* unit_type_ਮੰਜ਼ਿਲ_capitalized_string(UnitType t);
 
-DECLARE_STRING_TABLE_LOOKUP(freezer_state, FreezerState);
-FreezerState freezer_state_finish(FreezerState state) _const_;
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(freezer_state, FreezerState);
+FreezerState freezer_state_ਅੰਤ(FreezerState state) _const_;
 FreezerState freezer_state_objective(FreezerState state) _const_;
 
-DECLARE_STRING_TABLE_LOOKUP(unit_dependency, UnitDependency);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(unit_dependency, UnitDependency);
 bool unit_dependency_can_be_transient(UnitDependency d) _const_;
 
-DECLARE_STRING_TABLE_LOOKUP(unit_marker, UnitMarker);
-DECLARE_STRING_TABLE_LOOKUP(automount_state, AutomountState);
-DECLARE_STRING_TABLE_LOOKUP(device_state, DeviceState);
-DECLARE_STRING_TABLE_LOOKUP(mount_state, MountState);
-DECLARE_STRING_TABLE_LOOKUP(path_state, PathState);
-DECLARE_STRING_TABLE_LOOKUP(scope_state, ScopeState);
-DECLARE_STRING_TABLE_LOOKUP(service_state, ServiceState);
-DECLARE_STRING_TABLE_LOOKUP(slice_state, SliceState);
-DECLARE_STRING_TABLE_LOOKUP(socket_state, SocketState);
-DECLARE_STRING_TABLE_LOOKUP(swap_state, SwapState);
-DECLARE_STRING_TABLE_LOOKUP(target_state, TargetState);
-DECLARE_STRING_TABLE_LOOKUP(timer_state, TimerState);
-DECLARE_STRING_TABLE_LOOKUP(notify_access, NotifyAccess);
-DECLARE_STRING_TABLE_LOOKUP(job_mode, JobMode);
-DECLARE_STRING_TABLE_LOOKUP(exec_directory_type, ExecDirectoryType);
-DECLARE_STRING_TABLE_LOOKUP(exec_directory_type_symlink, ExecDirectoryType);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(unit_marker, UnitMarker);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(automount_state, AutomountState);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(device_state, DeviceState);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(mount_state, MountState);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(ਰਸਤਾ_state, ਰਸਤਾ_State);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(scope_state, ScopeState);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(service_state, ServiceState);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(ਟੁਕੜਾ_state, ਟੁਕੜਾ_State);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(socket_state, SocketState);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(ਅਦਲਾ_ਬਦਲੀ_state, ਅਦਲਾ_ਬਦਲੀ_State);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(ਨਿਸ਼ਾਨਾ_state, ਨਿਸ਼ਾਨਾ_State);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(timer_state, TimerState);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(notify_access, NotifyAccess);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(ਕੰਮ_ਬਹੁਲਕ_2, ਕੰਮ_ਬਹੁਲਕ);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(exec_directory_type, ExecDirectoryType);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(exec_directory_type_symlink, ExecDirectoryType);
 
-Glyph unit_active_state_to_glyph(UnitActiveState state);
+Glyph unit_ਸਰਗਰਮ_state_ਮੰਜ਼ਿਲ_glyph(Unit_ਸਰਗਰਮ_State state);

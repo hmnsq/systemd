@@ -1,157 +1,157 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "parse-util.h"
-#include "percent-util.h"
-#include "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parse-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "percent-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
-        const char *pc, *n;
-        int r, v;
+ਸਥਿਰ ਪੂਰਨ parse_parts_ਮੁੱਲ_ਸਾਰਾ(ਅਚਲ ਅੱਖਰ *p, ਅਚਲ ਅੱਖਰ *ਚਿੰਨ੍ਹ) {
+        ਅਚਲ ਅੱਖਰ *pc, *n;
+        ਪੂਰਨ r, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, ਚਿੰਨ੍ਹ);
+        ਜੇ (!pc)
+                ਵਾਪਸ -EINVAL;
 
-        n = strndupa_safe(p, pc - p);
-        r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        n = strndupa_ਸੁਰੱਖਿਅਤ(p, pc - p);
+        r = ਸੁਰੱਖਿਅਤ_atoi(n, &v);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਜੇ (v < 0)
+                ਵਾਪਸ -ERANGE;
 
-        return v;
+        ਵਾਪਸ v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+ਸਥਿਰ ਪੂਰਨ parse_parts_ਮੁੱਲ_with_tenths_ਰੱਖੋ(ਅਚਲ ਅੱਖਰ *p, ਅਚਲ ਅੱਖਰ *ਚਿੰਨ੍ਹ) {
+        ਅਚਲ ਅੱਖਰ *pc, *dot, *n;
+        ਪੂਰਨ r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, ਚਿੰਨ੍ਹ);
+        ਜੇ (!pc)
+                ਵਾਪਸ -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        ਜੇ (dot) {
+                ਜੇ (dot + 2 != pc)
+                        ਵਾਪਸ -EINVAL;
+                ਜੇ (dot[1] < '0' || dot[1] > '9')
+                        ਵਾਪਸ -EINVAL;
                 q = dot[1] - '0';
-                n = strndupa_safe(p, dot - p);
-        } else {
+                n = strndupa_ਸੁਰੱਖਿਅਤ(p, dot - p);
+        } ਨਹੀਂਤਾਂ {
                 q = 0;
-                n = strndupa_safe(p, pc - p);
+                n = strndupa_ਸੁਰੱਖਿਅਤ(p, pc - p);
         }
-        r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        r = ਸੁਰੱਖਿਅਤ_atoi(n, &v);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਜੇ (v < 0)
+                ਵਾਪਸ -ERANGE;
+        ਜੇ (v > (ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ - q) / 10)
+                ਵਾਪਸ -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        ਵਾਪਸ v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+ਸਥਿਰ ਪੂਰਨ parse_parts_ਮੁੱਲ_with_hundredths_ਰੱਖੋ(ਅਚਲ ਅੱਖਰ *p, ਅਚਲ ਅੱਖਰ *ਚਿੰਨ੍ਹ) {
+        ਅਚਲ ਅੱਖਰ *pc, *dot, *n;
+        ਪੂਰਨ r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, ਚਿੰਨ੍ਹ);
+        ਜੇ (!pc)
+                ਵਾਪਸ -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        ਜੇ (dot) {
+                ਜੇ (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        ਜੇ (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                ਵਾਪਸ -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } ਨਹੀਂਤਾਂ ਜੇ (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        ਜੇ (dot[1] < '0' || dot[1] > '9')
+                                ਵਾਪਸ -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } ਨਹੀਂਤਾਂ
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        ਵਾਪਸ -EINVAL;
 
-                n = strndupa_safe(p, dot - p);
-        } else {
+                n = strndupa_ਸੁਰੱਖਿਅਤ(p, dot - p);
+        } ਨਹੀਂਤਾਂ {
                 q = 0;
-                n = strndupa_safe(p, pc - p);
+                n = strndupa_ਸੁਰੱਖਿਅਤ(p, pc - p);
         }
-        r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        r = ਸੁਰੱਖਿਅਤ_atoi(n, &v);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
+        ਜੇ (v < 0)
+                ਵਾਪਸ -ERANGE;
+        ਜੇ (v > (ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ - q) / 100)
+                ਵਾਪਸ -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        ਵਾਪਸ v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+ਪੂਰਨ parse_percent_unbounded(ਅਚਲ ਅੱਖਰ *p) {
+        ਵਾਪਸ parse_parts_ਮੁੱਲ_ਸਾਰਾ(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+ਪੂਰਨ parse_percent(ਅਚਲ ਅੱਖਰ *p) {
+        ਪੂਰਨ v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        ਜੇ (v > 100)
+                ਵਾਪਸ -ERANGE;
 
-        return v;
+        ਵਾਪਸ v;
 }
 
-int parse_permille_unbounded(const char *p) {
-        const char *pm;
+ਪੂਰਨ parse_permille_unbounded(ਅਚਲ ਅੱਖਰ *p) {
+        ਅਚਲ ਅੱਖਰ *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        ਜੇ (pm)
+                ਵਾਪਸ parse_parts_ਮੁੱਲ_ਸਾਰਾ(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        ਵਾਪਸ parse_parts_ਮੁੱਲ_with_tenths_ਰੱਖੋ(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+ਪੂਰਨ parse_permille(ਅਚਲ ਅੱਖਰ *p) {
+        ਪੂਰਨ v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        ਜੇ (v > 1000)
+                ਵਾਪਸ -ERANGE;
 
-        return v;
+        ਵਾਪਸ v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
-        const char *pm;
+ਪੂਰਨ parse_permyriad_unbounded(ਅਚਲ ਅੱਖਰ *p) {
+        ਅਚਲ ਅੱਖਰ *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        ਜੇ (pm)
+                ਵਾਪਸ parse_parts_ਮੁੱਲ_ਸਾਰਾ(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        ਜੇ (pm)
+                ਵਾਪਸ parse_parts_ਮੁੱਲ_with_tenths_ਰੱਖੋ(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        ਵਾਪਸ parse_parts_ਮੁੱਲ_with_hundredths_ਰੱਖੋ(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+ਪੂਰਨ parse_permyriad(ਅਚਲ ਅੱਖਰ *p) {
+        ਪੂਰਨ v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        ਜੇ (v > 10000)
+                ਵਾਪਸ -ERANGE;
 
-        return v;
+        ਵਾਪਸ v;
 }

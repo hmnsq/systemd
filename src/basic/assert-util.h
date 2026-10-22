@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(ਖਾਲੀ) _weak_ ਸ਼ੁੱਧ;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+ਖਾਲੀ log_assert_failed_return(ਅਚਲ ਅੱਖਰ *ਪਾਠ, ਅਚਲ ਅੱਖਰ *file, ਪੂਰਨ ਸਤਰ, ਅਚਲ ਅੱਖਰ *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ assert_log(ਵਿਅੰਜਕ)                                                \
+        (_likely_(ਵਿਅੰਜਕ) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ assert_return(ਵਿਅੰਜਕ, r)                                          \
+        ਕਰੋ {                                                            \
+                ਜੇ (!assert_log(ਵਿਅੰਜਕ))                                  \
+                        ਵਾਪਸ (r);                                     \
+        } ਜਦੋਂ (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ assert_return_errno(ਵਿਅੰਜਕ, r, err)                               \
+        ਕਰੋ {                                                            \
+                ਜੇ (!assert_log(ਵਿਅੰਜਕ)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        ਵਾਪਸ (r);                                     \
                 }                                                       \
-        } while (false)
+        } ਜਦੋਂ (false)

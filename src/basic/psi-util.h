@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
-#include "parse-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parse-util.h"
 
-typedef enum PressureType {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ PressureType {
         PRESSURE_TYPE_SOME,
-        PRESSURE_TYPE_FULL,
+        PRESSURE_TYPE_ਭਰਿਆ,
         _PRESSURE_TYPE_MAX,
         _PRESSURE_TYPE_INVALID = -EINVAL,
 } PressureType;
 
-typedef enum PressureResource {
-        PRESSURE_MEMORY,
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ PressureResource {
+        PRESSURE_ਸਮ੍ਰਿਤੀ,
         PRESSURE_CPU,
         PRESSURE_IO,
         _PRESSURE_RESOURCE_MAX,
@@ -20,11 +20,11 @@ typedef enum PressureResource {
 } PressureResource;
 
 /* Averages are stored in fixed-point with 11 bit fractions */
-typedef struct ResourcePressure {
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ ResourcePressure {
         loadavg_t avg10;
         loadavg_t avg60;
         loadavg_t avg300;
-        usec_t total;
+        usec_t ਕੁੱਲ;
 } ResourcePressure;
 
 /** Upstream 4.20+ format
@@ -32,29 +32,29 @@ typedef struct ResourcePressure {
  *  some avg10=0.22 avg60=0.17 avg300=1.11 total=58761459
  *  full avg10=0.23 avg60=0.16 avg300=1.08 total=58464525
  */
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret);
+ਪੂਰਨ read_resource_pressure(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, PressureType type, ResourcePressure *ret);
 
 /* Was the kernel compiled with CONFIG_PSI=y? 1 if yes, 0 if not, negative on error. */
-int is_pressure_supported(void);
+ਪੂਰਨ is_pressure_supported(ਖਾਲੀ);
 
 /* Metadata for each pressure resource type, for use in sd-event and PID 1 */
-typedef struct PressureResourceInfo {
-        const char *name;       /* "memory", "cpu", "io" */
-        const char *env_watch;  /* "MEMORY_PRESSURE_WATCH", etc. */
-        const char *env_write;  /* "MEMORY_PRESSURE_WRITE", etc. */
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਣਤਰ PressureResourceInfo {
+        ਅਚਲ ਅੱਖਰ *name;       /* "memory", "cpu", "io" */
+        ਅਚਲ ਅੱਖਰ *env_watch;  /* "MEMORY_PRESSURE_WATCH", etc. */
+        ਅਚਲ ਅੱਖਰ *env_write;  /* "MEMORY_PRESSURE_WRITE", etc. */
 } PressureResourceInfo;
 
-extern const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX];
+ਬਾਹਰੀ ਅਚਲ PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX];
 
-static inline const PressureResourceInfo* pressure_resource_get_info(PressureResource resource) {
-        assert(resource >= 0 && resource < _PRESSURE_RESOURCE_MAX);
-        return &pressure_resource_info[resource];
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅਚਲ PressureResourceInfo* pressure_resource_get_info(PressureResource resource) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(resource >= 0 && resource < _PRESSURE_RESOURCE_MAX);
+        ਵਾਪਸ &pressure_resource_info[resource];
 }
 
-DECLARE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
-DECLARE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(pressure_resource, PressureResource);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(pressure_type, PressureType);
 
 /* Default parameters for pressure watch logic in sd-event and PID 1 */
-#define PRESSURE_DEFAULT_TYPE "some"
-#define PRESSURE_DEFAULT_THRESHOLD_USEC (200 * USEC_PER_MSEC)
-#define PRESSURE_DEFAULT_WINDOW_USEC (2 * USEC_PER_SEC)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PRESSURE_DEFAULT_TYPE "some"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PRESSURE_DEFAULT_ਹੱਦ_USEC (200 * USEC_ਪ੍ਰਤੀ_MSEC)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PRESSURE_DEFAULT_ਖਿੜਕੀ_USEC (2 * USEC_ਪ੍ਰਤੀ_SEC)

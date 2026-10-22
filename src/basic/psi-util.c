@@ -1,107 +1,107 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <threads.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "psi-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "alloc-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "errno-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "extract-word.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fd-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "fileio.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parse-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "psi-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-table.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        unsigned field_filled = 0;
+ਪੂਰਨ read_resource_pressure(ਅਚਲ ਅੱਖਰ *ਰਸਤਾ, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ ਅੱਖਰ *ਸਤਰ = ਨਿਰਾ;
+        _cleanup_fclose_ FILE *f = ਨਿਰਾ;
+        ਬਿਨਾਨਿਸ਼ਾਨੀ ਖੇਤਰ_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        ਅਚਲ ਅੱਖਰ *cline;
+        ਅੱਖਰ *ਸ਼ਬਦ;
+        ਪੂਰਨ r;
 
-        assert(path);
-        assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਰਸਤਾ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਵਿੱਚ_ਸੈੱਟ(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_ਭਰਿਆ));
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        ਅਚਲ ਅੱਖਰ *t = ASSERT_PTR(pressure_type_ਮੰਜ਼ਿਲ_string(type));
 
-        r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        r = fopen_unlocked(ਰਸਤਾ, "re", &f);
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        ਲਈ (;;) {
+                _cleanup_free_ ਅੱਖਰ *l = ਨਿਰਾ;
+                ਅੱਖਰ *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_ਸਤਰ(f, LONG_ਸਤਰ_MAX, &l);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
+                ਜੇ (r == 0)
+                        ਰੋਕੋ;
 
-                w = first_word(l, t);
-                if (w) {
-                        line = TAKE_PTR(l);
+                w = ਪਹਿਲਾ_ਸ਼ਬਦ(l, t);
+                ਜੇ (w) {
+                        ਸਤਰ = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        ਰੋਕੋ;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        ਜੇ (!ਸਤਰ)
+                ਵਾਪਸ -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        ਜਦੋਂ ((r = ਕੱਢੋ_ਪਹਿਲਾ_ਸ਼ਬਦ(&cline, &ਸ਼ਬਦ, ਨਿਰਾ, 0)) > 0) {
+                _cleanup_free_ ਅੱਖਰ *w = ਸ਼ਬਦ;
+                ਅਚਲ ਅੱਖਰ *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                ਜੇ ((v = startswith(w, "avg10="))) {
+                        ਜੇ (ਖੇਤਰ_filled & (1U << 0))
+                                ਵਾਪਸ -EINVAL;
 
-                        field_filled |= 1U << 0;
-                        r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                        ਖੇਤਰ_filled |= 1U << 0;
+                        r = parse_loadavg_fixed_ਬਿੰਦੂ(v, &rp.avg10);
+                } ਨਹੀਂਤਾਂ ਜੇ ((v = startswith(w, "avg60="))) {
+                        ਜੇ (ਖੇਤਰ_filled & (1U << 1))
+                                ਵਾਪਸ -EINVAL;
 
-                        field_filled |= 1U << 1;
-                        r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                        ਖੇਤਰ_filled |= 1U << 1;
+                        r = parse_loadavg_fixed_ਬਿੰਦੂ(v, &rp.avg60);
+                } ਨਹੀਂਤਾਂ ਜੇ ((v = startswith(w, "avg300="))) {
+                        ਜੇ (ਖੇਤਰ_filled & (1U << 2))
+                                ਵਾਪਸ -EINVAL;
 
-                        field_filled |= 1U << 2;
-                        r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                        ਖੇਤਰ_filled |= 1U << 2;
+                        r = parse_loadavg_fixed_ਬਿੰਦੂ(v, &rp.avg300);
+                } ਨਹੀਂਤਾਂ ਜੇ ((v = startswith(w, "total="))) {
+                        ਜੇ (ਖੇਤਰ_filled & (1U << 3))
+                                ਵਾਪਸ -EINVAL;
 
-                        field_filled |= 1U << 3;
-                        r = safe_atou64(v, &rp.total);
-                } else
-                        continue;
+                        ਖੇਤਰ_filled |= 1U << 3;
+                        r = ਸੁਰੱਖਿਅਤ_atou64(v, &rp.ਕੁੱਲ);
+                } ਨਹੀਂਤਾਂ
+                        ਜਾਰੀ;
 
-                if (r < 0)
-                        return r;
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
         }
 
-        if (r < 0)
-                return r;
+        ਜੇ (r < 0)
+                ਵਾਪਸ r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        ਜੇ (ਖੇਤਰ_filled != 15U)
+                ਵਾਪਸ -EINVAL;
 
         *ret = rp;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = {
+ਅਚਲ PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_ਸਮ੍ਰਿਤੀ] = {
                 .name      = "memory",
                 .env_watch = "MEMORY_PRESSURE_WATCH",
                 .env_write = "MEMORY_PRESSURE_WRITE",
@@ -118,38 +118,38 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = "memory",
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ pressure_resource_ਸਾਰਣੀ[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_ਸਮ੍ਰਿਤੀ] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ pressure_type_ਸਾਰਣੀ[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
-        [PRESSURE_TYPE_FULL] = "full",
+        [PRESSURE_TYPE_ਭਰਿਆ] = "full",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
+DEFINE_STRING_ਸਾਰਣੀ_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+ਪੂਰਨ is_pressure_supported(ਖਾਲੀ) {
+        ਸਥਿਰ thread_local ਪੂਰਨ cached = -1;
+        ਪੂਰਨ r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        ਜੇ (cached >= 0)
+                ਵਾਪਸ cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
-                r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                r = read_virtual_file(p, 0, ਨਿਰਾ, ਨਿਰਾ);
+                ਜੇ (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        ਵਾਪਸ (cached = false);
+                ਜੇ (r < 0)
+                        ਵਾਪਸ r;
         }
 
-        return (cached = true);
+        ਵਾਪਸ (cached = true);
 }

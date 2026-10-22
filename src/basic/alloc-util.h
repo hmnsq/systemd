@@ -1,114 +1,114 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <stdlib.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdlib.h>
 
-#include "forward.h"
-#include "memory-util.h"        /* IWYU pragma: keep */
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "memory-util.h"        /* IWYU pragma: keep */
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#ਜੇ HAS_FEATURE_ਸਮ੍ਰਿਤੀ_SANITIZER
 #  include <sanitizer/msan_interface.h>
-#endif
+#ਜੇ_ਅੰਤ
 
 /* If for some reason more than 4M are allocated on the stack, let's abort immediately. It's better than
  * proceeding and smashing the stack limits. Note that by default RLIMIT_STACK is 8M on Linux. */
-#define ALLOCA_MAX (4U*1024U*1024U)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ALLOCA_MAX (4U*1024U*1024U)
 
-#define new(t, n) ((t*) malloc_multiply(n, sizeof(t)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ new(t, n) ((t*) malloc_multiply(n, ਆਕਾਰ(t)))
 
-#define new0(t, n) ((t*) calloc((n) ?: 1, sizeof(t)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ new0(t, n) ((t*) ਸਿਫਰ_ਸਮ੍ਰਿਤੀ_ਦਿਓ((n) ?: 1, ਆਕਾਰ(t)))
 
-#define alloca_safe(n)                                                  \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ alloca_ਸੁਰੱਖਿਅਤ(n)                                                  \
         ({                                                              \
                 size_t _nn_ = (n);                                      \
                 assert_se(_nn_ <= ALLOCA_MAX);                          \
                 alloca(_nn_ == 0 ? 1 : _nn_);                           \
         })                                                              \
 
-#define newa(t, n)                                                      \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ newa(t, n)                                                      \
         ({                                                              \
                 size_t _n_ = (n);                                       \
-                assert_se(MUL_ASSIGN_SAFE(&_n_, sizeof(t)));            \
-                (t*) alloca_safe(_n_);                                  \
+                assert_se(MUL_ਸੌਂਪੋ_ਸੁਰੱਖਿਅਤ(&_n_, ਆਕਾਰ(t)));            \
+                (t*) alloca_ਸੁਰੱਖਿਅਤ(_n_);                                  \
         })
 
-#define newa0(t, n)                                                     \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ newa0(t, n)                                                     \
         ({                                                              \
                 size_t _n_ = (n);                                       \
-                assert_se(MUL_ASSIGN_SAFE(&_n_, sizeof(t)));            \
+                assert_se(MUL_ਸੌਂਪੋ_ਸੁਰੱਖਿਅਤ(&_n_, ਆਕਾਰ(t)));            \
                 (t*) alloca0(_n_);                                      \
         })
 
-#define newdup(t, p, n) ((t*) memdup_multiply(p, n, sizeof(t)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ newdup(t, p, n) ((t*) memdup_multiply(p, n, ਆਕਾਰ(t)))
 
-#define newdup_suffix0(t, p, n) ((t*) memdup_suffix0_multiply(p, n, sizeof(t)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ newdup_suffix0(t, p, n) ((t*) memdup_suffix0_multiply(p, n, ਆਕਾਰ(t)))
 
-#define malloc0(n) (calloc(1, (n) ?: 1))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ malloc0(n) (ਸਿਫਰ_ਸਮ੍ਰਿਤੀ_ਦਿਓ(1, (n) ?: 1))
 
-#define free_and_replace(a, b)                  \
-        free_and_replace_full(a, b, free)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ free_and_replace(a, b)                  \
+        free_and_replace_ਭਰਿਆ(a, b, ਮੁਕਤ)
 
-void* memdup(const void *p, size_t l) _alloc_(2);
-void* memdup_suffix0(const void *p, size_t l); /* We can't use _alloc_() here, since we return a buffer one byte larger than the specified size */
+ਖਾਲੀ* memdup(ਅਚਲ ਖਾਲੀ *p, size_t l) _alloc_(2);
+ਖਾਲੀ* memdup_suffix0(ਅਚਲ ਖਾਲੀ *p, size_t l); /* We can't use _alloc_() here, since we return a buffer one byte larger than the specified size */
 
-#define memdupa(p, l)                           \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ memdupa(p, l)                           \
         ({                                      \
-                void *_q_;                      \
+                ਖਾਲੀ *_q_;                      \
                 size_t _l_ = l;                 \
-                _q_ = alloca_safe(_l_);         \
-                memcpy_safe(_q_, p, _l_);       \
+                _q_ = alloca_ਸੁਰੱਖਿਅਤ(_l_);         \
+                memcpy_ਸੁਰੱਖਿਅਤ(_q_, p, _l_);       \
         })
 
-#define memdupa_suffix0(p, l)                   \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ memdupa_suffix0(p, l)                   \
         ({                                      \
-                void *_q_;                      \
+                ਖਾਲੀ *_q_;                      \
                 size_t _l_ = l;                 \
-                _q_ = alloca_safe(_l_ + 1);     \
+                _q_ = alloca_ਸੁਰੱਖਿਅਤ(_l_ + 1);     \
                 ((uint8_t*) _q_)[_l_] = 0;      \
-                memcpy_safe(_q_, p, _l_);       \
+                memcpy_ਸੁਰੱਖਿਅਤ(_q_, p, _l_);       \
         })
 
-static inline void unsetp(void *p) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ unsetp(ਖਾਲੀ *p) {
         /* A trivial "destructor" that can be used in cases where we want to
          * unset a pointer from a _cleanup_ function. */
 
-        *(void**)p = NULL;
+        *(ਖਾਲੀ**)p = ਨਿਰਾ;
 }
 
-static inline void freep(void *p) {
-        *(void**)p = mfree(*(void**) p);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ freep(ਖਾਲੀ *p) {
+        *(ਖਾਲੀ**)p = mfree(*(ਖਾਲੀ**) p);
 }
 
-#define _cleanup_free_ _cleanup_(freep)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _cleanup_free_ _cleanup_(freep)
 
-static inline bool size_multiply_overflow(size_t size, size_t need) {
-        return _unlikely_(need != 0 && size > (SIZE_MAX / need));
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ਮਾਪ_multiply_ਉਛਾਲ(size_t ਮਾਪ, size_t need) {
+        ਵਾਪਸ _unlikely_(need != 0 && ਮਾਪ > (SIZE_MAX / need));
 }
 
-_malloc_ _alloc_(1, 2) static inline void *malloc_multiply(size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+_malloc_ _alloc_(1, 2) ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *malloc_multiply(size_t need, size_t ਮਾਪ) {
+        ਜੇ (ਮਾਪ_multiply_ਉਛਾਲ(ਮਾਪ, need))
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return malloc(size * need ?: 1);
+        ਵਾਪਸ ਸਮ੍ਰਿਤੀ_ਦਿਓ(ਮਾਪ * need ?: 1);
 }
 
-_alloc_(2, 3) static inline void *memdup_multiply(const void *p, size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+_alloc_(2, 3) ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *memdup_multiply(ਅਚਲ ਖਾਲੀ *p, size_t need, size_t ਮਾਪ) {
+        ਜੇ (ਮਾਪ_multiply_ਉਛਾਲ(ਮਾਪ, need))
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return memdup(p, size * need);
+        ਵਾਪਸ memdup(p, ਮਾਪ * need);
 }
 
 /* Note that we can't decorate this function with _alloc_() since the returned memory area is one byte larger
  * than the product of its parameters. */
-static inline void *memdup_suffix0_multiply(const void *p, size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ *memdup_suffix0_multiply(ਅਚਲ ਖਾਲੀ *p, size_t need, size_t ਮਾਪ) {
+        ਜੇ (ਮਾਪ_multiply_ਉਛਾਲ(ਮਾਪ, need))
+                ਵਾਪਸ ਨਿਰਾ;
 
-        return memdup_suffix0(p, size * need);
+        ਵਾਪਸ memdup_suffix0(p, ਮਾਪ * need);
 }
 
-size_t malloc_sizeof_safe(void **xp);
+size_t malloc_sizeof_ਸੁਰੱਖਿਅਤ(ਖਾਲੀ **xp);
 
 /* This returns the number of usable bytes in a malloc()ed region as per malloc_usable_size(), which may
  * return a value larger than the size that was actually allocated. Access to that additional memory is
@@ -116,15 +116,15 @@ size_t malloc_sizeof_safe(void **xp);
  * compiler out, the MALLOC_SIZEOF_SAFE macro 'allocates' the usable size using a dummy allocator function
  * expand_to_usable. There is a possibility of malloc_usable_size() returning different values during the
  * lifetime of an object, which may cause problems, but the glibc allocator does not do that at the moment. */
-#define MALLOC_SIZEOF_SAFE(x) \
-        malloc_sizeof_safe((void**) &__builtin_choose_expr(__builtin_constant_p(x), (void*) { NULL }, (x)))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MALLOC_SIZEOF_ਸੁਰੱਖਿਅਤ(x) \
+        malloc_sizeof_ਸੁਰੱਖਿਅਤ((ਖਾਲੀ**) &__builtin_choose_expr(__builtin_constant_p(x), (ਖਾਲੀ*) { ਨਿਰਾ }, (x)))
 
 /* Inspired by ELEMENTSOF() but operates on malloc()'ed memory areas: typesafely returns the number of items
  * that fit into the specified memory block */
-#define MALLOC_ELEMENTSOF(x) \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ MALLOC_ELEMENTSOF(x) \
         (__builtin_choose_expr(                                         \
                 __builtin_types_compatible_p(typeof(x), typeof(&*(x))), \
-                MALLOC_SIZEOF_SAFE(x)/sizeof((x)[0]),                   \
+                MALLOC_SIZEOF_ਸੁਰੱਖਿਅਤ(x)/ਆਕਾਰ((x)[0]),                   \
                 VOID_0))
 
 /* Dummy allocator to tell the compiler that the new size of p is newsize. The implementation returns the
@@ -132,11 +132,11 @@ size_t malloc_sizeof_safe(void **xp);
  * be inlined (hence a non-static function with _noinline_ because LTO otherwise tries to inline it) because
  * gcc then loses the attributes on the function.
  * See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96503 */
-void *expand_to_usable(void *p, size_t newsize) _alloc_(2) _returns_nonnull_ _noinline_;
+ਖਾਲੀ *expand_ਮੰਜ਼ਿਲ_usable(ਖਾਲੀ *p, size_t newsize) _alloc_(2) _returns_nonnull_ _noinline_;
 
-void* realloc0(void *p, size_t new_size) _alloc_(2);
+ਖਾਲੀ* realloc0(ਖਾਲੀ *p, size_t new_ਮਾਪ) _alloc_(2);
 
-static inline size_t GREEDY_ALLOC_ROUND_UP(size_t l) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ size_t GREEDY_ALLOC_ਗੇੜਾ_ਉੱਪਰ(size_t l) {
         size_t m;
 
         /* Round up allocation sizes a bit to some reasonable, likely larger value. This is supposed to be
@@ -149,73 +149,73 @@ static inline size_t GREEDY_ALLOC_ROUND_UP(size_t l) {
          * Note the benefits of direct ALIGN_POWER2() usage: type-safety for size_t, sane handling for very
          * small (i.e. <= 2) and safe handling for very large (i.e. > SSIZE_MAX) values. */
 
-        if (l <= 2)
-                return 2; /* Never allocate less than 2 of something.  */
+        ਜੇ (l <= 2)
+                ਵਾਪਸ 2; /* Never allocate less than 2 of something.  */
 
         m = ALIGN_POWER2(l);
-        if (m == 0) /* overflow? */
-                return l;
+        ਜੇ (m == 0) /* overflow? */
+                ਵਾਪਸ l;
 
-        return m;
+        ਵਾਪਸ m;
 }
 
-void* greedy_realloc(void **p, size_t need, size_t size);
-void* greedy_realloc0(void **p, size_t need, size_t size);
-void* greedy_realloc_append(void **p, size_t *n_p, const void *from, size_t n_from, size_t size);
+ਖਾਲੀ* greedy_realloc(ਖਾਲੀ **p, size_t need, size_t ਮਾਪ);
+ਖਾਲੀ* greedy_realloc0(ਖਾਲੀ **p, size_t need, size_t ਮਾਪ);
+ਖਾਲੀ* greedy_realloc_append(ਖਾਲੀ **p, size_t *n_p, ਅਚਲ ਖਾਲੀ *from, size_t n_from, size_t ਮਾਪ);
 
-#define GREEDY_REALLOC(array, need)                                     \
-        greedy_realloc((void**) &(array), (need), sizeof((array)[0]))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GREEDY_REALLOC(array, need)                                     \
+        greedy_realloc((ਖਾਲੀ**) &(array), (need), ਆਕਾਰ((array)[0]))
 
-#define GREEDY_REALLOC0(array, need)                                    \
-        greedy_realloc0((void**) &(array), (need), sizeof((array)[0]))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GREEDY_REALLOC0(array, need)                                    \
+        greedy_realloc0((ਖਾਲੀ**) &(array), (need), ਆਕਾਰ((array)[0]))
 
-#define GREEDY_REALLOC_APPEND(array, n_array, from, n_from)             \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ GREEDY_REALLOC_APPEND(array, n_array, from, n_from)             \
         ({                                                              \
-                const typeof(*(array)) *_from_ = (from);                \
-                greedy_realloc_append((void**) &(array), &(n_array), _from_, (n_from), sizeof((array)[0])); \
+                ਅਚਲ typeof(*(array)) *_from_ = (from);                \
+                greedy_realloc_append((ਖਾਲੀ**) &(array), &(n_array), _from_, (n_from), ਆਕਾਰ((array)[0])); \
         })
 
-#define alloca0(n)                                      \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ alloca0(n)                                      \
         ({                                              \
-                char *_new_;                            \
+                ਅੱਖਰ *_new_;                            \
                 size_t _len_ = n;                       \
-                _new_ = alloca_safe(_len_);             \
+                _new_ = alloca_ਸੁਰੱਖਿਅਤ(_len_);             \
                 memset(_new_, 0, _len_);                \
         })
 
 /* It's not clear what alignment glibc/gcc alloca() guarantee, hence provide a guaranteed safe version */
-#define alloca_align(size, align)                                       \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ alloca_align(ਮਾਪ, align)                                       \
         ({                                                              \
-                void *_ptr_;                                            \
-                size_t _mask_ = (align) - 1;                            \
-                size_t _size_ = size;                                   \
-                _ptr_ = alloca_safe(_size_ + _mask_);                   \
-                (void*)(((uintptr_t)_ptr_ + _mask_) & ~_mask_);         \
+                ਖਾਲੀ *_ptr_;                                            \
+                size_t ਨਕਾਬ = (align) - 1;                            \
+                size_t ਮਾਪ_2 = ਮਾਪ;                                   \
+                _ptr_ = alloca_ਸੁਰੱਖਿਅਤ(ਮਾਪ_2 + ਨਕਾਬ);                   \
+                (ਖਾਲੀ*)(((uintptr_t)_ptr_ + ਨਕਾਬ) & ~ਨਕਾਬ);         \
         })
 
-#define alloca0_align(size, align)                                      \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ alloca0_align(ਮਾਪ, align)                                      \
         ({                                                              \
-                void *_new_;                                            \
-                size_t _xsize_ = (size);                                \
+                ਖਾਲੀ *_new_;                                            \
+                size_t _xsize_ = (ਮਾਪ);                                \
                 _new_ = alloca_align(_xsize_, (align));                 \
                 memset(_new_, 0, _xsize_);                              \
         })
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#ਜੇ HAS_FEATURE_ਸਮ੍ਰਿਤੀ_SANITIZER
 #  define msan_unpoison(r, s) __msan_unpoison(r, s)
-#else
+#ਨਹੀਂਤਾਂ
 #  define msan_unpoison(r, s)
-#endif
+#ਜੇ_ਅੰਤ
 
 /* Free every element of the array. */
-static inline void free_many(void **p, size_t n) {
-        assert(p || n == 0);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ free_many(ਖਾਲੀ **p, size_t n) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(p || n == 0);
 
         FOREACH_ARRAY(i, p, n)
                 *i = mfree(*i);
 }
 
 /* Typesafe wrapper for char** rather than void**. Unfortunately C won't implicitly cast this. */
-static inline void free_many_charp(char **c, size_t n) {
-        free_many((void**) c, n);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ free_many_charp(ਅੱਖਰ **c, size_t n) {
+        free_many((ਖਾਲੀ**) c, n);
 }

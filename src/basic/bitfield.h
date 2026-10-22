@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
 /* Bit index (0-based) to mask of specified type. Assertion failure if index is out of range. */
-#define _INDEX_TO_MASK(type, i, uniq)                                   \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੂਚਕਾਂਕ_ਮੰਜ਼ਿਲ_ਨਕਾਬ(type, i, uniq)                                   \
         ({                                                              \
-                int UNIQ_T(_i, uniq) = (i);                             \
-                assert(UNIQ_T(_i, uniq) >= 0);                          \
-                assert(UNIQ_T(_i, uniq) < (int)sizeof(type) * 8);       \
+                ਪੂਰਨ UNIQ_T(_i, uniq) = (i);                             \
+                ਪ੍ਰਤਿਜ੍ਞਾ(UNIQ_T(_i, uniq) >= 0);                          \
+                ਪ੍ਰਤਿਜ੍ਞਾ(UNIQ_T(_i, uniq) < (ਪੂਰਨ)ਆਕਾਰ(type) * 8);       \
                 ((type)1) << UNIQ_T(_i, uniq);                          \
         })
-#define INDEX_TO_MASK(type, i)                                          \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੂਚਕਾਂਕ_ਮੰਜ਼ਿਲ_ਨਕਾਬ_2(type, i)                                          \
         ({                                                              \
-                assert_cc(sizeof(type) <= sizeof(unsigned long long));  \
-                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (int)(sizeof(type) * 8)); \
+                assert_cc(ਆਕਾਰ(type) <= ਆਕਾਰ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਲੰਮਾ));  \
+                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (ਪੂਰਨ)(ਆਕਾਰ(type) * 8)); \
                 __builtin_choose_expr(__builtin_constant_p(i),          \
                                       ((type)1) << (i),                 \
-                                      _INDEX_TO_MASK(type, i, UNIQ));   \
+                                      ਸੂਚਕਾਂਕ_ਮੰਜ਼ਿਲ_ਨਕਾਬ(type, i, UNIQ));   \
         })
 
 /* Builds a mask of specified type with multiple bits set. Note the result will not be constant, even if all
  * indexes are constant. */
-#define INDEXES_TO_MASK(type, ...)                              \
-        UNIQ_INDEXES_TO_MASK(type, UNIQ, ##__VA_ARGS__)
-#define UNIQ_INDEXES_TO_MASK(type, uniq, ...)                           \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ INDEXES_ਮੰਜ਼ਿਲ_ਨਕਾਬ(type, ...)                              \
+        UNIQ_INDEXES_ਮੰਜ਼ਿਲ_ਨਕਾਬ(type, UNIQ, ##__VA_ARGS__)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UNIQ_INDEXES_ਮੰਜ਼ਿਲ_ਨਕਾਬ(type, uniq, ...)                           \
         ({                                                              \
-                typeof(type) UNIQ_T(_mask, uniq) = (type)0;             \
-                int UNIQ_T(_i, uniq);                                   \
-                FOREACH_ARGUMENT(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
-                        UNIQ_T(_mask, uniq) |= INDEX_TO_MASK(type, UNIQ_T(_i, uniq)); \
-                UNIQ_T(_mask, uniq);                                    \
+                typeof(type) UNIQ_T(ਨਕਾਬ_2, uniq) = (type)0;             \
+                ਪੂਰਨ UNIQ_T(_i, uniq);                                   \
+                FOREACH_ਦਲੀਲ(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
+                        UNIQ_T(ਨਕਾਬ_2, uniq) |= ਸੂਚਕਾਂਕ_ਮੰਜ਼ਿਲ_ਨਕਾਬ_2(type, UNIQ_T(_i, uniq)); \
+                UNIQ_T(ਨਕਾਬ_2, uniq);                                    \
         })
 
 /* Same as the FLAG macros, but accept a 0-based bit index instead of a mask. Results in assertion failure if
  * index is out of range for the type. */
-#define SET_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), true)
-#define CLEAR_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), false)
-#define BIT_SET(bits, i) FLAGS_SET(bits, INDEX_TO_MASK(typeof(bits), i))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ(ਬਿੱਟ, i) ਸੈੱਟ_FLAG(ਬਿੱਟ, ਸੂਚਕਾਂਕ_ਮੰਜ਼ਿਲ_ਨਕਾਬ_2(typeof(ਬਿੱਟ), i), true)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CLEAR_ਦੋਆਧਾਰੀ_ਅੰਕ(ਬਿੱਟ, i) ਸੈੱਟ_FLAG(ਬਿੱਟ, ਸੂਚਕਾਂਕ_ਮੰਜ਼ਿਲ_ਨਕਾਬ_2(typeof(ਬਿੱਟ), i), false)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਦੋਆਧਾਰੀ_ਅੰਕ_ਸੈੱਟ(ਬਿੱਟ, i) FLAGS_ਸੈੱਟ(ਬਿੱਟ, ਸੂਚਕਾਂਕ_ਮੰਜ਼ਿਲ_ਨਕਾਬ_2(typeof(ਬਿੱਟ), i))
 
 /* As above, but accepts multiple indexes. Note the result will not be constant, even if all indexes are
  * constant. */
-#define SET_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), true)
-#define CLEAR_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), false)
-#define BITS_SET(bits, ...) FLAGS_SET(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_ਬਿੱਟ(ਬਿੱਟ, ...) ਸੈੱਟ_FLAG(ਬਿੱਟ, INDEXES_ਮੰਜ਼ਿਲ_ਨਕਾਬ(typeof(ਬਿੱਟ), ##__VA_ARGS__), true)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ CLEAR_ਬਿੱਟ(ਬਿੱਟ, ...) ਸੈੱਟ_FLAG(ਬਿੱਟ, INDEXES_ਮੰਜ਼ਿਲ_ਨਕਾਬ(typeof(ਬਿੱਟ), ##__VA_ARGS__), false)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਬਿੱਟ_ਸੈੱਟ(ਬਿੱਟ, ...) FLAGS_ਸੈੱਟ(ਬਿੱਟ, INDEXES_ਮੰਜ਼ਿਲ_ਨਕਾਬ(typeof(ਬਿੱਟ), ##__VA_ARGS__))
 
 /* Iterate through each set bit. Index is 0-based and type int. */
-#define BIT_FOREACH(index, bits) _BIT_FOREACH(index, bits, UNIQ)
-#define _BIT_FOREACH(index, bits, uniq)                                 \
-        for (int UNIQ_T(_last, uniq) = -1, index;                       \
-             (index = BIT_NEXT_SET(bits, UNIQ_T(_last, uniq))) >= 0;    \
-             UNIQ_T(_last, uniq) = index)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਦੋਆਧਾਰੀ_ਅੰਕ_FOREACH(index, ਬਿੱਟ) ਦੋਆਧਾਰੀ_ਅੰਕ_FOREACH_2(index, ਬਿੱਟ, UNIQ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਦੋਆਧਾਰੀ_ਅੰਕ_FOREACH_2(index, ਬਿੱਟ, uniq)                                 \
+        ਲਈ (ਪੂਰਨ UNIQ_T(ਆਖਰੀ, uniq) = -1, index;                       \
+             (index = ਦੋਆਧਾਰੀ_ਅੰਕ_ਅਗਲਾ_ਸੈੱਟ(ਬਿੱਟ, UNIQ_T(ਆਖਰੀ, uniq))) >= 0;    \
+             UNIQ_T(ਆਖਰੀ, uniq) = index)
 
 /* Find the next set bit after 0-based index 'prev'. Result is 0-based index of next set bit, or -1 if no
  * more bits are set. */
-#define BIT_FIRST_SET(bits) BIT_NEXT_SET(bits, -1)
-#define BIT_NEXT_SET(bits, prev)                        \
-        UNIQ_BIT_NEXT_SET(bits, prev, UNIQ)
-#define UNIQ_BIT_NEXT_SET(bits, prev, uniq)                             \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਦੋਆਧਾਰੀ_ਅੰਕ_ਪਹਿਲਾ_ਸੈੱਟ(ਬਿੱਟ) ਦੋਆਧਾਰੀ_ਅੰਕ_ਅਗਲਾ_ਸੈੱਟ(ਬਿੱਟ, -1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਦੋਆਧਾਰੀ_ਅੰਕ_ਅਗਲਾ_ਸੈੱਟ(ਬਿੱਟ, prev)                        \
+        UNIQ_ਦੋਆਧਾਰੀ_ਅੰਕ_ਅਗਲਾ_ਸੈੱਟ(ਬਿੱਟ, prev, UNIQ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UNIQ_ਦੋਆਧਾਰੀ_ਅੰਕ_ਅਗਲਾ_ਸੈੱਟ(ਬਿੱਟ, prev, uniq)                             \
         ({                                                              \
-                typeof(bits) UNIQ_T(_bits, uniq) = (bits);              \
-                int UNIQ_T(_prev, uniq) = (prev);                       \
-                int UNIQ_T(_next, uniq);                                \
-                _BIT_NEXT_SET(UNIQ_T(_bits, uniq),                      \
+                typeof(ਬਿੱਟ) UNIQ_T(ਬਿੱਟ_2, uniq) = (ਬਿੱਟ);              \
+                ਪੂਰਨ UNIQ_T(_prev, uniq) = (prev);                       \
+                ਪੂਰਨ UNIQ_T(ਅਗਲਾ, uniq);                                \
+                ਦੋਆਧਾਰੀ_ਅੰਕ_ਅਗਲਾ_ਸੈੱਟ_2(UNIQ_T(ਬਿੱਟ_2, uniq),                      \
                               UNIQ_T(_prev, uniq),                      \
-                              UNIQ_T(_next, uniq));                     \
+                              UNIQ_T(ਅਗਲਾ, uniq));                     \
         })
-#define _BIT_NEXT_SET(bits, prev, next)                                 \
-        ((int)(prev + 1) == (int)sizeof(bits) * 8                       \
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਦੋਆਧਾਰੀ_ਅੰਕ_ਅਗਲਾ_ਸੈੱਟ_2(ਬਿੱਟ, prev, ਅਗਲਾ_2)                                 \
+        ((ਪੂਰਨ)(prev + 1) == (ਪੂਰਨ)ਆਕਾਰ(ਬਿੱਟ) * 8                       \
          ? -1 /* Prev index was msb. */                                 \
-         : ((next = __builtin_ffsll(((unsigned long long)(bits)) >> (prev + 1))) == 0 \
+         : ((ਅਗਲਾ_2 = __builtin_ffsll(((ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਲੰਮਾ)(ਬਿੱਟ)) >> (prev + 1))) == 0 \
             ? -1 /* No more bits set. */                                \
-            : prev + next))
+            : prev + ਅਗਲਾ_2))

@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <sys/resource.h>       /* IWYU pragma: export */
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/resource.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-#define _RLIMIT_MAX RLIMIT_NLIMITS
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ _RLIMIT_MAX RLIMIT_NLIMITS
 
-DECLARE_STRING_TABLE_LOOKUP(rlimit, int);
-int rlimit_from_string_harder(const char *s) _pure_;
-void rlimits_list(const char *prefix);
+DECLARE_STRING_ਸਾਰਣੀ_LOOKUP(rlimit, ਪੂਰਨ);
+ਪੂਰਨ rlimit_from_string_harder(ਅਚਲ ਅੱਖਰ *s) ਸ਼ੁੱਧ;
+ਖਾਲੀ rlimits_list(ਅਚਲ ਅੱਖਰ *ਅਗੇਤਰ);
 
-int setrlimit_closest(int resource, const struct rlimit *rlim);
-int setrlimit_closest_all(const struct rlimit * const *rlim, int *which_failed);
+ਪੂਰਨ setrlimit_closest(ਪੂਰਨ resource, ਅਚਲ ਬਣਤਰ rlimit *rlim);
+ਪੂਰਨ setrlimit_closest_all(ਅਚਲ ਬਣਤਰ rlimit * ਅਚਲ *rlim, ਪੂਰਨ *which_failed);
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret);
-int rlimit_parse(int resource, const char *val, struct rlimit *ret);
+ਪੂਰਨ rlimit_parse_one(ਪੂਰਨ resource, ਅਚਲ ਅੱਖਰ *val, rlim_t *ret);
+ਪੂਰਨ rlimit_parse(ਪੂਰਨ resource, ਅਚਲ ਅੱਖਰ *val, ਬਣਤਰ rlimit *ret);
 
-int rlimit_format(const struct rlimit *rl, char **ret);
+ਪੂਰਨ rlimit_format(ਅਚਲ ਬਣਤਰ rlimit *rl, ਅੱਖਰ **ret);
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]);
-void rlimit_free_all(struct rlimit **rl);
+ਪੂਰਨ rlimit_copy_all(ਬਣਤਰ rlimit* ਨਿਸ਼ਾਨਾ[ਸਥਿਰ _RLIMIT_MAX], ਬਣਤਰ rlimit* ਅਚਲ ਸਰੋਤ[ਸਥਿਰ _RLIMIT_MAX]);
+ਖਾਲੀ rlimit_free_all(ਬਣਤਰ rlimit **rl);
 
-#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ RLIMIT_MAKE_CONST(lim) ((ਬਣਤਰ rlimit) { lim, lim })
 
-int rlimit_nofile_bump(int limit);
-int rlimit_nofile_safe(void);
+ਪੂਰਨ rlimit_nofile_bump(ਪੂਰਨ limit);
+ਪੂਰਨ rlimit_nofile_ਸੁਰੱਖਿਅਤ(ਖਾਲੀ);
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret);
+ਪੂਰਨ pid_getrlimit(pid_t pid, ਪੂਰਨ resource, ਬਣਤਰ rlimit *ret);

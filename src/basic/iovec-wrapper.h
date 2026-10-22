@@ -1,79 +1,79 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-struct iovec_wrapper {
-        struct iovec *iovec;
-        size_t count;
+ਬਣਤਰ iovec_wrapper {
+        ਬਣਤਰ iovec *iovec;
+        size_t ਗਿਣਤੀ_2;
 };
 
-void iovw_done_free(struct iovec_wrapper *iovw);
-void iovw_done(struct iovec_wrapper *iovw);
+ਖਾਲੀ iovw_ਪੂਰਾ_free(ਬਣਤਰ iovec_wrapper *iovw);
+ਖਾਲੀ iovw_ਪੂਰਾ(ਬਣਤਰ iovec_wrapper *iovw);
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free);
+ਬਣਤਰ iovec_wrapper* iovw_free(ਬਣਤਰ iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ਬਣਤਰ iovec_wrapper*, iovw_free);
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free_free);
+ਬਣਤਰ iovec_wrapper* iovw_free_free(ਬਣਤਰ iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ਬਣਤਰ iovec_wrapper*, iovw_free_free);
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) _pure_;
-static inline bool iovw_equal(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        return iovw_compare(a, b) == 0;
-}
-
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_put(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_put_full(iovw, false, data, len);
-}
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_put_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_put_iov_full(iovw, false, iov);
-}
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_put_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_put_iovw_full(iovw, false, source);
-}
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_consume(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_consume_full(iovw, false, data, len);
-}
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov);
-static inline int iovw_consume_iov(struct iovec_wrapper *iovw, struct iovec *iov) {
-        return iovw_consume_iov_full(iovw, false, iov);
-}
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len);
-static inline int iovw_extend(struct iovec_wrapper *iovw, const void *data, size_t len) {
-        return iovw_extend_full(iovw, false, data, len);
-}
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_extend_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_extend_iov_full(iovw, false, iov);
-}
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_extend_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_extend_iovw_full(iovw, false, source);
+ਪੂਰਨ iovw_compare(ਅਚਲ ਬਣਤਰ iovec_wrapper *a, ਅਚਲ ਬਣਤਰ iovec_wrapper *b) ਸ਼ੁੱਧ;
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool iovw_equal(ਅਚਲ ਬਣਤਰ iovec_wrapper *a, ਅਚਲ ਬਣਤਰ iovec_wrapper *b) {
+        ਵਾਪਸ iovw_compare(a, b) == 0;
 }
 
-static inline bool iovw_isempty(const struct iovec_wrapper *iovw) {
-        return !iovw || iovw->count == 0;
+ਪੂਰਨ iovw_put_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਖਾਲੀ *ਅੰਕੜੇ, size_t len);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_put(ਬਣਤਰ iovec_wrapper *iovw, ਖਾਲੀ *ਅੰਕੜੇ, size_t len) {
+        ਵਾਪਸ iovw_put_ਭਰਿਆ(iovw, false, ਅੰਕੜੇ, len);
+}
+ਪੂਰਨ iovw_put_iov_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਅਚਲ ਬਣਤਰ iovec *iov);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_put_iov(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਬਣਤਰ iovec *iov) {
+        ਵਾਪਸ iovw_put_iov_ਭਰਿਆ(iovw, false, iov);
+}
+ਪੂਰਨ iovw_put_iovw_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਅਚਲ ਬਣਤਰ iovec_wrapper *ਸਰੋਤ);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_put_iovw(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਬਣਤਰ iovec_wrapper *ਸਰੋਤ) {
+        ਵਾਪਸ iovw_put_iovw_ਭਰਿਆ(iovw, false, ਸਰੋਤ);
+}
+ਪੂਰਨ iovw_consume_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਖਾਲੀ *ਅੰਕੜੇ, size_t len);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_consume(ਬਣਤਰ iovec_wrapper *iovw, ਖਾਲੀ *ਅੰਕੜੇ, size_t len) {
+        ਵਾਪਸ iovw_consume_ਭਰਿਆ(iovw, false, ਅੰਕੜੇ, len);
+}
+ਪੂਰਨ iovw_consume_iov_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਬਣਤਰ iovec *iov);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_consume_iov(ਬਣਤਰ iovec_wrapper *iovw, ਬਣਤਰ iovec *iov) {
+        ਵਾਪਸ iovw_consume_iov_ਭਰਿਆ(iovw, false, iov);
+}
+ਪੂਰਨ iovw_extend_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਅਚਲ ਖਾਲੀ *ਅੰਕੜੇ, size_t len);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_extend(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਖਾਲੀ *ਅੰਕੜੇ, size_t len) {
+        ਵਾਪਸ iovw_extend_ਭਰਿਆ(iovw, false, ਅੰਕੜੇ, len);
+}
+ਪੂਰਨ iovw_extend_iov_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਅਚਲ ਬਣਤਰ iovec *iov);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_extend_iov(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਬਣਤਰ iovec *iov) {
+        ਵਾਪਸ iovw_extend_iov_ਭਰਿਆ(iovw, false, iov);
+}
+ਪੂਰਨ iovw_extend_iovw_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool accept_zero, ਅਚਲ ਬਣਤਰ iovec_wrapper *ਸਰੋਤ);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_extend_iovw(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਬਣਤਰ iovec_wrapper *ਸਰੋਤ) {
+        ਵਾਪਸ iovw_extend_iovw_ਭਰਿਆ(iovw, false, ਸਰੋਤ);
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value);
-static inline int iovw_put_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, false, field, value);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool iovw_isempty(ਅਚਲ ਬਣਤਰ iovec_wrapper *iovw) {
+        ਵਾਪਸ !iovw || iovw->ਗਿਣਤੀ_2 == 0;
 }
-static inline int iovw_replace_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, true, field, value);
-}
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) _printf_(4, 5);
-#define iovw_put_string_fieldf(iovw, ...)     iovw_put_string_fieldf_full(iovw, false, __VA_ARGS__)
-#define iovw_replace_string_fieldf(iovw, ...) iovw_put_string_fieldf_full(iovw, true, __VA_ARGS__)
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value);
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new);
-size_t iovw_size(const struct iovec_wrapper *iovw);
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret);
-char* iovw_to_cstring(const struct iovec_wrapper *iovw);
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret);
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret);
+ਪੂਰਨ iovw_put_string_ਖੇਤਰ_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool replace, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅਚਲ ਅੱਖਰ *ਮੁੱਲ);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_put_string_ਖੇਤਰ(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅਚਲ ਅੱਖਰ *ਮੁੱਲ) {
+        ਵਾਪਸ iovw_put_string_ਖੇਤਰ_ਭਰਿਆ(iovw, false, ਖੇਤਰ, ਮੁੱਲ);
+}
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ iovw_replace_string_ਖੇਤਰ(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅਚਲ ਅੱਖਰ *ਮੁੱਲ) {
+        ਵਾਪਸ iovw_put_string_ਖੇਤਰ_ਭਰਿਆ(iovw, true, ਖੇਤਰ, ਮੁੱਲ);
+}
+ਪੂਰਨ iovw_put_string_fieldf_ਭਰਿਆ(ਬਣਤਰ iovec_wrapper *iovw, bool replace, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅਚਲ ਅੱਖਰ *format, ...) _printf_(4, 5);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ iovw_put_string_fieldf(iovw, ...)     iovw_put_string_fieldf_ਭਰਿਆ(iovw, false, __VA_ARGS__)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ iovw_replace_string_fieldf(iovw, ...) iovw_put_string_fieldf_ਭਰਿਆ(iovw, true, __VA_ARGS__)
+ਪੂਰਨ iovw_put_string_ਖੇਤਰ_free(ਬਣਤਰ iovec_wrapper *iovw, ਅਚਲ ਅੱਖਰ *ਖੇਤਰ, ਅੱਖਰ *ਮੁੱਲ);
+ਖਾਲੀ iovw_rebase(ਬਣਤਰ iovec_wrapper *iovw, ਖਾਲੀ *old, ਖਾਲੀ *new);
+size_t iovw_ਮਾਪ(ਅਚਲ ਬਣਤਰ iovec_wrapper *iovw);
+ਪੂਰਨ iovw_concat(ਅਚਲ ਬਣਤਰ iovec_wrapper *iovw, ਬਣਤਰ iovec *ret);
+ਅੱਖਰ* iovw_ਮੰਜ਼ਿਲ_cstring(ਅਚਲ ਬਣਤਰ iovec_wrapper *iovw);
+
+ਪੂਰਨ iovec_ਵੰਡੋ(ਅਚਲ ਬਣਤਰ iovec *iov, size_t ਲੰਮਾਈ_ਮਾਪ, ਬਣਤਰ iovec_wrapper *ret);
+ਪੂਰਨ iovw_ਮਿਲਾਓ(ਅਚਲ ਬਣਤਰ iovec_wrapper *iovw, size_t ਲੰਮਾਈ_ਮਾਪ, ਬਣਤਰ iovec *ret);

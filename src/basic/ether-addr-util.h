@@ -1,106 +1,106 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ਹਦਾਇਤ once
 
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <net/ethernet.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <linux/if_infiniband.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <netinet/in.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <net/ethernet.h>
 
-#include "forward.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "forward.h"
 
-struct hw_addr_data {
+ਬਣਤਰ hw_addr_ਅੰਕੜੇ {
         size_t length;
-        union {
-                struct ether_addr ether;
+        ਸੰਘ {
+                ਬਣਤਰ ether_addr ether;
                 uint8_t infiniband[INFINIBAND_ALEN];
-                struct in_addr in;
-                struct in6_addr in6;
-                uint8_t bytes[HW_ADDR_MAX_SIZE];
+                ਬਣਤਰ in_addr ਵਿੱਚ;
+                ਬਣਤਰ in6_addr in6;
+                uint8_t ਬਾਈਟਾਂ[HW_ADDR_MAX_ਮਾਪ];
         };
 };
 
-int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *ret);
-static inline int parse_hw_addr(const char *s, struct hw_addr_data *ret) {
-        return parse_hw_addr_full(s, 0, ret);
+ਪੂਰਨ parse_hw_addr_ਭਰਿਆ(ਅਚਲ ਅੱਖਰ *s, size_t expected_len, ਬਣਤਰ hw_addr_ਅੰਕੜੇ *ret);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਪੂਰਨ parse_hw_addr(ਅਚਲ ਅੱਖਰ *s, ਬਣਤਰ hw_addr_ਅੰਕੜੇ *ret) {
+        ਵਾਪਸ parse_hw_addr_ਭਰਿਆ(s, 0, ret);
 }
-int parse_ether_addr(const char *s, struct ether_addr *ret);
+ਪੂਰਨ parse_ether_addr(ਅਚਲ ਅੱਖਰ *s, ਬਣਤਰ ether_addr *ret);
 
-typedef enum HardwareAddressToStringFlags {
-        HW_ADDR_TO_STRING_NO_COLON = 1 << 0,
-} HardwareAddressToStringFlags;
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਗਿਣਤੀ Hardware_ਪਤਾ_ਮੰਜ਼ਿਲ_String_Flags {
+        HW_ADDR_ਮੰਜ਼ਿਲ_STRING_NO_COLON = 1 << 0,
+} Hardware_ਪਤਾ_ਮੰਜ਼ਿਲ_String_Flags;
 
-#define HW_ADDR_TO_STRING_MAX (3*HW_ADDR_MAX_SIZE)
-char* hw_addr_to_string_full(
-                const struct hw_addr_data *addr,
-                HardwareAddressToStringFlags flags,
-                char buffer[static HW_ADDR_TO_STRING_MAX]);
-static inline char* hw_addr_to_string(const struct hw_addr_data *addr, char buffer[static HW_ADDR_TO_STRING_MAX]) {
-        return hw_addr_to_string_full(addr, 0, buffer);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HW_ADDR_ਮੰਜ਼ਿਲ_STRING_MAX (3*HW_ADDR_MAX_ਮਾਪ)
+ਅੱਖਰ* hw_addr_ਮੰਜ਼ਿਲ_string_ਭਰਿਆ(
+                ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *addr,
+                Hardware_ਪਤਾ_ਮੰਜ਼ਿਲ_String_Flags flags,
+                ਅੱਖਰ ਬਫਰ[ਸਥਿਰ HW_ADDR_ਮੰਜ਼ਿਲ_STRING_MAX]);
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ* hw_addr_ਮੰਜ਼ਿਲ_string(ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *addr, ਅੱਖਰ ਬਫਰ[ਸਥਿਰ HW_ADDR_ਮੰਜ਼ਿਲ_STRING_MAX]) {
+        ਵਾਪਸ hw_addr_ਮੰਜ਼ਿਲ_string_ਭਰਿਆ(addr, 0, ਬਫਰ);
 }
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
  * see C11 §6.5.2.5, and
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks */
-#define HW_ADDR_TO_STR_FULL(hw_addr, flags) hw_addr_to_string_full((hw_addr), flags, (char[HW_ADDR_TO_STRING_MAX]){})
-#define HW_ADDR_TO_STR(hw_addr) HW_ADDR_TO_STR_FULL(hw_addr, 0)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HW_ADDR_ਮੰਜ਼ਿਲ_STR_ਭਰਿਆ(hw_addr, flags) hw_addr_ਮੰਜ਼ਿਲ_string_ਭਰਿਆ((hw_addr), flags, (ਅੱਖਰ[HW_ADDR_ਮੰਜ਼ਿਲ_STRING_MAX]){})
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HW_ADDR_ਮੰਜ਼ਿਲ_STR(hw_addr) HW_ADDR_ਮੰਜ਼ਿਲ_STR_ਭਰਿਆ(hw_addr, 0)
 
-#define HW_ADDR_NULL ((const struct hw_addr_data){})
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HW_ADDR_NULL ((ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ){})
 
-struct hw_addr_data *hw_addr_set(struct hw_addr_data *addr, const uint8_t *bytes, size_t length);
+ਬਣਤਰ hw_addr_ਅੰਕੜੇ *hw_addr_ਸੈੱਟ(ਬਣਤਰ hw_addr_ਅੰਕੜੇ *addr, ਅਚਲ uint8_t *ਬਾਈਟਾਂ, size_t length);
 
-void hw_addr_hash_func(const struct hw_addr_data *p, struct siphash *state);
-int hw_addr_compare(const struct hw_addr_data *a, const struct hw_addr_data *b);
-static inline bool hw_addr_equal(const struct hw_addr_data *a, const struct hw_addr_data *b) {
-        return hw_addr_compare(a, b) == 0;
+ਖਾਲੀ hw_addr_hash_func(ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *p, ਬਣਤਰ siphash *state);
+ਪੂਰਨ hw_addr_compare(ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *a, ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *b);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool hw_addr_equal(ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *a, ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *b) {
+        ਵਾਪਸ hw_addr_compare(a, b) == 0;
 }
-bool hw_addr_is_null(const struct hw_addr_data *addr) _pure_;
-bool hw_addr_is_valid(const struct hw_addr_data *addr, uint16_t iftype);
+bool hw_addr_is_null(ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *addr) ਸ਼ੁੱਧ;
+bool hw_addr_is_valid(ਅਚਲ ਬਣਤਰ hw_addr_ਅੰਕੜੇ *addr, uint16_t iftype);
 
-extern const struct hash_ops hw_addr_hash_ops;
-extern const struct hash_ops hw_addr_hash_ops_free;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ hash_ops hw_addr_hash_ops;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ hash_ops hw_addr_hash_ops_free;
 
-#define ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
-#define ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
 
-#define ETHER_ADDR_TO_STRING_MAX (3*6)
-char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR_TO_STRING_MAX]);
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ETHER_ADDR_ਮੰਜ਼ਿਲ_STRING_MAX (3*6)
+ਅੱਖਰ* ether_addr_ਮੰਜ਼ਿਲ_string(ਅਚਲ ਬਣਤਰ ether_addr *addr, ਅੱਖਰ ਬਫਰ[ETHER_ADDR_ਮੰਜ਼ਿਲ_STRING_MAX]);
 /* Use only as function argument, never stand-alone! */
-#define ETHER_ADDR_TO_STR(addr) ether_addr_to_string((addr), (char[ETHER_ADDR_TO_STRING_MAX]){})
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ETHER_ADDR_ਮੰਜ਼ਿਲ_STR(addr) ether_addr_ਮੰਜ਼ਿਲ_string((addr), (ਅੱਖਰ[ETHER_ADDR_ਮੰਜ਼ਿਲ_STRING_MAX]){})
 
-int ether_addr_compare(const struct ether_addr *a, const struct ether_addr *b);
-static inline bool ether_addr_equal(const struct ether_addr *a, const struct ether_addr *b) {
-        return ether_addr_compare(a, b) == 0;
+ਪੂਰਨ ether_addr_compare(ਅਚਲ ਬਣਤਰ ether_addr *a, ਅਚਲ ਬਣਤਰ ether_addr *b);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ether_addr_equal(ਅਚਲ ਬਣਤਰ ether_addr *a, ਅਚਲ ਬਣਤਰ ether_addr *b) {
+        ਵਾਪਸ ether_addr_compare(a, b) == 0;
 }
 
-#define ETHER_ADDR_NULL ((const struct ether_addr){})
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ETHER_ADDR_NULL ((ਅਚਲ ਬਣਤਰ ether_addr){})
 
-static inline bool ether_addr_is_null(const struct ether_addr *addr) {
-        return ether_addr_equal(addr, &ETHER_ADDR_NULL);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ether_addr_is_null(ਅਚਲ ਬਣਤਰ ether_addr *addr) {
+        ਵਾਪਸ ether_addr_equal(addr, &ETHER_ADDR_NULL);
 }
 
-bool ether_addr_is_broadcast(const struct ether_addr *addr) _pure_;
+bool ether_addr_is_ਪ੍ਰਸਾਰਣ(ਅਚਲ ਬਣਤਰ ether_addr *addr) ਸ਼ੁੱਧ;
 
-static inline bool ether_addr_is_multicast(const struct ether_addr *addr) {
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x01);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ether_addr_is_multicast(ਅਚਲ ਬਣਤਰ ether_addr *addr) {
+        ਪ੍ਰਤਿਜ੍ਞਾ(addr);
+        ਵਾਪਸ FLAGS_ਸੈੱਟ(addr->ether_addr_octet[0], 0x01);
 }
 
-static inline bool ether_addr_is_unicast(const struct ether_addr *addr) {
-        return !ether_addr_is_multicast(addr);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ether_addr_is_unicast(ਅਚਲ ਬਣਤਰ ether_addr *addr) {
+        ਵਾਪਸ !ether_addr_is_multicast(addr);
 }
 
-static inline bool ether_addr_is_local(const struct ether_addr *addr) {
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ether_addr_is_local(ਅਚਲ ਬਣਤਰ ether_addr *addr) {
         /* Determine if the Ethernet address is locally-assigned one (IEEE 802) */
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x02);
+        ਪ੍ਰਤਿਜ੍ਞਾ(addr);
+        ਵਾਪਸ FLAGS_ਸੈੱਟ(addr->ether_addr_octet[0], 0x02);
 }
 
-static inline bool ether_addr_is_global(const struct ether_addr *addr) {
-        return !ether_addr_is_local(addr);
+ਸਥਿਰ ਸਤਰਅੰਦਰ bool ether_addr_is_global(ਅਚਲ ਬਣਤਰ ether_addr *addr) {
+        ਵਾਪਸ !ether_addr_is_local(addr);
 }
 
-extern const struct hash_ops ether_addr_hash_ops;
-extern const struct hash_ops ether_addr_hash_ops_free;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ hash_ops ether_addr_hash_ops;
+ਬਾਹਰੀ ਅਚਲ ਬਣਤਰ hash_ops ether_addr_hash_ops_free;
 
-void ether_addr_mark_random(struct ether_addr *addr);
+ਖਾਲੀ ether_addr_mark_random(ਬਣਤਰ ether_addr *addr);
 
-int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type);
+ਪੂਰਨ hw_addr_ensure_ਪ੍ਰਸਾਰਣ(ਬਣਤਰ hw_addr_ਅੰਕੜੇ *bcast_addr, uint16_t arp_type);

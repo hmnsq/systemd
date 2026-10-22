@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "parse-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "stdio-util.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-table.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+ਅਚਲ ਅੱਖਰ* string_ਸਾਰਣੀ_lookup_ਮੰਜ਼ਿਲ_string(ਅਚਲ ਅੱਖਰ * ਅਚਲ *ਸਾਰਣੀ, size_t len, ssize_t i) {
+        ਜੇ (i < 0 || i >= (ssize_t) len)
+                ਵਾਪਸ ਨਿਰਾ;
 
-        assert(table);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਸਾਰਣੀ);
 
-        return table[i];
+        ਵਾਪਸ ਸਾਰਣੀ[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
-        assert_return(table, -EINVAL);
+ssize_t string_ਸਾਰਣੀ_lookup_from_string(ਅਚਲ ਅੱਖਰ * ਅਚਲ *ਸਾਰਣੀ, size_t len, ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ) {
+        assert_return(ਸਾਰਣੀ, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        ਜੇ (!ਕੁੰਜੀ)
+                ਵਾਪਸ -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        ਲਈ (size_t i = 0; i < len; ++i)
+                ਜੇ (streq_ptr(ਸਾਰਣੀ[i], ਕੁੰਜੀ))
+                        ਵਾਪਸ (ssize_t) i;
 
-        return -EINVAL;
+        ਵਾਪਸ -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_ਸਾਰਣੀ_lookup_from_string_with_boolean(ਅਚਲ ਅੱਖਰ * ਅਚਲ *ਸਾਰਣੀ, size_t len, ਅਚਲ ਅੱਖਰ *ਕੁੰਜੀ, ssize_t yes) {
+        ਜੇ (!ਕੁੰਜੀ)
+                ਵਾਪਸ -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        ਪੂਰਨ b = parse_boolean(ਕੁੰਜੀ);
+        ਜੇ (b == 0)
+                ਵਾਪਸ 0;
+        ਜੇ (b > 0)
+                ਵਾਪਸ yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        ਵਾਪਸ string_ਸਾਰਣੀ_lookup_from_string(ਸਾਰਣੀ, len, ਕੁੰਜੀ);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+ਪੂਰਨ string_ਸਾਰਣੀ_lookup_ਮੰਜ਼ਿਲ_string_fallback(ਅਚਲ ਅੱਖਰ * ਅਚਲ *ਸਾਰਣੀ, size_t len, ssize_t i, size_t max, ਅੱਖਰ **ret) {
+        ਅੱਖਰ *s;
 
-        assert(table);
-        assert(ret);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ਸਾਰਣੀ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        ਜੇ (i < 0 || i > (ssize_t) max)
+                ਵਾਪਸ -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
-                s = strdup(table[i]);
-        else
-                s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        ਜੇ (i < (ssize_t) len && ਸਾਰਣੀ[i])
+                s = strdup(ਸਾਰਣੀ[i]);
+        ਨਹੀਂਤਾਂ
+                s = asprintf_ਸੁਰੱਖਿਅਤ("%zd", i);
+        ਜੇ (!s)
+                ਵਾਪਸ -ENOMEM;
 
         *ret = s;
-        return 0;
+        ਵਾਪਸ 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_ਸਾਰਣੀ_lookup_from_string_fallback(ਅਚਲ ਅੱਖਰ * ਅਚਲ *ਸਾਰਣੀ, size_t len, ਅਚਲ ਅੱਖਰ *s, size_t max) {
+        ਜੇ (!s)
+                ਵਾਪਸ -EINVAL;
 
-        ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        ssize_t i = string_ਸਾਰਣੀ_lookup_from_string(ਸਾਰਣੀ, len, s);
+        ਜੇ (i >= 0)
+                ਵਾਪਸ i;
 
-        unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        ਬਿਨਾਨਿਸ਼ਾਨੀ u;
+        ਜੇ (ਸੁਰੱਖਿਅਤ_atou(s, &u) < 0)
+                ਵਾਪਸ -EINVAL;
+        ਜੇ (u > max)
+                ਵਾਪਸ -EINVAL;
 
-        return u;
+        ਵਾਪਸ u;
 }
