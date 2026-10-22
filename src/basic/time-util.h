@@ -1,28 +1,28 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <limits.h>
-#include <time.h>
+#अन्तर्भाव <limits.h>
+#अन्तर्भाव <time.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 #define PRI_NSEC PRIu64
 #define PRI_USEC PRIu64
 #define NSEC_FMT "%" PRI_NSEC
 #define USEC_FMT "%" PRI_USEC
 
-typedef struct dual_timestamp {
+प्रकारनिर्देश संरचना dual_timestamp {
         usec_t realtime;
         usec_t monotonic;
 } dual_timestamp;
 
-typedef struct triple_timestamp {
+प्रकारनिर्देश संरचना triple_timestamp {
         usec_t realtime;
         usec_t monotonic;
         usec_t boottime;
 } triple_timestamp;
 
-typedef enum TimestampStyle {
+प्रकारनिर्देश गणना TimestampStyle {
         TIMESTAMP_PRETTY,
         TIMESTAMP_US,
         TIMESTAMP_UTC,
@@ -56,7 +56,7 @@ typedef enum TimestampStyle {
 #define USEC_PER_YEAR ((usec_t) (31557600ULL*USEC_PER_SEC))
 #define NSEC_PER_YEAR ((nsec_t) (31557600ULL*NSEC_PER_SEC))
 
-enum {
+गणना {
         WEEKDAY_MON,
         WEEKDAY_TUE,
         WEEKDAY_WED,
@@ -74,13 +74,13 @@ enum {
 #define FORMAT_TIMESTAMP_RELATIVE_MAX 256U
 #define FORMAT_TIMESPAN_MAX 64U
 
-#define TIME_T_MAX (time_t)((UINTMAX_C(1) << ((sizeof(time_t) << 3) - 1)) - 1)
+#define TIME_T_MAX (time_t)((UINTMAX_C(1) << ((परिमाण(time_t) << 3) - 1)) - 1)
 
 #define DUAL_TIMESTAMP_NULL ((dual_timestamp) {})
 #define DUAL_TIMESTAMP_INFINITY ((dual_timestamp) { USEC_INFINITY, USEC_INFINITY })
 #define TRIPLE_TIMESTAMP_NULL ((triple_timestamp) {})
 
-#define TIMESPEC_OMIT ((const struct timespec) { .tv_nsec = UTIME_OMIT })
+#define TIMESPEC_OMIT ((ध्रुव संरचना timespec) { .tv_nsec = UTIME_OMIT })
 
 usec_t now(clockid_t clock);
 nsec_t now_nsec(clockid_t clock);
@@ -103,157 +103,157 @@ triple_timestamp* triple_timestamp_from_boottime(triple_timestamp *ts, usec_t u)
 #define TRIPLE_TIMESTAMP_HAS_CLOCK(clock)                               \
         IN_SET(clock, CLOCK_REALTIME, CLOCK_REALTIME_ALARM, CLOCK_MONOTONIC, CLOCK_BOOTTIME, CLOCK_BOOTTIME_ALARM)
 
-static inline bool timestamp_is_set(usec_t timestamp) {
-        return timestamp > 0 && timestamp != USEC_INFINITY;
+स्थिर अन्तःस्थ bool timestamp_is_set(usec_t timestamp) {
+        पटिनिवत्त timestamp > 0 && timestamp != USEC_INFINITY;
 }
 
-static inline bool dual_timestamp_is_set(const dual_timestamp *ts) {
-        return timestamp_is_set(ts->realtime) ||
+स्थिर अन्तःस्थ bool dual_timestamp_is_set(ध्रुव dual_timestamp *ts) {
+        पटिनिवत्त timestamp_is_set(ts->realtime) ||
                timestamp_is_set(ts->monotonic);
 }
 
-static inline bool triple_timestamp_is_set(const triple_timestamp *ts) {
-        return timestamp_is_set(ts->realtime) ||
+स्थिर अन्तःस्थ bool triple_timestamp_is_set(ध्रुव triple_timestamp *ts) {
+        पटिनिवत्त timestamp_is_set(ts->realtime) ||
                timestamp_is_set(ts->monotonic) ||
                timestamp_is_set(ts->boottime);
 }
 
 usec_t triple_timestamp_by_clock(triple_timestamp *ts, clockid_t clock);
 
-usec_t timespec_load(const struct timespec *ts) _pure_;
-nsec_t timespec_load_nsec(const struct timespec *ts) _pure_;
-struct timespec* timespec_store(struct timespec *ts, usec_t u);
-struct timespec* timespec_store_nsec(struct timespec *ts, nsec_t n);
+usec_t timespec_load(ध्रुव संरचना timespec *ts) _pure_;
+nsec_t timespec_load_nsec(ध्रुव संरचना timespec *ts) _pure_;
+संरचना timespec* timespec_store(संरचना timespec *ts, usec_t u);
+संरचना timespec* timespec_store_nsec(संरचना timespec *ts, nsec_t n);
 
-#define TIMESPEC_STORE(u) timespec_store(&(struct timespec) {}, (u))
-#define TIMESPEC_STORE_NSEC(n) timespec_store_nsec(&(struct timespec) {}, (n))
+#define TIMESPEC_STORE(u) timespec_store(&(संरचना timespec) {}, (u))
+#define TIMESPEC_STORE_NSEC(n) timespec_store_nsec(&(संरचना timespec) {}, (n))
 
-struct __kernel_timespec* kernel_timespec_store(struct __kernel_timespec *ts, usec_t u);
+संरचना __kernel_timespec* kernel_timespec_store(संरचना __kernel_timespec *ts, usec_t u);
 
-usec_t timeval_load(const struct timeval *tv) _pure_;
-struct timeval* timeval_store(struct timeval *tv, usec_t u);
+usec_t timeval_load(ध्रुव संरचना timeval *tv) _pure_;
+संरचना timeval* timeval_store(संरचना timeval *tv, usec_t u);
 
-#define TIMEVAL_STORE(u) timeval_store(&(struct timeval) {}, (u))
+#define TIMEVAL_STORE(u) timeval_store(&(संरचना timeval) {}, (u))
 
-char* format_timestamp_style(char *buf, size_t l, usec_t t, TimestampStyle style) _warn_unused_result_;
-char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t clock, bool implicit_left) _warn_unused_result_;
-char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) _warn_unused_result_;
+वर्ण* format_timestamp_style(वर्ण *buf, size_t l, usec_t t, TimestampStyle style) _warn_unused_result_;
+वर्ण* format_timestamp_relative_full(वर्ण *buf, size_t l, usec_t t, clockid_t clock, bool implicit_वामः) _warn_unused_result_;
+वर्ण* format_timespan(वर्ण *buf, size_t l, usec_t t, usec_t accuracy) _warn_unused_result_;
 
 /* Returns the abbreviated English weekday name for wd in Mon=0 … Sun=6 order
  * (matching systemd's weekdays_bits layout). */
-const char* weekday_to_string(int i);
+ध्रुव वर्ण* weekday_to_string(पूर्णाङ्क i);
 
 _warn_unused_result_
-static inline char* format_timestamp_relative(char *buf, size_t l, usec_t t) {
-        return format_timestamp_relative_full(buf, l, t, CLOCK_REALTIME, /* implicit_left= */ false);
+स्थिर अन्तःस्थ वर्ण* format_timestamp_relative(वर्ण *buf, size_t l, usec_t t) {
+        पटिनिवत्त format_timestamp_relative_full(buf, l, t, CLOCK_REALTIME, /* implicit_left= */ false);
 }
 _warn_unused_result_
-static inline char* format_timestamp_relative_monotonic(char *buf, size_t l, usec_t t) {
-        return format_timestamp_relative_full(buf, l, t, CLOCK_MONOTONIC, /* implicit_left= */ false);
+स्थिर अन्तःस्थ वर्ण* format_timestamp_relative_monotonic(वर्ण *buf, size_t l, usec_t t) {
+        पटिनिवत्त format_timestamp_relative_full(buf, l, t, CLOCK_MONOTONIC, /* implicit_left= */ false);
 }
 
 _warn_unused_result_
-static inline char* format_timestamp(char *buf, size_t l, usec_t t) {
-        return format_timestamp_style(buf, l, t, TIMESTAMP_PRETTY);
+स्थिर अन्तःस्थ वर्ण* format_timestamp(वर्ण *buf, size_t l, usec_t t) {
+        पटिनिवत्त format_timestamp_style(buf, l, t, TIMESTAMP_PRETTY);
 }
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
  * see C11 §6.5.2.5, and
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks */
-#define FORMAT_TIMESTAMP(t) format_timestamp((char[FORMAT_TIMESTAMP_MAX]){}, FORMAT_TIMESTAMP_MAX, t)
+#define FORMAT_TIMESTAMP(t) format_timestamp((वर्ण[FORMAT_TIMESTAMP_MAX]){}, FORMAT_TIMESTAMP_MAX, t)
 #define FORMAT_TIMESTAMP_RELATIVE(t)                                    \
-        format_timestamp_relative((char[FORMAT_TIMESTAMP_RELATIVE_MAX]){}, FORMAT_TIMESTAMP_RELATIVE_MAX, t)
+        format_timestamp_relative((वर्ण[FORMAT_TIMESTAMP_RELATIVE_MAX]){}, FORMAT_TIMESTAMP_RELATIVE_MAX, t)
 #define FORMAT_TIMESTAMP_RELATIVE_MONOTONIC(t)                          \
-        format_timestamp_relative_monotonic((char[FORMAT_TIMESTAMP_RELATIVE_MAX]){}, FORMAT_TIMESTAMP_RELATIVE_MAX, t)
-#define FORMAT_TIMESPAN(t, accuracy) format_timespan((char[FORMAT_TIMESPAN_MAX]){}, FORMAT_TIMESPAN_MAX, t, accuracy)
+        format_timestamp_relative_monotonic((वर्ण[FORMAT_TIMESTAMP_RELATIVE_MAX]){}, FORMAT_TIMESTAMP_RELATIVE_MAX, t)
+#define FORMAT_TIMESPAN(t, accuracy) format_timespan((वर्ण[FORMAT_TIMESPAN_MAX]){}, FORMAT_TIMESPAN_MAX, t, accuracy)
 #define FORMAT_TIMESTAMP_STYLE(t, style) \
-        format_timestamp_style((char[FORMAT_TIMESTAMP_MAX]){}, FORMAT_TIMESTAMP_MAX, t, style)
+        format_timestamp_style((वर्ण[FORMAT_TIMESTAMP_MAX]){}, FORMAT_TIMESTAMP_MAX, t, style)
 
-const char* get_tzname(bool dst);
-int parse_gmtoff(const char *t, long *ret);
-int parse_timestamp(const char *t, usec_t *ret);
+ध्रुव वर्ण* get_tzname(bool dst);
+पूर्णाङ्क parse_gmtoff(ध्रुव वर्ण *t, long *ret);
+पूर्णाङ्क parse_timestamp(ध्रुव वर्ण *t, usec_t *ret);
 
-int parse_sec(const char *t, usec_t *ret);
-int parse_sec_fix_0(const char *t, usec_t *ret);
-int parse_sec_def_infinity(const char *t, usec_t *ret);
-int parse_time(const char *t, usec_t *ret, usec_t default_unit);
-int parse_nsec(const char *t, nsec_t *ret);
+पूर्णाङ्क parse_sec(ध्रुव वर्ण *t, usec_t *ret);
+पूर्णाङ्क parse_sec_fix_0(ध्रुव वर्ण *t, usec_t *ret);
+पूर्णाङ्क parse_sec_def_infinity(ध्रुव वर्ण *t, usec_t *ret);
+पूर्णाङ्क parse_time(ध्रुव वर्ण *t, usec_t *ret, usec_t default_unit);
+पूर्णाङ्क parse_nsec(ध्रुव वर्ण *t, nsec_t *ret);
 
-int get_timezones(char ***ret);
-int verify_timezone(const char *name, int log_level);
-static inline bool timezone_is_valid(const char *name, int log_level) {
-        return verify_timezone(name, log_level) >= 0;
+पूर्णाङ्क get_timezones(वर्ण ***ret);
+पूर्णाङ्क verify_timezone(ध्रुव वर्ण *name, पूर्णाङ्क log_level);
+स्थिर अन्तःस्थ bool timezone_is_valid(ध्रुव वर्ण *name, पूर्णाङ्क log_level) {
+        पटिनिवत्त verify_timezone(name, log_level) >= 0;
 }
 
-void reset_timezonep(char **p);
-char* save_timezone(void);
+शून्य reset_timezonep(वर्ण **p);
+वर्ण* save_timezone(शून्य);
 #define SAVE_TIMEZONE                                                   \
         _unused_ _cleanup_(reset_timezonep)                             \
-             char *_saved_timezone_ = save_timezone()
+             वर्ण *_saved_timezone_ = save_timezone()
 
 bool clock_supported(clockid_t clock);
 
 usec_t usec_shift_clock(usec_t x, clockid_t from, clockid_t to);
 
-int get_timezone(char **ret);
-int get_timezone_prefer_env(char **ret);
-const char* etc_localtime(void);
+पूर्णाङ्क get_timezone(वर्ण **ret);
+पूर्णाङ्क get_timezone_prefer_env(वर्ण **ret);
+ध्रुव वर्ण* etc_localtime(शून्य);
 
-int mktime_or_timegm_usec(struct tm *tm, bool utc, usec_t *ret);
-int localtime_or_gmtime_usec(usec_t t, bool utc, struct tm *ret);
+पूर्णाङ्क mktime_or_timegm_usec(संरचना tm *tm, bool utc, usec_t *ret);
+पूर्णाङ्क localtime_or_gmtime_usec(usec_t t, bool utc, संरचना tm *ret);
 
-int parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_usec, struct tm *ret_tm);
+पूर्णाङ्क parse_calendar_date_full(ध्रुव वर्ण *s, bool allow_pre_epoch, usec_t *ret_usec, संरचना tm *ret_tm);
 
-static inline int parse_calendar_date(const char *s, usec_t *ret) {
-        return parse_calendar_date_full(s, /* allow_pre_epoch= */ false, ret, NULL);
+स्थिर अन्तःस्थ पूर्णाङ्क parse_calendar_date(ध्रुव वर्ण *s, usec_t *ret) {
+        पटिनिवत्त parse_calendar_date_full(s, /* allow_pre_epoch= */ false, ret, रिक्त);
 }
 
 #define BIRTH_DATE_UNSET                        \
-        (const struct tm) {                     \
+        (ध्रुव संरचना tm) {                     \
                 .tm_year = INT_MIN,             \
         }
 
 #define BIRTH_DATE_IS_SET(tm) ((tm).tm_year != INT_MIN)
 
-static inline int parse_birth_date(const char *s, struct tm *ret) {
-        return parse_calendar_date_full(s, /* allow_pre_epoch= */ true, NULL, ret);
+स्थिर अन्तःस्थ पूर्णाङ्क parse_birth_date(ध्रुव वर्ण *s, संरचना tm *ret) {
+        पटिनिवत्त parse_calendar_date_full(s, /* allow_pre_epoch= */ true, रिक्त, ret);
 }
 
-uint64_t sysconf_clock_ticks_cached(void);
+uint64_t sysconf_clock_ticks_cached(शून्य);
 
 uint32_t usec_to_jiffies(usec_t usec);
 usec_t jiffies_to_usec(uint32_t jiffies);
 
-bool in_utc_timezone(void);
+bool in_utc_timezone(शून्य);
 
-static inline usec_t usec_add(usec_t a, usec_t b) {
+स्थिर अन्तःस्थ usec_t usec_add(usec_t a, usec_t b) {
         /* Adds two time values, and makes sure USEC_INFINITY as input results as USEC_INFINITY in output,
          * and doesn't overflow. */
-        return saturate_add(a, b, USEC_INFINITY);
+        पटिनिवत्त saturate_add(a, b, USEC_INFINITY);
 }
 
-static inline usec_t usec_sub_unsigned(usec_t timestamp, usec_t delta) {
-        if (timestamp == USEC_INFINITY) /* Make sure infinity doesn't degrade */
-                return USEC_INFINITY;
-        if (timestamp < delta)
-                return 0;
+स्थिर अन्तःस्थ usec_t usec_sub_unsigned(usec_t timestamp, usec_t delta) {
+        सचे (timestamp == USEC_INFINITY) /* Make sure infinity doesn't degrade */
+                पटिनिवत्त USEC_INFINITY;
+        सचे (timestamp < delta)
+                पटिनिवत्त 0;
 
-        return timestamp - delta;
+        पटिनिवत्त timestamp - delta;
 }
 
-static inline usec_t usec_sub_signed(usec_t timestamp, int64_t delta) {
-        if (delta == INT64_MIN) { /* prevent overflow */
+स्थिर अन्तःस्थ usec_t usec_sub_signed(usec_t timestamp, int64_t delta) {
+        सचे (delta == INT64_MIN) { /* prevent overflow */
                 assert_cc(-(INT64_MIN + 1) == INT64_MAX);
                 assert_cc(USEC_INFINITY > INT64_MAX);
-                return usec_add(timestamp, (usec_t) INT64_MAX + 1);
+                पटिनिवत्त usec_add(timestamp, (usec_t) INT64_MAX + 1);
         }
-        if (delta < 0)
-                return usec_add(timestamp, (usec_t) (-delta));
+        सचे (delta < 0)
+                पटिनिवत्त usec_add(timestamp, (usec_t) (-delta));
 
-        return usec_sub_unsigned(timestamp, (usec_t) delta);
+        पटिनिवत्त usec_sub_unsigned(timestamp, (usec_t) delta);
 }
 
-int usleep_safe(usec_t usec);
+पूर्णाङ्क usleep_safe(usec_t usec);
 
 /* The last second we can format is 31. Dec 9999, 1s before midnight, because otherwise we'd enter 5 digit
  * year territory. However, since we want to stay away from this in all timezones we take one day off. */
@@ -262,14 +262,14 @@ int usleep_safe(usec_t usec);
  * We parse timestamp with RFC-822/ISO 8601 (e.g. +06, or -03:00) as UTC, hence the upper bound must be off
  * by USEC_PER_DAY. See parse_timestamp() for more details. */
 #define USEC_TIMESTAMP_FORMATTABLE_MAX_32BIT (((usec_t) INT32_MAX) * USEC_PER_SEC - USEC_PER_DAY)
-#if SIZEOF_TIME_T == 8
+#सचे SIZEOF_TIME_T == 8
 #  define USEC_TIMESTAMP_FORMATTABLE_MAX USEC_TIMESTAMP_FORMATTABLE_MAX_64BIT
-#elif SIZEOF_TIME_T == 4
+#नोचेद्यदि SIZEOF_TIME_T == 4
 #  define USEC_TIMESTAMP_FORMATTABLE_MAX USEC_TIMESTAMP_FORMATTABLE_MAX_32BIT
-#else
+#अञ्ञथा
 #  error "Yuck, time_t is neither 4 nor 8 bytes wide?"
 #endif
 
-int time_change_fd(void);
+पूर्णाङ्क time_change_fd(शून्य);
 
 DECLARE_STRING_TABLE_LOOKUP(timestamp_style, TimestampStyle);

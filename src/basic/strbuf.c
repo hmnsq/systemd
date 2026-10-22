@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#अन्तर्भाव <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "sort-util.h"
+#अन्तर्भाव "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+संरचना strbuf* strbuf_new(शून्य) {
+        _cleanup_(strbuf_freep) संरचना strbuf *str = रिक्त;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(संरचना strbuf, 1);
+        सचे (!str)
+                पटिनिवत्त रिक्त;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (संरचना strbuf) {
+                .buf = new0(वर्ण, 1),
+                .मूलम् = new0(संरचना strbuf_ग्रन्थिः, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_गणनम् = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        सचे (!str->buf || !str->मूलम्)
+                पटिनिवत्त रिक्त;
 
-        return TAKE_PTR(str);
+        पटिनिवत्त TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+स्थिर संरचना strbuf_ग्रन्थिः* strbuf_ग्रन्थिः_cleanup(संरचना strbuf_ग्रन्थिः *ग्रन्थिः) {
+        प्रतिज्ञा(ग्रन्थिः);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(child, ग्रन्थिः->children, ग्रन्थिः->children_गणनम्)
+                strbuf_ग्रन्थिः_cleanup(child->child);
 
-        free(node->children);
-        return mfree(node);
+        मुक्त(ग्रन्थिः->children);
+        पटिनिवत्त mfree(ग्रन्थिः);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+शून्य strbuf_complete(संरचना strbuf *str) {
+        सचे (!str || !str->मूलम्)
+                पटिनिवत्त;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->मूलम् = strbuf_ग्रन्थिः_cleanup(str->मूलम्);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+संरचना strbuf* strbuf_free(संरचना strbuf *str) {
+        सचे (!str)
+                पटिनिवत्त रिक्त;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        मुक्त(str->buf);
+        पटिनिवत्त mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+स्थिर पूर्णाङ्क strbuf_children_cmp(ध्रुव संरचना strbuf_child_entry *n1, ध्रुव संरचना strbuf_child_entry *n2) {
+        प्रतिज्ञा(n1);
+        प्रतिज्ञा(n2);
 
-        return CMP(n1->c, n2->c);
+        पटिनिवत्त CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+स्थिर शून्य bubbleinsert(संरचना strbuf_ग्रन्थिः *ग्रन्थिः,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         संरचना strbuf_ग्रन्थिः *ग्रन्थिः_child) {
 
-        struct strbuf_child_entry new = {
+        संरचना strbuf_child_entry new = {
                 .c = c,
-                .child = node_child,
+                .child = ग्रन्थिः_child,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        पूर्णाङ्क वामः = 0, दक्षिणः = ASSERT_PTR(ग्रन्थिः)->children_गणनम्;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
-                else
-                        right = middle;
+        याव (दक्षिणः > वामः) {
+                पूर्णाङ्क मध्यः = (दक्षिणः + वामः) / 2 ;
+                सचे (strbuf_children_cmp(&ग्रन्थिः->children[मध्यः], &new) <= 0)
+                        वामः = मध्यः + 1;
+                अञ्ञथा
+                        दक्षिणः = मध्यः;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(ग्रन्थिः->children + वामः + 1, ग्रन्थिः->children + वामः,
+                परिमाण(संरचना strbuf_child_entry) * (ग्रन्थिः->children_गणनम् - वामः));
+        ग्रन्थिः->children[वामः] = new;
 
-        node->children_count++;
+        ग्रन्थिः->children_गणनम्++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_add_string_full(संरचना strbuf *str, ध्रुव वर्ण *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        प्रतिज्ञा(str);
+        प्रतिज्ञा(s || len == 0);
 
-        if (len == SIZE_MAX)
+        सचे (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (!str->root)
-                return -EINVAL;
+        सचे (!str->मूलम्)
+                पटिनिवत्त -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
-        if (len == 0) {
-                str->dedup_count++;
-                return 0;
+        str->in_गणनम्++;
+        सचे (len == 0) {
+                str->dedup_गणनम्++;
+                पटिनिवत्त 0;
         }
         str->in_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        संरचना strbuf_ग्रन्थिः *ग्रन्थिः = str->मूलम्;
+        अत्थाय (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = ग्रन्थिः->मानम्_off + ग्रन्थिः->मानम्_len - len;
+                सचे (depth == len || (ग्रन्थिः->मानम्_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
-                        return off;
+                        str->dedup_गणनम्++;
+                        पटिनिवत्त off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
-                node = child->child;
+                संरचना strbuf_child_entry *child, अन्वेषणम् = { .c = c };
+                child = typesafe_bsearch(&अन्वेषणम्, ग्रन्थिः->children, ग्रन्थिः->children_गणनम्, strbuf_children_cmp);
+                सचे (!child)
+                        भङ्ग;
+                ग्रन्थिः = child->child;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        सचे (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                पटिनिवत्त -ENOMEM;
         off = str->len;
         memcpy(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ संरचना strbuf_ग्रन्थिः *ग्रन्थिः_child = रिक्त;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        ग्रन्थिः_child = new(संरचना strbuf_ग्रन्थिः, 1);
+        सचे (!ग्रन्थिः_child)
+                पटिनिवत्त -ENOMEM;
+        *ग्रन्थिः_child = (संरचना strbuf_ग्रन्थिः) {
+                .मानम्_off = off,
+                .मानम्_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        सचे (!GREEDY_REALLOC(ग्रन्थिः->children, ग्रन्थिः->children_गणनम् + 1))
+                पटिनिवत्त -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_गणनम्++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(ग्रन्थिः, c, TAKE_PTR(ग्रन्थिः_child));
 
-        return off;
+        पटिनिवत्त off;
 }

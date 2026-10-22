@@ -1,428 +1,428 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#अन्तर्भाव <stdio.h>
 
-#include "alloc-util.h"
-#include "iovec-util.h"
-#include "iovec-wrapper.h"
-#include "string-util.h"
-#include "unaligned.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "iovec-util.h"
+#अन्तर्भाव "iovec-wrapper.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "unaligned.h"
 
-void iovw_done(struct iovec_wrapper *iovw) {
-        assert(iovw);
+शून्य iovw_done(संरचना iovec_wrapper *iovw) {
+        प्रतिज्ञा(iovw);
 
         iovw->iovec = mfree(iovw->iovec);
-        iovw->count = 0;
+        iovw->गणनम् = 0;
 }
 
-void iovw_done_free(struct iovec_wrapper *iovw) {
-        assert(iovw);
+शून्य iovw_done_free(संरचना iovec_wrapper *iovw) {
+        प्रतिज्ञा(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
+        FOREACH_ARRAY(i, iovw->iovec, iovw->गणनम्)
                 iovec_done(i);
 
         iovw_done(iovw);
 }
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+संरचना iovec_wrapper* iovw_free(संरचना iovec_wrapper *iovw) {
+        सचे (!iovw)
+                पटिनिवत्त रिक्त;
 
         iovw_done(iovw);
-        return mfree(iovw);
+        पटिनिवत्त mfree(iovw);
 }
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+संरचना iovec_wrapper* iovw_free_free(संरचना iovec_wrapper *iovw) {
+        सचे (!iovw)
+                पटिनिवत्त रिक्त;
 
         iovw_done_free(iovw);
-        return mfree(iovw);
+        पटिनिवत्त mfree(iovw);
 }
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        int r;
+पूर्णाङ्क iovw_compare(ध्रुव संरचना iovec_wrapper *a, ध्रुव संरचना iovec_wrapper *b) {
+        पूर्णाङ्क r;
 
-        if (a == b)
-                return 0;
+        सचे (a == b)
+                पटिनिवत्त 0;
 
-        if (!a || !b)
-                return CMP(!!a, !!b);
+        सचे (!a || !b)
+                पटिनिवत्त CMP(!!a, !!b);
 
         /* Note, this performs structural (element-by-element) comparison, not content-based comparison.
          * Two wrappers with identical concatenated content but different element boundaries
          * (e.g., ["fo","o"] vs ["f","oo"]) will not compare as equal. */
 
-        for (size_t i = 0, n = MIN(a->count, b->count); i < n; i++) {
+        अत्थाय (size_t i = 0, n = MIN(a->गणनम्, b->गणनम्); i < n; i++) {
                 r = iovec_memcmp(a->iovec + i, b->iovec + i);
-                if (r != 0)
-                        return r;
+                सचे (r != 0)
+                        पटिनिवत्त r;
         }
 
-        return CMP(a->count, b->count);
+        पटिनिवत्त CMP(a->गणनम्, b->गणनम्);
 }
 
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+पूर्णाङ्क iovw_put_full(संरचना iovec_wrapper *iovw, bool accept_zero, शून्य *data, size_t len) {
+        प्रतिज्ञा(iovw);
+        प्रतिज्ञा(data || len == 0);
 
-        if (len == 0 && !accept_zero)
-                return 0;
+        सचे (len == 0 && !accept_zero)
+                पटिनिवत्त 0;
 
-        if (iovw->count >= IOV_MAX)
-                return -E2BIG;
+        सचे (iovw->गणनम् >= IOV_MAX)
+                पटिनिवत्त -E2BIG;
 
-        if (!GREEDY_REALLOC(iovw->iovec, iovw->count + 1))
-                return -ENOMEM;
+        सचे (!GREEDY_REALLOC(iovw->iovec, iovw->गणनम् + 1))
+                पटिनिवत्त -ENOMEM;
 
-        iovw->iovec[iovw->count++] = IOVEC_MAKE(data, len);
-        return 1;
+        iovw->iovec[iovw->गणनम्++] = IOVEC_MAKE(data, len);
+        पटिनिवत्त 1;
 }
 
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+पूर्णाङ्क iovw_put_iov_full(संरचना iovec_wrapper *iovw, bool accept_zero, ध्रुव संरचना iovec *iov) {
+        प्रतिज्ञा(iovw);
 
-        if (!iov)
-                return 0;
+        सचे (!iov)
+                पटिनिवत्त 0;
 
-        return iovw_put_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        पटिनिवत्त iovw_put_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+पूर्णाङ्क iovw_put_iovw_full(संरचना iovec_wrapper *iovw, bool accept_zero, ध्रुव संरचना iovec_wrapper *source) {
+        पूर्णाङ्क r;
 
-        assert(iovw);
+        प्रतिज्ञा(iovw);
 
-        if (iovw_isempty(source))
-                return 0;
+        सचे (iovw_isempty(source))
+                पटिनिवत्त 0;
 
         /* We will reallocate iovw->iovec, hence the source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        सचे (iovw == source)
+                पटिनिवत्त -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        सचे (iovw->गणनम् > SIZE_MAX - source->गणनम्)
+                पटिनिवत्त -E2BIG;
+        सचे (iovw->गणनम् + source->गणनम् > IOV_MAX)
+                पटिनिवत्त -E2BIG;
 
-        if (accept_zero) {
-                if (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->count, source->iovec, source->count))
-                        return -ENOMEM;
+        सचे (accept_zero) {
+                सचे (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->गणनम्, source->iovec, source->गणनम्))
+                        पटिनिवत्त -ENOMEM;
 
-                return 0;
+                पटिनिवत्त 0;
         }
 
         /* When accept_zero is false, we need to filter zero length iovec in source. */
-        size_t original_count = iovw->count;
+        size_t original_गणनम् = iovw->गणनम्;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
+        FOREACH_ARRAY(iovec, source->iovec, source->गणनम्) {
                 r = iovw_put_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+                सचे (r < 0)
+                        गच्छ rollback;
         }
 
-        return 0;
+        पटिनिवत्त 0;
 
 rollback:
-        iovw->count = original_count;
-        return r;
+        iovw->गणनम् = original_गणनम्;
+        पटिनिवत्त r;
 }
 
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
+पूर्णाङ्क iovw_consume_full(संरचना iovec_wrapper *iovw, bool accept_zero, शून्य *data, size_t len) {
         /* Move data into iovw or free on error */
-        int r;
+        पूर्णाङ्क r;
 
         r = iovw_put_full(iovw, accept_zero, data, len);
-        if (r <= 0)
-                free(data);
+        सचे (r <= 0)
+                मुक्त(data);
 
-        return r;
+        पटिनिवत्त r;
 }
 
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov) {
-        int r;
+पूर्णाङ्क iovw_consume_iov_full(संरचना iovec_wrapper *iovw, bool accept_zero, संरचना iovec *iov) {
+        पूर्णाङ्क r;
 
-        assert(iovw);
+        प्रतिज्ञा(iovw);
 
-        if (!iov)
-                return 0;
+        सचे (!iov)
+                पटिनिवत्त 0;
 
         r = iovw_put_iov_full(iovw, accept_zero, iov);
-        if (r <= 0)
+        सचे (r <= 0)
                 iovec_done(iov);
-        else
+        अञ्ञथा
                 /* On success, iov->iov_base is now owned by iovw. Let's emptify iov, but do not call
                  * iovec_done(), of course. */
-                *iov = (struct iovec) {};
+                *iov = (संरचना iovec) {};
 
-        return r;
+        पटिनिवत्त r;
 }
 
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+पूर्णाङ्क iovw_extend_full(संरचना iovec_wrapper *iovw, bool accept_zero, ध्रुव शून्य *data, size_t len) {
+        प्रतिज्ञा(iovw);
+        प्रतिज्ञा(data || len == 0);
 
-        if (len == 0)
-                return iovw_put_full(iovw, accept_zero, /* data= */ NULL, /* len= */ 0);
+        सचे (len == 0)
+                पटिनिवत्त iovw_put_full(iovw, accept_zero, /* data= */ रिक्त, /* len= */ 0);
 
-        void *c = memdup(data, len);
-        if (!c)
-                return -ENOMEM;
+        शून्य *c = memdup(data, len);
+        सचे (!c)
+                पटिनिवत्त -ENOMEM;
 
-        return iovw_consume_full(iovw, accept_zero, c, len);
+        पटिनिवत्त iovw_consume_full(iovw, accept_zero, c, len);
 }
 
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+पूर्णाङ्क iovw_extend_iov_full(संरचना iovec_wrapper *iovw, bool accept_zero, ध्रुव संरचना iovec *iov) {
+        प्रतिज्ञा(iovw);
 
-        if (!iov)
-                return 0;
+        सचे (!iov)
+                पटिनिवत्त 0;
 
-        return iovw_extend_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        पटिनिवत्त iovw_extend_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+पूर्णाङ्क iovw_extend_iovw_full(संरचना iovec_wrapper *iovw, bool accept_zero, ध्रुव संरचना iovec_wrapper *source) {
+        पूर्णाङ्क r;
 
-        assert(iovw);
+        प्रतिज्ञा(iovw);
 
         /* This duplicates the source and merges it into the iovw. */
 
-        if (iovw_isempty(source))
-                return 0;
+        सचे (iovw_isempty(source))
+                पटिनिवत्त 0;
 
         /* iovw->iovec will be reallocated in the loop below, hence source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        सचे (iovw == source)
+                पटिनिवत्त -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        सचे (iovw->गणनम् > SIZE_MAX - source->गणनम्)
+                पटिनिवत्त -E2BIG;
+        सचे (iovw->गणनम् + source->गणनम् > IOV_MAX)
+                पटिनिवत्त -E2BIG;
 
-        size_t original_count = iovw->count;
+        size_t original_गणनम् = iovw->गणनम्;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
+        FOREACH_ARRAY(iovec, source->iovec, source->गणनम्) {
                 r = iovw_extend_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+                सचे (r < 0)
+                        गच्छ rollback;
         }
 
-        return 0;
+        पटिनिवत्त 0;
 
 rollback:
-        for (size_t i = original_count; i < iovw->count; i++)
+        अत्थाय (size_t i = original_गणनम्; i < iovw->गणनम्; i++)
                 iovec_done(iovw->iovec + i);
 
-        iovw->count = original_count;
-        return r;
+        iovw->गणनम् = original_गणनम्;
+        पटिनिवत्त r;
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value) {
-        _cleanup_free_ char *x = NULL;
-        int r;
+पूर्णाङ्क iovw_put_string_field_full(संरचना iovec_wrapper *iovw, bool replace, ध्रुव वर्ण *field, ध्रुव वर्ण *मानम्) {
+        _cleanup_free_ वर्ण *x = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(iovw);
+        प्रतिज्ञा(iovw);
 
-        x = strjoin(field, value);
-        if (!x)
-                return -ENOMEM;
+        x = strjoin(field, मानम्);
+        सचे (!x)
+                पटिनिवत्त -ENOMEM;
 
-        if (replace)
-                FOREACH_ARRAY(iovec, iovw->iovec, iovw->count)
-                        if (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
+        सचे (replace)
+                FOREACH_ARRAY(iovec, iovw->iovec, iovw->गणनम्)
+                        सचे (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
                                 iovec->iov_len = strlen(x);
-                                return free_and_replace(iovec->iov_base, x);
+                                पटिनिवत्त free_and_replace(iovec->iov_base, x);
                         }
 
         r = iovw_put(iovw, x, strlen(x));
-        if (r >= 0)
+        सचे (r >= 0)
                 TAKE_PTR(x);
 
-        return r;
+        पटिनिवत्त r;
 }
 
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) {
-        _cleanup_free_ char *value = NULL;
+पूर्णाङ्क iovw_put_string_fieldf_full(संरचना iovec_wrapper *iovw, bool replace, ध्रुव वर्ण *field, ध्रुव वर्ण *format, ...) {
+        _cleanup_free_ वर्ण *मानम् = रिक्त;
         va_list ap;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(format);
+        प्रतिज्ञा(format);
 
         va_start(ap, format);
-        r = vasprintf(&value, format, ap);
+        r = vasprintf(&मानम्, format, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        सचे (r < 0)
+                पटिनिवत्त -ENOMEM;
 
-        return iovw_put_string_field_full(iovw, replace, field, value);
+        पटिनिवत्त iovw_put_string_field_full(iovw, replace, field, मानम्);
 }
 
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value) {
-        _cleanup_free_ _unused_ char *free_ptr = value;
+पूर्णाङ्क iovw_put_string_field_free(संरचना iovec_wrapper *iovw, ध्रुव वर्ण *field, वर्ण *मानम्) {
+        _cleanup_free_ _unused_ वर्ण *free_ptr = मानम्;
 
-        return iovw_put_string_field(iovw, field, value);
+        पटिनिवत्त iovw_put_string_field(iovw, field, मानम्);
 }
 
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new) {
-        assert(iovw);
+शून्य iovw_rebase(संरचना iovec_wrapper *iovw, शून्य *old, शून्य *new) {
+        प्रतिज्ञा(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count) {
-                assert(i->iov_base >= old);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->गणनम्) {
+                प्रतिज्ञा(i->iov_base >= old);
                 i->iov_base = (uint8_t*) i->iov_base - (uint8_t*) old + (uint8_t*) new;
         }
 }
 
-size_t iovw_size(const struct iovec_wrapper *iovw) {
-        if (iovw_isempty(iovw))
-                return 0;
+size_t iovw_size(ध्रुव संरचना iovec_wrapper *iovw) {
+        सचे (iovw_isempty(iovw))
+                पटिनिवत्त 0;
 
-        return iovec_total_size(iovw->iovec, iovw->count);
+        पटिनिवत्त iovec_total_size(iovw->iovec, iovw->गणनम्);
 }
 
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
-        assert(iovw);
-        assert(ret);
+पूर्णाङ्क iovw_concat(ध्रुव संरचना iovec_wrapper *iovw, संरचना iovec *ret) {
+        प्रतिज्ञा(iovw);
+        प्रतिज्ञा(ret);
 
         /* Squish a series of iovecs into a single iovec. */
 
         size_t len = iovw_size(iovw);
-        if (len == SIZE_MAX)
-                return -E2BIG;  /* Prevent theoretical overflow */
+        सचे (len == SIZE_MAX)
+                पटिनिवत्त -E2BIG;  /* Prevent theoretical overflow */
 
         /* Always allocate one more byte to make the result usable as a NUL-terminated string. */
         _cleanup_free_ uint8_t *buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        सचे (!buf)
+                पटिनिवत्त -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
+        FOREACH_ARRAY(i, iovw->iovec, iovw->गणनम्)
                 p = mempcpy_safe(p, i->iov_base, i->iov_len);
 
         *p = 0;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), len);
-        return 0;
+        पटिनिवत्त 0;
 }
 
-char* iovw_to_cstring(const struct iovec_wrapper *iovw) {
-        assert(iovw);
+वर्ण* iovw_to_cstring(ध्रुव संरचना iovec_wrapper *iovw) {
+        प्रतिज्ञा(iovw);
 
         /* Squish a series of iovecs into a C string. Embedded NULs are not allowed.
          * The caller is expected to filter them out when populating the data. */
 
-        _cleanup_(iovec_done) struct iovec iov = {};
-        if (iovw_concat(iovw, &iov) < 0)
-                return NULL;
+        _cleanup_(iovec_done) संरचना iovec iov = {};
+        सचे (iovw_concat(iovw, &iov) < 0)
+                पटिनिवत्त रिक्त;
 
-        assert(!memchr(iov.iov_base, 0, iov.iov_len));
-        return TAKE_PTR(iov.iov_base);
+        प्रतिज्ञा(!memchr(iov.iov_base, 0, iov.iov_len));
+        पटिनिवत्त TAKE_PTR(iov.iov_base);
 }
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret) {
-        int r;
+पूर्णाङ्क iovec_split(ध्रुव संरचना iovec *iov, size_t length_size, संरचना iovec_wrapper *ret) {
+        पूर्णाङ्क r;
 
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+        प्रतिज्ञा(IN_SET(length_size, 1, 2, 4));
+        प्रतिज्ञा(ret);
 
         /* This parses the input iovec as length-prefixed data, and stores the result as iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        if (!iovec_is_set(iov)) {
-                *ret = (struct iovec_wrapper) {};
-                return 0;
+        सचे (!iovec_is_set(iov)) {
+                *ret = (संरचना iovec_wrapper) {};
+                पटिनिवत्त 0;
         }
 
-        _cleanup_(iovw_done_free) struct iovec_wrapper iovw = {};
-        for (struct iovec i = *iov; iovec_is_set(&i); ) {
-                if (i.iov_len < length_size)
-                        return -EBADMSG;
+        _cleanup_(iovw_done_free) संरचना iovec_wrapper iovw = {};
+        अत्थाय (संरचना iovec i = *iov; iovec_is_set(&i); ) {
+                सचे (i.iov_len < length_size)
+                        पटिनिवत्त -EBADMSG;
 
                 size_t len;
-                switch (length_size) {
-                case 1:
+                विकल्प (length_size) {
+                पक्ष 1:
                         len = *(uint8_t*) i.iov_base;
-                        break;
-                case 2:
+                        भङ्ग;
+                पक्ष 2:
                         len = unaligned_read_be16(i.iov_base);
-                        break;
-                case 4:
+                        भङ्ग;
+                पक्ष 4:
                         len = unaligned_read_be32(i.iov_base);
-                        break;
-                default:
+                        भङ्ग;
+                स्वभाव:
                         assert_not_reached();
                 }
 
                 iovec_inc(&i, length_size);
 
-                if (len == 0)
-                        continue;
+                सचे (len == 0)
+                        अनुवर्त;
 
-                if (i.iov_len < len)
-                        return -EBADMSG;
+                सचे (i.iov_len < len)
+                        पटिनिवत्त -EBADMSG;
 
                 r = iovw_extend(&iovw, i.iov_base, len);
-                if (r < 0)
-                        return r;
+                सचे (r < 0)
+                        पटिनिवत्त r;
 
                 iovec_inc(&i, len);
         }
 
         *ret = TAKE_STRUCT(iovw);
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret) {
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+पूर्णाङ्क iovw_merge(ध्रुव संरचना iovec_wrapper *iovw, size_t length_size, संरचना iovec *ret) {
+        प्रतिज्ञा(IN_SET(length_size, 1, 2, 4));
+        प्रतिज्ञा(ret);
 
         /* This is the inverse of iovec_split(), and builds a length-prefixed data from iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
         size_t sz = iovw_size(iovw);
-        if (sz == 0) {
-                *ret = (struct iovec) {};
-                return 0;
+        सचे (sz == 0) {
+                *ret = (संरचना iovec) {};
+                पटिनिवत्त 0;
         }
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        सचे (sz == SIZE_MAX)
+                पटिनिवत्त -E2BIG;
 
-        if (size_multiply_overflow(length_size, iovw->count))
-                return -E2BIG;
+        सचे (size_multiply_overflow(length_size, iovw->गणनम्))
+                पटिनिवत्त -E2BIG;
 
-        sz = size_add(sz, iovw->count * length_size);
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        sz = size_add(sz, iovw->गणनम् * length_size);
+        सचे (sz == SIZE_MAX)
+                पटिनिवत्त -E2BIG;
 
         _cleanup_free_ uint8_t *buf = new(uint8_t, sz);
-        if (!buf)
-                return -ENOMEM;
+        सचे (!buf)
+                पटिनिवत्त -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(iov, iovw->iovec, iovw->count) {
-                if (iov->iov_len == 0)
-                        continue;
+        FOREACH_ARRAY(iov, iovw->iovec, iovw->गणनम्) {
+                सचे (iov->iov_len == 0)
+                        अनुवर्त;
 
-                switch (length_size) {
-                case 1:
-                        if (iov->iov_len > UINT8_MAX)
-                                return -ERANGE;
+                विकल्प (length_size) {
+                पक्ष 1:
+                        सचे (iov->iov_len > UINT8_MAX)
+                                पटिनिवत्त -ERANGE;
 
                         *p = iov->iov_len;
-                        break;
-                case 2:
-                        if (iov->iov_len > UINT16_MAX)
-                                return -ERANGE;
+                        भङ्ग;
+                पक्ष 2:
+                        सचे (iov->iov_len > UINT16_MAX)
+                                पटिनिवत्त -ERANGE;
 
                         unaligned_write_be16(p, iov->iov_len);
-                        break;
-                case 4:
-                        if (iov->iov_len > UINT32_MAX)
-                                return -ERANGE;
+                        भङ्ग;
+                पक्ष 4:
+                        सचे (iov->iov_len > UINT32_MAX)
+                                पटिनिवत्त -ERANGE;
 
                         unaligned_write_be32(p, iov->iov_len);
-                        break;
-                default:
+                        भङ्ग;
+                स्वभाव:
                         assert_not_reached();
                 }
                 p += length_size;
@@ -430,9 +430,9 @@ int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iove
                 p = mempcpy(p, iov->iov_base, iov->iov_len);
         }
 
-        assert(sz >= (size_t) (p - buf));
+        प्रतिज्ञा(sz >= (size_t) (p - buf));
         sz = p - buf;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), sz);
-        return 0;
+        पटिनिवत्त 0;
 }

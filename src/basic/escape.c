@@ -1,112 +1,112 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <string.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <string.h>
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "hexdecoct.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "escape.h"
+#अन्तर्भाव "hexdecoct.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "utf8.h"
 
-int cescape_char(char c, char *buf) {
-        char *buf_old = buf;
+पूर्णाङ्क cescape_char(वर्ण c, वर्ण *buf) {
+        वर्ण *buf_old = buf;
 
         /* Needs space for 4 characters in the buffer */
 
-        switch (c) {
+        विकल्प (c) {
 
-                case '\a':
+                पक्ष '\a':
                         *(buf++) = '\\';
                         *(buf++) = 'a';
-                        break;
-                case '\b':
+                        भङ्ग;
+                पक्ष '\b':
                         *(buf++) = '\\';
                         *(buf++) = 'b';
-                        break;
-                case '\f':
+                        भङ्ग;
+                पक्ष '\f':
                         *(buf++) = '\\';
                         *(buf++) = 'f';
-                        break;
-                case '\n':
+                        भङ्ग;
+                पक्ष '\n':
                         *(buf++) = '\\';
                         *(buf++) = 'n';
-                        break;
-                case '\r':
+                        भङ्ग;
+                पक्ष '\r':
                         *(buf++) = '\\';
                         *(buf++) = 'r';
-                        break;
-                case '\t':
+                        भङ्ग;
+                पक्ष '\t':
                         *(buf++) = '\\';
                         *(buf++) = 't';
-                        break;
-                case '\v':
+                        भङ्ग;
+                पक्ष '\v':
                         *(buf++) = '\\';
                         *(buf++) = 'v';
-                        break;
-                case '\\':
+                        भङ्ग;
+                पक्ष '\\':
                         *(buf++) = '\\';
                         *(buf++) = '\\';
-                        break;
-                case '"':
+                        भङ्ग;
+                पक्ष '"':
                         *(buf++) = '\\';
                         *(buf++) = '"';
-                        break;
-                case '\'':
+                        भङ्ग;
+                पक्ष '\'':
                         *(buf++) = '\\';
                         *(buf++) = '\'';
-                        break;
+                        भङ्ग;
 
-                default:
+                स्वभाव:
                         /* For special chars we prefer octal over
                          * hexadecimal encoding, simply because glib's
                          * g_strescape() does the same */
-                        if ((c < ' ') || (c >= 127)) {
+                        सचे ((c < ' ') || (c >= 127)) {
                                 *(buf++) = '\\';
-                                *(buf++) = octchar((unsigned char) c >> 6);
-                                *(buf++) = octchar((unsigned char) c >> 3);
-                                *(buf++) = octchar((unsigned char) c);
-                        } else
+                                *(buf++) = octchar((unsigned वर्ण) c >> 6);
+                                *(buf++) = octchar((unsigned वर्ण) c >> 3);
+                                *(buf++) = octchar((unsigned वर्ण) c);
+                        } अञ्ञथा
                                 *(buf++) = c;
-                        break;
+                        भङ्ग;
         }
 
-        return buf - buf_old;
+        पटिनिवत्त buf - buf_old;
 }
 
-char* cescape_length(const char *s, size_t n) {
-        const char *f;
-        char *r, *t;
+वर्ण* cescape_length(ध्रुव वर्ण *s, size_t n) {
+        ध्रुव वर्ण *f;
+        वर्ण *r, *t;
 
         /* Does C style string escaping. May be reversed with cunescape(). */
 
-        assert(s || n == 0);
+        प्रतिज्ञा(s || n == 0);
 
-        if (n == SIZE_MAX)
+        सचे (n == SIZE_MAX)
                 n = strlen(s);
 
-        if (n > (SIZE_MAX - 1) / 4)
-                return NULL;
+        सचे (n > (SIZE_MAX - 1) / 4)
+                पटिनिवत्त रिक्त;
 
-        r = new(char, n*4 + 1);
-        if (!r)
-                return NULL;
+        r = new(वर्ण, n*4 + 1);
+        सचे (!r)
+                पटिनिवत्त रिक्त;
 
-        for (f = s, t = r; f < s + n; f++)
+        अत्थाय (f = s, t = r; f < s + n; f++)
                 t += cescape_char(*f, t);
 
         *t = 0;
 
-        return r;
+        पटिनिवत्त r;
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
-        int r = 1;
+पूर्णाङ्क cunescape_one(ध्रुव वर्ण *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
+        पूर्णाङ्क r = 1;
 
-        assert(p);
-        assert(ret);
-        assert(eight_bit);
+        प्रतिज्ञा(p);
+        प्रतिज्ञा(ret);
+        प्रतिज्ञा(eight_bit);
 
         /* Unescapes C style. Returns the unescaped character in ret.
          * Sets *eight_bit to true if the escaped sequence either fits in
@@ -114,267 +114,267 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
          * instead be copied directly.
          */
 
-        if (length != SIZE_MAX && length < 1)
-                return -EINVAL;
+        सचे (length != SIZE_MAX && length < 1)
+                पटिनिवत्त -EINVAL;
 
-        switch (p[0]) {
+        विकल्प (p[0]) {
 
-        case 'a':
+        पक्ष 'a':
                 *ret = '\a';
-                break;
-        case 'b':
+                भङ्ग;
+        पक्ष 'b':
                 *ret = '\b';
-                break;
-        case 'f':
+                भङ्ग;
+        पक्ष 'f':
                 *ret = '\f';
-                break;
-        case 'n':
+                भङ्ग;
+        पक्ष 'n':
                 *ret = '\n';
-                break;
-        case 'r':
+                भङ्ग;
+        पक्ष 'r':
                 *ret = '\r';
-                break;
-        case 't':
+                भङ्ग;
+        पक्ष 't':
                 *ret = '\t';
-                break;
-        case 'v':
+                भङ्ग;
+        पक्ष 'v':
                 *ret = '\v';
-                break;
-        case '\\':
+                भङ्ग;
+        पक्ष '\\':
                 *ret = '\\';
-                break;
-        case '"':
+                भङ्ग;
+        पक्ष '"':
                 *ret = '"';
-                break;
-        case '\'':
+                भङ्ग;
+        पक्ष '\'':
                 *ret = '\'';
-                break;
+                भङ्ग;
 
-        case 's':
+        पक्ष 's':
                 /* This is an extension of the XDG syntax files */
                 *ret = ' ';
-                break;
+                भङ्ग;
 
-        case 'x': {
+        पक्ष 'x': {
                 /* hexadecimal encoding */
-                int a, b;
+                पूर्णाङ्क a, b;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                सचे (length != SIZE_MAX && length < 3)
+                        पटिनिवत्त -EINVAL;
 
                 a = unhexchar(p[1]);
-                if (a < 0)
-                        return -EINVAL;
+                सचे (a < 0)
+                        पटिनिवत्त -EINVAL;
 
                 b = unhexchar(p[2]);
-                if (b < 0)
-                        return -EINVAL;
+                सचे (b < 0)
+                        पटिनिवत्त -EINVAL;
 
                 /* Don't allow NUL bytes */
-                if (a == 0 && b == 0 && !accept_nul)
-                        return -EINVAL;
+                सचे (a == 0 && b == 0 && !accept_nul)
+                        पटिनिवत्त -EINVAL;
 
                 *ret = (a << 4U) | b;
                 *eight_bit = true;
                 r = 3;
-                break;
+                भङ्ग;
         }
 
-        case 'u': {
+        पक्ष 'u': {
                 /* C++11 style 16-bit unicode */
 
-                int a[4];
+                पूर्णाङ्क a[4];
                 size_t i;
                 uint32_t c;
 
-                if (length != SIZE_MAX && length < 5)
-                        return -EINVAL;
+                सचे (length != SIZE_MAX && length < 5)
+                        पटिनिवत्त -EINVAL;
 
-                for (i = 0; i < 4; i++) {
+                अत्थाय (i = 0; i < 4; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        सचे (a[i] < 0)
+                                पटिनिवत्त a[i];
                 }
 
                 c = ((uint32_t) a[0] << 12U) | ((uint32_t) a[1] << 8U) | ((uint32_t) a[2] << 4U) | (uint32_t) a[3];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                सचे (c == 0 && !accept_nul)
+                        पटिनिवत्त -EINVAL;
 
                 /* Don't allow UTF-16 surrogates, they cannot be encoded as valid UTF-8. Note we
                  * deliberately do *not* use unichar_is_valid() here (unlike the \U case below):
                  * it also rejects noncharacters such as U+FFFE, which callers legitimately round-trip
                  * through \u (e.g. systemd.mount-extra= parsing, see test-fstab-generator). */
-                if (utf16_is_surrogate(c))
-                        return -EINVAL;
+                सचे (utf16_is_surrogate(c))
+                        पटिनिवत्त -EINVAL;
 
                 *ret = c;
                 r = 5;
-                break;
+                भङ्ग;
         }
 
-        case 'U': {
+        पक्ष 'U': {
                 /* C++11 style 32-bit unicode */
 
-                int a[8];
+                पूर्णाङ्क a[8];
                 size_t i;
                 char32_t c;
 
-                if (length != SIZE_MAX && length < 9)
-                        return -EINVAL;
+                सचे (length != SIZE_MAX && length < 9)
+                        पटिनिवत्त -EINVAL;
 
-                for (i = 0; i < 8; i++) {
+                अत्थाय (i = 0; i < 8; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        सचे (a[i] < 0)
+                                पटिनिवत्त a[i];
                 }
 
                 c = ((uint32_t) a[0] << 28U) | ((uint32_t) a[1] << 24U) | ((uint32_t) a[2] << 20U) | ((uint32_t) a[3] << 16U) |
                     ((uint32_t) a[4] << 12U) | ((uint32_t) a[5] <<  8U) | ((uint32_t) a[6] <<  4U) |  (uint32_t) a[7];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                सचे (c == 0 && !accept_nul)
+                        पटिनिवत्त -EINVAL;
 
                 /* Don't allow invalid code points */
-                if (!unichar_is_valid(c))
-                        return -EINVAL;
+                सचे (!unichar_is_valid(c))
+                        पटिनिवत्त -EINVAL;
 
                 *ret = c;
                 r = 9;
-                break;
+                भङ्ग;
         }
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7': {
+        पक्ष '0':
+        पक्ष '1':
+        पक्ष '2':
+        पक्ष '3':
+        पक्ष '4':
+        पक्ष '5':
+        पक्ष '6':
+        पक्ष '7': {
                 /* octal encoding */
-                int a, b, c;
+                पूर्णाङ्क a, b, c;
                 char32_t m;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                सचे (length != SIZE_MAX && length < 3)
+                        पटिनिवत्त -EINVAL;
 
                 a = unoctchar(p[0]);
-                if (a < 0)
-                        return -EINVAL;
+                सचे (a < 0)
+                        पटिनिवत्त -EINVAL;
 
                 b = unoctchar(p[1]);
-                if (b < 0)
-                        return -EINVAL;
+                सचे (b < 0)
+                        पटिनिवत्त -EINVAL;
 
                 c = unoctchar(p[2]);
-                if (c < 0)
-                        return -EINVAL;
+                सचे (c < 0)
+                        पटिनिवत्त -EINVAL;
 
                 /* don't allow NUL bytes */
-                if (a == 0 && b == 0 && c == 0 && !accept_nul)
-                        return -EINVAL;
+                सचे (a == 0 && b == 0 && c == 0 && !accept_nul)
+                        पटिनिवत्त -EINVAL;
 
                 /* Don't allow bytes above 255 */
                 m = ((uint32_t) a << 6U) | ((uint32_t) b << 3U) | (uint32_t) c;
-                if (m > 255)
-                        return -EINVAL;
+                सचे (m > 255)
+                        पटिनिवत्त -EINVAL;
 
                 *ret = m;
                 *eight_bit = true;
                 r = 3;
-                break;
+                भङ्ग;
         }
 
-        default:
-                return -EINVAL;
+        स्वभाव:
+                पटिनिवत्त -EINVAL;
         }
 
-        return r;
+        पटिनिवत्त r;
 }
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret) {
-        _cleanup_free_ char *ans = NULL;
-        char *t;
-        const char *f;
+ssize_t cunescape_length_with_prefix(ध्रुव वर्ण *s, size_t length, ध्रुव वर्ण *prefix, UnescapeFlags flags, वर्ण **ret) {
+        _cleanup_free_ वर्ण *ans = रिक्त;
+        वर्ण *t;
+        ध्रुव वर्ण *f;
         size_t pl;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(s);
-        assert(ret);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(ret);
 
         /* Undoes C style string escaping, and optionally prefixes it. */
 
-        if (length == SIZE_MAX)
+        सचे (length == SIZE_MAX)
                 length = strlen(s);
 
         pl = strlen_ptr(prefix);
 
-        ans = new(char, pl+length+1);
-        if (!ans)
-                return -ENOMEM;
+        ans = new(वर्ण, pl+length+1);
+        सचे (!ans)
+                पटिनिवत्त -ENOMEM;
 
-        if (prefix)
+        सचे (prefix)
                 memcpy(ans, prefix, pl);
 
-        for (f = s, t = ans + pl; f < s + length; f++) {
+        अत्थाय (f = s, t = ans + pl; f < s + length; f++) {
                 size_t remaining;
                 bool eight_bit = false;
                 char32_t u;
 
                 remaining = s + length - f;
-                assert(remaining > 0);
+                प्रतिज्ञा(remaining > 0);
 
-                if (*f != '\\') {
+                सचे (*f != '\\') {
                         /* A literal, copy verbatim */
                         *(t++) = *f;
-                        continue;
+                        अनुवर्त;
                 }
 
-                if (remaining == 1) {
-                        if (flags & UNESCAPE_RELAX) {
+                सचे (remaining == 1) {
+                        सचे (flags & UNESCAPE_RELAX) {
                                 /* A trailing backslash, copy verbatim */
                                 *(t++) = *f;
-                                continue;
+                                अनुवर्त;
                         }
 
-                        return -EINVAL;
+                        पटिनिवत्त -EINVAL;
                 }
 
                 r = cunescape_one(f + 1, remaining - 1, &u, &eight_bit, flags & UNESCAPE_ACCEPT_NUL);
-                if (r < 0) {
-                        if (flags & UNESCAPE_RELAX) {
+                सचे (r < 0) {
+                        सचे (flags & UNESCAPE_RELAX) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '\\';
-                                continue;
+                                अनुवर्त;
                         }
 
-                        return r;
+                        पटिनिवत्त r;
                 }
 
                 f += r;
-                if (eight_bit)
+                सचे (eight_bit)
                         /* One byte? Set directly as specified */
                         *(t++) = u;
-                else
+                अञ्ञथा
                         /* Otherwise encode as multi-byte UTF-8 */
                         t += utf8_encode_unichar(t, u);
         }
 
         *t = 0;
 
-        assert(t >= ans); /* Let static analyzers know that the answer is non-negative. */
+        प्रतिज्ञा(t >= ans); /* Let static analyzers know that the answer is non-negative. */
         *ret = TAKE_PTR(ans);
-        return t - *ret;
+        पटिनिवत्त t - *ret;
 }
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags) {
-        char *ans, *t, *prev, *prev2;
-        const char *f;
+वर्ण* xescape_full(ध्रुव वर्ण *s, ध्रुव वर्ण *bad, size_t console_width, XEscapeFlags flags) {
+        वर्ण *ans, *t, *prev, *prev2;
+        ध्रुव वर्ण *f;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         /* Escapes all chars in bad, in addition to \ and all special chars, in \xFF style escaping. May be
          * reversed with cunescape(). If XESCAPE_8_BIT is specified, characters >= 127 are let through
@@ -383,44 +383,44 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
          * If console_width is reached, or XESCAPE_FORCE_ELLIPSIS is set, output is truncated and "..." is
          * appended. */
 
-        if (console_width == 0)
-                return strdup("");
+        सचे (console_width == 0)
+                पटिनिवत्त strdup("");
 
         size_t len_forced_ellipsis = FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
         size_t len_s = strlen(s);
 
         size_t len_body = MIN(console_width, SIZE_MAX - 1); /* We need room for the NUL byte */
-        if (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
+        सचे (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
                 len_body = len_s * 4 + len_forced_ellipsis;
 
-        ans = new(char, len_body + 1);
-        if (!ans)
-                return NULL;
+        ans = new(वर्ण, len_body + 1);
+        सचे (!ans)
+                पटिनिवत्त रिक्त;
 
-        for (f = s, t = prev = prev2 = ans; ; f++) {
-                char *tmp_t = t;
+        अत्थाय (f = s, t = prev = prev2 = ans; ; f++) {
+                वर्ण *tmp_t = t;
 
-                if (!*f) {
-                        if (len_forced_ellipsis != 0)
-                                break;
+                सचे (!*f) {
+                        सचे (len_forced_ellipsis != 0)
+                                भङ्ग;
 
                         *t = 0;
-                        return ans;
+                        पटिनिवत्त ans;
                 }
 
-                if ((unsigned char) *f < ' ' ||
-                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned char) *f >= 127) ||
+                सचे ((unsigned वर्ण) *f < ' ' ||
+                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned वर्ण) *f >= 127) ||
                     *f == '\\' || (bad && strchr(bad, *f))) {
-                        if ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
-                                break;
+                        सचे ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
+                                भङ्ग;
 
                         *(t++) = '\\';
                         *(t++) = 'x';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else {
-                        if ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
-                                break;
+                } अञ्ञथा {
+                        सचे ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
+                                भङ्ग;
 
                         *(t++) = *f;
                 }
@@ -433,166 +433,166 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
         /* We can just write where we want, since chars are one-byte */
         size_t c = MIN(len_body, STRLEN("...")); /* If the console is too narrow, write fewer dots */
         size_t off;
-        if (len_body - c >= (size_t) (t - ans))
+        सचे (len_body - c >= (size_t) (t - ans))
                 off = (size_t) (t - ans);
-        else if (len_body - c >= (size_t) (prev - ans))
+        अञ्ञथा सचे (len_body - c >= (size_t) (prev - ans))
                 off = (size_t) (prev - ans);
-        else if (len_body - c >= (size_t) (prev2 - ans))
+        अञ्ञथा सचे (len_body - c >= (size_t) (prev2 - ans))
                 off = (size_t) (prev2 - ans);
-        else
+        अञ्ञथा
                 off = len_body - c;
-        assert(off <= (size_t) (t - ans));
+        प्रतिज्ञा(off <= (size_t) (t - ans));
 
         memcpy(ans + off, "...", c);
         ans[off + c] = '\0';
-        return ans;
+        पटिनिवत्त ans;
 }
 
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags) {
-        if (FLAGS_SET(flags, XESCAPE_8_BIT))
-                return xescape_full(str, /* bad= */ NULL, console_width, flags);
-        else
-                return utf8_escape_non_printable_full(str,
+वर्ण* escape_non_printable_full(ध्रुव वर्ण *str, size_t console_width, XEscapeFlags flags) {
+        सचे (FLAGS_SET(flags, XESCAPE_8_BIT))
+                पटिनिवत्त xescape_full(str, /* bad= */ रिक्त, console_width, flags);
+        अञ्ञथा
+                पटिनिवत्त utf8_escape_non_printable_full(str,
                                                       console_width,
                                                       FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS));
 }
 
-char* octescape_full(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+वर्ण* octescape_full(ध्रुव वर्ण *s, size_t len, ध्रुव वर्ण *bad) {
+        वर्ण *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn octal style escaping. May be
          * reversed with cunescape(). */
 
-        assert(s || len == 0);
+        प्रतिज्ञा(s || len == 0);
 
-        if (len == SIZE_MAX)
+        सचे (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        सचे (len > (SIZE_MAX - 1) / 4)
+                पटिनिवत्त रिक्त;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(वर्ण, len * 4 + 1);
+        सचे (!buf)
+                पटिनिवत्त रिक्त;
 
-        for (size_t i = 0; i < len; i++) {
+        अत्थाय (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
+                सचे (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u >> 6);
                         *(t++) = '0' + ((u >> 3) & 7);
                         *(t++) = '0' + (u & 7);
-                } else
+                } अञ्ञथा
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        पटिनिवत्त buf;
 }
 
-char* decescape(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+वर्ण* decescape(ध्रुव वर्ण *s, size_t len, ध्रुव वर्ण *bad) {
+        वर्ण *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn decimal style escaping. */
 
-        assert(s || len == 0);
+        प्रतिज्ञा(s || len == 0);
 
-        if (len == SIZE_MAX)
+        सचे (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        सचे (len > (SIZE_MAX - 1) / 4)
+                पटिनिवत्त रिक्त;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(वर्ण, len * 4 + 1);
+        सचे (!buf)
+                पटिनिवत्त रिक्त;
 
-        for (size_t i = 0; i < len; i++) {
+        अत्थाय (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
+                सचे (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u / 100);
                         *(t++) = '0' + ((u / 10) % 10);
                         *(t++) = '0' + (u % 10);
-                } else
+                } अञ्ञथा
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        पटिनिवत्त buf;
 }
 
-static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
-        assert(bad);
-        assert(t);
-        assert(s);
+स्थिर वर्ण* strcpy_backslash_escaped(वर्ण *t, ध्रुव वर्ण *s, ध्रुव वर्ण *bad) {
+        प्रतिज्ञा(bad);
+        प्रतिज्ञा(t);
+        प्रतिज्ञा(s);
 
-        while (*s) {
-                int l = utf8_encoded_valid_unichar(s, SIZE_MAX);
+        याव (*s) {
+                पूर्णाङ्क l = utf8_encoded_valid_unichar(s, SIZE_MAX);
 
-                if (char_is_cc(*s) || l < 0)
+                सचे (char_is_cc(*s) || l < 0)
                         t += cescape_char(*(s++), t);
-                else if (l == 1) {
-                        if (*s == '\\' || strchr(bad, *s))
+                अञ्ञथा सचे (l == 1) {
+                        सचे (*s == '\\' || strchr(bad, *s))
                                 *(t++) = '\\';
                         *(t++) = *(s++);
-                } else {
+                } अञ्ञथा {
                         t = mempcpy(t, s, l);
                         s += l;
                 }
         }
 
-        return t;
+        पटिनिवत्त t;
 }
 
-char* shell_escape(const char *s, const char *bad) {
-        char *buf, *t;
+वर्ण* shell_escape(ध्रुव वर्ण *s, ध्रुव वर्ण *bad) {
+        वर्ण *buf, *t;
 
-        buf = new(char, strlen(s)*4+1);
-        if (!buf)
-                return NULL;
+        buf = new(वर्ण, strlen(s)*4+1);
+        सचे (!buf)
+                पटिनिवत्त रिक्त;
 
         t = strcpy_backslash_escaped(buf, s, bad);
         *t = 0;
 
-        return buf;
+        पटिनिवत्त buf;
 }
 
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
-        const char *p;
-        char *buf, *t;
+वर्ण* shell_maybe_quote(ध्रुव वर्ण *s, ShellEscapeFlags flags) {
+        ध्रुव वर्ण *p;
+        वर्ण *buf, *t;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         /* Encloses a string in quotes if necessary to make it OK as a shell string. */
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
-                return strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
+        सचे (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
+                पटिनिवत्त strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
 
-        for (p = s; *p; ) {
-                int l = utf8_encoded_valid_unichar(p, SIZE_MAX);
+        अत्थाय (p = s; *p; ) {
+                पूर्णाङ्क l = utf8_encoded_valid_unichar(p, SIZE_MAX);
 
-                if (char_is_cc(*p) || l < 0 ||
+                सचे (char_is_cc(*p) || l < 0 ||
                     strchr(WHITESPACE SHELL_NEED_QUOTES, *p))
-                        break;
+                        भङ्ग;
 
                 p += l;
         }
 
-        if (!*p)
-                return strdup(s);
+        सचे (!*p)
+                पटिनिवत्त strdup(s);
 
-        buf = new(char, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
-        if (!buf)
-                return NULL;
+        buf = new(वर्ण, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
+        सचे (!buf)
+                पटिनिवत्त रिक्त;
 
         t = buf;
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
+        सचे (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
                 *(t++) = '$';
                 *(t++) = '\'';
-        } else
+        } अञ्ञथा
                 *(t++) = '"';
 
         t = mempcpy(t, s, p - s);
@@ -600,30 +600,30 @@ char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
         t = strcpy_backslash_escaped(t, p,
                                      FLAGS_SET(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
+        सचे (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
                 *(t++) = '\'';
-        else
+        अञ्ञथा
                 *(t++) = '"';
         *t = 0;
 
-        return str_realloc(buf);
+        पटिनिवत्त str_realloc(buf);
 }
 
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
-        _cleanup_free_ char *result = NULL;
+वर्ण* quote_command_पङ्क्तिः(वर्ण * ध्रुव *argv, ShellEscapeFlags flags) {
+        _cleanup_free_ वर्ण *result = रिक्त;
 
-        assert(argv);
+        प्रतिज्ञा(argv);
 
         STRV_FOREACH(a, argv) {
-                _cleanup_free_ char *t = NULL;
+                _cleanup_free_ वर्ण *t = रिक्त;
 
                 t = shell_maybe_quote(*a, flags);
-                if (!t)
-                        return NULL;
+                सचे (!t)
+                        पटिनिवत्त रिक्त;
 
-                if (!strextend_with_separator(&result, " ", t))
-                        return NULL;
+                सचे (!strextend_with_separator(&result, " ", t))
+                        पटिनिवत्त रिक्त;
         }
 
-        return str_realloc(TAKE_PTR(result));
+        पटिनिवत्त str_realloc(TAKE_PTR(result));
 }

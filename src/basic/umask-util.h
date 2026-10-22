@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/stat.h>
+#अन्तर्भाव <sys/stat.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-static inline void umaskp(mode_t *u) {
+स्थिर अन्तःस्थ शून्य umaskp(mode_t *u) {
         umask(*u);
 }
 
@@ -19,7 +19,7 @@ static inline void umaskp(mode_t *u) {
 assert_cc((S_IFMT & 0777) == 0);
 
 #define WITH_UMASK(mask)                                            \
-        for (_cleanup_umask_ mode_t _saved_umask_ = umask(mask) | S_IFMT; \
+        अत्थाय (_cleanup_umask_ mode_t _saved_umask_ = umask(mask) | S_IFMT; \
              FLAGS_SET(_saved_umask_, S_IFMT);                          \
              _saved_umask_ &= 0777)
 

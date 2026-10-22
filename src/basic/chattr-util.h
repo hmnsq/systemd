@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <linux/fs.h>
+#अन्तर्भाव <linux/fs.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 /* The chattr() flags to apply when creating a new file *before* writing to it. In particular, flags such as
  * FS_NOCOW_FL don't work if applied a-posteriori. All other flags are fine (or even necessary, think
@@ -32,36 +32,36 @@
          FS_NOCOW_FL        |                   \
          FS_PROJINHERIT_FL)
 
-typedef enum ChattrApplyFlags {
+प्रकारनिर्देश गणना ChattrApplyFlags {
         CHATTR_FALLBACK_BITWISE       = 1 << 0,
         CHATTR_WARN_UNSUPPORTED_FLAGS = 1 << 1,
 } ChattrApplyFlags;
 
-int chattr_full(int dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
-static inline int chattr_at(int dir_fd, const char *path, unsigned value, unsigned mask) {
-        return chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
+पूर्णाङ्क chattr_full(पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, unsigned मानम्, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
+स्थिर अन्तःस्थ पूर्णाङ्क chattr_at(पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, unsigned मानम्, unsigned mask) {
+        पटिनिवत्त chattr_full(dir_fd, path, मानम्, mask, रिक्त, रिक्त, 0);
 }
-static inline int chattr_fd(int fd, unsigned value, unsigned mask) {
-        return chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
+स्थिर अन्तःस्थ पूर्णाङ्क chattr_fd(पूर्णाङ्क fd, unsigned मानम्, unsigned mask) {
+        पटिनिवत्त chattr_full(fd, रिक्त, मानम्, mask, रिक्त, रिक्त, 0);
 }
-static inline int chattr_path(const char *path, unsigned value, unsigned mask) {
-        return chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
+स्थिर अन्तःस्थ पूर्णाङ्क chattr_path(ध्रुव वर्ण *path, unsigned मानम्, unsigned mask) {
+        पटिनिवत्त chattr_full(AT_FDCWD, path, मानम्, mask, रिक्त, रिक्त, 0);
 }
 
-int read_attr_fd(int fd, unsigned *ret);
-int read_attr_at(int dir_fd, const char *path, unsigned *ret);
-int read_fs_xattr_fd(int fd, uint32_t *ret_xflags, uint32_t *ret_projid);
+पूर्णाङ्क read_attr_fd(पूर्णाङ्क fd, unsigned *ret);
+पूर्णाङ्क read_attr_at(पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, unsigned *ret);
+पूर्णाङ्क read_fs_xattr_fd(पूर्णाङ्क fd, uint32_t *ret_xflags, uint32_t *ret_projid);
 
-int set_proj_id(int fd, uint32_t proj_id);
-int set_proj_id_recursive(int fd, uint32_t proj_id);
+पूर्णाङ्क set_proj_id(पूर्णाङ्क fd, uint32_t proj_id);
+पूर्णाङ्क set_proj_id_recursive(पूर्णाङ्क fd, uint32_t proj_id);
 
 /* Combination of chattr flags, that should be appropriate for secrets stored on disk: Secure Remove +
  * Exclusion from Dumping + Synchronous Writing (i.e. not caching in memory) + In-Place Updating (i.e. not
  * spurious copies). */
 #define CHATTR_SECRET_FLAGS (FS_SECRM_FL|FS_NODUMP_FL|FS_SYNC_FL|FS_NOCOW_FL)
 
-static inline int chattr_secret(int fd, ChattrApplyFlags flags) {
-        return chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
+स्थिर अन्तःस्थ पूर्णाङ्क chattr_secret(पूर्णाङ्क fd, ChattrApplyFlags flags) {
+        पटिनिवत्त chattr_full(fd, रिक्त, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, रिक्त, रिक्त, flags|CHATTR_FALLBACK_BITWISE);
 }
 
 bool inode_type_can_chattr(mode_t mode);

@@ -1,16 +1,16 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/inotify.h>        /* IWYU pragma: export */
-#include <syslog.h>
+#अन्तर्भाव <sys/inotify.h>        /* IWYU pragma: export */
+#अन्तर्भाव <syslog.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-#define INOTIFY_EVENT_MAX (offsetof(struct inotify_event, name) + NAME_MAX + 1)
+#define INOTIFY_EVENT_MAX (offsetof(संरचना inotify_event, name) + NAME_MAX + 1)
 
 /* This evaluates arguments multiple times */
 #define FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, log_level)            \
-        for (struct inotify_event *e = NULL;                            \
+        अत्थाय (संरचना inotify_event *e = रिक्त;                            \
              inotify_event_next(&buffer, sz, &e, log_level); )
 
 #define FOREACH_INOTIFY_EVENT(e, buffer, sz)                    \
@@ -19,16 +19,16 @@
 #define FOREACH_INOTIFY_EVENT_WARN(e, buffer, sz)               \
         FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, LOG_WARNING)
 
-union inotify_event_buffer {
-        struct inotify_event ev;
+सङ्घ inotify_event_buffer {
+        संरचना inotify_event ev;
         uint8_t raw[INOTIFY_EVENT_MAX];
 };
 
 bool inotify_event_next(
-                union inotify_event_buffer *buffer,
+                सङ्घ inotify_event_buffer *buffer,
                 size_t size,
-                struct inotify_event **iterator,
-                int log_level);
+                संरचना inotify_event **iterator,
+                पूर्णाङ्क log_level);
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask);
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask);
+पूर्णाङ्क inotify_add_watch_fd(पूर्णाङ्क fd, पूर्णाङ्क what, uint32_t mask);
+पूर्णाङ्क inotify_add_watch_and_warn(पूर्णाङ्क fd, ध्रुव वर्ण *pathname, uint32_t mask);

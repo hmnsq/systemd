@@ -1,97 +1,97 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/ipv6.h>
-#include <linux/netfilter/nf_tables.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
+#अन्तर्भाव <linux/ipv6.h>
+#अन्तर्भाव <linux/netfilter/nf_tables.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <sys/socket.h>
 
-#include "alloc-util.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "errno-list.h"
-#include "extract-word.h"
-#include "locale-util.h"
-#include "log.h"
-#include "missing-network.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "capability-list.h"
+#अन्तर्भाव "capability-util.h"
+#अन्तर्भाव "errno-list.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "locale-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "missing-network.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
 
-int parse_boolean(const char *v) {
-        if (!v)
-                return -EINVAL;
+पूर्णाङ्क parse_boolean(ध्रुव वर्ण *v) {
+        सचे (!v)
+                पटिनिवत्त -EINVAL;
 
-        if (STRCASE_IN_SET(v,
+        सचे (STRCASE_IN_SET(v,
                            "1",
                            "yes",
                            "y",
                            "true",
                            "t",
                            "on"))
-                return 1;
+                पटिनिवत्त 1;
 
-        if (STRCASE_IN_SET(v,
+        सचे (STRCASE_IN_SET(v,
                            "0",
                            "no",
                            "n",
                            "false",
                            "f",
                            "off"))
-                return 0;
+                पटिनिवत्त 0;
 
-        return -EINVAL;
+        पटिनिवत्त -EINVAL;
 }
 
-int parse_tristate_full(const char *v, const char *third, int *ret) {
-        int r;
+पूर्णाङ्क parse_tristate_full(ध्रुव वर्ण *v, ध्रुव वर्ण *third, पूर्णाङ्क *ret) {
+        पूर्णाङ्क r;
 
-        if (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
-                if (ret)
+        सचे (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
+                सचे (ret)
                         *ret = -1;
-        } else {
+        } अञ्ञथा {
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                सचे (r < 0)
+                        पटिनिवत्त r;
 
-                if (ret)
+                सचे (ret)
                         *ret = r;
         }
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_pid(const char *s, pid_t *ret) {
+पूर्णाङ्क parse_pid(ध्रुव वर्ण *s, pid_t *ret) {
         unsigned long ul = 0;
         pid_t pid;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         r = safe_atolu(s, &ul);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
         pid = (pid_t) ul;
 
-        if ((unsigned long) pid != ul)
-                return -ERANGE;
+        सचे ((unsigned long) pid != ul)
+                पटिनिवत्त -ERANGE;
 
-        if (!pid_is_valid(pid))
-                return -ERANGE;
+        सचे (!pid_is_valid(pid))
+                पटिनिवत्त -ERANGE;
 
-        if (ret)
+        सचे (ret)
                 *ret = pid;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_mode(const char *s, mode_t *ret) {
+पूर्णाङ्क parse_mode(ध्रुव वर्ण *s, mode_t *ret) {
         unsigned m;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         r = safe_atou_full(s, 8 |
                            SAFE_ATO_REFUSE_PLUS_MINUS, /* Leading '+' or even '-' char? that's just weird,
@@ -99,62 +99,62 @@ int parse_mode(const char *s, mode_t *ret) {
                                                         * so, but this parser doesn't allow that, so let's
                                                         * better be safe. */
                            &m);
-        if (r < 0)
-                return r;
-        if (m > 07777)
-                return -ERANGE;
+        सचे (r < 0)
+                पटिनिवत्त r;
+        सचे (m > 07777)
+                पटिनिवत्त -ERANGE;
 
-        if (ret)
+        सचे (ret)
                 *ret = m;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_ifindex(const char *s) {
-        int ifi, r;
+पूर्णाङ्क parse_ifindex(ध्रुव वर्ण *s) {
+        पूर्णाङ्क ifi, r;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         r = safe_atoi(s, &ifi);
-        if (r < 0)
-                return r;
-        if (ifi <= 0)
-                return -EINVAL;
+        सचे (r < 0)
+                पटिनिवत्त r;
+        सचे (ifi <= 0)
+                पटिनिवत्त -EINVAL;
 
-        return ifi;
+        पटिनिवत्त ifi;
 }
 
-int parse_mtu(int family, const char *s, uint32_t *ret) {
+पूर्णाङ्क parse_mtu(पूर्णाङ्क family, ध्रुव वर्ण *s, uint32_t *ret) {
         uint64_t u, m;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = parse_size(s, 1024, &u);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (u > UINT32_MAX)
-                return -ERANGE;
+        सचे (u > UINT32_MAX)
+                पटिनिवत्त -ERANGE;
 
-        switch (family) {
-        case AF_INET:
+        विकल्प (family) {
+        पक्ष AF_INET:
                 m = IPV4_MIN_MTU; /* This is 68 */
-                break;
-        case AF_INET6:
+                भङ्ग;
+        पक्ष AF_INET6:
                 m = IPV6_MIN_MTU; /* This is 1280 */
-                break;
-        default:
+                भङ्ग;
+        स्वभाव:
                 m = 0;
         }
 
-        if (u < m)
-                return -ERANGE;
+        सचे (u < m)
+                पटिनिवत्त -ERANGE;
 
         *ret = (uint32_t) u;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_size(const char *t, uint64_t base, uint64_t *size) {
+पूर्णाङ्क parse_size(ध्रुव वर्ण *t, uint64_t base, uint64_t *size) {
 
         /* Soo, sometimes we want to parse IEC binary suffixes, and
          * sometimes SI decimal suffixes. This function can parse
@@ -170,12 +170,12 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
          * to document which base you are parsing when you use this
          * call. */
 
-        struct table {
-                const char *suffix;
+        संरचना table {
+                ध्रुव वर्ण *suffix;
                 unsigned long long factor;
         };
 
-        static const struct table iec[] = {
+        स्थिर ध्रुव संरचना table iec[] = {
                 { "E", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "P", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "T", 1024ULL*1024ULL*1024ULL*1024ULL },
@@ -186,7 +186,7 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        static const struct table si[] = {
+        स्थिर ध्रुव संरचना table si[] = {
                 { "E", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "P", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "T", 1000ULL*1000ULL*1000ULL*1000ULL },
@@ -197,264 +197,264 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        const struct table *table;
-        const char *p;
+        ध्रुव संरचना table *table;
+        ध्रुव वर्ण *p;
         unsigned long long r = 0;
         unsigned n_entries, start_pos = 0;
 
-        assert(t);
-        assert(IN_SET(base, 1000, 1024));
-        assert(size);
+        प्रतिज्ञा(t);
+        प्रतिज्ञा(IN_SET(base, 1000, 1024));
+        प्रतिज्ञा(size);
 
-        if (base == 1000) {
+        सचे (base == 1000) {
                 table = si;
                 n_entries = ELEMENTSOF(si);
-        } else {
+        } अञ्ञथा {
                 table = iec;
                 n_entries = ELEMENTSOF(iec);
         }
 
         p = t;
-        do {
+        करोहि {
                 unsigned long long l, tmp;
-                double frac = 0;
-                char *e;
+                द्विगुण frac = 0;
+                वर्ण *e;
                 unsigned i;
 
                 p += strspn(p, WHITESPACE);
 
                 errno = 0;
                 l = strtoull(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (e == p)
-                        return -EINVAL;
-                if (*p == '-')
-                        return -ERANGE;
+                सचे (errno > 0)
+                        पटिनिवत्त -errno;
+                सचे (e == p)
+                        पटिनिवत्त -EINVAL;
+                सचे (*p == '-')
+                        पटिनिवत्त -ERANGE;
 
-                if (*e == '.') {
+                सचे (*e == '.') {
                         e++;
 
                         /* strtoull() itself would accept space/+/- */
-                        if (ascii_isdigit(*e)) {
+                        सचे (ascii_isdigit(*e)) {
                                 unsigned long long l2;
-                                char *e2;
+                                वर्ण *e2;
 
                                 l2 = strtoull(e, &e2, 10);
-                                if (errno > 0)
-                                        return -errno;
+                                सचे (errno > 0)
+                                        पटिनिवत्त -errno;
 
                                 /* Ignore failure. E.g. 10.M is valid */
                                 frac = l2;
-                                for (; e < e2; e++)
+                                अत्थाय (; e < e2; e++)
                                         frac /= 10;
                         }
                 }
 
                 e += strspn(e, WHITESPACE);
 
-                for (i = start_pos; i < n_entries; i++)
-                        if (startswith(e, table[i].suffix))
-                                break;
+                अत्थाय (i = start_pos; i < n_entries; i++)
+                        सचे (startswith(e, table[i].suffix))
+                                भङ्ग;
 
-                if (i >= n_entries)
-                        return -EINVAL;
+                सचे (i >= n_entries)
+                        पटिनिवत्त -EINVAL;
 
-                if (l + (frac > 0) > ULLONG_MAX / table[i].factor)
-                        return -ERANGE;
+                सचे (l + (frac > 0) > ULLONG_MAX / table[i].factor)
+                        पटिनिवत्त -ERANGE;
 
                 tmp = l * table[i].factor + (unsigned long long) (frac * table[i].factor);
-                if (tmp > ULLONG_MAX - r)
-                        return -ERANGE;
+                सचे (tmp > ULLONG_MAX - r)
+                        पटिनिवत्त -ERANGE;
 
                 r += tmp;
-                if ((unsigned long long) (uint64_t) r != r)
-                        return -ERANGE;
+                सचे ((unsigned long long) (uint64_t) r != r)
+                        पटिनिवत्त -ERANGE;
 
                 p = e + strlen(table[i].suffix);
 
                 start_pos = i + 1;
 
-        } while (*p);
+        } याव (*p);
 
         *size = r;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_sector_size(const char *t, uint64_t *ret) {
-        int r;
+पूर्णाङ्क parse_sector_size(ध्रुव वर्ण *t, uint64_t *ret) {
+        पूर्णाङ्क r;
 
-        assert(t);
-        assert(ret);
+        प्रतिज्ञा(t);
+        प्रतिज्ञा(ret);
 
         uint64_t ss;
 
         r = safe_atou64(t, &ss);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse sector size parameter %s", t);
-        if (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
-                return log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
-        if (!ISPOWEROF2(ss))
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
+        सचे (r < 0)
+                पटिनिवत्त log_error_errno(r, "Failed to parse sector size parameter %s", t);
+        सचे (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
+                पटिनिवत्त log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
+        सचे (!ISPOWEROF2(ss))
+                पटिनिवत्त log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
 
         *ret = ss;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_range(const char *t, unsigned *lower, unsigned *upper) {
-        _cleanup_free_ char *word = NULL;
+पूर्णाङ्क parse_range(ध्रुव वर्ण *t, unsigned *lower, unsigned *upper) {
+        _cleanup_free_ वर्ण *word = रिक्त;
         unsigned l, u;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(lower);
-        assert(upper);
+        प्रतिज्ञा(lower);
+        प्रतिज्ञा(upper);
 
         /* Extract the lower bound. */
         r = extract_first_word(&t, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        सचे (r < 0)
+                पटिनिवत्त r;
+        सचे (r == 0)
+                पटिनिवत्त -EINVAL;
 
         r = safe_atou(word, &l);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!t)
+        सचे (!t)
                 /* Single number with no dashes. */
                 u = l;
-        else if (!*t)
+        अञ्ञथा सचे (!*t)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                पटिनिवत्त -EINVAL;
+        अञ्ञथा {
                 r = safe_atou(t, &u);
-                if (r < 0)
-                        return r;
+                सचे (r < 0)
+                        पटिनिवत्त r;
         }
 
         *lower = l;
         *upper = u;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_errno(const char *t) {
-        int r, e;
+पूर्णाङ्क parse_errno(ध्रुव वर्ण *t) {
+        पूर्णाङ्क r, e;
 
-        assert(t);
+        प्रतिज्ञा(t);
 
         r = errno_from_name(t);
-        if (r > 0)
-                return r;
+        सचे (r > 0)
+                पटिनिवत्त r;
 
         r = safe_atoi(t, &e);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
         /* 0 is also allowed here */
-        if (!errno_is_valid(e) && e != 0)
-                return -ERANGE;
+        सचे (!errno_is_valid(e) && e != 0)
+                पटिनिवत्त -ERANGE;
 
-        return e;
+        पटिनिवत्त e;
 }
 
-int parse_fd(const char *t) {
-        int r, fd;
+पूर्णाङ्क parse_fd(ध्रुव वर्ण *t) {
+        पूर्णाङ्क r, fd;
 
-        assert(t);
+        प्रतिज्ञा(t);
 
         r = safe_atoi(t, &fd);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (fd < 0)
-                return -EBADF;
+        सचे (fd < 0)
+                पटिनिवत्त -EBADF;
 
-        return fd;
+        पटिनिवत्त fd;
 }
 
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
-        char *sh;
-        int r;
+पूर्णाङ्क parse_user_shell(ध्रुव वर्ण *s, वर्ण **ret_sh, bool *ret_copy) {
+        वर्ण *sh;
+        पूर्णाङ्क r;
 
-        assert(ret_sh);
-        assert(ret_copy);
+        प्रतिज्ञा(ret_sh);
+        प्रतिज्ञा(ret_copy);
 
-        if (path_is_absolute(s) && path_is_normalized(s)) {
+        सचे (path_is_absolute(s) && path_is_normalized(s)) {
                 sh = strdup(s);
-                if (!sh)
-                        return -ENOMEM;
+                सचे (!sh)
+                        पटिनिवत्त -ENOMEM;
 
                 *ret_sh = sh;
                 *ret_copy = false;
-        } else {
+        } अञ्ञथा {
                 r = parse_boolean(s);
-                if (r < 0)
-                        return r;
+                सचे (r < 0)
+                        पटिनिवत्त r;
 
-                *ret_sh = NULL;
+                *ret_sh = रिक्त;
                 *ret_copy = r;
         }
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-static const char *mangle_base(const char *s, unsigned *base) {
-        const char *k;
+स्थिर ध्रुव वर्ण *mangle_base(ध्रुव वर्ण *s, unsigned *base) {
+        ध्रुव वर्ण *k;
 
-        assert(s);
-        assert(base);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(base);
 
         /* Base already explicitly specified, then don't do anything. */
-        if (SAFE_ATO_MASK_FLAGS(*base) != 0)
-                return s;
+        सचे (SAFE_ATO_MASK_FLAGS(*base) != 0)
+                पटिनिवत्त s;
 
         /* Support Python 3 style "0b" and 0x" prefixes, because they truly make sense, much more than C's "0" prefix for octal. */
         k = STARTSWITH_SET(s, "0b", "0B");
-        if (k) {
+        सचे (k) {
                 *base = 2 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                पटिनिवत्त k;
         }
 
         k = STARTSWITH_SET(s, "0o", "0O");
-        if (k) {
+        सचे (k) {
                 *base = 8 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                पटिनिवत्त k;
         }
 
-        return s;
+        पटिनिवत्त s;
 }
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
-        char *x = NULL;
+पूर्णाङ्क safe_atou_full(ध्रुव वर्ण *s, unsigned base, unsigned *ret_u) {
+        वर्ण *x = रिक्त;
         unsigned long l;
 
-        assert(s);
-        assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(SAFE_ATO_MASK_FLAGS(base) <= 16);
 
         /* strtoul() is happy to parse negative values, and silently converts them to unsigned values without
          * generating an error. We want a clean error, hence let's look for the "-" prefix on our own, and
          * generate an error. But let's do so only after strtoul() validated that the string is clean
          * otherwise, so that we return EINVAL preferably over ERANGE. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        सचे (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                पटिनिवत्त -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        सचे (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
+                पटिनिवत्त -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
                                  * different error. I.e. if the SAFE_ATO_REFUSE_PLUS_MINUS flag is set we
                                  * blanket refuse +/- prefixed integers, while if it is missing we'll just
                                  * return ERANGE, because the string actually parses correctly, but doesn't
                                  * fit in the return type. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        सचे (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && !streq(s, "0"))
-                return -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
+                पटिनिवत्त -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
                                  * notation and assumed-to-be-decimal integers with a leading zero. */
 
         s = mangle_base(s, &base);
@@ -462,225 +462,225 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
         errno = 0;
         l = strtoul(s, &x, SAFE_ATO_MASK_FLAGS(base) /* Let's mask off the flags bits so that only the actual
                                                       * base is left */);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
-        if ((unsigned long) (unsigned) l != l)
-                return -ERANGE;
+        सचे (errno > 0)
+                पटिनिवत्त -errno;
+        सचे (!x || x == s || *x != 0)
+                पटिनिवत्त -EINVAL;
+        सचे (l != 0 && s[0] == '-')
+                पटिनिवत्त -ERANGE;
+        सचे ((unsigned long) (unsigned) l != l)
+                पटिनिवत्त -ERANGE;
 
-        if (ret_u)
+        सचे (ret_u)
                 *ret_u = (unsigned) l;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
+पूर्णाङ्क safe_atou_bounded(ध्रुव वर्ण *s, unsigned min, unsigned max, unsigned *ret) {
         unsigned v;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = safe_atou(s, &v);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (v < min || v > max)
-                return -ERANGE;
+        सचे (v < min || v > max)
+                पटिनिवत्त -ERANGE;
 
         *ret = v;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atoi(const char *s, int *ret_i) {
+पूर्णाङ्क safe_atoi(ध्रुव वर्ण *s, पूर्णाङ्क *ret_i) {
         unsigned base = 0;
-        char *x = NULL;
+        वर्ण *x = रिक्त;
         long l;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         s += strspn(s, WHITESPACE);
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int) l != l)
-                return -ERANGE;
+        सचे (errno > 0)
+                पटिनिवत्त -errno;
+        सचे (!x || x == s || *x != 0)
+                पटिनिवत्त -EINVAL;
+        सचे ((long) (पूर्णाङ्क) l != l)
+                पटिनिवत्त -ERANGE;
 
-        if (ret_i)
-                *ret_i = (int) l;
+        सचे (ret_i)
+                *ret_i = (पूर्णाङ्क) l;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
-        char *x = NULL;
+पूर्णाङ्क safe_atollu_full(ध्रुव वर्ण *s, unsigned base, unsigned long long *ret_llu) {
+        वर्ण *x = रिक्त;
         unsigned long long l;
 
-        assert(s);
-        assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(SAFE_ATO_MASK_FLAGS(base) <= 16);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        सचे (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                पटिनिवत्त -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        सचे (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL;
+                पटिनिवत्त -EINVAL;
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        सचे (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && s[1] != 0)
-                return -EINVAL;
+                पटिनिवत्त -EINVAL;
 
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtoull(s, &x, SAFE_ATO_MASK_FLAGS(base));
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
+        सचे (errno > 0)
+                पटिनिवत्त -errno;
+        सचे (!x || x == s || *x != 0)
+                पटिनिवत्त -EINVAL;
+        सचे (l != 0 && s[0] == '-')
+                पटिनिवत्त -ERANGE;
 
-        if (ret_llu)
+        सचे (ret_llu)
                 *ret_llu = l;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atolli(const char *s, long long *ret_lli) {
+पूर्णाङ्क safe_atolli(ध्रुव वर्ण *s, long long *ret_lli) {
         unsigned base = 0;
-        char *x = NULL;
+        वर्ण *x = रिक्त;
         long long l;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         s += strspn(s, WHITESPACE);
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtoll(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        सचे (errno > 0)
+                पटिनिवत्त -errno;
+        सचे (!x || x == s || *x != 0)
+                पटिनिवत्त -EINVAL;
 
-        if (ret_lli)
+        सचे (ret_lli)
                 *ret_lli = l;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
+पूर्णाङ्क safe_atou8_full(ध्रुव वर्ण *s, unsigned base, uint8_t *ret) {
         unsigned u;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT8_MAX)
-                return -ERANGE;
+        सचे (r < 0)
+                पटिनिवत्त r;
+        सचे (u > UINT8_MAX)
+                पटिनिवत्त -ERANGE;
 
         *ret = (uint8_t) u;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
+पूर्णाङ्क safe_atou16_full(ध्रुव वर्ण *s, unsigned base, uint16_t *ret) {
         unsigned u;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT16_MAX)
-                return -ERANGE;
+        सचे (r < 0)
+                पटिनिवत्त r;
+        सचे (u > UINT16_MAX)
+                पटिनिवत्त -ERANGE;
 
         *ret = (uint16_t) u;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atoi16(const char *s, int16_t *ret) {
+पूर्णाङ्क safe_atoi16(ध्रुव वर्ण *s, int16_t *ret) {
         unsigned base = 0;
-        char *x = NULL;
+        वर्ण *x = रिक्त;
         long l;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         s += strspn(s, WHITESPACE);
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int16_t) l != l)
-                return -ERANGE;
+        सचे (errno > 0)
+                पटिनिवत्त -errno;
+        सचे (!x || x == s || *x != 0)
+                पटिनिवत्त -EINVAL;
+        सचे ((long) (int16_t) l != l)
+                पटिनिवत्त -ERANGE;
 
-        if (ret)
+        सचे (ret)
                 *ret = (int16_t) l;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int safe_atod(const char *s, double *ret_d) {
+पूर्णाङ्क safe_atod(ध्रुव वर्ण *s, द्विगुण *ret_d) {
         _cleanup_(freelocalep) locale_t loc = (locale_t) 0;
-        char *x = NULL;
-        double d = 0;
+        वर्ण *x = रिक्त;
+        द्विगुण d = 0;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return -errno;
+        सचे (loc == (locale_t) 0)
+                पटिनिवत्त -errno;
 
         errno = 0;
         d = strtod_l(s, &x, loc);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        सचे (errno > 0)
+                पटिनिवत्त -errno;
+        सचे (!x || x == s || *x != 0)
+                पटिनिवत्त -EINVAL;
 
-        if (ret_d)
+        सचे (ret_d)
                 *ret_d = d;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
+पूर्णाङ्क parse_fractional_part_u(ध्रुव वर्ण **p, size_t digits, unsigned *res) {
         unsigned val = 0;
-        const char *s;
+        ध्रुव वर्ण *s;
 
-        assert(p);
-        assert(res);
+        प्रतिज्ञा(p);
+        प्रतिज्ञा(res);
 
         s = *p;
 
         /* accept any number of digits, strtoull is limited to 19 */
-        for (size_t i = 0; i < digits; i++, s++) {
-                if (!ascii_isdigit(*s)) {
-                        if (i == 0)
-                                return -EINVAL;
+        अत्थाय (size_t i = 0; i < digits; i++, s++) {
+                सचे (!ascii_isdigit(*s)) {
+                        सचे (i == 0)
+                                पटिनिवत्त -EINVAL;
 
                         /* too few digits, pad with 0 */
-                        for (; i < digits; i++)
+                        अत्थाय (; i < digits; i++)
                                 val *= 10;
 
-                        break;
+                        भङ्ग;
                 }
 
                 val *= 10;
@@ -688,7 +688,7 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         }
 
         /* maybe round up */
-        if (*s >= '5' && *s <= '9')
+        सचे (*s >= '5' && *s <= '9')
                 val++;
 
         s += strspn(s, DIGITS);
@@ -696,176 +696,176 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         *p = s;
         *res = val;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_nice(const char *s, int *ret) {
-        int n, r;
+पूर्णाङ्क parse_nice(ध्रुव वर्ण *s, पूर्णाङ्क *ret) {
+        पूर्णाङ्क n, r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = safe_atoi(s, &n);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (!nice_is_valid(n))
-                return -ERANGE;
+        सचे (!nice_is_valid(n))
+                पटिनिवत्त -ERANGE;
 
         *ret = n;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_ip_port(const char *s, uint16_t *ret) {
+पूर्णाङ्क parse_ip_port(ध्रुव वर्ण *s, uint16_t *ret) {
         uint16_t l;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = safe_atou16_full(s, SAFE_ATO_REFUSE_LEADING_WHITESPACE, &l);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (l == 0)
-                return -EINVAL;
+        सचे (l == 0)
+                पटिनिवत्त -EINVAL;
 
         *ret = l;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
+पूर्णाङ्क parse_ip_port_range(ध्रुव वर्ण *s, uint16_t *low, uint16_t *high, bool allow_zero) {
         unsigned l, h;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(low);
-        assert(high);
+        प्रतिज्ञा(low);
+        प्रतिज्ञा(high);
 
         r = parse_range(s, &l, &h);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (l > 65535 || h > 65535)
-                return -EINVAL;
+        सचे (l > 65535 || h > 65535)
+                पटिनिवत्त -EINVAL;
 
-        if (!allow_zero && (l == 0 || h == 0))
-                return -EINVAL;
+        सचे (!allow_zero && (l == 0 || h == 0))
+                पटिनिवत्त -EINVAL;
 
-        if (h < l)
-                return -EINVAL;
+        सचे (h < l)
+                पटिनिवत्त -EINVAL;
 
         *low = l;
         *high = h;
 
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_oom_score_adjust(const char *s, int *ret) {
-        int r, v;
+पूर्णाङ्क parse_oom_score_adjust(ध्रुव वर्ण *s, पूर्णाङ्क *ret) {
+        पूर्णाङ्क r, v;
 
-        assert(s);
-        assert(ret);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(ret);
 
         r = safe_atoi(s, &v);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (!oom_score_adjust_is_valid(v))
-                return -ERANGE;
+        सचे (!oom_score_adjust_is_valid(v))
+                पटिनिवत्त -ERANGE;
 
         *ret = v;
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
-        assert(ret);
+पूर्णाङ्क store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
+        प्रतिज्ञा(ret);
 
         /* Validate both parts *before* shifting them, so that the shifts themselves cannot overflow.
          * Rejecting f >= 100 is equivalent to the old check of the shifted value against
          * LOADAVG_FIXED_POINT_1_0, since DIV_ROUND_UP(99 << 11, 100) == 2028 and
          * DIV_ROUND_UP(100 << 11, 100) == 2048. */
-        if (i > (~0UL >> LOADAVG_PRECISION_BITS))
-                return -ERANGE;
+        सचे (i > (~0UL >> LOADAVG_PRECISION_BITS))
+                पटिनिवत्त -ERANGE;
 
-        if (f >= 100)
-                return -ERANGE;
+        सचे (f >= 100)
+                पटिनिवत्त -ERANGE;
 
         *ret = (i << LOADAVG_PRECISION_BITS) | DIV_ROUND_UP(f << LOADAVG_PRECISION_BITS, 100);
-        return 0;
+        पटिनिवत्त 0;
 }
 
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
-        const char *d, *f_str, *i_str;
+पूर्णाङ्क parse_loadavg_fixed_point(ध्रुव वर्ण *s, loadavg_t *ret) {
+        ध्रुव वर्ण *d, *f_str, *i_str;
         unsigned long i, f;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(s);
-        assert(ret);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(ret);
 
         d = strchr(s, '.');
-        if (!d)
-                return -EINVAL;
+        सचे (!d)
+                पटिनिवत्त -EINVAL;
 
         i_str = strndupa_safe(s, d - s);
         f_str = d + 1;
 
         r = safe_atolu_full(i_str, 10, &i);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
         r = safe_atolu_full(f_str, 10, &f);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        return store_loadavg_fixed_point(i, f, ret);
+        पटिनिवत्त store_loadavg_fixed_point(i, f, ret);
 }
 
 /* Limitations are described in https://www.netfilter.org/projects/nftables/manpage.html and
  * https://bugzilla.netfilter.org/show_bug.cgi?id=1175 */
-bool nft_identifier_valid(const char *id) {
-        if (isempty(id))
-                return false;
+bool nft_identifier_valid(ध्रुव वर्ण *id) {
+        सचे (isempty(id))
+                पटिनिवत्त false;
 
-        if (strlen(id) >= NFT_NAME_MAXLEN)
-                return false;
+        सचे (strlen(id) >= NFT_NAME_MAXLEN)
+                पटिनिवत्त false;
 
-        if (!ascii_isalpha(id[0]))
-                return false;
+        सचे (!ascii_isalpha(id[0]))
+                पटिनिवत्त false;
 
-        return in_charset(id + 1, ALPHANUMERICAL "/\\_.");
+        पटिनिवत्त in_charset(id + 1, ALPHANUMERICAL "/\\_.");
 }
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
-        int r;
+पूर्णाङ्क parse_capability_set(ध्रुव वर्ण *s, uint64_t initial, uint64_t *current) {
+        पूर्णाङ्क r;
 
-        assert(s);
-        assert(current);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(current);
 
-        if (isempty(s)) {
+        सचे (isempty(s)) {
                 *current = CAP_MASK_UNSET;
-                return 1;
+                पटिनिवत्त 1;
         }
 
         bool invert = false;
-        if (s[0] == '~') {
+        सचे (s[0] == '~') {
                 invert = true;
                 s++;
         }
 
         uint64_t parsed;
         r = capability_set_from_string(s, &parsed);
-        if (r < 0)
-                return r;
+        सचे (r < 0)
+                पटिनिवत्त r;
 
-        if (parsed == 0 || *current == initial)
+        सचे (parsed == 0 || *current == initial)
                 /* "~" or uninitialized data -> replace */
                 *current = invert ? all_capabilities() & ~parsed : parsed;
-        else {
+        अञ्ञथा {
                 /* previous data -> merge */
-                if (invert)
+                सचे (invert)
                         *current &= ~parsed;
-                else
+                अञ्ञथा
                         *current |= parsed;
         }
 
-        return r;
+        पटिनिवत्त r;
 }
