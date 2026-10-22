@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-struct siphash {
+ସଂରଚନା siphash {
         uint64_t v0;
         uint64_t v1;
         uint64_t v2;
@@ -13,35 +13,35 @@ struct siphash {
         size_t inlen;
 };
 
-void siphash24_init(struct siphash *state, const uint8_t k[static 16]);
-void siphash24_compress(const void *in, size_t inlen, struct siphash *state);
-#define siphash24_compress_byte(byte, state) siphash24_compress((const uint8_t[]) { (byte) }, 1, (state))
+ଶୂନ୍ୟ siphash24_init(ସଂରଚନା siphash *state, ଅଚଳ uint8_t k[ସ୍ଥିର 16]);
+ଶୂନ୍ୟ siphash24_compress(ଅଚଳ ଶୂନ୍ୟ *in, size_t inlen, ସଂରଚନା siphash *state);
+#define siphash24_compress_byte(byte, state) siphash24_compress((ଅଚଳ uint8_t[]) { (byte) }, 1, (state))
 #define siphash24_compress_typesafe(in, state)                  \
-        siphash24_compress(&(in), sizeof(typeof(in)), (state))
+        siphash24_compress(&(in), ଆକାର(typeof(in)), (state))
 
-static inline void siphash24_compress_boolean(bool in, struct siphash *state) {
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ siphash24_compress_boolean(bool in, ସଂରଚନା siphash *state) {
         siphash24_compress_byte(in, state);
 }
 
-static inline void siphash24_compress_usec_t(usec_t in, struct siphash *state) {
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ siphash24_compress_usec_t(usec_t in, ସଂରଚନା siphash *state) {
         uint64_t u = htole64(in);
         siphash24_compress_typesafe(u, state);
 }
 
-static inline void siphash24_compress_safe(const void *in, size_t inlen, struct siphash *state) {
-        if (inlen == 0)
-                return;
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ siphash24_compress_safe(ଅଚଳ ଶୂନ୍ୟ *in, size_t inlen, ସଂରଚନା siphash *state) {
+        ଯଦି (inlen == 0)
+                ଫେରନ୍ତୁ;
 
         siphash24_compress(in, inlen, state);
 }
 
-void siphash24_compress_string(const char *in, struct siphash *state);
-void siphash24_compress_iovec(const struct iovec *iov, struct siphash *state);
+ଶୂନ୍ୟ siphash24_compress_string(ଅଚଳ ଅକ୍ଷର *in, ସଂରଚନା siphash *state);
+ଶୂନ୍ୟ siphash24_compress_iovec(ଅଚଳ ସଂରଚନା iovec *iov, ସଂରଚନା siphash *state);
 
-uint64_t siphash24_finalize(struct siphash *state);
+uint64_t siphash24_finalize(ସଂରଚନା siphash *state);
 
-uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]);
+uint64_t siphash24(ଅଚଳ ଶୂନ୍ୟ *in, size_t inlen, ଅଚଳ uint8_t k[ସ୍ଥିର 16]);
 
-uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]);
+uint64_t siphash24_uint64(uint64_t in, ଅଚଳ uint8_t k[ସ୍ଥିର 16]);
 
-uint64_t siphash24_string(const char *s, const uint8_t k[static 16]);
+uint64_t siphash24_string(ଅଚଳ ଅକ୍ଷର *s, ଅଚଳ uint8_t k[ସ୍ଥିର 16]);

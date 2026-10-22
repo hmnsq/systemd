@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
 /* Limits the use of ANSI colors to a subset. */
-typedef enum ColorMode {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା ColorMode {
         COLOR_OFF,        /* No colors, monochrome output. */
         COLOR_16,         /* Only the base 16 colors. */
         COLOR_256,        /* Only 256 colors. */
@@ -26,19 +26,19 @@ typedef enum ColorMode {
 
 DECLARE_STRING_TABLE_LOOKUP(color_mode, ColorMode);
 
-ColorMode get_color_mode(void);
-static inline bool colors_enabled(void) {
+ColorMode get_color_mode(ଶୂନ୍ୟ);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ bool colors_enabled(ଶୂନ୍ୟ) {
         /* Returns true if colors are considered supported on our stdout. */
-        return get_color_mode() != COLOR_OFF;
+        ଫେରନ୍ତୁ get_color_mode() != COLOR_OFF;
 }
 
-ColorMode parse_systemd_colors(void);
+ColorMode parse_systemd_colors(ଶୂନ୍ୟ);
 
-bool underline_enabled(void);
+bool underline_enabled(ଶୂନ୍ୟ);
 
-void reset_ansi_feature_caches(void);
+ଶୂନ୍ୟ reset_ansi_feature_caches(ଶୂନ୍ୟ);
 
-bool looks_like_ansi_color_code(const char *str);
+bool looks_like_ansi_color_code(ଅଚଳ ଅକ୍ଷର *str);
 
 /* Regular colors */
 #define ANSI_BLACK   "\x1B[0;30m" /* Some type of grey usually. */
@@ -109,8 +109,8 @@ bool looks_like_ansi_color_code(const char *str);
 #define ANSI_NORMAL "\x1B[0m"
 
 #define DEFINE_ANSI_FUNC(name, NAME)                            \
-        static inline const char* ansi_##name(void) {           \
-                return colors_enabled() ? ANSI_##NAME : "";     \
+        ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_##name(ଶୂନ୍ୟ) {           \
+                ଫେରନ୍ତୁ colors_enabled() ? ANSI_##NAME : "";     \
         }
 
 /* NB: in 256 mode we always emit the fallback color first, in order to deal with terminals with
@@ -120,12 +120,12 @@ bool looks_like_ansi_color_code(const char *str);
  * reflect the correct status. */
 
 #define DEFINE_ANSI_FUNC_256(name, NAME, FALLBACK)                              \
-        static inline const char* ansi_##name(void) {                           \
-                switch (get_color_mode()) {                                     \
-                        case COLOR_OFF: return "";                              \
-                        case COLOR_16: return ANSI_##FALLBACK;                  \
-                        case COLOR_256: return ANSI_##FALLBACK ANSI_##NAME;     \
-                        default: return ANSI_##NAME;                            \
+        ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_##name(ଶୂନ୍ୟ) {                           \
+                ବାଛ (get_color_mode()) {                                     \
+                        ସ୍ଥିତି COLOR_OFF: ଫେରନ୍ତୁ "";                              \
+                        ସ୍ଥିତି COLOR_16: ଫେରନ୍ତୁ ANSI_##FALLBACK;                  \
+                        ସ୍ଥିତି COLOR_256: ଫେରନ୍ତୁ ANSI_##FALLBACK ANSI_##NAME;     \
+                        ପୂର୍ବନିର୍ଦ୍ଧାରିତ: ଫେରନ୍ତୁ ANSI_##NAME;                            \
                 }                                                               \
         }
 
@@ -161,52 +161,52 @@ DEFINE_ANSI_FUNC(highlight_cyan,        HIGHLIGHT_CYAN);
 DEFINE_ANSI_FUNC_256(highlight_grey,    HIGHLIGHT_GREY, HIGHLIGHT_GREY_FALLBACK);
 DEFINE_ANSI_FUNC(highlight_white,       HIGHLIGHT_WHITE);
 
-static inline const char* _ansi_highlight_yellow(void) {
-        return colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* _ansi_highlight_yellow(ଶୂନ୍ୟ) {
+        ଫେରନ୍ତୁ colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
 }
 
-static inline const char* ansi_highlight_green_red(bool b) {
-        return b ? ansi_highlight_green() : ansi_highlight_red();
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_highlight_green_red(bool b) {
+        ଫେରନ୍ତୁ b ? ansi_highlight_green() : ansi_highlight_red();
 }
 
-static inline const char* ansi_underline(void) {
-        return underline_enabled() ? ANSI_UNDERLINE : "";
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_underline(ଶୂନ୍ୟ) {
+        ଫେରନ୍ତୁ underline_enabled() ? ANSI_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline(void) {
-        return underline_enabled() ? ANSI_ADD_UNDERLINE : "";
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_add_underline(ଶୂନ୍ୟ) {
+        ଫେରନ୍ତୁ underline_enabled() ? ANSI_ADD_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline_grey(void) {
-        return underline_enabled() ?
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_add_underline_grey(ଶୂନ୍ୟ) {
+        ଫେରନ୍ତୁ underline_enabled() ?
                 (colors_enabled() ? ANSI_ADD_UNDERLINE_GREY : ANSI_ADD_UNDERLINE) : "";
 }
 
-static inline const char* ansi_italics(void) {
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_italics(ଶୂନ୍ୟ) {
         /* We hook italics also into the underline checks, close enough */
-        return underline_enabled() ? ANSI_ITALICS : "";
+        ଫେରନ୍ତୁ underline_enabled() ? ANSI_ITALICS : "";
 }
 
-static inline const char* ansi_add_italics(void) {
-        return underline_enabled() ? ANSI_ADD_ITALICS : "";
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_add_italics(ଶୂନ୍ୟ) {
+        ଫେରନ୍ତୁ underline_enabled() ? ANSI_ADD_ITALICS : "";
 }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE(name, NAME)                          \
-        static inline const char* ansi_##name##_underline(void) {       \
-                return underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
+        ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_##name##_underline(ଶୂନ୍ୟ) {       \
+                ଫେରନ୍ତୁ underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
                         ansi_##name();                                  \
         }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE_256(name, NAME, FALLBACK)                                            \
-        static inline const char* ansi_##name##_underline(void) {                                       \
-                if (!underline_enabled())                                                               \
-                        return ansi_##name();                                                           \
+        ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* ansi_##name##_underline(ଶୂନ୍ୟ) {                                       \
+                ଯଦି (!underline_enabled())                                                               \
+                        ଫେରନ୍ତୁ ansi_##name();                                                           \
                                                                                                         \
-                switch (get_color_mode()) {                                                             \
-                        case COLOR_OFF: return "";                                                      \
-                        case COLOR_16: return ANSI_##FALLBACK##_UNDERLINE;                              \
-                        case COLOR_256: return ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
-                        default: return ANSI_##NAME##_UNDERLINE;                                        \
+                ବାଛ (get_color_mode()) {                                                             \
+                        ସ୍ଥିତି COLOR_OFF: ଫେରନ୍ତୁ "";                                                      \
+                        ସ୍ଥିତି COLOR_16: ଫେରନ୍ତୁ ANSI_##FALLBACK##_UNDERLINE;                              \
+                        ସ୍ଥିତି COLOR_256: ଫେରନ୍ତୁ ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
+                        ପୂର୍ବନିର୍ଦ୍ଧାରିତ: ଫେରନ୍ତୁ ANSI_##NAME##_UNDERLINE;                                        \
                 }                                                                                       \
         }
 

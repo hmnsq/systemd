@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
 /* What characters are special in the shell? */
 /* must be escaped outside and inside double-quotes */
@@ -21,12 +21,12 @@
  */
 #define SHELL_NEED_ESCAPE_POSIX "\\\'"
 
-typedef enum UnescapeFlags {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା UnescapeFlags {
         UNESCAPE_RELAX      = 1 << 0,
         UNESCAPE_ACCEPT_NUL = 1 << 1,
 } UnescapeFlags;
 
-typedef enum ShellEscapeFlags {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା ShellEscapeFlags {
         /* The default is to add shell quotes ("") so the shell will consider this a single argument.
          * Tabs and newlines are escaped. */
 
@@ -34,38 +34,38 @@ typedef enum ShellEscapeFlags {
         SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
-char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
-static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା cescape_char(ଅକ୍ଷର c, ଅକ୍ଷର *buf);
+ଅକ୍ଷର* cescape_length(ଅଚଳ ଅକ୍ଷର *s, size_t n) _nonnull_if_nonzero_(1, 2);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅକ୍ଷର* cescape(ଅଚଳ ଅକ୍ଷର *s) {
+        ଫେରନ୍ତୁ cescape_length(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା cunescape_one(ଅଚଳ ଅକ୍ଷର *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
-static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+ssize_t cunescape_length_with_prefix(ଅଚଳ ଅକ୍ଷର *s, size_t length, ଅଚଳ ଅକ୍ଷର *prefix, UnescapeFlags flags, ଅକ୍ଷର **ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ssize_t cunescape_length(ଅଚଳ ଅକ୍ଷର *s, size_t length, UnescapeFlags flags, ଅକ୍ଷର **ret) {
+        ଫେରନ୍ତୁ cunescape_length_with_prefix(s, length, ଖାଲି, flags, ret);
 }
-static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ssize_t cunescape(ଅଚଳ ଅକ୍ଷର *s, UnescapeFlags flags, ଅକ୍ଷର **ret) {
+        ଫେରନ୍ତୁ cunescape_length(s, SIZE_MAX, flags, ret);
 }
 
-typedef enum XEscapeFlags {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା XEscapeFlags {
         XESCAPE_8_BIT          = 1 << 0,
         XESCAPE_FORCE_ELLIPSIS = 1 << 1,
 } XEscapeFlags;
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
-static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+ଅକ୍ଷର* xescape_full(ଅଚଳ ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *bad, size_t console_width, XEscapeFlags flags);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅକ୍ଷର* xescape(ଅଚଳ ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *bad) {
+        ଫେରନ୍ତୁ xescape_full(s, bad, SIZE_MAX, 0);
 }
-char* octescape_full(const char *s, size_t len, const char *bad);
-static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+ଅକ୍ଷର* octescape_full(ଅଚଳ ଅକ୍ଷର *s, size_t len, ଅଚଳ ଅକ୍ଷର *bad);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅକ୍ଷର* octescape(ଅଚଳ ଅକ୍ଷର *s, size_t len) {
+        ଫେରନ୍ତୁ octescape_full(s, len, ଖାଲି);
 }
-char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);
+ଅକ୍ଷର* decescape(ଅଚଳ ଅକ୍ଷର *s, size_t len, ଅଚଳ ଅକ୍ଷର *bad) _nonnull_if_nonzero_(1, 2);
+ଅକ୍ଷର* escape_non_printable_full(ଅଚଳ ଅକ୍ଷର *str, size_t console_width, XEscapeFlags flags);
 
-char* shell_escape(const char *s, const char *bad);
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags);
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags);
+ଅକ୍ଷର* shell_escape(ଅଚଳ ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *bad);
+ଅକ୍ଷର* shell_maybe_quote(ଅଚଳ ଅକ୍ଷର *s, ShellEscapeFlags flags);
+ଅକ୍ଷର* quote_command_ଧାଡ଼ି(ଅକ୍ଷର * ଅଚଳ *argv, ShellEscapeFlags flags);

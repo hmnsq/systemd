@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
 #define NULSTR_FOREACH(i, l)                                    \
-        for (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
+        ପାଇଁ (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
 
 #define NULSTR_FOREACH_PAIR(i, j, l)                             \
-        for (typeof(*(l)) *(i) = (l), *(j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
+        ପାଇଁ (typeof(*(l)) *(i) = (l), *(j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
 
-const char* nulstr_get(const char *nulstr, const char *needle);
-static inline bool nulstr_contains(const char *nulstr, const char *needle) {
-        return nulstr_get(nulstr, needle);
+ଅଚଳ ଅକ୍ଷର* nulstr_get(ଅଚଳ ଅକ୍ଷର *nulstr, ଅଚଳ ଅକ୍ଷର *needle);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ bool nulstr_contains(ଅଚଳ ଅକ୍ଷର *nulstr, ଅଚଳ ଅକ୍ଷର *needle) {
+        ଫେରନ୍ତୁ nulstr_get(nulstr, needle);
 }
 
-char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls);
-static inline char** strv_parse_nulstr(const char *s, size_t l) {
-        return strv_parse_nulstr_full(s, l, false);
+ଅକ୍ଷର** strv_parse_nulstr_full(ଅଚଳ ଅକ୍ଷର *s, size_t l, bool drop_trailing_nuls);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅକ୍ଷର** strv_parse_nulstr(ଅଚଳ ଅକ୍ଷର *s, size_t l) {
+        ଫେରନ୍ତୁ strv_parse_nulstr_full(s, l, false);
 }
-char** strv_split_nulstr(const char *s);
-static inline int strv_from_nulstr(char ***ret, const char *nulstr) {
-        char **t;
+ଅକ୍ଷର** strv_split_nulstr(ଅଚଳ ଅକ୍ଷର *s);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା strv_from_nulstr(ଅକ୍ଷର ***ret, ଅଚଳ ଅକ୍ଷର *nulstr) {
+        ଅକ୍ଷର **t;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         t = strv_split_nulstr(nulstr);
-        if (!t)
-                return -ENOMEM;
+        ଯଦି (!t)
+                ଫେରନ୍ତୁ -ENOMEM;
 
         *ret = t;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size);
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା strv_make_nulstr(ଅକ୍ଷର * ଅଚଳ *l, ଅକ୍ଷର **ret, size_t *ret_size);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା set_make_nulstr(Set *s, ଅକ୍ଷର **ret, size_t *ret_size);

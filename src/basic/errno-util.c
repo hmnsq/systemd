@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "errno-util.h"
+#ଅନ୍ତର୍ଭାଵ "errno-util.h"
 
-const char* strerror_or_eof(int errnum, char *buf, size_t buflen) {
-        if (errnum != 0)
-                return strerror_r(ABS(errnum), buf, buflen);
+ଅଚଳ ଅକ୍ଷର* strerror_or_eof(ପୂର୍ଣ୍ଣସଂଖ୍ୟା errnum, ଅକ୍ଷର *buf, size_t buflen) {
+        ଯଦି (errnum != 0)
+                ଫେରନ୍ତୁ strerror_r(ABS(errnum), buf, buflen);
 
-        return "Unexpected EOF";
+        ଫେରନ୍ତୁ "Unexpected EOF";
 }

@@ -1,52 +1,52 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/time_types.h>
-#include <stdlib.h>
-#include <sys/timerfd.h>
-#include <threads.h>
-#include <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <linux/time_types.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <sys/timerfd.h>
+#ଅନ୍ତର୍ଭାଵ <threads.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "hexdecoct.h"          /* IWYU pragma: keep */
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "env-util.h"
+#ଅନ୍ତର୍ଭାଵ "errno-util.h"
+#ଅନ୍ତର୍ଭାଵ "extract-word.h"
+#ଅନ୍ତର୍ଭାଵ "hexdecoct.h"          /* IWYU pragma: keep */
+#ଅନ୍ତର୍ଭାଵ "fd-util.h"
+#ଅନ୍ତର୍ଭାଵ "fileio.h"
+#ଅନ୍ତର୍ଭାଵ "fs-util.h"
+#ଅନ୍ତର୍ଭାଵ "io-util.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "parse-util.h"
+#ଅନ୍ତର୍ଭାଵ "path-util.h"
+#ଅନ୍ତର୍ଭାଵ "stat-util.h"
+#ଅନ୍ତର୍ଭାଵ "stdio-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-table.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "strv.h"
+#ଅନ୍ତର୍ଭାଵ "time-util.h"
 
-static clockid_t map_clock_id(clockid_t c) {
+ସ୍ଥିର clockid_t map_clock_id(clockid_t c) {
 
         /* Some more exotic archs (s390, ppc, …) lack the "ALARM" flavour of the clocks. Thus,
          * clock_gettime() will fail for them. Since they are essentially the same as their non-ALARM
          * pendants (their only difference is when timers are set on them), let's just map them
          * accordingly. This way, we can get the correct time even on those archs. */
 
-        switch (c) {
+        ବାଛ (c) {
 
-        case CLOCK_BOOTTIME_ALARM:
-                return CLOCK_BOOTTIME;
+        ସ୍ଥିତି CLOCK_BOOTTIME_ALARM:
+                ଫେରନ୍ତୁ CLOCK_BOOTTIME;
 
-        case CLOCK_REALTIME_ALARM:
-                return CLOCK_REALTIME;
+        ସ୍ଥିତି CLOCK_REALTIME_ALARM:
+                ଫେରନ୍ତୁ CLOCK_REALTIME;
 
-        default:
-                return c;
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ c;
         }
 }
 
 usec_t now(clockid_t clock_id) {
-        struct timespec ts;
+        ସଂରଚନା timespec ts;
 
         assert_se(clock_gettime(map_clock_id(clock_id), &ts) == 0);
 
@@ -55,42 +55,42 @@ usec_t now(clockid_t clock_id) {
         /* We use both 0 and USEC_INFINITY as niche values. If the current time collides with either, things are
          * really weird and really broken. Let's not allow this to go through, it would break too many of our
          * assumptions in code. */
-        assert(n > 0);
-        assert(n < USEC_INFINITY);
+        ପ୍ରତିଜ୍ଞା(n > 0);
+        ପ୍ରତିଜ୍ଞା(n < USEC_INFINITY);
 
-        return n;
+        ଫେରନ୍ତୁ n;
 }
 
 nsec_t now_nsec(clockid_t clock_id) {
-        struct timespec ts;
+        ସଂରଚନା timespec ts;
 
         assert_se(clock_gettime(map_clock_id(clock_id), &ts) == 0);
 
         nsec_t n = timespec_load_nsec(&ts);
 
-        assert(n > 0);
-        assert(n < NSEC_INFINITY);
+        ପ୍ରତିଜ୍ଞା(n > 0);
+        ପ୍ରତିଜ୍ଞା(n < NSEC_INFINITY);
 
-        return n;
+        ଫେରନ୍ତୁ n;
 }
 
 dual_timestamp* dual_timestamp_now(dual_timestamp *ts) {
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
         ts->realtime = now(CLOCK_REALTIME);
         ts->monotonic = now(CLOCK_MONOTONIC);
 
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
 triple_timestamp* triple_timestamp_now(triple_timestamp *ts) {
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
         ts->realtime = now(CLOCK_REALTIME);
         ts->monotonic = now(CLOCK_MONOTONIC);
         ts->boottime = now(CLOCK_BOOTTIME);
 
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
 usec_t map_clock_usec_raw(usec_t from, usec_t from_base, usec_t to_base) {
@@ -102,21 +102,21 @@ usec_t map_clock_usec_raw(usec_t from, usec_t from_base, usec_t to_base) {
          *
          * But takes care of overflows/underflows and avoids signed operations. */
 
-        if (from >= from_base) { /* In the future */
+        ଯଦି (from >= from_base) { /* In the future */
                 usec_t delta = from - from_base;
 
-                if (to_base >= USEC_INFINITY - delta) /* overflow? */
-                        return USEC_INFINITY;
+                ଯଦି (to_base >= USEC_INFINITY - delta) /* overflow? */
+                        ଫେରନ୍ତୁ USEC_INFINITY;
 
-                return to_base + delta;
+                ଫେରନ୍ତୁ to_base + delta;
 
-        } else { /* In the past */
+        } ଅନ୍ୟଥା { /* In the past */
                 usec_t delta = from_base - from;
 
-                if (to_base <= delta) /* underflow? */
-                        return 0;
+                ଯଦି (to_base <= delta) /* underflow? */
+                        ଫେରନ୍ତୁ 0;
 
-                return to_base - delta;
+                ଫେରନ୍ତୁ to_base - delta;
         }
 }
 
@@ -124,37 +124,37 @@ usec_t map_clock_usec(usec_t from, clockid_t from_clock, clockid_t to_clock) {
 
         /* Try to avoid any inaccuracy needlessly added in case we convert from effectively the same clock
          * onto itself */
-        if (map_clock_id(from_clock) == map_clock_id(to_clock))
-                return from;
+        ଯଦି (map_clock_id(from_clock) == map_clock_id(to_clock))
+                ଫେରନ୍ତୁ from;
 
         /* Keep infinity as is */
-        if (from == USEC_INFINITY)
-                return from;
+        ଯଦି (from == USEC_INFINITY)
+                ଫେରନ୍ତୁ from;
 
-        return map_clock_usec_raw(from, now(from_clock), now(to_clock));
+        ଫେରନ୍ତୁ map_clock_usec_raw(from, now(from_clock), now(to_clock));
 }
 
 dual_timestamp* dual_timestamp_from_realtime(dual_timestamp *ts, usec_t u) {
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (!timestamp_is_set(u)) {
+        ଯଦି (!timestamp_is_set(u)) {
                 ts->realtime = ts->monotonic = u;
-                return ts;
+                ଫେରନ୍ତୁ ts;
         }
 
         ts->realtime = u;
         ts->monotonic = map_clock_usec(u, CLOCK_REALTIME, CLOCK_MONOTONIC);
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
 triple_timestamp* triple_timestamp_from_realtime(triple_timestamp *ts, usec_t u) {
         usec_t nowr;
 
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (!timestamp_is_set(u)) {
+        ଯଦି (!timestamp_is_set(u)) {
                 ts->realtime = ts->monotonic = ts->boottime = u;
-                return ts;
+                ଫେରନ୍ତୁ ts;
         }
 
         nowr = now(CLOCK_REALTIME);
@@ -163,17 +163,17 @@ triple_timestamp* triple_timestamp_from_realtime(triple_timestamp *ts, usec_t u)
         ts->monotonic = map_clock_usec_raw(u, nowr, now(CLOCK_MONOTONIC));
         ts->boottime = map_clock_usec_raw(u, nowr, now(CLOCK_BOOTTIME));
 
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
 triple_timestamp* triple_timestamp_from_boottime(triple_timestamp *ts, usec_t u) {
         usec_t nowb;
 
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (u == USEC_INFINITY) {
+        ଯଦି (u == USEC_INFINITY) {
                 ts->realtime = ts->monotonic = ts->boottime = u;
-                return ts;
+                ଫେରନ୍ତୁ ts;
         }
 
         nowb = now(CLOCK_BOOTTIME);
@@ -182,162 +182,162 @@ triple_timestamp* triple_timestamp_from_boottime(triple_timestamp *ts, usec_t u)
         ts->monotonic = map_clock_usec_raw(u, nowb, now(CLOCK_MONOTONIC));
         ts->realtime = map_clock_usec_raw(u, nowb, now(CLOCK_REALTIME));
 
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
 dual_timestamp* dual_timestamp_from_monotonic(dual_timestamp *ts, usec_t u) {
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (u == USEC_INFINITY) {
+        ଯଦି (u == USEC_INFINITY) {
                 ts->realtime = ts->monotonic = USEC_INFINITY;
-                return ts;
+                ଫେରନ୍ତୁ ts;
         }
 
         ts->monotonic = u;
         ts->realtime = map_clock_usec(u, CLOCK_MONOTONIC, CLOCK_REALTIME);
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
 dual_timestamp* dual_timestamp_from_boottime(dual_timestamp *ts, usec_t u) {
         usec_t nowm;
 
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (u == USEC_INFINITY) {
+        ଯଦି (u == USEC_INFINITY) {
                 ts->realtime = ts->monotonic = USEC_INFINITY;
-                return ts;
+                ଫେରନ୍ତୁ ts;
         }
 
         nowm = now(CLOCK_BOOTTIME);
         ts->monotonic = map_clock_usec_raw(u, nowm, now(CLOCK_MONOTONIC));
         ts->realtime = map_clock_usec_raw(u, nowm, now(CLOCK_REALTIME));
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
 usec_t triple_timestamp_by_clock(triple_timestamp *ts, clockid_t clock) {
-        assert(ts);
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        switch (clock) {
+        ବାଛ (clock) {
 
-        case CLOCK_REALTIME:
-        case CLOCK_REALTIME_ALARM:
-                return ts->realtime;
+        ସ୍ଥିତି CLOCK_REALTIME:
+        ସ୍ଥିତି CLOCK_REALTIME_ALARM:
+                ଫେରନ୍ତୁ ts->realtime;
 
-        case CLOCK_MONOTONIC:
-                return ts->monotonic;
+        ସ୍ଥିତି CLOCK_MONOTONIC:
+                ଫେରନ୍ତୁ ts->monotonic;
 
-        case CLOCK_BOOTTIME:
-        case CLOCK_BOOTTIME_ALARM:
-                return ts->boottime;
+        ସ୍ଥିତି CLOCK_BOOTTIME:
+        ସ୍ଥିତି CLOCK_BOOTTIME_ALARM:
+                ଫେରନ୍ତୁ ts->boottime;
 
-        default:
-                return USEC_INFINITY;
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ USEC_INFINITY;
         }
 }
 
-usec_t timespec_load(const struct timespec *ts) {
-        assert(ts);
+usec_t timespec_load(ଅଚଳ ସଂରଚନା timespec *ts) {
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (ts->tv_sec < 0 || ts->tv_nsec < 0)
-                return USEC_INFINITY;
+        ଯଦି (ts->tv_sec < 0 || ts->tv_nsec < 0)
+                ଫେରନ୍ତୁ USEC_INFINITY;
 
-        if ((usec_t) ts->tv_sec > (UINT64_MAX - (ts->tv_nsec / NSEC_PER_USEC)) / USEC_PER_SEC)
-                return USEC_INFINITY;
+        ଯଦି ((usec_t) ts->tv_sec > (UINT64_MAX - (ts->tv_nsec / NSEC_PER_USEC)) / USEC_PER_SEC)
+                ଫେରନ୍ତୁ USEC_INFINITY;
 
-        return
+        ଫେରନ୍ତୁ
                 (usec_t) ts->tv_sec * USEC_PER_SEC +
                 (usec_t) ts->tv_nsec / NSEC_PER_USEC;
 }
 
-nsec_t timespec_load_nsec(const struct timespec *ts) {
-        assert(ts);
+nsec_t timespec_load_nsec(ଅଚଳ ସଂରଚନା timespec *ts) {
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (ts->tv_sec < 0 || ts->tv_nsec < 0)
-                return NSEC_INFINITY;
+        ଯଦି (ts->tv_sec < 0 || ts->tv_nsec < 0)
+                ଫେରନ୍ତୁ NSEC_INFINITY;
 
-        if ((nsec_t) ts->tv_sec >= (UINT64_MAX - ts->tv_nsec) / NSEC_PER_SEC)
-                return NSEC_INFINITY;
+        ଯଦି ((nsec_t) ts->tv_sec >= (UINT64_MAX - ts->tv_nsec) / NSEC_PER_SEC)
+                ଫେରନ୍ତୁ NSEC_INFINITY;
 
-        return (nsec_t) ts->tv_sec * NSEC_PER_SEC + (nsec_t) ts->tv_nsec;
+        ଫେରନ୍ତୁ (nsec_t) ts->tv_sec * NSEC_PER_SEC + (nsec_t) ts->tv_nsec;
 }
 
-struct timespec *timespec_store(struct timespec *ts, usec_t u) {
-        assert(ts);
+ସଂରଚନା timespec *timespec_store(ସଂରଚନା timespec *ts, usec_t u) {
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (u == USEC_INFINITY ||
+        ଯଦି (u == USEC_INFINITY ||
             u / USEC_PER_SEC >= TIME_T_MAX) {
                 ts->tv_sec = (time_t) -1;
                 ts->tv_nsec = -1L;
-                return ts;
+                ଫେରନ୍ତୁ ts;
         }
 
         ts->tv_sec = (time_t) (u / USEC_PER_SEC);
         ts->tv_nsec = (long) ((u % USEC_PER_SEC) * NSEC_PER_USEC);
 
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
-struct timespec *timespec_store_nsec(struct timespec *ts, nsec_t n) {
-        assert(ts);
+ସଂରଚନା timespec *timespec_store_nsec(ସଂରଚନା timespec *ts, nsec_t n) {
+        ପ୍ରତିଜ୍ଞା(ts);
 
-        if (n == NSEC_INFINITY ||
+        ଯଦି (n == NSEC_INFINITY ||
             n / NSEC_PER_SEC >= TIME_T_MAX) {
                 ts->tv_sec = (time_t) -1;
                 ts->tv_nsec = -1L;
-                return ts;
+                ଫେରନ୍ତୁ ts;
         }
 
         ts->tv_sec = (time_t) (n / NSEC_PER_SEC);
         ts->tv_nsec = (long) (n % NSEC_PER_SEC);
 
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
-struct __kernel_timespec *kernel_timespec_store(struct __kernel_timespec *ts, usec_t u) {
-        assert(ts);
+ସଂରଚନା __kernel_timespec *kernel_timespec_store(ସଂରଚନା __kernel_timespec *ts, usec_t u) {
+        ପ୍ରତିଜ୍ଞା(ts);
         /* struct __kernel_timespec has no encoding for "no timeout": io_uring expects a NULL pointer for
          * that, so callers have to resolve USEC_INFINITY themselves. */
-        assert(u != USEC_INFINITY);
+        ପ୍ରତିଜ୍ଞା(u != USEC_INFINITY);
 
         ts->tv_sec  = u / USEC_PER_SEC;
         ts->tv_nsec = (u % USEC_PER_SEC) * NSEC_PER_USEC;
 
-        return ts;
+        ଫେରନ୍ତୁ ts;
 }
 
-usec_t timeval_load(const struct timeval *tv) {
-        assert(tv);
+usec_t timeval_load(ଅଚଳ ସଂରଚନା timeval *tv) {
+        ପ୍ରତିଜ୍ଞା(tv);
 
-        if (tv->tv_sec < 0 || tv->tv_usec < 0)
-                return USEC_INFINITY;
+        ଯଦି (tv->tv_sec < 0 || tv->tv_usec < 0)
+                ଫେରନ୍ତୁ USEC_INFINITY;
 
-        if ((usec_t) tv->tv_sec > (UINT64_MAX - tv->tv_usec) / USEC_PER_SEC)
-                return USEC_INFINITY;
+        ଯଦି ((usec_t) tv->tv_sec > (UINT64_MAX - tv->tv_usec) / USEC_PER_SEC)
+                ଫେରନ୍ତୁ USEC_INFINITY;
 
-        return
+        ଫେରନ୍ତୁ
                 (usec_t) tv->tv_sec * USEC_PER_SEC +
                 (usec_t) tv->tv_usec;
 }
 
-struct timeval *timeval_store(struct timeval *tv, usec_t u) {
-        assert(tv);
+ସଂରଚନା timeval *timeval_store(ସଂରଚନା timeval *tv, usec_t u) {
+        ପ୍ରତିଜ୍ଞା(tv);
 
-        if (u == USEC_INFINITY ||
+        ଯଦି (u == USEC_INFINITY ||
             u / USEC_PER_SEC > TIME_T_MAX) {
                 tv->tv_sec = (time_t) -1;
                 tv->tv_usec = (suseconds_t) -1;
-        } else {
+        } ଅନ୍ୟଥା {
                 tv->tv_sec = (time_t) (u / USEC_PER_SEC);
                 tv->tv_usec = (suseconds_t) (u % USEC_PER_SEC);
         }
 
-        return tv;
+        ଫେରନ୍ତୁ tv;
 }
 
 /* Returns the abbreviated English weekday name for wd in Mon=0 … Sun=6 order.
  * We use non-localized (English) form so that timestamps can be parsed with
  * parse_timestamp() and always read the same regardless of locale. */
-static const char *const weekday_table[_WEEKDAY_MAX] = {
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *ଅଚଳ weekday_table[_WEEKDAY_MAX] = {
         [WEEKDAY_MON] = "Mon",
         [WEEKDAY_TUE] = "Tue",
         [WEEKDAY_WED] = "Wed",
@@ -347,46 +347,46 @@ static const char *const weekday_table[_WEEKDAY_MAX] = {
         [WEEKDAY_SUN] = "Sun",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_TO_STRING(weekday, int);
+DEFINE_STRING_TABLE_LOOKUP_TO_STRING(weekday, ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
 
-char* format_timestamp_style(
-                char *buf,
+ଅକ୍ଷର* format_timestamp_style(
+                ଅକ୍ଷର *buf,
                 size_t l,
                 usec_t t,
                 TimestampStyle style) {
-        struct tm tm;
+        ସଂରଚନା tm tm;
         bool utc, us;
         size_t n;
 
-        assert(buf);
-        assert(style >= 0);
-        assert(style < _TIMESTAMP_STYLE_MAX);
+        ପ୍ରତିଜ୍ଞା(buf);
+        ପ୍ରତିଜ୍ଞା(style >= 0);
+        ପ୍ରତିଜ୍ଞା(style < _TIMESTAMP_STYLE_MAX);
 
-        if (!timestamp_is_set(t))
-                return NULL; /* Timestamp is unset */
+        ଯଦି (!timestamp_is_set(t))
+                ଫେରନ୍ତୁ ଖାଲି; /* Timestamp is unset */
 
-        if (style == TIMESTAMP_UNIX) {
-                if (l < (size_t) (1 + 1 + 1))
-                        return NULL; /* not enough space for even the shortest of forms */
+        ଯଦି (style == TIMESTAMP_UNIX) {
+                ଯଦି (l < (size_t) (1 + 1 + 1))
+                        ଫେରନ୍ତୁ ଖାଲି; /* not enough space for even the shortest of forms */
 
-                return snprintf_ok(buf, l, "@" USEC_FMT, t / USEC_PER_SEC);  /* round down μs → s */
+                ଫେରନ୍ତୁ snprintf_ok(buf, l, "@" USEC_FMT, t / USEC_PER_SEC);  /* round down μs → s */
         }
 
         utc = IN_SET(style, TIMESTAMP_UTC, TIMESTAMP_US_UTC, TIMESTAMP_DATE);
         us = IN_SET(style, TIMESTAMP_US, TIMESTAMP_US_UTC);
 
-        if (l < (size_t) (3 +                   /* week day */
+        ଯଦି (l < (size_t) (3 +                   /* week day */
                           1 + 10 +              /* space and date */
                           style == TIMESTAMP_DATE ? 0 :
                           (1 + 8 +              /* space and time */
                            (us ? 1 + 6 : 0) +   /* "." and microsecond part */
                            1 + (utc ? 3 : 1)) + /* space and shortest possible zone */
                           1))
-                return NULL; /* Not enough space even for the shortest form. */
+                ଫେରନ୍ତୁ ଖାଲି; /* Not enough space even for the shortest form. */
 
         /* Let's not format times with years > 9999 */
-        if (t > USEC_TIMESTAMP_FORMATTABLE_MAX) {
-                static const char* const xxx[_TIMESTAMP_STYLE_MAX] = {
+        ଯଦି (t > USEC_TIMESTAMP_FORMATTABLE_MAX) {
+                ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* ଅଚଳ xxx[_TIMESTAMP_STYLE_MAX] = {
                         [TIMESTAMP_PRETTY] = "--- XXXX-XX-XX XX:XX:XX",
                         [TIMESTAMP_US]     = "--- XXXX-XX-XX XX:XX:XX.XXXXXX",
                         [TIMESTAMP_UTC]    = "--- XXXX-XX-XX XX:XX:XX UTC",
@@ -394,59 +394,59 @@ char* format_timestamp_style(
                         [TIMESTAMP_DATE]   = "--- XXXX-XX-XX",
                 };
 
-                assert(l >= strlen(xxx[style]) + 1);
-                return strcpy(buf, xxx[style]);
+                ପ୍ରତିଜ୍ଞା(l >= strlen(xxx[style]) + 1);
+                ଫେରନ୍ତୁ strcpy(buf, xxx[style]);
         }
 
-        if (localtime_or_gmtime_usec(t, utc, &tm) < 0)
-                return NULL;
+        ଯଦି (localtime_or_gmtime_usec(t, utc, &tm) < 0)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         /* Start with the week day */
-        const char *weekday = weekday_to_string(tm.tm_wday == 0 ? 6 : tm.tm_wday - 1);
-        assert(weekday);
+        ଅଚଳ ଅକ୍ଷର *weekday = weekday_to_string(tm.tm_wday == 0 ? 6 : tm.tm_wday - 1);
+        ପ୍ରତିଜ୍ଞା(weekday);
         memcpy(buf, weekday, 4);
 
-        if (style == TIMESTAMP_DATE) {
+        ଯଦି (style == TIMESTAMP_DATE) {
                 /* Special format string if only date should be shown. */
-                if (strftime(buf + 3, l - 3, " %Y-%m-%d", &tm) <= 0)
-                        return NULL; /* Doesn't fit */
+                ଯଦି (strftime(buf + 3, l - 3, " %Y-%m-%d", &tm) <= 0)
+                        ଫେରନ୍ତୁ ଖାଲି; /* Doesn't fit */
 
-                return buf;
+                ଫେରନ୍ତୁ buf;
         }
 
         /* Add the main components */
-        if (strftime(buf + 3, l - 3, " %Y-%m-%d %H:%M:%S", &tm) <= 0)
-                return NULL; /* Doesn't fit */
+        ଯଦି (strftime(buf + 3, l - 3, " %Y-%m-%d %H:%M:%S", &tm) <= 0)
+                ଫେରନ୍ତୁ ଖାଲି; /* Doesn't fit */
 
         /* Append the microseconds part, if that's requested */
-        if (us) {
+        ଯଦି (us) {
                 n = strlen(buf);
-                if (n + 8 > l)
-                        return NULL; /* Microseconds part doesn't fit. */
+                ଯଦି (n + 8 > l)
+                        ଫେରନ୍ତୁ ଖାଲି; /* Microseconds part doesn't fit. */
 
                 sprintf(buf + n, ".%06"PRI_USEC, t % USEC_PER_SEC);
         }
 
         /* Append the timezone */
         n = strlen(buf);
-        if (utc) {
+        ଯଦି (utc) {
                 /* If this is UTC then let's explicitly use the "UTC" string here, because gmtime_r()
                  * normally uses the obsolete "GMT" instead. */
-                if (n + 5 > l)
-                        return NULL; /* "UTC" doesn't fit. */
+                ଯଦି (n + 5 > l)
+                        ଫେରନ୍ତୁ ଖାଲି; /* "UTC" doesn't fit. */
 
                 strcpy(buf + n, " UTC");
 
-        } else if (!isempty(tm.tm_zone)) {
+        } ଅନ୍ୟଥା ଯଦି (!isempty(tm.tm_zone)) {
                 size_t tn;
 
                 /* An explicit timezone is specified, let's use it, if it fits */
                 tn = strlen(tm.tm_zone);
-                if (n + 1 + tn + 1 > l) {
+                ଯଦି (n + 1 + tn + 1 > l) {
                         /* The full time zone does not fit in. Yuck. */
 
-                        if (n + 1 + _POSIX_TZNAME_MAX + 1 > l)
-                                return NULL; /* Not even enough space for the POSIX minimum (of 6)? In that
+                        ଯଦି (n + 1 + _POSIX_TZNAME_MAX + 1 > l)
+                                ଫେରନ୍ତୁ ଖାଲି; /* Not even enough space for the POSIX minimum (of 6)? In that
                                               * case, complain that it doesn't fit. */
 
                         /* So the time zone doesn't fit in fully, but the caller passed enough space for the
@@ -454,101 +454,101 @@ char* format_timestamp_style(
                          * order not to dump an overly long, hard to read string on the user. This should be
                          * safe, because the user will assume the local timezone anyway if none is shown. And
                          * so does parse_timestamp(). */
-                } else {
+                } ଅନ୍ୟଥା {
                         buf[n++] = ' ';
                         strcpy(buf + n, tm.tm_zone);
                 }
         }
 
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }
 
-char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t clock, bool implicit_left) {
-        const char *s;
+ଅକ୍ଷର* format_timestamp_relative_full(ଅକ୍ଷର *buf, size_t l, usec_t t, clockid_t clock, bool implicit_ବାମ) {
+        ଅଚଳ ଅକ୍ଷର *s;
         usec_t n, d;
 
-        assert(buf);
+        ପ୍ରତିଜ୍ଞା(buf);
 
-        if (!timestamp_is_set(t))
-                return NULL;
+        ଯଦି (!timestamp_is_set(t))
+                ଫେରନ୍ତୁ ଖାଲି;
 
         n = now(clock);
-        if (n > t) {
+        ଯଦି (n > t) {
                 d = n - t;
                 s = " ago";
-        } else {
+        } ଅନ୍ୟଥା {
                 d = t - n;
-                s = implicit_left ? "" : " left";
+                s = implicit_ବାମ ? "" : " left";
         }
 
-        if (d >= USEC_PER_YEAR) {
+        ଯଦି (d >= USEC_PER_YEAR) {
                 usec_t years = d / USEC_PER_YEAR;
                 usec_t months = (d % USEC_PER_YEAR) / USEC_PER_MONTH;
 
-                (void) snprintf(buf, l, USEC_FMT " %s " USEC_FMT " %s%s",
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT " %s " USEC_FMT " %s%s",
                                 years,
                                 years == 1 ? "year" : "years",
                                 months,
                                 months == 1 ? "month" : "months",
                                 s);
-        } else if (d >= USEC_PER_MONTH) {
+        } ଅନ୍ୟଥା ଯଦି (d >= USEC_PER_MONTH) {
                 usec_t months = d / USEC_PER_MONTH;
                 usec_t days = (d % USEC_PER_MONTH) / USEC_PER_DAY;
 
-                (void) snprintf(buf, l, USEC_FMT " %s " USEC_FMT " %s%s",
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT " %s " USEC_FMT " %s%s",
                                 months,
                                 months == 1 ? "month" : "months",
                                 days,
                                 days == 1 ? "day" : "days",
                                 s);
-        } else if (d >= USEC_PER_WEEK) {
+        } ଅନ୍ୟଥା ଯଦି (d >= USEC_PER_WEEK) {
                 usec_t weeks = d / USEC_PER_WEEK;
                 usec_t days = (d % USEC_PER_WEEK) / USEC_PER_DAY;
 
-                (void) snprintf(buf, l, USEC_FMT " %s " USEC_FMT " %s%s",
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT " %s " USEC_FMT " %s%s",
                                 weeks,
                                 weeks == 1 ? "week" : "weeks",
                                 days,
                                 days == 1 ? "day" : "days",
                                 s);
-        } else if (d >= 2*USEC_PER_DAY)
-                (void) snprintf(buf, l, USEC_FMT " days%s", d / USEC_PER_DAY,s);
-        else if (d >= 25*USEC_PER_HOUR)
-                (void) snprintf(buf, l, "1 day " USEC_FMT "h%s",
+        } ଅନ୍ୟଥା ଯଦି (d >= 2*USEC_PER_DAY)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT " days%s", d / USEC_PER_DAY,s);
+        ଅନ୍ୟଥା ଯଦି (d >= 25*USEC_PER_HOUR)
+                (ଶୂନ୍ୟ) snprintf(buf, l, "1 day " USEC_FMT "h%s",
                                 (d - USEC_PER_DAY) / USEC_PER_HOUR, s);
-        else if (d >= 6*USEC_PER_HOUR)
-                (void) snprintf(buf, l, USEC_FMT "h%s",
+        ଅନ୍ୟଥା ଯଦି (d >= 6*USEC_PER_HOUR)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT "h%s",
                                 d / USEC_PER_HOUR, s);
-        else if (d >= USEC_PER_HOUR)
-                (void) snprintf(buf, l, USEC_FMT "h " USEC_FMT "min%s",
+        ଅନ୍ୟଥା ଯଦି (d >= USEC_PER_HOUR)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT "h " USEC_FMT "min%s",
                                 d / USEC_PER_HOUR,
                                 (d % USEC_PER_HOUR) / USEC_PER_MINUTE, s);
-        else if (d >= 5*USEC_PER_MINUTE)
-                (void) snprintf(buf, l, USEC_FMT "min%s",
+        ଅନ୍ୟଥା ଯଦି (d >= 5*USEC_PER_MINUTE)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT "min%s",
                                 d / USEC_PER_MINUTE, s);
-        else if (d >= USEC_PER_MINUTE)
-                (void) snprintf(buf, l, USEC_FMT "min " USEC_FMT "s%s",
+        ଅନ୍ୟଥା ଯଦି (d >= USEC_PER_MINUTE)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT "min " USEC_FMT "s%s",
                                 d / USEC_PER_MINUTE,
                                 (d % USEC_PER_MINUTE) / USEC_PER_SEC, s);
-        else if (d >= USEC_PER_SEC)
-                (void) snprintf(buf, l, USEC_FMT "s%s",
+        ଅନ୍ୟଥା ଯଦି (d >= USEC_PER_SEC)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT "s%s",
                                 d / USEC_PER_SEC, s);
-        else if (d >= USEC_PER_MSEC)
-                (void) snprintf(buf, l, USEC_FMT "ms%s",
+        ଅନ୍ୟଥା ଯଦି (d >= USEC_PER_MSEC)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT "ms%s",
                                 d / USEC_PER_MSEC, s);
-        else if (d > 0)
-                (void) snprintf(buf, l, USEC_FMT"us%s",
+        ଅନ୍ୟଥା ଯଦି (d > 0)
+                (ଶୂନ୍ୟ) snprintf(buf, l, USEC_FMT"us%s",
                                 d, s);
-        else
-                (void) snprintf(buf, l, "now");
+        ଅନ୍ୟଥା
+                (ଶୂନ୍ୟ) snprintf(buf, l, "now");
 
         buf[l-1] = 0;
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }
 
-char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
-        static const struct {
-                const char *suffix;
+ଅକ୍ଷର* format_timespan(ଅକ୍ଷର *buf, size_t l, usec_t t, usec_t accuracy) {
+        ସ୍ଥିର ଅଚଳ ସଂରଚନା {
+                ଅଚଳ ଅକ୍ଷର *suffix;
                 usec_t usec;
         } table[] = {
                 { "y",     USEC_PER_YEAR   },
@@ -562,59 +562,59 @@ char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
                 { "us",    1               },
         };
 
-        char *p = ASSERT_PTR(buf);
+        ଅକ୍ଷର *p = ASSERT_PTR(buf);
         bool something = false;
 
-        assert(l > 0);
+        ପ୍ରତିଜ୍ଞା(l > 0);
 
-        if (t == USEC_INFINITY) {
+        ଯଦି (t == USEC_INFINITY) {
                 strncpy(p, "infinity", l-1);
                 p[l-1] = 0;
-                return p;
+                ଫେରନ୍ତୁ p;
         }
 
-        if (t <= 0) {
+        ଯଦି (t <= 0) {
                 strncpy(p, "0", l-1);
                 p[l-1] = 0;
-                return p;
+                ଫେରନ୍ତୁ p;
         }
 
         /* The result of this function can be parsed with parse_sec */
 
         FOREACH_ELEMENT(i, table) {
-                int k = 0;
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା k = 0;
                 size_t n;
                 bool done = false;
                 usec_t a, b;
 
-                if (t <= 0)
-                        break;
+                ଯଦି (t <= 0)
+                        ଭାଙ୍ଗ;
 
-                if (t < accuracy && something)
-                        break;
+                ଯଦି (t < accuracy && something)
+                        ଭାଙ୍ଗ;
 
-                if (t < i->usec)
-                        continue;
+                ଯଦି (t < i->usec)
+                        ଜାରି;
 
-                if (l <= 1)
-                        break;
+                ଯଦି (l <= 1)
+                        ଭାଙ୍ଗ;
 
                 a = t / i->usec;
                 b = t % i->usec;
 
                 /* Let's see if we should shows this in dot notation */
-                if (t < USEC_PER_MINUTE && b > 0) {
-                        signed char j = 0;
+                ଯଦି (t < USEC_PER_MINUTE && b > 0) {
+                        signed ଅକ୍ଷର j = 0;
 
-                        for (usec_t cc = i->usec; cc > 1; cc /= 10)
+                        ପାଇଁ (usec_t cc = i->usec; cc > 1; cc /= 10)
                                 j++;
 
-                        for (usec_t cc = accuracy; cc > 1; cc /= 10) {
+                        ପାଇଁ (usec_t cc = accuracy; cc > 1; cc /= 10) {
                                 b /= 10;
                                 j--;
                         }
 
-                        if (j > 0) {
+                        ଯଦି (j > 0) {
                                 k = snprintf(p, l,
                                              "%s"USEC_FMT".%0*"PRI_USEC"%s",
                                              p > buf ? " " : "",
@@ -629,7 +629,7 @@ char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
                 }
 
                 /* No? Then let's show it normally */
-                if (!done) {
+                ଯଦି (!done) {
                         k = snprintf(p, l,
                                      "%s"USEC_FMT"%s",
                                      p > buf ? " " : "",
@@ -649,33 +649,33 @@ char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
 
         *p = 0;
 
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }
 
-const char* get_tzname(bool dst) {
+ଅଚଳ ଅକ୍ଷର* get_tzname(bool dst) {
         /* musl leaves the DST timezone name unset if there is no DST, map this back to no DST */
-        if (dst && isempty(tzname[1]))
+        ଯଦି (dst && isempty(tzname[1]))
                 dst = false;
 
-        return empty_to_null(tzname[dst]);
+        ଫେରନ୍ତୁ empty_to_null(tzname[dst]);
 }
 
-int parse_gmtoff(const char *t, long *ret) {
-        assert(t);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_gmtoff(ଅଚଳ ଅକ୍ଷର *t, long *ret) {
+        ପ୍ରତିଜ୍ଞା(t);
 
-        struct tm tm;
-        const char *k = strptime(t, "%z", &tm);
-        if (k && *k == '\0') {
+        ସଂରଚନା tm tm;
+        ଅଚଳ ଅକ୍ଷର *k = strptime(t, "%z", &tm);
+        ଯଦି (k && *k == '\0') {
                 /* Success! */
-                if (ret)
+                ଯଦି (ret)
                         *ret = tm.tm_gmtoff;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
 #ifdef __GLIBC__
-        return -EINVAL;
-#else
-        int r;
+        ଫେରନ୍ତୁ -EINVAL;
+#ଅନ୍ୟଥା
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* musl v1.2.5 does not support %z specifier in strptime(). Since
          * https://github.com/kraj/musl/commit/fced99e93daeefb0192fd16304f978d4401d1d77
@@ -684,80 +684,80 @@ int parse_gmtoff(const char *t, long *ret) {
          * (e.g. +09 or -14:00). Let's add fallback logic to make it support the extended timezone spec. */
 
         bool positive;
-        switch (*t) {
-        case '+':
+        ବାଛ (*t) {
+        ସ୍ଥିତି '+':
                 positive = true;
-                break;
-        case '-':
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି '-':
                 positive = false;
-                break;
-        default:
-                return -EINVAL;
+                ଭାଙ୍ଗ;
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ -EINVAL;
         }
 
         t++;
         r = undecchar(*t);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         usec_t u = r * 10 * USEC_PER_HOUR;
 
         t++;
         r = undecchar(*t);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
         u += r * USEC_PER_HOUR;
 
         t++;
-        if (*t == '\0') /* 2 digits case */
-                goto finalize;
+        ଯଦି (*t == '\0') /* 2 digits case */
+                ଯାଅ finalize;
 
-        if (*t == ':') /* skip colon */
+        ଯଦି (*t == ':') /* skip colon */
                 t++;
 
         r = undecchar(*t);
-        if (r < 0)
-                return r;
-        if (r >= 6) /* refuse minutes equal to or larger than 60 */
-                return -EINVAL;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (r >= 6) /* refuse minutes equal to or larger than 60 */
+                ଫେରନ୍ତୁ -EINVAL;
 
         u += r * 10 * USEC_PER_MINUTE;
 
         t++;
         r = undecchar(*t);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         u += r * USEC_PER_MINUTE;
 
         t++;
-        if (*t != '\0')
-                return -EINVAL;
+        ଯଦି (*t != '\0')
+                ଫେରନ୍ତୁ -EINVAL;
 
 finalize:
-        if (u > USEC_PER_DAY) /* refuse larger than one day */
-                return -EINVAL;
+        ଯଦି (u > USEC_PER_DAY) /* refuse larger than one day */
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (ret) {
+        ଯଦି (ret) {
                 long gmtoff = u / USEC_PER_SEC;
                 *ret = positive ? gmtoff : -gmtoff;
         }
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 #endif
 }
 
-static int parse_timestamp_impl(
-                const char *t,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_timestamp_impl(
+                ଅଚଳ ଅକ୍ଷର *t,
                 size_t max_len,
                 bool utc,
-                int isdst,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା isdst,
                 long gmtoff,
                 usec_t *ret) {
 
-        static const struct {
-                const char *name;
-                const int nr;
+        ସ୍ଥିର ଅଚଳ ସଂରଚନା {
+                ଅଚଳ ଅକ୍ଷର *name;
+                ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା nr;
         } day_nr[] = {
                 { "Sunday",    0 },
                 { "Sun",       0 },
@@ -775,13 +775,13 @@ static int parse_timestamp_impl(
                 { "Sat",       6 },
         };
 
-        _cleanup_free_ char *t_alloc = NULL;
+        _cleanup_free_ ଅକ୍ଷର *t_alloc = ଖାଲି;
         usec_t usec, plus = 0, minus = 0;
         bool with_tz = false;
-        int r, weekday = -1;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r, weekday = -1;
         unsigned fractional = 0;
-        const char *k;
-        struct tm tm, copy;
+        ଅଚଳ ଅକ୍ଷର *k;
+        ସଂରଚନା tm tm, copy;
 
         /* Allowed syntaxes:
          *
@@ -815,110 +815,110 @@ static int parse_timestamp_impl(
          * We also accept "Sat 2012-09-22T16:34:22", RFC3339 warns against it.
          */
 
-        assert(t);
+        ପ୍ରତିଜ୍ଞା(t);
 
-        if (max_len != SIZE_MAX) {
+        ଯଦି (max_len != SIZE_MAX) {
                 /* If the input string contains timezone, then cut it here. */
 
-                if (max_len == 0) /* Can't be the only field */
-                        return -EINVAL;
+                ଯଦି (max_len == 0) /* Can't be the only field */
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 t_alloc = strndup(t, max_len);
-                if (!t_alloc)
-                        return -ENOMEM;
+                ଯଦି (!t_alloc)
+                        ଫେରନ୍ତୁ -ENOMEM;
 
                 t = t_alloc;
                 with_tz = true;
         }
 
-        if (utc) {
+        ଯଦି (utc) {
                 /* glibc accepts gmtoff more than 24 hours, but we refuse it. */
-                if ((usec_t) labs(gmtoff) * USEC_PER_SEC > USEC_PER_DAY)
-                        return -EINVAL;
-        } else {
-                if (gmtoff != 0)
-                        return -EINVAL;
+                ଯଦି ((usec_t) labs(gmtoff) * USEC_PER_SEC > USEC_PER_DAY)
+                        ଫେରନ୍ତୁ -EINVAL;
+        } ଅନ୍ୟଥା {
+                ଯଦି (gmtoff != 0)
+                        ଫେରନ୍ତୁ -EINVAL;
         }
 
-        if (t[0] == '@' && !with_tz)
-                return parse_sec(t + 1, ret);
+        ଯଦି (t[0] == '@' && !with_tz)
+                ଫେରନ୍ତୁ parse_sec(t + 1, ret);
 
         usec = now(CLOCK_REALTIME);
 
-        if (!with_tz) {
-                if (streq(t, "now"))
-                        goto finish;
+        ଯଦି (!with_tz) {
+                ଯଦି (streq(t, "now"))
+                        ଯାଅ finish;
 
-                if (t[0] == '+') {
+                ଯଦି (t[0] == '+') {
                         r = parse_sec(t+1, &plus);
-                        if (r < 0)
-                                return r;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
 
-                        goto finish;
+                        ଯାଅ finish;
                 }
 
-                if (t[0] == '-') {
+                ଯଦି (t[0] == '-') {
                         r = parse_sec(t+1, &minus);
-                        if (r < 0)
-                                return r;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
 
-                        goto finish;
+                        ଯାଅ finish;
                 }
 
-                if ((k = endswith(t, " ago"))) {
-                        _cleanup_free_ char *buf = NULL;
+                ଯଦି ((k = endswith(t, " ago"))) {
+                        _cleanup_free_ ଅକ୍ଷର *buf = ଖାଲି;
 
                         buf = strndup(t, k - t);
-                        if (!buf)
-                                return -ENOMEM;
+                        ଯଦି (!buf)
+                                ଫେରନ୍ତୁ -ENOMEM;
 
                         r = parse_sec(buf, &minus);
-                        if (r < 0)
-                                return r;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
 
-                        goto finish;
+                        ଯାଅ finish;
                 }
 
-                if ((k = endswith(t, " left"))) {
-                        _cleanup_free_ char *buf = NULL;
+                ଯଦି ((k = endswith(t, " left"))) {
+                        _cleanup_free_ ଅକ୍ଷର *buf = ଖାଲି;
 
                         buf = strndup(t, k - t);
-                        if (!buf)
-                                return -ENOMEM;
+                        ଯଦି (!buf)
+                                ଫେରନ୍ତୁ -ENOMEM;
 
                         r = parse_sec(buf, &plus);
-                        if (r < 0)
-                                return r;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
 
-                        goto finish;
+                        ଯାଅ finish;
                 }
         }
 
         r = localtime_or_gmtime_usec(usec, utc, &tm);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         tm.tm_isdst = isdst;
 
-        if (streq(t, "today")) {
+        ଯଦି (streq(t, "today")) {
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
 
-        } else if (streq(t, "yesterday")) {
+        } ଅନ୍ୟଥା ଯଦି (streq(t, "yesterday")) {
                 tm.tm_mday--;
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
 
-        } else if (streq(t, "tomorrow")) {
+        } ଅନ୍ୟଥା ଯଦି (streq(t, "tomorrow")) {
                 tm.tm_mday++;
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
         }
 
         FOREACH_ELEMENT(day, day_nr) {
                 k = startswith_no_case(t, day->name);
-                if (!k || *k != ' ')
-                        continue;
+                ଯଦି (!k || *k != ' ')
+                        ଜାରି;
 
 #ifdef __GLIBC__
                 /* musl does not set tm_wday field and set 0 unless it is explicitly requested by %w or so.
@@ -926,119 +926,119 @@ static int parse_timestamp_impl(
                 weekday = day->nr;
 #endif
                 t = k + 1;
-                break;
+                ଭାଙ୍ଗ;
         }
 
         copy = tm;
         k = strptime(t, "%y-%m-%d %H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
-                        goto parse_usec;
-                else if (*k == 0)
-                        goto from_tm;
+        ଯଦି (k) {
+                ଯଦି (*k == '.')
+                        ଯାଅ parse_usec;
+                ଅନ୍ୟଥା ଯଦି (*k == 0)
+                        ଯାଅ from_tm;
         }
 
         /* Our "canonical" RFC3339 syntax variant */
         tm = copy;
         k = strptime(t, "%Y-%m-%d %H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
-                        goto parse_usec;
-                else if (*k == 0)
-                        goto from_tm;
+        ଯଦି (k) {
+                ଯଦି (*k == '.')
+                        ଯାଅ parse_usec;
+                ଅନ୍ୟଥା ଯଦି (*k == 0)
+                        ଯାଅ from_tm;
         }
 
         /* RFC3339 syntax */
         tm = copy;
         k = strptime(t, "%Y-%m-%dT%H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
-                        goto parse_usec;
-                else if (*k == 0)
-                        goto from_tm;
+        ଯଦି (k) {
+                ଯଦି (*k == '.')
+                        ଯାଅ parse_usec;
+                ଅନ୍ୟଥା ଯଦି (*k == 0)
+                        ଯାଅ from_tm;
         }
 
         /* Support OUTPUT_SHORT and OUTPUT_SHORT_PRECISE formats */
         tm = copy;
         k = strptime(t, "%b %d %H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
-                        goto parse_usec;
-                else if (*k == 0)
-                        goto from_tm;
+        ଯଦି (k) {
+                ଯଦି (*k == '.')
+                        ଯାଅ parse_usec;
+                ଅନ୍ୟଥା ଯଦି (*k == 0)
+                        ଯାଅ from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%y-%m-%d %H:%M", &tm);
-        if (k && *k == 0) {
+        ଯଦି (k && *k == 0) {
                 tm.tm_sec = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
         }
 
         /* Our "canonical" RFC3339 syntax variant without seconds */
         tm = copy;
         k = strptime(t, "%Y-%m-%d %H:%M", &tm);
-        if (k && *k == 0) {
+        ଯଦି (k && *k == 0) {
                 tm.tm_sec = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
         }
 
         /* RFC3339 syntax without seconds */
         tm = copy;
         k = strptime(t, "%Y-%m-%dT%H:%M", &tm);
-        if (k && *k == 0) {
+        ଯଦି (k && *k == 0) {
                 tm.tm_sec = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%y-%m-%d", &tm);
-        if (k && *k == 0) {
+        ଯଦି (k && *k == 0) {
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%Y-%m-%d", &tm);
-        if (k && *k == 0) {
+        ଯଦି (k && *k == 0) {
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
-                        goto parse_usec;
-                else if (*k == 0)
-                        goto from_tm;
+        ଯଦି (k) {
+                ଯଦି (*k == '.')
+                        ଯାଅ parse_usec;
+                ଅନ୍ୟଥା ଯଦି (*k == 0)
+                        ଯାଅ from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%H:%M", &tm);
-        if (k && *k == 0) {
+        ଯଦି (k && *k == 0) {
                 tm.tm_sec = 0;
-                goto from_tm;
+                ଯାଅ from_tm;
         }
 
-        return -EINVAL;
+        ଫେରନ୍ତୁ -EINVAL;
 
 parse_usec:
         k++;
         r = parse_fractional_part_u(&k, 6, &fractional);
-        if (r < 0)
-                return -EINVAL;
-        if (*k != '\0')
-                return -EINVAL;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ -EINVAL;
+        ଯଦି (*k != '\0')
+                ଫେରନ୍ତୁ -EINVAL;
 
 from_tm:
-        assert(plus == 0);
-        assert(minus == 0);
+        ପ୍ରତିଜ୍ଞା(plus == 0);
+        ପ୍ରତିଜ୍ଞା(minus == 0);
 
-        if (weekday >= 0 && tm.tm_wday != weekday)
-                return -EINVAL;
+        ଯଦି (weekday >= 0 && tm.tm_wday != weekday)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (gmtoff < 0) {
+        ଯଦି (gmtoff < 0) {
                 plus = -gmtoff * USEC_PER_SEC;
 
                 /* If gmtoff is negative, the string may be too old to be parsed as UTC.
@@ -1046,7 +1046,7 @@ from_tm:
                  * We assumed that gmtoff is in the range of -24:00…+24:00, hence the only date we need to
                  * handle here is 1969-12-31. So, let's shift the date with one day, then subtract the shift
                  * later. */
-                if (tm.tm_year == 69 && tm.tm_mon == 11 && tm.tm_mday == 31) {
+                ଯଦି (tm.tm_year == 69 && tm.tm_mon == 11 && tm.tm_mday == 31) {
                         /* Thu 1970-01-01-00:00:00 */
                         tm.tm_year = 70;
                         tm.tm_mon = 0;
@@ -1055,98 +1055,98 @@ from_tm:
                         tm.tm_yday = 0;
                         minus = USEC_PER_DAY;
                 }
-        } else
+        } ଅନ୍ୟଥା
                 minus = gmtoff * USEC_PER_SEC;
 
         r = mktime_or_timegm_usec(&tm, utc, &usec);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         usec = usec_add(usec, fractional);
 
 finish:
         usec = usec_add(usec, plus);
 
-        if (usec < minus)
-                return -EINVAL;
+        ଯଦି (usec < minus)
+                ଫେରନ୍ତୁ -EINVAL;
 
         usec = usec_sub_unsigned(usec, minus);
 
-        if (usec > USEC_TIMESTAMP_FORMATTABLE_MAX)
-                return -EINVAL;
+        ଯଦି (usec > USEC_TIMESTAMP_FORMATTABLE_MAX)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (ret)
+        ଯଦି (ret)
                 *ret = usec;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int parse_timestamp(const char *t, usec_t *ret) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_timestamp(ଅଚଳ ଅକ୍ଷର *t, usec_t *ret) {
         long gmtoff;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(t);
+        ପ୍ରତିଜ୍ଞା(t);
 
         size_t t_len = strlen(t);
-        if (t_len > 2 && t[t_len - 1] == 'Z') {
+        ଯଦି (t_len > 2 && t[t_len - 1] == 'Z') {
                 /* Try to parse as RFC3339-style welded UTC: "1985-04-12T23:20:50.52Z" */
                 r = parse_timestamp_impl(t, t_len - 1, /* utc= */ true, /* isdst= */ -1, /* gmtoff= */ 0, ret);
-                if (r >= 0)
-                        return r;
+                ଯଦି (r >= 0)
+                        ଫେରନ୍ତୁ r;
         }
 
         /* RFC3339-style welded offset: "1990-12-31T15:59:60-08:00" */
-        if (t_len > 7 && IN_SET(t[t_len - 6], '+', '-') && t[t_len - 7] != ' ' && parse_gmtoff(&t[t_len - 6], &gmtoff) >= 0)
-                return parse_timestamp_impl(t, t_len - 6, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
+        ଯଦି (t_len > 7 && IN_SET(t[t_len - 6], '+', '-') && t[t_len - 7] != ' ' && parse_gmtoff(&t[t_len - 6], &gmtoff) >= 0)
+                ଫେରନ୍ତୁ parse_timestamp_impl(t, t_len - 6, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
 
-        const char *tz = strrchr(t, ' ');
-        if (!tz)
-                return parse_timestamp_impl(t, /* max_len= */ SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+        ଅଚଳ ଅକ୍ଷର *tz = strrchr(t, ' ');
+        ଯଦି (!tz)
+                ଫେରନ୍ତୁ parse_timestamp_impl(t, /* max_len= */ SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
 
         size_t max_len = tz - t;
         tz++;
 
         /* Shortcut, parse the string as UTC. */
-        if (streq(tz, "UTC"))
-                return parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+        ଯଦି (streq(tz, "UTC"))
+                ଫେରନ୍ତୁ parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, /* gmtoff= */ 0, ret);
 
         /* If the timezone is compatible with RFC-822/ISO 8601 (e.g. +06, or -03:00) then parse the string as
          * UTC and shift the result. Note, this must be earlier than the timezone check with tzname[], as
          * tzname[] may be in the same format. */
-        if (parse_gmtoff(tz, &gmtoff) >= 0)
-                return parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
+        ଯଦି (parse_gmtoff(tz, &gmtoff) >= 0)
+                ଫେରନ୍ତୁ parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
 
         /* Check if the last word matches tzname[] of the local timezone. Note, this must be done earlier
          * than the check by timezone_is_valid() below, as some short timezone specifications have their own
          * timezone files (e.g. WET has its own timezone file, but JST does not), but using such files does
          * not follow the timezone change in the current area. */
         tzset();
-        for (int j = 0; j <= 1; j++) {
-                if (!streq_ptr(tz, get_tzname(j)))
-                        continue;
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା j = 0; j <= 1; j++) {
+                ଯଦି (!streq_ptr(tz, get_tzname(j)))
+                        ଜାରି;
 
                 /* The specified timezone matches tzname[] of the local timezone. */
-                return parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ j, /* gmtoff= */ 0, ret);
+                ଫେରନ୍ତୁ parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ j, /* gmtoff= */ 0, ret);
         }
 
         /* If the last word is a valid timezone file (e.g. Asia/Tokyo), then save the current timezone, apply
          * the specified timezone, and parse the remaining string as a local time. */
-        if (timezone_is_valid(tz, LOG_DEBUG)) {
+        ଯଦି (timezone_is_valid(tz, LOG_DEBUG)) {
                 SAVE_TIMEZONE;
 
-                if (setenv("TZ", tz, /* overwrite= */ true) < 0)
-                        return negative_errno();
+                ଯଦି (setenv("TZ", tz, /* overwrite= */ true) < 0)
+                        ଫେରନ୍ତୁ negative_errno();
 
-                return parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+                ଫେରନ୍ତୁ parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
         }
 
         /* Otherwise, assume that the last word is a part of the time and try to parse the whole string as a
          * local time. */
-        return parse_timestamp_impl(t, SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+        ଫେରନ୍ତୁ parse_timestamp_impl(t, SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
 }
 
-static const char* extract_multiplier(const char *p, usec_t *ret) {
-        static const struct {
-                const char *suffix;
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* extract_multiplier(ଅଚଳ ଅକ୍ଷର *p, usec_t *ret) {
+        ସ୍ଥିର ଅଚଳ ସଂରଚନା {
+                ଅଚଳ ଅକ୍ଷର *suffix;
                 usec_t usec;
         } table[] = {
                 { "seconds", USEC_PER_SEC    },
@@ -1181,145 +1181,145 @@ static const char* extract_multiplier(const char *p, usec_t *ret) {
                 { "µs",      1ULL            }, /* U+b5 (aka MICRO SIGN) */
         };
 
-        assert(p);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(p);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         FOREACH_ELEMENT(i, table) {
-                const char *e = startswith(p, i->suffix);
-                if (e) {
+                ଅଚଳ ଅକ୍ଷର *e = startswith(p, i->suffix);
+                ଯଦି (e) {
                         *ret = i->usec;
-                        return e;
+                        ଫେରନ୍ତୁ e;
                 }
         }
 
-        return p;
+        ଫେରନ୍ତୁ p;
 }
 
-int parse_time(const char *t, usec_t *ret, usec_t default_unit) {
-        const char *p, *s;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_time(ଅଚଳ ଅକ୍ଷର *t, usec_t *ret, usec_t default_unit) {
+        ଅଚଳ ଅକ୍ଷର *p, *s;
 
-        assert(t);
-        assert(default_unit > 0);
+        ପ୍ରତିଜ୍ଞା(t);
+        ପ୍ରତିଜ୍ଞା(default_unit > 0);
 
-        p = skip_leading_chars(t, /* bad= */ NULL);
+        p = skip_leading_chars(t, /* bad= */ ଖାଲି);
         s = startswith(p, "infinity");
-        if (s) {
-                if (!in_charset(s, WHITESPACE))
-                        return -EINVAL;
+        ଯଦି (s) {
+                ଯଦି (!in_charset(s, WHITESPACE))
+                        ଫେରନ୍ତୁ -EINVAL;
 
-                if (ret)
+                ଯଦି (ret)
                         *ret = USEC_INFINITY;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
         usec_t usec = 0;
 
-        for (bool something = false;;) {
+        ପାଇଁ (bool something = false;;) {
                 usec_t multiplier = default_unit, k;
                 long long l;
-                char *e;
+                ଅକ୍ଷର *e;
 
-                p = skip_leading_chars(p, /* bad= */ NULL);
-                if (*p == 0) {
-                        if (!something)
-                                return -EINVAL;
+                p = skip_leading_chars(p, /* bad= */ ଖାଲି);
+                ଯଦି (*p == 0) {
+                        ଯଦି (!something)
+                                ଫେରନ୍ତୁ -EINVAL;
 
-                        break;
+                        ଭାଙ୍ଗ;
                 }
 
-                if (*p == '-') /* Don't allow "-0" */
-                        return -ERANGE;
+                ଯଦି (*p == '-') /* Don't allow "-0" */
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 errno = 0;
                 l = strtoll(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (l < 0)
-                        return -ERANGE;
+                ଯଦି (errno > 0)
+                        ଫେରନ୍ତୁ -errno;
+                ଯଦି (l < 0)
+                        ଫେରନ୍ତୁ -ERANGE;
 
-                if (*e == '.') {
+                ଯଦି (*e == '.') {
                         p = e + 1;
                         p += strspn(p, DIGITS);
-                } else if (e == p)
-                        return -EINVAL;
-                else
+                } ଅନ୍ୟଥା ଯଦି (e == p)
+                        ଫେରନ୍ତୁ -EINVAL;
+                ଅନ୍ୟଥା
                         p = e;
 
                 s = extract_multiplier(p + strspn(p, WHITESPACE), &multiplier);
-                if (s == p && *s != '\0')
+                ଯଦି (s == p && *s != '\0')
                         /* Don't allow '12.34.56', but accept '12.34 .56' or '12.34s.56' */
-                        return -EINVAL;
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 p = s;
 
-                if ((usec_t) l >= USEC_INFINITY / multiplier)
-                        return -ERANGE;
+                ଯଦି ((usec_t) l >= USEC_INFINITY / multiplier)
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 k = (usec_t) l * multiplier;
-                if (k >= USEC_INFINITY - usec)
-                        return -ERANGE;
+                ଯଦି (k >= USEC_INFINITY - usec)
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 usec += k;
 
                 something = true;
 
-                if (*e == '.') {
+                ଯଦି (*e == '.') {
                         usec_t m = multiplier / 10;
-                        const char *b;
+                        ଅଚଳ ଅକ୍ଷର *b;
 
-                        for (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
+                        ପାଇଁ (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
                                 k = (usec_t) (*b - '0') * m;
-                                if (k >= USEC_INFINITY - usec)
-                                        return -ERANGE;
+                                ଯଦି (k >= USEC_INFINITY - usec)
+                                        ଫେରନ୍ତୁ -ERANGE;
 
                                 usec += k;
                         }
 
                         /* Don't allow "0.-0", "3.+1", "3. 1", "3.sec" or "3.hoge" */
-                        if (b == e + 1)
-                                return -EINVAL;
+                        ଯଦି (b == e + 1)
+                                ଫେରନ୍ତୁ -EINVAL;
                 }
         }
 
-        if (ret)
+        ଯଦି (ret)
                 *ret = usec;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int parse_sec(const char *t, usec_t *ret) {
-        return parse_time(t, ret, USEC_PER_SEC);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_sec(ଅଚଳ ଅକ୍ଷର *t, usec_t *ret) {
+        ଫେରନ୍ତୁ parse_time(t, ret, USEC_PER_SEC);
 }
 
-int parse_sec_fix_0(const char *t, usec_t *ret) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_sec_fix_0(ଅଚଳ ଅକ୍ଷର *t, usec_t *ret) {
         usec_t k;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(t);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(t);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         r = parse_sec(t, &k);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         *ret = k == 0 ? USEC_INFINITY : k;
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int parse_sec_def_infinity(const char *t, usec_t *ret) {
-        assert(t);
-        assert(ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_sec_def_infinity(ଅଚଳ ଅକ୍ଷର *t, usec_t *ret) {
+        ପ୍ରତିଜ୍ଞା(t);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         t += strspn(t, WHITESPACE);
-        if (isempty(t)) {
+        ଯଦି (isempty(t)) {
                 *ret = USEC_INFINITY;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
-        return parse_sec(t, ret);
+        ଫେରନ୍ତୁ parse_sec(t, ret);
 }
 
-static const char* extract_nsec_multiplier(const char *p, nsec_t *ret) {
-        static const struct {
-                const char *suffix;
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* extract_nsec_multiplier(ଅଚଳ ଅକ୍ଷର *p, nsec_t *ret) {
+        ସ୍ଥିର ଅଚଳ ସଂରଚନା {
+                ଅଚଳ ଅକ୍ଷର *suffix;
                 nsec_t nsec;
         } table[] = {
                 { "seconds", NSEC_PER_SEC    },
@@ -1357,180 +1357,180 @@ static const char* extract_nsec_multiplier(const char *p, nsec_t *ret) {
                 { "",        1ULL            }, /* default is nsec */
         };
 
-        assert(p);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(p);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         FOREACH_ELEMENT(i, table) {
-                const char *e = startswith(p, i->suffix);
-                if (e) {
+                ଅଚଳ ଅକ୍ଷର *e = startswith(p, i->suffix);
+                ଯଦି (e) {
                         *ret = i->nsec;
-                        return e;
+                        ଫେରନ୍ତୁ e;
                 }
         }
 
-        return p;
+        ଫେରନ୍ତୁ p;
 }
 
-int parse_nsec(const char *t, nsec_t *ret) {
-        const char *p, *s;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_nsec(ଅଚଳ ଅକ୍ଷର *t, nsec_t *ret) {
+        ଅଚଳ ଅକ୍ଷର *p, *s;
         nsec_t nsec = 0;
         bool something = false;
 
-        assert(t);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(t);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         p = t;
 
         p += strspn(p, WHITESPACE);
         s = startswith(p, "infinity");
-        if (s) {
+        ଯଦି (s) {
                 s += strspn(s, WHITESPACE);
-                if (*s != 0)
-                        return -EINVAL;
+                ଯଦି (*s != 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 *ret = NSEC_INFINITY;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
-        for (;;) {
+        ପାଇଁ (;;) {
                 nsec_t multiplier = 1, k;
                 long long l;
-                char *e;
+                ଅକ୍ଷର *e;
 
                 p += strspn(p, WHITESPACE);
 
-                if (*p == 0) {
-                        if (!something)
-                                return -EINVAL;
+                ଯଦି (*p == 0) {
+                        ଯଦି (!something)
+                                ଫେରନ୍ତୁ -EINVAL;
 
-                        break;
+                        ଭାଙ୍ଗ;
                 }
 
-                if (*p == '-') /* Don't allow "-0" */
-                        return -ERANGE;
+                ଯଦି (*p == '-') /* Don't allow "-0" */
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 errno = 0;
                 l = strtoll(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (l < 0)
-                        return -ERANGE;
+                ଯଦି (errno > 0)
+                        ଫେରନ୍ତୁ -errno;
+                ଯଦି (l < 0)
+                        ଫେରନ୍ତୁ -ERANGE;
 
-                if (*e == '.') {
+                ଯଦି (*e == '.') {
                         p = e + 1;
                         p += strspn(p, DIGITS);
-                } else if (e == p)
-                        return -EINVAL;
-                else
+                } ଅନ୍ୟଥା ଯଦି (e == p)
+                        ଫେରନ୍ତୁ -EINVAL;
+                ଅନ୍ୟଥା
                         p = e;
 
                 s = extract_nsec_multiplier(p + strspn(p, WHITESPACE), &multiplier);
-                if (s == p && *s != '\0')
+                ଯଦି (s == p && *s != '\0')
                         /* Don't allow '12.34.56', but accept '12.34 .56' or '12.34s.56' */
-                        return -EINVAL;
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 p = s;
 
-                if ((nsec_t) l >= NSEC_INFINITY / multiplier)
-                        return -ERANGE;
+                ଯଦି ((nsec_t) l >= NSEC_INFINITY / multiplier)
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 k = (nsec_t) l * multiplier;
-                if (k >= NSEC_INFINITY - nsec)
-                        return -ERANGE;
+                ଯଦି (k >= NSEC_INFINITY - nsec)
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 nsec += k;
 
                 something = true;
 
-                if (*e == '.') {
+                ଯଦି (*e == '.') {
                         nsec_t m = multiplier / 10;
-                        const char *b;
+                        ଅଚଳ ଅକ୍ଷର *b;
 
-                        for (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
+                        ପାଇଁ (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
                                 k = (nsec_t) (*b - '0') * m;
-                                if (k >= NSEC_INFINITY - nsec)
-                                        return -ERANGE;
+                                ଯଦି (k >= NSEC_INFINITY - nsec)
+                                        ଫେରନ୍ତୁ -ERANGE;
 
                                 nsec += k;
                         }
 
                         /* Don't allow "0.-0", "3.+1", "3. 1", "3.sec" or "3.hoge" */
-                        if (b == e + 1)
-                                return -EINVAL;
+                        ଯଦି (b == e + 1)
+                                ଫେରନ୍ତୁ -EINVAL;
                 }
         }
 
         *ret = nsec;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int get_timezones_from_zone1970_tab(char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_strv_free_ char **zones = NULL;
-        int r;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_timezones_from_zone1970_tab(ଅକ୍ଷର ***ret) {
+        _cleanup_fclose_ FILE *f = ଖାଲି;
+        _cleanup_strv_free_ ଅକ୍ଷର **zones = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         f = fopen("/usr/share/zoneinfo/zone1970.tab", "re");
-        if (!f)
-                return -errno;
+        ଯଦି (!f)
+                ଫେରନ୍ତୁ -errno;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL, *cc = NULL, *co = NULL, *tz = NULL;
+        ପାଇଁ (;;) {
+                _cleanup_free_ ଅକ୍ଷର *ଧାଡ଼ି = ଖାଲି, *cc = ଖାଲି, *co = ଖାଲି, *tz = ଖାଲି;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_ଧାଡ଼ି(f, LONG_ଧାଡ଼ି_MAX, &ଧାଡ଼ି);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
+                ଯଦି (r == 0)
+                        ଭାଙ୍ଗ;
 
-                const char *p = line;
+                ଅଚଳ ଅକ୍ଷର *p = ଧାଡ଼ି;
 
                 /* Line format is:
                  * 'country codes' 'coordinates' 'timezone' 'comments' */
-                r = extract_many_words(&p, NULL, 0, &cc, &co, &tz);
-                if (r < 0)
-                        continue;
+                r = extract_many_ଶବ୍ଦଗୁଡ଼ିକ(&p, ଖାଲି, 0, &cc, &co, &tz);
+                ଯଦି (r < 0)
+                        ଜାରି;
 
                 /* Lines that start with # are comments. */
-                if (*cc == '#')
-                        continue;
+                ଯଦି (*cc == '#')
+                        ଜାରି;
 
-                if (!timezone_is_valid(tz, LOG_DEBUG))
+                ଯଦି (!timezone_is_valid(tz, LOG_DEBUG))
                         /* Don't list unusable timezones. */
-                        continue;
+                        ଜାରି;
 
                 r = strv_extend(&zones, tz);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
         *ret = TAKE_PTR(zones);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int get_timezones_from_tzdata_zi(char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_strv_free_ char **zones = NULL;
-        int r;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_timezones_from_tzdata_zi(ଅକ୍ଷର ***ret) {
+        _cleanup_fclose_ FILE *f = ଖାଲି;
+        _cleanup_strv_free_ ଅକ୍ଷର **zones = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         f = fopen("/usr/share/zoneinfo/tzdata.zi", "re");
-        if (!f)
-                return -errno;
+        ଯଦି (!f)
+                ଫେରନ୍ତୁ -errno;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL, *type = NULL, *f1 = NULL, *f2 = NULL;
+        ପାଇଁ (;;) {
+                _cleanup_free_ ଅକ୍ଷର *ଧାଡ଼ି = ଖାଲି, *type = ଖାଲି, *f1 = ଖାଲି, *f2 = ଖାଲି;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_ଧାଡ଼ି(f, LONG_ଧାଡ଼ି_MAX, &ଧାଡ଼ି);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
+                ଯଦି (r == 0)
+                        ଭାଙ୍ଗ;
 
-                const char *p = line;
+                ଅଚଳ ଅକ୍ଷର *p = ଧାଡ଼ି;
 
                 /* The only lines we care about are Zone and Link lines.
                  * Zone line format is:
@@ -1538,213 +1538,213 @@ static int get_timezones_from_tzdata_zi(char ***ret) {
                  * Link line format is:
                  * 'Link' 'target' 'alias'
                  * See 'man zic' for more detail. */
-                r = extract_many_words(&p, NULL, 0, &type, &f1, &f2);
-                if (r < 0)
-                        continue;
+                r = extract_many_ଶବ୍ଦଗୁଡ଼ିକ(&p, ଖାଲି, 0, &type, &f1, &f2);
+                ଯଦି (r < 0)
+                        ଜାରି;
 
-                char *tz;
-                if (IN_SET(*type, 'Z', 'z'))
+                ଅକ୍ଷର *tz;
+                ଯଦି (IN_SET(*type, 'Z', 'z'))
                         /* Zone lines have timezone in field 1. */
                         tz = f1;
-                else if (IN_SET(*type, 'L', 'l'))
+                ଅନ୍ୟଥା ଯଦି (IN_SET(*type, 'L', 'l'))
                         /* Link lines have timezone in field 2. */
                         tz = f2;
-                else
+                ଅନ୍ୟଥା
                         /* Not a line we care about. */
-                        continue;
+                        ଜାରି;
 
-                if (!timezone_is_valid(tz, LOG_DEBUG))
+                ଯଦି (!timezone_is_valid(tz, LOG_DEBUG))
                         /* Don't list unusable timezones. */
-                        continue;
+                        ଜାରି;
 
                 r = strv_extend(&zones, tz);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
         *ret = TAKE_PTR(zones);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int get_timezones(char ***ret) {
-        _cleanup_strv_free_ char **zones = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_timezones(ଅକ୍ଷର ***ret) {
+        _cleanup_strv_free_ ଅକ୍ଷର **zones = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         r = get_timezones_from_tzdata_zi(&zones);
-        if (r == -ENOENT) {
+        ଯଦି (r == -ENOENT) {
                 log_debug_errno(r, "Could not get timezone data from tzdata.zi, using zone1970.tab: %m");
                 r = get_timezones_from_zone1970_tab(&zones);
-                if (r == -ENOENT)
+                ଯଦି (r == -ENOENT)
                         log_debug_errno(r, "Could not get timezone data from zone1970.tab, using UTC: %m");
         }
-        if (r < 0 && r != -ENOENT)
-                return r;
+        ଯଦି (r < 0 && r != -ENOENT)
+                ଫେରନ୍ତୁ r;
 
         /* Always include UTC */
         r = strv_extend(&zones, "UTC");
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         strv_sort_uniq(zones);
 
         *ret = TAKE_PTR(zones);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int verify_timezone(const char *name, int log_level) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା verify_timezone(ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା log_level) {
         bool slash = false;
-        const char *p, *t;
-        _cleanup_close_ int fd = -EBADF;
-        char buf[4];
-        int r;
+        ଅଚଳ ଅକ୍ଷର *p, *t;
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -EBADF;
+        ଅକ୍ଷର buf[4];
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        if (isempty(name))
-                return -EINVAL;
+        ଯଦି (isempty(name))
+                ଫେରନ୍ତୁ -EINVAL;
 
         /* Always accept "UTC" as valid timezone, since it's the fallback, even if user has no timezones installed. */
-        if (streq(name, "UTC"))
-                return 0;
+        ଯଦି (streq(name, "UTC"))
+                ଫେରନ୍ତୁ 0;
 
-        if (name[0] == '/')
-                return -EINVAL;
+        ଯଦି (name[0] == '/')
+                ଫେରନ୍ତୁ -EINVAL;
 
-        for (p = name; *p; p++) {
-                if (!ascii_isdigit(*p) &&
+        ପାଇଁ (p = name; *p; p++) {
+                ଯଦି (!ascii_isdigit(*p) &&
                     !ascii_isalpha(*p) &&
                     !IN_SET(*p, '-', '_', '+', '/'))
-                        return -EINVAL;
+                        ଫେରନ୍ତୁ -EINVAL;
 
-                if (*p == '/') {
+                ଯଦି (*p == '/') {
 
-                        if (slash)
-                                return -EINVAL;
+                        ଯଦି (slash)
+                                ଫେରନ୍ତୁ -EINVAL;
 
                         slash = true;
-                } else
+                } ଅନ୍ୟଥା
                         slash = false;
         }
 
-        if (slash)
-                return -EINVAL;
+        ଯଦି (slash)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (p - name >= PATH_MAX)
-                return -ENAMETOOLONG;
+        ଯଦି (p - name >= PATH_MAX)
+                ଫେରନ୍ତୁ -ENAMETOOLONG;
 
         t = strjoina("/usr/share/zoneinfo/", name);
 
         fd = open(t, O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return log_full_errno(log_level, errno, "Failed to open timezone file '%s': %m", t);
+        ଯଦି (fd < 0)
+                ଫେରନ୍ତୁ log_full_errno(log_level, errno, "Failed to open timezone file '%s': %m", t);
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Timezone file '%s' is not a regular file: %m", t);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ log_full_errno(log_level, r, "Timezone file '%s' is not a regular file: %m", t);
 
         r = loop_read_exact(fd, buf, 4, false);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to read from timezone file '%s': %m", t);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ log_full_errno(log_level, r, "Failed to read from timezone file '%s': %m", t);
 
         /* Magic from tzfile(5) */
-        if (memcmp(buf, "TZif", 4) != 0)
-                return log_full_errno(log_level, SYNTHETIC_ERRNO(EBADMSG),
+        ଯଦି (memcmp(buf, "TZif", 4) != 0)
+                ଫେରନ୍ତୁ log_full_errno(log_level, SYNTHETIC_ERRNO(EBADMSG),
                                       "Timezone file '%s' has wrong magic bytes", t);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-void reset_timezonep(char **p) {
-        assert(p);
+ଶୂନ୍ୟ reset_timezonep(ଅକ୍ଷର **p) {
+        ପ୍ରତିଜ୍ଞା(p);
 
-        (void) set_unset_env("TZ", *p, /* overwrite= */ true);
+        (ଶୂନ୍ୟ) set_unset_env("TZ", *p, /* overwrite= */ true);
         tzset();
         *p = mfree(*p);
 }
 
-char* save_timezone(void) {
-        const char *e = getenv("TZ");
-        if (!e)
-                return NULL;
+ଅକ୍ଷର* save_timezone(ଶୂନ୍ୟ) {
+        ଅଚଳ ଅକ୍ଷର *e = getenv("TZ");
+        ଯଦି (!e)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        char *s = strdup(e);
-        if (!s)
+        ଅକ୍ଷର *s = strdup(e);
+        ଯଦି (!s)
                 log_debug("Failed to save $TZ=%s, unsetting the environment variable.", e);
 
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
 bool clock_supported(clockid_t clock) {
-        struct timespec ts;
+        ସଂରଚନା timespec ts;
 
-        switch (clock) {
+        ବାଛ (clock) {
 
-        case CLOCK_MONOTONIC:
-        case CLOCK_REALTIME:
-        case CLOCK_BOOTTIME:
+        ସ୍ଥିତି CLOCK_MONOTONIC:
+        ସ୍ଥିତି CLOCK_REALTIME:
+        ସ୍ଥିତି CLOCK_BOOTTIME:
                 /* These three are always available in our baseline, and work in timerfd, as of kernel 3.15 */
-                return true;
+                ଫେରନ୍ତୁ true;
 
-        default:
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
                 /* For everything else, check properly */
-                return clock_gettime(clock, &ts) >= 0;
+                ଫେରନ୍ତୁ clock_gettime(clock, &ts) >= 0;
         }
 }
 
-int get_timezone(char **ret) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_timezone(ଅକ୍ଷର **ret) {
+        _cleanup_free_ ଅକ୍ଷର *t = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         r = readlink_malloc(etc_localtime(), &t);
-        if (r == -ENOENT)
+        ଯଦି (r == -ENOENT)
                 /* If the symlink does not exist, assume "UTC", like glibc does */
-                return strdup_to(ret, "UTC");
-        if (r < 0)
-                return r; /* Return EINVAL if not a symlink */
+                ଫେରନ୍ତୁ strdup_to(ret, "UTC");
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r; /* Return EINVAL if not a symlink */
 
-        const char *e = PATH_STARTSWITH_SET(t, "/usr/share/zoneinfo/", "../usr/share/zoneinfo/");
-        if (!e)
-                return -EINVAL;
-        if (!timezone_is_valid(e, LOG_DEBUG))
-                return -EINVAL;
+        ଅଚଳ ଅକ୍ଷର *e = PATH_STARTSWITH_SET(t, "/usr/share/zoneinfo/", "../usr/share/zoneinfo/");
+        ଯଦି (!e)
+                ଫେରନ୍ତୁ -EINVAL;
+        ଯଦି (!timezone_is_valid(e, LOG_DEBUG))
+                ଫେରନ୍ତୁ -EINVAL;
 
-        return strdup_to(ret, e);
+        ଫେରନ୍ତୁ strdup_to(ret, e);
 }
 
-int get_timezone_prefer_env(char **ret) {
-        assert(ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_timezone_prefer_env(ଅକ୍ଷର **ret) {
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        const char *e = getenv("TZ");
-        if (e && e[0] == ':' && timezone_is_valid(e + 1, LOG_DEBUG))
-                return strdup_to(ret, e + 1);
+        ଅଚଳ ଅକ୍ଷର *e = getenv("TZ");
+        ଯଦି (e && e[0] == ':' && timezone_is_valid(e + 1, LOG_DEBUG))
+                ଫେରନ୍ତୁ strdup_to(ret, e + 1);
 
-        return get_timezone(ret);
+        ଫେରନ୍ତୁ get_timezone(ret);
 }
 
-const char* etc_localtime(void) {
-        static const char *cached = NULL;
+ଅଚଳ ଅକ୍ଷର* etc_localtime(ଶୂନ୍ୟ) {
+        ସ୍ଥିର ଅଚଳ ଅକ୍ଷର *cached = ଖାଲି;
 
-        if (!cached)
+        ଯଦି (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_LOCALTIME") ?: "/etc/localtime";
 
-        return cached;
+        ଫେରନ୍ତୁ cached;
 }
 
-int mktime_or_timegm_usec(
-                struct tm *tm, /* input + normalized output */
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା mktime_or_timegm_usec(
+                ସଂରଚନା tm *tm, /* input + normalized output */
                 bool utc,
                 usec_t *ret) {
 
         time_t t;
 
-        assert(tm);
+        ପ୍ରତିଜ୍ଞା(tm);
 
-        if (tm->tm_year < 69) /* early check for negative (i.e. before 1970) time_t (Note that in some timezones the epoch is in the year 1969!) */
-                return -ERANGE;
-        if ((usec_t) tm->tm_year > CONST_MIN(USEC_INFINITY / USEC_PER_YEAR, (usec_t) TIME_T_MAX / (365U * 24U * 60U * 60U)) - 1900) /* early check for possible overrun of usec_t or time_t */
-                return -ERANGE;
+        ଯଦି (tm->tm_year < 69) /* early check for negative (i.e. before 1970) time_t (Note that in some timezones the epoch is in the year 1969!) */
+                ଫେରନ୍ତୁ -ERANGE;
+        ଯଦି ((usec_t) tm->tm_year > CONST_MIN(USEC_INFINITY / USEC_PER_YEAR, (usec_t) TIME_T_MAX / (365U * 24U * 60U * 60U)) - 1900) /* early check for possible overrun of usec_t or time_t */
+                ଫେରନ୍ତୁ -ERANGE;
 
         /* timegm()/mktime() is a bit weird to use, since it returns -1 in two cases: on error as well as a
          * valid time indicating one second before the UNIX epoch. Let's treat both cases the same here, and
@@ -1752,86 +1752,86 @@ int mktime_or_timegm_usec(
          * negative times anyway. */
 
         t = utc ? timegm(tm) : mktime(tm);
-        if (t < 0) /* Refuse negative times and errors */
-                return -ERANGE;
-        if ((usec_t) t >= USEC_INFINITY / USEC_PER_SEC) /* Never return USEC_INFINITY by accident (or overflow) */
-                return -ERANGE;
+        ଯଦି (t < 0) /* Refuse negative times and errors */
+                ଫେରନ୍ତୁ -ERANGE;
+        ଯଦି ((usec_t) t >= USEC_INFINITY / USEC_PER_SEC) /* Never return USEC_INFINITY by accident (or overflow) */
+                ଫେରନ୍ତୁ -ERANGE;
 
-        if (ret)
+        ଯଦି (ret)
                 *ret = (usec_t) t * USEC_PER_SEC;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int localtime_or_gmtime_usec(
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା localtime_or_gmtime_usec(
                 usec_t t,
                 bool utc,
-                struct tm *ret) {
+                ସଂରଚନା tm *ret) {
 
         t /= USEC_PER_SEC; /* Round down */
-        if (t > (usec_t) TIME_T_MAX)
-                return -ERANGE;
+        ଯଦି (t > (usec_t) TIME_T_MAX)
+                ଫେରନ୍ତୁ -ERANGE;
         time_t sec = (time_t) t;
 
-        struct tm buf = {};
-        if (!(utc ? gmtime_r(&sec, &buf) : localtime_r(&sec, &buf)))
-                return -EINVAL;
+        ସଂରଚନା tm buf = {};
+        ଯଦି (!(utc ? gmtime_r(&sec, &buf) : localtime_r(&sec, &buf)))
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (ret)
+        ଯଦି (ret)
                 *ret = buf;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-uint64_t sysconf_clock_ticks_cached(void) {
-        static thread_local uint64_t hz = 0;
+uint64_t sysconf_clock_ticks_cached(ଶୂନ୍ୟ) {
+        ସ୍ଥିର thread_local uint64_t hz = 0;
 
-        if (hz != 0)
-                return hz;
+        ଯଦି (hz != 0)
+                ଫେରନ୍ତୁ hz;
 
         long t = sysconf(_SC_CLK_TCK);
-        assert(t > 0);
+        ପ୍ରତିଜ୍ଞା(t > 0);
         hz = (uint64_t) t;
 
-        return hz;
+        ଫେରନ୍ତୁ hz;
 }
 
 uint32_t usec_to_jiffies(usec_t u) {
         uint64_t hz = sysconf_clock_ticks_cached();
-        return DIV_ROUND_UP(u, USEC_PER_SEC / hz);
+        ଫେରନ୍ତୁ DIV_ROUND_UP(u, USEC_PER_SEC / hz);
 }
 
 usec_t jiffies_to_usec(uint32_t j) {
         uint64_t hz = sysconf_clock_ticks_cached();
-        return DIV_ROUND_UP(j * USEC_PER_SEC, hz);
+        ଫେରନ୍ତୁ DIV_ROUND_UP(j * USEC_PER_SEC, hz);
 }
 
 usec_t usec_shift_clock(usec_t x, clockid_t from, clockid_t to) {
         usec_t a, b;
 
-        if (x == USEC_INFINITY)
-                return USEC_INFINITY;
-        if (map_clock_id(from) == map_clock_id(to))
-                return x;
+        ଯଦି (x == USEC_INFINITY)
+                ଫେରନ୍ତୁ USEC_INFINITY;
+        ଯଦି (map_clock_id(from) == map_clock_id(to))
+                ଫେରନ୍ତୁ x;
 
         a = now(from);
         b = now(to);
 
-        if (x > a)
+        ଯଦି (x > a)
                 /* x lies in the future */
-                return usec_add(b, usec_sub_unsigned(x, a));
-        else
+                ଫେରନ୍ତୁ usec_add(b, usec_sub_unsigned(x, a));
+        ଅନ୍ୟଥା
                 /* x lies in the past */
-                return usec_sub_unsigned(b, usec_sub_unsigned(a, x));
+                ଫେରନ୍ତୁ usec_sub_unsigned(b, usec_sub_unsigned(a, x));
 }
 
-bool in_utc_timezone(void) {
+bool in_utc_timezone(ଶୂନ୍ୟ) {
         tzset();
 
-        return timezone == 0 && daylight == 0;
+        ଫେରନ୍ତୁ timezone == 0 && daylight == 0;
 }
 
-int usleep_safe(usec_t usec) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା usleep_safe(usec_t usec) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* usleep() takes useconds_t that is (typically?) uint32_t. Also, usleep() may only support the
          * range [0, 1000000]. See usleep(3). Let's override usleep() with clock_nanosleep().
@@ -1839,48 +1839,48 @@ int usleep_safe(usec_t usec) {
          * ⚠️ Note we are not using plain nanosleep() here, since that operates on CLOCK_REALTIME, not
          *    CLOCK_MONOTONIC! */
 
-        if (usec == 0)
-                return 0;
+        ଯଦି (usec == 0)
+                ଫେରନ୍ତୁ 0;
 
-        if (usec == USEC_INFINITY)
-                return RET_NERRNO(pause());
+        ଯଦି (usec == USEC_INFINITY)
+                ଫେରନ୍ତୁ RET_NERRNO(pause());
 
-        struct timespec t;
+        ସଂରଚନା timespec t;
         timespec_store(&t, usec);
 
-        for (;;) {
-                struct timespec remaining;
+        ପାଇଁ (;;) {
+                ସଂରଚନା timespec remaining;
 
                 /* `clock_nanosleep()` does not use `errno`, but returns positive error codes. */
                 r = -clock_nanosleep(CLOCK_MONOTONIC, /* flags= */ 0, &t, &remaining);
-                if (r == -EINTR) {
+                ଯଦି (r == -EINTR) {
                         /* Interrupted. Continue sleeping for the remaining time. */
                         t = remaining;
-                        continue;
+                        ଜାରି;
                 }
 
-                return r;
+                ଫେରନ୍ତୁ r;
         }
 }
 
-int time_change_fd(void) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା time_change_fd(ଶୂନ୍ୟ) {
 
         /* We only care for the cancellation event, hence we set the timeout to the latest possible value. */
-        static const struct itimerspec its = {
+        ସ୍ଥିର ଅଚଳ ସଂରଚନା itimerspec its = {
                 .it_value.tv_sec = TIME_T_MAX,
         };
 
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -EBADF;
 
         /* Uses TFD_TIMER_CANCEL_ON_SET to get notifications whenever CLOCK_REALTIME makes a jump relative to
          * CLOCK_MONOTONIC. */
 
         fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        ଯଦି (fd < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        if (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its, NULL) >= 0)
-                return TAKE_FD(fd);
+        ଯଦି (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its, ଖାଲି) >= 0)
+                ଫେରନ୍ତୁ TAKE_FD(fd);
 
         /* So apparently there are systems where time_t is 64-bit, but the kernel actually doesn't support
          * 64-bit time_t. In that case configuring a timer to TIME_T_MAX will fail with EOPNOTSUPP or a
@@ -1892,21 +1892,21 @@ int time_change_fd(void) {
          *
          * See: https://github.com/systemd/systemd/issues/14362 */
 
-#if SIZEOF_TIME_T == 8 && ULONG_MAX < UINT64_MAX
-        if (ERRNO_IS_NOT_SUPPORTED(errno) || errno == EOVERFLOW) {
-                static const struct itimerspec its32 = {
+#ଯଦି SIZEOF_TIME_T == 8 && ULONG_MAX < UINT64_MAX
+        ଯଦି (ERRNO_IS_NOT_SUPPORTED(errno) || errno == EOVERFLOW) {
+                ସ୍ଥିର ଅଚଳ ସଂରଚନା itimerspec its32 = {
                         .it_value.tv_sec = INT32_MAX,
                 };
 
-                if (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its32, NULL) >= 0)
-                        return TAKE_FD(fd);
+                ଯଦି (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its32, ଖାଲି) >= 0)
+                        ଫେରନ୍ତୁ TAKE_FD(fd);
         }
 #endif
 
-        return -errno;
+        ଫେରନ୍ତୁ -errno;
 }
 
-static const char* const timestamp_style_table[_TIMESTAMP_STYLE_MAX] = {
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* ଅଚଳ timestamp_style_table[_TIMESTAMP_STYLE_MAX] = {
         [TIMESTAMP_PRETTY] = "pretty",
         [TIMESTAMP_US]     = "us",
         [TIMESTAMP_UTC]    = "utc",
@@ -1918,57 +1918,57 @@ static const char* const timestamp_style_table[_TIMESTAMP_STYLE_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP_TO_STRING(timestamp_style, TimestampStyle);
 
 /* For the string → enum mapping we use the generic implementation, but also support two aliases */
-TimestampStyle timestamp_style_from_string(const char *s) {
+TimestampStyle timestamp_style_from_string(ଅଚଳ ଅକ୍ଷର *s) {
         TimestampStyle t;
 
         t = (TimestampStyle) string_table_lookup_from_string(timestamp_style_table, ELEMENTSOF(timestamp_style_table), s);
-        if (t >= 0)
-                return t;
-        if (STRPTR_IN_SET(s, "µs", "μs")) /* accept both µ symbols in unicode, i.e. micro symbol + Greek small letter mu. */
-                return TIMESTAMP_US;
-        if (STRPTR_IN_SET(s, "µs+utc", "μs+utc"))
-                return TIMESTAMP_US_UTC;
-        return t;
+        ଯଦି (t >= 0)
+                ଫେରନ୍ତୁ t;
+        ଯଦି (STRPTR_IN_SET(s, "µs", "μs")) /* accept both µ symbols in unicode, i.e. micro symbol + Greek small letter mu. */
+                ଫେରନ୍ତୁ TIMESTAMP_US;
+        ଯଦି (STRPTR_IN_SET(s, "µs+utc", "μs+utc"))
+                ଫେରନ୍ତୁ TIMESTAMP_US_UTC;
+        ଫେରନ୍ତୁ t;
 }
 
-int parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_usec, struct tm *ret_tm) {
-        struct tm parsed_tm = {}, copy_tm;
-        const char *k;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_calendar_date_full(ଅଚଳ ଅକ୍ଷର *s, bool allow_pre_epoch, usec_t *ret_usec, ସଂରଚନା tm *ret_tm) {
+        ସଂରଚନା tm parsed_tm = {}, copy_tm;
+        ଅଚଳ ଅକ୍ଷର *k;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(s);
+        ପ୍ରତିଜ୍ଞା(s);
 
         k = strptime(s, "%Y-%m-%d", &parsed_tm);
-        if (!k || *k)
-                return -EINVAL;
+        ଯଦି (!k || *k)
+                ଫେରନ୍ତୁ -EINVAL;
 
         copy_tm = parsed_tm;
 
         usec_t usec = USEC_INFINITY;
 
-        if (allow_pre_epoch) {
+        ଯଦି (allow_pre_epoch) {
                 /* For birth dates we use timegm() directly since we need to accept pre-epoch dates.
                  * timegm() returns (time_t) -1 both on error and for one second before the epoch.
                  * Initialize wday to -1 beforehand: if it remains -1 after the call, it's a genuine
                  * error; if timegm() changed it, the date was successfully normalized. */
                 copy_tm.tm_wday = -1;
-                if (timegm(&copy_tm) == (time_t) -1 && copy_tm.tm_wday == -1)
-                        return -EINVAL;
-        } else {
+                ଯଦି (timegm(&copy_tm) == (time_t) -1 && copy_tm.tm_wday == -1)
+                        ଫେରନ୍ତୁ -EINVAL;
+        } ଅନ୍ୟଥା {
                 r = mktime_or_timegm_usec(&copy_tm, /* utc= */ true, &usec);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
         /* Refuse non-normalized dates, e.g. Feb 30 */
-        if (copy_tm.tm_mday != parsed_tm.tm_mday ||
+        ଯଦି (copy_tm.tm_mday != parsed_tm.tm_mday ||
             copy_tm.tm_mon  != parsed_tm.tm_mon  ||
             copy_tm.tm_year != parsed_tm.tm_year)
-                return -EINVAL;
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (ret_usec)
+        ଯଦି (ret_usec)
                 *ret_usec = usec;
-        if (ret_tm) {
+        ଯଦି (ret_tm) {
                 /* Reset to unset, then fill in only the date fields we parsed and validated */
                 *ret_tm = BIRTH_DATE_UNSET;
                 ret_tm->tm_mday = parsed_tm.tm_mday;
@@ -1976,5 +1976,5 @@ int parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_us
                 ret_tm->tm_year = parsed_tm.tm_year;
         }
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }

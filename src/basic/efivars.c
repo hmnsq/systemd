@@ -1,56 +1,56 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
-#include <time.h>
-#include <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <fcntl.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <sys/stat.h>
+#ଅନ୍ତର୍ଭାଵ <sys/uio.h>
+#ଅନ୍ତର୍ଭାଵ <time.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
 
-#include "alloc-util.h"
-#include "chattr-util.h"
-#include "efivars.h"
-#include "fd-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
-#include "utf8.h"
-#include "virt.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "chattr-util.h"
+#ଅନ୍ତର୍ଭାଵ "efivars.h"
+#ଅନ୍ତର୍ଭାଵ "fd-util.h"
+#ଅନ୍ତର୍ଭାଵ "io-util.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "memory-util.h"
+#ଅନ୍ତର୍ଭାଵ "stat-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "time-util.h"
+#ଅନ୍ତର୍ଭାଵ "utf8.h"
+#ଅନ୍ତର୍ଭାଵ "virt.h"
 
-#if ENABLE_EFI
+#ଯଦି ENABLE_EFI
 
 /* Reads from efivarfs sometimes fail with EINTR. Retry that many times. */
 #define EFI_N_RETRIES_NO_DELAY 20
 #define EFI_N_RETRIES_TOTAL 25
 #define EFI_RETRY_DELAY (50 * USEC_PER_MSEC)
 
-int efi_get_variable(
-                const char *variable,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା efi_get_variable(
+                ଅଚଳ ଅକ୍ଷର *variable,
                 uint32_t *ret_attribute,
-                void **ret_value,
+                ଶୂନ୍ୟ **ret_ମୂଲ୍ୟ,
                 size_t *ret_size) {
 
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
         usec_t begin = 0; /* Unnecessary initialization to appease gcc */
 
-        assert(variable);
+        ପ୍ରତିଜ୍ଞା(variable);
 
-        const char *p = strjoina("/sys/firmware/efi/efivars/", variable);
+        ଅଚଳ ଅକ୍ଷର *p = strjoina("/sys/firmware/efi/efivars/", variable);
 
-        if (DEBUG_LOGGING) {
+        ଯଦି (DEBUG_LOGGING) {
                 log_debug("Reading EFI variable %s.", p);
                 begin = now(CLOCK_MONOTONIC);
         }
 
-        _cleanup_close_ int fd = open(p, O_RDONLY|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return log_debug_errno(errno, "open(\"%s\") failed: %m", p);
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = open(p, O_RDONLY|O_NOCTTY|O_CLOEXEC);
+        ଯଦି (fd < 0)
+                ଫେରନ୍ତୁ log_debug_errno(errno, "open(\"%s\") failed: %m", p);
 
         uint32_t attr;
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ ଅକ୍ଷର *buf = ଖାଲି;
         ssize_t n;
 
         /* The kernel ratelimits reads from the efivarfs because EFI is inefficient, and we'll occasionally
@@ -63,68 +63,68 @@ int efi_get_variable(
          * The variable may also be overwritten between the stat and read. If we find out that the new
          * contents are longer, try again.
          */
-        for (unsigned try = 0;; try++) {
-                struct stat st;
+        ପାଇଁ (unsigned try = 0;; try++) {
+                ସଂରଚନା stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return log_debug_errno(errno, "fstat(\"%s\") failed: %m", p);
+                ଯଦି (fstat(fd, &st) < 0)
+                        ଫେରନ୍ତୁ log_debug_errno(errno, "fstat(\"%s\") failed: %m", p);
 
                 r = stat_verify_regular(&st);
-                if (r < 0)
-                        return log_debug_errno(r, "EFI variable '%s' is not a regular file, refusing: %m", p);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ log_debug_errno(r, "EFI variable '%s' is not a regular file, refusing: %m", p);
 
-                if (st.st_size == 0) /* for uncommitted variables, see below */
-                        return log_debug_errno(SYNTHETIC_ERRNO(ENOENT), "EFI variable '%s' is uncommitted", p);
-                if ((uint64_t) st.st_size < sizeof(attr))
-                        return log_debug_errno(SYNTHETIC_ERRNO(ENODATA), "EFI variable '%s' is shorter than %zu bytes, refusing.", p, sizeof(attr));
-                if ((uint64_t) st.st_size > sizeof(attr) + 4 * U64_MB)
-                        return log_debug_errno(SYNTHETIC_ERRNO(E2BIG), "EFI variable '%s' is ridiculously large, refusing.", p);
+                ଯଦି (st.st_size == 0) /* for uncommitted variables, see below */
+                        ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(ENOENT), "EFI variable '%s' is uncommitted", p);
+                ଯଦି ((uint64_t) st.st_size < ଆକାର(attr))
+                        ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(ENODATA), "EFI variable '%s' is shorter than %zu bytes, refusing.", p, ଆକାର(attr));
+                ଯଦି ((uint64_t) st.st_size > ଆକାର(attr) + 4 * U64_MB)
+                        ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(E2BIG), "EFI variable '%s' is ridiculously large, refusing.", p);
 
-                if (!ret_attribute && !ret_value) {
+                ଯଦି (!ret_attribute && !ret_ମୂଲ୍ୟ) {
                         /* No need to read anything, return the reported size. */
                         n = st.st_size;
-                        break;
+                        ଭାଙ୍ଗ;
                 }
 
                 /* We want +1 for the read call, and +3 for the additional terminating bytes added below. */
                 size_t file_size = (size_t) st.st_size, payload_size, read_size, alloc_size, read_limit;
-                if (!SUB_SAFE(&payload_size, file_size, sizeof(attr)) ||
+                ଯଦି (!SUB_SAFE(&payload_size, file_size, ଆକାର(attr)) ||
                     !ADD_SAFE(&read_size, payload_size, 1) ||
                     !ADD_SAFE(&alloc_size, read_size, 3) ||
                     !ADD_SAFE(&read_limit, file_size, 1))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EOVERFLOW), "EFI variable '%s' size calculation overflow, refusing.", p);
+                        ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(EOVERFLOW), "EFI variable '%s' size calculation overflow, refusing.", p);
 
-                free(buf);
+                ମୁକ୍ତ(buf);
                 buf = malloc(alloc_size);
-                if (!buf)
-                        return -ENOMEM;
+                ଯଦି (!buf)
+                        ଫେରନ୍ତୁ -ENOMEM;
 
-                struct iovec iov[] = {
-                        { &attr, sizeof(attr)                           },
+                ସଂରଚନା iovec iov[] = {
+                        { &attr, ଆକାର(attr)                           },
                         { buf,   read_size                              },
                 };
 
                 n = readv(fd, iov, 2);
-                if (n < 0) {
-                        if (errno != EINTR)
-                                return log_debug_errno(errno, "Reading from '%s' failed: %m", p);
+                ଯଦି (n < 0) {
+                        ଯଦି (errno != EINTR)
+                                ଫେରନ୍ତୁ log_debug_errno(errno, "Reading from '%s' failed: %m", p);
 
                         log_debug("Reading from '%s' failed with EINTR, retrying.", p);
-                } else if ((size_t) n == read_limit)
+                } ଅନ୍ୟଥା ଯଦି ((size_t) n == read_limit)
                         /* We need to try again with a bigger buffer, the variable was apparently changed concurrently? */
                         log_debug("EFI variable '%s' larger than expected, retrying.", p);
-                else {
-                        assert((size_t) n < read_limit);
-                        break;
+                ଅନ୍ୟଥା {
+                        ପ୍ରତିଜ୍ଞା((size_t) n < read_limit);
+                        ଭାଙ୍ଗ;
                 }
 
-                if (try >= EFI_N_RETRIES_TOTAL)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBUSY), "Reading EFI variable '%s' failed even after %u tries, giving up.", p, try);
-                if (try >= EFI_N_RETRIES_NO_DELAY)
-                        (void) usleep_safe(EFI_RETRY_DELAY);
+                ଯଦି (try >= EFI_N_RETRIES_TOTAL)
+                        ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(EBUSY), "Reading EFI variable '%s' failed even after %u tries, giving up.", p, try);
+                ଯଦି (try >= EFI_N_RETRIES_NO_DELAY)
+                        (ଶୂନ୍ୟ) usleep_safe(EFI_RETRY_DELAY);
 
                 /* Start from the beginning */
-                (void) lseek(fd, 0, SEEK_SET);
+                (ଶୂନ୍ୟ) lseek(fd, 0, SEEK_SET);
         }
 
         /* Unfortunately kernel reports EOF if there's an inconsistency between efivarfs var list and
@@ -138,30 +138,30 @@ int efi_get_variable(
          * point in the future. But note that the commit is 11 years old at this point so we'll need
          * to deal with the current behaviour for a long time.
          */
-        if (n == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOENT),
+        ଯଦି (n == 0)
+                ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(ENOENT),
                                        "EFI variable %s is uncommitted", p);
-        if ((size_t) n < sizeof(attr))
-                return log_debug_errno(SYNTHETIC_ERRNO(EIO),
-                                       "Read %zi bytes from EFI variable %s, expected >= %zu", n, p, sizeof(attr));
-        size_t value_size = n - sizeof(attr);
+        ଯଦି ((size_t) n < ଆକାର(attr))
+                ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(EIO),
+                                       "Read %zi bytes from EFI variable %s, expected >= %zu", n, p, ଆକାର(attr));
+        size_t ମୂଲ୍ୟ_size = n - ଆକାର(attr);
 
-        if (ret_attribute)
+        ଯଦି (ret_attribute)
                 *ret_attribute = attr;
 
-        if (ret_value) {
-                assert(buf);
+        ଯଦି (ret_ମୂଲ୍ୟ) {
+                ପ୍ରତିଜ୍ଞା(buf);
                 /* Always NUL-terminate (3 bytes, to properly protect UTF-16, even if truncated in
                  * the middle of a character) */
-                buf[value_size] = 0;
-                buf[value_size + 1] = 0;
-                buf[value_size + 2] = 0;
-                *ret_value = TAKE_PTR(buf);
+                buf[ମୂଲ୍ୟ_size] = 0;
+                buf[ମୂଲ୍ୟ_size + 1] = 0;
+                buf[ମୂଲ୍ୟ_size + 2] = 0;
+                *ret_ମୂଲ୍ୟ = TAKE_PTR(buf);
         }
 
-        if (DEBUG_LOGGING) {
+        ଯଦି (DEBUG_LOGGING) {
                 usec_t end = now(CLOCK_MONOTONIC);
-                if (end > begin + EFI_RETRY_DELAY)
+                ଯଦି (end > begin + EFI_RETRY_DELAY)
                         log_debug("Detected slow EFI variable read access on %s: %s",
                                   variable, FORMAT_TIMESPAN(end - begin, 1));
         }
@@ -169,86 +169,86 @@ int efi_get_variable(
         /* Note that efivarfs interestingly doesn't require ftruncate() to update an existing EFI variable
          * with a smaller value. */
 
-        if (ret_size)
-                *ret_size = value_size;
+        ଯଦି (ret_size)
+                *ret_size = ମୂଲ୍ୟ_size;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int efi_get_variable_string(const char *variable, char **ret) {
-        _cleanup_free_ void *s = NULL, *x = NULL;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା efi_get_variable_string(ଅଚଳ ଅକ୍ଷର *variable, ଅକ୍ଷର **ret) {
+        _cleanup_free_ ଶୂନ୍ୟ *s = ଖାଲି, *x = ଖାଲି;
         size_t ss = 0;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(variable);
+        ପ୍ରତିଜ୍ଞା(variable);
 
-        r = efi_get_variable(variable, NULL, &s, &ss);
-        if (r < 0)
-                return r;
+        r = efi_get_variable(variable, ଖାଲି, &s, &ss);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         x = utf16_to_utf8(s, ss);
-        if (!x)
-                return -ENOMEM;
+        ଯଦି (!x)
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        if (ret)
+        ଯଦି (ret)
                 *ret = TAKE_PTR(x);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int efi_get_variable_path(const char *variable, char **ret) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା efi_get_variable_path(ଅଚଳ ଅକ୍ଷର *variable, ଅକ୍ଷର **ret) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(variable);
+        ପ୍ରତିଜ୍ଞା(variable);
 
         r = efi_get_variable_string(variable, ret);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        if (ret)
+        ଯଦି (ret)
                 efi_tilt_backslashes(*ret);
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-static int efi_verify_variable(const char *variable, uint32_t attr, const void *value, size_t size) {
-        _cleanup_free_ void *buf = NULL;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା efi_verify_variable(ଅଚଳ ଅକ୍ଷର *variable, uint32_t attr, ଅଚଳ ଶୂନ୍ୟ *ମୂଲ୍ୟ, size_t size) {
+        _cleanup_free_ ଶୂନ୍ୟ *buf = ଖାଲି;
         size_t n;
         uint32_t a;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(variable);
-        assert(value || size == 0);
+        ପ୍ରତିଜ୍ଞା(variable);
+        ପ୍ରତିଜ୍ଞା(ମୂଲ୍ୟ || size == 0);
 
         r = efi_get_variable(variable, &a, &buf, &n);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        return a == attr && memcmp_nn(buf, n, value, size) == 0;
+        ଫେରନ୍ତୁ a == attr && memcmp_nn(buf, n, ମୂଲ୍ୟ, size) == 0;
 }
 
-int efi_set_variable(const char *variable, const void *value, size_t size) {
-        static const uint32_t attr = EFI_VARIABLE_NON_VOLATILE|EFI_VARIABLE_BOOTSERVICE_ACCESS|EFI_VARIABLE_RUNTIME_ACCESS;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା efi_set_variable(ଅଚଳ ଅକ୍ଷର *variable, ଅଚଳ ଶୂନ୍ୟ *ମୂଲ୍ୟ, size_t size) {
+        ସ୍ଥିର ଅଚଳ uint32_t attr = EFI_VARIABLE_NON_VOLATILE|EFI_VARIABLE_BOOTSERVICE_ACCESS|EFI_VARIABLE_RUNTIME_ACCESS;
 
-        _cleanup_free_ struct var {
+        _cleanup_free_ ସଂରଚନା var {
                 uint32_t attr;
-                char buf[];
-        } _packed_ *buf = NULL;
-        _cleanup_close_ int fd = -EBADF;
+                ଅକ୍ଷର buf[];
+        } _packed_ *buf = ଖାଲି;
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -EBADF;
         bool saved_flags_valid = false;
         unsigned saved_flags;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(variable);
-        assert(value || size == 0);
+        ପ୍ରତିଜ୍ଞା(variable);
+        ପ୍ରତିଜ୍ଞା(ମୂଲ୍ୟ || size == 0);
 
         /* size 0 means removal, empty variable would not be enough for that */
-        if (size > 0 && efi_verify_variable(variable, attr, value, size) > 0) {
+        ଯଦି (size > 0 && efi_verify_variable(variable, attr, ମୂଲ୍ୟ, size) > 0) {
                 log_debug("Variable '%s' is already in wanted state, skipping write.", variable);
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
-        const char *p = strjoina("/sys/firmware/efi/efivars/", variable);
+        ଅଚଳ ଅକ୍ଷର *p = strjoina("/sys/firmware/efi/efivars/", variable);
 
         /* Newer efivarfs protects variables that are not in an allow list with FS_IMMUTABLE_FL by default,
          * to protect them for accidental removal and modification. We are not changing these variables
@@ -258,160 +258,160 @@ int efi_set_variable(const char *variable, const void *value, size_t size) {
                         /* value= */ 0,
                         /* mask= */ FS_IMMUTABLE_FL,
                         /* ret_previous= */ &saved_flags,
-                        /* ret_final= */ NULL,
+                        /* ret_final= */ ଖାଲି,
                         /* flags= */ 0);
-        if (r < 0 && r != -ENOENT)
+        ଯଦି (r < 0 && r != -ENOENT)
                 log_debug_errno(r, "Failed to drop FS_IMMUTABLE_FL flag from '%s', ignoring: %m", p);
 
         saved_flags_valid = r >= 0;
 
-        if (size == 0) {
-                if (unlink(p) < 0) {
+        ଯଦି (size == 0) {
+                ଯଦି (unlink(p) < 0) {
                         r = -errno;
-                        goto finish;
+                        ଯାଅ finish;
                 }
 
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
         fd = open(p, O_WRONLY|O_CREAT|O_NOCTTY|O_CLOEXEC, 0644);
-        if (fd < 0) {
+        ଯଦି (fd < 0) {
                 r = -errno;
-                goto finish;
+                ଯାଅ finish;
         }
 
-        buf = malloc(sizeof(uint32_t) + size);
-        if (!buf) {
+        buf = malloc(ଆକାର(uint32_t) + size);
+        ଯଦି (!buf) {
                 r = -ENOMEM;
-                goto finish;
+                ଯାଅ finish;
         }
 
         buf->attr = attr;
-        memcpy(buf->buf, value, size);
+        memcpy(buf->buf, ମୂଲ୍ୟ, size);
 
-        r = loop_write(fd, buf, sizeof(uint32_t) + size);
-        if (r < 0)
-                goto finish;
+        r = loop_write(fd, buf, ଆକାର(uint32_t) + size);
+        ଯଦି (r < 0)
+                ଯାଅ finish;
 
         /* For some reason efivarfs doesn't update mtime automatically. Let's do it manually then. This is
          * useful for processes that cache EFI variables to detect when changes occurred. */
-        if (futimens(fd, /* times= */ NULL) < 0)
+        ଯଦି (futimens(fd, /* times= */ ଖାଲି) < 0)
                 log_debug_errno(errno, "Failed to update mtime/atime on %s, ignoring: %m", p);
 
         r = 0;
 
 finish:
-        if (saved_flags_valid) {
-                int q;
+        ଯଦି (saved_flags_valid) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା q;
 
                 /* Restore the original flags field, just in case */
-                if (fd < 0)
+                ଯଦି (fd < 0)
                         q = chattr_path(p, saved_flags, FS_IMMUTABLE_FL);
-                else
+                ଅନ୍ୟଥା
                         q = chattr_fd(fd, saved_flags, FS_IMMUTABLE_FL);
-                if (q < 0)
+                ଯଦି (q < 0)
                         log_debug_errno(q, "Failed to restore FS_IMMUTABLE_FL on '%s', ignoring: %m", p);
         }
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int efi_set_variable_string(const char *variable, const char *value) {
-        _cleanup_free_ char16_t *u16 = NULL;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା efi_set_variable_string(ଅଚଳ ଅକ୍ଷର *variable, ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ) {
+        _cleanup_free_ char16_t *u16 = ଖାଲି;
 
-        u16 = utf8_to_utf16(value, SIZE_MAX);
-        if (!u16)
-                return -ENOMEM;
+        u16 = utf8_to_utf16(ମୂଲ୍ୟ, SIZE_MAX);
+        ଯଦି (!u16)
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        return efi_set_variable(variable, u16, (char16_strlen(u16) + 1) * sizeof(char16_t));
+        ଫେରନ୍ତୁ efi_set_variable(variable, u16, (char16_strlen(u16) + 1) * ଆକାର(char16_t));
 }
 
-static int cache_efi_boot = -1;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cache_efi_boot = -1;
 
 bool set_efi_boot(bool b) {
-        return (cache_efi_boot = b);
+        ଫେରନ୍ତୁ (cache_efi_boot = b);
 }
 
-bool is_efi_boot(void) {
-        if (cache_efi_boot >= 0)
-                return cache_efi_boot;
+bool is_efi_boot(ଶୂନ୍ୟ) {
+        ଯଦି (cache_efi_boot >= 0)
+                ଫେରନ୍ତୁ cache_efi_boot;
 
-        if (detect_container() > 0)
-                return (cache_efi_boot = false);
+        ଯଦି (detect_container() > 0)
+                ଫେରନ୍ତୁ (cache_efi_boot = false);
 
-        if (access("/sys/firmware/efi/", F_OK) < 0) {
-                if (errno != ENOENT)
+        ଯଦି (access("/sys/firmware/efi/", F_OK) < 0) {
+                ଯଦି (errno != ENOENT)
                         log_debug_errno(errno, "Unable to test whether /sys/firmware/efi/ exists, assuming EFI not available: %m");
-                return (cache_efi_boot = false);
+                ଫେରନ୍ତୁ (cache_efi_boot = false);
         }
 
-        return (cache_efi_boot = true);
+        ଫେରନ୍ତୁ (cache_efi_boot = true);
 }
 
-static int read_flag(const char *variable) {
-        _cleanup_free_ void *v = NULL;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା read_flag(ଅଚଳ ଅକ୍ଷର *variable) {
+        _cleanup_free_ ଶୂନ୍ୟ *v = ଖାଲି;
         uint8_t b;
         size_t s;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        if (!is_efi_boot()) /* If this is not an EFI boot, assume the queried flags are zero */
-                return 0;
+        ଯଦି (!is_efi_boot()) /* If this is not an EFI boot, assume the queried flags are zero */
+                ଫେରନ୍ତୁ 0;
 
-        r = efi_get_variable(variable, NULL, &v, &s);
-        if (r < 0)
-                return r;
+        r = efi_get_variable(variable, ଖାଲି, &v, &s);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        if (s != 1)
-                return -EINVAL;
+        ଯଦି (s != 1)
+                ଫେରନ୍ତୁ -EINVAL;
 
         b = *(uint8_t *)v;
-        return !!b;
+        ଫେରନ୍ତୁ !!b;
 }
 
-bool is_efi_secure_boot(void) {
-        static int cache = -1;
-        int r;
+bool is_efi_secure_boot(ଶୂନ୍ୟ) {
+        ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cache = -1;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        if (cache < 0) {
+        ଯଦି (cache < 0) {
                 r = read_flag(EFI_GLOBAL_VARIABLE_STR("SecureBoot"));
-                if (r == -ENOENT)
+                ଯଦି (r == -ENOENT)
                         cache = false;
-                else if (r < 0)
+                ଅନ୍ୟଥା ଯଦି (r < 0)
                         log_debug_errno(r, "Error reading SecureBoot EFI variable, assuming not in SecureBoot mode: %m");
-                else
+                ଅନ୍ୟଥା
                         cache = r;
         }
 
-        return cache > 0;
+        ଫେରନ୍ତୁ cache > 0;
 }
 
-SecureBootMode efi_get_secure_boot_mode(void) {
-        static SecureBootMode cache = _SECURE_BOOT_INVALID;
+SecureBootMode efi_get_secure_boot_mode(ଶୂନ୍ୟ) {
+        ସ୍ଥିର SecureBootMode cache = _SECURE_BOOT_INVALID;
 
-        if (cache != _SECURE_BOOT_INVALID)
-                return cache;
+        ଯଦି (cache != _SECURE_BOOT_INVALID)
+                ଫେରନ୍ତୁ cache;
 
-        int secure = read_flag(EFI_GLOBAL_VARIABLE_STR("SecureBoot"));
-        if (secure < 0) {
-                if (secure != -ENOENT)
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା secure = read_flag(EFI_GLOBAL_VARIABLE_STR("SecureBoot"));
+        ଯଦି (secure < 0) {
+                ଯଦି (secure != -ENOENT)
                         log_debug_errno(secure, "Error reading SecureBoot EFI variable, assuming not in SecureBoot mode: %m");
 
-                return (cache = SECURE_BOOT_UNSUPPORTED);
+                ଫେରନ୍ତୁ (cache = SECURE_BOOT_UNSUPPORTED);
         }
 
         /* We can assume false for all these if they are abscent (AuditMode and
          * DeployedMode may not exist on older firmware). */
-        int audit    = read_flag(EFI_GLOBAL_VARIABLE_STR("AuditMode"));
-        int deployed = read_flag(EFI_GLOBAL_VARIABLE_STR("DeployedMode"));
-        int setup    = read_flag(EFI_GLOBAL_VARIABLE_STR("SetupMode"));
-        int moksb    = read_flag(EFI_SHIMLOCK_VARIABLE_STR("MokSBStateRT"));
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା audit    = read_flag(EFI_GLOBAL_VARIABLE_STR("AuditMode"));
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା deployed = read_flag(EFI_GLOBAL_VARIABLE_STR("DeployedMode"));
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା setup    = read_flag(EFI_GLOBAL_VARIABLE_STR("SetupMode"));
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା moksb    = read_flag(EFI_SHIMLOCK_VARIABLE_STR("MokSBStateRT"));
         log_debug("Secure boot variables: SecureBoot=%d AuditMode=%d DeployedMode=%d SetupMode=%d MokSBStateRT=%d",
                   secure, audit, deployed, setup, moksb);
 
-        return (cache = decode_secure_boot_mode(secure, audit > 0, deployed > 0, setup > 0, moksb > 0));
+        ଫେରନ୍ତୁ (cache = decode_secure_boot_mode(secure, audit > 0, deployed > 0, setup > 0, moksb > 0));
 }
 #endif
 
-char *efi_tilt_backslashes(char *s) {
-        return string_replace_char(s, '\\', '/');
+ଅକ୍ଷର *efi_tilt_backslashes(ଅକ୍ଷର *s) {
+        ଫେରନ୍ତୁ string_replace_char(s, '\\', '/');
 }

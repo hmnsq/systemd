@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "chase.h"
-#include "dirent-util.h"
-#include "env-file.h"
-#include "errno-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "glyph-util.h"
-#include "log.h"
-#include "os-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "utf8.h"
-#include "xattr-util.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "ansi-color.h"
+#ଅନ୍ତର୍ଭାଵ "chase.h"
+#ଅନ୍ତର୍ଭାଵ "dirent-util.h"
+#ଅନ୍ତର୍ଭାଵ "env-file.h"
+#ଅନ୍ତର୍ଭାଵ "errno-util.h"
+#ଅନ୍ତର୍ଭାଵ "escape.h"
+#ଅନ୍ତର୍ଭାଵ "fd-util.h"
+#ଅନ୍ତର୍ଭାଵ "fs-util.h"
+#ଅନ୍ତର୍ଭାଵ "glyph-util.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "os-util.h"
+#ଅନ୍ତର୍ଭାଵ "path-util.h"
+#ଅନ୍ତର୍ଭାଵ "stat-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-table.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "strv.h"
+#ଅନ୍ତର୍ଭାଵ "time-util.h"
+#ଅନ୍ତର୍ଭାଵ "utf8.h"
+#ଅନ୍ତର୍ଭାଵ "xattr-util.h"
 
-static const char* const image_class_table[_IMAGE_CLASS_MAX] = {
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* ଅଚଳ image_class_table[_IMAGE_CLASS_MAX] = {
         [IMAGE_MACHINE]  = "machine",
         [IMAGE_PORTABLE] = "portable",
         [IMAGE_SYSEXT]   = "sysext",
@@ -33,9 +33,9 @@ static const char* const image_class_table[_IMAGE_CLASS_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(image_class, ImageClass);
 
 /* Helper struct for naming simplicity and reusability */
-static const struct {
-        const char *release_file_directory;
-        const char *release_file_path_prefix;
+ସ୍ଥିର ଅଚଳ ସଂରଚନା {
+        ଅଚଳ ଅକ୍ଷର *release_file_directory;
+        ଅଚଳ ଅକ୍ଷର *release_file_path_prefix;
 } image_class_release_info[_IMAGE_CLASS_MAX] = {
         [IMAGE_SYSEXT] = {
                 .release_file_directory = "/usr/lib/extension-release.d/",
@@ -47,203 +47,203 @@ static const struct {
         }
 };
 
-bool image_name_is_valid(const char *s) {
-        if (!filename_is_valid(s))
-                return false;
+bool image_name_is_valid(ଅଚଳ ଅକ୍ଷର *s) {
+        ଯଦି (!filename_is_valid(s))
+                ଫେରନ୍ତୁ false;
 
-        if (string_has_cc(s, NULL))
-                return false;
+        ଯଦି (string_has_cc(s, ଖାଲି))
+                ଫେରନ୍ତୁ false;
 
-        if (!utf8_is_valid(s))
-                return false;
+        ଯଦି (!utf8_is_valid(s))
+                ଫେରନ୍ତୁ false;
 
         /* Temporary files for atomically creating new files */
-        if (startswith(s, ".#"))
-                return false;
+        ଯଦି (startswith(s, ".#"))
+                ଫେରନ୍ତୁ false;
 
-        return true;
+        ଫେରନ୍ତୁ true;
 }
 
-int path_extract_image_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା path_extract_image_name(ଅଚଳ ଅକ୍ଷର *path, ଅକ୍ଷର **ret) {
+        _cleanup_free_ ଅକ୍ଷର *fn = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(path);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(path);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* Extract last component from path, without any "/" suffixes. */
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r != O_DIRECTORY) {
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (r != O_DIRECTORY) {
                 /* Chop off any image suffixes we recognize (unless we already know this must refer to some dir) */
-                char *m = ENDSWITH_SET(fn, ".sysext.raw", ".confext.raw", ".raw");
-                if (m)
+                ଅକ୍ଷର *m = ENDSWITH_SET(fn, ".sysext.raw", ".confext.raw", ".raw");
+                ଯଦି (m)
                         *m = 0;
         }
 
         /* Truncate the version/counting suffixes */
         fn[strcspn(fn, "_+")] = 0;
 
-        if (!image_name_is_valid(fn))
-                return -EINVAL;
+        ଯଦି (!image_name_is_valid(fn))
+                ଫେରନ୍ତୁ -EINVAL;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା path_is_extension_ବୃକ୍ଷ(ImageClass image_class, ଅଚଳ ଅକ୍ଷର *path, ଅଚଳ ଅକ୍ଷର *extension, bool relax_extension_release_check) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(path);
+        ପ୍ରତିଜ୍ଞା(path);
 
         /* Does the path exist at all? If not, generate an error immediately. This is useful so that a missing root dir
          * always results in -ENOENT, and we can properly distinguish the case where the whole root doesn't exist from
          * the case where just the os-release file is missing. */
         r = access_nofollow(path, F_OK);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         /* We use /usr/lib/extension-release.d/extension-release[.NAME] as flag for something being a system extension,
          * /etc/extension-release.d/extension-release[.NAME] as flag for something being a system configuration, and finally,
          * and {/etc|/usr/lib}/os-release as a flag for something being an OS (when not an extension). */
-        r = open_extension_release(path, image_class, extension, relax_extension_release_check, NULL, NULL);
-        if (r == -ENOENT) /* We got nothing */
-                return 0;
-        if (r < 0)
-                return r;
+        r = open_extension_release(path, image_class, extension, relax_extension_release_check, ଖାଲି, ଖାଲି);
+        ଯଦି (r == -ENOENT) /* We got nothing */
+                ଫେରନ୍ତୁ 0;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        return 1;
+        ଫେରନ୍ତୁ 1;
 }
 
-int fd_is_os_tree(int fd) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_is_os_ବୃକ୍ଷ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
 
         r = open_extension_release_at(
                         fd,
                         IMAGE_MACHINE,
-                        /* extension= */ NULL,
+                        /* extension= */ ଖାଲି,
                         /* relax_extension_release_check= */ false,
-                        /* ret_path= */ NULL,
-                        /* ret_fd= */ NULL);
-        if (r == -ENOENT)
-                return false;
-        if (r < 0)
-                return r;
+                        /* ret_path= */ ଖାଲି,
+                        /* ret_fd= */ ଖାଲି);
+        ଯଦି (r == -ENOENT)
+                ଫେରନ୍ତୁ false;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        return true;
+        ଫେରନ୍ତୁ true;
 }
 
-static int extension_release_strict_xattr_value(int extension_release_fd, const char *extension_release_dir_path, const char *filename) {
-        int r;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା extension_release_strict_xattr_ମୂଲ୍ୟ(ପୂର୍ଣ୍ଣସଂଖ୍ୟା extension_release_fd, ଅଚଳ ଅକ୍ଷର *extension_release_dir_path, ଅଚଳ ଅକ୍ଷର *filename) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(extension_release_fd >= 0);
-        assert(extension_release_dir_path);
-        assert(filename);
+        ପ୍ରତିଜ୍ଞା(extension_release_fd >= 0);
+        ପ୍ରତିଜ୍ଞା(extension_release_dir_path);
+        ପ୍ରତିଜ୍ଞା(filename);
 
         /* No xattr or cannot parse it? Then skip this. */
-        r = getxattr_at_bool(extension_release_fd, /* path= */ NULL, "user.extension-release.strict", /* at_flags= */ 0);
-        if (ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return log_debug_errno(r, "%s/%s does not have user.extension-release.strict xattr, ignoring.",
+        r = getxattr_at_bool(extension_release_fd, /* path= */ ଖାଲି, "user.extension-release.strict", /* at_flags= */ 0);
+        ଯଦି (ERRNO_IS_NEG_XATTR_ABSENT(r))
+                ଫେରନ୍ତୁ log_debug_errno(r, "%s/%s does not have user.extension-release.strict xattr, ignoring.",
                                        extension_release_dir_path, filename);
-        if (r < 0)
-                return log_debug_errno(r, "%s/%s: Failed to read 'user.extension-release.strict' extended attribute from file, ignoring: %m",
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ log_debug_errno(r, "%s/%s: Failed to read 'user.extension-release.strict' extended attribute from file, ignoring: %m",
                                        extension_release_dir_path, filename);
 
         /* Explicitly set to request strict matching? Skip it. */
-        if (r > 0) {
+        ଯଦି (r > 0) {
                 log_debug("%s/%s: 'user.extension-release.strict' attribute is true, ignoring file.",
                           extension_release_dir_path, filename);
-                return true;
+                ଫେରନ୍ତୁ true;
         }
 
         log_debug("%s/%s: 'user.extension-release.strict' attribute is false%s",
                   extension_release_dir_path, filename,
                   glyph(GLYPH_ELLIPSIS));
 
-        return false;
+        ଫେରନ୍ତୁ false;
 }
 
-int open_os_release_at(int rfd, char **ret_path, int *ret_fd) {
-        const char *e;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା open_os_release_at(ପୂର୍ଣ୍ଣସଂଖ୍ୟା rfd, ଅକ୍ଷର **ret_path, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret_fd) {
+        ଅଚଳ ଅକ୍ଷର *e;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(rfd));
 
         e = secure_getenv("SYSTEMD_OS_RELEASE");
-        if (e)
-                return chaseat(rfd, rfd, e, /* flags= */ 0, ret_path, ret_fd);
+        ଯଦି (e)
+                ଫେରନ୍ତୁ chaseat(rfd, rfd, e, /* flags= */ 0, ret_path, ret_fd);
 
         FOREACH_STRING(path, "/etc/os-release", "/usr/lib/os-release") {
                 r = chaseat(rfd, rfd, path, /* flags= */ 0, ret_path, ret_fd);
-                if (r != -ENOENT)
-                        return r;
+                ଯଦି (r != -ENOENT)
+                        ଫେରନ୍ତୁ r;
         }
 
-        return -ENOENT;
+        ଫେରନ୍ତୁ -ENOENT;
 }
 
-int open_os_release(const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int rfd = XAT_FDROOT, fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା open_os_release(ଅଚଳ ଅକ୍ଷର *ମୂଳ, ଅକ୍ଷର **ret_path, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret_fd) {
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା rfd = XAT_FDROOT, fd = -EBADF;
+        _cleanup_free_ ଅକ୍ଷର *p = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        ଯଦି (!empty_or_ମୂଳ(ମୂଳ)) {
+                rfd = open(ମୂଳ, O_CLOEXEC | O_DIRECTORY | O_PATH);
+                ଯଦି (rfd < 0)
+                        ଫେରନ୍ତୁ -errno;
         }
 
-        r = open_os_release_at(rfd, ret_path ? &p : NULL, ret_fd ? &fd : NULL);
-        if (r < 0)
-                return r;
+        r = open_os_release_at(rfd, ret_path ? &p : ଖାଲି, ret_fd ? &fd : ଖାଲି);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
-                if (r < 0)
-                        return r;
+        ଯଦି (ret_path) {
+                r = chaseat_prefix_ମୂଳ(p, ମୂଳ, ret_path);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
-        if (ret_fd)
+        ଯଦି (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int open_extension_release_at(
-                int rfd,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା open_extension_release_at(
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା rfd,
                 ImageClass image_class,
-                const char *extension,
+                ଅଚଳ ଅକ୍ଷର *extension,
                 bool relax_extension_release_check,
-                char **ret_path,
-                int *ret_fd) {
+                ଅକ୍ଷର **ret_path,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret_fd) {
 
-        _cleanup_free_ char *dir_path = NULL, *path_found = NULL;
-        _cleanup_close_ int fd_found = -EBADF;
-        _cleanup_closedir_ DIR *dir = NULL;
+        _cleanup_free_ ଅକ୍ଷର *dir_path = ଖାଲି, *path_found = ଖାଲି;
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_found = -EBADF;
+        _cleanup_closedir_ DIR *dir = ଖାଲି;
         bool found = false;
-        const char *p;
-        int r;
+        ଅଚଳ ଅକ୍ଷର *p;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(!extension || (image_class >= 0 && image_class < _IMAGE_CLASS_MAX));
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(rfd));
+        ପ୍ରତିଜ୍ଞା(!extension || (image_class >= 0 && image_class < _IMAGE_CLASS_MAX));
 
-        if (!extension)
-                return open_os_release_at(rfd, ret_path, ret_fd);
+        ଯଦି (!extension)
+                ଫେରନ୍ତୁ open_os_release_at(rfd, ret_path, ret_fd);
 
-        if (!IN_SET(image_class, IMAGE_SYSEXT, IMAGE_CONFEXT))
-                return -EINVAL;
+        ଯଦି (!IN_SET(image_class, IMAGE_SYSEXT, IMAGE_CONFEXT))
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (!image_name_is_valid(extension))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The extension name %s is invalid.", extension);
+        ଯଦି (!image_name_is_valid(extension))
+                ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The extension name %s is invalid.", extension);
 
         p = strjoina(image_class_release_info[image_class].release_file_path_prefix, extension);
         r = chaseat(rfd, rfd, p, /* flags= */ 0, ret_path, ret_fd);
         log_full_errno_zerook(LOG_DEBUG, MIN(r, 0), "Checking for %s: %m", p);
-        if (r != -ENOENT)
-                return r;
+        ଯଦି (r != -ENOENT)
+                ଫେରନ୍ତୁ r;
 
         /* Cannot find the expected extension-release file? The image filename might have been mangled on
          * deployment, so fallback to checking for any file in the extension-release.d directory, and return
@@ -252,310 +252,310 @@ int open_extension_release_at(
 
         p = image_class_release_info[image_class].release_file_directory;
         r = chase_and_opendirat(rfd, rfd, p, /* chase_flags= */ 0, &dir_path, &dir);
-        if (r < 0)
-                return log_debug_errno(r, "Cannot open %s, ignoring: %m", p);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ log_debug_errno(r, "Cannot open %s, ignoring: %m", p);
 
-        FOREACH_DIRENT(de, dir, return -errno) {
-                _cleanup_close_ int fd = -EBADF;
-                const char *image_name;
+        FOREACH_DIRENT(de, dir, ଫେରନ୍ତୁ -errno) {
+                _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -EBADF;
+                ଅଚଳ ଅକ୍ଷର *image_name;
 
-                if (!IN_SET(de->d_type, DT_REG, DT_UNKNOWN))
-                        continue;
+                ଯଦି (!IN_SET(de->d_type, DT_REG, DT_UNKNOWN))
+                        ଜାରି;
 
                 image_name = startswith(de->d_name, "extension-release.");
-                if (!image_name)
-                        continue;
+                ଯଦି (!image_name)
+                        ଜାରି;
 
-                if (!image_name_is_valid(image_name)) {
+                ଯଦି (!image_name_is_valid(image_name)) {
                         log_debug("%s/%s is not a valid release file name, ignoring.", dir_path, de->d_name);
-                        continue;
+                        ଜାରି;
                 }
 
                 /* We already chased the directory, and checked that this is a real file, so we shouldn't
                  * fail to open it. */
                 fd = openat(dirfd(dir), de->d_name, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-                if (fd < 0)
-                        return log_debug_errno(errno, "Failed to open release file %s/%s: %m", dir_path, de->d_name);
+                ଯଦି (fd < 0)
+                        ଫେରନ୍ତୁ log_debug_errno(errno, "Failed to open release file %s/%s: %m", dir_path, de->d_name);
 
                 /* Really ensure it is a regular file after we open it. */
                 r = fd_verify_regular(fd);
-                if (r < 0) {
+                ଯଦି (r < 0) {
                         log_debug_errno(r, "%s/%s is not a regular file, ignoring: %m", dir_path, de->d_name);
-                        continue;
+                        ଜାରି;
                 }
 
-                if (!relax_extension_release_check) {
-                        _cleanup_free_ char *base_extension = NULL;
+                ଯଦି (!relax_extension_release_check) {
+                        _cleanup_free_ ଅକ୍ଷର *base_extension = ଖାଲି;
 
                         r = path_extract_image_name(extension, &base_extension);
-                        if (r < 0) {
+                        ଯଦି (r < 0) {
                                 log_debug_errno(r, "Failed to extract image name from %s, ignoring: %m", extension);
-                                continue;
+                                ଜାରି;
                         }
 
-                        if (!streq(image_name, base_extension) &&
-                            extension_release_strict_xattr_value(fd, dir_path, image_name) != 0)
-                                continue;
+                        ଯଦି (!streq(image_name, base_extension) &&
+                            extension_release_strict_xattr_ମୂଲ୍ୟ(fd, dir_path, image_name) != 0)
+                                ଜାରି;
                 }
 
                 /* We already found what we were looking for, but there's another candidate? We treat this as
                  * an error, as we want to enforce that there are no ambiguities in case we are in the
                  * fallback path. */
-                if (found)
-                        return -ENOTUNIQ;
+                ଯଦି (found)
+                        ଫେରନ୍ତୁ -ENOTUNIQ;
 
                 found = true;
 
-                if (ret_fd)
+                ଯଦି (ret_fd)
                         fd_found = TAKE_FD(fd);
 
-                if (ret_path) {
+                ଯଦି (ret_path) {
                         path_found = path_join(dir_path, de->d_name);
-                        if (!path_found)
-                                return -ENOMEM;
+                        ଯଦି (!path_found)
+                                ଫେରନ୍ତୁ -ENOMEM;
                 }
         }
-        if (!found)
-                return -ENOENT;
+        ଯଦି (!found)
+                ଫେରନ୍ତୁ -ENOENT;
 
-        if (ret_fd)
+        ଯଦି (ret_fd)
                 *ret_fd = TAKE_FD(fd_found);
-        if (ret_path)
+        ଯଦି (ret_path)
                 *ret_path = TAKE_PTR(path_found);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int open_extension_release(
-                const char *root,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା open_extension_release(
+                ଅଚଳ ଅକ୍ଷର *ମୂଳ,
                 ImageClass image_class,
-                const char *extension,
+                ଅଚଳ ଅକ୍ଷର *extension,
                 bool relax_extension_release_check,
-                char **ret_path,
-                int *ret_fd) {
+                ଅକ୍ଷର **ret_path,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret_fd) {
 
-        _cleanup_close_ int rfd = XAT_FDROOT, fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା rfd = XAT_FDROOT, fd = -EBADF;
+        _cleanup_free_ ଅକ୍ଷର *p = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        ଯଦି (!empty_or_ମୂଳ(ମୂଳ)) {
+                rfd = open(ମୂଳ, O_CLOEXEC | O_DIRECTORY | O_PATH);
+                ଯଦି (rfd < 0)
+                        ଫେରନ୍ତୁ -errno;
         }
 
         r = open_extension_release_at(rfd, image_class, extension, relax_extension_release_check,
-                                      ret_path ? &p : NULL, ret_fd ? &fd : NULL);
-        if (r < 0)
-                return r;
+                                      ret_path ? &p : ଖାଲି, ret_fd ? &fd : ଖାଲି);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
-                if (r < 0)
-                        return r;
+        ଯଦି (ret_path) {
+                r = chaseat_prefix_ମୂଳ(p, ମୂଳ, ret_path);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
-        if (ret_fd)
+        ଯଦି (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int parse_extension_release_atv(
-                int rfd,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_extension_release_atv(
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା rfd,
                 ImageClass image_class,
-                const char *extension,
+                ଅଚଳ ଅକ୍ଷର *extension,
                 bool relax_extension_release_check,
                 va_list ap) {
 
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -EBADF;
+        _cleanup_free_ ଅକ୍ଷର *p = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(rfd));
 
         r = open_extension_release_at(rfd, image_class, extension, relax_extension_release_check, &p, &fd);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        return parse_env_file_fdv(fd, p, ap);
+        ଫେରନ୍ତୁ parse_env_file_fdv(fd, p, ap);
 }
 
-int parse_extension_release_at_sentinel(
-                int rfd,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_extension_release_at_sentinel(
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା rfd,
                 ImageClass image_class,
                 bool relax_extension_release_check,
-                const char *extension,
+                ଅଚଳ ଅକ୍ଷର *extension,
                 ...) {
 
         va_list ap;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(rfd));
 
         va_start(ap, extension);
         r = parse_extension_release_atv(rfd, image_class, extension, relax_extension_release_check, ap);
         va_end(ap);
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int parse_extension_release_sentinel(
-                const char *root,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_extension_release_sentinel(
+                ଅଚଳ ଅକ୍ଷର *ମୂଳ,
                 ImageClass image_class,
                 bool relax_extension_release_check,
-                const char *extension,
+                ଅଚଳ ଅକ୍ଷର *extension,
                 ...) {
 
-        _cleanup_close_ int rfd = XAT_FDROOT;
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା rfd = XAT_FDROOT;
         va_list ap;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        ଯଦି (!empty_or_ମୂଳ(ମୂଳ)) {
+                rfd = open(ମୂଳ, O_CLOEXEC | O_DIRECTORY | O_PATH);
+                ଯଦି (rfd < 0)
+                        ଫେରନ୍ତୁ -errno;
         }
 
         va_start(ap, extension);
         r = parse_extension_release_atv(rfd, image_class, extension, relax_extension_release_check, ap);
         va_end(ap);
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret) {
-        _cleanup_strv_free_ char **os_release_pairs = NULL, **os_release_pairs_prefixed = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା load_os_release_pairs_with_prefix(ଅଚଳ ଅକ୍ଷର *ମୂଳ, ଅଚଳ ଅକ୍ଷର *prefix, ଅକ୍ଷର ***ret) {
+        _cleanup_strv_free_ ଅକ୍ଷର **os_release_pairs = ଖାଲି, **os_release_pairs_prefixed = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        r = load_os_release_pairs(root, &os_release_pairs);
-        if (r < 0)
-                return r;
+        r = load_os_release_pairs(ମୂଳ, &os_release_pairs);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         STRV_FOREACH_PAIR(p, q, os_release_pairs) {
-                char *line;
+                ଅକ୍ଷର *ଧାଡ଼ି;
 
                 /* We strictly return only the four main ID fields and ignore the rest */
-                if (!STR_IN_SET(*p, "ID", "VERSION_ID", "BUILD_ID", "VARIANT_ID"))
-                        continue;
+                ଯଦି (!STR_IN_SET(*p, "ID", "VERSION_ID", "BUILD_ID", "VARIANT_ID"))
+                        ଜାରି;
 
                 ascii_strlower(*p);
-                line = strjoin(prefix, *p, "=", *q);
-                if (!line)
-                        return -ENOMEM;
-                r = strv_consume(&os_release_pairs_prefixed, line);
-                if (r < 0)
-                        return r;
+                ଧାଡ଼ି = strjoin(prefix, *p, "=", *q);
+                ଯଦି (!ଧାଡ଼ି)
+                        ଫେରନ୍ତୁ -ENOMEM;
+                r = strv_consume(&os_release_pairs_prefixed, ଧାଡ଼ି);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
         *ret = TAKE_PTR(os_release_pairs_prefixed);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା load_extension_release_pairs(ଅଚଳ ଅକ୍ଷର *ମୂଳ, ImageClass image_class, ଅଚଳ ଅକ୍ଷର *extension, bool relax_extension_release_check, ଅକ୍ଷର ***ret) {
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -EBADF;
+        _cleanup_free_ ଅକ୍ଷର *p = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        r = open_extension_release(root, image_class, extension, relax_extension_release_check, &p, &fd);
-        if (r < 0)
-                return r;
+        r = open_extension_release(ମୂଳ, image_class, extension, relax_extension_release_check, &p, &fd);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        return load_env_file_pairs_fd(fd, p, ret);
+        ଫେରନ୍ତୁ load_env_file_pairs_fd(fd, p, ret);
 }
 
-int os_release_support_ended(const char *support_end, bool quiet, usec_t *ret_eol) {
-        _cleanup_free_ char *_support_end_alloc = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା os_release_support_ended(ଅଚଳ ଅକ୍ଷର *support_end, bool quiet, usec_t *ret_eol) {
+        _cleanup_free_ ଅକ୍ଷର *_support_end_alloc = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        if (!support_end) {
+        ଯଦି (!support_end) {
                 /* If the caller has the variably handy, they can pass it in. If not, we'll read it
                  * ourselves. */
 
-                r = parse_os_release(NULL,
+                r = parse_os_release(ଖାଲି,
                                      "SUPPORT_END", &_support_end_alloc);
-                if (r < 0 && r != -ENOENT)
-                        return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
+                ଯଦି (r < 0 && r != -ENOENT)
+                        ଫେରନ୍ତୁ log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
                                               "Failed to read os-release file, ignoring: %m");
 
                 support_end = _support_end_alloc;
         }
 
-        if (isempty(support_end)) { /* An empty string is a explicit way to say "no EOL exists" */
-                if (ret_eol)
+        ଯଦି (isempty(support_end)) { /* An empty string is a explicit way to say "no EOL exists" */
+                ଯଦି (ret_eol)
                         *ret_eol = USEC_INFINITY;
 
-                return false;  /* no end date defined */
+                ଫେରନ୍ତୁ false;  /* no end date defined */
         }
 
-        struct tm tm = {};
-        const char *k = strptime(support_end, "%Y-%m-%d", &tm);
-        if (!k || *k)
-                return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, SYNTHETIC_ERRNO(EINVAL),
+        ସଂରଚନା tm tm = {};
+        ଅଚଳ ଅକ୍ଷର *k = strptime(support_end, "%Y-%m-%d", &tm);
+        ଯଦି (!k || *k)
+                ଫେରନ୍ତୁ log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, SYNTHETIC_ERRNO(EINVAL),
                                       "Failed to parse SUPPORT_END= from os-release file, ignoring: %s", support_end);
 
         usec_t eol;
         r = mktime_or_timegm_usec(&tm, /* utc= */ true, &eol);
-        if (r < 0)
-                return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
                                       "Failed to convert SUPPORT_END= time from os-release file, ignoring: %m");
 
-        if (ret_eol)
+        ଯଦି (ret_eol)
                 *ret_eol = eol;
 
-        return now(CLOCK_REALTIME) > eol;
+        ଫେରନ୍ତୁ now(CLOCK_REALTIME) > eol;
 }
 
-const char* os_release_pretty_name(const char *pretty_name, const char *name) {
+ଅଚଳ ଅକ୍ଷର* os_release_pretty_name(ଅଚଳ ଅକ୍ଷର *pretty_name, ଅଚଳ ଅକ୍ଷର *name) {
         /* Distills a "pretty" name to show from os-release data. First argument is supposed to be the
          * PRETTY_NAME= field, the second one the NAME= field. This function is trivial, of course, and
          * exists mostly to ensure we use the same logic wherever possible. */
 
-        return empty_to_null(pretty_name) ?:
+        ଫେରନ୍ତୁ empty_to_null(pretty_name) ?:
                 empty_to_null(name) ?: "Linux";
 }
 
-char *unescape_fancy_name(char **fancy_name) {
-        assert(fancy_name);
+ଅକ୍ଷର *unescape_fancy_name(ଅକ୍ଷର **fancy_name) {
+        ପ୍ରତିଜ୍ଞା(fancy_name);
 
         /* Checks if the fancy name is valid, unescapes if it is, nullifies it if not */
 
-        _cleanup_free_ char *unescaped_fancy_name = NULL;
+        _cleanup_free_ ଅକ୍ଷର *unescaped_fancy_name = ଖାଲି;
 
-        if (isempty(*fancy_name))
-                goto clear;
+        ଯଦି (isempty(*fancy_name))
+                ଯାଅ clear;
 
         /* We undo one level of C escapes on this */
         ssize_t n = cunescape(*fancy_name, /* flags= */ 0, &unescaped_fancy_name);
-        if (n < 0) {
-                log_debug_errno((int) n, "Failed to unescape FANCY_NAME= string, suppressing: %m");
-                goto clear;
+        ଯଦି (n < 0) {
+                log_debug_errno((ପୂର୍ଣ୍ଣସଂଖ୍ୟା) n, "Failed to unescape FANCY_NAME= string, suppressing: %m");
+                ଯାଅ clear;
         }
 
-        if (!utf8_is_valid(unescaped_fancy_name)) {
+        ଯଦି (!utf8_is_valid(unescaped_fancy_name)) {
                 log_debug("Unescaped FANCY_NAME= string is not valid UTF-8, suppressing.");
-                goto clear;
+                ଯାଅ clear;
         }
 
         free_and_replace(*fancy_name, unescaped_fancy_name);
-        return *fancy_name;
+        ଫେରନ୍ତୁ *fancy_name;
 
 clear:
         *fancy_name = mfree(*fancy_name);
-        return NULL;
+        ଫେରନ୍ତୁ ଖାଲି;
 }
 
-bool use_fancy_name(const char *fancy_name) {
+bool use_fancy_name(ଅଚଳ ଅକ୍ଷର *fancy_name) {
 
         /* Decides whether to show the specified fancy name */
 
-        if (isempty(fancy_name))
-                return false;
+        ଯଦି (isempty(fancy_name))
+                ଫେରନ୍ତୁ false;
 
-        if (!colors_enabled())
-                return false;
+        ଯଦି (!colors_enabled())
+                ଫେରନ୍ତୁ false;
 
-        return emoji_enabled() || ascii_is_valid(fancy_name);
+        ଫେରନ୍ତୁ emoji_enabled() || ascii_is_valid(fancy_name);
 }

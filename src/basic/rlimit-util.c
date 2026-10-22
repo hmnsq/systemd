@@ -1,177 +1,177 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "rlimit-util.h"
-#include "string-table.h"
-#include "strv.h"
-#include "time-util.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "errno-util.h"
+#ଅନ୍ତର୍ଭାଵ "extract-word.h"
+#ଅନ୍ତର୍ଭାଵ "fd-util.h"
+#ଅନ୍ତର୍ଭାଵ "fileio.h"
+#ଅନ୍ତର୍ଭାଵ "format-util.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "parse-util.h"
+#ଅନ୍ତର୍ଭାଵ "process-util.h"
+#ଅନ୍ତର୍ଭାଵ "rlimit-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-table.h"
+#ଅନ୍ତର୍ଭାଵ "strv.h"
+#ଅନ୍ତର୍ଭାଵ "time-util.h"
 
-int setrlimit_closest(int resource, const struct rlimit *rlim) {
-        struct rlimit highest, fixed;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା setrlimit_closest(ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ଅଚଳ ସଂରଚନା rlimit *rlim) {
+        ସଂରଚନା rlimit highest, fixed;
 
-        assert(rlim);
+        ପ୍ରତିଜ୍ଞା(rlim);
 
-        if (setrlimit(resource, rlim) >= 0)
-                return 0;
+        ଯଦି (setrlimit(resource, rlim) >= 0)
+                ଫେରନ୍ତୁ 0;
 
-        if (errno != EPERM)
-                return -errno;
+        ଯଦି (errno != EPERM)
+                ଫେରନ୍ତୁ -errno;
 
         /* So we failed to set the desired setrlimit, then let's try
          * to get as close as we can */
-        if (getrlimit(resource, &highest) < 0)
-                return -errno;
+        ଯଦି (getrlimit(resource, &highest) < 0)
+                ଫେରନ୍ତୁ -errno;
 
         /* If the hard limit is unbounded anyway, then the EPERM had other reasons, let's propagate the original EPERM
          * then */
-        if (highest.rlim_max == RLIM_INFINITY)
-                return -EPERM;
+        ଯଦି (highest.rlim_max == RLIM_INFINITY)
+                ଫେରନ୍ତୁ -EPERM;
 
-        fixed = (struct rlimit) {
+        fixed = (ସଂରଚନା rlimit) {
                 .rlim_cur = MIN(rlim->rlim_cur, highest.rlim_max),
                 .rlim_max = MIN(rlim->rlim_max, highest.rlim_max),
         };
 
         /* Shortcut things if we wouldn't change anything. */
-        if (fixed.rlim_cur == highest.rlim_cur &&
+        ଯଦି (fixed.rlim_cur == highest.rlim_cur &&
             fixed.rlim_max == highest.rlim_max)
-                return 0;
+                ଫେରନ୍ତୁ 0;
 
         log_debug("Failed at setting rlimit " RLIM_FMT " for resource RLIMIT_%s. Will attempt setting value " RLIM_FMT " instead.", rlim->rlim_max, rlimit_to_string(resource), fixed.rlim_max);
 
-        return RET_NERRNO(setrlimit(resource, &fixed));
+        ଫେରନ୍ତୁ RET_NERRNO(setrlimit(resource, &fixed));
 }
 
-int setrlimit_closest_all(const struct rlimit *const *rlim, int *which_failed) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା setrlimit_closest_all(ଅଚଳ ସଂରଚନା rlimit *ଅଚଳ *rlim, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *which_failed) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(rlim);
+        ପ୍ରତିଜ୍ଞା(rlim);
 
         /* On failure returns the limit's index that failed in *which_failed, but only if non-NULL */
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!rlim[i])
-                        continue;
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < _RLIMIT_MAX; i++) {
+                ଯଦି (!rlim[i])
+                        ଜାରି;
 
                 r = setrlimit_closest(i, rlim[i]);
-                if (r < 0) {
-                        if (which_failed)
+                ଯଦି (r < 0) {
+                        ଯଦି (which_failed)
                                 *which_failed = i;
 
-                        return r;
+                        ଫେରନ୍ତୁ r;
                 }
         }
 
-        if (which_failed)
+        ଯଦି (which_failed)
                 *which_failed = -1;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int rlimit_parse_u64(const char *val, rlim_t *ret) {
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse_u64(ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(val);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(val);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        if (streq(val, "infinity")) {
+        ଯଦି (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
         /* setrlimit(2) suggests rlim_t is always 64-bit on Linux. */
-        assert_cc(sizeof(rlim_t) == sizeof(uint64_t));
+        assert_cc(ଆକାର(rlim_t) == ଆକାର(uint64_t));
 
         r = safe_atou64(val, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (u >= (uint64_t) RLIM_INFINITY)
+                ଫେରନ୍ତୁ -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int rlimit_parse_size(const char *val, rlim_t *ret) {
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse_size(ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(val);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(val);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        if (streq(val, "infinity")) {
+        ଯଦି (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
         r = parse_size(val, 1024, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (u >= (uint64_t) RLIM_INFINITY)
+                ଫେରନ୍ତୁ -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int rlimit_parse_sec(const char *val, rlim_t *ret) {
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse_sec(ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret) {
         uint64_t u;
         usec_t t;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(val);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(val);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         r = parse_sec(val, &t);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
         u = (uint64_t) DIV_ROUND_UP(t, USEC_PER_SEC);
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        ଯଦି (u >= (uint64_t) RLIM_INFINITY)
+                ଫେରନ୍ତୁ -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int rlimit_parse_usec(const char *val, rlim_t *ret) {
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse_usec(ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret) {
         usec_t t;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(val);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(val);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         r = parse_time(val, &t, 1);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
         *ret = (rlim_t) t;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int rlimit_parse_nice(const char *val, rlim_t *ret) {
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse_nice(ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret) {
         uint64_t rl;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(val);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(val);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* So, Linux is weird. The range for RLIMIT_NICE is 40..1, mapping to the nice levels -20..19. However, the
          * RLIMIT_NICE limit defaults to 0 by the kernel, i.e. a value that maps to nice level 20, which of course is
@@ -181,45 +181,45 @@ static int rlimit_parse_nice(const char *val, rlim_t *ret) {
          *
          * Yeah, Linux is quality engineering sometimes... */
 
-        if (val[0] == '+') {
+        ଯଦି (val[0] == '+') {
 
                 /* Prefixed with "+": Parse as positive user-friendly nice value */
                 r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
-                if (rl >= PRIO_MAX)
-                        return -ERANGE;
+                ଯଦି (rl >= PRIO_MAX)
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 rl = 20 - rl;
 
-        } else if (val[0] == '-') {
+        } ଅନ୍ୟଥା ଯଦି (val[0] == '-') {
 
                 /* Prefixed with "-": Parse as negative user-friendly nice value */
                 r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
-                if (rl > (uint64_t) (-PRIO_MIN))
-                        return -ERANGE;
+                ଯଦି (rl > (uint64_t) (-PRIO_MIN))
+                        ଫେରନ୍ତୁ -ERANGE;
 
                 rl = 20 + rl;
-        } else {
+        } ଅନ୍ୟଥା {
 
                 /* Not prefixed: parse as raw resource limit value */
                 r = safe_atou64(val, &rl);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
-                if (rl > (uint64_t) (20 - PRIO_MIN))
-                        return -ERANGE;
+                ଯଦି (rl > (uint64_t) (20 - PRIO_MIN))
+                        ଫେରନ୍ତୁ -ERANGE;
         }
 
         *ret = (rlim_t) rl;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret) = {
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*ଅଚଳ rlimit_parse_table[_RLIMIT_MAX])(ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret) = {
         [RLIMIT_CPU]        = rlimit_parse_sec,
         [RLIMIT_FSIZE]      = rlimit_parse_size,
         [RLIMIT_DATA]       = rlimit_parse_size,
@@ -238,83 +238,83 @@ static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret
         [RLIMIT_RTTIME]     = rlimit_parse_usec,
 };
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret) {
-        assert(val);
-        assert(ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse_one(ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret) {
+        ପ୍ରତିଜ୍ଞା(val);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        if (resource < 0)
-                return -EINVAL;
-        if (resource >= _RLIMIT_MAX)
-                return -EINVAL;
+        ଯଦି (resource < 0)
+                ଫେରନ୍ତୁ -EINVAL;
+        ଯଦି (resource >= _RLIMIT_MAX)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        return rlimit_parse_table[resource](val, ret);
+        ଫେରନ୍ତୁ rlimit_parse_table[resource](val, ret);
 }
 
-int rlimit_parse(int resource, const char *val, struct rlimit *ret) {
-        _cleanup_free_ char *hard = NULL, *soft = NULL;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse(ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ଅଚଳ ଅକ୍ଷର *val, ସଂରଚନା rlimit *ret) {
+        _cleanup_free_ ଅକ୍ଷର *hard = ଖାଲି, *soft = ଖାଲି;
         rlim_t hl, sl;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(val);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(val);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         r = extract_first_word(&val, &soft, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (r == 0)
+                ଫେରନ୍ତୁ -EINVAL;
 
         r = rlimit_parse_one(resource, soft, &sl);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         r = extract_first_word(&val, &hard, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (!isempty(val))
-                return -EINVAL;
-        if (r == 0)
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (!isempty(val))
+                ଫେରନ୍ତୁ -EINVAL;
+        ଯଦି (r == 0)
                 hl = sl;
-        else {
+        ଅନ୍ୟଥା {
                 r = rlimit_parse_one(resource, hard, &hl);
-                if (r < 0)
-                        return r;
-                if (sl > hl)
-                        return -EILSEQ;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
+                ଯଦି (sl > hl)
+                        ଫେରନ୍ତୁ -EILSEQ;
         }
 
-        *ret = (struct rlimit) {
+        *ret = (ସଂରଚନା rlimit) {
                 .rlim_cur = sl,
                 .rlim_max = hl,
         };
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int rlimit_format(const struct rlimit *rl, char **ret) {
-        char *s;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_format(ଅଚଳ ସଂରଚନା rlimit *rl, ଅକ୍ଷର **ret) {
+        ଅକ୍ଷର *s;
 
-        assert(rl);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(rl);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        if (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
+        ଯଦି (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
                 s = strdup("infinity");
-        else if (rl->rlim_cur >= RLIM_INFINITY)
+        ଅନ୍ୟଥା ଯଦି (rl->rlim_cur >= RLIM_INFINITY)
                 s = asprintf_safe("infinity:" RLIM_FMT, rl->rlim_max);
-        else if (rl->rlim_max >= RLIM_INFINITY)
+        ଅନ୍ୟଥା ଯଦି (rl->rlim_max >= RLIM_INFINITY)
                 s = asprintf_safe(RLIM_FMT ":infinity", rl->rlim_cur);
-        else if (rl->rlim_cur == rl->rlim_max)
+        ଅନ୍ୟଥା ଯଦି (rl->rlim_cur == rl->rlim_max)
                 s = asprintf_safe(RLIM_FMT, rl->rlim_cur);
-        else
+        ଅନ୍ୟଥା
                 s = asprintf_safe(RLIM_FMT ":" RLIM_FMT, rl->rlim_cur, rl->rlim_max);
-        if (!s)
-                return -ENOMEM;
+        ଯଦି (!s)
+                ଫେରନ୍ତୁ -ENOMEM;
 
         *ret = s;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static const char* const rlimit_table[_RLIMIT_MAX] = {
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* ଅଚଳ rlimit_table[_RLIMIT_MAX] = {
         [RLIMIT_AS]         = "AS",
         [RLIMIT_CORE]       = "CORE",
         [RLIMIT_CPU]        = "CPU",
@@ -333,101 +333,101 @@ static const char* const rlimit_table[_RLIMIT_MAX] = {
         [RLIMIT_STACK]      = "STACK",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(rlimit, int);
+DEFINE_STRING_TABLE_LOOKUP(rlimit, ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
 
-void rlimits_list(const char *prefix) {
+ଶୂନ୍ୟ rlimits_list(ଅଚଳ ଅକ୍ଷର *prefix) {
         FOREACH_ELEMENT(field, rlimit_table)
                 printf("%s%s\n", strempty(prefix), *field);
 }
 
-int rlimit_from_string_harder(const char *s) {
-        const char *suffix;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_from_string_harder(ଅଚଳ ଅକ୍ଷର *s) {
+        ଅଚଳ ଅକ୍ଷର *suffix;
 
         /* The official prefix */
         suffix = startswith(s, "RLIMIT_");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        ଯଦି (suffix)
+                ଫେରନ୍ତୁ rlimit_from_string(suffix);
 
         /* Our own unit file setting prefix */
         suffix = startswith(s, "Limit");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        ଯଦି (suffix)
+                ଫେରନ୍ତୁ rlimit_from_string(suffix);
 
-        return rlimit_from_string(s);
+        ଫେରନ୍ତୁ rlimit_from_string(s);
 }
 
-void rlimit_free_all(struct rlimit **rl) {
-        free_many((void**) rl, _RLIMIT_MAX);
+ଶୂନ୍ୟ rlimit_free_all(ସଂରଚନା rlimit **rl) {
+        free_many((ଶୂନ୍ୟ**) rl, _RLIMIT_MAX);
 }
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]) {
-        struct rlimit* copy[_RLIMIT_MAX] = {};
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_copy_all(ସଂରଚନା rlimit* target[ସ୍ଥିର _RLIMIT_MAX], ସଂରଚନା rlimit* ଅଚଳ source[ସ୍ଥିର _RLIMIT_MAX]) {
+        ସଂରଚନା rlimit* copy[_RLIMIT_MAX] = {};
 
-        assert(target);
-        assert(source);
+        ପ୍ରତିଜ୍ଞା(target);
+        ପ୍ରତିଜ୍ଞା(source);
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!source[i])
-                        continue;
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < _RLIMIT_MAX; i++) {
+                ଯଦି (!source[i])
+                        ଜାରି;
 
-                copy[i] = newdup(struct rlimit, source[i], 1);
-                if (!copy[i]) {
+                copy[i] = newdup(ସଂରଚନା rlimit, source[i], 1);
+                ଯଦି (!copy[i]) {
                         rlimit_free_all(copy);
-                        return -ENOMEM;
+                        ଫେରନ୍ତୁ -ENOMEM;
                 }
         }
 
-        memcpy(target, copy, sizeof(struct rlimit*) * _RLIMIT_MAX);
-        return 0;
+        memcpy(target, copy, ଆକାର(ସଂରଚନା rlimit*) * _RLIMIT_MAX);
+        ଫେରନ୍ତୁ 0;
 }
 
-int rlimit_nofile_bump(int limit) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_nofile_bump(ପୂର୍ଣ୍ଣସଂଖ୍ୟା limit) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* Bumps the (soft) RLIMIT_NOFILE resource limit as close as possible to the specified limit. If a negative
          * limit is specified, bumps it to the maximum the kernel and the hard resource limit allows. This call should
          * be used by all our programs that might need a lot of fds, and that know how to deal with high fd numbers
          * (i.e. do not use select() — which chokes on fds >= 1024) */
 
-        if (limit < 0)
+        ଯଦି (limit < 0)
                 limit = read_nr_open();
 
-        if (limit < 3)
+        ଯଦି (limit < 3)
                 limit = 3;
 
         r = setrlimit_closest(RLIMIT_NOFILE, &RLIMIT_MAKE_CONST(limit));
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int rlimit_nofile_safe(void) {
-        struct rlimit rl;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_nofile_safe(ଶୂନ୍ୟ) {
+        ସଂରଚନା rlimit rl;
 
         /* Resets RLIMIT_NOFILE's soft limit FD_SETSIZE (i.e. 1024), for compatibility with software still using
          * select() */
 
-        if (getrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
+        ଯଦି (getrlimit(RLIMIT_NOFILE, &rl) < 0)
+                ଫେରନ୍ତୁ log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
 
-        if (rl.rlim_cur <= FD_SETSIZE)
-                return 0;
+        ଯଦି (rl.rlim_cur <= FD_SETSIZE)
+                ଫେରନ୍ତୁ 0;
 
         /* So we might have inherited a hard limit that's larger than the kernel's maximum limit as stored in
          * /proc/sys/fs/nr_open. If we pass this hard limit unmodified to setrlimit(), we'll get EPERM. To
          * make sure that doesn't happen, let's limit our hard limit to the value from nr_open. */
         rl.rlim_max = MIN(rl.rlim_max, (rlim_t) read_nr_open());
         rl.rlim_cur = MIN((rlim_t) FD_SETSIZE, rl.rlim_max);
-        if (setrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
+        ଯଦି (setrlimit(RLIMIT_NOFILE, &rl) < 0)
+                ଫେରନ୍ତୁ log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
 
-        return 1;
+        ଫେରନ୍ତୁ 1;
 }
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pid_getrlimit(pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ସଂରଚନା rlimit *ret) {
 
-        static const char * const prefix_table[_RLIMIT_MAX] = {
+        ସ୍ଥିର ଅଚଳ ଅକ୍ଷର * ଅଚଳ prefix_table[_RLIMIT_MAX] = {
                 [RLIMIT_CPU]        = "Max cpu time",
                 [RLIMIT_FSIZE]      = "Max file size",
                 [RLIMIT_DATA]       = "Max data size",
@@ -446,94 +446,94 @@ int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
                 [RLIMIT_RTTIME]     = "Max realtime timeout",
         };
 
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(resource >= 0);
-        assert(resource < _RLIMIT_MAX);
-        assert(pid >= 0);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(resource >= 0);
+        ପ୍ରତିଜ୍ଞା(resource < _RLIMIT_MAX);
+        ପ୍ରତିଜ୍ଞା(pid >= 0);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        if (pid == 0 || pid == getpid_cached())
-                return RET_NERRNO(getrlimit(resource, ret));
+        ଯଦି (pid == 0 || pid == getpid_cached())
+                ଫେରନ୍ତୁ RET_NERRNO(getrlimit(resource, ret));
 
-        r = RET_NERRNO(prlimit(pid, resource, /* new_limit= */ NULL, ret));
-        if (!ERRNO_IS_NEG_PRIVILEGE(r))
-                return r;
+        r = RET_NERRNO(prlimit(pid, resource, /* new_limit= */ ଖାଲି, ret));
+        ଯଦି (!ERRNO_IS_NEG_PRIVILEGE(r))
+                ଫେରନ୍ତୁ r;
 
         /* We don't have access? Then try to go via /proc/$PID/limits. Weirdly that's world readable in
          * contrast to querying the data via prlimit() */
 
-        const char *p = procfs_file_alloca(pid, "limits");
-        _cleanup_free_ char *limits = NULL;
+        ଅଚଳ ଅକ୍ଷର *p = procfs_file_alloca(pid, "limits");
+        _cleanup_free_ ଅକ୍ଷର *limits = ଖାଲି;
 
-        r = read_full_file(p, &limits, /* ret_size= */ NULL);
-        if (r < 0)
-                return -EPERM; /* propagate original permission error if we can't access the limits file */
+        r = read_full_file(p, &limits, /* ret_size= */ ଖାଲି);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ -EPERM; /* propagate original permission error if we can't access the limits file */
 
-        _cleanup_strv_free_ char **l = NULL;
+        _cleanup_strv_free_ ଅକ୍ଷର **l = ଖାଲି;
         l = strv_split_newlines(limits);
-        if (!l)
-                return -ENOMEM;
+        ଯଦି (!l)
+                ଫେରନ୍ତୁ -ENOMEM;
 
         STRV_FOREACH(i, strv_skip(l, 1)) {
-                _cleanup_free_ char *soft = NULL, *hard = NULL;
+                _cleanup_free_ ଅକ୍ଷର *soft = ଖାଲି, *hard = ଖାଲି;
                 uint64_t sv, hv;
-                const char *e;
+                ଅଚଳ ଅକ୍ଷର *e;
 
                 e = startswith(*i, prefix_table[resource]);
-                if (!e)
-                        continue;
+                ଯଦି (!e)
+                        ଜାରି;
 
-                if (*e != ' ')
-                        continue;
+                ଯଦି (*e != ' ')
+                        ଜାରି;
 
                 e += strspn(e, WHITESPACE);
 
                 size_t n;
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
-                        continue;
+                ଯଦି (n == 0)
+                        ଜାରି;
 
                 soft = strndup(e, n);
-                if (!soft)
-                        return -ENOMEM;
+                ଯଦି (!soft)
+                        ଫେରନ୍ତୁ -ENOMEM;
 
                 e += n;
-                if (*e != ' ')
-                        continue;
+                ଯଦି (*e != ' ')
+                        ଜାରି;
 
                 e += strspn(e, WHITESPACE);
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
-                        continue;
+                ଯଦି (n == 0)
+                        ଜାରି;
 
                 hard = strndup(e, n);
-                if (!hard)
-                        return -ENOMEM;
+                ଯଦି (!hard)
+                        ଫେରନ୍ତୁ -ENOMEM;
 
-                if (streq(soft, "unlimited"))
+                ଯଦି (streq(soft, "unlimited"))
                         sv = RLIM_INFINITY;
-                else {
+                ଅନ୍ୟଥା {
                         r = safe_atou64(soft, &sv);
-                        if (r < 0)
-                                return r;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
                 }
 
-                if (streq(hard, "unlimited"))
+                ଯଦି (streq(hard, "unlimited"))
                         hv = RLIM_INFINITY;
-                else {
+                ଅନ୍ୟଥା {
                         r = safe_atou64(hard, &hv);
-                        if (r < 0)
-                                return r;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
                 }
 
-                *ret = (struct rlimit) {
+                *ret = (ସଂରଚନା rlimit) {
                         .rlim_cur = sv,
                         .rlim_max = hv,
                 };
 
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
-        return -ENOTRECOVERABLE;
+        ଫେରନ୍ତୁ -ENOTRECOVERABLE;
 }

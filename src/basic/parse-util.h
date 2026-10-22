@@ -1,28 +1,28 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-typedef unsigned long loadavg_t;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା unsigned long loadavg_t;
 
-int parse_boolean(const char *v) _pure_;
-int parse_tristate_full(const char *v, const char *third, int *ret);
-static inline int parse_tristate(const char *v, int *ret) {
-        return parse_tristate_full(v, NULL, ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_boolean(ଅଚଳ ଅକ୍ଷର *v) _pure_;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_tristate_full(ଅଚଳ ଅକ୍ଷର *v, ଅଚଳ ଅକ୍ଷର *third, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_tristate(ଅଚଳ ଅକ୍ଷର *v, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret) {
+        ଫେରନ୍ତୁ parse_tristate_full(v, ଖାଲି, ret);
 }
-int parse_pid(const char *s, pid_t *ret);
-int parse_mode(const char *s, mode_t *ret);
-int parse_ifindex(const char *s);
-int parse_mtu(int family, const char *s, uint32_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_pid(ଅଚଳ ଅକ୍ଷର *s, pid_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_mode(ଅଚଳ ଅକ୍ଷର *s, mode_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_ifindex(ଅଚଳ ଅକ୍ଷର *s);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_mtu(ପୂର୍ଣ୍ଣସଂଖ୍ୟା family, ଅଚଳ ଅକ୍ଷର *s, uint32_t *ret);
 
-int parse_size(const char *t, uint64_t base, uint64_t *size);
-int parse_sector_size(const char *t, uint64_t *ret);
-int parse_range(const char *t, unsigned *lower, unsigned *upper);
-int parse_errno(const char *t);
-int parse_fd(const char *t);
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_size(ଅଚଳ ଅକ୍ଷର *t, uint64_t base, uint64_t *size);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_sector_size(ଅଚଳ ଅକ୍ଷର *t, uint64_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_range(ଅଚଳ ଅକ୍ଷର *t, unsigned *lower, unsigned *upper);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_errno(ଅଚଳ ଅକ୍ଷର *t);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_fd(ଅଚଳ ଅକ୍ଷର *t);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_user_shell(ଅଚଳ ଅକ୍ଷର *s, ଅକ୍ଷର **ret_sh, bool *ret_copy);
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_capability_set(ଅଚଳ ଅକ୍ଷର *s, uint64_t initial, uint64_t *current);
 
 #define SAFE_ATO_REFUSE_PLUS_MINUS (1U << 30)
 #define SAFE_ATO_REFUSE_LEADING_ZERO (1U << 29)
@@ -30,119 +30,119 @@ int parse_capability_set(const char *s, uint64_t initial, uint64_t *current);
 #define SAFE_ATO_ALL_FLAGS (SAFE_ATO_REFUSE_PLUS_MINUS|SAFE_ATO_REFUSE_LEADING_ZERO|SAFE_ATO_REFUSE_LEADING_WHITESPACE)
 #define SAFE_ATO_MASK_FLAGS(base) ((base) & ~SAFE_ATO_ALL_FLAGS)
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u);
-static inline int safe_atou(const char *s, unsigned *ret_u) {
-        return safe_atou_full(s, 0, ret_u);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, unsigned *ret_u);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou(ଅଚଳ ଅକ୍ଷର *s, unsigned *ret_u) {
+        ଫେରନ୍ତୁ safe_atou_full(s, 0, ret_u);
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou_bounded(ଅଚଳ ଅକ୍ଷର *s, unsigned min, unsigned max, unsigned *ret);
 
-int safe_atoi(const char *s, int *ret_i);
-int safe_atolli(const char *s, long long *ret_lli);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoi(ଅଚଳ ଅକ୍ଷର *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret_i);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atolli(ଅଚଳ ଅକ୍ଷର *s, long long *ret_lli);
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou8_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, uint8_t *ret);
 
-static inline int safe_atou8(const char *s, uint8_t *ret) {
-        return safe_atou8_full(s, 0, ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou8(ଅଚଳ ଅକ୍ଷର *s, uint8_t *ret) {
+        ଫେରନ୍ତୁ safe_atou8_full(s, 0, ret);
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou16_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, uint16_t *ret);
 
-static inline int safe_atou16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 0, ret);
-}
-
-static inline int safe_atoux16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 16, ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou16(ଅଚଳ ଅକ୍ଷର *s, uint16_t *ret) {
+        ଫେରନ୍ତୁ safe_atou16_full(s, 0, ret);
 }
 
-int safe_atoi16(const char *s, int16_t *ret);
-
-static inline int safe_atou32_full(const char *s, unsigned base, uint32_t *ret_u) {
-        assert_cc(sizeof(uint32_t) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoux16(ଅଚଳ ଅକ୍ଷର *s, uint16_t *ret) {
+        ଫେରନ୍ତୁ safe_atou16_full(s, 16, ret);
 }
 
-static inline int safe_atou32(const char *s, uint32_t *ret_u) {
-        return safe_atou32_full(s, 0, (unsigned*) ret_u);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoi16(ଅଚଳ ଅକ୍ଷର *s, int16_t *ret);
+
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou32_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, uint32_t *ret_u) {
+        assert_cc(ଆକାର(uint32_t) == ଆକାର(unsigned));
+        ଫେରନ୍ତୁ safe_atou_full(s, base, (unsigned*) ret_u);
 }
 
-static inline int safe_atoi32(const char *s, int32_t *ret_i) {
-        assert_cc(sizeof(int32_t) == sizeof(int));
-        return safe_atoi(s, (int*) ret_i);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou32(ଅଚଳ ଅକ୍ଷର *s, uint32_t *ret_u) {
+        ଫେରନ୍ତୁ safe_atou32_full(s, 0, (unsigned*) ret_u);
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu);
-
-static inline int safe_atollu(const char *s, unsigned long long *ret_llu) {
-        return safe_atollu_full(s, 0, ret_llu);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoi32(ଅଚଳ ଅକ୍ଷର *s, int32_t *ret_i) {
+        assert_cc(ଆକାର(int32_t) == ଆକାର(ପୂର୍ଣ୍ଣସଂଖ୍ୟା));
+        ଫେରନ୍ତୁ safe_atoi(s, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା*) ret_i);
 }
 
-static inline int safe_atou64_full(const char *s, unsigned base, uint64_t *ret_u) {
-        assert_cc(sizeof(uint64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atollu_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, unsigned long long *ret_llu);
+
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atollu(ଅଚଳ ଅକ୍ଷର *s, unsigned long long *ret_llu) {
+        ଫେରନ୍ତୁ safe_atollu_full(s, 0, ret_llu);
 }
 
-static inline int safe_atou64(const char *s, uint64_t *ret_u) {
-        return safe_atou64_full(s, 0, ret_u);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou64_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, uint64_t *ret_u) {
+        assert_cc(ଆକାର(uint64_t) == ଆକାର(unsigned long long));
+        ଫେରନ୍ତୁ safe_atollu_full(s, base, (unsigned long long*) ret_u);
 }
 
-static inline int safe_atoi64(const char *s, int64_t *ret_i) {
-        assert_cc(sizeof(int64_t) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_i);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atou64(ଅଚଳ ଅକ୍ଷର *s, uint64_t *ret_u) {
+        ଫେରନ୍ତୁ safe_atou64_full(s, 0, ret_u);
 }
 
-static inline int safe_atoux64(const char *s, uint64_t *ret) {
-        assert_cc(sizeof(int64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, 16, (unsigned long long*) ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoi64(ଅଚଳ ଅକ୍ଷର *s, int64_t *ret_i) {
+        assert_cc(ଆକାର(int64_t) == ଆକାର(long long));
+        ଫେରନ୍ତୁ safe_atolli(s, (long long*) ret_i);
 }
 
-#if LONG_MAX == INT_MAX
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(int));
-        return safe_atoi(s, (int*) ret_u);
-}
-#else
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_u);
-}
-#endif
-
-static inline int safe_atolu(const char *s, unsigned long *ret_u) {
-        return safe_atolu_full(s, 0, ret_u);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoux64(ଅଚଳ ଅକ୍ଷର *s, uint64_t *ret) {
+        assert_cc(ଆକାର(int64_t) == ଆକାର(unsigned long long));
+        ଫେରନ୍ତୁ safe_atollu_full(s, 16, (unsigned long long*) ret);
 }
 
-#if SIZE_MAX == UINT_MAX
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned));
-        return safe_atou(s, (unsigned *) ret_u);
+#ଯଦି LONG_MAX == INT_MAX
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atolu_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, unsigned long *ret_u) {
+        assert_cc(ଆକାର(unsigned long) == ଆକାର(unsigned));
+        ଫେରନ୍ତୁ safe_atou_full(s, base, (unsigned*) ret_u);
 }
-#else
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned long));
-        return safe_atolu(s, ret_u);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoli(ଅଚଳ ଅକ୍ଷର *s, long *ret_u) {
+        assert_cc(ଆକାର(long) == ଆକାର(ପୂର୍ଣ୍ଣସଂଖ୍ୟା));
+        ଫେରନ୍ତୁ safe_atoi(s, (ପୂର୍ଣ୍ଣସଂଖ୍ୟା*) ret_u);
+}
+#ଅନ୍ୟଥା
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atolu_full(ଅଚଳ ଅକ୍ଷର *s, unsigned base, unsigned long *ret_u) {
+        assert_cc(ଆକାର(unsigned long) == ଆକାର(unsigned long long));
+        ଫେରନ୍ତୁ safe_atollu_full(s, base, (unsigned long long*) ret_u);
+}
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atoli(ଅଚଳ ଅକ୍ଷର *s, long *ret_u) {
+        assert_cc(ଆକାର(long) == ଆକାର(long long));
+        ଫେରନ୍ତୁ safe_atolli(s, (long long*) ret_u);
 }
 #endif
 
-int safe_atod(const char *s, double *ret_d);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atolu(ଅଚଳ ଅକ୍ଷର *s, unsigned long *ret_u) {
+        ଫେରନ୍ତୁ safe_atolu_full(s, 0, ret_u);
+}
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res);
+#ଯଦି SIZE_MAX == UINT_MAX
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atozu(ଅଚଳ ଅକ୍ଷର *s, size_t *ret_u) {
+        assert_cc(ଆକାର(size_t) == ଆକାର(unsigned));
+        ଫେରନ୍ତୁ safe_atou(s, (unsigned *) ret_u);
+}
+#ଅନ୍ୟଥା
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atozu(ଅଚଳ ଅକ୍ଷର *s, size_t *ret_u) {
+        assert_cc(ଆକାର(size_t) == ଆକାର(unsigned long));
+        ଫେରନ୍ତୁ safe_atolu(s, ret_u);
+}
+#endif
 
-int parse_nice(const char *s, int *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_atod(ଅଚଳ ଅକ୍ଷର *s, ଦ୍ୱିଗୁଣ *ret_d);
 
-int parse_ip_port(const char *s, uint16_t *ret);
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_fractional_part_u(ଅଚଳ ଅକ୍ଷର **p, size_t digits, unsigned *res);
 
-int parse_oom_score_adjust(const char *s, int *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_nice(ଅଚଳ ଅକ୍ଷର *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret);
+
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_ip_port(ଅଚଳ ଅକ୍ଷର *s, uint16_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_ip_port_range(ଅଚଳ ଅକ୍ଷର *s, uint16_t *low, uint16_t *high, bool allow_zero);
+
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_oom_score_adjust(ଅଚଳ ଅକ୍ଷର *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret);
 
 /* Implement floating point using fixed integers, to improve performance when
  * calculating load averages. These macros can be used to extract the integer
@@ -154,7 +154,7 @@ int parse_oom_score_adjust(const char *s, int *ret);
 
 /* Given a Linux load average (e.g. decimal number 34.89 where 34 is passed as i and 89 is passed as f), convert it
  * to a loadavg_t. */
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret);
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା parse_loadavg_fixed_point(ଅଚଳ ଅକ୍ଷର *s, loadavg_t *ret);
 
-bool nft_identifier_valid(const char *id);
+bool nft_identifier_valid(ଅଚଳ ଅକ୍ଷର *id);

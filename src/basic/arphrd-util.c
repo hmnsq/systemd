@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <linux/if_arp.h>
+#ଅନ୍ତର୍ଭାଵ <linux/if_infiniband.h>
+#ଅନ୍ତର୍ଭାଵ <netinet/in.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 
-#include "arphrd-util.h"
+#ଅନ୍ତର୍ଭାଵ "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+ସ୍ଥିର ଅଚଳ ସଂରଚନା arphrd_name* lookup_arphrd(ପଞ୍ଜିକରଣ ଅଚଳ ଅକ୍ଷର *str, ପଞ୍ଜିକରଣ GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#ଅନ୍ତର୍ଭାଵ "arphrd-from-name.inc"
+#ଅନ୍ତର୍ଭାଵ "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା arphrd_from_name(ଅଚଳ ଅକ୍ଷର *name) {
+        ଅଚଳ ସଂରଚନା arphrd_name *sc;
 
-        assert(name);
+        ପ୍ରତିଜ୍ଞା(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ଯଦି (!sc)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        return sc->id;
+        ଫେରନ୍ତୁ sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+        ବାଛ (arphrd) {
+        ସ୍ଥିତି ARPHRD_ETHER:
+                ଫେରନ୍ତୁ ETH_ALEN;
+        ସ୍ଥିତି ARPHRD_INFINIBAND:
+                ଫେରନ୍ତୁ INFINIBAND_ALEN;
+        ସ୍ଥିତି ARPHRD_TUNNEL:
+        ସ୍ଥିତି ARPHRD_SIT:
+        ସ୍ଥିତି ARPHRD_IPGRE:
+                ଫେରନ୍ତୁ ଆକାର(ସଂରଚନା in_addr);
+        ସ୍ଥିତି ARPHRD_TUNNEL6:
+        ସ୍ଥିତି ARPHRD_IP6GRE:
+                ଫେରନ୍ତୁ ଆକାର(ସଂରଚନା in6_addr);
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ 0;
         }
 }

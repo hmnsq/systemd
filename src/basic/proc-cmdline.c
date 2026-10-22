@@ -1,28 +1,28 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "initrd-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "virt.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "extract-word.h"
+#ଅନ୍ତର୍ଭାଵ "fileio.h"
+#ଅନ୍ତର୍ଭାଵ "initrd-util.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "parse-util.h"
+#ଅନ୍ତର୍ଭାଵ "proc-cmdline.h"
+#ଅନ୍ତର୍ଭାଵ "process-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "strv.h"
+#ଅନ୍ତର୍ଭାଵ "virt.h"
 
-typedef enum ArgType {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା ArgType {
         no_argument,
         required_argument,
         optional_argument,
 } ArgType;
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
-        const struct {
-                const char *name;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_filter_pid1_args(ଅକ୍ଷର **argv, ଅକ୍ଷର ***ret) {
+        ଅଚଳ ସଂରଚନା {
+                ଅଚଳ ଅକ୍ଷର *name;
                 ArgType has_arg;
         } options[] = {
                 { "log-level",                required_argument },
@@ -58,280 +58,280 @@ int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
                 { "exit-code",                required_argument },
                 { "timeout",                  required_argument },
         };
-        const char *short_options = "hDbsz:";
+        ଅଚଳ ଅକ୍ଷର *short_options = "hDbsz:";
 
-        _cleanup_strv_free_ char **filtered = NULL;
-        int state, r;
+        _cleanup_strv_free_ ଅକ୍ଷର **filtered = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା state, r;
 
-        assert(argv);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(argv);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* Currently, we do not support '-', '+', and ':' at the beginning. */
-        assert(!IN_SET(short_options[0], '-', '+', ':'));
+        ପ୍ରତିଜ୍ଞା(!IN_SET(short_options[0], '-', '+', ':'));
 
         /* Filter out all known options. */
         state = no_argument;
         STRV_FOREACH(p, strv_skip(argv, 1)) {
-                int prev_state = state;
-                const char *a = *p;
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା prev_state = state;
+                ଅଚଳ ଅକ୍ଷର *a = *p;
 
                 /* Reset the state for the next step. */
                 state = no_argument;
 
-                if (prev_state == required_argument ||
+                ଯଦି (prev_state == required_argument ||
                     (prev_state == optional_argument && a[0] != '-'))
                         /* Handled as an argument of the previous option, filtering out the string. */
-                        continue;
+                        ଜାରି;
 
-                if (a[0] != '-') {
+                ଯଦି (a[0] != '-') {
                         /* Not an option, accepting the string. */
                         r = strv_extend(&filtered, a);
-                        if (r < 0)
-                                return r;
-                        continue;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
+                        ଜାରି;
                 }
 
-                if (a[1] == '-') {
-                        if (a[2] == '\0') {
+                ଯଦି (a[1] == '-') {
+                        ଯଦି (a[2] == '\0') {
                                 /* "--" is specified, accepting remaining strings. */
                                 r = strv_extend_strv(&filtered, strv_skip(p, 1), /* filter_duplicates= */ false);
-                                if (r < 0)
-                                        return r;
-                                break;
+                                ଯଦି (r < 0)
+                                        ଫେରନ୍ତୁ r;
+                                ଭାଙ୍ଗ;
                         }
 
                         /* long option, e.g. --foo */
                         FOREACH_ELEMENT(option, options) {
-                                const char *q = startswith(a + 2, option->name);
-                                if (!q || !IN_SET(q[0], '=', '\0'))
-                                        continue;
+                                ଅଚଳ ଅକ୍ଷର *q = startswith(a + 2, option->name);
+                                ଯଦି (!q || !IN_SET(q[0], '=', '\0'))
+                                        ଜାରି;
 
                                 /* Found matching option, updating the state if necessary. */
-                                if (q[0] == '\0' && option->has_arg == required_argument)
+                                ଯଦି (q[0] == '\0' && option->has_arg == required_argument)
                                         state = required_argument;
 
-                                break;
+                                ଭାଙ୍ଗ;
                         }
-                        continue;
+                        ଜାରି;
                 }
 
                 /* short option(s), e.g. -x or -xyz */
-                while (a && *++a != '\0')
-                        for (const char *q = short_options; *q != '\0'; q++) {
-                                if (*q != *a)
-                                        continue;
+                ଯେତେବେଳେ (a && *++a != '\0')
+                        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *q = short_options; *q != '\0'; q++) {
+                                ଯଦି (*q != *a)
+                                        ଜାରି;
 
                                 /* Found matching short option. */
 
-                                if (q[1] == ':') {
+                                ଯଦି (q[1] == ':') {
                                         /* An argument is required or optional, and remaining part
                                          * is handled as argument if exists. */
                                         state = a[1] != '\0' ? no_argument :
                                                 q[2] == ':' ? optional_argument : required_argument;
 
-                                        a = NULL; /* Not necessary to parse remaining part. */
+                                        a = ଖାଲି; /* Not necessary to parse remaining part. */
                                 }
-                                break;
+                                ଭାଙ୍ଗ;
                         }
         }
 
         *ret = TAKE_PTR(filtered);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int proc_cmdline(char **ret) {
-        assert(ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline(ଅକ୍ଷର **ret) {
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strdup_to(ret, e);
+        ଅଚଳ ଅକ୍ଷର *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        ଯଦି (e)
+                ଫେରନ୍ତୁ strdup_to(ret, e);
 
-        if (detect_container() > 0)
-                return pid_get_cmdline(1, SIZE_MAX, 0, ret);
+        ଯଦି (detect_container() > 0)
+                ଫେରନ୍ତୁ pid_get_cmdline(1, SIZE_MAX, 0, ret);
 
-        return read_full_file("/proc/cmdline", ret, /* ret_size= */  NULL);
+        ଫେରନ୍ତୁ read_full_file("/proc/cmdline", ret, /* ret_size= */  ଖାଲି);
 }
 
-static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
-        int r;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_strv_internal(ଅକ୍ଷର ***ret, bool filter_pid1_args) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strv_split_full(ret, e, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+        ଅଚଳ ଅକ୍ଷର *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        ଯଦି (e)
+                ଫେରନ୍ତୁ strv_split_full(ret, e, ଖାଲି, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
 
-        if (detect_container() > 0) {
-                _cleanup_strv_free_ char **args = NULL;
+        ଯଦି (detect_container() > 0) {
+                _cleanup_strv_free_ ଅକ୍ଷର **args = ଖାଲି;
 
                 r = pid_get_cmdline_strv(1, /* flags= */ 0, &args);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
-                if (filter_pid1_args)
-                        return proc_cmdline_filter_pid1_args(args, ret);
+                ଯଦି (filter_pid1_args)
+                        ଫେରନ୍ତୁ proc_cmdline_filter_pid1_args(args, ret);
 
                 *ret = TAKE_PTR(args);
-                return 0;
+                ଫେରନ୍ତୁ 0;
 
-        } else {
-                _cleanup_free_ char *s = NULL;
+        } ଅନ୍ୟଥା {
+                _cleanup_free_ ଅକ୍ଷର *s = ଖାଲି;
 
-                r = read_full_file("/proc/cmdline", &s, NULL);
-                if (r < 0)
-                        return r;
+                r = read_full_file("/proc/cmdline", &s, ଖାଲି);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
-                return strv_split_full(ret, s, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+                ଫେରନ୍ତୁ strv_split_full(ret, s, ଖାଲି, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
         }
 }
 
-int proc_cmdline_strv(char ***ret) {
-        return proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_strv(ଅକ୍ଷର ***ret) {
+        ଫେରନ୍ତୁ proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
 }
 
-static char *mangle_word(const char *word, ProcCmdlineFlags flags) {
-        char *c = (char*) startswith(word, "rd.");
-        if (c) {
+ସ୍ଥିର ଅକ୍ଷର *mangle_word(ଅଚଳ ଅକ୍ଷର *word, ProcCmdlineFlags flags) {
+        ଅକ୍ଷର *c = (ଅକ୍ଷର*) startswith(word, "rd.");
+        ଯଦି (c) {
                 /* Filter out arguments that are intended only for the initrd */
 
-                if (!in_initrd())
-                        return NULL;
+                ଯଦି (!in_initrd())
+                        ଫେରନ୍ତୁ ଖାଲି;
 
-                if (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
-                        return c;
+                ଯଦି (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
+                        ଫେରନ୍ତୁ c;
 
-        } else if (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
+        } ଅନ୍ୟଥା ଯଦି (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
                 /* And optionally filter out arguments that are intended only for the host */
-                return NULL;
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        return (char*) word;
+        ଫେରନ୍ତୁ (ଅକ୍ଷର*) word;
 }
 
 #define mangle_word(word, flags) const_generic(word, mangle_word(word, flags))
 
-static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        int r;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_parse_strv(ଅକ୍ଷର **args, proc_cmdline_parse_t parse_item, ଶୂନ୍ୟ *data, ProcCmdlineFlags flags) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(parse_item);
+        ପ୍ରତିଜ୍ଞା(parse_item);
 
         STRV_FOREACH(word, args) {
-                char *key, *value;
+                ଅକ୍ଷର *ଚାବି, *ମୂଲ୍ୟ;
 
-                key = mangle_word(*word, flags);
-                if (!key)
-                        continue;
+                ଚାବି = mangle_word(*word, flags);
+                ଯଦି (!ଚାବି)
+                        ଜାରି;
 
-                value = strchr(key, '=');
-                if (value)
-                        *(value++) = '\0';
+                ମୂଲ୍ୟ = strchr(ଚାବି, '=');
+                ଯଦି (ମୂଲ୍ୟ)
+                        *(ମୂଲ୍ୟ++) = '\0';
 
-                r = parse_item(key, value, data);
-                if (r < 0)
-                        return r;
+                r = parse_item(ଚାବି, ମୂଲ୍ୟ, data);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_parse(proc_cmdline_parse_t parse_item, ଶୂନ୍ୟ *data, ProcCmdlineFlags flags) {
+        _cleanup_strv_free_ ଅକ୍ଷର **args = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(parse_item);
+        ପ୍ରତିଜ୍ଞା(parse_item);
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_parse(), let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ପ୍ରତିଜ୍ଞା(!(flags & (PROC_CMDLINE_ମୂଲ୍ୟ_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        return proc_cmdline_parse_strv(args, parse_item, data, flags);
+        ଫେରନ୍ତୁ proc_cmdline_parse_strv(args, parse_item, data, flags);
 }
 
-static bool relaxed_equal_char(char a, char b) {
-        return a == b ||
+ସ୍ଥିର bool relaxed_equal_char(ଅକ୍ଷର a, ଅକ୍ଷର b) {
+        ଫେରନ୍ତୁ a == b ||
                 (a == '_' && b == '-') ||
                 (a == '-' && b == '_');
 }
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
-        assert(s);
-        assert(prefix);
+ଅକ୍ଷର* proc_cmdline_ଚାବି_startswith(ଅଚଳ ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *prefix) {
+        ପ୍ରତିଜ୍ଞା(s);
+        ପ୍ରତିଜ୍ଞା(prefix);
 
         /* Much like startswith(), but considers "-" and "_" the same */
 
-        for (; *prefix != 0; s++, prefix++)
-                if (!relaxed_equal_char(*s, *prefix))
-                        return NULL;
+        ପାଇଁ (; *prefix != 0; s++, prefix++)
+                ଯଦି (!relaxed_equal_char(*s, *prefix))
+                        ଫେରନ୍ତୁ ଖାଲି;
 
-        return (char*) s;
+        ଫେରନ୍ତୁ (ଅକ୍ଷର*) s;
 }
 
-bool proc_cmdline_key_streq(const char *x, const char *y) {
-        assert(x);
-        assert(y);
+bool proc_cmdline_ଚାବି_streq(ଅଚଳ ଅକ୍ଷର *x, ଅଚଳ ଅକ୍ଷର *y) {
+        ପ୍ରତିଜ୍ଞା(x);
+        ପ୍ରତିଜ୍ଞା(y);
 
         /* Much like streq(), but considers "-" and "_" the same */
 
-        for (; *x != 0 || *y != 0; x++, y++)
-                if (!relaxed_equal_char(*x, *y))
-                        return false;
+        ପାଇଁ (; *x != 0 || *y != 0; x++, y++)
+                ଯଦି (!relaxed_equal_char(*x, *y))
+                        ଫେରନ୍ତୁ false;
 
-        return true;
+        ଫେରନ୍ତୁ true;
 }
 
-static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_free_ char *v = NULL;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cmdline_get_ଚାବି(ଅକ୍ଷର **args, ଅଚଳ ଅକ୍ଷର *ଚାବି, ProcCmdlineFlags flags, ଅକ୍ଷର **ret_ମୂଲ୍ୟ) {
+        _cleanup_free_ ଅକ୍ଷର *v = ଖାଲି;
         bool found = false;
-        int r;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(key);
+        ପ୍ରତିଜ୍ଞା(ଚାବି);
 
         STRV_FOREACH(p, args) {
-                const char *word;
+                ଅଚଳ ଅକ୍ଷର *word;
 
                 word = mangle_word(*p, flags);
-                if (!word)
-                        continue;
+                ଯଦି (!word)
+                        ଜାରି;
 
-                if (ret_value) {
-                        const char *e;
+                ଯଦି (ret_ମୂଲ୍ୟ) {
+                        ଅଚଳ ଅକ୍ଷର *e;
 
-                        e = proc_cmdline_key_startswith(word, key);
-                        if (!e)
-                                continue;
+                        e = proc_cmdline_ଚାବି_startswith(word, ଚାବି);
+                        ଯଦି (!e)
+                                ଜାରି;
 
-                        if (*e == '=') {
+                        ଯଦି (*e == '=') {
                                 r = free_and_strdup(&v, e+1);
-                                if (r < 0)
-                                        return r;
+                                ଯଦି (r < 0)
+                                        ଫେରନ୍ତୁ r;
 
                                 found = true;
 
-                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL))
+                        } ଅନ୍ୟଥା ଯଦି (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_ମୂଲ୍ୟ_OPTIONAL))
                                 found = true;
 
-                } else {
-                        if (proc_cmdline_key_streq(word, key)) {
+                } ଅନ୍ୟଥା {
+                        ଯଦି (proc_cmdline_ଚାବି_streq(word, ଚାବି)) {
                                 found = true;
-                                break; /* we found what we were looking for */
+                                ଭାଙ୍ଗ; /* we found what we were looking for */
                         }
                 }
         }
 
-        if (ret_value)
-                *ret_value = TAKE_PTR(v);
+        ଯଦି (ret_ମୂଲ୍ୟ)
+                *ret_ମୂଲ୍ୟ = TAKE_PTR(v);
 
-        return found;
+        ଫେରନ୍ତୁ found;
 }
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_get_ଚାବି(ଅଚଳ ଅକ୍ଷର *ଚାବି, ProcCmdlineFlags flags, ଅକ୍ଷର **ret_ମୂଲ୍ୟ) {
+        _cleanup_strv_free_ ଅକ୍ଷର **args = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* Looks for a specific key on the kernel command line. Supports three modes:
          *
@@ -347,109 +347,109 @@ int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_val
          * In all three cases, > 0 is returned if the key is found, 0 if not. */
 
         /* PROC_CMDLINE_TRUE_WHEN_MISSING doesn't really make sense for proc_cmdline_get_key(). */
-        assert(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
+        ପ୍ରତିଜ୍ଞା(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
 
-        if (isempty(key))
-                return -EINVAL;
+        ଯଦି (isempty(ଚାବି))
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL) && !ret_value)
-                return -EINVAL;
+        ଯଦି (FLAGS_SET(flags, PROC_CMDLINE_ମୂଲ୍ୟ_OPTIONAL) && !ret_ମୂଲ୍ୟ)
+                ଫେରନ୍ତୁ -EINVAL;
 
         r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        return cmdline_get_key(args, key, flags, ret_value);
+        ଫେରନ୍ତୁ cmdline_get_ଚାବି(args, ଚାବି, flags, ret_ମୂଲ୍ୟ);
 }
 
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_get_bool(ଅଚଳ ଅକ୍ଷର *ଚାବି, ProcCmdlineFlags flags, bool *ret) {
+        _cleanup_free_ ଅକ୍ଷର *v = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        r = proc_cmdline_get_key(key, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_VALUE_OPTIONAL, &v);
-        if (r < 0)
-                return r;
-        if (r == 0) { /* key not specified at all */
+        r = proc_cmdline_get_ଚାବି(ଚାବି, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_ମୂଲ୍ୟ_OPTIONAL, &v);
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (r == 0) { /* key not specified at all */
                 *ret = FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
-        if (v) { /* key with parameter passed */
+        ଯଦି (v) { /* key with parameter passed */
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
                 *ret = r;
-        } else /* key without parameter passed */
+        } ଅନ୍ୟଥା /* key without parameter passed */
                 *ret = true;
 
-        return 1;
+        ଫେରନ୍ତୁ 1;
 }
 
-static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list ap) {
-        int r, ret = 0;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cmdline_get_ଚାବି_ap(ProcCmdlineFlags flags, ଅକ୍ଷର* ଅଚଳ* args, va_list ap) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r, ret = 0;
 
-        for (;;) {
-                char **v;
-                const char *k, *e;
+        ପାଇଁ (;;) {
+                ଅକ୍ଷର **v;
+                ଅଚଳ ଅକ୍ଷର *k, *e;
 
-                k = va_arg(ap, const char*);
-                if (!k)
-                        break;
+                k = va_arg(ap, ଅଚଳ ଅକ୍ଷର*);
+                ଯଦି (!k)
+                        ଭାଙ୍ଗ;
 
-                assert_se(v = va_arg(ap, char**));
+                assert_se(v = va_arg(ap, ଅକ୍ଷର**));
 
                 STRV_FOREACH(p, args) {
-                        const char *word;
+                        ଅଚଳ ଅକ୍ଷର *word;
 
                         word = mangle_word(*p, flags);
-                        if (!word)
-                                continue;
+                        ଯଦି (!word)
+                                ଜାରି;
 
-                        e = proc_cmdline_key_startswith(word, k);
-                        if (e && *e == '=') {
+                        e = proc_cmdline_ଚାବି_startswith(word, k);
+                        ଯଦି (e && *e == '=') {
                                 r = free_and_strdup(v, e + 1);
-                                if (r < 0)
-                                        return r;
+                                ଯଦି (r < 0)
+                                        ଫେରନ୍ତୁ r;
 
                                 ret++;
                         }
                 }
         }
 
-        return ret;
+        ଫେରନ୍ତୁ ret;
 }
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_cmdline_get_ଚାବି_many_internal(ProcCmdlineFlags flags, ...) {
+        _cleanup_strv_free_ ଅକ୍ଷର **args = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
         va_list ap;
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_get_key_many, let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ପ୍ରତିଜ୍ଞା(!(flags & (PROC_CMDLINE_ମୂଲ୍ୟ_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         /* This call may clobber arguments on failure! */
 
         r = proc_cmdline_strv(&args);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         va_start(ap, flags);
-        r = cmdline_get_key_ap(flags, args, ap);
+        r = cmdline_get_ଚାବି_ap(flags, args, ap);
         va_end(ap);
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-bool proc_cmdline_value_missing(const char *key, const char *value) {
-        assert(key);
+bool proc_cmdline_ମୂଲ୍ୟ_missing(ଅଚଳ ଅକ୍ଷର *ଚାବି, ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ) {
+        ପ୍ରତିଜ୍ଞା(ଚାବି);
 
-        if (!value) {
-                log_warning("Missing argument for %s= kernel command line switch, ignoring.", key);
-                return true;
+        ଯଦି (!ମୂଲ୍ୟ) {
+                log_warning("Missing argument for %s= kernel command line switch, ignoring.", ଚାବି);
+                ଫେରନ୍ତୁ true;
         }
 
-        return false;
+        ଫେରନ୍ତୁ false;
 }

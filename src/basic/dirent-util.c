@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/stat.h>
+#ଅନ୍ତର୍ଭାଵ <fcntl.h>
+#ଅନ୍ତର୍ଭାଵ <sys/stat.h>
 
-#include "dirent-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "dirent-util.h"
+#ଅନ୍ତର୍ଭାଵ "path-util.h"
+#ଅନ୍ତର୍ଭାଵ "stat-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
 
-int dirent_ensure_type(int dir_fd, struct dirent *de) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା dirent_ensure_type(ପୂର୍ଣ୍ଣସଂଖ୍ୟା dir_fd, ସଂରଚନା dirent *de) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(dir_fd >= 0);
-        assert(de);
+        ପ୍ରତିଜ୍ଞା(dir_fd >= 0);
+        ପ୍ରତିଜ୍ଞା(de);
 
-        if (de->d_type != DT_UNKNOWN)
-                return 0;
+        ଯଦି (de->d_type != DT_UNKNOWN)
+                ଫେରନ୍ତୁ 0;
 
-        if (dot_or_dot_dot(de->d_name)) {
+        ଯଦି (dot_or_dot_dot(de->d_name)) {
                 de->d_type = DT_DIR;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
         /* Let's ask only for the type, nothing else. */
-        struct statx sx;
+        ସଂରଚନା statx sx;
         r = xstatx_full(dir_fd,
                         de->d_name,
                         AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT,
@@ -32,81 +32,81 @@ int dirent_ensure_type(int dir_fd, struct dirent *de) {
                         /* optional_mask= */ STATX_INO,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        assert(FLAGS_SET(sx.stx_mask, STATX_TYPE));
+        ପ୍ରତିଜ୍ଞା(FLAGS_SET(sx.stx_mask, STATX_TYPE));
         de->d_type = IFTODT(sx.stx_mode);
 
         /* If the inode is passed too, update the field, i.e. report most recent data */
-        if (FLAGS_SET(sx.stx_mask, STATX_INO))
+        ଯଦି (FLAGS_SET(sx.stx_mask, STATX_INO))
                 de->d_ino = sx.stx_ino;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-bool dirent_is_file(const struct dirent *de) {
-        assert(de);
+bool dirent_is_file(ଅଚଳ ସଂରଚନା dirent *de) {
+        ପ୍ରତିଜ୍ଞା(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ଯଦି (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ଫେରନ୍ତୁ false;
 
-        if (hidden_or_backup_file(de->d_name))
-                return false;
+        ଯଦି (hidden_or_backup_file(de->d_name))
+                ଫେରନ୍ତୁ false;
 
-        return true;
+        ଫେରନ୍ତୁ true;
 }
 
-bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) {
-        assert(de);
+bool dirent_is_file_with_suffix(ଅଚଳ ସଂରଚନା dirent *de, ଅଚଳ ଅକ୍ଷର *suffix) {
+        ପ୍ରତିଜ୍ଞା(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ଯଦି (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ଫେରନ୍ତୁ false;
 
-        if (de->d_name[0] == '.')
-                return false;
+        ଯଦି (de->d_name[0] == '.')
+                ଫେରନ୍ତୁ false;
 
-        if (!suffix)
-                return true;
+        ଯଦି (!suffix)
+                ଫେରନ୍ତୁ true;
 
-        return endswith(de->d_name, suffix);
+        ଫେରନ୍ତୁ endswith(de->d_name, suffix);
 }
 
-struct dirent* readdir_ensure_type(DIR *d) {
-        int r;
+ସଂରଚନା dirent* readdir_ensure_type(DIR *d) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(d);
+        ପ୍ରତିଜ୍ଞା(d);
 
         /* Like readdir(), but fills in .d_type if it is DT_UNKNOWN */
 
-        for (;;) {
-                struct dirent *de;
+        ପାଇଁ (;;) {
+                ସଂରଚନା dirent *de;
 
                 errno = 0;
                 de = readdir(d);
-                if (!de)
-                        return NULL;
+                ଯଦି (!de)
+                        ଫେରନ୍ତୁ ଖାଲି;
 
                 r = dirent_ensure_type(dirfd(d), de);
-                if (r >= 0)
-                        return de;
-                if (r != -ENOENT) {
+                ଯଦି (r >= 0)
+                        ଫେରନ୍ତୁ de;
+                ଯଦି (r != -ENOENT) {
                         errno = -r; /* We want to be compatible with readdir(), hence propagate error via errno here */
-                        return NULL;
+                        ଫେରନ୍ତୁ ଖାଲି;
                 }
 
                 /* Vanished by now? Then skip immediately to next */
         }
 }
 
-struct dirent* readdir_no_dot(DIR *d) {
-        assert(d);
+ସଂରଚନା dirent* readdir_no_dot(DIR *d) {
+        ପ୍ରତିଜ୍ଞା(d);
 
-        for (;;) {
-                struct dirent *de;
+        ପାଇଁ (;;) {
+                ସଂରଚନା dirent *de;
 
                 de = readdir_ensure_type(d);
-                if (!de || !dot_or_dot_dot(de->d_name))
-                        return de;
+                ଯଦି (!de || !dot_or_dot_dot(de->d_name))
+                        ଫେରନ୍ତୁ de;
         }
 }

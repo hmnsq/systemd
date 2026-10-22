@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-int procfs_get_pid_max(uint64_t *ret);
-int procfs_get_threads_max(uint64_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_get_pid_max(uint64_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_get_threads_max(uint64_t *ret);
 
-int procfs_tasks_set_limit(uint64_t limit);
-int procfs_tasks_get_current(uint64_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_tasks_set_limit(uint64_t limit);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_tasks_get_current(uint64_t *ret);
 
 nsec_t procfs_ticks_to_nsec(uint64_t ticks);
-int procfs_cpu_get_usage(nsec_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_cpu_get_usage(nsec_t *ret);
 
-typedef struct ProcfsCpuTicks {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା ProcfsCpuTicks {
         uint64_t user;
         uint64_t nice;
         uint64_t system;
@@ -23,11 +23,11 @@ typedef struct ProcfsCpuTicks {
         uint64_t steal;
 } ProcfsCpuTicks;
 
-int procfs_cpu_get_ticks(ProcfsCpuTicks *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_cpu_get_ticks(ProcfsCpuTicks *ret);
 
-int procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used);
-static inline int procfs_memory_get_used(uint64_t *ret) {
-        return procfs_memory_get(NULL, ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା procfs_memory_get_used(uint64_t *ret) {
+        ଫେରନ୍ତୁ procfs_memory_get(ଖାଲି, ret);
 }
 
-int convert_meminfo_value_to_uint64_bytes(const char *s, uint64_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା convert_meminfo_ମୂଲ୍ୟ_to_uint64_bytes(ଅଚଳ ଅକ୍ଷର *s, uint64_t *ret);

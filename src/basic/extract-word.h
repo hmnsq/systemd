@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-typedef enum ExtractFlags {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା ExtractFlags {
         EXTRACT_RELAX                    = 1 << 0, /* Allow unbalanced quote and eat up trailing backslash. */
         EXTRACT_CUNESCAPE                = 1 << 1, /* Unescape known escape sequences. */
         EXTRACT_UNESCAPE_RELAX           = 1 << 2, /* Allow and keep unknown escape sequences, allow and keep trailing backslash. */
@@ -17,9 +17,9 @@ typedef enum ExtractFlags {
         /* Note that if no flags are specified, escaped escape characters will be silently stripped. */
 } ExtractFlags;
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags);
-int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned line, const char *rvalue);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା extract_first_word(ଅଚଳ ଅକ୍ଷର **p, ଅକ୍ଷର **ret, ଅଚଳ ଅକ୍ଷର *separators, ExtractFlags flags);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା extract_first_word_and_warn(ଅଚଳ ଅକ୍ଷର **p, ଅକ୍ଷର **ret, ଅଚଳ ଅକ୍ଷର *separators, ExtractFlags flags, ଅଚଳ ଅକ୍ଷର *unit, ଅଚଳ ଅକ୍ଷର *filename, unsigned ଧାଡ଼ି, ଅଚଳ ଅକ୍ଷର *rvalue);
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
-#define extract_many_words(p, separators, flags, ...) \
-        extract_many_words_internal(p, separators, flags, ##__VA_ARGS__, NULL)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା extract_many_ଶବ୍ଦଗୁଡ଼ିକ_internal(ଅଚଳ ଅକ୍ଷର **p, ଅଚଳ ଅକ୍ଷର *separators, unsigned flags, ...) _sentinel_;
+#define extract_many_ଶବ୍ଦଗୁଡ଼ିକ(p, separators, flags, ...) \
+        extract_many_ଶବ୍ଦଗୁଡ଼ିକ_internal(p, separators, flags, ##__VA_ARGS__, ଖାଲି)

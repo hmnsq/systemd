@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "label-util.h"
+#ଅନ୍ତର୍ଭାଵ "label-util.h"
 
-static const LabelOps *label_ops = NULL;
+ସ୍ଥିର ଅଚଳ LabelOps *label_ops = ଖାଲି;
 
-int label_ops_set(const LabelOps *ops) {
-        assert(ops);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା label_ops_set(ଅଚଳ LabelOps *ops) {
+        ପ୍ରତିଜ୍ଞା(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        ଯଦି (label_ops)
+                ଫେରନ୍ତୁ -EBUSY;
 
         label_ops = ops;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-void label_ops_reset(void) {
-        label_ops = NULL;
+ଶୂନ୍ୟ label_ops_reset(ଶୂନ୍ୟ) {
+        label_ops = ଖାଲି;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା label_ops_pre(ପୂର୍ଣ୍ଣସଂଖ୍ୟା dir_fd, ଅଚଳ ଅକ୍ଷର *path, mode_t mode, LabelContext *label_context) {
+        ଯଦି (!label_ops || !label_ops->pre)
+                ଫେରନ୍ତୁ 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        ଫେରନ୍ତୁ label_ops->pre(dir_fd, path, mode, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା label_ops_post(ପୂର୍ଣ୍ଣସଂଖ୍ୟା dir_fd, ଅଚଳ ଅକ୍ଷର *path, bool created, LabelContext *label_context) {
+        ଯଦି (!label_ops || !label_ops->post)
+                ଫେରନ୍ତୁ 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        ଫେରନ୍ତୁ label_ops->post(dir_fd, path, created, label_context);
 }

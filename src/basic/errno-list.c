@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <stdlib.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 
-#include "errno-list.h"
+#ଅନ୍ତର୍ଭାଵ "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+ସ୍ଥିର ଅଚଳ ସଂରଚନା errno_name* lookup_errno(ପଞ୍ଜିକରଣ ଅଚଳ ଅକ୍ଷର *str,
+                                             ପଞ୍ଜିକରଣ GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#ଅନ୍ତର୍ଭାଵ "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_from_name(ଅଚଳ ଅକ୍ଷର *name) {
+        ଅଚଳ ସଂରଚନା errno_name *sc;
 
-        assert(name);
+        ପ୍ରତିଜ୍ଞା(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ଯଦି (!sc)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        ପ୍ରତିଜ୍ଞା(sc->id > 0);
+        ଫେରନ୍ତୁ sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+ଅଚଳ ଅକ୍ଷର* errno_name_no_fallback(ପୂର୍ଣ୍ଣସଂଖ୍ୟା id) {
+        ଯଦି (id == 0) /* To stay in line with our implementation below.  */
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        return strerrorname_np(ABS(id));
+        ଫେରନ୍ତୁ strerrorname_np(ABS(id));
 }
-#else
+#ଅନ୍ୟଥା
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+ଅଚଳ ଅକ୍ଷର* errno_name_no_fallback(ପୂର୍ଣ୍ଣସଂଖ୍ୟା id) {
+        ଯଦି (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        ଯଦି ((size_t) id >= ELEMENTSOF(errno_names))
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        return errno_names[id];
+        ଫେରନ୍ତୁ errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+ଅଚଳ ଅକ୍ଷର* errno_name(ପୂର୍ଣ୍ଣସଂଖ୍ୟା id, ଅକ୍ଷର buf[ସ୍ଥିର ERRNO_NAME_BUF_LEN]) {
+        ଅଚଳ ଅକ୍ଷର *a = errno_name_no_fallback(id);
+        ଯଦି (a)
+                ଫେରନ୍ତୁ a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }

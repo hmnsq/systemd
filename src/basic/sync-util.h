@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-int fsync_directory_of_file(int fd);
-int fsync_full(int fd);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fsync_directory_of_file(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fsync_full(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd);
 
-int fsync_path_at(int at_fd, const char *path);
-int fsync_parent_at(int at_fd, const char *path);
-int fsync_path_and_parent_at(int at_fd, const char *path);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fsync_path_at(ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_fd, ଅଚଳ ଅକ୍ଷର *path);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fsync_parent_at(ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_fd, ଅଚଳ ଅକ୍ଷର *path);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fsync_path_and_parent_at(ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_fd, ଅଚଳ ଅକ୍ଷର *path);
 
-int syncfs_path(int at_fd, const char *path);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା syncfs_path(ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_fd, ଅଚଳ ଅକ୍ଷର *path);

@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "log.h"
-#include "ratelimit.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "ratelimit.h"
 
-typedef struct LogRateLimit {
-        int error;
-        int level;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା LogRateLimit {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା error;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା level;
         RateLimit ratelimit;
 } LogRateLimit;
 
-#define log_ratelimit_internal(_level, _error, _ratelimit, _file, _line, _func, _format, ...)        \
+#define log_ratelimit_internal(_level, _error, _ratelimit, _file, ଧାଡ଼ି_2, _func, _format, ...)        \
 ({                                                                              \
-        int _log_ratelimit_error = (_error);                                    \
-        int _log_ratelimit_level = (_level);                                    \
-        static LogRateLimit _log_ratelimit = {                                  \
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା _log_ratelimit_error = (_error);                                    \
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା _log_ratelimit_level = (_level);                                    \
+        ସ୍ଥିର LogRateLimit _log_ratelimit = {                                  \
                 .ratelimit = (_ratelimit),                                      \
         };                                                                      \
-        unsigned _num_dropped_errors = ratelimit_num_dropped(&_log_ratelimit.ratelimit); \
-        if (_log_ratelimit_error != _log_ratelimit.error || _log_ratelimit_level != _log_ratelimit.level) { \
+        unsigned ଅଙ୍କ_dropped_errors = ratelimit_ଅଙ୍କ_dropped(&_log_ratelimit.ratelimit); \
+        ଯଦି (_log_ratelimit_error != _log_ratelimit.error || _log_ratelimit_level != _log_ratelimit.level) { \
                 ratelimit_reset(&_log_ratelimit.ratelimit);                     \
                 _log_ratelimit.error = _log_ratelimit_error;                    \
                 _log_ratelimit.level = _log_ratelimit_level;                    \
         }                                                                       \
-        if (log_get_max_level() == LOG_DEBUG || ratelimit_below(&_log_ratelimit.ratelimit)) \
-                _log_ratelimit_error = _num_dropped_errors > 0                  \
-                ? log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, _line, _func, _format " (Dropped %u similar message(s))", ##__VA_ARGS__, _num_dropped_errors) \
-                : log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, _line, _func, _format, ##__VA_ARGS__); \
+        ଯଦି (log_get_max_level() == LOG_DEBUG || ratelimit_below(&_log_ratelimit.ratelimit)) \
+                _log_ratelimit_error = ଅଙ୍କ_dropped_errors > 0                  \
+                ? log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, ଧାଡ଼ି_2, _func, _format " (Dropped %u similar message(s))", ##__VA_ARGS__, ଅଙ୍କ_dropped_errors) \
+                : log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, ଧାଡ଼ି_2, _func, _format, ##__VA_ARGS__); \
         _log_ratelimit_error;                                                   \
 })
 
 #define log_ratelimit_full_errno(level, error, _ratelimit, format, ...)             \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_ratelimit_internal(_level, _e, _ratelimit, PROJECT_FILE, __LINE__, __func__, format, ##__VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        : -ERRNO_ମୂଲ୍ୟ(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 

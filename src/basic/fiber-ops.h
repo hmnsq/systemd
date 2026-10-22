@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-typedef struct sd_future sd_future;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା sd_future sd_future;
 
 /* Hooks installed on a fiber so that functions in src/basic can transparently defer to the suspending
  * variants in sd-future when invoked from a running fiber. Populated by sd_fiber_new() with pointers to the
  * implementations in fiber-ops.c. */
-typedef struct FiberOps {
-        int (*ppoll)(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask);
-        ssize_t (*read)(int fd, void *buf, size_t count);
-        ssize_t (*write)(int fd, const void *buf, size_t count);
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା FiberOps {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା (*ppoll)(ସଂରଚନା pollfd *fds, size_t n_fds, ଅଚଳ ସଂରଚନା timespec *timeout, ଅଚଳ sigset_t *sigmask);
+        ssize_t (*ପଠ)(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଶୂନ୍ୟ *buf, size_t ଗଣନା_2);
+        ssize_t (*ଲିଖ)(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଶୂନ୍ୟ *buf, size_t ଗଣନା_2);
         sd_future* (*timeout)(uint64_t timeout);
         sd_future* (*timeout_unref)(sd_future *timer);
 } FiberOps;
 
-bool fiber_ops_is_set(void);
-void fiber_ops_set(const FiberOps *fiber_ops);
+bool fiber_ops_is_set(ଶୂନ୍ୟ);
+ଶୂନ୍ୟ fiber_ops_set(ଅଚଳ FiberOps *fiber_ops);
 
-int fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask);
-ssize_t fiber_ops_read(int fd, void *buf, size_t count);
-ssize_t fiber_ops_write(int fd, const void *buf, size_t count);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fiber_ops_ppoll(ସଂରଚନା pollfd *fds, size_t n_fds, ଅଚଳ ସଂରଚନା timespec *timeout, ଅଚଳ sigset_t *sigmask);
+ssize_t fiber_ops_read(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଶୂନ୍ୟ *buf, size_t ଗଣନା_2);
+ssize_t fiber_ops_write(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଶୂନ୍ୟ *buf, size_t ଗଣନା_2);
 
 /* Mirror of SD_FIBER_TIMEOUT() for code under src/basic that doesn't include sd-future.h: dispatches
  * through FiberOps so the actual sd_fiber_timeout() implementation lives in libsystemd. */

@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/fs.h>
-#include <sys/ioctl.h>
-#include <sys/kcmp.h>
-#include <sys/resource.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ଅନ୍ତର୍ଭାଵ <fcntl.h>
+#ଅନ୍ତର୍ଭାଵ <linux/fs.h>
+#ଅନ୍ତର୍ଭାଵ <sys/ioctl.h>
+#ଅନ୍ତର୍ଭାଵ <sys/kcmp.h>
+#ଅନ୍ତର୍ଭାଵ <sys/resource.h>
+#ଅନ୍ତର୍ଭାଵ <sys/stat.h>
+#ଅନ୍ତର୍ଭାଵ <unistd.h>
 
-#include "alloc-util.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "sort-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "dirent-util.h"
+#ଅନ୍ତର୍ଭାଵ "errno-util.h"
+#ଅନ୍ତର୍ଭାଵ "fd-util.h"
+#ଅନ୍ତର୍ଭାଵ "fileio.h"
+#ଅନ୍ତର୍ଭାଵ "format-util.h"
+#ଅନ୍ତର୍ଭାଵ "fs-util.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "parse-util.h"
+#ଅନ୍ତର୍ଭାଵ "path-util.h"
+#ଅନ୍ତର୍ଭାଵ "process-util.h"
+#ଅନ୍ତର୍ଭାଵ "sort-util.h"
+#ଅନ୍ତର୍ଭାଵ "stat-util.h"
+#ଅନ୍ତର୍ଭାଵ "stdio-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
 
 /* The maximum number of iterations in the loop to close descriptors in the fallback case
  * when /proc/self/fd/ is inaccessible. */
 #define MAX_FD_LOOP_LIMIT (1024*1024)
 
-int close_nointr(int fd) {
-        assert(fd >= 0);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା close_nointr(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
 
-        if (close(fd) >= 0)
-                return 0;
+        ଯଦି (close(fd) >= 0)
+                ଫେରନ୍ତୁ 0;
 
         /*
          * Just ignore EINTR; a retry loop is the wrong thing to do on
@@ -43,13 +43,13 @@ int close_nointr(int fd) {
          * http://utcc.utoronto.ca/~cks/space/blog/unix/CloseEINTR
          * https://sites.google.com/site/michaelsafyan/software-engineering/checkforeintrwheninvokingclosethinkagain
          */
-        if (errno == EINTR)
-                return 0;
+        ଯଦି (errno == EINTR)
+                ଫେରନ୍ତୁ 0;
 
-        return -errno;
+        ଫେରନ୍ତୁ -errno;
 }
 
-int safe_close(int fd) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା safe_close(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
         /*
          * Like close_nointr() but cannot fail. Guarantees errno is unchanged. Is a noop for negative fds,
          * and returns -EBADF, so that it can be used in this syntax:
@@ -57,7 +57,7 @@ int safe_close(int fd) {
          * fd = safe_close(fd);
          */
 
-        if (fd >= 0) {
+        ଯଦି (fd >= 0) {
                 PROTECT_ERRNO;
 
                 /* The kernel might return pretty much any error code
@@ -68,115 +68,115 @@ int safe_close(int fd) {
                 assert_se(close_nointr(fd) != -EBADF);
         }
 
-        return -EBADF;
+        ଫେରନ୍ତୁ -EBADF;
 }
 
-void safe_close_pair(int p[static 2]) {
-        assert(p);
+ଶୂନ୍ୟ safe_close_pair(ପୂର୍ଣ୍ଣସଂଖ୍ୟା p[ସ୍ଥିର 2]) {
+        ପ୍ରତିଜ୍ଞା(p);
 
-        if (p[0] == p[1]) {
+        ଯଦି (p[0] == p[1]) {
                 /* Special case pairs which use the same fd in both
                  * directions... */
                 p[0] = p[1] = safe_close(p[0]);
-                return;
+                ଫେରନ୍ତୁ;
         }
 
         p[0] = safe_close(p[0]);
         p[1] = safe_close(p[1]);
 }
 
-void close_many(const int fds[], size_t n_fds) {
-        assert(fds || n_fds == 0);
+ଶୂନ୍ୟ close_many(ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds[], size_t n_fds) {
+        ପ୍ରତିଜ୍ଞା(fds || n_fds == 0);
 
         FOREACH_ARRAY(fd, fds, n_fds)
                 safe_close(*fd);
 }
 
-void close_many_unset(int fds[], size_t n_fds) {
-        assert(fds || n_fds == 0);
+ଶୂନ୍ୟ close_many_unset(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds[], size_t n_fds) {
+        ପ୍ରତିଜ୍ଞା(fds || n_fds == 0);
 
         FOREACH_ARRAY(fd, fds, n_fds)
                 *fd = safe_close(*fd);
 }
 
-void close_many_and_free(int *fds, size_t n_fds) {
-        assert(fds || n_fds == 0);
+ଶୂନ୍ୟ close_many_and_free(ପୂର୍ଣ୍ଣସଂଖ୍ୟା *fds, size_t n_fds) {
+        ପ୍ରତିଜ୍ଞା(fds || n_fds == 0);
 
         close_many(fds, n_fds);
-        free(fds);
+        ମୁକ୍ତ(fds);
 }
 
-int fclose_nointr(FILE *f) {
-        assert(f);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fclose_nointr(FILE *f) {
+        ପ୍ରତିଜ୍ଞା(f);
 
         /* Same as close_nointr(), but for fclose() */
 
         errno = 0; /* Extra safety: if the FILE* object is not encapsulating an fd, it might not set errno
                     * correctly. Let's hence initialize it to zero first, so that we aren't confused by any
                     * prior errno here */
-        if (fclose(f) == 0)
-                return 0;
+        ଯଦି (fclose(f) == 0)
+                ଫେରନ୍ତୁ 0;
 
-        if (errno == EINTR)
-                return 0;
+        ଯଦି (errno == EINTR)
+                ଫେରନ୍ତୁ 0;
 
-        return errno_or_else(EIO);
+        ଫେରନ୍ତୁ errno_or_else(EIO);
 }
 
 FILE* safe_fclose(FILE *f) {
 
         /* Same as safe_close(), but for fclose() */
 
-        if (f) {
+        ଯଦି (f) {
                 PROTECT_ERRNO;
 
                 assert_se(fclose_nointr(f) != -EBADF);
         }
 
-        return NULL;
+        ଫେରନ୍ତୁ ଖାଲି;
 }
 
 DIR* safe_closedir(DIR *d) {
 
-        if (d) {
+        ଯଦି (d) {
                 PROTECT_ERRNO;
 
                 assert_se(closedir(d) >= 0 || errno != EBADF);
         }
 
-        return NULL;
+        ଫେରନ୍ତୁ ଖାଲି;
 }
 
-int fd_nonblock(int fd, bool nonblock) {
-        int flags, nflags;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_nonblock(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, bool nonblock) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags, nflags;
 
-        assert(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
 
         flags = fcntl(fd, F_GETFL, 0);
-        if (flags < 0)
-                return -errno;
+        ଯଦି (flags < 0)
+                ଫେରନ୍ତୁ -errno;
 
         nflags = UPDATE_FLAG(flags, O_NONBLOCK, nonblock);
-        if (nflags == flags)
-                return 0;
+        ଯଦି (nflags == flags)
+                ଫେରନ୍ତୁ 0;
 
-        if (fcntl(fd, F_SETFL, nflags) < 0)
-                return -errno;
+        ଯଦି (fcntl(fd, F_SETFL, nflags) < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        return 1;
+        ଫେରନ୍ତୁ 1;
 }
 
-void nonblock_resetp(int *fd) {
-        assert(fd);
+ଶୂନ୍ୟ nonblock_resetp(ପୂର୍ଣ୍ଣସଂଖ୍ୟା *fd) {
+        ପ୍ରତିଜ୍ଞା(fd);
 
         PROTECT_ERRNO;
 
-        if (*fd >= 0)
-                (void) fd_nonblock(*fd, false);
+        ଯଦି (*fd >= 0)
+                (ଶୂନ୍ୟ) fd_nonblock(*fd, false);
 }
 
-int stdio_disable_nonblock(void) {
-        int ret = 0;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା stdio_disable_nonblock(ଶୂନ୍ୟ) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 
         /* stdin/stdout/stderr really should have O_NONBLOCK, which would confuse apps if left on, as
          * write()s might unexpectedly fail with EAGAIN. */
@@ -185,174 +185,174 @@ int stdio_disable_nonblock(void) {
         RET_GATHER(ret, fd_nonblock(STDOUT_FILENO, false));
         RET_GATHER(ret, fd_nonblock(STDERR_FILENO, false));
 
-        return ret;
+        ଫେରନ୍ତୁ ret;
 }
 
-int fd_cloexec(int fd, bool cloexec) {
-        int flags, nflags;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_cloexec(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, bool cloexec) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags, nflags;
 
-        assert(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
 
         flags = fcntl(fd, F_GETFD, 0);
-        if (flags < 0)
-                return -errno;
+        ଯଦି (flags < 0)
+                ଫେରନ୍ତୁ -errno;
 
         nflags = UPDATE_FLAG(flags, FD_CLOEXEC, cloexec);
-        if (nflags == flags)
-                return 0;
+        ଯଦି (nflags == flags)
+                ଫେରନ୍ତୁ 0;
 
-        return RET_NERRNO(fcntl(fd, F_SETFD, nflags));
+        ଫେରନ୍ତୁ RET_NERRNO(fcntl(fd, F_SETFD, nflags));
 }
 
-int fd_cloexec_many(const int fds[], size_t n_fds, bool cloexec) {
-        int r = 0;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_cloexec_many(ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds[], size_t n_fds, bool cloexec) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r = 0;
 
-        assert(fds || n_fds == 0);
+        ପ୍ରତିଜ୍ଞା(fds || n_fds == 0);
 
         FOREACH_ARRAY(fd, fds, n_fds) {
-                if (*fd < 0) /* Skip gracefully over already invalidated fds */
-                        continue;
+                ଯଦି (*fd < 0) /* Skip gracefully over already invalidated fds */
+                        ଜାରି;
 
                 RET_GATHER(r, fd_cloexec(*fd, cloexec));
         }
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-static bool fd_in_set(int fd, const int fds[], size_t n_fds) {
-        assert(fd >= 0);
-        assert(fds || n_fds == 0);
+ସ୍ଥିର bool fd_in_set(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds[], size_t n_fds) {
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(fds || n_fds == 0);
 
         FOREACH_ARRAY(i, fds, n_fds) {
-                if (*i < 0)
-                        continue;
+                ଯଦି (*i < 0)
+                        ଜାରି;
 
-                if (*i == fd)
-                        return true;
+                ଯଦି (*i == fd)
+                        ଫେରନ୍ତୁ true;
         }
 
-        return false;
+        ଫେରନ୍ତୁ false;
 }
 
-int get_max_fd(void) {
-        struct rlimit rl;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_max_fd(ଶୂନ୍ୟ) {
+        ସଂରଚନା rlimit rl;
         rlim_t m;
 
         /* Return the highest possible fd, based RLIMIT_NOFILE, but enforcing FD_SETSIZE-1 as lower boundary
          * and INT_MAX as upper boundary. */
 
-        if (getrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return -errno;
+        ଯଦି (getrlimit(RLIMIT_NOFILE, &rl) < 0)
+                ଫେରନ୍ତୁ -errno;
 
         m = MAX(rl.rlim_cur, rl.rlim_max);
-        if (m < FD_SETSIZE) /* Let's always cover at least 1024 fds */
-                return FD_SETSIZE-1;
+        ଯଦି (m < FD_SETSIZE) /* Let's always cover at least 1024 fds */
+                ଫେରନ୍ତୁ FD_SETSIZE-1;
 
-        if (m == RLIM_INFINITY || m > INT_MAX) /* Saturate on overflow. After all fds are "int", hence can
+        ଯଦି (m == RLIM_INFINITY || m > INT_MAX) /* Saturate on overflow. After all fds are "int", hence can
                                                 * never be above INT_MAX */
-                return INT_MAX;
+                ଫେରନ୍ତୁ INT_MAX;
 
-        return (int) (m - 1);
+        ଫେରନ୍ତୁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) (m - 1);
 }
 
-int close_all_fds_frugal(const int except[], size_t n_except) {
-        int max_fd, r = 0;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା close_all_fds_frugal(ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା except[], size_t n_except) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା max_fd, r = 0;
 
-        assert(except || n_except == 0);
+        ପ୍ରତିଜ୍ଞା(except || n_except == 0);
 
         /* This is the inner fallback core of close_all_fds(). This never calls malloc() or so and hence is
          * safe to be called in signal handler context. Most users should call close_all_fds(), but when we
          * assume we are called from signal handler context, then use this simpler call instead. */
 
         max_fd = get_max_fd();
-        if (max_fd < 0)
-                return max_fd;
+        ଯଦି (max_fd < 0)
+                ଫେରନ୍ତୁ max_fd;
 
         /* Refuse to do the loop over more too many elements. It's better to fail immediately than to
          * spin the CPU for a long time. */
-        if (max_fd > MAX_FD_LOOP_LIMIT)
-                return log_debug_errno(SYNTHETIC_ERRNO(EPERM),
+        ଯଦି (max_fd > MAX_FD_LOOP_LIMIT)
+                ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(EPERM),
                                        "Refusing to loop over %d potential fds.", max_fd);
 
-        for (int fd = 3; fd >= 0; fd = fd < max_fd ? fd + 1 : -EBADF) {
-                int q;
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = 3; fd >= 0; fd = fd < max_fd ? fd + 1 : -EBADF) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା q;
 
-                if (fd_in_set(fd, except, n_except))
-                        continue;
+                ଯଦି (fd_in_set(fd, except, n_except))
+                        ଜାରି;
 
                 q = close_nointr(fd);
-                if (q != -EBADF)
+                ଯଦି (q != -EBADF)
                         RET_GATHER(r, q);
         }
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-static int close_all_fds_special_case(const int except[], size_t n_except) {
-        assert(n_except == 0 || except);
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା close_all_fds_special_case(ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା except[], size_t n_except) {
+        ପ୍ରତିଜ୍ଞା(n_except == 0 || except);
 
         /* Handles a few common special cases separately, since they are common and can be optimized really
          * nicely, since we won't need sorting for them. Returns > 0 if the special casing worked, 0
          * otherwise. */
 
-        if (n_except == 1 && except[0] < 0) /* Minor optimization: if we only got one fd, and it's invalid,
+        ଯଦି (n_except == 1 && except[0] < 0) /* Minor optimization: if we only got one fd, and it's invalid,
                                              * we got none */
                 n_except = 0;
 
-        switch (n_except) {
+        ବାଛ (n_except) {
 
-        case 0:
+        ସ୍ଥିତି 0:
                 /* Close everything. Yay! */
-                if (close_range(3, INT_MAX, 0) < 0)
-                        return -errno;
+                ଯଦି (close_range(3, INT_MAX, 0) < 0)
+                        ଫେରନ୍ତୁ -errno;
 
-                return 1;
+                ଫେରନ୍ତୁ 1;
 
-        case 1:
+        ସ୍ଥିତି 1:
                 /* Close all but exactly one, then we don't need no sorting. This is a pretty common
                  * case, hence let's handle it specially. */
 
-                if (except[0] > 3 && close_range(3, except[0] - 1, 0) < 0)
-                        return -errno;
+                ଯଦି (except[0] > 3 && close_range(3, except[0] - 1, 0) < 0)
+                        ଫେରନ୍ତୁ -errno;
 
-                if (except[0] < INT_MAX && close_range(MAX(3, except[0] + 1), -1, 0) < 0)
-                        return -errno;
+                ଯଦି (except[0] < INT_MAX && close_range(MAX(3, except[0] + 1), -1, 0) < 0)
+                        ଫେରନ୍ତୁ -errno;
 
-                return 1;
+                ଫେରନ୍ତୁ 1;
 
-        default:
-                return 0;
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ 0;
         }
 }
 
-int close_all_fds_without_malloc(const int except[], size_t n_except) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା close_all_fds_without_malloc(ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା except[], size_t n_except) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(n_except == 0 || except);
+        ପ୍ରତିଜ୍ଞା(n_except == 0 || except);
 
         r = close_all_fds_special_case(except, n_except);
-        if (r < 0)
-                return r;
-        if (r > 0) /* special case worked! */
-                return 0;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (r > 0) /* special case worked! */
+                ଫେରନ୍ତୁ 0;
 
-        return close_all_fds_frugal(except, n_except);
+        ଫେରନ୍ତୁ close_all_fds_frugal(except, n_except);
 }
 
-int close_all_fds(const int except[], size_t n_except) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା close_all_fds(ଅଚଳ ପୂର୍ଣ୍ଣସଂଖ୍ୟା except[], size_t n_except) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(n_except == 0 || except);
+        ପ୍ରତିଜ୍ଞା(n_except == 0 || except);
 
         r = close_all_fds_special_case(except, n_except);
-        if (r < 0)
-                return r;
-        if (r > 0) /* special case worked! */
-                return 0;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
+        ଯଦି (r > 0) /* special case worked! */
+                ଫେରନ୍ତୁ 0;
 
-        _cleanup_free_ int *sorted_malloc = NULL;
+        _cleanup_free_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା *sorted_malloc = ଖାଲି;
         size_t n_sorted;
-        int *sorted;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା *sorted;
 
         /* In the best case we have close_range() to close all fds between a start and an end fd, which we
          * can use on the "inverted" exception array, i.e. all intervals between all adjacent pairs from the
@@ -360,18 +360,18 @@ int close_all_fds(const int except[], size_t n_except) {
          * O(m⋅log(m)) where m is the number of fds to keep open. Given that we assume n ≫ m that's
          * preferable to us. */
 
-        assert(n_except < SIZE_MAX);
+        ପ୍ରତିଜ୍ଞା(n_except < SIZE_MAX);
         n_sorted = n_except + 1;
 
-        if (n_sorted > ALLOCA_MAX / sizeof(int)) /* Use heap for large numbers of fds, stack otherwise */
-                sorted = sorted_malloc = new(int, n_sorted);
-        else
-                sorted = newa(int, n_sorted);
+        ଯଦି (n_sorted > ALLOCA_MAX / ଆକାର(ପୂର୍ଣ୍ଣସଂଖ୍ୟା)) /* Use heap for large numbers of fds, stack otherwise */
+                sorted = sorted_malloc = new(ପୂର୍ଣ୍ଣସଂଖ୍ୟା, n_sorted);
+        ଅନ୍ୟଥା
+                sorted = newa(ପୂର୍ଣ୍ଣସଂଖ୍ୟା, n_sorted);
 
-        if (!sorted) /* Fallback on OOM. */
-                return close_all_fds_frugal(except, n_except);
+        ଯଦି (!sorted) /* Fallback on OOM. */
+                ଫେରନ୍ତୁ close_all_fds_frugal(except, n_except);
 
-        memcpy(sorted, except, n_except * sizeof(int));
+        memcpy(sorted, except, n_except * ଆକାର(ପୂର୍ଣ୍ଣସଂଖ୍ୟା));
 
         /* Let's add fd 2 to the list of fds, to simplify the loop below, as this
          * allows us to cover the head of the array the same way as the body */
@@ -379,36 +379,36 @@ int close_all_fds(const int except[], size_t n_except) {
 
         typesafe_qsort(sorted, n_sorted, cmp_int);
 
-        for (size_t i = 0; i < n_sorted-1; i++) {
-                int start, end;
+        ପାଇଁ (size_t i = 0; i < n_sorted-1; i++) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା start, end;
 
                 start = MAX(sorted[i], 2); /* The first three fds shall always remain open */
                 end = MAX(sorted[i+1], 2);
 
-                assert(end >= start);
+                ପ୍ରତିଜ୍ଞା(end >= start);
 
-                if (end - start <= 1)
-                        continue;
+                ଯଦି (end - start <= 1)
+                        ଜାରି;
 
                 /* Close everything between the start and end fds (both of which shall stay open) */
-                if (close_range(start + 1, end - 1, 0) < 0)
-                        return -errno;
+                ଯଦି (close_range(start + 1, end - 1, 0) < 0)
+                        ଫେରନ୍ତୁ -errno;
         }
 
         /* The loop succeeded. Let's now close everything beyond the end */
 
-        if (sorted[n_sorted-1] >= INT_MAX) /* Dont let the addition below overflow */
-                return 0;
+        ଯଦି (sorted[n_sorted-1] >= INT_MAX) /* Dont let the addition below overflow */
+                ଫେରନ୍ତୁ 0;
 
-        if (close_range(sorted[n_sorted-1] + 1, INT_MAX, 0) < 0)
-                return -errno;
+        ଯଦି (close_range(sorted[n_sorted-1] + 1, INT_MAX, 0) < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int pack_fds(int fds[], size_t n_fds) {
-        if (n_fds <= 0)
-                return 0;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pack_fds(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds[], size_t n_fds) {
+        ଯଦି (n_fds <= 0)
+                ଫେରନ୍ତୁ 0;
 
         /* Shifts around the fds in the provided array such that they
          * all end up packed next to each-other, in order, starting
@@ -417,59 +417,59 @@ int pack_fds(int fds[], size_t n_fds) {
          * with FORK_CLOSE_ALL_FDS|FORK_PACK_FDS set, to ensure that this is done correctly.
          * The fds array is modified in place with the new FD numbers. */
 
-        assert(fds);
+        ପ୍ରତିଜ୍ଞା(fds);
 
-        for (int start = 0;;) {
-                int restart_from = -1;
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା start = 0;;) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା restart_from = -1;
 
-                for (int i = start; i < (int) n_fds; i++) {
-                        int nfd;
+                ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = start; i < (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) n_fds; i++) {
+                        ପୂର୍ଣ୍ଣସଂଖ୍ୟା nfd;
 
                         /* Already at right index? */
-                        if (fds[i] == i + 3)
-                                continue;
+                        ଯଦି (fds[i] == i + 3)
+                                ଜାରି;
 
                         nfd = fcntl(fds[i], F_DUPFD, i + 3);
-                        if (nfd < 0)
-                                return -errno;
+                        ଯଦି (nfd < 0)
+                                ଫେରନ୍ତୁ -errno;
 
                         safe_close(fds[i]);
                         fds[i] = nfd;
 
                         /* Hmm, the fd we wanted isn't free? Then
                          * let's remember that and try again from here */
-                        if (nfd != i + 3 && restart_from < 0)
+                        ଯଦି (nfd != i + 3 && restart_from < 0)
                                 restart_from = i;
                 }
 
-                if (restart_from < 0)
-                        break;
+                ଯଦି (restart_from < 0)
+                        ଭାଙ୍ଗ;
 
                 start = restart_from;
         }
 
-        assert(fds[0] == 3);
+        ପ୍ରତିଜ୍ଞା(fds[0] == 3);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int fd_validate(int fd) {
-        if (fd < 0)
-                return -EBADF;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_validate(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ଯଦି (fd < 0)
+                ଫେରନ୍ତୁ -EBADF;
 
-        if (fcntl(fd, F_GETFD) < 0)
-                return -errno;
+        ଯଦି (fcntl(fd, F_GETFD) < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int same_fd(int a, int b) {
-        struct stat sta, stb;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା same_fd(ପୂର୍ଣ୍ଣସଂଖ୍ୟା a, ପୂର୍ଣ୍ଣସଂଖ୍ୟା b) {
+        ସଂରଚନା stat sta, stb;
         pid_t pid;
-        int r, fa, fb;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r, fa, fb;
 
-        assert(a >= 0);
-        assert(b >= 0);
+        ପ୍ରତିଜ୍ଞା(a >= 0);
+        ପ୍ରତିଜ୍ଞା(b >= 0);
 
         /* Compares two file descriptors. Note that semantics are quite different depending on whether we
          * have F_DUPFD_QUERY/kcmp() or we don't. If we have F_DUPFD_QUERY/kcmp() this will only return true
@@ -480,79 +480,79 @@ int same_fd(int a, int b) {
          *
          * Guarantees that if either of the passed fds is not allocated we'll return -EBADF. */
 
-        if (a == b) {
+        ଯଦି (a == b) {
                 /* Let's validate that the fd is valid */
                 r = fd_validate(a);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
-                return true;
+                ଫେରନ୍ତୁ true;
         }
 
         /* Try to use F_DUPFD_QUERY if we have it first, as it is the nicest API */
         r = fcntl(a, F_DUPFD_QUERY, b);
-        if (r > 0)
-                return true;
-        if (r == 0) {
+        ଯଦି (r > 0)
+                ଫେରନ୍ତୁ true;
+        ଯଦି (r == 0) {
                 /* The kernel will return 0 in case the first fd is allocated, but the 2nd is not. (Which is different in the kcmp() case) Explicitly validate it hence. */
                 r = fd_validate(b);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
-                return false;
+                ଫେରନ୍ତୁ false;
         }
         /* On old kernels (< 6.10) that do not support F_DUPFD_QUERY this will return EINVAL for regular fds, and EBADF on O_PATH fds. Confusing. */
-        if (errno == EBADF) {
+        ଯଦି (errno == EBADF) {
                 /* EBADF could mean two things: the first fd is not valid, or it is valid and is O_PATH and
                  * F_DUPFD_QUERY is not supported. Let's validate the fd explicitly, to distinguish this
                  * case. */
                 r = fd_validate(a);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
 
                 /* If the fd is valid, but we got EBADF, then let's try kcmp(). */
-        } else if (!ERRNO_IS_NOT_SUPPORTED(errno) && !ERRNO_IS_PRIVILEGE(errno) && errno != EINVAL)
-                return -errno;
+        } ଅନ୍ୟଥା ଯଦି (!ERRNO_IS_NOT_SUPPORTED(errno) && !ERRNO_IS_PRIVILEGE(errno) && errno != EINVAL)
+                ଫେରନ୍ତୁ -errno;
 
         /* Try to use kcmp() if we have it. */
         pid = getpid_cached();
         r = kcmp(pid, pid, KCMP_FILE, a, b);
-        if (r >= 0)
-                return !r;
-        if (!ERRNO_IS_NOT_SUPPORTED(errno) && !ERRNO_IS_PRIVILEGE(errno))
-                return -errno;
+        ଯଦି (r >= 0)
+                ଫେରନ୍ତୁ !r;
+        ଯଦି (!ERRNO_IS_NOT_SUPPORTED(errno) && !ERRNO_IS_PRIVILEGE(errno))
+                ଫେରନ୍ତୁ -errno;
 
         /* We have neither F_DUPFD_QUERY nor kcmp(), use fstat() instead. */
-        if (fstat(a, &sta) < 0)
-                return -errno;
+        ଯଦି (fstat(a, &sta) < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        if (fstat(b, &stb) < 0)
-                return -errno;
+        ଯଦି (fstat(b, &stb) < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        if (!stat_inode_same(&sta, &stb))
-                return false;
+        ଯଦି (!stat_inode_same(&sta, &stb))
+                ଫେରନ୍ତୁ false;
 
         /* We consider all device fds different, since two device fds might refer to quite different device
          * contexts even though they share the same inode and backing dev_t. */
 
-        if (S_ISCHR(sta.st_mode) || S_ISBLK(sta.st_mode))
-                return false;
+        ଯଦି (S_ISCHR(sta.st_mode) || S_ISBLK(sta.st_mode))
+                ଫେରନ୍ତୁ false;
 
         /* The fds refer to the same inode on disk, let's also check if they have the same fd flags. This is
          * useful to distinguish the read and write side of a pipe created with pipe(). */
         fa = fcntl(a, F_GETFL);
-        if (fa < 0)
-                return -errno;
+        ଯଦି (fa < 0)
+                ଫେରନ୍ତୁ -errno;
 
         fb = fcntl(b, F_GETFL);
-        if (fb < 0)
-                return -errno;
+        ଯଦି (fb < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        return fa == fb;
+        ଫେରନ୍ତୁ fa == fb;
 }
 
-bool fdname_is_valid(const char *s) {
-        const char *p;
+bool fdname_is_valid(ଅଚଳ ଅକ୍ଷର *s) {
+        ଅଚଳ ଅକ୍ଷର *p;
 
         /* Validates a name for $LISTEN_FDNAMES. We basically allow
          * everything ASCII that's not a control character. Also, as
@@ -563,83 +563,83 @@ bool fdname_is_valid(const char *s) {
          * here. However, we limit the length of the names to 255
          * characters. */
 
-        if (!s)
-                return false;
+        ଯଦି (!s)
+                ଫେରନ୍ତୁ false;
 
-        for (p = s; *p; p++) {
-                if (*p < ' ')
-                        return false;
-                if (*p >= 127)
-                        return false;
-                if (*p == ':')
-                        return false;
+        ପାଇଁ (p = s; *p; p++) {
+                ଯଦି (*p < ' ')
+                        ଫେରନ୍ତୁ false;
+                ଯଦି (*p >= 127)
+                        ଫେରନ୍ତୁ false;
+                ଯଦି (*p == ':')
+                        ଫେରନ୍ତୁ false;
         }
 
-        return p - s <= FDNAME_MAX;
+        ଫେରନ୍ତୁ p - s <= FDNAME_MAX;
 }
 
-int fd_get_path(int fd, char **ret) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_get_path(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅକ୍ଷର **ret) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(wildcard_fd_is_valid(fd));
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(fd));
 
-        if (fd == AT_FDCWD)
-                return safe_getcwd(ret);
-        if (fd == XAT_FDROOT)
-                return strdup_to(ret, "/");
+        ଯଦି (fd == AT_FDCWD)
+                ଫେରନ୍ତୁ safe_getcwd(ret);
+        ଯଦି (fd == XAT_FDROOT)
+                ଫେରନ୍ତୁ strdup_to(ret, "/");
 
         r = readlink_malloc(FORMAT_PROC_FD_PATH(fd), ret);
-        if (r == -ENOENT)
-                return proc_fd_enoent_errno();
-        return r;
+        ଯଦି (r == -ENOENT)
+                ଫେରନ୍ତୁ proc_fd_enoent_errno();
+        ଫେରନ୍ତୁ r;
 }
 
-int move_fd(int from, int to, int cloexec) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା move_fd(ପୂର୍ଣ୍ଣସଂଖ୍ୟା from, ପୂର୍ଣ୍ଣସଂଖ୍ୟା to, ପୂର୍ଣ୍ଣସଂଖ୍ୟା cloexec) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* Move fd 'from' to 'to', make sure FD_CLOEXEC remains equal if requested, and release the old fd. If
          * 'cloexec' is passed as -1, the original FD_CLOEXEC is inherited for the new fd. If it is 0, it is turned
          * off, if it is > 0 it is turned on. */
 
-        if (from < 0)
-                return -EBADF;
-        if (to < 0)
-                return -EBADF;
+        ଯଦି (from < 0)
+                ଫେରନ୍ତୁ -EBADF;
+        ଯଦି (to < 0)
+                ଫେରନ୍ତୁ -EBADF;
 
-        if (from == to) {
+        ଯଦି (from == to) {
 
-                if (cloexec >= 0) {
+                ଯଦି (cloexec >= 0) {
                         r = fd_cloexec(to, cloexec);
-                        if (r < 0)
-                                return r;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ r;
                 }
 
-                return to;
+                ଫେରନ୍ତୁ to;
         }
 
-        if (cloexec < 0) {
-                int fl;
+        ଯଦି (cloexec < 0) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା fl;
 
                 fl = fcntl(from, F_GETFD, 0);
-                if (fl < 0)
-                        return -errno;
+                ଯଦି (fl < 0)
+                        ଫେରନ୍ତୁ -errno;
 
                 cloexec = FLAGS_SET(fl, FD_CLOEXEC);
         }
 
         r = dup3(from, to, cloexec ? O_CLOEXEC : 0);
-        if (r < 0)
-                return -errno;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        assert(r == to);
+        ପ୍ରତିଜ୍ଞା(r == to);
 
         safe_close(from);
 
-        return to;
+        ଫେରନ୍ତୁ to;
 }
 
-int fd_move_above_stdio(int fd) {
-        int flags, copy;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_move_above_stdio(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags, copy;
         PROTECT_ERRNO;
 
         /* Moves the specified file descriptor if possible out of the range [0…2], i.e. the range of
@@ -655,28 +655,28 @@ int fd_move_above_stdio(int fd) {
          * This function is written in a "best-effort" and "least-impact" style. This means whenever we encounter an
          * error we simply return the original file descriptor, and we do not touch errno. */
 
-        if (fd < 0 || fd > 2)
-                return fd;
+        ଯଦି (fd < 0 || fd > 2)
+                ଫେରନ୍ତୁ fd;
 
         flags = fcntl(fd, F_GETFD, 0);
-        if (flags < 0)
-                return fd;
+        ଯଦି (flags < 0)
+                ଫେରନ୍ତୁ fd;
 
-        if (flags & FD_CLOEXEC)
+        ଯଦି (flags & FD_CLOEXEC)
                 copy = fcntl(fd, F_DUPFD_CLOEXEC, 3);
-        else
+        ଅନ୍ୟଥା
                 copy = fcntl(fd, F_DUPFD, 3);
-        if (copy < 0)
-                return fd;
+        ଯଦି (copy < 0)
+                ଫେରନ୍ତୁ fd;
 
-        assert(copy > 2);
+        ପ୍ରତିଜ୍ଞା(copy > 2);
 
-        (void) close(fd);
-        return copy;
+        (ଶୂନ୍ୟ) close(fd);
+        ଫେରନ୍ତୁ copy;
 }
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd) {
-        int fd[3] = { original_input_fd,             /* Put together an array of fds we work on */
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rearrange_stdio(ପୂର୍ଣ୍ଣସଂଖ୍ୟା original_ନିବେଶ_fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା original_output_fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା original_error_fd) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd[3] = { original_ନିବେଶ_fd,             /* Put together an array of fds we work on */
                       original_output_fd,
                       original_error_fd },
             null_fd = -EBADF,                        /* If we open /dev/null, we store the fd to it here */
@@ -699,28 +699,28 @@ int rearrange_stdio(int original_input_fd, int original_output_fd, int original_
          * O_CLOEXEC is turned off for all three file descriptors (which is how it should be for
          * stdin/stdout/stderr). */
 
-        null_readable = original_input_fd < 0;
+        null_readable = original_ନିବେଶ_fd < 0;
         null_writable = original_output_fd < 0 || original_error_fd < 0;
 
         /* First step, open /dev/null once, if we need it */
-        if (null_readable || null_writable) {
+        ଯଦି (null_readable || null_writable) {
 
                 /* Let's open this with O_CLOEXEC first, and convert it to non-O_CLOEXEC when we move the fd to the final position. */
                 null_fd = open("/dev/null", (null_readable && null_writable ? O_RDWR :
                                              null_readable ? O_RDONLY : O_WRONLY) | O_CLOEXEC);
-                if (null_fd < 0) {
+                ଯଦି (null_fd < 0) {
                         r = -errno;
-                        goto finish;
+                        ଯାଅ finish;
                 }
 
                 /* If this fd is in the 0…2 range, let's move it out of it */
-                if (null_fd < 3) {
-                        int copy;
+                ଯଦି (null_fd < 3) {
+                        ପୂର୍ଣ୍ଣସଂଖ୍ୟା copy;
 
                         copy = fcntl(null_fd, F_DUPFD_CLOEXEC, 3); /* Duplicate this with O_CLOEXEC set */
-                        if (copy < 0) {
+                        ଯଦି (copy < 0) {
                                 r = -errno;
-                                goto finish;
+                                ଯାଅ finish;
                         }
 
                         close_and_replace(null_fd, copy);
@@ -728,15 +728,15 @@ int rearrange_stdio(int original_input_fd, int original_output_fd, int original_
         }
 
         /* Let's assemble fd[] with the fds to install in place of stdin/stdout/stderr */
-        for (int i = 0; i < 3; i++)
-                if (fd[i] < 0)
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < 3; i++)
+                ଯଦି (fd[i] < 0)
                         fd[i] = null_fd;        /* A negative parameter means: connect this one to /dev/null */
-                else if (fd[i] != i && fd[i] < 3) {
+                ଅନ୍ୟଥା ଯଦି (fd[i] != i && fd[i] < 3) {
                         /* This fd is in the 0…2 territory, but not at its intended place, move it out of there, so that we can work there. */
                         copy_fd[i] = fcntl(fd[i], F_DUPFD_CLOEXEC, 3); /* Duplicate this with O_CLOEXEC set */
-                        if (copy_fd[i] < 0) {
+                        ଯଦି (copy_fd[i] < 0) {
                                 r = -errno;
-                                goto finish;
+                                ଯାଅ finish;
                         }
 
                         fd[i] = copy_fd[i];
@@ -745,18 +745,18 @@ int rearrange_stdio(int original_input_fd, int original_output_fd, int original_
         /* At this point we now have the fds to use in fd[], and they are all above the stdio range, so that
          * we have freedom to move them around. If the fds already were at the right places then the specific
          * fds are -EBADF. Let's now move them to the right places. This is the point of no return. */
-        for (int i = 0; i < 3; i++)
-                if (fd[i] == i) {
+        ପାଇଁ (ପୂର୍ଣ୍ଣସଂଖ୍ୟା i = 0; i < 3; i++)
+                ଯଦି (fd[i] == i) {
                         /* fd is already in place, but let's make sure O_CLOEXEC is off */
                         r = fd_cloexec(i, false);
-                        if (r < 0)
-                                goto finish;
-                } else {
-                        assert(fd[i] > 2);
+                        ଯଦି (r < 0)
+                                ଯାଅ finish;
+                } ଅନ୍ୟଥା {
+                        ପ୍ରତିଜ୍ଞା(fd[i] > 2);
 
-                        if (dup2(fd[i], i) < 0) { /* Turns off O_CLOEXEC on the new fd. */
+                        ଯଦି (dup2(fd[i], i) < 0) { /* Turns off O_CLOEXEC on the new fd. */
                                 r = -errno;
-                                goto finish;
+                                ଯାଅ finish;
                         }
                 }
 
@@ -765,10 +765,10 @@ int rearrange_stdio(int original_input_fd, int original_output_fd, int original_
 finish:
         /* Close the original fds, but only if they were outside of the stdio range. Also, properly check for the same
          * fd passed in multiple times. */
-        safe_close_above_stdio(original_input_fd);
-        if (original_output_fd != original_input_fd)
+        safe_close_above_stdio(original_ନିବେଶ_fd);
+        ଯଦି (original_output_fd != original_ନିବେଶ_fd)
                 safe_close_above_stdio(original_output_fd);
-        if (original_error_fd != original_input_fd && original_error_fd != original_output_fd)
+        ଯଦି (original_error_fd != original_ନିବେଶ_fd && original_error_fd != original_output_fd)
                 safe_close_above_stdio(original_error_fd);
 
         /* Close the copies we moved > 2 */
@@ -777,12 +777,12 @@ finish:
         /* Close our null fd, if it's > 2 */
         safe_close_above_stdio(null_fd);
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int fd_reopen(int fd, int flags) {
-        assert(wildcard_fd_is_valid(fd));
-        assert(!FLAGS_SET(flags, O_CREAT));
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_reopen(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags) {
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(fd));
+        ପ୍ରତିଜ୍ଞା(!FLAGS_SET(flags, O_CREAT));
 
         /* Reopens the specified fd with new flags. This is useful for convert an O_PATH fd into a regular one, or to
          * turn O_RDWR fds into O_RDONLY fds.
@@ -800,34 +800,34 @@ int fd_reopen(int fd, int flags) {
          * O_PATH will always result in -ELOOP. Or in other words: if you have an O_PATH fd to a symlink you
          * can reopen it only if you pass O_PATH again. */
 
-        if (FLAGS_SET(flags, O_NOFOLLOW))
+        ଯଦି (FLAGS_SET(flags, O_NOFOLLOW))
                 /* O_NOFOLLOW is not allowed in fd_reopen(), because after all this is primarily implemented
                  * via a symlink-based interface in /proc/self/fd. Let's refuse this here early. Note that
                  * the kernel would generate ELOOP here too, hence this manual check is mostly redundant –
                  * the only reason we add it here is so that the O_DIRECTORY special case (see below) behaves
                  * the same way as the non-O_DIRECTORY case. */
-                return -ELOOP;
+                ଫେରନ୍ତୁ -ELOOP;
 
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(open("/", flags | O_DIRECTORY));
+        ଯଦି (fd == XAT_FDROOT)
+                ଫେରନ୍ତୁ RET_NERRNO(open("/", flags | O_DIRECTORY));
 
-        if (FLAGS_SET(flags, O_DIRECTORY) || fd == AT_FDCWD)
+        ଯଦି (FLAGS_SET(flags, O_DIRECTORY) || fd == AT_FDCWD)
                 /* If we shall reopen the fd as directory we can just go via "." and thus bypass the whole
                  * magic /proc/ directory, and make ourselves independent of that being mounted. */
-                return RET_NERRNO(openat(fd, ".", flags | O_DIRECTORY));
+                ଫେରନ୍ତୁ RET_NERRNO(openat(fd, ".", flags | O_DIRECTORY));
 
-        int new_fd = open(FORMAT_PROC_FD_PATH(fd), flags);
-        if (new_fd < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା new_fd = open(FORMAT_PROC_FD_PATH(fd), flags);
+        ଯଦି (new_fd < 0) {
+                ଯଦି (errno != ENOENT)
+                        ଫେରନ୍ତୁ -errno;
 
-                return proc_fd_enoent_errno();
+                ଫେରନ୍ତୁ proc_fd_enoent_errno();
         }
 
-        return new_fd;
+        ଫେରନ୍ତୁ new_fd;
 }
 
-int fd_reopen_propagate_append_and_position(int fd, int flags) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_reopen_propagate_append_and_position(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags) {
         /* Invokes fd_reopen(fd, flags), but propagates O_APPEND if set on original fd, and also tries to
          * keep current file position.
          *
@@ -840,80 +840,80 @@ int fd_reopen_propagate_append_and_position(int fd, int flags) {
          * The "keep position" part is obviously nonsense for the O_APPEND case, but should reduce surprises
          * if someone carefully pre-positioned the passed in original input or non-append output FDs. */
 
-        assert(fd >= 0);
-        assert(!(flags & (O_APPEND|O_DIRECTORY)));
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(!(flags & (O_APPEND|O_DIRECTORY)));
 
-        int existing_flags = fcntl(fd, F_GETFL);
-        if (existing_flags < 0)
-                return -errno;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା existing_flags = fcntl(fd, F_GETFL);
+        ଯଦି (existing_flags < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        int new_fd = fd_reopen(fd, flags | (existing_flags & O_APPEND));
-        if (new_fd < 0)
-                return new_fd;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା new_fd = fd_reopen(fd, flags | (existing_flags & O_APPEND));
+        ଯଦି (new_fd < 0)
+                ଫେରନ୍ତୁ new_fd;
 
         /* Try to adjust the offset, but ignore errors. */
         off_t p = lseek(fd, 0, SEEK_CUR);
-        if (p > 0) {
+        ଯଦି (p > 0) {
                 off_t new_p = lseek(new_fd, p, SEEK_SET);
-                if (new_p < 0)
+                ଯଦି (new_p < 0)
                         log_debug_errno(errno,
                                         "Failed to propagate file position for re-opened fd %d, ignoring: %m",
                                         fd);
-                else if (new_p != p)
+                ଅନ୍ୟଥା ଯଦି (new_p != p)
                         log_debug("Failed to propagate file position for re-opened fd %d (%lld != %lld), ignoring.",
                                   fd, (long long) new_p, (long long) p);
         }
 
-        return new_fd;
+        ଫେରନ୍ତୁ new_fd;
 }
 
-int fd_reopen_condition(
-                int fd,
-                int flags,
-                int mask,
-                int *ret_new_fd) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_reopen_condition(
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା mask,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା *ret_new_fd) {
 
-        int r, new_fd;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r, new_fd;
 
-        assert(fd >= 0);
-        assert(!FLAGS_SET(flags, O_CREAT));
-        assert(ret_new_fd);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(!FLAGS_SET(flags, O_CREAT));
+        ପ୍ରତିଜ୍ଞା(ret_new_fd);
 
         /* Invokes fd_reopen(fd, flags), but only if the existing F_GETFL flags don't match the specified
          * flags (masked by the specified mask). This is useful for converting O_PATH fds into real fds if
          * needed, but only then. */
 
         r = fcntl(fd, F_GETFL);
-        if (r < 0)
-                return -errno;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        if ((r & mask) == (flags & mask)) {
+        ଯଦି ((r & mask) == (flags & mask)) {
                 *ret_new_fd = -EBADF;
-                return fd;
+                ଫେରନ୍ତୁ fd;
         }
 
         new_fd = fd_reopen(fd, flags);
-        if (new_fd < 0)
-                return new_fd;
+        ଯଦି (new_fd < 0)
+                ଫେରନ୍ତୁ new_fd;
 
         *ret_new_fd = new_fd;
-        return new_fd;
+        ଫେରନ୍ତୁ new_fd;
 }
 
-int fd_is_opath(int fd) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_is_opath(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
 
         r = fcntl(fd, F_GETFL);
-        if (r < 0)
-                return -errno;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ -errno;
 
-        return FLAGS_SET(r, O_PATH);
+        ଫେରନ୍ତୁ FLAGS_SET(r, O_PATH);
 }
 
-int fd_vet_accmode(int fd, int mode) {
-        int flags;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_vet_accmode(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା mode) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags;
 
         /* Check if fd is opened with desired access mode.
          *
@@ -923,50 +923,50 @@ int fd_vet_accmode(int fd, int mode) {
          * Note that while on O_DIRECTORY -EISDIR will be returned, this should not be relied upon as
          * the flag might not have been specified when open() was called originally. */
 
-        assert(fd >= 0);
-        assert(IN_SET(mode, O_RDONLY, O_WRONLY, O_RDWR));
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(IN_SET(mode, O_RDONLY, O_WRONLY, O_RDWR));
 
         flags = fcntl(fd, F_GETFL);
-        if (flags < 0)
-                return -errno;
+        ଯଦି (flags < 0)
+                ଫେରନ୍ତୁ -errno;
 
         /* O_TMPFILE in userspace is defined with O_DIRECTORY OR'ed in, so explicitly permit it.
          *
          * C.f. https://elixir.bootlin.com/linux/v6.17.7/source/include/uapi/asm-generic/fcntl.h#L92 */
-        if (FLAGS_SET(flags, O_DIRECTORY) && !FLAGS_SET(flags, O_TMPFILE))
-                return -EISDIR;
+        ଯଦି (FLAGS_SET(flags, O_DIRECTORY) && !FLAGS_SET(flags, O_TMPFILE))
+                ଫେରନ୍ତୁ -EISDIR;
 
-        if (FLAGS_SET(flags, O_PATH))
-                return -EBADFD;
+        ଯଦି (FLAGS_SET(flags, O_PATH))
+                ଫେରନ୍ତୁ -EBADFD;
 
         flags &= O_ACCMODE_STRICT;
 
-        if (flags == mode)
-                return 1;
+        ଯଦି (flags == mode)
+                ଫେରନ୍ତୁ 1;
 
-        if (flags == O_RDWR)
-                return 0;
+        ଯଦି (flags == O_RDWR)
+                ଫେରନ୍ତୁ 0;
 
-        return -EPROTOTYPE;
+        ଫେରନ୍ତୁ -EPROTOTYPE;
 }
 
-int fd_is_writable(int fd) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_is_writable(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
 
         r = fd_vet_accmode(fd, O_WRONLY);
-        if (r >= 0)
-                return true;
+        ଯଦି (r >= 0)
+                ଫେରନ୍ତୁ true;
 
-        if (IN_SET(r, -EPROTOTYPE, -EBADFD, -EISDIR))
-                return false;
+        ଯଦି (IN_SET(r, -EPROTOTYPE, -EBADFD, -EISDIR))
+                ଫେରନ୍ତୁ false;
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int fd_verify_safe_flags_full(int fd, int extra_flags) {
-        int flags, unexpected_flags;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_verify_safe_flags_full(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ପୂର୍ଣ୍ଣସଂଖ୍ୟା extra_flags) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags, unexpected_flags;
 
         /* Check if an extrinsic fd is safe to work on (by a privileged service). This ensures that clients
          * can't trick a privileged service into giving access to a file the client doesn't already have
@@ -982,91 +982,91 @@ int fd_verify_safe_flags_full(int fd, int extra_flags) {
          * If 'extra_flags' is specified as non-zero the included flags are also allowed.
          */
 
-        assert(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
 
         flags = fcntl(fd, F_GETFL);
-        if (flags < 0)
-                return -errno;
+        ଯଦି (flags < 0)
+                ଫେରନ୍ତୁ -errno;
 
         unexpected_flags = flags & ~(O_ACCMODE_STRICT|O_NOFOLLOW|RAW_O_LARGEFILE|extra_flags);
-        if (unexpected_flags != 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(EREMOTEIO),
+        ଯଦି (unexpected_flags != 0)
+                ଫେରନ୍ତୁ log_debug_errno(SYNTHETIC_ERRNO(EREMOTEIO),
                                        "Unexpected flags set for extrinsic fd: 0%o",
                                        (unsigned) unexpected_flags);
 
-        return flags & (O_ACCMODE_STRICT | extra_flags); /* return the flags variable, but remove the noise */
+        ଫେରନ୍ତୁ flags & (O_ACCMODE_STRICT | extra_flags); /* return the flags variable, but remove the noise */
 }
 
-unsigned read_nr_open(void) {
-        _cleanup_free_ char *nr_open = NULL;
-        int r;
+unsigned read_nr_open(ଶୂନ୍ୟ) {
+        _cleanup_free_ ଅକ୍ଷର *nr_open = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* Returns the kernel's current fd limit, either by reading it of /proc/sys if that works, or using the
          * hard-coded default compiled-in value of current kernels (1M) if not. This call will never fail. */
 
-        r = read_one_line_file("/proc/sys/fs/nr_open", &nr_open);
-        if (r < 0)
+        r = read_one_ଧାଡ଼ି_file("/proc/sys/fs/nr_open", &nr_open);
+        ଯଦି (r < 0)
                 log_debug_errno(r, "Failed to read /proc/sys/fs/nr_open, ignoring: %m");
-        else {
+        ଅନ୍ୟଥା {
                 unsigned v;
 
                 r = safe_atou(nr_open, &v);
-                if (r < 0)
+                ଯଦି (r < 0)
                         log_debug_errno(r, "Failed to parse /proc/sys/fs/nr_open value '%s', ignoring: %m", nr_open);
-                else
-                        return v;
+                ଅନ୍ୟଥା
+                        ଫେରନ୍ତୁ v;
         }
 
         /* If we fail, fall back to the hard-coded kernel limit of 1024 * 1024. */
-        return NR_OPEN_DEFAULT;
+        ଫେରନ୍ତୁ NR_OPEN_DEFAULT;
 }
 
-int fd_get_diskseq(int fd, uint64_t *ret) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_get_diskseq(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, uint64_t *ret) {
         uint64_t diskseq;
 
-        assert(fd >= 0);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        if (ioctl(fd, BLKGETDISKSEQ, &diskseq) < 0) {
+        ଯଦି (ioctl(fd, BLKGETDISKSEQ, &diskseq) < 0) {
                 /* Note that the kernel is weird: non-existing ioctls currently return EINVAL
                  * rather than ENOTTY on loopback block devices. They should fix that in the kernel,
                  * but in the meantime we accept both here. */
-                if (!ERRNO_IS_NOT_SUPPORTED(errno) && errno != EINVAL)
-                        return -errno;
+                ଯଦି (!ERRNO_IS_NOT_SUPPORTED(errno) && errno != EINVAL)
+                        ଫେରନ୍ତୁ -errno;
 
-                return -EOPNOTSUPP;
+                ଫେରନ୍ତୁ -EOPNOTSUPP;
         }
 
         *ret = diskseq;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-static bool is_literal_root(const char *p) {
-        if (!p)
-                return false;
+ସ୍ଥିର bool is_literal_ମୂଳ(ଅଚଳ ଅକ୍ଷର *p) {
+        ଯଦି (!p)
+                ଫେରନ୍ତୁ false;
 
         /* Check if string consists of at least one '/', and possibly more, but nothing else */
         size_t n = strspn(p, "/");
-        return n >= 1 && p[n] == 0;
+        ଫେରନ୍ତୁ n >= 1 && p[n] == 0;
 }
 
-int path_is_root_at(int dir_fd, const char *path) {
-        assert(wildcard_fd_is_valid(dir_fd));
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା path_is_ମୂଳ_at(ପୂର୍ଣ୍ଣସଂଖ୍ୟା dir_fd, ଅଚଳ ଅକ୍ଷର *path) {
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(dir_fd));
 
-        if (dir_fd == XAT_FDROOT && isempty(path))
-                return true;
+        ଯଦି (dir_fd == XAT_FDROOT && isempty(path))
+                ଫେରନ୍ତୁ true;
 
-        if (IN_SET(dir_fd, XAT_FDROOT, AT_FDCWD) && is_literal_root(path))
-                return true;
+        ଯଦି (IN_SET(dir_fd, XAT_FDROOT, AT_FDCWD) && is_literal_ମୂଳ(path))
+                ଫେରନ୍ତୁ true;
 
-        _cleanup_close_ int fd = -EBADF;
-        if (!isempty(path)) {
+        _cleanup_close_ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd = -EBADF;
+        ଯଦି (!isempty(path)) {
                 fd = xopenat(dir_fd, path, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (fd == -ENOTDIR)
-                        return false; /* the root dir must be a dir */
-                if (fd < 0)
-                        return fd;
+                ଯଦି (fd == -ENOTDIR)
+                        ଫେରନ୍ତୁ false; /* the root dir must be a dir */
+                ଯଦି (fd < 0)
+                        ଫେରନ୍ତୁ fd;
 
                 dir_fd = fd;
         }
@@ -1079,105 +1079,105 @@ int path_is_root_at(int dir_fd, const char *path) {
          * $ mount --bind / /tmp/x
          */
 
-        return fds_inode_and_mount_same(dir_fd, XAT_FDROOT);
+        ଫେରନ୍ତୁ fds_inode_and_mount_same(dir_fd, XAT_FDROOT);
 }
 
-int fds_inode_and_mount_same(int fd1, int fd2) {
-        struct statx sx1, sx2;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fds_inode_and_mount_same(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd1, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd2) {
+        ସଂରଚନା statx sx1, sx2;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(wildcard_fd_is_valid(fd1));
-        assert(wildcard_fd_is_valid(fd2));
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(fd1));
+        ପ୍ରତିଜ୍ଞା(wildcard_fd_is_valid(fd2));
 
-        r = xstatx(fd1, /* path = */ NULL, AT_EMPTY_PATH,
+        r = xstatx(fd1, /* path = */ ଖାଲି, AT_EMPTY_PATH,
                    STATX_TYPE|STATX_INO|STATX_MNT_ID,
                    &sx1);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        if (fd1 == fd2) /* Shortcut things if fds are the same (only after validating the fd) */
-                return true;
+        ଯଦି (fd1 == fd2) /* Shortcut things if fds are the same (only after validating the fd) */
+                ଫେରନ୍ତୁ true;
 
-        r = xstatx(fd2, /* path = */ NULL, AT_EMPTY_PATH,
+        r = xstatx(fd2, /* path = */ ଖାଲି, AT_EMPTY_PATH,
                    STATX_TYPE|STATX_INO|STATX_MNT_ID,
                    &sx2);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         r = statx_mount_same(&sx1, &sx2);
-        if (r <= 0)
-                return r;
+        ଯଦି (r <= 0)
+                ଫେରନ୍ତୁ r;
 
-        return statx_inode_same(&sx1, &sx2);
+        ଫେରନ୍ତୁ statx_inode_same(&sx1, &sx2);
 }
 
-int resolve_xat_fdroot(int *fd, const char **path, char **ret_buffer) {
-        assert(fd);
-        assert(path);
-        assert(ret_buffer);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା resolve_xat_fdroot(ପୂର୍ଣ୍ଣସଂଖ୍ୟା *fd, ଅଚଳ ଅକ୍ଷର **path, ଅକ୍ଷର **ret_buffer) {
+        ପ୍ରତିଜ୍ଞା(fd);
+        ପ୍ରତିଜ୍ଞା(path);
+        ପ୍ରତିଜ୍ଞା(ret_buffer);
 
-        if (*fd != XAT_FDROOT) {
-                *ret_buffer = NULL;
-                return 0;
+        ଯଦି (*fd != XAT_FDROOT) {
+                *ret_buffer = ଖାଲି;
+                ଫେରନ୍ତୁ 0;
         }
 
-        if (isempty(*path)) {
+        ଯଦି (isempty(*path)) {
                 *path = "/";
-                *ret_buffer = NULL;
-        } else if (!path_is_absolute(*path)) {
-                char *p = strjoin("/", *path);
-                if (!p)
-                        return -ENOMEM;
+                *ret_buffer = ଖାଲି;
+        } ଅନ୍ୟଥା ଯଦି (!path_is_absolute(*path)) {
+                ଅକ୍ଷର *p = strjoin("/", *path);
+                ଯଦି (!p)
+                        ଫେରନ୍ତୁ -ENOMEM;
 
                 *path = *ret_buffer = p;
         }
 
         *fd = AT_FDCWD;
 
-        return 1;
+        ଫେରନ୍ତୁ 1;
 }
 
-char* format_proc_fd_path(char buf[static PROC_FD_PATH_MAX], int fd) {
-        assert(buf);
-        assert(fd >= 0);
+ଅକ୍ଷର* format_proc_fd_path(ଅକ୍ଷର buf[ସ୍ଥିର PROC_FD_PATH_MAX], ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ପ୍ରତିଜ୍ଞା(buf);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
         assert_se(snprintf_ok(buf, PROC_FD_PATH_MAX, "/proc/self/fd/%i", fd));
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }
 
-const char* accmode_to_string(int flags) {
-        switch (flags & O_ACCMODE_STRICT) {
-        case O_RDONLY:
-                return "ro";
-        case O_WRONLY:
-                return "wo";
-        case O_RDWR:
-                return "rw";
-        default:
-                return NULL;
+ଅଚଳ ଅକ୍ଷର* accmode_to_string(ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags) {
+        ବାଛ (flags & O_ACCMODE_STRICT) {
+        ସ୍ଥିତି O_RDONLY:
+                ଫେରନ୍ତୁ "ro";
+        ସ୍ଥିତି O_WRONLY:
+                ଫେରନ୍ତୁ "wo";
+        ସ୍ଥିତି O_RDWR:
+                ଫେରନ୍ତୁ "rw";
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ ଖାଲି;
         }
 }
 
-char* format_proc_pid_fd_path(char buf[static PROC_PID_FD_PATH_MAX], pid_t pid, int fd) {
-        assert(buf);
-        assert(fd >= 0);
-        assert(pid >= 0);
+ଅକ୍ଷର* format_proc_pid_fd_path(ଅକ୍ଷର buf[ସ୍ଥିର PROC_PID_FD_PATH_MAX], pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd) {
+        ପ୍ରତିଜ୍ଞା(buf);
+        ପ୍ରତିଜ୍ଞା(fd >= 0);
+        ପ୍ରତିଜ୍ଞା(pid >= 0);
         assert_se(snprintf_ok(buf, PROC_PID_FD_PATH_MAX, "/proc/" PID_FMT "/fd/%i", pid == 0 ? getpid_cached() : pid, fd));
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }
 
-int proc_fd_enoent_errno(void) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା proc_fd_enoent_errno(ଶୂନ୍ୟ) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* When ENOENT is returned during the use of FORMAT_PROC_FD_PATH, it can mean two things:
          * that the fd does not exist or that /proc/ is not mounted.
          * Let's make things debuggable and figure out the most appropriate errno. */
 
         r = proc_mounted();
-        if (r == 0)
-                return -ENOSYS;  /* /proc/ is not available or not set up properly, we're most likely
+        ଯଦି (r == 0)
+                ଫେରନ୍ତୁ -ENOSYS;  /* /proc/ is not available or not set up properly, we're most likely
                                     in some chroot environment. */
-        if (r > 0)
-                return -EBADF;   /* If /proc/ is definitely around then this means the fd is not valid. */
+        ଯଦି (r > 0)
+                ଫେରନ୍ତୁ -EBADF;   /* If /proc/ is definitely around then this means the fd is not valid. */
 
-        return -ENOENT;          /* Otherwise let's propagate the original ENOENT. */
+        ଫେରନ୍ତୁ -ENOENT;          /* Otherwise let's propagate the original ENOENT. */
 }

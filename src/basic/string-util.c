@@ -1,218 +1,218 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-seq.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "glyph-util.h"
-#include "gunicode.h"
-#include "locale-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "memstream-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "ansi-seq.h"
+#ଅନ୍ତର୍ଭାଵ "escape.h"
+#ଅନ୍ତର୍ଭାଵ "extract-word.h"
+#ଅନ୍ତର୍ଭାଵ "glyph-util.h"
+#ଅନ୍ତର୍ଭାଵ "gunicode.h"
+#ଅନ୍ତର୍ଭାଵ "locale-util.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "memory-util.h"
+#ଅନ୍ତର୍ଭାଵ "memstream-util.h"
+#ଅନ୍ତର୍ଭାଵ "path-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "strv.h"
+#ଅନ୍ତର୍ଭାଵ "utf8.h"
 
-char* first_word(const char *s, const char *word) {
-        assert(s);
-        assert(word);
+ଅକ୍ଷର* first_word(ଅଚଳ ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *word) {
+        ପ୍ରତିଜ୍ଞା(s);
+        ପ୍ରତିଜ୍ଞା(word);
 
         /* Checks if the string starts with the specified word, either followed by NUL or by whitespace.
          * Returns a pointer to the NUL or the first character after the whitespace. */
 
-        if (isempty(word))
-                return (char*) s;
+        ଯଦି (isempty(word))
+                ଫେରନ୍ତୁ (ଅକ୍ଷର*) s;
 
-        const char *p = startswith(s, word);
-        if (!p)
-                return NULL;
-        if (*p == '\0')
-                return (char*) p;
+        ଅଚଳ ଅକ୍ଷର *p = startswith(s, word);
+        ଯଦି (!p)
+                ଫେରନ୍ତୁ ଖାଲି;
+        ଯଦି (*p == '\0')
+                ଫେରନ୍ତୁ (ଅକ୍ଷର*) p;
 
-        const char *nw = skip_leading_chars(p, WHITESPACE);
-        if (p == nw)
-                return NULL;
+        ଅଚଳ ଅକ୍ଷର *nw = skip_leading_chars(p, WHITESPACE);
+        ଯଦି (p == nw)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        return (char*) nw;
+        ଫେରନ୍ତୁ (ଅକ୍ଷର*) nw;
 }
 
-char* strextendn(char **x, const char *s, size_t l) {
-        assert(x);
-        assert(s || l == 0);
+ଅକ୍ଷର* strextendn(ଅକ୍ଷର **x, ଅଚଳ ଅକ୍ଷର *s, size_t l) {
+        ପ୍ରତିଜ୍ଞା(x);
+        ପ୍ରତିଜ୍ଞା(s || l == 0);
 
-        if (l > 0)
+        ଯଦି (l > 0)
                 l = strnlen(s, l); /* ignore trailing noise */
 
-        if (l > 0 || !*x) {
+        ଯଦି (l > 0 || !*x) {
                 size_t q;
-                char *m;
+                ଅକ୍ଷର *m;
 
                 q = strlen_ptr(*x);
                 m = realloc(*x, q + l + 1);
-                if (!m)
-                        return NULL;
+                ଯଦି (!m)
+                        ଫେରନ୍ତୁ ଖାଲି;
 
                 *mempcpy_typesafe(m + q, s, l) = 0;
 
                 *x = m;
         }
 
-        return *x;
+        ଫେରନ୍ତୁ *x;
 }
 
-char* strstrip(char *s) {
-        if (!s)
-                return NULL;
+ଅକ୍ଷର* strstrip(ଅକ୍ଷର *s) {
+        ଯଦି (!s)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         /* Drops trailing whitespace. Modifies the string in place. Returns pointer to first non-space character */
 
-        return delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
+        ଫେରନ୍ତୁ delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
 }
 
-char* delete_chars(char *s, const char *bad) {
-        char *f, *t;
+ଅକ୍ଷର* delete_chars(ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *bad) {
+        ଅକ୍ଷର *f, *t;
 
         /* Drops all specified bad characters, regardless where in the string */
 
-        if (!s)
-                return NULL;
+        ଯଦି (!s)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        if (!bad)
+        ଯଦି (!bad)
                 bad = WHITESPACE;
 
-        for (f = s, t = s; *f; f++) {
-                if (strchr(bad, *f))
-                        continue;
+        ପାଇଁ (f = s, t = s; *f; f++) {
+                ଯଦି (strchr(bad, *f))
+                        ଜାରି;
 
                 *(t++) = *f;
         }
 
         *t = 0;
 
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
-char* delete_trailing_chars(char *s, const char *bad) {
-        char *c = s;
+ଅକ୍ଷର* delete_trailing_chars(ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *bad) {
+        ଅକ୍ଷର *c = s;
 
         /* Drops all specified bad characters, at the end of the string */
 
-        if (!s)
-                return NULL;
+        ଯଦି (!s)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        if (!bad)
+        ଯଦି (!bad)
                 bad = WHITESPACE;
 
-        for (char *p = s; *p; p++)
-                if (!strchr(bad, *p))
+        ପାଇଁ (ଅକ୍ଷର *p = s; *p; p++)
+                ଯଦି (!strchr(bad, *p))
                         c = p + 1;
 
         *c = 0;
 
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
-char* truncate_nl_full(char *s, size_t *ret_len) {
+ଅକ୍ଷର* truncate_nl_full(ଅକ୍ଷର *s, size_t *ret_len) {
         size_t n;
 
-        assert(s);
+        ପ୍ରତିଜ୍ଞା(s);
 
         n = strcspn(s, NEWLINE);
         s[n] = '\0';
-        if (ret_len)
+        ଯଦି (ret_len)
                 *ret_len = n;
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
-char ascii_tolower(char x) {
+ଅକ୍ଷର ascii_tolower(ଅକ୍ଷର x) {
 
-        if (x >= 'A' && x <= 'Z')
-                return x - 'A' + 'a';
+        ଯଦି (x >= 'A' && x <= 'Z')
+                ଫେରନ୍ତୁ x - 'A' + 'a';
 
-        return x;
+        ଫେରନ୍ତୁ x;
 }
 
-char ascii_toupper(char x) {
+ଅକ୍ଷର ascii_toupper(ଅକ୍ଷର x) {
 
-        if (x >= 'a' && x <= 'z')
-                return x - 'a' + 'A';
+        ଯଦି (x >= 'a' && x <= 'z')
+                ଫେରନ୍ତୁ x - 'a' + 'A';
 
-        return x;
+        ଫେରନ୍ତୁ x;
 }
 
-char* ascii_strlower(char *s) {
-        assert(s);
+ଅକ୍ଷର* ascii_strlower(ଅକ୍ଷର *s) {
+        ପ୍ରତିଜ୍ଞା(s);
 
-        for (char *p = s; *p; p++)
+        ପାଇଁ (ଅକ୍ଷର *p = s; *p; p++)
                 *p = ascii_tolower(*p);
 
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
-char* ascii_strupper(char *s) {
-        assert(s);
+ଅକ୍ଷର* ascii_strupper(ଅକ୍ଷର *s) {
+        ପ୍ରତିଜ୍ଞା(s);
 
-        for (char *p = s; *p; p++)
+        ପାଇଁ (ଅକ୍ଷର *p = s; *p; p++)
                 *p = ascii_toupper(*p);
 
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
-char* ascii_strlower_n(char *s, size_t n) {
-        assert(n <= 0 || s);
+ଅକ୍ଷର* ascii_strlower_n(ଅକ୍ଷର *s, size_t n) {
+        ପ୍ରତିଜ୍ଞା(n <= 0 || s);
 
-        if (n <= 0)
-                return s;
+        ଯଦି (n <= 0)
+                ଫେରନ୍ତୁ s;
 
-        for (size_t i = 0; i < n; i++)
+        ପାଇଁ (size_t i = 0; i < n; i++)
                 s[i] = ascii_tolower(s[i]);
 
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା ascii_strcasecmp_n(ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *b, size_t n) {
 
-        assert(a);
-        assert(b);
+        ପ୍ରତିଜ୍ଞା(a);
+        ପ୍ରତିଜ୍ଞା(b);
 
-        for (; n > 0; a++, b++, n--) {
-                int x, y;
+        ପାଇଁ (; n > 0; a++, b++, n--) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା x, y;
 
-                x = (int) (uint8_t) ascii_tolower(*a);
-                y = (int) (uint8_t) ascii_tolower(*b);
+                x = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) (uint8_t) ascii_tolower(*a);
+                y = (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) (uint8_t) ascii_tolower(*b);
 
-                if (x != y)
-                        return x - y;
+                ଯଦି (x != y)
+                        ଫେରନ୍ତୁ x - y;
         }
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା ascii_strcasecmp_nn(ଅଚଳ ଅକ୍ଷର *a, size_t n, ଅଚଳ ଅକ୍ଷର *b, size_t m) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         r = ascii_strcasecmp_n(a, b, MIN(n, m));
-        if (r != 0)
-                return r;
+        ଯଦି (r != 0)
+                ଫେରନ୍ତୁ r;
 
-        return CMP(n, m);
+        ଫେରନ୍ତୁ CMP(n, m);
 }
 
-bool chars_intersect(const char *a, const char *b) {
+bool chars_intersect(ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *b) {
         /* Returns true if any of the chars in a are in b. */
-        for (const char *p = a; *p; p++)
-                if (strchr(b, *p))
-                        return true;
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *p = a; *p; p++)
+                ଯଦି (strchr(b, *p))
+                        ଫେରନ୍ତୁ true;
 
-        return false;
+        ଫେରନ୍ତୁ false;
 }
 
-bool string_has_cc(const char *p, const char *ok) {
-        assert(p);
+bool string_has_cc(ଅଚଳ ଅକ୍ଷର *p, ଅଚଳ ଅକ୍ଷର *ok) {
+        ପ୍ରତିଜ୍ଞା(p);
 
         /*
          * Check if a string contains control characters. If 'ok' is
@@ -220,121 +220,121 @@ bool string_has_cc(const char *p, const char *ok) {
          * considered OK.
          */
 
-        for (const char *t = p; *t; t++) {
-                if (ok && strchr(ok, *t))
-                        continue;
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *t = p; *t; t++) {
+                ଯଦି (ok && strchr(ok, *t))
+                        ଜାରି;
 
-                if (char_is_cc(*t))
-                        return true;
+                ଯଦି (char_is_cc(*t))
+                        ଫେରନ୍ତୁ true;
         }
 
-        return false;
+        ଫେରନ୍ତୁ false;
 }
 
-static int write_ellipsis(char *buf, bool unicode) {
-        const char *s = glyph_full(GLYPH_ELLIPSIS, unicode);
-        assert(strlen(s) == 3);
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା write_ellipsis(ଅକ୍ଷର *buf, bool unicode) {
+        ଅଚଳ ଅକ୍ଷର *s = glyph_full(GLYPH_ELLIPSIS, unicode);
+        ପ୍ରତିଜ୍ଞା(strlen(s) == 3);
         memcpy(buf, s, 3);
-        return 3;
+        ଫେରନ୍ତୁ 3;
 }
 
-static size_t ansi_sequence_length(const char *s, size_t len) {
-        assert(s);
+ସ୍ଥିର size_t ansi_sequence_length(ଅଚଳ ଅକ୍ଷର *s, size_t len) {
+        ପ୍ରତିଜ୍ଞା(s);
 
-        if (len < 2)
-                return 0;
+        ଯଦି (len < 2)
+                ଫେରନ୍ତୁ 0;
 
-        if (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
-                return 0;  /* Not the start of a sequence */
+        ଯଦି (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
+                ଫେରନ୍ତୁ 0;  /* Not the start of a sequence */
 
-        if (s[1] == 0x5B) { /* [, start of CSI sequence */
+        ଯଦି (s[1] == 0x5B) { /* [, start of CSI sequence */
                 size_t i = 2;
 
-                if (i == len)
-                        return 0;
+                ଯଦି (i == len)
+                        ଫେରନ୍ତୁ 0;
 
-                while (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
-                        if (++i == len)
-                                return 0;
-                while (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
-                        if (++i == len)
-                                return 0;
-                if (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
-                        return i + 1;
-                return 0;  /* Bad sequence */
+                ଯେତେବେଳେ (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
+                        ଯଦି (++i == len)
+                                ଫେରନ୍ତୁ 0;
+                ଯେତେବେଳେ (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
+                        ଯଦି (++i == len)
+                                ଫେରନ୍ତୁ 0;
+                ଯଦି (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
+                        ଫେରନ୍ତୁ i + 1;
+                ଫେରନ୍ତୁ 0;  /* Bad sequence */
 
-        } else if (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
-                return 2;
+        } ଅନ୍ୟଥା ଯଦି (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
+                ଫେରନ୍ତୁ 2;
 
-        return 0;  /* Bad escape? */
+        ଫେରନ୍ତୁ 0;  /* Bad escape? */
 }
 
-static bool string_has_ansi_sequence(const char *s, size_t len) {
-        const char *t = s;
+ସ୍ଥିର bool string_has_ansi_sequence(ଅଚଳ ଅକ୍ଷର *s, size_t len) {
+        ଅଚଳ ଅକ୍ଷର *t = s;
 
-        while ((t = memchr(t, 0x1B, len - (t - s)))) {
-                if (ansi_sequence_length(t, len - (t - s)) > 0)
-                        return true;
+        ଯେତେବେଳେ ((t = memchr(t, 0x1B, len - (t - s)))) {
+                ଯଦି (ansi_sequence_length(t, len - (t - s)) > 0)
+                        ଫେରନ୍ତୁ true;
                 t++;
         }
-        return false;
+        ଫେରନ୍ତୁ false;
 }
 
-static size_t previous_ansi_sequence(const char *s, size_t length, const char **ret_where) {
+ସ୍ଥିର size_t previous_ansi_sequence(ଅଚଳ ଅକ୍ଷର *s, size_t length, ଅଚଳ ଅକ୍ଷର **ret_where) {
 
-        assert(s);
-        assert(ret_where);
+        ପ୍ରତିଜ୍ଞା(s);
+        ପ୍ରତିଜ୍ଞା(ret_where);
 
         /* Locate the previous ANSI sequence and save its start in *ret_where and return length. */
 
-        if (length < 2) {
+        ଯଦି (length < 2) {
                 /* Need at least two bytes for an ANSI sequence */
-                *ret_where = NULL;
-                return 0;
+                *ret_where = ଖାଲି;
+                ଫେରନ୍ତୁ 0;
         }
 
-        for (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
+        ପାଇଁ (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
                 size_t slen = ansi_sequence_length(s + i, length - i);
-                if (slen > 0) {
+                ଯଦି (slen > 0) {
                         *ret_where = s + i;
-                        return slen;
+                        ଫେରନ୍ତୁ slen;
                 }
 
-                if (i == 0)
-                        break;
+                ଯଦି (i == 0)
+                        ଭାଙ୍ଗ;
         }
 
-        *ret_where = NULL;
-        return 0;
+        *ret_where = ଖାଲି;
+        ଫେରନ୍ତୁ 0;
 }
 
-static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
+ସ୍ଥିର ଅକ୍ଷର *ascii_ellipsize_mem(ଅଚଳ ଅକ୍ଷର *s, size_t old_length, size_t new_length, unsigned percent) {
         size_t x, need_space, suffix_len;
-        char *t;
+        ଅକ୍ଷର *t;
 
-        assert(s);
-        assert(percent <= 100);
-        assert(new_length != SIZE_MAX);
+        ପ୍ରତିଜ୍ଞା(s);
+        ପ୍ରତିଜ୍ଞା(percent <= 100);
+        ପ୍ରତିଜ୍ଞା(new_length != SIZE_MAX);
 
-        if (old_length <= new_length)
-                return strndup(s, old_length);
+        ଯଦି (old_length <= new_length)
+                ଫେରନ୍ତୁ strndup(s, old_length);
 
         /* Special case short ellipsations */
-        switch (new_length) {
+        ବାଛ (new_length) {
 
-        case 0:
-                return strdup("");
+        ସ୍ଥିତି 0:
+                ଫେରନ୍ତୁ strdup("");
 
-        case 1:
-                if (is_locale_utf8())
-                        return strdup("…");
-                else
-                        return strdup(".");
+        ସ୍ଥିତି 1:
+                ଯଦି (is_locale_utf8())
+                        ଫେରନ୍ତୁ strdup("…");
+                ଅନ୍ୟଥା
+                        ଫେରନ୍ତୁ strdup(".");
 
-        case 2:
-                if (!is_locale_utf8())
-                        return strdup("..");
-                break;
+        ସ୍ଥିତି 2:
+                ଯଦି (!is_locale_utf8())
+                        ଫେରନ୍ତୁ strdup("..");
+                ଭାଙ୍ଗ;
         }
 
         /* Calculate how much space the ellipsis will take up. If we are in UTF-8 mode we only need space for one
@@ -342,54 +342,54 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
          * either for the UTF-8 encoded character or for three ASCII characters. */
         need_space = is_locale_utf8() ? 1 : 3;
 
-        t = new(char, new_length+3);
-        if (!t)
-                return NULL;
+        t = new(ଅକ୍ଷର, new_length+3);
+        ଯଦି (!t)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        assert(new_length >= need_space);
+        ପ୍ରତିଜ୍ଞା(new_length >= need_space);
 
         x = ((new_length - need_space) * percent + 50) / 100;
-        assert(x <= new_length - need_space);
+        ପ୍ରତିଜ୍ଞା(x <= new_length - need_space);
 
         write_ellipsis(mempcpy(t, s, x), /* unicode= */ false);
         suffix_len = new_length - x - need_space;
         memcpy(t + x + 3, s + old_length - suffix_len, suffix_len);
         *(t + x + 3 + suffix_len) = '\0';
 
-        return t;
+        ଫେରନ୍ତୁ t;
 }
 
 /* Walk backwards from 'end' (exclusive) to the start of the last complete UTF-8 character, without
  * descending below 'start', validate it and return a pointer to its first byte, optionally decoding it
  * into *ret_c. Returns NULL on a truncated or otherwise malformed sequence. */
-static const char* find_previous_unichar(const char *start, const char *end, char32_t *ret_c) {
-        const char *p;
-        int r;
+ସ୍ଥିର ଅଚଳ ଅକ୍ଷର* find_previous_unichar(ଅଚଳ ଅକ୍ଷର *start, ଅଚଳ ଅକ୍ଷର *end, char32_t *ret_c) {
+        ଅଚଳ ଅକ୍ଷର *p;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(start);
-        assert(end);
-        assert(end > start);
+        ପ୍ରତିଜ୍ଞା(start);
+        ପ୍ରତିଜ୍ଞା(end);
+        ପ୍ରତିଜ୍ଞା(end > start);
 
-        for (p = end; p > start; ) {
+        ପାଇଁ (p = end; p > start; ) {
                 p--;
-                if (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
-                        break;
+                ଯଦି (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
+                        ଭାଙ୍ଗ;
         }
 
         r = utf8_encoded_valid_unichar(p, end - p);
-        if (r < 0 || p + r != end)
-                return NULL;
+        ଯଦି (r < 0 || p + r != end)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        if (ret_c)
+        ଯଦି (ret_c)
                 assert_se(utf8_encoded_to_unichar(p, ret_c) == r);
 
-        return p;
+        ଫେରନ୍ତୁ p;
 }
 
-char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
+ଅକ୍ଷର* ellipsize_mem(ଅଚଳ ଅକ୍ଷର *s, size_t old_length, size_t new_length, unsigned percent) {
         size_t x, k, len, len2;
-        const char *i, *j;
-        int r;
+        ଅଚଳ ଅକ୍ଷର *i, *j;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         /* Note that 'old_length' refers to bytes in the string, while 'new_length' refers to character cells taken up
          * on screen. This distinction doesn't matter for ASCII strings, but it does matter for non-ASCII UTF-8
@@ -403,99 +403,99 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
          * the current locale is UTF-8.
          */
 
-        assert(s);
-        assert(percent <= 100);
+        ପ୍ରତିଜ୍ଞା(s);
+        ପ୍ରତିଜ୍ଞା(percent <= 100);
 
-        if (new_length == SIZE_MAX)
-                return strndup(s, old_length);
+        ଯଦି (new_length == SIZE_MAX)
+                ଫେରନ୍ତୁ strndup(s, old_length);
 
-        if (new_length == 0)
-                return strdup("");
+        ଯଦି (new_length == 0)
+                ଫେରନ୍ତୁ strdup("");
 
         bool has_ansi_seq = string_has_ansi_sequence(s, old_length);
 
         /* If no multibyte characters or ANSI sequences, use ascii_ellipsize_mem for speed. It equates
          * bytes with character cells, which holds for ASCII except for the tab, which
          * unichar_console_width() counts as 8 cells. */
-        if (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
-                return ascii_ellipsize_mem(s, old_length, new_length, percent);
+        ଯଦି (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
+                ଫେରନ୍ତୁ ascii_ellipsize_mem(s, old_length, new_length, percent);
 
         x = (new_length - 1) * percent / 100;
-        assert(x <= new_length - 1);
+        ପ୍ରତିଜ୍ଞା(x <= new_length - 1);
 
         k = 0;
-        for (i = s; i < s + old_length; ) {
+        ପାଇଁ (i = s; i < s + old_length; ) {
                 size_t slen = has_ansi_seq ? ansi_sequence_length(i, old_length - (i - s)) : 0;
-                if (slen > 0) {
+                ଯଦି (slen > 0) {
                         i += slen;
-                        continue;  /* ANSI sequences don't take up any space in output */
+                        ଜାରି;  /* ANSI sequences don't take up any space in output */
                 }
 
                 r = utf8_encoded_valid_unichar(i, s + old_length - i);
-                if (r < 0)
-                        return NULL;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ ଖାଲି;
 
                 char32_t c;
                 assert_se(utf8_encoded_to_unichar(i, &c) == r);
 
-                int w = unichar_console_width(c);
-                if (k + w > x)
-                        break;
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା w = unichar_console_width(c);
+                ଯଦି (k + w > x)
+                        ଭାଙ୍ଗ;
 
                 k += w;
                 i += r;
         }
 
-        const char *ansi_start = s + old_length;
+        ଅଚଳ ଅକ୍ଷର *ansi_start = s + old_length;
         size_t ansi_len = 0;
 
-        for (const char *t = j = s + old_length; t > i && k < new_length; ) {
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *t = j = s + old_length; t > i && k < new_length; ) {
                 char32_t c;
-                int w;
-                const char *tt;
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା w;
+                ଅଚଳ ଅକ୍ଷର *tt;
 
-                if (has_ansi_seq && ansi_start >= t)
+                ଯଦି (has_ansi_seq && ansi_start >= t)
                         /* Figure out the previous ANSI sequence, if any */
                         ansi_len = previous_ansi_sequence(s, t - s, &ansi_start);
 
                 /* If the sequence extends all the way to the current position, skip it. */
-                if (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
+                ଯଦି (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
                         t = ansi_start;
-                        continue;
+                        ଜାରି;
                 }
 
                 /* Find the previous complete UTF-8 character inside the retained suffix. */
                 tt = find_previous_unichar(i, t, &c);
-                if (!tt)
-                        return NULL;
+                ଯଦି (!tt)
+                        ଫେରନ୍ତୁ ଖାଲି;
 
                 w = unichar_console_width(c);
-                if (k + w > new_length)
-                        break;
+                ଯଦି (k + w > new_length)
+                        ଭାଙ୍ଗ;
 
                 k += w;
                 j = t = tt;  /* j should always point to the first "real" character */
         }
 
         /* We don't actually need to ellipsize */
-        if (i >= j)
-                return memdup_suffix0(s, old_length);
+        ଯଦି (i >= j)
+                ଫେରନ୍ତୁ memdup_suffix0(s, old_length);
 
-        if (k >= new_length) {
+        ଯଦି (k >= new_length) {
                 /* Make space for ellipsis, if required and possible. We know that the edge character is not
                  * part of an ANSI sequence (because then we'd skip it). If the last character we looked at
                  * was wide, we don't need to make space.
                  * Move the edge by one complete UTF-8 character within the input slice. */
-                if (j < s + old_length) {
+                ଯଦି (j < s + old_length) {
                         r = utf8_encoded_valid_unichar(j, s + old_length - j);
-                        if (r < 0)
-                                return NULL;
+                        ଯଦି (r < 0)
+                                ଫେରନ୍ତୁ ଖାଲି;
 
                         j += r;
-                } else if (i > s) {
-                        const char *tt = find_previous_unichar(s, i, NULL);
-                        if (!tt)
-                                return NULL;
+                } ଅନ୍ୟଥା ଯଦି (i > s) {
+                        ଅଚଳ ଅକ୍ଷର *tt = find_previous_unichar(s, i, ଖାଲି);
+                        ଯଦି (!tt)
+                                ଫେରନ୍ତୁ ଖାଲି;
 
                         i = tt;
                 }
@@ -509,33 +509,33 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
          * short anyway. */
         size_t alloc_len = has_ansi_seq ? old_length + 3 + 1 : len + 3 + len2 + 1;
 
-        char *e = new(char, alloc_len);
-        if (!e)
-                return NULL;
+        ଅକ୍ଷର *e = new(ଅକ୍ଷର, alloc_len);
+        ଯଦି (!e)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         memcpy_safe(e, s, len);
         write_ellipsis(e + len, /* unicode= */ true);
 
-        char *dst = e + len + 3;
+        ଅକ୍ଷର *dst = e + len + 3;
 
-        if (has_ansi_seq)
+        ଯଦି (has_ansi_seq)
                 /* Copy over any ANSI sequences in full */
-                for (const char *p = s + len; p < j; ) {
+                ପାଇଁ (ଅଚଳ ଅକ୍ଷର *p = s + len; p < j; ) {
                         size_t slen = ansi_sequence_length(p, j - p);
-                        if (slen > 0) {
+                        ଯଦି (slen > 0) {
                                 dst = mempcpy(dst, p, slen);
                                 p += slen;
-                        } else
+                        } ଅନ୍ୟଥା
                                 p = utf8_next_char(p);
                 }
 
         memcpy_safe(dst, j, len2);
         dst[len2] = '\0';
 
-        return e;
+        ଫେରନ୍ତୁ e;
 }
 
-char* cellescape(char *buf, size_t len, const char *s) {
+ଅକ୍ଷର* cellescape(ଅକ୍ଷର *buf, size_t len, ଅଚଳ ଅକ୍ଷର *s) {
         /* Escape and ellipsize s into buffer buf of size len. Only non-control ASCII
          * characters are copied as they are, everything else is escaped. The result
          * is different then if escaping and ellipsization was performed in two
@@ -550,21 +550,21 @@ char* cellescape(char *buf, size_t len, const char *s) {
 
         size_t i = 0, last_char_width[4] = {}, k = 0;
 
-        assert(buf);
-        assert(len > 0); /* at least a terminating NUL */
-        assert(s);
+        ପ୍ରତିଜ୍ଞା(buf);
+        ପ୍ରତିଜ୍ଞା(len > 0); /* at least a terminating NUL */
+        ପ୍ରତିଜ୍ଞା(s);
 
-        for (;;) {
-                char four[4];
-                int w;
+        ପାଇଁ (;;) {
+                ଅକ୍ଷର four[4];
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା w;
 
-                if (*s == 0) /* terminating NUL detected? then we are done! */
-                        goto done;
+                ଯଦି (*s == 0) /* terminating NUL detected? then we are done! */
+                        ଯାଅ done;
 
                 w = cescape_char(*s, four);
-                if (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
+                ଯଦି (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
                                       * ellipsize at the previous location */
-                        break;
+                        ଭାଙ୍ଗ;
 
                 /* OK, there was space, let's add this escaped character to the buffer */
                 memcpy(buf + i, four, w);
@@ -579,101 +579,101 @@ char* cellescape(char *buf, size_t len, const char *s) {
 
         /* Ellipsation is necessary. This means we might need to truncate the string again to make space for 4
          * characters ideally, but the buffer is shorter than that in the first place take what we can get */
-        for (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
+        ପାଇଁ (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
 
-                if (i + 4 <= len) /* nice, we reached our space goal */
-                        break;
+                ଯଦି (i + 4 <= len) /* nice, we reached our space goal */
+                        ଭାଙ୍ଗ;
 
                 k = k == 0 ? 3 : k - 1;
-                if (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
-                        break;
+                ଯଦି (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
+                        ଭାଙ୍ଗ;
 
-                assert(i >= last_char_width[k]);
+                ପ୍ରତିଜ୍ଞା(i >= last_char_width[k]);
                 i -= last_char_width[k];
         }
 
-        if (i + 4 <= len) /* yay, enough space */
+        ଯଦି (i + 4 <= len) /* yay, enough space */
                 i += write_ellipsis(buf + i, /* unicode= */ false);
-        else if (i + 3 <= len) { /* only space for ".." */
+        ଅନ୍ୟଥା ଯଦି (i + 3 <= len) { /* only space for ".." */
                 buf[i++] = '.';
                 buf[i++] = '.';
-        } else if (i + 2 <= len) /* only space for a single "." */
+        } ଅନ୍ୟଥା ଯଦି (i + 2 <= len) /* only space for a single "." */
                 buf[i++] = '.';
-        else
-                assert(i + 1 <= len);
+        ଅନ୍ୟଥା
+                ପ୍ରତିଜ୍ଞା(i + 1 <= len);
 
 done:
         buf[i] = '\0';
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }
 
-char* strshorten(char *s, size_t l) {
-        assert(s);
+ଅକ୍ଷର* strshorten(ଅକ୍ଷର *s, size_t l) {
+        ପ୍ରତିଜ୍ଞା(s);
 
-        if (l >= SIZE_MAX-1) /* Would not change anything */
-                return s;
+        ଯଦି (l >= SIZE_MAX-1) /* Would not change anything */
+                ଫେରନ୍ତୁ s;
 
-        if (strnlen(s, l+1) > l)
+        ଯଦି (strnlen(s, l+1) > l)
                 s[l] = 0;
 
-        return s;
+        ଫେରନ୍ତୁ s;
 }
 
-int strgrowpad0(char **s, size_t l) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା strgrowpad0(ଅକ୍ଷର **s, size_t l) {
         size_t sz;
 
-        assert(s);
+        ପ୍ରତିଜ୍ଞା(s);
 
-        if (*s) {
+        ଯଦି (*s) {
                 sz = strlen(*s) + 1;
-                if (sz >= l) /* never shrink */
-                        return 0;
-        } else
+                ଯଦି (sz >= l) /* never shrink */
+                        ଫେରନ୍ତୁ 0;
+        } ଅନ୍ୟଥା
                 sz = 0;
 
-        char *q = realloc(*s, l);
-        if (!q)
-                return -ENOMEM;
+        ଅକ୍ଷର *q = realloc(*s, l);
+        ଯଦି (!q)
+                ଫେରନ୍ତୁ -ENOMEM;
 
         *s = q;
 
         memzero(*s + sz, l - sz);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-char* strreplace(const char *text, const char *old_string, const char *new_string) {
+ଅକ୍ଷର* strreplace(ଅଚଳ ଅକ୍ଷର *text, ଅଚଳ ଅକ୍ଷର *old_string, ଅଚଳ ଅକ୍ଷର *new_string) {
         size_t l, old_len, new_len;
-        char *t, *ret = NULL;
-        const char *f;
+        ଅକ୍ଷର *t, *ret = ଖାଲି;
+        ଅଚଳ ଅକ୍ଷର *f;
 
-        assert(old_string);
-        assert(new_string);
+        ପ୍ରତିଜ୍ଞା(old_string);
+        ପ୍ରତିଜ୍ଞା(new_string);
 
-        if (!text)
-                return NULL;
+        ଯଦି (!text)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         old_len = strlen(old_string);
         new_len = strlen(new_string);
 
         l = strlen(text);
-        if (!GREEDY_REALLOC(ret, l+1))
-                return NULL;
+        ଯଦି (!GREEDY_REALLOC(ret, l+1))
+                ଫେରନ୍ତୁ ଖାଲି;
 
         f = text;
         t = ret;
-        while (*f) {
+        ଯେତେବେଳେ (*f) {
                 size_t d, nl;
 
-                if (!startswith(f, old_string)) {
+                ଯଦି (!startswith(f, old_string)) {
                         *(t++) = *(f++);
-                        continue;
+                        ଜାରି;
                 }
 
                 d = t - ret;
                 nl = l - old_len + new_len;
 
-                if (!GREEDY_REALLOC(ret, nl + 1))
-                        return mfree(ret);
+                ଯଦି (!GREEDY_REALLOC(ret, nl + 1))
+                        ଫେରନ୍ତୁ mfree(ret);
 
                 l = nl;
                 t = ret + d;
@@ -683,57 +683,57 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
         }
 
         *t = 0;
-        return ret;
+        ଫେରନ୍ତୁ ret;
 }
 
-static void advance_offsets(
+ସ୍ଥିର ଶୂନ୍ୟ advance_offsets(
                 ssize_t diff,
                 size_t offsets[2], /* note: we can't use [static 2] here, since this may be NULL */
-                size_t shift[static 2],
+                size_t shift[ସ୍ଥିର 2],
                 size_t size) {
 
-        if (!offsets)
-                return;
+        ଯଦି (!offsets)
+                ଫେରନ୍ତୁ;
 
-        assert(shift);
+        ପ୍ରତିଜ୍ଞା(shift);
 
-        if ((size_t) diff < offsets[0])
+        ଯଦି ((size_t) diff < offsets[0])
                 shift[0] += size;
-        if ((size_t) diff < offsets[1])
+        ଯଦି ((size_t) diff < offsets[1])
                 shift[1] += size;
 }
 
-static void retract_offsets(
+ସ୍ଥିର ଶୂନ୍ୟ retract_offsets(
                 size_t begin,
                 size_t end,
                 size_t offsets[2], /* note: we can't use [static 2] here, since this may be NULL */
-                size_t shift[static 2]) {
+                size_t shift[ସ୍ଥିର 2]) {
 
         /* The input range [begin, end) was dropped from the output: offsets past it move back by its
          * length, offsets inside it collapse onto its beginning. The shift is tracked in unsigned modular
          * arithmetic, which is fine as the sum of all shifts applied to an offset is never negative: at most
          * as many bytes can be dropped before an offset as there are bytes before it. */
 
-        if (!offsets)
-                return;
+        ଯଦି (!offsets)
+                ଫେରନ୍ତୁ;
 
-        assert(shift);
-        assert(begin <= end);
+        ପ୍ରତିଜ୍ଞା(shift);
+        ପ୍ରତିଜ୍ଞା(begin <= end);
 
-        for (size_t k = 0; k < 2; k++)
-                if (offsets[k] > begin)
+        ପାଇଁ (size_t k = 0; k < 2; k++)
+                ଯଦି (offsets[k] > begin)
                         shift[k] -= MIN(offsets[k], end) - begin;
 }
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
+ଅକ୍ଷର* strip_tab_ansi(ଅକ୍ଷର **ibuf, size_t *_isz, size_t highlight[2]) {
         _cleanup_(ansi_seq_parser_done) AnsiSeqParser parser = {};
         _cleanup_(memstream_done) MemStream m = {};
-        const char *begin = NULL;
+        ଅଚଳ ଅକ୍ଷର *begin = ଖାଲି;
         size_t isz, shift[2] = {}, n_carriage_returns = 0;
         FILE *f;
 
-        assert(ibuf);
-        assert(*ibuf);
+        ପ୍ରତିଜ୍ଞା(ibuf);
+        ପ୍ରତିଜ୍ଞା(*ibuf);
         POINTER_MAY_BE_NULL(_isz);
 
         /* This does three things:
@@ -753,36 +753,36 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
         /* Note we turn off internal locking on f for performance reasons. It's safe to do so since we
          * created f here and it doesn't leave our scope. */
         f = memstream_init(&m);
-        if (!f)
-                return NULL;
+        ଯଦି (!f)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        for (const char *i = *ibuf; i < *ibuf + isz; i++) {
-                int e;
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *i = *ibuf; i < *ibuf + isz; i++) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା e;
 
-                for (;;) {
+                ପାଇଁ (;;) {
                         e = ansi_seq_parser_feed(&parser, *i);
-                        if (e < 0)
-                                return NULL;
-                        if (e != ANSI_SEQ_EVENT_ABORT)
-                                break;
+                        ଯଦି (e < 0)
+                                ଫେରନ୍ତୁ ଖାଲି;
+                        ଯଦି (e != ANSI_SEQ_EVENT_ABORT)
+                                ଭାଙ୍ଗ;
 
                         /* Eat up bogus sequences. The aborted sequence is over (and dropped, up to but
                          * excluding the current character, which is fed again), hence forget about it, so
                          * that the next sequence flushes pending carriage returns again. */
-                        if (begin) {
+                        ଯଦି (begin) {
                                 retract_offsets(begin - *ibuf, i - *ibuf, highlight, shift);
-                                begin = NULL;
+                                begin = ଖାଲି;
                         }
                 }
 
-                switch (e) {
+                ବାଛ (e) {
 
-                case ANSI_SEQ_EVENT_TEXT:
-                        if (*i == '\r') {
+                ସ୍ଥିତି ANSI_SEQ_EVENT_TEXT:
+                        ଯଦି (*i == '\r') {
                                 n_carriage_returns++;
-                                continue;
+                                ଜାରି;
                         }
-                        if (*i == '\n') {
+                        ଯଦି (*i == '\n') {
                                 /* Ignore carriage returns before new line. They are dropped from the output,
                                  * hence the offsets need to account for them. (Note that pending carriage
                                  * returns always immediately precede the current character, since anything
@@ -794,68 +794,68 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
                                                 shift);
                                 n_carriage_returns = 0;
                         }
-                        for (; n_carriage_returns > 0; n_carriage_returns--)
+                        ପାଇଁ (; n_carriage_returns > 0; n_carriage_returns--)
                                 fputc('\r', f);
 
-                        if (*i == '\t') {
+                        ଯଦି (*i == '\t') {
                                 fputs("        ", f);
                                 advance_offsets(i - *ibuf, highlight, shift, 7);
-                        } else
+                        } ଅନ୍ୟଥା
                                 fputc(*i, f);
 
-                        break;
+                        ଭାଙ୍ଗ;
 
-                case ANSI_SEQ_EVENT_SEQUENCE:
-                        if (!begin) {
+                ସ୍ଥିତି ANSI_SEQ_EVENT_SEQUENCE:
+                        ଯଦି (!begin) {
                                 /* This starts a new sequence, flush any pending carriage returns first */
-                                for (; n_carriage_returns > 0; n_carriage_returns--)
+                                ପାଇଁ (; n_carriage_returns > 0; n_carriage_returns--)
                                         fputc('\r', f);
 
                                 begin = i;
                         }
-                        break;
+                        ଭାଙ୍ଗ;
 
-                case ANSI_SEQ_EVENT_END:
+                ସ୍ଥିତି ANSI_SEQ_EVENT_END:
                         /* A complete sequence, drop it (the current character is its last one) */
-                        assert(begin);
+                        ପ୍ରତିଜ୍ଞା(begin);
                         retract_offsets(begin - *ibuf, i + 1 - *ibuf, highlight, shift);
-                        begin = NULL;
-                        break;
+                        begin = ଖାଲି;
+                        ଭାଙ୍ଗ;
 
-                default:
+                ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
                         assert_not_reached();
                 }
         }
 
         /* If the input ends in the middle of a sequence the truncated sequence is dropped as well, hence
          * the offsets need to account for it, too. */
-        if (begin)
+        ଯଦି (begin)
                 retract_offsets(begin - *ibuf, isz, highlight, shift);
 
         /* Trailing carriage returns are dropped, too */
         retract_offsets(isz - n_carriage_returns, isz, highlight, shift);
 
-        char *obuf;
-        if (memstream_finalize(&m, &obuf, _isz) < 0)
-                return NULL;
+        ଅକ୍ଷର *obuf;
+        ଯଦି (memstream_finalize(&m, &obuf, _isz) < 0)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         free_and_replace(*ibuf, obuf);
 
-        if (highlight) {
+        ଯଦି (highlight) {
                 highlight[0] += shift[0];
                 highlight[1] += shift[1];
         }
 
-        return *ibuf;
+        ଫେରନ୍ତୁ *ibuf;
 }
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
-        _cleanup_free_ char *buffer = NULL;
+ଅକ୍ଷର* strextendv_with_separator(ଅକ୍ଷର **x, ଅଚଳ ଅକ୍ଷର *separator, va_list ap) {
+        _cleanup_free_ ଅକ୍ଷର *buffer = ଖାଲି;
         size_t f, l, l_separator;
         bool need_separator;
-        char *nr, *p;
+        ଅକ୍ଷର *nr, *p;
 
-        if (!x)
+        ଯଦି (!x)
                 x = &buffer;
 
         l = f = strlen_ptr(*x);
@@ -865,23 +865,23 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
 
         va_list aq;
         va_copy(aq, ap);
-        for (const char *t;;) {
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *t;;) {
                 size_t n;
 
-                t = va_arg(aq, const char *);
-                if (!t)
-                        break;
-                if (t == POINTER_MAX)
-                        continue;
+                t = va_arg(aq, ଅଚଳ ଅକ୍ଷର *);
+                ଯଦି (!t)
+                        ଭାଙ୍ଗ;
+                ଯଦି (t == POINTER_MAX)
+                        ଜାରି;
 
                 n = strlen(t);
 
-                if (need_separator)
+                ଯଦି (need_separator)
                         n += l_separator;
 
-                if (n >= SIZE_MAX - l) {
+                ଯଦି (n >= SIZE_MAX - l) {
                         va_end(aq);
-                        return NULL;
+                        ଫେରନ୍ତୁ ଖାଲି;
                 }
 
                 l += n;
@@ -892,22 +892,22 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         need_separator = !isempty(*x);
 
         nr = realloc(*x, GREEDY_ALLOC_ROUND_UP(l+1));
-        if (!nr)
-                return NULL;
+        ଯଦି (!nr)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         *x = nr;
         p = nr + f;
 
-        for (;;) {
-                const char *t;
+        ପାଇଁ (;;) {
+                ଅଚଳ ଅକ୍ଷର *t;
 
-                t = va_arg(ap, const char *);
-                if (!t)
-                        break;
-                if (t == POINTER_MAX)
-                        continue;
+                t = va_arg(ap, ଅଚଳ ଅକ୍ଷର *);
+                ଯଦି (!t)
+                        ଭାଙ୍ଗ;
+                ଯଦି (t == POINTER_MAX)
+                        ଜାରି;
 
-                if (need_separator && separator)
+                ଯଦି (need_separator && separator)
                         p = stpcpy(p, separator);
 
                 p = stpcpy(p, t);
@@ -915,61 +915,61 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
                 need_separator = true;
         }
 
-        assert(p == nr + l);
+        ପ୍ରତିଜ୍ଞା(p == nr + l);
         *p = 0;
 
         /* If no buffer to extend was passed in return the start of the buffer */
-        if (buffer)
-                return TAKE_PTR(buffer);
+        ଯଦି (buffer)
+                ଫେରନ୍ତୁ TAKE_PTR(buffer);
 
         /* Otherwise we extended the buffer: return the end */
-        return p;
+        ଫେରନ୍ତୁ p;
 }
 
-char* strextend_with_separator_internal(char **x, const char *separator, ...) {
+ଅକ୍ଷର* strextend_with_separator_internal(ଅକ୍ଷର **x, ଅଚଳ ଅକ୍ଷର *separator, ...) {
         va_list ap;
-        char *ret;
+        ଅକ୍ଷର *ret;
 
         va_start(ap, separator);
         ret = strextendv_with_separator(x, separator, ap);
         va_end(ap);
 
-        return ret;
+        ଫେରନ୍ତୁ ret;
 }
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା strextendf_with_separator(ଅକ୍ଷର **x, ଅଚଳ ଅକ୍ଷର *separator, ଅଚଳ ଅକ୍ଷର *format, ...) {
         size_t m, a, l_separator;
         va_list ap;
-        int l;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା l;
 
         /* Appends a formatted string to the specified string. Don't use this in inner loops, since then
          * we'll spend a tonload of time in determining the length of the string passed in, over and over
          * again. */
 
-        assert(x);
-        assert(format);
+        ପ୍ରତିଜ୍ଞା(x);
+        ପ୍ରତିଜ୍ଞା(format);
 
         l_separator = isempty(*x) ? 0 : strlen_ptr(separator);
 
         /* Let's try to use the allocated buffer, if there's room at the end still. Otherwise let's extend by 64 chars. */
-        if (*x) {
+        ଯଦି (*x) {
                 m = strlen(*x);
                 a = MALLOC_SIZEOF_SAFE(*x);
-                assert(a >= m + 1);
-        } else
+                ପ୍ରତିଜ୍ଞା(a >= m + 1);
+        } ଅନ୍ୟଥା
                 m = a = 0;
 
-        if (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
-                char *n;
+        ଯଦି (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
+                ଅକ୍ଷର *n;
 
-                if (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
-                        return -ENOMEM;
-                if (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
-                        return -ENOMEM;
+                ଯଦି (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
+                        ଫେରନ୍ତୁ -ENOMEM;
+                ଯଦି (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
+                        ଫେରନ୍ତୁ -ENOMEM;
 
                 n = realloc(*x, m + 64 + l_separator);
-                if (!n)
-                        return -ENOMEM;
+                ଯଦି (!n)
+                        ଫେରନ୍ତୁ -ENOMEM;
 
                 *x = n;
                 a = MALLOC_SIZEOF_SAFE(*x);
@@ -981,276 +981,276 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
         l = vsnprintf(*x + m + l_separator, a - m - l_separator, format, ap);
         va_end(ap);
 
-        assert(l >= 0);
+        ପ୍ରତିଜ୍ଞା(l >= 0);
 
-        if ((size_t) l < a - m - l_separator) {
-                char *n;
+        ଯଦି ((size_t) l < a - m - l_separator) {
+                ଅକ୍ଷର *n;
 
                 /* Nice! This worked. We are done. But first, let's return the extra space we don't
                  * need. This should be a cheap operation, since we only lower the allocation size here,
                  * never increase. */
                 n = realloc(*x, m + (size_t) l + l_separator + 1);
-                if (n)
+                ଯଦି (n)
                         *x = n;
-        } else {
-                char *n;
+        } ଅନ୍ୟଥା {
+                ଅକ୍ଷର *n;
 
                 /* Wasn't enough. Then let's allocate exactly what we need. */
 
-                if (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
-                        goto oom;
-                if (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
-                        goto oom;
+                ଯଦି (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
+                        ଯାଅ oom;
+                ଯଦି (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
+                        ଯାଅ oom;
 
                 a = m + (size_t) l + l_separator + 1;
                 n = realloc(*x, a);
-                if (!n)
-                        goto oom;
+                ଯଦି (!n)
+                        ଯାଅ oom;
                 *x = n;
 
                 va_start(ap, format);
                 l = vsnprintf(*x + m + l_separator, a - m - l_separator, format, ap);
                 va_end(ap);
 
-                assert((size_t) l < a - m - l_separator);
+                ପ୍ରତିଜ୍ଞା((size_t) l < a - m - l_separator);
         }
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 
 oom:
         /* truncate the bytes added after memcpy_safe() again */
         (*x)[m] = 0;
-        return -ENOMEM;
+        ଫେରନ୍ତୁ -ENOMEM;
 }
 
-char* strrep(const char *s, size_t n) {
-        char *ret, *p;
+ଅକ୍ଷର* strrep(ଅଚଳ ଅକ୍ଷର *s, size_t n) {
+        ଅକ୍ଷର *ret, *p;
         size_t l;
 
-        assert(s);
+        ପ୍ରତିଜ୍ଞା(s);
 
         l = strlen(s);
-        if (!MUL_ASSIGN_SAFE(&l, n))
-                return NULL;
-        if (!INC_SAFE(&l, 1))
-                return NULL;
+        ଯଦି (!MUL_ASSIGN_SAFE(&l, n))
+                ଫେରନ୍ତୁ ଖାଲି;
+        ଯଦି (!INC_SAFE(&l, 1))
+                ଫେରନ୍ତୁ ଖାଲି;
 
         p = ret = malloc(l);
-        if (!ret)
-                return NULL;
+        ଯଦି (!ret)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        for (size_t i = 0; i < n; i++)
+        ପାଇଁ (size_t i = 0; i < n; i++)
                 p = stpcpy(p, s);
 
         *p = 0;
-        return ret;
+        ଫେରନ୍ତୁ ret;
 }
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second) {
-        assert(s);
-        assert(!isempty(sep));
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା split_pair(ଅଚଳ ଅକ୍ଷର *s, ଅଚଳ ଅକ୍ଷର *sep, ଅକ୍ଷର **ret_first, ଅକ୍ଷର **ret_second) {
+        ପ୍ରତିଜ୍ଞା(s);
+        ପ୍ରତିଜ୍ଞା(!isempty(sep));
 
-        const char *x = strstr(s, sep);
-        if (!x)
-                return -EINVAL;
+        ଅଚଳ ଅକ୍ଷର *x = strstr(s, sep);
+        ଯଦି (!x)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        _cleanup_free_ char *a = NULL;
-        if (ret_first) {
+        _cleanup_free_ ଅକ୍ଷର *a = ଖାଲି;
+        ଯଦି (ret_first) {
                 a = strndup(s, x - s);
-                if (!a)
-                        return -ENOMEM;
+                ଯଦି (!a)
+                        ଫେରନ୍ତୁ -ENOMEM;
         }
 
-        _cleanup_free_ char *b = NULL;
-        if (ret_second) {
+        _cleanup_free_ ଅକ୍ଷର *b = ଖାଲି;
+        ଯଦି (ret_second) {
                 b = strdup(x + strlen(sep));
-                if (!b)
-                        return -ENOMEM;
+                ଯଦି (!b)
+                        ଫେରନ୍ତୁ -ENOMEM;
         }
 
-        if (ret_first)
+        ଯଦି (ret_first)
                 *ret_first = TAKE_PTR(a);
-        if (ret_second)
+        ଯଦି (ret_second)
                 *ret_second = TAKE_PTR(b);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int free_and_strdup(char **p, const char *s) {
-        char *t;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା free_and_strdup(ଅକ୍ଷର **p, ଅଚଳ ଅକ୍ଷର *s) {
+        ଅକ୍ଷର *t;
 
-        assert(p);
+        ପ୍ରତିଜ୍ଞା(p);
 
         /* Replaces a string pointer with a strdup()ed new string,
          * possibly freeing the old one. */
 
-        if (streq_ptr(*p, s))
-                return 0;
+        ଯଦି (streq_ptr(*p, s))
+                ଫେରନ୍ତୁ 0;
 
-        if (s) {
+        ଯଦି (s) {
                 t = strdup(s);
-                if (!t)
-                        return -ENOMEM;
-        } else
-                t = NULL;
+                ଯଦି (!t)
+                        ଫେରନ୍ତୁ -ENOMEM;
+        } ଅନ୍ୟଥା
+                t = ଖାଲି;
 
         free_and_replace(*p, t);
 
-        return 1;
+        ଫେରନ୍ତୁ 1;
 }
 
-int free_and_strdup_warn(char **p, const char *s) {
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା free_and_strdup_warn(ଅକ୍ଷର **p, ଅଚଳ ଅକ୍ଷର *s) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
         r = free_and_strdup(p, s);
-        if (r < 0)
-                return log_oom();
-        return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ log_oom();
+        ଫେରନ୍ତୁ r;
 }
 
-int free_and_strndup(char **p, const char *s, size_t l) {
-        char *t;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା free_and_strndup(ଅକ୍ଷର **p, ଅଚଳ ଅକ୍ଷର *s, size_t l) {
+        ଅକ୍ଷର *t;
 
-        assert(p);
-        assert(s || l == 0);
+        ପ୍ରତିଜ୍ଞା(p);
+        ପ୍ରତିଜ୍ଞା(s || l == 0);
 
         /* Replaces a string pointer with a strndup()ed new string,
          * freeing the old one. */
 
-        if (!*p && !s)
-                return 0;
+        ଯଦି (!*p && !s)
+                ଫେରନ୍ତୁ 0;
 
-        if (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
-                return 0;
+        ଯଦି (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
+                ଫେରନ୍ତୁ 0;
 
-        if (s) {
+        ଯଦି (s) {
                 t = strndup(s, l);
-                if (!t)
-                        return -ENOMEM;
-        } else
-                t = NULL;
+                ଯଦି (!t)
+                        ଫେରନ୍ତୁ -ENOMEM;
+        } ଅନ୍ୟଥା
+                t = ଖାଲି;
 
         free_and_replace(*p, t);
-        return 1;
+        ଫେରନ୍ତୁ 1;
 }
 
-int strdup_to_full(char **ret, const char *src) {
-        if (!src) {
-                if (ret)
-                        *ret = NULL;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା strdup_to_full(ଅକ୍ଷର **ret, ଅଚଳ ଅକ୍ଷର *src) {
+        ଯଦି (!src) {
+                ଯଦି (ret)
+                        *ret = ଖାଲି;
 
-                return 0;
-        } else {
-                if (ret) {
-                        char *t = strdup(src);
-                        if (!t)
-                                return -ENOMEM;
+                ଫେରନ୍ତୁ 0;
+        } ଅନ୍ୟଥା {
+                ଯଦି (ret) {
+                        ଅକ୍ଷର *t = strdup(src);
+                        ଯଦି (!t)
+                                ଫେରନ୍ତୁ -ENOMEM;
                         *ret = t;
                 }
 
-                return 1;
+                ଫେରନ୍ତୁ 1;
         }
 };
 
-bool string_is_safe(const char *p, StringSafeFlags flags) {
+bool string_is_safe(ଅଚଳ ଅକ୍ଷର *p, StringSafeFlags flags) {
 
         /* Baseline checks are:
          *   • No control characters (i.e. 0…31 + 127)
          *   • UTF-8 valid (well, technically we skip this test if STRING_ASCII is set, since that is a tighter test)
          */
 
-        if (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
-                return false;
+        ଯଦି (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
+                ଫେରନ୍ତୁ false;
 
-        if (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
-                return false;
+        ଯଦି (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
+                ଫେରନ୍ତୁ false;
 
-        for (const char *t = p; *t; t++) {
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *t = p; *t; t++) {
                 /* never allow control characters, except for new line */
-                if ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
-                        return false;
+                ଯଦି ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
+                        ଫେରନ୍ତୁ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
-                        return false;
+                ଯଦି (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
+                        ଫେରନ୍ତୁ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
-                        return false;
+                ଯଦି (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
+                        ଫେରନ୍ତୁ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
-                        return false;
+                ଯଦି (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
+                        ଫେରନ୍ତୁ false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
-                        return false;
+                ଯଦି (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
+                        ଫେରନ୍ତୁ false;
 
-                if (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
-                        return false;
+                ଯଦି (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
+                        ଫେରନ୍ତୁ false;
 
-                if (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
-                        return false;
+                ଯଦି (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
+                        ଫେରନ୍ତୁ false;
         }
 
-        if (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
-                return false;
+        ଯଦି (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
+                ଫେରନ୍ତୁ false;
 
-        if (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
-                return false;
+        ଯଦି (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
+                ଫେରନ୍ତୁ false;
 
-        return true;
+        ଫେରନ୍ତୁ true;
 }
 
-char* str_realloc(char *p) {
+ଅକ୍ଷର* str_realloc(ଅକ୍ଷର *p) {
         /* Reallocate *p to actual size. Ignore failure, and return the original string on error. */
 
-        if (!p)
-                return NULL;
+        ଯଦି (!p)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        return realloc(p, strlen(p) + 1) ?: p;
+        ଫେରନ୍ତୁ realloc(p, strlen(p) + 1) ?: p;
 }
 
-char* string_erase(char *x) {
-        if (!x)
-                return NULL;
+ଅକ୍ଷର* string_erase(ଅକ୍ଷର *x) {
+        ଯଦି (!x)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         /* A delicious drop of snake-oil! To be called on memory where we stored passphrases or so, after we
          * used them. */
         explicit_bzero_safe(x, strlen(x));
-        return x;
+        ଫେରନ୍ତୁ x;
 }
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
-        const char *p = s, *e = s;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା string_truncate_ଧାଡ଼ିଗୁଡ଼ିକ(ଅଚଳ ଅକ୍ଷର *s, size_t n_ଧାଡ଼ିଗୁଡ଼ିକ, ଅକ୍ଷର **ret) {
+        ଅଚଳ ଅକ୍ଷର *p = s, *e = s;
         bool truncation_applied = false;
-        char *copy;
+        ଅକ୍ଷର *copy;
         size_t n = 0;
 
-        assert(s);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(s);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* Truncate after the specified number of lines. Returns > 0 if a truncation was applied or == 0 if
          * there were fewer lines in the string anyway. Trailing newlines on input are ignored, and not
          * generated either. */
 
-        for (;;) {
+        ପାଇଁ (;;) {
                 size_t k;
 
                 k = strcspn(p, "\n");
 
-                if (p[k] == 0) {
-                        if (k == 0) /* final empty line */
-                                break;
+                ଯଦି (p[k] == 0) {
+                        ଯଦି (k == 0) /* final empty line */
+                                ଭାଙ୍ଗ;
 
-                        if (n >= n_lines) /* above threshold */
-                                break;
+                        ଯଦି (n >= n_ଧାଡ଼ିଗୁଡ଼ିକ) /* above threshold */
+                                ଭାଙ୍ଗ;
 
                         e = p + k; /* last line to include */
-                        break;
+                        ଭାଙ୍ଗ;
                 }
 
-                assert(p[k] == '\n');
+                ପ୍ରତିଜ୍ଞା(p[k] == '\n');
 
-                if (n >= n_lines)
-                        break;
+                ଯଦି (n >= n_ଧାଡ଼ିଗୁଡ଼ିକ)
+                        ଭାଙ୍ଗ;
 
-                if (k > 0)
+                ଯଦି (k > 0)
                         e = p + k;
 
                 p += k + 1;
@@ -1258,27 +1258,27 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         }
 
         /* e points after the last character we want to keep */
-        if (isempty(e))
+        ଯଦି (isempty(e))
                 copy = strdup(s);
-        else {
-                if (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
+        ଅନ୍ୟଥା {
+                ଯଦି (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
                                            * isn't a new-line or a series of them */
                         truncation_applied = true;
 
                 copy = strndup(s, e - s);
         }
-        if (!copy)
-                return -ENOMEM;
+        ଯଦି (!copy)
+                ଫେରନ୍ତୁ -ENOMEM;
 
         *ret = copy;
-        return truncation_applied;
+        ଫେରନ୍ତୁ truncation_applied;
 }
 
-int string_extract_line(const char *s, size_t i, char **ret) {
-        const char *p = s;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା string_extract_ଧାଡ଼ି(ଅଚଳ ଅକ୍ଷର *s, size_t i, ଅକ୍ଷର **ret) {
+        ଅଚଳ ଅକ୍ଷର *p = s;
         size_t c = 0;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* Extract the i'nth line from the specified string. Returns > 0 if there are more lines after that,
          * and == 0 if we are looking at the last line or already beyond the last line. As special
@@ -1286,148 +1286,148 @@ int string_extract_line(const char *s, size_t i, char **ret) {
          * NULL, indicating the input string should be used as is, and avoid a memory allocation for a very
          * common case. */
 
-        for (;;) {
-                const char *q;
+        ପାଇଁ (;;) {
+                ଅଚଳ ଅକ୍ଷର *q;
 
                 q = strchr(p, '\n');
-                if (i == c) {
+                ଯଦି (i == c) {
                         /* The line we are looking for! */
 
-                        if (q) {
-                                char *m;
+                        ଯଦି (q) {
+                                ଅକ୍ଷର *m;
 
                                 m = strndup(p, q - p);
-                                if (!m)
-                                        return -ENOMEM;
+                                ଯଦି (!m)
+                                        ଫେରନ୍ତୁ -ENOMEM;
 
                                 *ret = m;
-                                return !isempty(q + 1); /* More coming? */
-                        } else
+                                ଫେରନ୍ତୁ !isempty(q + 1); /* More coming? */
+                        } ଅନ୍ୟଥା
                                 /* Tell the caller to use the input string if equal */
-                                return strdup_to(ret, p != s ? p : NULL);
+                                ଫେରନ୍ତୁ strdup_to(ret, p != s ? p : ଖାଲି);
                 }
 
-                if (!q)
+                ଯଦି (!q)
                         /* No more lines, return empty line */
-                        return strdup_to(ret, "");
+                        ଫେରନ୍ତୁ strdup_to(ret, "");
 
                 p = q + 1;
                 c++;
         }
 }
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା string_contains_word_strv(ଅଚଳ ଅକ୍ଷର *string, ଅଚଳ ଅକ୍ଷର *separators, ଅକ୍ଷର * ଅଚଳ *ଶବ୍ଦଗୁଡ଼ିକ, ଅଚଳ ଅକ୍ଷର **ret_word) {
         /* In the default mode with no separators specified, we split on whitespace and coalesce separators. */
-        const ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
-        const char *found = NULL;
-        int r;
+        ଅଚଳ ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
+        ଅଚଳ ଅକ୍ଷର *found = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        for (;;) {
-                _cleanup_free_ char *w = NULL;
+        ପାଇଁ (;;) {
+                _cleanup_free_ ଅକ୍ଷର *w = ଖାଲି;
 
                 r = extract_first_word(&string, &w, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
+                ଯଦି (r == 0)
+                        ଭାଙ୍ଗ;
 
-                found = strv_find(words, w);
-                if (found)
-                        break;
+                found = strv_find(ଶବ୍ଦଗୁଡ଼ିକ, w);
+                ଯଦି (found)
+                        ଭାଙ୍ଗ;
         }
 
-        if (ret_word)
+        ଯଦି (ret_word)
                 *ret_word = found;
-        return !!found;
+        ଫେରନ୍ତୁ !!found;
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok) {
-        if (!s1 && !s2)
-                return true;
-        if (!s1 || !s2)
-                return false;
+bool streq_skip_trailing_chars(ଅଚଳ ଅକ୍ଷର *s1, ଅଚଳ ଅକ୍ଷର *s2, ଅଚଳ ଅକ୍ଷର *ok) {
+        ଯଦି (!s1 && !s2)
+                ଫେରନ୍ତୁ true;
+        ଯଦି (!s1 || !s2)
+                ଫେରନ୍ତୁ false;
 
-        if (!ok)
+        ଯଦି (!ok)
                 ok = WHITESPACE;
 
-        for (; *s1 && *s2; s1++, s2++)
-                if (*s1 != *s2)
-                        break;
+        ପାଇଁ (; *s1 && *s2; s1++, s2++)
+                ଯଦି (*s1 != *s2)
+                        ଭାଙ୍ଗ;
 
-        return in_charset(s1, ok) && in_charset(s2, ok);
+        ଫେରନ୍ତୁ in_charset(s1, ok) && in_charset(s2, ok);
 }
 
-char* string_replace_char(char *str, char old_char, char new_char) {
-        assert(str);
-        assert(old_char != '\0');
-        assert(new_char != '\0');
-        assert(old_char != new_char);
+ଅକ୍ଷର* string_replace_char(ଅକ୍ଷର *str, ଅକ୍ଷର old_char, ଅକ୍ଷର new_char) {
+        ପ୍ରତିଜ୍ଞା(str);
+        ପ୍ରତିଜ୍ଞା(old_char != '\0');
+        ପ୍ରତିଜ୍ଞା(new_char != '\0');
+        ପ୍ରତିଜ୍ଞା(old_char != new_char);
 
-        for (char *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
+        ପାଇଁ (ଅକ୍ଷର *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
                 *p = new_char;
 
-        return str;
+        ଫେରନ୍ତୁ str;
 }
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
-        char *b;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା make_cstring(ଅଚଳ ଶୂନ୍ୟ *s, size_t n, MakeCStringMode mode, ଅକ୍ଷର **ret) {
+        ଅକ୍ଷର *b;
 
-        assert(s || n == 0);
-        assert(mode >= 0);
-        assert(mode < _MAKE_CSTRING_MODE_MAX);
+        ପ୍ରତିଜ୍ଞା(s || n == 0);
+        ପ୍ରତିଜ୍ଞା(mode >= 0);
+        ପ୍ରତିଜ୍ଞା(mode < _MAKE_CSTRING_MODE_MAX);
 
         /* Converts a sized character buffer into a NUL-terminated NUL string, refusing if there are embedded
          * NUL bytes. Whether to expect a trailing NUL byte can be specified via 'mode' */
 
-        if (n == 0) {
-                if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+        ଯଦି (n == 0) {
+                ଯଦି (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        ଫେରନ୍ତୁ -EINVAL;
 
-                if (!ret)
-                        return 0;
+                ଯଦି (!ret)
+                        ଫେରନ୍ତୁ 0;
 
-                b = new0(char, 1);
-        } else {
-                const uint8_t *nul;
+                b = new0(ଅକ୍ଷର, 1);
+        } ଅନ୍ୟଥା {
+                ଅଚଳ uint8_t *nul;
 
                 nul = memchr(s, 0, n);
-                if (nul) {
-                        if (nul < (const uint8_t*) s + n - 1 || /* embedded NUL? */
+                ଯଦି (nul) {
+                        ଯଦି (nul < (ଅଚଳ uint8_t*) s + n - 1 || /* embedded NUL? */
                             mode == MAKE_CSTRING_REFUSE_TRAILING_NUL)
-                                return -EINVAL;
+                                ଫେରନ୍ତୁ -EINVAL;
 
                         n--;
-                } else if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+                } ଅନ୍ୟଥା ଯଦି (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        ଫେରନ୍ତୁ -EINVAL;
 
-                if (!ret)
-                        return 0;
+                ଯଦି (!ret)
+                        ଫେରନ୍ତୁ 0;
 
                 b = memdup_suffix0(s, n);
         }
-        if (!b)
-                return -ENOMEM;
+        ଯଦି (!b)
+                ଫେରନ୍ତୁ -ENOMEM;
 
         *ret = b;
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-size_t strspn_from_end(const char *str, const char *accept) {
+size_t strspn_from_end(ଅଚଳ ଅକ୍ଷର *str, ଅଚଳ ଅକ୍ଷର *accept) {
         size_t n = 0;
 
-        if (isempty(str))
-                return 0;
+        ଯଦି (isempty(str))
+                ଫେରନ୍ତୁ 0;
 
-        if (isempty(accept))
-                return 0;
+        ଯଦି (isempty(accept))
+                ଫେରନ୍ତୁ 0;
 
-        for (const char *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
                 n++;
 
-        return n;
+        ଫେରନ୍ତୁ n;
 }
 
-size_t strnspn(const char *str, const char *accept, size_t n) {
+size_t strnspn(ଅଚଳ ଅକ୍ଷର *str, ଅଚଳ ଅକ୍ଷର *accept, size_t n) {
         size_t i;
 
         /* Like strspn(), but reads at most 'n' bytes from 'str'. Returns the length of the initial
@@ -1435,98 +1435,98 @@ size_t strnspn(const char *str, const char *accept, size_t n) {
          * NUL byte too. Unlike strspn() this is safe on a buffer that is not NUL terminated within
          * 'n' bytes. */
 
-        assert(str || n == 0);
-        assert(accept);
+        ପ୍ରତିଜ୍ଞା(str || n == 0);
+        ପ୍ରତିଜ୍ଞା(accept);
 
-        for (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
+        ପାଇଁ (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
                 ;
 
-        return i;
+        ଫେରନ୍ତୁ i;
 }
 
-char* strdupspn(const char *a, const char *accept) {
-        if (isempty(a) || isempty(accept))
-                return strdup("");
+ଅକ୍ଷର* strdupspn(ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *accept) {
+        ଯଦି (isempty(a) || isempty(accept))
+                ଫେରନ୍ତୁ strdup("");
 
-        return strndup(a, strspn(a, accept));
+        ଫେରନ୍ତୁ strndup(a, strspn(a, accept));
 }
 
-char* strdupcspn(const char *a, const char *reject) {
-        if (isempty(a))
-                return strdup("");
-        if (isempty(reject))
-                return strdup(a);
+ଅକ୍ଷର* strdupcspn(ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *reject) {
+        ଯଦି (isempty(a))
+                ଫେରନ୍ତୁ strdup("");
+        ଯଦି (isempty(reject))
+                ଫେରନ୍ତୁ strdup(a);
 
-        return strndup(a, strcspn(a, reject));
+        ଫେରନ୍ତୁ strndup(a, strcspn(a, reject));
 }
 
-char* find_line_startswith_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+ଅକ୍ଷର* find_ଧାଡ଼ି_startswith_internal(ଅଚଳ ଅକ୍ଷର *haystack, ଅଚଳ ଅକ୍ଷର *needle) {
+        ପ୍ରତିଜ୍ଞା(haystack);
+        ପ୍ରତିଜ୍ଞା(needle);
 
         /* Finds the first line in 'haystack' that starts with the specified string. Returns a pointer to the
          * first character after it */
 
-        char *p = (char*) strstr(haystack, needle);
-        if (!p)
-                return NULL;
+        ଅକ୍ଷର *p = (ଅକ୍ଷର*) strstr(haystack, needle);
+        ଯଦି (!p)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        if (p > haystack)
-                while (p[-1] != '\n') {
+        ଯଦି (p > haystack)
+                ଯେତେବେଳେ (p[-1] != '\n') {
                         p = strstr(p + 1, needle);
-                        if (!p)
-                                return NULL;
+                        ଯଦି (!p)
+                                ଫେରନ୍ତୁ ଖାଲି;
                 }
 
-        return p + strlen(needle);
+        ଫେରନ୍ତୁ p + strlen(needle);
 }
 
-char* find_line_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+ଅକ୍ଷର* find_ଧାଡ଼ି_internal(ଅଚଳ ଅକ୍ଷର *haystack, ଅଚଳ ଅକ୍ଷର *needle) {
+        ପ୍ରତିଜ୍ଞା(haystack);
+        ପ୍ରତିଜ୍ଞା(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * beginning of the line */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        ଅକ୍ଷର *p = (ଅକ୍ଷର*) find_ଧାଡ଼ି_startswith(haystack, needle);
+        ଯଦି (!p)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        if (*p == 0 || strchr(NEWLINE, *p))
-                return p - strlen(needle);
+        ଯଦି (*p == 0 || strchr(NEWLINE, *p))
+                ଫେରନ୍ତୁ p - strlen(needle);
 
-        return NULL;
+        ଫେରନ୍ତୁ ଖାଲି;
 }
 
-char* find_line_after_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+ଅକ୍ଷର* find_ଧାଡ଼ି_after_internal(ଅଚଳ ଅକ୍ଷର *haystack, ଅଚଳ ଅକ୍ଷର *needle) {
+        ପ୍ରତିଜ୍ଞା(haystack);
+        ପ୍ରତିଜ୍ଞା(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * next line after it */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        ଅକ୍ଷର *p = (ଅକ୍ଷର*) find_ଧାଡ଼ି_startswith(haystack, needle);
+        ଯଦି (!p)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        if (*p == 0)
-                return p;
-        if (strchr(NEWLINE, *p))
-                return p + 1;
+        ଯଦି (*p == 0)
+                ଫେରନ୍ତୁ p;
+        ଯଦି (strchr(NEWLINE, *p))
+                ଫେରନ୍ତୁ p + 1;
 
-        return NULL;
+        ଫେରନ୍ତୁ ଖାଲି;
 }
 
-bool version_is_valid(const char *s, VersionFlags flags) {
+bool version_is_valid(ଅଚଳ ଅକ୍ଷର *s, VersionFlags flags) {
 
         /* Validates a version string superficially. This does not process the version string in any
          * semantical way, it mostly just validates that its charset is reasonable. */
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
-                return false;
+        ଯଦି (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
+                ଫେରନ୍ତୁ false;
 
-        if (!filename_part_is_valid(s))
-                return false;
+        ଯଦି (!filename_part_is_valid(s))
+                ଫେରନ୍ତୁ false;
 
         /* We always allow all characters specified by the UAPI.10 Version Specification, i.e. 0-9, a-z, A-Z,
          * ".", "-", "~", "^".
@@ -1549,69 +1549,69 @@ bool version_is_valid(const char *s, VersionFlags flags) {
          *
          * → https://uapi-group.org/specifications/specs/version_format_specification/ */
 
-        char charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
+        ଅକ୍ଷର charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
         size_t l = strlen(charset);
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
+        ଯଦି (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
                 charset[l++] = '_';
-        if (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
+        ଯଦି (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
                 charset[l++] = '+';
 
-        return in_charset(s, charset);
+        ଫେରନ୍ତୁ in_charset(s, charset);
 }
 
-ssize_t strlevenshtein(const char *x, const char *y) {
-        _cleanup_free_ size_t *t0 = NULL, *t1 = NULL, *t2 = NULL;
+ssize_t strlevenshtein(ଅଚଳ ଅକ୍ଷର *x, ଅଚଳ ଅକ୍ଷର *y) {
+        _cleanup_free_ size_t *t0 = ଖାଲି, *t1 = ଖାଲି, *t2 = ଖାଲି;
         size_t xl, yl;
 
         /* This is inspired from the Linux kernel's Levenshtein implementation */
 
-        if (streq_ptr(x, y))
-                return 0;
+        ଯଦି (streq_ptr(x, y))
+                ଫେରନ୍ତୁ 0;
 
         xl = strlen_ptr(x);
-        if (xl > SSIZE_MAX)
-                return -E2BIG;
+        ଯଦି (xl > SSIZE_MAX)
+                ଫେରନ୍ତୁ -E2BIG;
 
         yl = strlen_ptr(y);
-        if (yl > SSIZE_MAX)
-                return -E2BIG;
+        ଯଦି (yl > SSIZE_MAX)
+                ଫେରନ୍ତୁ -E2BIG;
 
-        if (isempty(x))
-                return yl;
-        if (isempty(y))
-                return xl;
+        ଯଦି (isempty(x))
+                ଫେରନ୍ତୁ yl;
+        ଯଦି (isempty(y))
+                ଫେରନ୍ତୁ xl;
 
         t0 = new0(size_t, yl + 1);
-        if (!t0)
-                return -ENOMEM;
+        ଯଦି (!t0)
+                ଫେରନ୍ତୁ -ENOMEM;
         t1 = new0(size_t, yl + 1);
-        if (!t1)
-                return -ENOMEM;
+        ଯଦି (!t1)
+                ଫେରନ୍ତୁ -ENOMEM;
         t2 = new0(size_t, yl + 1);
-        if (!t2)
-                return -ENOMEM;
+        ଯଦି (!t2)
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        for (size_t i = 0; i <= yl; i++)
+        ପାଇଁ (size_t i = 0; i <= yl; i++)
                 t1[i] = i;
 
-        for (size_t i = 0; i < xl; i++) {
+        ପାଇଁ (size_t i = 0; i < xl; i++) {
                 t2[0] = i + 1;
 
-                for (size_t j = 0; j < yl; j++) {
+                ପାଇଁ (size_t j = 0; j < yl; j++) {
                         /* Substitution */
                         t2[j+1] = t1[j] + (x[i] != y[j]);
 
                         /* Swap */
-                        if (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
+                        ଯଦି (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
                                 t2[j+1] = t0[j-1] + 1;
 
                         /* Deletion */
-                        if (t2[j+1] > t1[j+1] + 1)
+                        ଯଦି (t2[j+1] > t1[j+1] + 1)
                                 t2[j+1] = t1[j+1] + 1;
 
                         /* Insertion */
-                        if (t2[j+1] > t2[j] + 1)
+                        ଯଦି (t2[j+1] > t2[j] + 1)
                                 t2[j+1] = t2[j] + 1;
                 }
 
@@ -1621,55 +1621,55 @@ ssize_t strlevenshtein(const char *x, const char *y) {
                 t2 = dummy;
         }
 
-        return t1[yl];
+        ଫେରନ୍ତୁ t1[yl];
 }
 
-char* strrstr_internal(const char *haystack, const char *needle) {
+ଅକ୍ଷର* strrstr_internal(ଅଚଳ ଅକ୍ଷର *haystack, ଅଚଳ ଅକ୍ଷର *needle) {
         /* Like strstr() but returns the last rather than the first occurrence of "needle" in "haystack". */
 
-        if (!haystack || !needle)
-                return NULL;
+        ଯଦି (!haystack || !needle)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         /* Special case: for the empty string we return the very last possible occurrence, i.e. *after* the
          * last char, not before. */
-        if (needle[0] == 0)
-                return (char*) strchr(haystack, 0);
+        ଯଦି (needle[0] == 0)
+                ଫେରନ୍ତୁ (ଅକ୍ଷର*) strchr(haystack, 0);
 
         /* Special case: for single character strings, just use optimized strrchr() */
-        if (needle[1] == 0)
-                return (char*) strrchr(haystack, needle[0]);
+        ଯଦି (needle[1] == 0)
+                ଫେରନ୍ତୁ (ଅକ୍ଷର*) strrchr(haystack, needle[0]);
 
-        for (const char *p = strstr(haystack, needle), *q; p; p = q) {
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *p = strstr(haystack, needle), *q; p; p = q) {
                 q = strstr(p + 1, needle);
-                if (!q)
-                        return (char*) p;
+                ଯଦି (!q)
+                        ଫେରନ୍ତୁ (ଅକ୍ଷର*) p;
         }
-        return NULL;
+        ଫେରନ୍ତୁ ଖାଲି;
 }
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
+ଅକ୍ଷର* strrstr_no_case_internal(ଅଚଳ ଅକ୍ଷର *haystack, ଅଚଳ ଅକ୍ଷର *needle) {
+        ଯଦି (!haystack || !needle)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        for (const char *p = strchr(haystack, 0); p > haystack; p--)
-                if (startswith_no_case(p, needle))
-                        return (char*) p;
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *p = strchr(haystack, 0); p > haystack; p--)
+                ଯଦି (startswith_no_case(p, needle))
+                        ଫେରନ୍ତୁ (ଅକ୍ଷର*) p;
 
-        return startswith_no_case(haystack, needle) ? (char*) haystack : NULL;
+        ଫେରନ୍ତୁ startswith_no_case(haystack, needle) ? (ଅକ୍ଷର*) haystack : ଖାଲି;
 }
 
-size_t str_common_prefix(const char *a, const char *b) {
-        assert(a);
-        assert(b);
+size_t str_common_prefix(ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *b) {
+        ପ୍ରତିଜ୍ଞା(a);
+        ପ୍ରତିଜ୍ଞା(b);
 
         /* Returns the length of the common prefix of the two specified strings, or SIZE_MAX in case the
          * strings are fully identical. */
 
-        for (size_t n = 0;; n++) {
-                char c = a[n];
-                if (c != b[n])
-                        return n;
-                if (c == 0)
-                        return SIZE_MAX;
+        ପାଇଁ (size_t n = 0;; n++) {
+                ଅକ୍ଷର c = a[n];
+                ଯଦି (c != b[n])
+                        ଫେରନ୍ତୁ n;
+                ଯଦି (c == 0)
+                        ଫେରନ୍ତୁ SIZE_MAX;
         }
 }

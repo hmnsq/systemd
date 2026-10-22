@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated);
-static inline size_t strnpcpy(char **dest, size_t size, const char *src, size_t len) {
-        return strnpcpy_full(dest, size, src, len, NULL);
+size_t strnpcpy_full(ଅକ୍ଷର **dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, size_t len, bool *ret_truncated);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ size_t strnpcpy(ଅକ୍ଷର **dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, size_t len) {
+        ଫେରନ୍ତୁ strnpcpy_full(dest, size, src, len, ଖାଲି);
 }
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated);
-static inline size_t strpcpy(char **dest, size_t size, const char *src) {
-        return strpcpy_full(dest, size, src, NULL);
+size_t strpcpy_full(ଅକ୍ଷର **dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, bool *ret_truncated);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ size_t strpcpy(ଅକ୍ଷର **dest, size_t size, ଅଚଳ ଅକ୍ଷର *src) {
+        ଫେରନ୍ତୁ strpcpy_full(dest, size, src, ଖାଲି);
 }
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) _printf_(4, 5);
+size_t strpcpyf_full(ଅକ୍ଷର **dest, size_t size, bool *ret_truncated, ଅଚଳ ଅକ୍ଷର *src, ...) _printf_(4, 5);
 #define strpcpyf(dest, size, src, ...) \
-        strpcpyf_full((dest), (size), NULL, (src), ##__VA_ARGS__)
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) _sentinel_;
+        strpcpyf_full((dest), (size), ଖାଲି, (src), ##__VA_ARGS__)
+size_t strpcpyl_full(ଅକ୍ଷର **dest, size_t size, bool *ret_truncated, ଅଚଳ ଅକ୍ଷର *src, ...) _sentinel_;
 #define strpcpyl(dest, size, src, ...) \
-        strpcpyl_full((dest), (size), NULL, (src), ##__VA_ARGS__)
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated);
-static inline size_t strnscpy(char *dest, size_t size, const char *src, size_t len) {
-        return strnscpy_full(dest, size, src, len, NULL);
+        strpcpyl_full((dest), (size), ଖାଲି, (src), ##__VA_ARGS__)
+size_t strnscpy_full(ଅକ୍ଷର *dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, size_t len, bool *ret_truncated);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ size_t strnscpy(ଅକ୍ଷର *dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, size_t len) {
+        ଫେରନ୍ତୁ strnscpy_full(dest, size, src, len, ଖାଲି);
 }
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated);
-static inline size_t strscpy(char *dest, size_t size, const char *src) {
-        return strscpy_full(dest, size, src, NULL);
+size_t strscpy_full(ଅକ୍ଷର *dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, bool *ret_truncated);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ size_t strscpy(ଅକ୍ଷର *dest, size_t size, ଅଚଳ ଅକ୍ଷର *src) {
+        ଫେରନ୍ତୁ strscpy_full(dest, size, src, ଖାଲି);
 }
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) _sentinel_;
+size_t strscpyl_full(ଅକ୍ଷର *dest, size_t size, bool *ret_truncated, ଅଚଳ ଅକ୍ଷର *src, ...) _sentinel_;
 #define strscpyl(dest, size, src, ...) \
-        strscpyl_full(dest, size, NULL, src, ##__VA_ARGS__)
+        strscpyl_full(dest, size, ଖାଲି, src, ##__VA_ARGS__)

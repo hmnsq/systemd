@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/resource.h>       /* IWYU pragma: export */
+#ଅନ୍ତର୍ଭାଵ <sys/resource.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
 #define _RLIMIT_MAX RLIMIT_NLIMITS
 
-DECLARE_STRING_TABLE_LOOKUP(rlimit, int);
-int rlimit_from_string_harder(const char *s) _pure_;
-void rlimits_list(const char *prefix);
+DECLARE_STRING_TABLE_LOOKUP(rlimit, ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_from_string_harder(ଅଚଳ ଅକ୍ଷର *s) _pure_;
+ଶୂନ୍ୟ rlimits_list(ଅଚଳ ଅକ୍ଷର *prefix);
 
-int setrlimit_closest(int resource, const struct rlimit *rlim);
-int setrlimit_closest_all(const struct rlimit * const *rlim, int *which_failed);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା setrlimit_closest(ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ଅଚଳ ସଂରଚନା rlimit *rlim);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା setrlimit_closest_all(ଅଚଳ ସଂରଚନା rlimit * ଅଚଳ *rlim, ପୂର୍ଣ୍ଣସଂଖ୍ୟା *which_failed);
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret);
-int rlimit_parse(int resource, const char *val, struct rlimit *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse_one(ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ଅଚଳ ଅକ୍ଷର *val, rlim_t *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_parse(ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ଅଚଳ ଅକ୍ଷର *val, ସଂରଚନା rlimit *ret);
 
-int rlimit_format(const struct rlimit *rl, char **ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_format(ଅଚଳ ସଂରଚନା rlimit *rl, ଅକ୍ଷର **ret);
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]);
-void rlimit_free_all(struct rlimit **rl);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_copy_all(ସଂରଚନା rlimit* target[ସ୍ଥିର _RLIMIT_MAX], ସଂରଚନା rlimit* ଅଚଳ source[ସ୍ଥିର _RLIMIT_MAX]);
+ଶୂନ୍ୟ rlimit_free_all(ସଂରଚନା rlimit **rl);
 
-#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+#define RLIMIT_MAKE_CONST(lim) ((ସଂରଚନା rlimit) { lim, lim })
 
-int rlimit_nofile_bump(int limit);
-int rlimit_nofile_safe(void);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_nofile_bump(ପୂର୍ଣ୍ଣସଂଖ୍ୟା limit);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rlimit_nofile_safe(ଶୂନ୍ୟ);
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pid_getrlimit(pid_t pid, ପୂର୍ଣ୍ଣସଂଖ୍ୟା resource, ସଂରଚନା rlimit *ret);

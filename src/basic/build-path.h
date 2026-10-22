@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-int get_build_exec_dir(char **ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_build_exec_dir(ଅକ୍ଷର **ret);
 
-int invoke_callout_binary(const char *path, char *const argv[]);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା invoke_callout_ଦ୍ୱିମିକ(ଅଚଳ ଅକ୍ଷର *path, ଅକ୍ଷର *ଅଚଳ argv[]);
 
-int pin_callout_binary(const char *path, char **ret_path);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pin_callout_ଦ୍ୱିମିକ(ଅଚଳ ଅକ୍ଷର *path, ଅକ୍ଷର **ret_path);

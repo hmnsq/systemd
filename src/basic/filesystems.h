@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "stat-util.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
+#ଅନ୍ତର୍ଭାଵ "stat-util.h"
 
 #define FILESYSTEM_MAGIC_MAX 10
 
-typedef enum FilesystemGroups {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା FilesystemGroups {
         /* Please leave BASIC_API first and KNOWN last, but sort the rest alphabetically */
         FILESYSTEM_SET_BASIC_API,
         FILESYSTEM_SET_ANONYMOUS,
@@ -23,19 +23,19 @@ typedef enum FilesystemGroups {
         _FILESYSTEM_SET_INVALID = -EINVAL,
 } FilesystemGroups;
 
-typedef struct FilesystemSet {
-        const char *name;
-        const char *help;
-        const char *value;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା FilesystemSet {
+        ଅଚଳ ଅକ୍ଷର *name;
+        ଅଚଳ ଅକ୍ଷର *help;
+        ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ;
 } FilesystemSet;
 
-extern const FilesystemSet filesystem_sets[];
+ବାହ୍ୟ ଅଚଳ FilesystemSet filesystem_sets[];
 
-const FilesystemSet *filesystem_set_find(const char *name);
+ଅଚଳ FilesystemSet *filesystem_set_find(ଅଚଳ ଅକ୍ଷର *name);
 
-const char* fs_type_to_string(statfs_f_type_t magic);
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret);
-bool fs_in_group(const struct statfs *s, enum FilesystemGroups fs_group);
+ଅଚଳ ଅକ୍ଷର* fs_type_to_string(statfs_f_type_t magic);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fs_type_from_string(ଅଚଳ ଅକ୍ଷର *name, ଅଚଳ statfs_f_type_t **ret);
+bool fs_in_group(ଅଚଳ ସଂରଚନା statfs *s, ଗଣନା FilesystemGroups fs_group);
 
 /* gperf prototypes */
-const struct FilesystemMagic* filesystems_gperf_lookup(const char *str, GPERF_LEN_TYPE length);
+ଅଚଳ ସଂରଚନା FilesystemMagic* filesystems_gperf_lookup(ଅଚଳ ଅକ୍ଷର *str, GPERF_LEN_TYPE length);

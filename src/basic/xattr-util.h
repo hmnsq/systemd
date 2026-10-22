@@ -1,59 +1,59 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-int getxattr_at_malloc(int fd, const char *path, const char *name, int at_flags, char **ret, size_t *ret_size);
-static inline int getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା getxattr_at_malloc(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *path, ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags, ଅକ୍ଷର **ret, size_t *ret_size);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା getxattr_malloc(ଅଚଳ ଅକ୍ଷର *path, ଅଚଳ ଅକ୍ଷର *name, ଅକ୍ଷର **ret, size_t *ret_size) {
+        ଫେରନ୍ତୁ getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
 }
-static inline int lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା lgetxattr_malloc(ଅଚଳ ଅକ୍ଷର *path, ଅଚଳ ଅକ୍ଷର *name, ଅକ୍ଷର **ret, size_t *ret_size) {
+        ଫେରନ୍ତୁ getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
 }
-static inline int fgetxattr_malloc(int fd, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
-}
-
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags);
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv);
-
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret);
-static inline int listxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
-}
-static inline int llistxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, 0, ret);
-}
-static inline int flistxattr_malloc(int fd, char **ret) {
-        return listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fgetxattr_malloc(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *name, ଅକ୍ଷର **ret, size_t *ret_size) {
+        ଫେରନ୍ତୁ getxattr_at_malloc(fd, ଖାଲି, name, AT_EMPTY_PATH, ret, ret_size);
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା getxattr_at_bool(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *path, ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା getxattr_at_strv(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *path, ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags, ଅକ୍ଷର ***ret_strv);
+
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା listxattr_at_malloc(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *path, ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags, ଅକ୍ଷର **ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା listxattr_malloc(ଅଚଳ ଅକ୍ଷର *path, ଅକ୍ଷର **ret) {
+        ଫେରନ୍ତୁ listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
+}
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା llistxattr_malloc(ଅଚଳ ଅକ୍ଷର *path, ଅକ୍ଷର **ret) {
+        ଫେରନ୍ତୁ listxattr_at_malloc(AT_FDCWD, path, 0, ret);
+}
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା flistxattr_malloc(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅକ୍ଷର **ret) {
+        ଫେରନ୍ତୁ listxattr_at_malloc(fd, ଖାଲି, AT_EMPTY_PATH, ret);
+}
+
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା xsetxattr_full(
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd,
+                ଅଚଳ ଅକ୍ଷର *path,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags,
+                ଅଚଳ ଅକ୍ଷର *name,
+                ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ,
                 size_t size,
-                int xattr_flags);
-static inline int xsetxattr(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା xattr_flags);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା xsetxattr(
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd,
+                ଅଚଳ ଅକ୍ଷର *path,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags,
+                ଅଚଳ ଅକ୍ଷର *name,
+                ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ) {
+        ଫେରନ୍ତୁ xsetxattr_full(fd, path, at_flags, name, ମୂଲ୍ୟ, SIZE_MAX, 0);
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା xsetxattr_strv(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *path, ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags, ଅଚଳ ଅକ୍ଷର *name, ଅକ୍ଷର * ଅଚଳ *l);
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା xremovexattr(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *path, ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags, ଅଚଳ ଅକ୍ଷର *name);
 
-int fd_setcrtime(int fd, usec_t usec);
-int getcrtime_at(int fd, const char *path, int at_flags, usec_t *ret);
-static inline int fd_getcrtime(int fd, usec_t *ret) {
-        return getcrtime_at(fd, NULL, 0, ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_setcrtime(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, usec_t usec);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା getcrtime_at(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, ଅଚଳ ଅକ୍ଷର *path, ପୂର୍ଣ୍ଣସଂଖ୍ୟା at_flags, usec_t *ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd_getcrtime(ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd, usec_t *ret) {
+        ଫେରନ୍ତୁ getcrtime_at(fd, ଖାଲି, 0, ret);
 }
 
-bool xattr_is_acl(const char *name);
-bool xattr_is_selinux(const char *name);
+bool xattr_is_acl(ଅଚଳ ଅକ୍ଷର *name);
+bool xattr_is_selinux(ଅଚଳ ଅକ୍ଷର *name);

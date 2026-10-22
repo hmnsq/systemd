@@ -1,160 +1,160 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <ctype.h>
-#include <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <ctype.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "memory-util.h"
-#include "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "hexdecoct.h"
+#ଅନ୍ତର୍ଭାଵ "memory-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
 
-char octchar(int x) {
-        return '0' + (x & 7);
+ଅକ୍ଷର octchar(ପୂର୍ଣ୍ଣସଂଖ୍ୟା x) {
+        ଫେରନ୍ତୁ '0' + (x & 7);
 }
 
-int unoctchar(char c) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା unoctchar(ଅକ୍ଷର c) {
 
-        if (c >= '0' && c <= '7')
-                return c - '0';
+        ଯଦି (c >= '0' && c <= '7')
+                ଫେରନ୍ତୁ c - '0';
 
-        return -EINVAL;
+        ଫେରନ୍ତୁ -EINVAL;
 }
 
-char decchar(int x) {
-        return '0' + (x % 10);
+ଅକ୍ଷର decchar(ପୂର୍ଣ୍ଣସଂଖ୍ୟା x) {
+        ଫେରନ୍ତୁ '0' + (x % 10);
 }
 
-int undecchar(char c) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା undecchar(ଅକ୍ଷର c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        ଯଦି (c >= '0' && c <= '9')
+                ଫେରନ୍ତୁ c - '0';
 
-        return -EINVAL;
+        ଫେରନ୍ତୁ -EINVAL;
 }
 
-char hexchar(int x) {
-        const char *table = LOWERCASE_HEXDIGITS;
-        return table[x & 15];
+ଅକ୍ଷର hexchar(ପୂର୍ଣ୍ଣସଂଖ୍ୟା x) {
+        ଅଚଳ ଅକ୍ଷର *table = LOWERCASE_HEXDIGITS;
+        ଫେରନ୍ତୁ table[x & 15];
 }
 
-int unhexchar(char c) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା unhexchar(ଅକ୍ଷର c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        ଯଦି (c >= '0' && c <= '9')
+                ଫେରନ୍ତୁ c - '0';
 
-        if (c >= 'a' && c <= 'f')
-                return c - 'a' + 10;
+        ଯଦି (c >= 'a' && c <= 'f')
+                ଫେରନ୍ତୁ c - 'a' + 10;
 
-        if (c >= 'A' && c <= 'F')
-                return c - 'A' + 10;
+        ଯଦି (c >= 'A' && c <= 'F')
+                ଫେରନ୍ତୁ c - 'A' + 10;
 
-        return -EINVAL;
+        ଫେରନ୍ତୁ -EINVAL;
 }
 
-char* hexmem(const void *p, size_t l) {
-        const uint8_t *x;
-        char *r, *z;
+ଅକ୍ଷର* hexmem(ଅଚଳ ଶୂନ୍ୟ *p, size_t l) {
+        ଅଚଳ uint8_t *x;
+        ଅକ୍ଷର *r, *z;
 
-        assert(p || l == 0);
+        ପ୍ରତିଜ୍ଞା(p || l == 0);
 
-        z = r = new(char, l * 2 + 1);
-        if (!r)
-                return NULL;
+        z = r = new(ଅକ୍ଷର, l * 2 + 1);
+        ଯଦି (!r)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        for (x = p; x && x < (const uint8_t*) p + l; x++) {
+        ପାଇଁ (x = p; x && x < (ଅଚଳ uint8_t*) p + l; x++) {
                 *(z++) = hexchar(*x >> 4);
                 *(z++) = hexchar(*x & 15);
         }
 
         *z = 0;
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-static int unhex_next(const char **p, size_t *l) {
-        int r;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା unhex_next(ଅଚଳ ଅକ୍ଷର **p, size_t *l) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(p);
-        assert(l);
+        ପ୍ରତିଜ୍ଞା(p);
+        ପ୍ରତିଜ୍ଞା(l);
 
         /* Find the next non-whitespace character, and decode it. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        ପାଇଁ (;;) {
+                ଯଦି (*l == 0)
+                        ଫେରନ୍ତୁ -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                ଯଦି (!strchr(WHITESPACE, **p))
+                        ଭାଙ୍ଗ;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
         r = unhexchar(**p);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        for (;;) {
+        ପାଇଁ (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0 || !strchr(WHITESPACE, **p))
-                        break;
+                ଯଦି (*l == 0 || !strchr(WHITESPACE, **p))
+                        ଭାଙ୍ଗ;
 
                 /* Skip following whitespace */
         }
 
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int unhexmem_full(
-                const char *p,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା unhexmem_full(
+                ଅଚଳ ଅକ୍ଷର *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
+                ଶୂନ୍ୟ **ret_data,
                 size_t *ret_size) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
+        _cleanup_free_ uint8_t *buf = ଖାଲି;
         size_t buf_size;
-        const char *x;
+        ଅଚଳ ଅକ୍ଷର *x;
         uint8_t *z;
 
-        assert(p || l == 0);
+        ପ୍ରତିଜ୍ଞା(p || l == 0);
 
-        if (l == SIZE_MAX)
+        ଯଦି (l == SIZE_MAX)
                 l = strlen(p);
 
         /* Note that the calculation of memory size is an upper boundary, as we ignore whitespace while decoding */
         buf_size = (l + 1) / 2 + 1;
         buf = malloc(buf_size);
-        if (!buf)
-                return -ENOMEM;
+        ଯଦି (!buf)
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, buf_size);
+        CLEANUP_ERASE_PTR(secure ? &buf : ଖାଲି, buf_size);
 
-        for (x = p, z = buf;;) {
-                int a, b;
+        ପାଇଁ (x = p, z = buf;;) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା a, b;
 
                 a = unhex_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
+                ଯଦି (a == -EPIPE) /* End of string */
+                        ଭାଙ୍ଗ;
+                ଯଦି (a < 0)
+                        ଫେରନ୍ତୁ a;
 
                 b = unhex_next(&x, &l);
-                if (b < 0)
-                        return b;
+                ଯଦି (b < 0)
+                        ଫେରନ୍ତୁ b;
 
                 *(z++) = (uint8_t) a << 4 | (uint8_t) b;
         }
 
         *z = 0;
 
-        if (ret_size)
+        ଯଦି (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        ଯଦି (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-6
@@ -163,60 +163,60 @@ int unhexmem_full(
  * order of the underlying data when compared as bytestrings, this is
  * useful when representing NSEC3 hashes, as one can then verify the
  * order of hashes directly from their representation. */
-char base32hexchar(int x) {
-        const char *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
-        return table[x & 31];
+ଅକ୍ଷର base32hexchar(ପୂର୍ଣ୍ଣସଂଖ୍ୟା x) {
+        ଅଚଳ ଅକ୍ଷର *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
+        ଫେରନ୍ତୁ table[x & 31];
 }
 
-int unbase32hexchar(char c) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା unbase32hexchar(ଅକ୍ଷର c) {
         unsigned offset;
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        ଯଦି (c >= '0' && c <= '9')
+                ଫେରନ୍ତୁ c - '0';
 
         offset = '9' - '0' + 1;
 
-        if (c >= 'A' && c <= 'V')
-                return c - 'A' + offset;
+        ଯଦି (c >= 'A' && c <= 'V')
+                ଫେରନ୍ତୁ c - 'A' + offset;
 
-        return -EINVAL;
+        ଫେରନ୍ତୁ -EINVAL;
 }
 
-char* base32hexmem(const void *p, size_t l, bool padding) {
-        char *r, *z;
-        const uint8_t *x;
+ଅକ୍ଷର* base32hexmem(ଅଚଳ ଶୂନ୍ୟ *p, size_t l, bool padding) {
+        ଅକ୍ଷର *r, *z;
+        ଅଚଳ uint8_t *x;
         size_t len;
 
-        assert(p || l == 0);
+        ପ୍ରତିଜ୍ଞା(p || l == 0);
 
-        if (padding)
+        ଯଦି (padding)
                 /* five input bytes makes eight output bytes, padding is added so we must round up */
                 len = 8 * (l + 4) / 5;
-        else {
+        ଅନ୍ୟଥା {
                 /* same, but round down as there is no padding */
                 len = 8 * l / 5;
 
-                switch (l % 5) {
-                case 4:
+                ବାଛ (l % 5) {
+                ସ୍ଥିତି 4:
                         len += 7;
-                        break;
-                case 3:
+                        ଭାଙ୍ଗ;
+                ସ୍ଥିତି 3:
                         len += 5;
-                        break;
-                case 2:
+                        ଭାଙ୍ଗ;
+                ସ୍ଥିତି 2:
                         len += 4;
-                        break;
-                case 1:
+                        ଭାଙ୍ଗ;
+                ସ୍ଥିତି 1:
                         len += 2;
-                        break;
+                        ଭାଙ୍ଗ;
                 }
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return NULL;
+        ଯଦି (!r)
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        for (x = p; x < (const uint8_t*) p + (l / 5) * 5; x += 5) {
+        ପାଇଁ (x = p; x < (ଅଚଳ uint8_t*) p + (l / 5) * 5; x += 5) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ
                  * x[3] == QQQQQQQQ; x[4] == WWWWWWWW */
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
@@ -229,8 +229,8 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[4] & 31));                  /* 000WWWWW */
         }
 
-        switch (l % 5) {
-        case 4:
+        ବାଛ (l % 5) {
+        ସ୍ଥିତି 4:
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6);  /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);             /* 000YYYYY */
@@ -238,43 +238,43 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[2] & 15) << 1 | x[3] >> 7); /* 000ZZZZQ */
                 *(z++) = base32hexchar((x[3] & 127) >> 2);            /* 000QQQQQ */
                 *(z++) = base32hexchar((x[3] & 3) << 3);              /* 000QQ000 */
-                if (padding)
+                ଯଦି (padding)
                         *(z++) = '=';
 
-                break;
+                ଭାଙ୍ଗ;
 
-        case 3:
+        ସ୍ଥିତି 3:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4 | x[2] >> 4); /* 000YZZZZ */
                 *(z++) = base32hexchar((x[2] & 15) << 1);            /* 000ZZZZ0 */
-                if (padding) {
+                ଯଦି (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                ଭାଙ୍ଗ;
 
-        case 2:
+        ସ୍ଥିତି 2:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4);             /* 000Y0000 */
-                if (padding) {
+                ଯଦି (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                ଭାଙ୍ଗ;
 
-        case 1:
+        ସ୍ଥିତି 1:
                 *(z++) = base32hexchar(x[0] >> 3);       /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2); /* 000XXX00 */
-                if (padding) {
+                ଯଦି (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
@@ -283,35 +283,35 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                         *(z++) = '=';
                 }
 
-                break;
+                ଭାଙ୍ଗ;
         }
 
         *z = 0;
-        return r;
+        ଫେରନ୍ତୁ r;
 }
 
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_len) {
-        _cleanup_free_ uint8_t *r = NULL;
-        int a, b, c, d, e, f, g, h;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା unbase32hexmem(ଅଚଳ ଅକ୍ଷର *p, size_t l, bool padding, ଶୂନ୍ୟ **mem, size_t *_len) {
+        _cleanup_free_ uint8_t *r = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା a, b, c, d, e, f, g, h;
         uint8_t *z;
-        const char *x;
+        ଅଚଳ ଅକ୍ଷର *x;
         size_t len;
         unsigned pad = 0;
 
-        assert(p || l == 0);
-        assert(mem);
-        assert(_len);
+        ପ୍ରତିଜ୍ଞା(p || l == 0);
+        ପ୍ରତିଜ୍ଞା(mem);
+        ପ୍ରତିଜ୍ଞା(_len);
 
-        if (l == SIZE_MAX)
+        ଯଦି (l == SIZE_MAX)
                 l = strlen(p);
 
         /* padding ensures any base32hex input has input divisible by 8 */
-        if (padding && l % 8 != 0)
-                return -EINVAL;
+        ଯଦି (padding && l % 8 != 0)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        if (padding) {
+        ଯଦି (padding) {
                 /* strip the padding */
-                while (l > 0 && p[l - 1] == '=' && pad < 7) {
+                ଯେତେବେଳେ (l > 0 && p[l - 1] == '=' && pad < 7) {
                         pad++;
                         l--;
                 }
@@ -321,63 +321,63 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
          * padding we need to add some extra bytes */
         len = (l / 8) * 5;
 
-        switch (l % 8) {
-        case 7:
+        ବାଛ (l % 8) {
+        ସ୍ଥିତି 7:
                 len += 4;
-                break;
-        case 5:
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 5:
                 len += 3;
-                break;
-        case 4:
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 4:
                 len += 2;
-                break;
-        case 2:
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 2:
                 len += 1;
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 0:
+                ଭାଙ୍ଗ;
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ -EINVAL;
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return -ENOMEM;
+        ଯଦି (!r)
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        for (x = p; x < p + (l / 8) * 8; x += 8) {
+        ପାଇଁ (x = p; x < p + (l / 8) * 8; x += 8) {
                 /* a == 000XXXXX; b == 000YYYYY; c == 000ZZZZZ; d == 000WWWWW
                  * e == 000SSSSS; f == 000QQQQQ; g == 000VVVVV; h == 000RRRRR */
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ଯଦି (a < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ଯଦି (b < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ଯଦି (c < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ଯଦି (d < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                ଯଦି (e < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                ଯଦି (f < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                ଯଦି (g < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 h = unbase32hexchar(x[7]);
-                if (h < 0)
-                        return -EINVAL;
+                ଯଦି (h < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -386,121 +386,121 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
                 *(z++) = (uint8_t) g << 5 | (uint8_t) h;                         /* VVVRRRRR */
         }
 
-        switch (l % 8) {
-        case 7:
+        ବାଛ (l % 8) {
+        ସ୍ଥିତି 7:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ଯଦି (a < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ଯଦି (b < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ଯଦି (c < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ଯଦି (d < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                ଯଦି (e < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                ଯଦି (f < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                ଯଦି (g < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 /* g == 000VV000 */
-                if (g & 7)
-                        return -EINVAL;
+                ଯଦି (g & 7)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
                 *(z++) = (uint8_t) e << 7 | (uint8_t) f << 2 | (uint8_t) g >> 3; /* SQQQQQVV */
 
-                break;
-        case 5:
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 5:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ଯଦି (a < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ଯଦି (b < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ଯଦି (c < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ଯଦି (d < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                ଯଦି (e < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 /* e == 000SSSS0 */
-                if (e & 1)
-                        return -EINVAL;
+                ଯଦି (e & 1)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
 
-                break;
-        case 4:
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 4:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ଯଦି (a < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ଯଦି (b < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ଯଦି (c < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ଯଦି (d < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 /* d == 000W0000 */
-                if (d & 15)
-                        return -EINVAL;
+                ଯଦି (d & 15)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
 
-                break;
-        case 2:
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 2:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ଯଦି (a < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ଯଦି (b < 0)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 /* b == 000YYY00 */
-                if (b & 3)
-                        return -EINVAL;
+                ଯଦି (b & 3)
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2; /* XXXXXYYY */
 
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                ଭାଙ୍ଗ;
+        ସ୍ଥିତି 0:
+                ଭାଙ୍ଗ;
+        ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+                ଫେରନ୍ତୁ -EINVAL;
         }
 
         *z = 0;
@@ -508,265 +508,265 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         *mem = TAKE_PTR(r);
         *_len = len;
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-4 */
-char base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
-        return table[x & 63];
+ଅକ୍ଷର base64char(ପୂର୍ଣ୍ଣସଂଖ୍ୟା x) {
+        ଅଚଳ ଅକ୍ଷର *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
+        ଫେରନ୍ତୁ table[x & 63];
 }
 
 /* This is almost base64char(), but not entirely, as it uses the "url and filename safe" alphabet,
  * since we don't want "/" appear in interface names (since interfaces appear in sysfs as filenames).
  * See section #5 of RFC 4648. */
-char urlsafe_base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
-        return table[x & 63];
+ଅକ୍ଷର urlsafe_base64char(ପୂର୍ଣ୍ଣସଂଖ୍ୟା x) {
+        ଅଚଳ ଅକ୍ଷର *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
+        ଫେରନ୍ତୁ table[x & 63];
 }
 
-int unbase64char(char c) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା unbase64char(ଅକ୍ଷର c) {
         unsigned offset;
 
-        if (c >= 'A' && c <= 'Z')
-                return c - 'A';
+        ଯଦି (c >= 'A' && c <= 'Z')
+                ଫେରନ୍ତୁ c - 'A';
 
         offset = 'Z' - 'A' + 1;
 
-        if (c >= 'a' && c <= 'z')
-                return c - 'a' + offset;
+        ଯଦି (c >= 'a' && c <= 'z')
+                ଫେରନ୍ତୁ c - 'a' + offset;
 
         offset += 'z' - 'a' + 1;
 
-        if (c >= '0' && c <= '9')
-                return c - '0' + offset;
+        ଯଦି (c >= '0' && c <= '9')
+                ଫେରନ୍ତୁ c - '0' + offset;
 
         offset += '9' - '0' + 1;
 
-        if (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
-                return offset;
+        ଯଦି (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
+                ଫେରନ୍ତୁ offset;
 
         offset++;
 
-        if (IN_SET(c, '/', '_')) /* ditto */
-                return offset;
+        ଯଦି (IN_SET(c, '/', '_')) /* ditto */
+                ଫେରନ୍ତୁ offset;
 
-        return -EINVAL;
+        ଫେରନ୍ତୁ -EINVAL;
 }
 
-static void maybe_line_break(char **x, char *start, size_t line_break) {
+ସ୍ଥିର ଶୂନ୍ୟ maybe_ଧାଡ଼ି_break(ଅକ୍ଷର **x, ଅକ୍ଷର *start, size_t ଧାଡ଼ି_break) {
         size_t n;
 
-        assert(x);
-        assert(*x);
-        assert(start);
-        assert(*x >= start);
+        ପ୍ରତିଜ୍ଞା(x);
+        ପ୍ରତିଜ୍ଞା(*x);
+        ପ୍ରତିଜ୍ଞା(start);
+        ପ୍ରତିଜ୍ଞା(*x >= start);
 
-        if (line_break == SIZE_MAX)
-                return;
+        ଯଦି (ଧାଡ଼ି_break == SIZE_MAX)
+                ଫେରନ୍ତୁ;
 
         n = *x - start;
 
-        if (n % (line_break + 1) == line_break)
+        ଯଦି (n % (ଧାଡ଼ି_break + 1) == ଧାଡ଼ି_break)
                 *((*x)++) = '\n';
 }
 
 ssize_t base64mem_full(
-                const void *p,
+                ଅଚଳ ଶୂନ୍ୟ *p,
                 size_t l,
-                size_t line_break,
-                char **ret) {
+                size_t ଧାଡ଼ି_break,
+                ଅକ୍ଷର **ret) {
 
-        const uint8_t *x;
-        char *b, *z;
+        ଅଚଳ uint8_t *x;
+        ଅକ୍ଷର *b, *z;
         size_t m;
 
-        assert(p || l == 0);
-        assert(line_break > 0);
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(p || l == 0);
+        ପ୍ରତିଜ୍ଞା(ଧାଡ଼ି_break > 0);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* three input bytes makes four output bytes, padding is added so we must round up */
         m = 4 * (l + 2) / 3 + 1;
-        if (line_break != SIZE_MAX)
-                m += m / line_break;
+        ଯଦି (ଧାଡ଼ି_break != SIZE_MAX)
+                m += m / ଧାଡ଼ି_break;
 
         z = b = malloc(m);
-        if (!b)
-                return -ENOMEM;
+        ଯଦି (!b)
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        for (x = p; x && x < (const uint8_t*) p + (l / 3) * 3; x += 3) {
+        ପାଇଁ (x = p; x && x < (ଅଚଳ uint8_t*) p + (l / 3) * 3; x += 3) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char(x[0] >> 2);                    /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4);  /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char((x[1] & 15) << 2 | x[2] >> 6); /* 00YYYYZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char(x[2] & 63);                    /* 00ZZZZZZ */
         }
 
-        switch (l % 3) {
-        case 2:
-                maybe_line_break(&z, b, line_break);
+        ବାଛ (l % 3) {
+        ସ୍ଥିତି 2:
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char(x[0] >> 2);                   /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4); /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char((x[1] & 15) << 2);            /* 00YYYY00 */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = '=';
-                break;
+                ଭାଙ୍ଗ;
 
-        case 1:
-                maybe_line_break(&z, b, line_break);
+        ସ୍ଥିତି 1:
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char(x[0] >> 2);        /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = base64char((x[0] & 3) << 4);  /* 00XX0000 */
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = '=';
-                maybe_line_break(&z, b, line_break);
+                maybe_ଧାଡ଼ି_break(&z, b, ଧାଡ଼ି_break);
                 *(z++) = '=';
-                break;
+                ଭାଙ୍ଗ;
         }
 
         *z = 0;
         *ret = b;
 
-        assert(z >= b); /* Let static analyzers know that the answer is non-negative. */
-        return z - b;
+        ପ୍ରତିଜ୍ଞା(z >= b); /* Let static analyzers know that the answer is non-negative. */
+        ଫେରନ୍ତୁ z - b;
 }
 
-static ssize_t base64_append_width(
-                char **prefix,
+ସ୍ଥିର ssize_t base64_append_width(
+                ଅକ୍ଷର **prefix,
                 size_t plen,
-                char sep,
+                ଅକ୍ଷର sep,
                 size_t indent,
-                const void *p,
+                ଅଚଳ ଶୂନ୍ୟ *p,
                 size_t l,
                 size_t width) {
 
-        _cleanup_free_ char *x = NULL;
-        char *t, *s;
-        size_t lines;
+        _cleanup_free_ ଅକ୍ଷର *x = ଖାଲି;
+        ଅକ୍ଷର *t, *s;
+        size_t ଧାଡ଼ିଗୁଡ଼ିକ;
         ssize_t len;
 
-        assert(prefix);
-        assert(*prefix || plen == 0);
-        assert(p || l == 0);
+        ପ୍ରତିଜ୍ଞା(prefix);
+        ପ୍ରତିଜ୍ଞା(*prefix || plen == 0);
+        ପ୍ରତିଜ୍ଞା(p || l == 0);
 
         len = base64mem(p, l, &x);
-        if (len < 0)
-                return len;
-        if (len == 0)
-                return plen;
+        ଯଦି (len < 0)
+                ଫେରନ୍ତୁ len;
+        ଯଦି (len == 0)
+                ଫେରନ୍ତୁ plen;
 
-        lines = DIV_ROUND_UP(len, width);
+        ଧାଡ଼ିଗୁଡ଼ିକ = DIV_ROUND_UP(len, width);
 
-        if (plen >= SSIZE_MAX - 1 - 1 ||
-            lines > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
-                return -ENOMEM;
+        ଯଦି (plen >= SSIZE_MAX - 1 - 1 ||
+            ଧାଡ଼ିଗୁଡ଼ିକ > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * lines);
-        if (!t)
-                return -ENOMEM;
+        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * ଧାଡ଼ିଗୁଡ଼ିକ);
+        ଯଦି (!t)
+                ଫେରନ୍ତୁ -ENOMEM;
 
         s = t + plen;
-        for (size_t line = 0; line < lines; line++) {
+        ପାଇଁ (size_t ଧାଡ଼ି = 0; ଧାଡ଼ି < ଧାଡ଼ିଗୁଡ଼ିକ; ଧାଡ଼ି++) {
                 size_t act = MIN(width, (size_t) len);
 
-                if (line > 0)
+                ଯଦି (ଧାଡ଼ି > 0)
                         sep = '\n';
 
-                if (s > t) {
+                ଯଦି (s > t) {
                         *s++ = sep;
-                        if (sep == '\n')
+                        ଯଦି (sep == '\n')
                                 s = mempset(s, ' ', indent);
                 }
 
-                s = mempcpy(s, x + width * line, act);
+                s = mempcpy(s, x + width * ଧାଡ଼ି, act);
                 len -= act;
         }
-        assert(len == 0);
+        ପ୍ରତିଜ୍ଞା(len == 0);
 
         *s = '\0';
         *prefix = t;
-        return s - t;
+        ଫେରନ୍ତୁ s - t;
 }
 
 ssize_t base64_append(
-                char **prefix,
+                ଅକ୍ଷର **prefix,
                 size_t plen,
-                const void *p,
+                ଅଚଳ ଶୂନ୍ୟ *p,
                 size_t l,
                 size_t indent,
                 size_t width) {
 
-        if (plen > width / 2 || plen + indent > width)
+        ଯଦି (plen > width / 2 || plen + indent > width)
                 /* leave indent on the left, keep last column free */
-                return base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
-        else
+                ଫେରନ୍ତୁ base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
+        ଅନ୍ୟଥା
                 /* leave plen on the left, keep last column free */
-                return base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
+                ଫେରନ୍ତୁ base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
 }
 
-static int unbase64_next(const char **p, size_t *l) {
-        int ret;
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା unbase64_next(ଅଚଳ ଅକ୍ଷର **p, size_t *l) {
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-        assert(p);
-        assert(l);
+        ପ୍ରତିଜ୍ଞା(p);
+        ପ୍ରତିଜ୍ଞା(l);
 
         /* Find the next non-whitespace character, and decode it. If we find padding, we return it as INT_MAX. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        ପାଇଁ (;;) {
+                ଯଦି (*l == 0)
+                        ଫେରନ୍ତୁ -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                ଯଦି (!strchr(WHITESPACE, **p))
+                        ଭାଙ୍ଗ;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
-        if (**p == '=')
+        ଯଦି (**p == '=')
                 ret = INT_MAX; /* return padding as INT_MAX */
-        else {
+        ଅନ୍ୟଥା {
                 ret = unbase64char(**p);
-                if (ret < 0)
-                        return ret;
+                ଯଦି (ret < 0)
+                        ଫେରନ୍ତୁ ret;
         }
 
-        for (;;) {
+        ପାଇଁ (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0)
-                        break;
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                ଯଦି (*l == 0)
+                        ଭାଙ୍ଗ;
+                ଯଦି (!strchr(WHITESPACE, **p))
+                        ଭାଙ୍ଗ;
 
                 /* Skip following whitespace */
         }
 
-        return ret;
+        ଫେରନ୍ତୁ ret;
 }
 
-int unbase64mem_full(
-                const char *p,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା unbase64mem_full(
+                ଅଚଳ ଅକ୍ଷର *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
+                ଶୂନ୍ୟ **ret_data,
                 size_t *ret_size) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
-        const char *x;
+        _cleanup_free_ uint8_t *buf = ଖାଲି;
+        ଅଚଳ ଅକ୍ଷର *x;
         uint8_t *z;
         size_t len;
 
-        assert(p || l == 0);
+        ପ୍ରତିଜ୍ଞା(p || l == 0);
 
-        if (l == SIZE_MAX)
+        ଯଦି (l == SIZE_MAX)
                 l = strlen(p);
 
         /* A group of four input bytes needs three output bytes, in case of padding we need to add two or three extra
@@ -774,63 +774,63 @@ int unbase64mem_full(
         len = (l / 4) * 3 + (l % 4 != 0 ? (l % 4) - 1 : 0);
 
         buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        ଯଦି (!buf)
+                ଫେରନ୍ତୁ -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, len);
+        CLEANUP_ERASE_PTR(secure ? &buf : ଖାଲି, len);
 
-        for (x = p, z = buf;;) {
-                int a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
+        ପାଇଁ (x = p, z = buf;;) {
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
 
                 a = unbase64_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
-                if (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
-                        return -EINVAL;
+                ଯଦି (a == -EPIPE) /* End of string */
+                        ଭାଙ୍ଗ;
+                ଯଦି (a < 0)
+                        ଫେରନ୍ତୁ a;
+                ଯଦି (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 b = unbase64_next(&x, &l);
-                if (b < 0)
-                        return b;
-                if (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
-                        return -EINVAL;
+                ଯଦି (b < 0)
+                        ଫେରନ୍ତୁ b;
+                ଯଦି (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
+                        ଫେରନ୍ତୁ -EINVAL;
 
                 c = unbase64_next(&x, &l);
-                if (c < 0)
-                        return c;
+                ଯଦି (c < 0)
+                        ଫେରନ୍ତୁ c;
 
                 d = unbase64_next(&x, &l);
-                if (d < 0)
-                        return d;
+                ଯଦି (d < 0)
+                        ଫେରନ୍ତୁ d;
 
-                if (c == INT_MAX) { /* Padding at the third character */
+                ଯଦି (c == INT_MAX) { /* Padding at the third character */
 
-                        if (d != INT_MAX) /* If the third character is padding, the fourth must be too */
-                                return -EINVAL;
+                        ଯଦି (d != INT_MAX) /* If the third character is padding, the fourth must be too */
+                                ଫେରନ୍ତୁ -EINVAL;
 
                         /* b == 00YY0000 */
-                        if (b & 15)
-                                return -EINVAL;
+                        ଯଦି (b & 15)
+                                ଫେରନ୍ତୁ -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        ଯଦି (l > 0) /* Trailing rubbish? */
+                                ଫେରନ୍ତୁ -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) (b >> 4); /* XXXXXXYY */
-                        break;
+                        ଭାଙ୍ଗ;
                 }
 
-                if (d == INT_MAX) {
+                ଯଦି (d == INT_MAX) {
                         /* c == 00ZZZZ00 */
-                        if (c & 3)
-                                return -EINVAL;
+                        ଯଦି (c & 3)
+                                ଫେରନ୍ତୁ -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        ଯଦି (l > 0) /* Trailing rubbish? */
+                                ଫେରନ୍ତୁ -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
                         *(z++) = (uint8_t) b << 4 | (uint8_t) c >> 2; /* YYYYZZZZ */
-                        break;
+                        ଭାଙ୍ଗ;
                 }
 
                 *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
@@ -840,58 +840,58 @@ int unbase64mem_full(
 
         *z = 0;
 
-        assert((size_t) (z - buf) <= len);
+        ପ୍ରତିଜ୍ଞା((size_t) (z - buf) <= len);
 
-        if (ret_size)
+        ଯଦି (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        ଯଦି (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-void hexdump(FILE *f, const void *p, size_t s) {
-        const uint8_t *b = p;
+ଶୂନ୍ୟ hexdump(FILE *f, ଅଚଳ ଶୂନ୍ୟ *p, size_t s) {
+        ଅଚଳ uint8_t *b = p;
         unsigned n = 0;
 
-        assert(b || s == 0);
+        ପ୍ରତିଜ୍ଞା(b || s == 0);
 
-        if (s == SIZE_MAX)
+        ଯଦି (s == SIZE_MAX)
                 s = strlen(p);
 
-        if (!f)
+        ଯଦି (!f)
                 f = stdout;
 
-        while (s > 0) {
+        ଯେତେବେଳେ (s > 0) {
                 size_t i;
 
                 fprintf(f, "%04x  ", n);
 
-                for (i = 0; i < 16; i++) {
+                ପାଇଁ (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        ଯଦି (i >= s)
                                 fputs("   ", f);
-                        else
+                        ଅନ୍ୟଥା
                                 fprintf(f, "%02x ", b[i]);
 
-                        if (i == 7)
+                        ଯଦି (i == 7)
                                 fputc(' ', f);
                 }
 
                 fputc(' ', f);
 
-                for (i = 0; i < 16; i++) {
+                ପାଇଁ (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        ଯଦି (i >= s)
                                 fputc(' ', f);
-                        else
-                                fputc(isprint(b[i]) ? (char) b[i] : '.', f);
+                        ଅନ୍ୟଥା
+                                fputc(isprint(b[i]) ? (ଅକ୍ଷର) b[i] : '.', f);
                 }
 
                 fputc('\n', f);
 
-                if (s < 16)
-                        break;
+                ଯଦି (s < 16)
+                        ଭାଙ୍ଗ;
 
                 n += 16;
                 b += 16;

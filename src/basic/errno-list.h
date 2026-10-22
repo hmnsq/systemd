@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-const char* errno_name_no_fallback(int id) _const_;
-int errno_from_name(const char *name) _pure_;
+ଅଚଳ ଅକ୍ଷର* errno_name_no_fallback(ପୂର୍ଣ୍ଣସଂଖ୍ୟା id) _const_;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା errno_from_name(ଅଚଳ ଅକ୍ଷର *name) _pure_;
 
-static inline bool errno_is_valid(int n) {
-        return n > 0 && n <= ERRNO_MAX;
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ bool errno_is_valid(ପୂର୍ଣ୍ଣସଂଖ୍ୟା n) {
+        ଫେରନ୍ତୁ n > 0 && n <= ERRNO_MAX;
 }
 
-#define ERRNO_NAME_BUF_LEN DECIMAL_STR_MAX(int)
+#define ERRNO_NAME_BUF_LEN DECIMAL_STR_MAX(ପୂର୍ଣ୍ଣସଂଖ୍ୟା)
 /* Like errno_name, but always returns a string. */
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]);
+ଅଚଳ ଅକ୍ଷର* errno_name(ପୂର୍ଣ୍ଣସଂଖ୍ୟା id, ଅକ୍ଷର buf[ସ୍ଥିର ERRNO_NAME_BUF_LEN]);
 
 /* A helper to print the errno "name" or number if name is not defined. */
-#define ERRNO_NAME(errnum) errno_name(errnum, (char[ERRNO_NAME_BUF_LEN]){})
+#define ERRNO_NAME(errnum) errno_name(errnum, (ଅକ୍ଷର[ERRNO_NAME_BUF_LEN]){})

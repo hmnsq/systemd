@@ -1,68 +1,68 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "parse-util.h"
-#include "string-util.h"
-#include "strv.h"
+#ଅନ୍ତର୍ଭାଵ "alloc-util.h"
+#ଅନ୍ତର୍ଭାଵ "bitfield.h"
+#ଅନ୍ତର୍ଭାଵ "capability-list.h"
+#ଅନ୍ତର୍ଭାଵ "capability-util.h"
+#ଅନ୍ତର୍ଭାଵ "extract-word.h"
+#ଅନ୍ତର୍ଭାଵ "log.h"
+#ଅନ୍ତର୍ଭାଵ "parse-util.h"
+#ଅନ୍ତର୍ଭାଵ "string-util.h"
+#ଅନ୍ତର୍ଭାଵ "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+ସ୍ଥିର ଅଚଳ ସଂରଚନା capability_name* lookup_capability(ପଞ୍ଜିକରଣ ଅଚଳ ଅକ୍ଷର *str, ପଞ୍ଜିକରଣ GPERF_LEN_TYPE len);
 
-#include "capability-from-name.inc"
-#include "capability-to-name.inc"
+#ଅନ୍ତର୍ଭାଵ "capability-from-name.inc"
+#ଅନ୍ତର୍ଭାଵ "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+ଅଚଳ ଅକ୍ଷର* capability_to_name(ପୂର୍ଣ୍ଣସଂଖ୍ୟା id) {
+        ଯଦି (id < 0)
+                ଫେରନ୍ତୁ ଖାଲି;
+        ଯଦି ((unsigned) id >= capability_list_length())
+                ଫେରନ୍ତୁ ଖାଲି;
 
-        return capability_names[id];
+        ଫେରନ୍ତୁ capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+ଅଚଳ ଅକ୍ଷର* capability_to_string(ପୂର୍ଣ୍ଣସଂଖ୍ୟା id, ଅକ୍ଷର buf[ସ୍ଥିର CAPABILITY_TO_STRING_MAX]) {
+        ଅଚଳ ଅକ୍ଷର *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        ଯଦି (id < 0)
+                ଫେରନ୍ତୁ ଖାଲି;
+        ଯଦି (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                ଫେରନ୍ତୁ ଖାଲି;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        ଯଦି (p)
+                ଫେରନ୍ତୁ p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା capability_from_name(ଅଚଳ ଅକ୍ଷର *name) {
+        ଅଚଳ ସଂରଚନା capability_name *sc;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r, i;
 
-        assert(name);
+        ପ୍ରତିଜ୍ଞା(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        ଯଦି (r >= 0) {
+                ଯଦି (i < 0 || i > CAP_LIMIT)
+                        ଫେରନ୍ତୁ -EINVAL;
 
-                return i;
+                ଫେରନ୍ତୁ i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ଯଦି (!sc)
+                ଫେରନ୍ତୁ -EINVAL;
 
-        return sc->id;
+        ଫେରନ୍ତୁ sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -70,117 +70,117 @@ int capability_from_name(const char *name) {
  * value larger than the last known capability. This is different from cap_last_cap() which returns the
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
-unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+unsigned capability_list_length(ଶୂନ୍ୟ) {
+        ଫେରନ୍ତୁ MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା capability_set_to_string(uint64_t set, ଅକ୍ଷର **ret) {
+        _cleanup_free_ ଅକ୍ଷର *str = ଖାଲି;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        ପାଇଁ (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ଅଚଳ ଅକ୍ଷର *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                ଯଦି (!BIT_SET(set, i))
+                        ଜାରି;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                ପ୍ରତିଜ୍ଞା(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                ଯଦି (!strextend_with_separator(&str, " ", p))
+                        ଫେରନ୍ତୁ -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        ଯଦି (!str) {
+                str = new0(ଅକ୍ଷର, 1);
+                ଯଦି (!str)
+                        ଫେରନ୍ତୁ -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା capability_set_to_string_negative(uint64_t set, ଅକ୍ଷର **ret) {
+        _cleanup_free_ ଅକ୍ଷର *a = ଖାଲି, *b = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
         /* Format the specified capability mask both in positive way (i.e. just listing caps) and in negative
          * way (i.e. listing only caps that are missing from the full set) and return the shorter version of
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        ଯଦି (r < 0)
+                ଫେରନ୍ତୁ r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        ଯଦି (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        ଅନ୍ୟଥା {
+                ଅକ୍ଷର *c = strjoin("~", b);
+                ଯଦି (!c)
+                        ଫେରନ୍ତୁ -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା capability_set_to_strv(uint64_t set, ଅକ୍ଷର ***ret) {
+        _cleanup_strv_free_ ଅକ୍ଷର **l = ଖାଲି;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-        assert(ret);
+        ପ୍ରତିଜ୍ଞା(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        ପାଇଁ (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ଅଚଳ ଅକ୍ଷର *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                ଯଦି (!BIT_SET(set, i))
+                        ଜାରି;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                ପ୍ରତିଜ୍ଞା(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        ଫେରନ୍ତୁ 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା capability_set_from_string(ଅଚଳ ଅକ୍ଷର *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        ପାଇଁ (ଅଚଳ ଅକ୍ଷର *p = s;;) {
+                _cleanup_free_ ଅକ୍ଷର *word = ଖାଲି;
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା r;
 
-                r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&p, &word, ଖାଲି, EXTRACT_UNQUOTE|EXTRACT_RELAX);
+                ଯଦି (r < 0)
+                        ଫେରନ୍ତୁ r;
+                ଯଦି (r == 0)
+                        ଭାଙ୍ଗ;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                ଯଦି (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } ଅନ୍ୟଥା
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        ଯଦି (ret)
                 *ret = val;
 
-        return good;
+        ଫେରନ୍ତୁ good;
 }

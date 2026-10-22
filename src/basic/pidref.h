@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <signal.h>
+#ଅନ୍ତର୍ଭାଵ <signal.h>
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
 /* An embeddable structure carrying a reference to a process. Supposed to be used when tracking processes
  * continuously. This combines a PID, a modern Linux pidfd and the 64bit inode number of the pidfd into one
@@ -28,10 +28,10 @@
  *    process. Moreover, most operations will fail with -EREMOTE. Only PidRef structures that are not marked
  *    *unset* can be marked *remote*.
  */
-typedef struct PidRef {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା PidRef {
         pid_t pid;      /* > 0 if the PidRef is set, otherwise set to INT_MIN (PID_AUTOMATIC) if automatic
                          * mode is desired, or 0 otherwise. */
-        int fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
                          * know that the PID is not from the local machine we set this to -EREMOTE, otherwise
                          * we use -EBADF as indicator the fd is invalid. */
         uint64_t fd_id; /* the inode number of pidfd. only useful in kernel 6.9+ where pidfds live in
@@ -43,103 +43,103 @@ typedef struct PidRef {
 /* A special pidref value that we are using when a PID shall be automatically acquired from some surrounding
  * context, for example connection peer. Much like PIDREF_NULL it will be considered unset by
  * pidref_is_set(). */
-#define PIDREF_AUTOMATIC (const PidRef) { .pid = (pid_t) INT_MIN, .fd = -EBADF }
+#define PIDREF_AUTOMATIC (ଅଚଳ PidRef) { .pid = (pid_t) INT_MIN, .fd = -EBADF }
 
 /* Turns a pid_t into a PidRef structure on-the-fly *without* acquiring a pidfd for it. (As opposed to
  * pidref_set_pid() which does so *with* acquiring one, see below) */
 #define PIDREF_MAKE_FROM_PID(x) (PidRef) { .pid = (x), .fd = -EBADF }
 
-static inline bool pidref_is_set(const PidRef *pidref) {
-        return pidref && pidref->pid > 0;
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ bool pidref_is_set(ଅଚଳ PidRef *pidref) {
+        ଫେରନ୍ତୁ pidref && pidref->pid > 0;
 }
 
-bool pidref_is_automatic(const PidRef *pidref);
+bool pidref_is_automatic(ଅଚଳ PidRef *pidref);
 
-static inline bool pidref_is_set_or_automatic(const PidRef *pidref) {
-        return pidref_is_set(pidref) || pidref_is_automatic(pidref);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ bool pidref_is_set_or_automatic(ଅଚଳ PidRef *pidref) {
+        ଫେରନ୍ତୁ pidref_is_set(pidref) || pidref_is_automatic(pidref);
 }
 
-static inline bool pidref_is_remote(const PidRef *pidref) {
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ bool pidref_is_remote(ଅଚଳ PidRef *pidref) {
         /* If the fd is set to -EREMOTE we assume PidRef does not refer to a local PID, but on another
          * machine (and we just got the PidRef initialized due to deserialization of some RPC message) */
-        return pidref_is_set(pidref) && pidref->fd == -EREMOTE;
+        ଫେରନ୍ତୁ pidref_is_set(pidref) && pidref->fd == -EREMOTE;
 }
 
-int pidref_acquire_pidfd_id(PidRef *pidref);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_acquire_pidfd_id(PidRef *pidref);
 bool pidref_equal(PidRef *a, PidRef *b);
 
 /* This turns a pid_t into a PidRef structure, and acquires a pidfd for it, if possible. (As opposed to
  * PIDREF_MAKE_FROM_PID() above, which does not acquire a pidfd.) */
-int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags);
-static inline int pidref_set_pid(PidRef *pidref, pid_t pid) {
-        return pidref_set_pid_full(pidref, pid, /* flags= */ 0);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pid(PidRef *pidref, pid_t pid) {
+        ଫେରନ୍ତୁ pidref_set_pid_full(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pidstr_full(PidRef *pidref, const char *pid, unsigned flags);
-static inline int pidref_set_pidstr(PidRef *pidref, const char *pid) {
-        return pidref_set_pidstr_full(pidref, pid, /* flags= */ 0);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pidstr_full(PidRef *pidref, ଅଚଳ ଅକ୍ଷର *pid, unsigned flags);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pidstr(PidRef *pidref, ଅଚଳ ଅକ୍ଷର *pid) {
+        ଫେରନ୍ତୁ pidref_set_pidstr_full(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
-int pidref_set_pidfd(PidRef *pidref, int fd);
-int pidref_set_pidfd_take(PidRef *pidref, int fd); /* takes ownership of the passed pidfd on success */
-int pidref_set_pidfd_consume(PidRef *pidref, int fd); /* takes ownership of the passed pidfd in both success and failure */
-int pidref_set_parent(PidRef *ret);
-static inline int pidref_set_self(PidRef *pidref) {
-        return pidref_set_pid(pidref, 0);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pidfd(PidRef *pidref, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pidfd_take(PidRef *pidref, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd); /* takes ownership of the passed pidfd on success */
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_pidfd_consume(PidRef *pidref, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fd); /* takes ownership of the passed pidfd in both success and failure */
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_parent(PidRef *ret);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_set_self(PidRef *pidref) {
+        ଫେରନ୍ତୁ pidref_set_pid(pidref, 0);
 }
 
 bool pidref_is_self(PidRef *pidref);
 
-void pidref_done(PidRef *pidref);
+ଶୂନ୍ୟ pidref_done(PidRef *pidref);
 PidRef* pidref_free(PidRef *pidref);
 DEFINE_TRIVIAL_CLEANUP_FUNC(PidRef*, pidref_free);
 
-int pidref_copy(const PidRef *pidref, PidRef *ret);
-int pidref_dup(const PidRef *pidref, PidRef **ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_copy(ଅଚଳ PidRef *pidref, PidRef *ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_dup(ଅଚଳ PidRef *pidref, PidRef **ret);
 
-int pidref_new_from_pid(pid_t pid, PidRef **ret);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_new_from_pid(pid_t pid, PidRef **ret);
 
-int pidref_kill(const PidRef *pidref, int sig);
-int pidref_kill_and_sigcont(const PidRef *pidref, int sig);
-int pidref_sigqueue(const PidRef *pidref, int sig, int value);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_kill(ଅଚଳ PidRef *pidref, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sig);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_kill_and_sigcont(ଅଚଳ PidRef *pidref, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sig);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_sigqueue(ଅଚଳ PidRef *pidref, ପୂର୍ଣ୍ଣସଂଖ୍ୟା sig, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ);
 
-int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
-static inline int pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
-        return pidref_wait_for_terminate_full(pidref, USEC_INFINITY, ret_si);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
+        ଫେରନ୍ତୁ pidref_wait_for_terminate_full(pidref, USEC_INFINITY, ret_si);
 }
 
-static inline void pidref_done_sigterm_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ pidref_done_sigterm_wait(PidRef *pidref) {
+        ଯଦି (!pidref_is_set(pidref))
+                ଫେରନ୍ତୁ;
 
-        (void) pidref_kill(pidref, SIGTERM);
-        (void) pidref_wait_for_terminate(pidref, NULL);
+        (ଶୂନ୍ୟ) pidref_kill(pidref, SIGTERM);
+        (ଶୂନ୍ୟ) pidref_wait_for_terminate(pidref, ଖାଲି);
         pidref_done(pidref);
 }
 
-static inline void pidref_done_sigkill_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ pidref_done_sigkill_wait(PidRef *pidref) {
+        ଯଦି (!pidref_is_set(pidref))
+                ଫେରନ୍ତୁ;
 
-        (void) pidref_kill(pidref, SIGKILL);
-        (void) pidref_wait_for_terminate(pidref, NULL);
+        (ଶୂନ୍ୟ) pidref_kill(pidref, SIGKILL);
+        (ଶୂନ୍ୟ) pidref_wait_for_terminate(pidref, ଖାଲି);
         pidref_done(pidref);
 }
 
-static inline void pidref_done_sigkill_nowait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ pidref_done_sigkill_nowait(PidRef *pidref) {
+        ଯଦି (!pidref_is_set(pidref))
+                ଫେରନ୍ତୁ;
 
-        (void) pidref_kill(pidref, SIGKILL);
+        (ଶୂନ୍ୟ) pidref_kill(pidref, SIGKILL);
         pidref_done(pidref);
 }
 
-int pidref_verify(const PidRef *pidref);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_verify(ଅଚଳ PidRef *pidref);
 
 #define TAKE_PIDREF(p) TAKE_GENERIC((p), PidRef, PIDREF_NULL)
 
-struct siphash;
-void pidref_hash_func(const PidRef *pidref, struct siphash *state);
-int pidref_compare_func(const PidRef *a, const PidRef *b);
+ସଂରଚନା siphash;
+ଶୂନ୍ୟ pidref_hash_func(ଅଚଳ PidRef *pidref, ସଂରଚନା siphash *state);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା pidref_compare_func(ଅଚଳ PidRef *a, ଅଚଳ PidRef *b);
 
-extern const struct hash_ops pidref_hash_ops;
-extern const struct hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା hash_ops pidref_hash_ops;
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */

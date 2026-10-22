@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "time-util.h"
+#ଅନ୍ତର୍ଭାଵ "time-util.h"
 
 #define DEFAULT_RESTART_USEC (100*USEC_PER_MSEC)
 
@@ -52,7 +52,7 @@
         STRV_MAKE(CONF_PATHS(n))
 
 /* The limit for PID 1 itself (which is not inherited to children) */
-#define HIGH_RLIMIT_MEMLOCK (1024ULL*1024ULL*64ULL)
+#define ଉପର_RLIMIT_MEMLOCK (1024ULL*1024ULL*64ULL)
 
 /* Since kernel 5.16 the kernel default limit was raised to 8M. Let's adjust things on old kernels too, and
  * in containers so that our children inherit that. */

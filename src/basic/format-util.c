@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "format-util.h"
+#ଅନ୍ତର୍ଭାଵ "format-util.h"
 
-char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
-        typedef struct {
-                const char *suffix;
+ଅକ୍ଷର* format_bytes_full(ଅକ୍ଷର *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
+        ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା {
+                ଅଚଳ ଅକ୍ଷର *suffix;
                 uint64_t factor;
         } suffix_table;
-        static const suffix_table table_iec[] = {
+        ସ୍ଥିର ଅଚଳ suffix_table table_iec[] = {
                 { "E", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "P", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "T", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
@@ -22,43 +22,43 @@ char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
                 { "M", UINT64_C(1000)*UINT64_C(1000) },
                 { "K", UINT64_C(1000) },
         };
-        const suffix_table *table;
+        ଅଚଳ suffix_table *table;
         size_t n;
 
-        assert(buf);
+        ପ୍ରତିଜ୍ଞା(buf);
         assert_cc(ELEMENTSOF(table_iec) == ELEMENTSOF(table_si));
 
-        if (t == UINT64_MAX)
-                return NULL;
+        ଯଦି (t == UINT64_MAX)
+                ଫେରନ୍ତୁ ଖାଲି;
 
         table = flag & FORMAT_BYTES_USE_IEC ? table_iec : table_si;
         n = ELEMENTSOF(table_iec);
 
-        for (size_t i = 0; i < n; i++)
-                if (t >= table[i].factor) {
+        ପାଇଁ (size_t i = 0; i < n; i++)
+                ଯଦି (t >= table[i].factor) {
                         uint64_t remainder = i != n - 1 ?
                                 (t / table[i + 1].factor * 10 / table[n - 1].factor) % 10 :
                                 (t * 10 / table[i].factor) % 10;
 
-                        if (FLAGS_SET(flag, FORMAT_BYTES_ALWAYS_POINT) ||
+                        ଯଦି (FLAGS_SET(flag, FORMAT_BYTES_ALWAYS_POINT) ||
                             (FLAGS_SET(flag, FORMAT_BYTES_BELOW_POINT) && remainder > 0))
-                                (void) snprintf(buf, l,
+                                (ଶୂନ୍ୟ) snprintf(buf, l,
                                                 "%" PRIu64 ".%" PRIu64 "%s",
                                                 t / table[i].factor,
                                                 remainder,
                                                 table[i].suffix);
-                        else
-                                (void) snprintf(buf, l,
+                        ଅନ୍ୟଥା
+                                (ଶୂନ୍ୟ) snprintf(buf, l,
                                                 "%" PRIu64 "%s",
                                                 t / table[i].factor,
                                                 table[i].suffix);
 
-                        goto finish;
+                        ଯାଅ finish;
                 }
 
-        (void) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_BYTES_TRAILING_B ? "B" : "");
+        (ଶୂନ୍ୟ) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_BYTES_TRAILING_B ? "B" : "");
 
 finish:
         buf[l-1] = 0;
-        return buf;
+        ଫେରନ୍ତୁ buf;
 }

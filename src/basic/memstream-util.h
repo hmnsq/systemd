@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-typedef struct MemStream {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ସଂରଚନା MemStream {
         FILE *f;
-        char *buf;
+        ଅକ୍ଷର *buf;
         size_t sz;
 } MemStream;
 
-void memstream_done(MemStream *m);
+ଶୂନ୍ୟ memstream_done(MemStream *m);
 FILE* memstream_init(MemStream *m);
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା memstream_finalize(MemStream *m, ଅକ୍ଷର **ret_buf, size_t *ret_size);
 
 /* This finalizes the passed memstream. */
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା memstream_dump_internal(
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା level,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା error,
+                ଅଚଳ ଅକ୍ଷର *file,
+                ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଧାଡ଼ି,
+                ଅଚଳ ଅକ୍ଷର *func,
                 MemStream *m);
 #define memstream_dump(level, m)                                        \
         memstream_dump_internal(level, 0, PROJECT_FILE, __LINE__, __func__, m)

@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#ଅନ୍ତର୍ଭାଵ "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(ଶୂନ୍ୟ) _weak_ _pure_;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+ଶୂନ୍ୟ log_assert_failed_return(ଅଚଳ ଅକ୍ଷର *text, ଅଚଳ ଅକ୍ଷର *file, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଧାଡ଼ି, ଅଚଳ ଅକ୍ଷର *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#define assert_log(ପଦସମଷ୍ଟି)                                                \
+        (_likely_(ପଦସମଷ୍ଟି) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#define assert_return(ପଦସମଷ୍ଟି, r)                                          \
+        କର {                                                            \
+                ଯଦି (!assert_log(ପଦସମଷ୍ଟି))                                  \
+                        ଫେରନ୍ତୁ (r);                                     \
+        } ଯେତେବେଳେ (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#define assert_return_errno(ପଦସମଷ୍ଟି, r, err)                               \
+        କର {                                                            \
+                ଯଦି (!assert_log(ପଦସମଷ୍ଟି)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        ଫେରନ୍ତୁ (r);                                     \
                 }                                                       \
-        } while (false)
+        } ଯେତେବେଳେ (false)

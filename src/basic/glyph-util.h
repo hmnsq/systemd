@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ଅନ୍ତର୍ଭାଵ "forward.h"
 
-typedef enum Glyph {
+ପ୍ରକାରବ୍ୟାଖ୍ୟା ଗଣନା Glyph {
         GLYPH_SPACE,
-        GLYPH_TREE_VERTICAL,
-        GLYPH_TREE_BRANCH,
-        GLYPH_TREE_RIGHT,
-        GLYPH_TREE_SPACE,
-        GLYPH_TREE_TOP,
+        GLYPH_ବୃକ୍ଷ_VERTICAL,
+        GLYPH_ବୃକ୍ଷ_BRANCH,
+        GLYPH_ବୃକ୍ଷ_ଡାହାଣ,
+        GLYPH_ବୃକ୍ଷ_SPACE,
+        GLYPH_ବୃକ୍ଷ_ଶୀର୍ଷ,
         GLYPH_VERTICAL_DOTTED,
         GLYPH_HORIZONTAL_DOTTED,
         GLYPH_HORIZONTAL_FAT,
@@ -28,8 +28,8 @@ typedef enum Glyph {
         GLYPH_SIGMA,
         GLYPH_ARROW_UP,
         GLYPH_ARROW_DOWN,
-        GLYPH_ARROW_LEFT,
-        GLYPH_ARROW_RIGHT,
+        GLYPH_ARROW_ବାମ,
+        GLYPH_ARROW_ଡାହାଣ,
         GLYPH_ELLIPSIS,
         GLYPH_EXTERNAL_LINK,
         _GLYPH_FIRST_EMOJI,
@@ -40,12 +40,12 @@ typedef enum Glyph {
         GLYPH_SLIGHTLY_UNHAPPY_SMILEY,
         GLYPH_UNHAPPY_SMILEY,
         GLYPH_DEPRESSED_SMILEY,
-        GLYPH_LOCK_AND_KEY,
+        GLYPH_LOCK_AND_ଚାବି,
         GLYPH_TOUCH,
         GLYPH_RECYCLING,
         GLYPH_DOWNLOAD,
         GLYPH_SPARKLES,
-        GLYPH_LOW_BATTERY,
+        GLYPH_ତଳ_BATTERY,
         GLYPH_WARNING_SIGN,
         GLYPH_COMPUTER_DISK,
         GLYPH_WORLD,
@@ -68,22 +68,22 @@ typedef enum Glyph {
         _GLYPH_INVALID = -EINVAL,
 } Glyph;
 
-bool emoji_enabled(void);
+bool emoji_enabled(ଶୂନ୍ୟ);
 
-const char* glyph_full(Glyph code, bool force_utf) _const_;
+ଅଚଳ ଅକ୍ଷର* glyph_full(Glyph code, bool force_utf) _const_;
 
-static inline const char* glyph(Glyph code) {
-        return glyph_full(code, false);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* glyph(Glyph code) {
+        ଫେରନ୍ତୁ glyph_full(code, false);
 }
 
-static inline const char* optional_glyph(Glyph code) {
-        return emoji_enabled() ? glyph(code) : "";
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* optional_glyph(Glyph code) {
+        ଫେରନ୍ତୁ emoji_enabled() ? glyph(code) : "";
 }
 
-static inline const char* glyph_check_mark(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* glyph_check_mark(bool b) {
+        ଫେରନ୍ତୁ b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
 }
 
-static inline const char* glyph_check_mark_space(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : " ";
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଅଚଳ ଅକ୍ଷର* glyph_check_mark_space(bool b) {
+        ଫେରନ୍ତୁ b ? glyph(GLYPH_CHECK_MARK) : " ";
 }

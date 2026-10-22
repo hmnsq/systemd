@@ -11,135 +11,135 @@
  * occur outside of a loop where this is the preferred behavior.
  */
 
-#include <stdio.h>
-#include <string.h>
+#ଅନ୍ତର୍ଭାଵ <stdio.h>
+#ଅନ୍ତର୍ଭାଵ <string.h>
 
-#include "strxcpyx.h"
+#ଅନ୍ତର୍ଭାଵ "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+size_t strnpcpy_full(ଅକ୍ଷର **dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, size_t len, bool *ret_truncated) {
         bool truncated = false;
 
-        assert(dest);
-        assert(src);
+        ପ୍ରତିଜ୍ଞା(dest);
+        ପ୍ରତିଜ୍ଞା(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        ଯଦି (size == 0) {
+                ଯଦି (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                ଫେରନ୍ତୁ 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
+        ଯଦି (len >= size) {
+                ଯଦି (size > 1)
                         *dest = mempcpy(*dest, src, size-1);
                 size = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } ଅନ୍ୟଥା ଯଦି (len > 0) {
                 *dest = mempcpy(*dest, src, len);
                 size -= len;
         }
 
-        if (ret_truncated)
+        ଯଦି (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        ଫେରନ୍ତୁ size;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strpcpy_full(ଅକ୍ଷର **dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, bool *ret_truncated) {
+        ପ୍ରତିଜ୍ଞା(dest);
+        ପ୍ରତିଜ୍ଞା(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        ଫେରନ୍ତୁ strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyf_full(ଅକ୍ଷର **dest, size_t size, bool *ret_truncated, ଅଚଳ ଅକ୍ଷର *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
-        assert(dest);
-        assert(src);
+        ପ୍ରତିଜ୍ଞା(dest);
+        ପ୍ରତିଜ୍ଞା(src);
 
         va_start(va, src);
         i = vsnprintf(*dest, size, src, va);
         va_end(va);
 
-        assert(i >= 0);
+        ପ୍ରତିଜ୍ଞା(i >= 0);
 
-        if (i < (int) size) {
+        ଯଦି (i < (ପୂର୍ଣ୍ଣସଂଖ୍ୟା) size) {
                 *dest += i;
                 size -= i;
-        } else {
+        } ଅନ୍ୟଥା {
                 size = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        ଯଦି (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        ଫେରନ୍ତୁ size;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyl_full(ଅକ୍ଷର **dest, size_t size, bool *ret_truncated, ଅଚଳ ଅକ୍ଷର *src, ...) {
         bool truncated = false;
         va_list va;
 
-        assert(dest);
-        assert(src);
+        ପ୍ରତିଜ୍ଞା(dest);
+        ପ୍ରତିଜ୍ଞା(src);
 
         va_start(va, src);
-        do {
+        କର {
                 bool t;
 
                 size = strpcpy_full(dest, size, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, ଅକ୍ଷର *);
+        } ଯେତେବେଳେ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ଯଦି (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        ଫେରନ୍ତୁ size;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+size_t strnscpy_full(ଅକ୍ଷର *dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, size_t len, bool *ret_truncated) {
+        ଅକ୍ଷର *s;
 
-        assert(dest);
-        assert(src);
+        ପ୍ରତିଜ୍ଞା(dest);
+        ପ୍ରତିଜ୍ଞା(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        ଫେରନ୍ତୁ strnpcpy_full(&s, size, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strscpy_full(ଅକ୍ଷର *dest, size_t size, ଅଚଳ ଅକ୍ଷର *src, bool *ret_truncated) {
+        ପ୍ରତିଜ୍ଞା(dest);
+        ପ୍ରତିଜ୍ଞା(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        ଫେରନ୍ତୁ strnscpy_full(dest, size, src, strlen(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strscpyl_full(ଅକ୍ଷର *dest, size_t size, bool *ret_truncated, ଅଚଳ ଅକ୍ଷର *src, ...) {
         bool truncated = false;
         va_list va;
-        char *s;
+        ଅକ୍ଷର *s;
 
-        assert(dest);
-        assert(src);
+        ପ୍ରତିଜ୍ଞା(dest);
+        ପ୍ରତିଜ୍ଞା(src);
 
         va_start(va, src);
         s = dest;
-        do {
+        କର {
                 bool t;
 
                 size = strpcpy_full(&s, size, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, ଅକ୍ଷର *);
+        } ଯେତେବେଳେ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ଯଦି (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        ଫେରନ୍ତୁ size;
 }
