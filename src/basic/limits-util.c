@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "cgroup-util.h"
-#include "limits-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "procfs-util.h"
+#ضمن "alloc-util.h"
+#ضمن "cgroup-util.h"
+#ضمن "limits-util.h"
+#ضمن "log.h"
+#ضمن "memory-util.h"
+#ضمن "parse-util.h"
+#ضمن "process-util.h"
+#ضمن "procfs-util.h"
 
-uint64_t physical_memory(void) {
-        _cleanup_free_ char *root = NULL, *value = NULL;
+uint64_t physical_memory(فراغ) {
+        _cleanup_free_ حرف *root = عدم, *value = عدم;
         uint64_t mem, lim;
         size_t ps;
         long sc;
-        int r;
+        صحيح r;
 
         /* We return this as uint64_t in case we are running as 32-bit process on a 64-bit kernel with huge amounts of
          * memory.
@@ -25,7 +25,7 @@ uint64_t physical_memory(void) {
          * physically reported amount of memory and the limit configured for the root cgroup, if there is any. */
 
         sc = sysconf(_SC_PHYS_PAGES);
-        assert(sc > 0);
+        أكد(sc > 0);
 
         ps = page_size();
         /* Physical page count times page size cannot realistically overflow uint64_t,
@@ -33,76 +33,76 @@ uint64_t physical_memory(void) {
         assert_se(MUL_SAFE(&mem, (uint64_t) sc, (uint64_t) ps));
 
         r = cg_get_root_path(&root);
-        if (r < 0) {
+        ܐܢ (r < 0) {
                 log_debug_errno(r, "Failed to determine root cgroup, ignoring cgroup memory limit: %m");
-                return mem;
+                ܦܢܐ mem;
         }
 
         r = cg_get_attribute(root, "memory.max", &value);
-        if (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
+        ܐܢ (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
                            * complain. (Note that it might exist on our own root though, if we live
                            * in a cgroup namespace, hence check anyway instead of not even
                            * trying.) */
-                return mem;
-        if (r < 0) {
+                ܦܢܐ mem;
+        ܐܢ (r < 0) {
                 log_debug_errno(r, "Failed to read memory.max cgroup attribute, ignoring cgroup memory limit: %m");
-                return mem;
+                ܦܢܐ mem;
         }
 
-        if (streq(value, "max"))
-                return mem;
+        ܐܢ (streq(value, "max"))
+                ܦܢܐ mem;
 
         r = safe_atou64(value, &lim);
-        if (r < 0) {
+        ܐܢ (r < 0) {
                 log_debug_errno(r, "Failed to parse cgroup memory limit '%s', ignoring: %m", value);
-                return mem;
+                ܦܢܐ mem;
         }
-        if (lim == UINT64_MAX)
-                return mem;
+        ܐܢ (lim == UINT64_MAX)
+                ܦܢܐ mem;
 
         /* Make sure the limit is a multiple of our own page size */
         lim /= ps;
         lim *= ps;
 
-        return MIN(mem, lim);
+        ܦܢܐ MIN(mem, lim);
 }
 
 uint64_t physical_memory_scale(uint64_t v, uint64_t max) {
         uint64_t p, m, ps;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return physical_memory();
+        ܐܢ (v == 0)
+                ܦܢܐ 0;
+        ܐܢ (v == max)
+                ܦܢܐ physical_memory();
 
-        assert(max > 0);
+        أكد(max > 0);
 
         /* Returns the physical memory size, multiplied by v divided by max. Returns UINT64_MAX on overflow. On success
          * the result is a multiple of the page size (rounds down). */
 
         ps = page_size();
-        assert(ps > 0);
+        أكد(ps > 0);
 
         p = physical_memory() / ps;
-        assert(p > 0);
+        أكد(p > 0);
 
-        if (v > UINT64_MAX / p)
-                return UINT64_MAX;
+        ܐܢ (v > UINT64_MAX / p)
+                ܦܢܐ UINT64_MAX;
 
         m = p * v;
         m /= max;
 
-        if (m > UINT64_MAX / ps)
-                return UINT64_MAX;
+        ܐܢ (m > UINT64_MAX / ps)
+                ܦܢܐ UINT64_MAX;
 
-        return m * ps;
+        ܦܢܐ m * ps;
 }
 
-uint64_t system_tasks_max(void) {
+uint64_t system_tasks_max(فراغ) {
         uint64_t a = TASKS_MAX, b = TASKS_MAX, c = TASKS_MAX;
-        _cleanup_free_ char *root = NULL;
-        int r;
+        _cleanup_free_ حرف *root = عدم;
+        صحيح r;
 
         /* Determine the maximum number of tasks that may run on this system. We check three sources to
          * determine this limit:
@@ -131,51 +131,51 @@ uint64_t system_tasks_max(void) {
          */
 
         r = procfs_get_threads_max(&a);
-        if (r < 0)
+        ܐܢ (r < 0)
                 log_debug_errno(r, "Failed to read kernel.threads-max, ignoring: %m");
 
         r = procfs_get_pid_max(&b);
-        if (r < 0)
+        ܐܢ (r < 0)
                 log_debug_errno(r, "Failed to read kernel.pid_max, ignoring: %m");
-        else if (b > 0)
+        ܐܚܪܢܐ ܐܢ (b > 0)
                 /* Subtract one from pid_max, since PID 0 is not a valid PID */
                 b--;
 
         r = cg_get_root_path(&root);
-        if (r < 0)
+        ܐܢ (r < 0)
                 log_debug_errno(r, "Failed to determine cgroup root path, ignoring: %m");
-        else {
+        ܐܚܪܢܐ {
                 /* We'll have the "pids.max" attribute on the our root cgroup only if we are in a
                  * CLONE_NEWCGROUP namespace. On the top-level namespace this attribute is missing, hence
                  * suppress any message about that */
                 r = cg_get_attribute_as_uint64(root, "pids.max", &c);
-                if (r < 0 && r != -ENODATA)
+                ܐܢ (r < 0 && r != -ENODATA)
                         log_debug_errno(r, "Failed to read pids.max attribute of root cgroup, ignoring: %m");
         }
 
-        return MIN3(a, b, c);
+        ܦܢܐ MIN3(a, b, c);
 }
 
 uint64_t system_tasks_max_scale(uint64_t v, uint64_t max) {
         uint64_t t, m;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return system_tasks_max();
+        ܐܢ (v == 0)
+                ܦܢܐ 0;
+        ܐܢ (v == max)
+                ܦܢܐ system_tasks_max();
 
-        assert(max > 0);
+        أكد(max > 0);
 
         /* Multiply the system's task value by the fraction v/max. Hence, if max==100 this calculates percentages
          * relative to the system's maximum number of tasks. Returns UINT64_MAX on overflow. */
 
         t = system_tasks_max();
-        assert(t > 0);
+        أكد(t > 0);
 
-        if (v > UINT64_MAX / t) /* overflow? */
-                return UINT64_MAX;
+        ܐܢ (v > UINT64_MAX / t) /* overflow? */
+                ܦܢܐ UINT64_MAX;
 
         m = t * v;
-        return m / max;
+        ܦܢܐ m / max;
 }

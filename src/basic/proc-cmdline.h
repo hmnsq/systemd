@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef enum ProcCmdlineFlags {
+تعريفنوع تعداد ProcCmdlineFlags {
         PROC_CMDLINE_RD_STRICT          = 1 << 0, /* Only look at options with the "rd." prefix when in the initrd and only
                                                    * at options without the prefix when not in the initrd.
                                                    */
@@ -15,23 +15,23 @@ typedef enum ProcCmdlineFlags {
                                                    * when the key is not present on the command line. */
 } ProcCmdlineFlags;
 
-typedef int (*proc_cmdline_parse_t)(const char *key, const char *value, void *data);
+تعريفنوع صحيح (*proc_cmdline_parse_t)(ثابت حرف *key, ثابت حرف *value, فراغ *data);
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret);
+صحيح proc_cmdline_filter_pid1_args(حرف **argv, حرف ***ret);
 
-int proc_cmdline(char **ret);
-int proc_cmdline_strv(char ***ret);
+صحيح proc_cmdline(حرف **ret);
+صحيح proc_cmdline_strv(حرف ***ret);
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse, void *userdata, ProcCmdlineFlags flags);
+صحيح proc_cmdline_parse(proc_cmdline_parse_t parse, فراغ *userdata, ProcCmdlineFlags flags);
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value);
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret);
+صحيح proc_cmdline_get_key(ثابت حرف *key, ProcCmdlineFlags flags, حرف **ret_value);
+صحيح proc_cmdline_get_bool(ثابت حرف *key, ProcCmdlineFlags flags, bool *ret);
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...);
-#define proc_cmdline_get_key_many(flags, ...) proc_cmdline_get_key_many_internal(flags, __VA_ARGS__, NULL)
+صحيح proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...);
+#define proc_cmdline_get_key_many(flags, ...) proc_cmdline_get_key_many_internal(flags, __VA_ARGS__, عدم)
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix);
-bool proc_cmdline_key_streq(const char *x, const char *y);
+حرف* proc_cmdline_key_startswith(ثابت حرف *s, ثابت حرف *prefix);
+bool proc_cmdline_key_streq(ثابت حرف *x, ثابت حرف *y);
 
 /* A little helper call, to be used in proc_cmdline_parse_t callbacks */
-bool proc_cmdline_value_missing(const char *key, const char *value);
+bool proc_cmdline_value_missing(ثابت حرف *key, ثابت حرف *value);

@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
 #define SYSTEMD_CGROUP_CONTROLLER "_systemd"
 
 /* An enum of well known cgroup controllers */
-typedef enum CGroupController {
+تعريفنوع تعداد CGroupController {
         /* Original cgroup controllers */
         CGROUP_CONTROLLER_CPU,
         CGROUP_CONTROLLER_CPUACCT,    /* v1 only */
@@ -35,7 +35,7 @@ typedef enum CGroupController {
 #define CGROUP_CONTROLLER_TO_MASK(c) (1U << (c))
 
 /* A bit mask of well known cgroup controllers */
-typedef enum CGroupMask {
+تعريفنوع تعداد CGroupMask {
         CGROUP_MASK_CPU = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPU),
         CGROUP_MASK_CPUACCT = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUACCT),
         CGROUP_MASK_CPUSET = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUSET),
@@ -76,14 +76,14 @@ typedef enum CGroupMask {
 #define CGROUP_LIMIT_MIN UINT64_C(0)
 #define CGROUP_LIMIT_MAX UINT64_MAX
 
-static inline bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
-        return
+ساكن مضمن bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
+        ܦܢܐ
             x == CGROUP_WEIGHT_INVALID ||
             (x >= CGROUP_WEIGHT_MIN && x <= CGROUP_WEIGHT_MAX);
 }
 
 /* IO limits on unified hierarchy */
-typedef enum CGroupIOLimitType {
+تعريفنوع تعداد CGroupIOLimitType {
         CGROUP_IO_RBPS_MAX,
         CGROUP_IO_WBPS_MAX,
         CGROUP_IO_RIOPS_MAX,
@@ -93,10 +93,10 @@ typedef enum CGroupIOLimitType {
         _CGROUP_IO_LIMIT_TYPE_INVALID = -EINVAL,
 } CGroupIOLimitType;
 
-extern const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
+خارجي ثابت uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
-void cgroup_io_limits_list(void);
+فراغ cgroup_io_limits_list(فراغ);
 
 /* Special values for the io.bfq.weight attribute */
 #define CGROUP_BFQ_WEIGHT_INVALID UINT64_MAX
@@ -105,8 +105,8 @@ void cgroup_io_limits_list(void);
 #define CGROUP_BFQ_WEIGHT_DEFAULT UINT64_C(100)
 
 /* Convert the normal io.weight value to io.bfq.weight */
-static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
-        return
+ساكن مضمن uint64_t BFQ_WEIGHT(uint64_t io_weight) {
+        ܦܢܐ
             io_weight <= CGROUP_WEIGHT_DEFAULT ?
             CGROUP_BFQ_WEIGHT_DEFAULT - (CGROUP_WEIGHT_DEFAULT - io_weight) * (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) / (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) :
             CGROUP_BFQ_WEIGHT_DEFAULT + (io_weight - CGROUP_WEIGHT_DEFAULT) * (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT) / (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT);
@@ -119,127 +119,127 @@ static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
  * generate paths with multiple adjacent / removed.
  */
 
-int cg_is_available(void);
+صحيح cg_is_available(فراغ);
 
-int cg_path_open(const char *path);
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id);
+صحيح cg_path_open(ثابت حرف *path);
+صحيح cg_cgroupid_open(صحيح cgroupfs_fd, uint64_t id);
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret);
+صحيح cg_path_from_cgroupid(صحيح cgroupfs_fd, uint64_t id, حرف **ret);
 
-typedef enum CGroupFlags {
+تعريفنوع تعداد CGroupFlags {
         CGROUP_SIGCONT            = 1 << 0,
         CGROUP_IGNORE_SELF        = 1 << 1,
         CGROUP_DONT_SKIP_UNMAPPED = 1 << 2,
 } CGroupFlags;
 
-int cg_enumerate_processes(const char *path, FILE **ret);
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
+صحيح cg_enumerate_processes(ثابت حرف *path, FILE **ret);
+صحيح cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
+صحيح cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
 
-int cg_enumerate_subgroups(const char *path, DIR **ret);
-int cg_read_subgroup(DIR *d, char **ret);
+صحيح cg_enumerate_subgroups(ثابت حرف *path, DIR **ret);
+صحيح cg_read_subgroup(DIR *d, حرف **ret);
 
-typedef int (*cg_kill_log_func_t)(const PidRef *pid, int sig, void *userdata);
+تعريفنوع صحيح (*cg_kill_log_func_t)(ثابت PidRef *pid, صحيح sig, فراغ *userdata);
 
-int cg_kill(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed);
-int cg_kill_recursive(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+صحيح cg_kill(ثابت حرف *path, صحيح sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, فراغ *userdata);
+صحيح cg_kill_kernel_sigkill(ثابت حرف *path, uint64_t *ret_n_pids_killed);
+صحيح cg_kill_recursive(ثابت حرف *path, صحيح sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, فراغ *userdata);
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path);
+صحيح cg_split_spec(ثابت حرف *spec, حرف **ret_controller, حرف **ret_path);
 
-int cg_get_path(const char *path, const char *suffix, char **ret);
+صحيح cg_get_path(ثابت حرف *path, ثابت حرف *suffix, حرف **ret);
 
-int cg_pid_get_path(pid_t pid, char **ret);
-int cg_pidref_get_path(const PidRef *pidref, char **ret);
+صحيح cg_pid_get_path(pid_t pid, حرف **ret);
+صحيح cg_pidref_get_path(ثابت PidRef *pidref, حرف **ret);
 
-int cg_is_threaded(const char *path);
+صحيح cg_is_threaded(ثابت حرف *path);
 
-int cg_is_delegated(const char *path);
-int cg_is_delegated_fd(int fd);
+صحيح cg_is_delegated(ثابت حرف *path);
+صحيح cg_is_delegated_fd(صحيح fd);
 
-int cg_has_coredump_receive(const char *path);
+صحيح cg_has_coredump_receive(ثابت حرف *path);
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value);
-int cg_get_attribute(const char *path, const char *attribute, char **ret);
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
-int cg_get_attribute_as_bool(const char *path, const char *attribute);
+صحيح cg_set_attribute(ثابت حرف *path, ثابت حرف *attribute, ثابت حرف *value);
+صحيح cg_get_attribute(ثابت حرف *path, ثابت حرف *attribute, حرف **ret);
+صحيح cg_get_attribute_as_uint64(ثابت حرف *path, ثابت حرف *attribute, uint64_t *ret);
+صحيح cg_get_attribute_as_bool(ثابت حرف *path, ثابت حرف *attribute);
 
-int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
+صحيح cg_get_keyed_attribute(ثابت حرف *path, ثابت حرف *attribute, حرف * ثابت *keys, حرف **values);
+صحيح cg_get_keyed_attribute_uint64(ثابت حرف *path, ثابت حرف *attribute, ثابت حرف *key, uint64_t *ret);
 
-int cg_get_owner(const char *path, uid_t *ret_uid);
+صحيح cg_get_owner(ثابت حرف *path, uid_t *ret_uid);
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
+صحيح cg_set_xattr(ثابت حرف *path, ثابت حرف *name, ثابت فراغ *value, size_t size, صحيح flags);
+صحيح cg_get_xattr(ثابت حرف *path, ثابت حرف *name, حرف **ret, size_t *ret_size);
 /* Returns negative on error, and 0 or 1 on success for the bool value */
-int cg_get_xattr_bool(const char *path, const char *name);
-int cg_remove_xattr(const char *path, const char *name);
+صحيح cg_get_xattr_bool(ثابت حرف *path, ثابت حرف *name);
+صحيح cg_remove_xattr(ثابت حرف *path, ثابت حرف *name);
 
-int cg_is_empty(const char *path);
+صحيح cg_is_empty(ثابت حرف *path);
 
-int cg_get_root_path(char **path);
+صحيح cg_get_root_path(حرف **path);
 
-int cg_path_get_session(const char *path, char **ret_session);
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_unit(const char *path, char **ret_unit) {
-        return cg_path_get_unit_full(path, ret_unit, NULL);
+صحيح cg_path_get_session(ثابت حرف *path, حرف **ret_session);
+صحيح cg_path_get_owner_uid(ثابت حرف *path, uid_t *ret_uid);
+صحيح cg_path_get_unit_full(ثابت حرف *path, حرف **ret_unit, حرف **ret_subgroup);
+ساكن مضمن صحيح cg_path_get_unit(ثابت حرف *path, حرف **ret_unit) {
+        ܦܢܐ cg_path_get_unit_full(path, ret_unit, عدم);
 }
-int cg_path_get_unit_path(const char *path, char **ret_unit);
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_user_unit(const char *path, char **ret_unit) {
-        return cg_path_get_user_unit_full(path, ret_unit, NULL);
+صحيح cg_path_get_unit_path(ثابت حرف *path, حرف **ret_unit);
+صحيح cg_path_get_user_unit_full(ثابت حرف *path, حرف **ret_unit, حرف **ret_subgroup);
+ساكن مضمن صحيح cg_path_get_user_unit(ثابت حرف *path, حرف **ret_unit) {
+        ܦܢܐ cg_path_get_user_unit_full(path, ret_unit, عدم);
 }
-int cg_path_get_machine_name(const char *path, char **ret_machine);
-int cg_path_get_slice(const char *path, char **ret_slice);
-int cg_path_get_user_slice(const char *path, char **ret_slice);
+صحيح cg_path_get_machine_name(ثابت حرف *path, حرف **ret_machine);
+صحيح cg_path_get_slice(ثابت حرف *path, حرف **ret_slice);
+صحيح cg_path_get_user_slice(ثابت حرف *path, حرف **ret_slice);
 
-int cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
-int cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
+صحيح cg_shift_path(ثابت حرف *cgroup, ثابت حرف *cached_root, ثابت حرف **ret_shifted);
+صحيح cg_pid_get_path_shifted(pid_t pid, ثابت حرف *cached_root, حرف **ret_cgroup);
+صحيح cg_pidref_get_path_shifted(ثابت PidRef *pidref, ثابت حرف *cached_root, حرف **ret_cgroup);
 
-int cg_pid_get_session(pid_t pid, char **ret_session);
-int cg_pidref_get_session(const PidRef *pidref, char **ret);
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_unit_full(pid, ret_unit, NULL);
+صحيح cg_pid_get_session(pid_t pid, حرف **ret_session);
+صحيح cg_pidref_get_session(ثابت PidRef *pidref, حرف **ret);
+صحيح cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
+صحيح cg_pidref_get_owner_uid(ثابت PidRef *pidref, uid_t *ret);
+صحيح cg_pid_get_unit_full(pid_t pid, حرف **ret_unit, حرف **ret_subgroup);
+ساكن مضمن صحيح cg_pid_get_unit(pid_t pid, حرف **ret_unit) {
+        ܦܢܐ cg_pid_get_unit_full(pid, ret_unit, عدم);
 }
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_unit_full(pidref, ret_unit, NULL);
+صحيح cg_pidref_get_unit_full(ثابت PidRef *pidref, حرف **ret_unit, حرف **ret_subgroup);
+ساكن مضمن صحيح cg_pidref_get_unit(ثابت PidRef *pidref, حرف **ret_unit) {
+        ܦܢܐ cg_pidref_get_unit_full(pidref, ret_unit, عدم);
 }
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_user_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_user_unit_full(pid, ret_unit, NULL);
+صحيح cg_pid_get_user_unit_full(pid_t pid, حرف **ret_unit, حرف **ret_subgroup);
+ساكن مضمن صحيح cg_pid_get_user_unit(pid_t pid, حرف **ret_unit) {
+        ܦܢܐ cg_pid_get_user_unit_full(pid, ret_unit, عدم);
 }
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_user_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
+صحيح cg_pidref_get_user_unit_full(ثابت PidRef *pidref, حرف **ret_unit, حرف **ret_subgroup);
+ساكن مضمن صحيح cg_pidref_get_user_unit(ثابت PidRef *pidref, حرف **ret_unit) {
+        ܦܢܐ cg_pidref_get_user_unit_full(pidref, ret_unit, عدم);
 }
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine);
-int cg_pid_get_slice(pid_t pid, char **ret_slice);
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice);
+صحيح cg_pid_get_machine_name(pid_t pid, حرف **ret_machine);
+صحيح cg_pid_get_slice(pid_t pid, حرف **ret_slice);
+صحيح cg_pid_get_user_slice(pid_t pid, حرف **ret_slice);
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit);
+صحيح cg_path_decode_unit(ثابت حرف *cgroup, حرف **ret_unit);
 
-bool cg_needs_escape(const char *p) _pure_;
-int cg_escape(const char *p, char **ret);
-char* cg_unescape(const char *p) _pure_;
+bool cg_needs_escape(ثابت حرف *p) _pure_;
+صحيح cg_escape(ثابت حرف *p, حرف **ret);
+حرف* cg_unescape(ثابت حرف *p) _pure_;
 
-int cg_slice_to_path(const char *unit, char **ret);
+صحيح cg_slice_to_path(ثابت حرف *unit, حرف **ret);
 
-int cg_mask_supported(CGroupMask *ret);
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
-int cg_mask_from_string(const char *s, CGroupMask *ret);
-int cg_mask_to_string(CGroupMask mask, char **ret);
+صحيح cg_mask_supported(CGroupMask *ret);
+صحيح cg_mask_supported_subtree(ثابت حرف *root, CGroupMask *ret);
+صحيح cg_mask_from_string(ثابت حرف *s, CGroupMask *ret);
+صحيح cg_mask_to_string(CGroupMask mask, حرف **ret);
 
-bool cg_kill_supported(void);
+bool cg_kill_supported(فراغ);
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
 
-typedef enum ManagedOOMMode {
+تعريفنوع تعداد ManagedOOMMode {
         MANAGED_OOM_AUTO,
         MANAGED_OOM_KILL,
         _MANAGED_OOM_MODE_MAX,
@@ -248,7 +248,7 @@ typedef enum ManagedOOMMode {
 
 DECLARE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
 
-typedef enum ManagedOOMPreference {
+تعريفنوع تعداد ManagedOOMPreference {
         MANAGED_OOM_PREFERENCE_NONE = 0,
         MANAGED_OOM_PREFERENCE_AVOID = 1,
         MANAGED_OOM_PREFERENCE_OMIT = 2,

@@ -1,67 +1,67 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/socket.h>
+#ضمن <string.h>
+#ضمن <sys/socket.h>
 
-#include "af-list.h"
-#include "string-util.h"
+#ضمن "af-list.h"
+#ضمن "string-util.h"
 
-static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
+ساكن ثابت بنية af_name* lookup_af(سجل ثابت حرف *str, سجل GPERF_LEN_TYPE len);
 
-#include "af-from-name.inc"
-#include "af-to-name.inc"
+#ضمن "af-from-name.inc"
+#ضمن "af-to-name.inc"
 
-const char* af_to_name(int id) {
+ثابت حرف* af_to_name(صحيح id) {
 
-        if (id <= 0)
-                return NULL;
+        ܐܢ (id <= 0)
+                ܦܢܐ عدم;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        ܐܢ ((size_t) id >= ELEMENTSOF(af_names))
+                ܦܢܐ عدم;
 
-        return af_names[id];
+        ܦܢܐ af_names[id];
 }
 
-const char* af_to_name_short(int id) {
-        const char *f;
+ثابت حرف* af_to_name_short(صحيح id) {
+        ثابت حرف *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        ܐܢ (id == AF_UNSPEC)
+                ܦܢܐ "*";
 
         f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        ܐܢ (!f)
+                ܦܢܐ "unknown";
 
-        assert(startswith(f, "AF_"));
-        return f + 3;
+        أكد(startswith(f, "AF_"));
+        ܦܢܐ f + 3;
 }
 
-int af_from_name(const char *name) {
+صحيح af_from_name(ثابت حرف *name) {
         size_t len = strlen(ASSERT_PTR(name));
 
-        const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
-                const char *t = strjoina("AF_", name);
+        ثابت بنية af_name *sc = lookup_af(name, len);
+        ܐܢ (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
+                ثابت حرف *t = strjoina("AF_", name);
                 sc = lookup_af(t, strlen("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        ܐܢ (!sc)
+                ܦܢܐ -EINVAL;
 
-        return sc->id;
+        ܦܢܐ sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+صحيح af_max(فراغ) {
+        ܦܢܐ ELEMENTSOF(af_names);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+ثابت حرف* af_to_ipv4_ipv6(صحيح id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
-                id == AF_INET6 ? "ipv6" : NULL;
+        ܦܢܐ id == AF_INET ? "ipv4" :
+                id == AF_INET6 ? "ipv6" : عدم;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+صحيح af_from_ipv4_ipv6(ثابت حرف *af) {
+        ܦܢܐ streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

@@ -1,312 +1,312 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "build.h"
-#include "env-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "version.h"
+#ضمن "alloc-util.h"
+#ضمن "ansi-color.h"
+#ضمن "build.h"
+#ضمن "env-util.h"
+#ضمن "extract-word.h"
+#ضمن "log.h"
+#ضمن "string-util.h"
+#ضمن "version.h"
 
-const char* const systemd_features =
+ثابت حرف* ثابت systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#ܐܢ HAVE_PAM
         "+PAM"
-#else
+#ܐܚܪܢܐ
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#ܐܢ HAVE_AUDIT
         " +AUDIT"
-#else
+#ܐܚܪܢܐ
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#ܐܢ HAVE_SELINUX
         " +SELINUX"
-#else
+#ܐܚܪܢܐ
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#ܐܢ HAVE_APPARMOR
         " +APPARMOR"
-#else
+#ܐܚܪܢܐ
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#ܐܢ ENABLE_IMA
         " +IMA"
-#else
+#ܐܚܪܢܐ
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#ܐܢ ENABLE_IPE
         " +IPE"
-#else
+#ܐܚܪܢܐ
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#ܐܢ ENABLE_SMACK
         " +SMACK"
-#else
+#ܐܚܪܢܐ
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#ܐܢ HAVE_SECCOMP
         " +SECCOMP"
-#else
+#ܐܚܪܢܐ
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#ܐܢ HAVE_GNUTLS
         " +GNUTLS"
-#else
+#ܐܚܪܢܐ
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#ܐܢ HAVE_OPENSSL
         " +OPENSSL"
-#else
+#ܐܚܪܢܐ
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#ܐܢ HAVE_ACL
         " +ACL"
-#else
+#ܐܚܪܢܐ
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#ܐܢ HAVE_BLKID
         " +BLKID"
-#else
+#ܐܚܪܢܐ
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#ܐܢ HAVE_LIBCURL
         " +CURL"
-#else
+#ܐܚܪܢܐ
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#ܐܢ HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#ܐܚܪܢܐ
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#ܐܢ HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#ܐܚܪܢܐ
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#ܐܢ HAVE_LIBIDN2
         " +IDN2"
-#else
+#ܐܚܪܢܐ
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#ܐܢ HAVE_KMOD
         " +KMOD"
-#else
+#ܐܚܪܢܐ
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#ܐܢ HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#ܐܚܪܢܐ
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#ܐܢ HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#ܐܚܪܢܐ
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#ܐܢ HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#ܐܚܪܢܐ
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#ܐܢ HAVE_PCRE2
         " +PCRE2"
-#else
+#ܐܚܪܢܐ
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#ܐܢ HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#ܐܚܪܢܐ
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#ܐܢ HAVE_P11KIT
         " +P11KIT"
-#else
+#ܐܚܪܢܐ
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#ܐܢ HAVE_QRENCODE
         " +QRENCODE"
-#else
+#ܐܚܪܢܐ
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#ܐܢ HAVE_TPM2
         " +TPM2"
-#else
+#ܐܚܪܢܐ
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#ܐܢ HAVE_BZIP2
         " +BZIP2"
-#else
+#ܐܚܪܢܐ
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#ܐܢ HAVE_LZ4
         " +LZ4"
-#else
+#ܐܚܪܢܐ
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#ܐܢ HAVE_XZ
         " +XZ"
-#else
+#ܐܚܪܢܐ
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#ܐܢ HAVE_ZLIB
         " +ZLIB"
-#else
+#ܐܚܪܢܐ
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#ܐܢ HAVE_ZSTD
         " +ZSTD"
-#else
+#ܐܚܪܢܐ
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#ܐܢ BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#ܐܚܪܢܐ
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#ܐܢ HAVE_VMLINUX_H
         " +BTF"
-#else
+#ܐܚܪܢܐ
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#ܐܢ HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#ܐܚܪܢܐ
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#ܐܢ ENABLE_UTMP
         " +UTMP"
-#else
+#ܐܚܪܢܐ
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#ܐܢ HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#ܐܚܪܢܐ
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#ܐܢ EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
-#elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
+#وإلاإذا EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#ܐܚܪܢܐ
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+ساكن حرف* systemd_features_with_color(فراغ) {
+        ثابت حرف *p = systemd_features;
+        _cleanup_free_ حرف *ret = عدم;
+        صحيح r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        لكل (;;) {
+                _cleanup_free_ حرف *word = عدم;
+                حرف *q;
 
-                r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                r = extract_first_word(&p, &word, عدم, 0);
+                ܐܢ (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        ܦܢܐ عدم;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                ܐܢ (r == 0)
+                        ܦܢܐ TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                ܐܢ (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        ܦܢܐ عدم;
                 }
 
-                if (word[0] == '+')
+                ܐܢ (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                ܐܚܪܢܐ ܐܢ (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                ܐܚܪܢܐ
                         q = strextend(&ret, word);
-                if (!q) {
+                ܐܢ (!q) {
                         log_oom_warning();
-                        return NULL;
+                        ܦܢܐ عدم;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+صحيح version(فراغ) {
+        _cleanup_free_ حرف *b = عدم;
 
-        if (colors_enabled())
+        ܐܢ (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        ܦܢܐ 0;
 }
 
-int version_only(void) {
+صحيح version_only(فراغ) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        ܦܢܐ 0;
 }
 
-bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+bool experimental_enabled(فراغ) {
+#ܐܢ EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        ܦܢܐ false;
+#ܐܚܪܢܐ
+        صحيح r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ܐܢ (r >= 0)
+                ܦܢܐ r;
+        ܐܢ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        ܦܢܐ EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

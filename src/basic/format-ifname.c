@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "format-ifname.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#ضمن "format-ifname.h"
+#ضمن "stdio-util.h"
+#ضمن "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(صحيح) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+صحيح format_ifname_full(صحيح ifindex, FormatIfnameFlag flag, حرف buf[ساكن IF_NAMESIZE]) {
+        ܐܢ (ifindex <= 0)
+                ܦܢܐ -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        ܐܢ (if_indextoname(ifindex, buf))
+                ܦܢܐ 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        ܐܢ (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                ܦܢܐ -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        ܐܢ (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        ܐܚܪܢܐ
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        ܦܢܐ 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
-        char buf[IF_NAMESIZE];
-        int r;
+صحيح format_ifname_full_alloc(صحيح ifindex, FormatIfnameFlag flag, حرف **ret) {
+        حرف buf[IF_NAMESIZE];
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        ܐܢ (r < 0)
+                ܦܢܐ r;
 
-        return strdup_to(ret, buf);
+        ܦܢܐ strdup_to(ret, buf);
 }

@@ -1,69 +1,69 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#ضمن <stdlib.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "syslog-util.h"
-#include "utf8.h"
+#ضمن "alloc-util.h"
+#ضمن "env-util.h"
+#ضمن "errno-util.h"
+#ضمن "extract-word.h"
+#ضمن "format-util.h"
+#ضمن "log.h"
+#ضمن "parse-util.h"
+#ضمن "path-util.h"
+#ضمن "process-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "syslog-util.h"
+#ضمن "utf8.h"
 
 /* We follow bash for the character set. Different shells have different rules. */
 #define VALID_BASH_ENV_NAME_CHARS               \
         ALPHANUMERICAL                          \
         "_"
 
-size_t sc_arg_max(void) {
+size_t sc_arg_max(فراغ) {
         long l = sysconf(_SC_ARG_MAX);
-        assert(l > 0);
-        return (size_t) l;
+        أكد(l > 0);
+        ܦܢܐ (size_t) l;
 }
 
-static bool env_name_is_valid_n(const char *e, size_t n) {
+ساكن bool env_name_is_valid_n(ثابت حرف *e, size_t n) {
 
-        if (n == SIZE_MAX)
+        ܐܢ (n == SIZE_MAX)
                 n = strlen_ptr(e);
 
-        if (n == 0)
-                return false;
+        ܐܢ (n == 0)
+                ܦܢܐ false;
 
-        assert(e);
+        أكد(e);
 
-        if (ascii_isdigit(e[0]))
-                return false;
+        ܐܢ (ascii_isdigit(e[0]))
+                ܦܢܐ false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the equal sign and trailing NUL this hence leaves ARG_MAX-2 as
          * longest possible variable name. */
-        if (_unlikely_(n > sc_arg_max() - 2))
-                return false;
+        ܐܢ (_unlikely_(n > sc_arg_max() - 2))
+                ܦܢܐ false;
 
-        for (const char *p = e; p < e + n; p++)
-                if (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
-                        return false;
+        لكل (ثابت حرف *p = e; p < e + n; p++)
+                ܐܢ (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
+                        ܦܢܐ false;
 
-        return true;
+        ܦܢܐ true;
 }
 
-bool env_name_is_valid(const char *e) {
-        return env_name_is_valid_n(e, SIZE_MAX);
+bool env_name_is_valid(ثابت حرف *e) {
+        ܦܢܐ env_name_is_valid_n(e, SIZE_MAX);
 }
 
-bool env_value_is_valid(const char *e) {
-        if (!e)
-                return false;
+bool env_value_is_valid(ثابت حرف *e) {
+        ܐܢ (!e)
+                ܦܢܐ false;
 
-        if (!utf8_is_valid(e))
-                return false;
+        ܐܢ (!utf8_is_valid(e))
+                ܦܢܐ false;
 
         /* Note that variable *values* may contain control characters, in particular NL, TAB, BS, DEL, ESC…
          * When printing those variables with show-environment, we'll escape them. Make sure to print
@@ -72,83 +72,83 @@ bool env_value_is_valid(const char *e) {
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the shortest possible variable name of length 1, the equal
          * sign and trailing NUL this hence leaves ARG_MAX-3 as longest possible variable value. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 3))
-                return false;
+        ܐܢ (_unlikely_(strlen(e) > sc_arg_max() - 3))
+                ܦܢܐ false;
 
-        return true;
+        ܦܢܐ true;
 }
 
-bool env_assignment_is_valid(const char *e) {
-        const char *eq;
+bool env_assignment_is_valid(ثابت حرف *e) {
+        ثابت حرف *eq;
 
-        assert(e);
+        أكد(e);
 
         eq = strchr(e, '=');
-        if (!eq)
-                return false;
+        ܐܢ (!eq)
+                ܦܢܐ false;
 
-        if (!env_name_is_valid_n(e, eq - e))
-                return false;
+        ܐܢ (!env_name_is_valid_n(e, eq - e))
+                ܦܢܐ false;
 
-        if (!env_value_is_valid(eq + 1))
-                return false;
+        ܐܢ (!env_value_is_valid(eq + 1))
+                ܦܢܐ false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
          * variable assignments cannot be either, but let's leave room for one trailing NUL byte. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 1))
-                return false;
+        ܐܢ (_unlikely_(strlen(e) > sc_arg_max() - 1))
+                ܦܢܐ false;
 
-        return true;
+        ܦܢܐ true;
 }
 
-bool strv_env_is_valid(char * const *e) {
+bool strv_env_is_valid(حرف * ثابت *e) {
         STRV_FOREACH(p, e) {
                 size_t k;
 
-                if (!env_assignment_is_valid(*p))
-                        return false;
+                ܐܢ (!env_assignment_is_valid(*p))
+                        ܦܢܐ false;
 
                 /* Check if there are duplicate assignments */
                 k = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, k) && (*q)[k] == '=')
-                                return false;
+                        ܐܢ (strneq(*p, *q, k) && (*q)[k] == '=')
+                                ܦܢܐ false;
         }
 
-        return true;
+        ܦܢܐ true;
 }
 
-bool strv_env_name_is_valid(char * const *l) {
+bool strv_env_name_is_valid(حرف * ثابت *l) {
         STRV_FOREACH(p, l) {
-                if (!env_name_is_valid(*p))
-                        return false;
+                ܐܢ (!env_name_is_valid(*p))
+                        ܦܢܐ false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                ܐܢ (strv_contains(p + 1, *p))
+                        ܦܢܐ false;
         }
 
-        return true;
+        ܦܢܐ true;
 }
 
-bool strv_env_name_or_assignment_is_valid(char * const *l) {
+bool strv_env_name_or_assignment_is_valid(حرف * ثابت *l) {
         STRV_FOREACH(p, l) {
-                if (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
-                        return false;
+                ܐܢ (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
+                        ܦܢܐ false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                ܐܢ (strv_contains(p + 1, *p))
+                        ܦܢܐ false;
         }
 
-        return true;
+        ܦܢܐ true;
 }
 
-static int env_append(char **e, char ***k, char **a) {
-        assert(e);
-        assert(k);
-        assert(*k >= e);
+ساكن صحيح env_append(حرف **e, حرف ***k, حرف **a) {
+        أكد(e);
+        أكد(k);
+        أكد(*k >= e);
 
-        if (!a)
-                return 0;
+        ܐܢ (!a)
+                ܦܢܐ 0;
 
         /* Expects the following arguments: 'e' shall point to the beginning of an strv we are going to append to, 'k'
          * to a pointer pointing to the NULL entry at the end of the same array. 'a' shall point to another strv.
@@ -157,36 +157,36 @@ static int env_append(char **e, char ***k, char **a) {
          *
          * This call assumes 'e' has enough pre-allocated space to grow by all of 'a''s items. */
 
-        for (; *a; a++) {
-                char **j, *c;
+        لكل (; *a; a++) {
+                حرف **j, *c;
                 size_t n;
 
                 n = strcspn(*a, "=");
-                if ((*a)[n] == '=')
+                ܐܢ ((*a)[n] == '=')
                         n++;
 
-                for (j = e; j < *k; j++)
-                        if (strneq(*j, *a, n))
-                                break;
+                لكل (j = e; j < *k; j++)
+                        ܐܢ (strneq(*j, *a, n))
+                                اكسر;
 
                 c = strdup(*a);
-                if (!c)
-                        return -ENOMEM;
+                ܐܢ (!c)
+                        ܦܢܐ -ENOMEM;
 
-                if (j >= *k) { /* Append to the end? */
+                ܐܢ (j >= *k) { /* Append to the end? */
                         (*k)[0] = c;
-                        (*k)[1] = NULL;
+                        (*k)[1] = عدم;
                         (*k)++;
-                } else
+                } ܐܚܪܢܐ
                         free_and_replace(*j, c); /* Override existing item */
         }
 
-        return 0;
+        ܦܢܐ 0;
 }
 
-char** _strv_env_merge(char **first, ...) {
-        _cleanup_strv_free_ char **merged = NULL;
-        char **k;
+حرف** _strv_env_merge(حرف **first, ...) {
+        _cleanup_strv_free_ حرف **merged = عدم;
+        حرف **k;
         va_list ap;
 
         /* Merges an arbitrary number of environment sets */
@@ -194,46 +194,46 @@ char** _strv_env_merge(char **first, ...) {
         size_t n = strv_length(first);
 
         va_start(ap, first);
-        for (;;) {
-                char **l;
+        لكل (;;) {
+                حرف **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, حرف**);
+                ܐܢ (l == POINTER_MAX)
+                        اكسر;
 
                 n += strv_length(l);
         }
         va_end(ap);
 
-        k = merged = new(char*, n + 1);
-        if (!merged)
-                return NULL;
-        merged[0] = NULL;
+        k = merged = new(حرف*, n + 1);
+        ܐܢ (!merged)
+                ܦܢܐ عدم;
+        merged[0] = عدم;
 
-        if (env_append(merged, &k, first) < 0)
-                return NULL;
+        ܐܢ (env_append(merged, &k, first) < 0)
+                ܦܢܐ عدم;
 
         va_start(ap, first);
-        for (;;) {
-                char **l;
+        لكل (;;) {
+                حرف **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, حرف**);
+                ܐܢ (l == POINTER_MAX)
+                        اكسر;
 
-                if (env_append(merged, &k, l) < 0) {
+                ܐܢ (env_append(merged, &k, l) < 0) {
                         va_end(ap);
-                        return NULL;
+                        ܦܢܐ عدم;
                 }
         }
         va_end(ap);
 
-        return TAKE_PTR(merged);
+        ܦܢܐ TAKE_PTR(merged);
 }
 
-static bool env_match(const char *t, const char *pattern) {
-        assert(t);
-        assert(pattern);
+ساكن bool env_match(ثابت حرف *t, ثابت حرف *pattern) {
+        أكد(t);
+        أكد(pattern);
 
         /* pattern a matches string a
          *         a matches a=
@@ -245,34 +245,34 @@ static bool env_match(const char *t, const char *pattern) {
          *         a=b does not match a
          *         a=b does not match a=c */
 
-        if (streq(t, pattern))
-                return true;
+        ܐܢ (streq(t, pattern))
+                ܦܢܐ true;
 
-        if (!strchr(pattern, '=')) {
+        ܐܢ (!strchr(pattern, '=')) {
                 t = startswith(t, pattern);
 
-                return t && *t == '=';
+                ܦܢܐ t && *t == '=';
         }
 
-        return false;
+        ܦܢܐ false;
 }
 
-static bool env_entry_has_name(const char *entry, const char *name) {
-        const char *t;
+ساكن bool env_entry_has_name(ثابت حرف *entry, ثابت حرف *name) {
+        ثابت حرف *t;
 
-        assert(entry);
-        assert(name);
+        أكد(entry);
+        أكد(name);
 
         t = startswith(entry, name);
-        if (!t)
-                return false;
+        ܐܢ (!t)
+                ܦܢܐ false;
 
-        return *t == '=';
+        ܦܢܐ *t == '=';
 }
 
-char** strv_env_delete(char **x, size_t n_lists, ...) {
+حرف** strv_env_delete(حرف **x, size_t n_lists, ...) {
         size_t n, i = 0;
-        _cleanup_strv_free_ char **t = NULL;
+        _cleanup_strv_free_ حرف **t = عدم;
         va_list ap;
 
         /* Deletes every entry from x that is mentioned in the other
@@ -280,103 +280,103 @@ char** strv_env_delete(char **x, size_t n_lists, ...) {
 
         n = strv_length(x);
 
-        t = new(char*, n+1);
-        if (!t)
-                return NULL;
+        t = new(حرف*, n+1);
+        ܐܢ (!t)
+                ܦܢܐ عدم;
 
         STRV_FOREACH(k, x) {
                 va_start(ap, n_lists);
-                for (size_t v = 0; v < n_lists; v++) {
-                        char **l;
+                لكل (size_t v = 0; v < n_lists; v++) {
+                        حرف **l;
 
-                        l = va_arg(ap, char**);
+                        l = va_arg(ap, حرف**);
                         STRV_FOREACH(j, l)
-                                if (env_match(*k, *j))
-                                        goto skip;
+                                ܐܢ (env_match(*k, *j))
+                                        اذهب skip;
                 }
                 va_end(ap);
 
                 t[i] = strdup(*k);
-                if (!t[i])
-                        return NULL;
+                ܐܢ (!t[i])
+                        ܦܢܐ عدم;
 
                 i++;
-                continue;
+                استمر;
 
         skip:
                 va_end(ap);
         }
 
-        t[i] = NULL;
+        t[i] = عدم;
 
-        assert(i <= n);
+        أكد(i <= n);
 
-        return TAKE_PTR(t);
+        ܦܢܐ TAKE_PTR(t);
 }
 
-char** strv_env_unset(char **l, const char *p) {
-        assert(p);
+حرف** strv_env_unset(حرف **l, ثابت حرف *p) {
+        أكد(p);
 
-        if (!l)
-                return NULL;
+        ܐܢ (!l)
+                ܦܢܐ عدم;
 
         /* Drops every occurrence of the env var setting p in the
          * string list. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                if (env_match(*f, p)) {
-                        free(*f);
-                        continue;
+        حرف **f, **t;
+        لكل (f = t = l; *f; f++) {
+                ܐܢ (env_match(*f, p)) {
+                        حرر(*f);
+                        استمر;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = عدم;
+        ܦܢܐ l;
 }
 
-char** strv_env_unset_many_internal(char **l, ...) {
-        if (!l)
-                return NULL;
+حرف** strv_env_unset_many_internal(حرف **l, ...) {
+        ܐܢ (!l)
+                ܦܢܐ عدم;
 
         /* Like strv_env_unset() but applies many at once. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
+        حرف **f, **t;
+        لكل (f = t = l; *f; f++) {
                 bool found = false;
-                const char *p;
+                ثابت حرف *p;
                 va_list ap;
 
                 va_start(ap, l);
 
-                while ((p = va_arg(ap, const char*)))
-                        if (env_match(*f, p)) {
+                ܟܡܐ ((p = va_arg(ap, ثابت حرف*)))
+                        ܐܢ (env_match(*f, p)) {
                                 found = true;
-                                break;
+                                اكسر;
                         }
 
                 va_end(ap);
 
-                if (found) {
-                        free(*f);
-                        continue;
+                ܐܢ (found) {
+                        حرر(*f);
+                        استمر;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = عدم;
+        ܦܢܐ l;
 }
 
-int strv_env_replace_consume(char ***l, char *p) {
-        const char *t, *name;
-        int r;
+صحيح strv_env_replace_consume(حرف ***l, حرف *p) {
+        ثابت حرف *t, *name;
+        صحيح r;
 
-        assert(l);
-        assert(p);
+        أكد(l);
+        أكد(p);
 
         /* Replace first occurrence of the env var or add a new one in the string list. Drop other
          * occurrences. Edits in-place. Does not copy p and CONSUMES p EVEN ON FAILURE.
@@ -384,205 +384,205 @@ int strv_env_replace_consume(char ***l, char *p) {
          * p must be a valid key=value assignment. */
 
         t = strchr(p, '=');
-        if (!t) {
-                free(p);
-                return -EINVAL;
+        ܐܢ (!t) {
+                حرر(p);
+                ܦܢܐ -EINVAL;
         }
 
         name = strndupa_safe(p, t - p);
 
         STRV_FOREACH(f, *l)
-                if (env_entry_has_name(*f, name)) {
+                ܐܢ (env_entry_has_name(*f, name)) {
                         free_and_replace(*f, p);
                         strv_env_unset(f + 1, *f);
-                        return 0;
+                        ܦܢܐ 0;
                 }
 
         /* We didn't find a match, we need to append p or create a new strv */
         r = strv_consume(l, p);
-        if (r < 0)
-                return r;
+        ܐܢ (r < 0)
+                ܦܢܐ r;
 
-        return 1;
+        ܦܢܐ 1;
 }
 
-int strv_env_replace_strdup(char ***l, const char *assignment) {
+صحيح strv_env_replace_strdup(حرف ***l, ثابت حرف *assignment) {
         /* Like strv_env_replace_consume(), but copies the argument. */
 
-        assert(l);
-        assert(assignment);
+        أكد(l);
+        أكد(assignment);
 
-        char *p = strdup(assignment);
-        if (!p)
-                return -ENOMEM;
+        حرف *p = strdup(assignment);
+        ܐܢ (!p)
+                ܦܢܐ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        ܦܢܐ strv_env_replace_consume(l, p);
 }
 
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
-        char *p;
+صحيح strv_env_replace_strdup_passthrough(حرف ***l, ثابت حرف *assignment) {
+        حرف *p;
 
         /* Like strv_env_replace_strdup(), but pulls the variable from the environment of
          * the calling program, if a variable name without value is specified. */
 
-        assert(l);
-        assert(assignment);
+        أكد(l);
+        أكد(assignment);
 
-        if (strchr(assignment, '=')) {
-                if (!env_assignment_is_valid(assignment))
-                        return -EINVAL;
+        ܐܢ (strchr(assignment, '=')) {
+                ܐܢ (!env_assignment_is_valid(assignment))
+                        ܦܢܐ -EINVAL;
 
                 p = strdup(assignment);
-        } else {
-                if (!env_name_is_valid(assignment))
-                        return -EINVAL;
+        } ܐܚܪܢܐ {
+                ܐܢ (!env_name_is_valid(assignment))
+                        ܦܢܐ -EINVAL;
 
                 /* If we can't find the variable in our environment, we will use
                  * the empty string. This way "passthrough" is equivalent to passing
                  * --setenv=FOO=$FOO in the shell. */
                 p = strjoin(assignment, "=", secure_getenv(assignment));
         }
-        if (!p)
-                return -ENOMEM;
+        ܐܢ (!p)
+                ܦܢܐ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        ܦܢܐ strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
-        assert(l);
+صحيح strv_env_assign(حرف ***l, ثابت حرف *key, ثابت حرف *value) {
+        أكد(l);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        ܐܢ (!env_name_is_valid(key))
+                ܦܢܐ -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
+        ܐܢ (!value) {
                 strv_env_unset(*l, key);
-                return 0;
+                ܦܢܐ 0;
         }
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        حرف *p = strjoin(key, "=", value);
+        ܐܢ (!p)
+                ܦܢܐ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        ܦܢܐ strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
-        int r;
+صحيح strv_env_assignf(حرف ***l, ثابت حرف *key, ثابت حرف *valuef, ...) {
+        صحيح r;
 
-        assert(l);
-        assert(key);
+        أكد(l);
+        أكد(key);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        ܐܢ (!env_name_is_valid(key))
+                ܦܢܐ -EINVAL;
 
-        if (!valuef) {
+        ܐܢ (!valuef) {
                 strv_env_unset(*l, key);
-                return 0;
+                ܦܢܐ 0;
         }
 
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ حرف *value = عدم;
         va_list ap;
         va_start(ap, valuef);
         r = vasprintf(&value, valuef, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        ܐܢ (r < 0)
+                ܦܢܐ -ENOMEM;
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        حرف *p = strjoin(key, "=", value);
+        ܐܢ (!p)
+                ܦܢܐ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        ܦܢܐ strv_env_replace_consume(l, p);
 }
 
-int _strv_env_assign_many(char ***l, ...) {
+صحيح _strv_env_assign_many(حرف ***l, ...) {
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(l);
+        أكد(l);
 
         va_start(ap, l);
-        for (;;) {
-                const char *key, *value;
+        لكل (;;) {
+                ثابت حرف *key, *value;
 
-                key = va_arg(ap, const char *);
-                if (!key)
-                        break;
+                key = va_arg(ap, ثابت حرف *);
+                ܐܢ (!key)
+                        اكسر;
 
-                if (!env_name_is_valid(key)) {
+                ܐܢ (!env_name_is_valid(key)) {
                         va_end(ap);
-                        return -EINVAL;
+                        ܦܢܐ -EINVAL;
                 }
 
-                value = va_arg(ap, const char *);
-                if (!value) {
+                value = va_arg(ap, ثابت حرف *);
+                ܐܢ (!value) {
                         strv_env_unset(*l, key);
-                        continue;
+                        استمر;
                 }
 
-                char *p = strjoin(key, "=", value);
-                if (!p) {
+                حرف *p = strjoin(key, "=", value);
+                ܐܢ (!p) {
                         va_end(ap);
-                        return -ENOMEM;
+                        ܦܢܐ -ENOMEM;
                 }
 
                 r = strv_env_replace_consume(l, p);
-                if (r < 0) {
+                ܐܢ (r < 0) {
                         va_end(ap);
-                        return r;
+                        ܦܢܐ r;
                 }
         }
         va_end(ap);
 
-        return 0;
+        ܦܢܐ 0;
 }
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags) {
-        assert(name);
+حرف* strv_env_get_n(حرف * ثابت *l, ثابت حرف *name, size_t k, ReplaceEnvFlags flags) {
+        أكد(name);
 
-        if (k == SIZE_MAX)
+        ܐܢ (k == SIZE_MAX)
                 k = strlen(name);
-        if (k <= 0)
-                return NULL;
+        ܐܢ (k <= 0)
+                ܦܢܐ عدم;
 
         STRV_FOREACH_BACKWARDS(i, l)
-                if (strneq(*i, name, k) && (*i)[k] == '=')
-                        return (char*) *i + k + 1;
+                ܐܢ (strneq(*i, name, k) && (*i)[k] == '=')
+                        ܦܢܐ (حرف*) *i + k + 1;
 
-        if (flags & REPLACE_ENV_USE_ENVIRONMENT) {
-                const char *t;
+        ܐܢ (flags & REPLACE_ENV_USE_ENVIRONMENT) {
+                ثابت حرف *t;
 
                 /* Safety check that the name is not overly long, before we do a stack allocation */
-                if (k > sc_arg_max() - 2)
-                        return NULL;
+                ܐܢ (k > sc_arg_max() - 2)
+                        ܦܢܐ عدم;
 
                 t = strndupa_safe(name, k);
-                return secure_getenv(t);
+                ܦܢܐ secure_getenv(t);
         };
 
-        return NULL;
+        ܦܢܐ عدم;
 }
 
-char* strv_env_pairs_get(char **l, const char *name) {
-        char *result = NULL;
+حرف* strv_env_pairs_get(حرف **l, ثابت حرف *name) {
+        حرف *result = عدم;
 
-        assert(name);
+        أكد(name);
 
         STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
+                ܐܢ (streq(*key, name))
                         result = *value;
 
-        return result;
+        ܦܢܐ result;
 }
 
-int strv_env_get_merged(char **l, char ***ret) {
-        _cleanup_strv_free_ char **v = NULL;
+صحيح strv_env_get_merged(حرف **l, حرف ***ret) {
+        _cleanup_strv_free_ حرف **v = عدم;
         size_t n = 0;
-        int r;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* This converts a strv with pairs of environment variable name + value into a strv of name and
          * value concatenated with a "=" separator. E.g.
@@ -590,112 +590,112 @@ int strv_env_get_merged(char **l, char ***ret) {
          * output : { "NAME=value", "FOO=var" } */
 
         STRV_FOREACH_PAIR(key, value, l) {
-                char *s;
+                حرف *s;
 
                 s = strjoin(*key, "=", *value);
-                if (!s)
-                        return -ENOMEM;
+                ܐܢ (!s)
+                        ܦܢܐ -ENOMEM;
 
                 r = strv_consume_with_size(&v, &n, s);
-                if (r < 0)
-                        return r;
+                ܐܢ (r < 0)
+                        ܦܢܐ r;
         }
 
         *ret = TAKE_PTR(v);
-        return 0;
+        ܦܢܐ 0;
 }
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata) {
-        int k = 0;
+حرف** strv_env_clean_with_callback(حرف **l, فراغ (*invalid_callback)(ثابت حرف *p, فراغ *userdata), فراغ *userdata) {
+        صحيح k = 0;
 
         STRV_FOREACH(p, l) {
                 size_t n;
                 bool duplicate = false;
 
-                if (!env_assignment_is_valid(*p)) {
-                        if (invalid_callback)
+                ܐܢ (!env_assignment_is_valid(*p)) {
+                        ܐܢ (invalid_callback)
                                 invalid_callback(*p, userdata);
-                        free(*p);
-                        continue;
+                        حرر(*p);
+                        استمر;
                 }
 
                 n = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, n) && (*q)[n] == '=') {
+                        ܐܢ (strneq(*p, *q, n) && (*q)[n] == '=') {
                                 duplicate = true;
-                                break;
+                                اكسر;
                         }
 
-                if (duplicate) {
-                        free(*p);
-                        continue;
+                ܐܢ (duplicate) {
+                        حرر(*p);
+                        استمر;
                 }
 
                 l[k++] = *p;
         }
 
-        if (l)
-                l[k] = NULL;
+        ܐܢ (l)
+                l[k] = عدم;
 
-        return l;
+        ܦܢܐ l;
 }
 
-static int strv_extend_with_length(char ***l, const char *s, size_t n) {
-        char *c;
+ساكن صحيح strv_extend_with_length(حرف ***l, ثابت حرف *s, size_t n) {
+        حرف *c;
 
         c = strndup(s, n);
-        if (!c)
-                return -ENOMEM;
+        ܐܢ (!c)
+                ܦܢܐ -ENOMEM;
 
-        return strv_consume(l, c);
+        ܦܢܐ strv_consume(l, c);
 }
 
-static int strv_env_get_n_validated(
-                char **env,
-                const char *name,
+ساكن صحيح strv_env_get_n_validated(
+                حرف **env,
+                ثابت حرف *name,
                 size_t l,
                 ReplaceEnvFlags flags,
-                char **ret,              /* points into the env block! do not free! */
-                char ***unset_variables, /* updated in place */
-                char ***bad_variables) { /* ditto */
+                حرف **ret,              /* points into the env block! do not free! */
+                حرف ***unset_variables, /* updated in place */
+                حرف ***bad_variables) { /* ditto */
 
-        char *e;
-        int r;
+        حرف *e;
+        صحيح r;
 
-        assert(l == 0 || name);
-        assert(ret);
+        أكد(l == 0 || name);
+        أكد(ret);
 
-        if (env_name_is_valid_n(name, l)) {
+        ܐܢ (env_name_is_valid_n(name, l)) {
                 e = strv_env_get_n(env, name, l, flags);
-                if (!e && unset_variables) {
+                ܐܢ (!e && unset_variables) {
                         r = strv_extend_with_length(unset_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        ܐܢ (r < 0)
+                                ܦܢܐ r;
                 }
-        } else {
-                e = NULL; /* Resolve invalid variable names the same way as unset ones */
+        } ܐܚܪܢܐ {
+                e = عدم; /* Resolve invalid variable names the same way as unset ones */
 
-                if (bad_variables) {
+                ܐܢ (bad_variables) {
                         r = strv_extend_with_length(bad_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        ܐܢ (r < 0)
+                                ܦܢܐ r;
                 }
         }
 
         *ret = e;
-        return !!e;
+        ܦܢܐ !!e;
 }
 
-int replace_env_full(
-                const char *format,
+صحيح replace_env_full(
+                ثابت حرف *format,
                 size_t length,
-                char **env,
+                حرف **env,
                 ReplaceEnvFlags flags,
-                char **ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+                حرف **ret,
+                حرف ***ret_unset_variables,
+                حرف ***ret_bad_variables) {
 
-        enum {
+        تعداد {
                 WORD,
                 CURLY,
                 VARIABLE,
@@ -705,255 +705,255 @@ int replace_env_full(
                 ALTERNATE_VALUE,
         } state = WORD;
 
-        _cleanup_strv_free_ char **unset_variables = NULL, **bad_variables = NULL;
-        const char *e, *word = format, *test_value = NULL; /* test_value is initialized to appease gcc */
-        _cleanup_free_ char *s = NULL;
-        char ***pu, ***pb;
+        _cleanup_strv_free_ حرف **unset_variables = عدم, **bad_variables = عدم;
+        ثابت حرف *e, *word = format, *test_value = عدم; /* test_value is initialized to appease gcc */
+        _cleanup_free_ حرف *s = عدم;
+        حرف ***pu, ***pb;
         size_t i, len = 0; /* len is initialized to appease gcc */
-        int nest = 0, r;
+        صحيح nest = 0, r;
 
-        assert(format);
+        أكد(format);
 
-        if (length == SIZE_MAX)
+        ܐܢ (length == SIZE_MAX)
                 length = strlen(format);
 
-        pu = ret_unset_variables ? &unset_variables : NULL;
-        pb = ret_bad_variables ? &bad_variables : NULL;
+        pu = ret_unset_variables ? &unset_variables : عدم;
+        pb = ret_bad_variables ? &bad_variables : عدم;
 
-        for (e = format, i = 0; *e && i < length; e++, i++)
-                switch (state) {
+        لكل (e = format, i = 0; *e && i < length; e++, i++)
+                بدل (state) {
 
-                case WORD:
-                        if (*e == '$')
+                حالة WORD:
+                        ܐܢ (*e == '$')
                                 state = CURLY;
-                        break;
+                        اكسر;
 
-                case CURLY:
-                        if (*e == '{') {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                حالة CURLY:
+                        ܐܢ (*e == '{') {
+                                ܐܢ (!strextendn(&s, word, e-word-1))
+                                        ܦܢܐ -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE;
                                 nest++;
 
-                        } else if (*e == '$') {
-                                if (!strextendn(&s, word, e-word))
-                                        return -ENOMEM;
+                        } ܐܚܪܢܐ ܐܢ (*e == '$') {
+                                ܐܢ (!strextendn(&s, word, e-word))
+                                        ܦܢܐ -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
 
-                        } else if (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        } ܐܚܪܢܐ ܐܢ (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                ܐܢ (!strextendn(&s, word, e-word-1))
+                                        ܦܢܐ -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE_RAW;
 
-                        } else
+                        } ܐܚܪܢܐ
                                 state = WORD;
-                        break;
+                        اكسر;
 
-                case VARIABLE:
-                        if (*e == '}') {
-                                char *t;
+                حالة VARIABLE:
+                        ܐܢ (*e == '}') {
+                                حرف *t;
 
                                 r = strv_env_get_n_validated(env, word+2, e-word-2, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                ܐܢ (r < 0)
+                                        ܦܢܐ r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                ܐܢ (!strextend(&s, t))
+                                        ܦܢܐ -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                                 nest--;
-                        } else if (*e == ':') {
-                                if (flags & REPLACE_ENV_ALLOW_EXTENDED) {
+                        } ܐܚܪܢܐ ܐܢ (*e == ':') {
+                                ܐܢ (flags & REPLACE_ENV_ALLOW_EXTENDED) {
                                         len = e - word - 2;
                                         state = TEST;
-                                } else
+                                } ܐܚܪܢܐ
                                         /* Treat this as unsupported syntax, i.e. do no replacement */
                                         state = WORD;
                         }
-                        break;
+                        اكسر;
 
-                case TEST:
-                        if (*e == '-')
+                حالة TEST:
+                        ܐܢ (*e == '-')
                                 state = DEFAULT_VALUE;
-                        else if (*e == '+')
+                        ܐܚܪܢܐ ܐܢ (*e == '+')
                                 state = ALTERNATE_VALUE;
-                        else {
+                        ܐܚܪܢܐ {
                                 state = WORD;
-                                break;
+                                اكسر;
                         }
 
                         test_value = e+1;
-                        break;
+                        اكسر;
 
-                case DEFAULT_VALUE: /* fall through */
-                case ALTERNATE_VALUE:
-                        assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
+                حالة DEFAULT_VALUE: /* fall through */
+                حالة ALTERNATE_VALUE:
+                        أكد(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
-                        if (*e == '{') {
+                        ܐܢ (*e == '{') {
                                 nest++;
-                                break;
+                                اكسر;
                         }
 
-                        if (*e != '}')
-                                break;
+                        ܐܢ (*e != '}')
+                                اكسر;
 
                         nest--;
-                        if (nest == 0) {
-                                _cleanup_strv_free_ char **u = NULL, **b = NULL;
-                                _cleanup_free_ char *v = NULL;
-                                char *t = NULL;
+                        ܐܢ (nest == 0) {
+                                _cleanup_strv_free_ حرف **u = عدم, **b = عدم;
+                                _cleanup_free_ حرف *v = عدم;
+                                حرف *t = عدم;
 
                                 r = strv_env_get_n_validated(env, word+2, len, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                ܐܢ (r < 0)
+                                        ܦܢܐ r;
 
-                                if (t && state == ALTERNATE_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                ܐܢ (t && state == ALTERNATE_VALUE) {
+                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : عدم, pb ? &b : عدم);
+                                        ܐܢ (r < 0)
+                                                ܦܢܐ r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                } ܐܚܪܢܐ ܐܢ (!t && state == DEFAULT_VALUE) {
+                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : عدم, pb ? &b : عدم);
+                                        ܐܢ (r < 0)
+                                                ܦܢܐ r;
 
                                         t = v;
                                 }
 
                                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                ܐܢ (r < 0)
+                                        ܦܢܐ r;
                                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                ܐܢ (r < 0)
+                                        ܦܢܐ r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                ܐܢ (!strextend(&s, t))
+                                        ܦܢܐ -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                         }
-                        break;
+                        اكسر;
 
-                case VARIABLE_RAW:
-                        assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                حالة VARIABLE_RAW:
+                        أكد(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                        if (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                char *t = NULL;
+                        ܐܢ (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                حرف *t = عدم;
 
                                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                                if (r < 0)
-                                        return r;
+                                ܐܢ (r < 0)
+                                        ܦܢܐ r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                ܐܢ (!strextend(&s, t))
+                                        ܦܢܐ -ENOMEM;
 
                                 word = e--;
                                 i--;
                                 state = WORD;
                         }
-                        break;
+                        اكسر;
                 }
 
-        if (state == VARIABLE_RAW) {
-                char *t;
+        ܐܢ (state == VARIABLE_RAW) {
+                حرف *t;
 
-                assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                أكد(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                if (r < 0)
-                        return r;
+                ܐܢ (r < 0)
+                        ܦܢܐ r;
 
-                if (!strextend(&s, t))
-                        return -ENOMEM;
+                ܐܢ (!strextend(&s, t))
+                        ܦܢܐ -ENOMEM;
 
-        } else if (!strextendn(&s, word, e-word))
-                return -ENOMEM;
+        } ܐܚܪܢܐ ܐܢ (!strextendn(&s, word, e-word))
+                ܦܢܐ -ENOMEM;
 
-        if (ret_unset_variables)
+        ܐܢ (ret_unset_variables)
                 *ret_unset_variables = TAKE_PTR(unset_variables);
-        if (ret_bad_variables)
+        ܐܢ (ret_bad_variables)
                 *ret_bad_variables = TAKE_PTR(bad_variables);
 
-        if (ret)
+        ܐܢ (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        ܦܢܐ 0;
 }
 
-int replace_env_argv(
-                char **argv,
-                char **env,
-                char ***ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+صحيح replace_env_argv(
+                حرف **argv,
+                حرف **env,
+                حرف ***ret,
+                حرف ***ret_unset_variables,
+                حرف ***ret_bad_variables) {
 
-        _cleanup_strv_free_ char **n = NULL, **unset_variables = NULL, **bad_variables = NULL;
+        _cleanup_strv_free_ حرف **n = عدم, **unset_variables = عدم, **bad_variables = عدم;
         size_t k = 0, l;
-        int r;
+        صحيح r;
 
-        assert(!strv_isempty(argv));
-        assert(ret);
+        أكد(!strv_isempty(argv));
+        أكد(ret);
 
         l = strv_length(argv);
 
-        n = new(char*, l+1);
-        if (!n)
-                return -ENOMEM;
+        n = new(حرف*, l+1);
+        ܐܢ (!n)
+                ܦܢܐ -ENOMEM;
 
         STRV_FOREACH(i, argv) {
-                const char *word = *i;
+                ثابت حرف *word = *i;
 
                 /* If $FOO appears as single word, replace it by the split up variable */
-                if (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
-                        _cleanup_strv_free_ char **m = NULL;
-                        const char *name = word + 1;
-                        char *e, **w;
+                ܐܢ (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
+                        _cleanup_strv_free_ حرف **m = عدم;
+                        ثابت حرف *name = word + 1;
+                        حرف *e, **w;
                         size_t q;
 
-                        if (env_name_is_valid(name)) {
+                        ܐܢ (env_name_is_valid(name)) {
                                 e = strv_env_get(env, name);
-                                if (e)
+                                ܐܢ (e)
                                         r = strv_split_full(&m, e, WHITESPACE, EXTRACT_RELAX|EXTRACT_UNQUOTE);
-                                else if (ret_unset_variables)
+                                ܐܚܪܢܐ ܐܢ (ret_unset_variables)
                                         r = strv_extend(&unset_variables, name);
-                                else
+                                ܐܚܪܢܐ
                                         r = 0;
-                        } else if (ret_bad_variables)
+                        } ܐܚܪܢܐ ܐܢ (ret_bad_variables)
                                 r = strv_extend(&bad_variables, name);
-                        else
+                        ܐܚܪܢܐ
                                 r = 0;
-                        if (r < 0)
-                                return r;
+                        ܐܢ (r < 0)
+                                ܦܢܐ r;
 
                         q = strv_length(m);
                         l = l + q - 1;
 
-                        w = reallocarray(n, l + 1, sizeof(char*));
-                        if (!w)
-                                return -ENOMEM;
+                        w = reallocarray(n, l + 1, حجم(حرف*));
+                        ܐܢ (!w)
+                                ܦܢܐ -ENOMEM;
 
                         n = w;
-                        if (m) {
-                                memcpy(n + k, m, (q + 1) * sizeof(char*));
+                        ܐܢ (m) {
+                                memcpy(n + k, m, (q + 1) * حجم(حرف*));
                                 m = mfree(m);
                         }
 
                         k += q;
                         /* reallocarray() does not zero-initialize the grown tail, add NUL termination */
-                        n[k] = NULL;
-                        continue;
+                        n[k] = عدم;
+                        استمر;
                 }
 
-                _cleanup_strv_free_ char **u = NULL, **b = NULL;
+                _cleanup_strv_free_ حرف **u = عدم, **b = عدم;
 
                 /* If ${FOO} appears as part of a word, replace it by the variable as-is */
                 r = replace_env_full(
@@ -962,212 +962,212 @@ int replace_env_argv(
                                 env,
                                 /* flags= */ 0,
                                 n + k,
-                                ret_unset_variables ? &u : NULL,
-                                ret_bad_variables ? &b : NULL);
-                if (r < 0)
-                        return r;
-                n[++k] = NULL;
+                                ret_unset_variables ? &u : عدم,
+                                ret_bad_variables ? &b : عدم);
+                ܐܢ (r < 0)
+                        ܦܢܐ r;
+                n[++k] = عدم;
 
                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                ܐܢ (r < 0)
+                        ܦܢܐ r;
 
                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                ܐܢ (r < 0)
+                        ܦܢܐ r;
         }
 
-        if (ret_unset_variables) {
+        ܐܢ (ret_unset_variables) {
                 strv_sort_uniq(unset_variables);
                 *ret_unset_variables = TAKE_PTR(unset_variables);
         }
-        if (ret_bad_variables) {
+        ܐܢ (ret_bad_variables) {
                 strv_sort_uniq(bad_variables);
                 *ret_bad_variables = TAKE_PTR(bad_variables);
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        ܦܢܐ 0;
 }
 
-int getenv_bool(const char *p) {
-        const char *e;
+صحيح getenv_bool(ثابت حرف *p) {
+        ثابت حرف *e;
 
         e = getenv(p);
-        if (!e)
-                return -ENXIO;
+        ܐܢ (!e)
+                ܦܢܐ -ENXIO;
 
-        return parse_boolean(e);
+        ܦܢܐ parse_boolean(e);
 }
 
-int secure_getenv_bool(const char *p) {
-        const char *e;
+صحيح secure_getenv_bool(ثابت حرف *p) {
+        ثابت حرف *e;
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        ܐܢ (!e)
+                ܦܢܐ -ENXIO;
 
-        return parse_boolean(e);
+        ܦܢܐ parse_boolean(e);
 }
 
-int secure_getenv_uint64(const char *p, uint64_t *ret) {
-        const char *e;
+صحيح secure_getenv_uint64(ثابت حرف *p, uint64_t *ret) {
+        ثابت حرف *e;
 
-        assert(p);
+        أكد(p);
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        ܐܢ (!e)
+                ܦܢܐ -ENXIO;
 
-        return safe_atou64(e, ret);
+        ܦܢܐ safe_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
-        assert(name);
+صحيح set_unset_env(ثابت حرف *name, ثابت حرف *value, bool overwrite) {
+        أكد(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        ܐܢ (value)
+                ܦܢܐ RET_NERRNO(setenv(name, value, overwrite));
 
-        return RET_NERRNO(unsetenv(name));
+        ܦܢܐ RET_NERRNO(unsetenv(name));
 }
 
-int putenv_dup(const char *assignment, bool override) {
-        const char *e, *n;
+صحيح putenv_dup(ثابت حرف *assignment, bool override) {
+        ثابت حرف *e, *n;
 
         e = strchr(assignment, '=');
-        if (!e)
-                return -EINVAL;
+        ܐܢ (!e)
+                ܦܢܐ -EINVAL;
 
         n = strndupa_safe(assignment, e - assignment);
 
         /* This is like putenv(), but uses setenv() so that our memory doesn't become part of environ[]. */
-        return RET_NERRNO(setenv(n, e + 1, override));
+        ܦܢܐ RET_NERRNO(setenv(n, e + 1, override));
 }
 
-int setenv_systemd_exec_pid(bool update_only) {
-        const char *e;
-        int r;
+صحيح setenv_systemd_exec_pid(bool update_only) {
+        ثابت حرف *e;
+        صحيح r;
 
         /* Update $SYSTEMD_EXEC_PID=pid except when '*' is set for the variable. */
 
         e = secure_getenv("SYSTEMD_EXEC_PID");
-        if (!e && update_only)
-                return 0;
+        ܐܢ (!e && update_only)
+                ܦܢܐ 0;
 
-        if (streq_ptr(e, "*"))
-                return 0;
+        ܐܢ (streq_ptr(e, "*"))
+                ܦܢܐ 0;
 
         r = setenvf("SYSTEMD_EXEC_PID", /* overwrite= */ 1, PID_FMT, getpid_cached());
-        if (r < 0)
-                return r;
+        ܐܢ (r < 0)
+                ܦܢܐ r;
 
-        return 1;
+        ܦܢܐ 1;
 }
 
-int setenv_systemd_log_level(void) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+صحيح setenv_systemd_log_level(فراغ) {
+        _cleanup_free_ حرف *val = عدم;
+        صحيح r;
 
         r = log_level_to_string_alloc(log_get_max_level(), &val);
-        if (r < 0)
-                return r;
+        ܐܢ (r < 0)
+                ܦܢܐ r;
 
-        return RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
+        ܦܢܐ RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
 }
 
-int getenv_path_list(const char *name, char ***ret_paths) {
-        _cleanup_strv_free_ char **l = NULL;
-        const char *e;
-        int r;
+صحيح getenv_path_list(ثابت حرف *name, حرف ***ret_paths) {
+        _cleanup_strv_free_ حرف **l = عدم;
+        ثابت حرف *e;
+        صحيح r;
 
-        assert(name);
-        assert(ret_paths);
+        أكد(name);
+        أكد(ret_paths);
 
         e = secure_getenv(name);
-        if (!e)
-                return -ENXIO;
+        ܐܢ (!e)
+                ܦܢܐ -ENXIO;
 
         r = strv_split_full(&l, e, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse $%s: %m", name);
+        ܐܢ (r < 0)
+                ܦܢܐ log_debug_errno(r, "Failed to parse $%s: %m", name);
 
         STRV_FOREACH(p, l) {
-                if (!path_is_absolute(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                ܐܢ (!path_is_absolute(*p))
+                        ܦܢܐ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not absolute, refusing.", *p);
 
-                if (!path_is_normalized(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                ܐܢ (!path_is_normalized(*p))
+                        ܦܢܐ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not normalized, refusing.", *p);
 
-                if (path_equal(*p, "/"))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                ܐܢ (path_equal(*p, "/"))
+                        ܦܢܐ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is the root fs, refusing.", *p);
         }
 
-        if (strv_isempty(l))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        ܐܢ (strv_isempty(l))
+                ܦܢܐ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "No paths specified, refusing.");
 
         *ret_paths = TAKE_PTR(l);
-        return 1;
+        ܦܢܐ 1;
 }
 
-int getenv_steal_erase(const char *name, char **ret) {
-        _cleanup_(erase_and_freep) char *a = NULL;
-        char *e;
+صحيح getenv_steal_erase(ثابت حرف *name, حرف **ret) {
+        _cleanup_(erase_and_freep) حرف *a = عدم;
+        حرف *e;
 
-        assert(name);
+        أكد(name);
 
         /* Reads an environment variable, makes a copy of it, erases its memory in the environment block and removes
          * it from there. Usecase: reading passwords from the env block (which is a bad idea, but useful for
          * testing, and given that people are likely going to misuse this, be thorough) */
 
         e = secure_getenv(name);
-        if (!e) {
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        ܐܢ (!e) {
+                ܐܢ (ret)
+                        *ret = عدم;
+                ܦܢܐ 0;
         }
 
-        if (ret) {
+        ܐܢ (ret) {
                 a = strdup(e);
-                if (!a)
-                        return -ENOMEM;
+                ܐܢ (!a)
+                        ܦܢܐ -ENOMEM;
         }
 
         string_erase(e);
 
-        if (unsetenv(name) < 0)
-                return -errno;
+        ܐܢ (unsetenv(name) < 0)
+                ܦܢܐ -errno;
 
-        if (ret)
+        ܐܢ (ret)
                 *ret = TAKE_PTR(a);
 
-        return 1;
+        ܦܢܐ 1;
 }
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
-        _cleanup_free_ char *value = NULL;
+صحيح setenvf(ثابت حرف *name, bool overwrite, ثابت حرف *valuef, ...) {
+        _cleanup_free_ حرف *value = عدم;
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(name);
+        أكد(name);
 
-        if (!valuef)
-                return RET_NERRNO(unsetenv(name));
+        ܐܢ (!valuef)
+                ܦܢܐ RET_NERRNO(unsetenv(name));
 
         va_start(ap, valuef);
         r = vasprintf(&value, valuef, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ܐܢ (r < 0)
+                ܦܢܐ -ENOMEM;
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
-                return 0;
+        ܐܢ (streq_ptr(getenv(name), value))
+                ܦܢܐ 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        ܦܢܐ RET_NERRNO(setenv(name, value, overwrite));
 }
