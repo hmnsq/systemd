@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#समावेश <linux/if_arp.h>
+#समावेश <linux/if_infiniband.h>
+#समावेश <netinet/in.h>
+#समावेश <string.h>
 
-#include "arphrd-util.h"
+#समावेश "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+अटल स्थिर काष्ठा arphrd_name* lookup_arphrd(रेजिस्टर स्थिर अक्षर *str, रेजिस्टर GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#समावेश "arphrd-from-name.inc"
+#समावेश "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+पूर्णांक arphrd_from_name(स्थिर अक्षर *name) {
+        स्थिर काष्ठा arphrd_name *sc;
 
-        assert(name);
+        निश्चित(name);
 
-        sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_arphrd(name, म_माप(name));
+        अगर (!sc)
+                वापस -EINVAL;
 
-        return sc->id;
+        वापस sc->id;
 }
 
-size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+माप_प्रकार arphrd_to_hw_addr_len(uint16_t arphrd) {
+        चयन (arphrd) {
+        हाल ARPHRD_ETHER:
+                वापस ETH_ALEN;
+        हाल ARPHRD_INFINIBAND:
+                वापस INFINIBAND_ALEN;
+        हाल ARPHRD_TUNNEL:
+        हाल ARPHRD_SIT:
+        हाल ARPHRD_IPGRE:
+                वापस माप(काष्ठा in_addr);
+        हाल ARPHRD_TUNNEL6:
+        हाल ARPHRD_IP6GRE:
+                वापस माप(काष्ठा in6_addr);
+        शेष:
+                वापस 0;
         }
 }

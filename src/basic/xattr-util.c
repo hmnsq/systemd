@@ -1,122 +1,122 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/xattr.h>
-#include <threads.h>
+#समावेश <fcntl.h>
+#समावेश <sys/xattr.h>
+#समावेश <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "nulstr-util.h"
-#include "parse-util.h"
-#include "sparse-endian.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "xattr-util.h"
+#समावेश "alloc-util.h"
+#समावेश "errno-util.h"
+#समावेश "fd-util.h"
+#समावेश "fs-util.h"
+#समावेश "nulstr-util.h"
+#समावेश "parse-util.h"
+#समावेश "sparse-endian.h"
+#समावेश "stat-util.h"
+#समावेश "string-util.h"
+#समावेश "strv.h"
+#समावेश "time-util.h"
+#समावेश "xattr-util.h"
 
 /* Use a single cache for all of *xattrat syscalls (added in kernel 6.13) */
-static thread_local bool have_xattrat = true;
+अटल thread_local bool have_xattrat = true;
 
-static int normalize_and_maybe_pin_inode(
-                int *fd,
-                const char **path,
-                int *at_flags,
-                int *ret_tfd,
+अटल पूर्णांक normalize_and_maybe_pin_inode(
+                पूर्णांक *fd,
+                स्थिर अक्षर **path,
+                पूर्णांक *at_flags,
+                पूर्णांक *ret_tfd,
                 bool *ret_opath) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(fd);
-        assert(*fd >= 0 || *fd == AT_FDCWD);
-        assert(path);
-        assert(at_flags);
-        assert(ret_tfd);
-        assert(ret_opath);
+        निश्चित(fd);
+        निश्चित(*fd >= 0 || *fd == AT_FDCWD);
+        निश्चित(path);
+        निश्चित(at_flags);
+        निश्चित(ret_tfd);
+        निश्चित(ret_opath);
 
         *path = empty_to_null(*path); /* Normalize "" to NULL */
 
-        if (*fd == AT_FDCWD) {
-                if (!*path) /* Both unspecified? Then operate on current working directory */
+        अगर (*fd == AT_FDCWD) {
+                अगर (!*path) /* Both unspecified? Then operate on current working directory */
                         *path = ".";
 
                 *ret_tfd = -EBADF;
                 *ret_opath = false;
-                return 0;
+                वापस 0;
         }
 
         *at_flags |= AT_EMPTY_PATH;
 
-        if (!*path) {
+        अगर (!*path) {
                 r = fd_is_opath(*fd);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
                 *ret_opath = r;
                 *ret_tfd = -EBADF;
-                return 0;
+                वापस 0;
         }
 
         /* If both have been specified, then we go via O_PATH */
 
-        int tfd = openat(*fd, *path, O_PATH|O_CLOEXEC|(FLAGS_SET(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
-        if (tfd < 0)
-                return -errno;
+        पूर्णांक tfd = openat(*fd, *path, O_PATH|O_CLOEXEC|(FLAGS_SET(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
+        अगर (tfd < 0)
+                वापस -त्रुटि_सं;
 
         *fd = *ret_tfd = tfd;
-        *path = NULL;
+        *path = शून्य;
         *ret_opath = true;
 
-        return 0;
+        वापस 0;
 }
 
-static ssize_t getxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+अटल ssize_t getxattr_pinned_internal(
+                पूर्णांक fd,
+                स्थिर अक्षर *path,
+                पूर्णांक at_flags,
                 bool by_procfs,
-                const char *name,
-                char *buf,
-                size_t size) {
+                स्थिर अक्षर *name,
+                अक्षर *buf,
+                माप_प्रकार आकार) {
 
         ssize_t n;
 
-        assert(!path || !isempty(path));
-        assert((fd >= 0) == !path);
-        assert(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
-        assert(name);
-        assert(buf || size == 0);
+        निश्चित(!path || !isempty(path));
+        निश्चित((fd >= 0) == !path);
+        निश्चित(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
+        निश्चित(name);
+        निश्चित(buf || आकार == 0);
 
-        if (path)
-                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? getxattr(path, name, buf, size)
-                                                           : lgetxattr(path, name, buf, size);
-        else
-                n = by_procfs ? getxattr(FORMAT_PROC_FD_PATH(fd), name, buf, size)
-                              : fgetxattr(fd, name, buf, size);
-        if (n < 0)
-                return -errno;
+        अगर (path)
+                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? getxattr(path, name, buf, आकार)
+                                                           : lgetxattr(path, name, buf, आकार);
+        अन्यथा
+                n = by_procfs ? getxattr(FORMAT_PROC_FD_PATH(fd), name, buf, आकार)
+                              : fgetxattr(fd, name, buf, आकार);
+        अगर (n < 0)
+                वापस -त्रुटि_सं;
 
-        assert(size == 0 || (size_t) n <= size);
-        return n;
+        निश्चित(आकार == 0 || (माप_प्रकार) n <= आकार);
+        वापस n;
 }
 
-int getxattr_at_malloc(
-                int fd,
-                const char *path,
-                const char *name,
-                int at_flags,
-                char **ret,
-                size_t *ret_size) {
+पूर्णांक getxattr_at_malloc(
+                पूर्णांक fd,
+                स्थिर अक्षर *path,
+                स्थिर अक्षर *name,
+                पूर्णांक at_flags,
+                अक्षर **ret,
+                माप_प्रकार *ret_आकार) {
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ पूर्णांक opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert(name);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(ret);
+        निश्चित(fd >= 0 || fd == AT_FDCWD);
+        निश्चित(name);
+        निश्चित((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
+        निश्चित(ret);
 
         /* So, this is single function that does what getxattr()/lgetxattr()/fgetxattr() does, but in one go,
          * and with additional bells and whistles. Specifically:
@@ -128,307 +128,307 @@ int getxattr_at_malloc(
          */
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        माप_प्रकार l = 100;
+        क्रम (अचिन्हित n_attempts = 7;;) {
+                _cleanup_free_ अक्षर *v = शून्य;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                अगर (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        वापस -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(अक्षर, l+1);
+                अगर (!v)
+                        वापस -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
                 ssize_t n;
                 n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, v, l);
-                if (n >= 0) {
+                अगर (n >= 0) {
                         /* Refuse extended attributes with embedded NUL bytes if the caller isn't interested
                          * in the size. After all this must mean the caller assumes we return a NUL
                          * terminated strings, but if there's a NUL byte embedded they are definitely not
                          * regular strings */
-                        if (!ret_size && n > 1 && memchr(v, 0, n - 1))
-                                return -EBADMSG;
+                        अगर (!ret_आकार && n > 1 && स_प्रथम(v, 0, n - 1))
+                                वापस -EBADMSG;
 
                         v[n] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        if (ret_size)
-                                *ret_size = (size_t) n;
+                        अगर (ret_आकार)
+                                *ret_आकार = (माप_प्रकार) n;
 
-                        return 0;
+                        वापस 0;
                 }
-                if (n != -ERANGE)
-                        return (int) n;
+                अगर (n != -दुस्फल)
+                        वापस (पूर्णांक) n;
 
-                n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, NULL, 0);
-                if (n < 0)
-                        return (int) n;
+                n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, शून्य, 0);
+                अगर (n < 0)
+                        वापस (पूर्णांक) n;
 
-                l = (size_t) n;
+                l = (माप_प्रकार) n;
         }
 }
 
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+पूर्णांक getxattr_at_bool(पूर्णांक fd, स्थिर अक्षर *path, स्थिर अक्षर *name, पूर्णांक at_flags) {
+        _cleanup_free_ अक्षर *v = शून्य;
+        पूर्णांक r;
 
-        r = getxattr_at_malloc(fd, path, name, at_flags, &v, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        r = getxattr_at_malloc(fd, path, name, at_flags, &v, /* ret_size= */ शून्य);
+        अगर (r < 0)
+                वापस r;
 
-        return parse_boolean(v);
+        वापस parse_boolean(v);
 }
 
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv) {
-        _cleanup_free_ char *nulstr = NULL;
-        size_t nulstr_size;
-        int r;
+पूर्णांक getxattr_at_strv(पूर्णांक fd, स्थिर अक्षर *path, स्थिर अक्षर *name, पूर्णांक at_flags, अक्षर ***ret_strv) {
+        _cleanup_free_ अक्षर *nulstr = शून्य;
+        माप_प्रकार nulstr_आकार;
+        पूर्णांक r;
 
-        assert(ret_strv);
+        निश्चित(ret_strv);
 
-        r = getxattr_at_malloc(fd, path, name, at_flags, &nulstr, &nulstr_size);
-        if (r < 0)
-                return r;
+        r = getxattr_at_malloc(fd, path, name, at_flags, &nulstr, &nulstr_आकार);
+        अगर (r < 0)
+                वापस r;
 
-        _cleanup_strv_free_ char **l = strv_parse_nulstr(nulstr, nulstr_size);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ अक्षर **l = strv_parse_nulstr(nulstr, nulstr_आकार);
+        अगर (!l)
+                वापस -ENOMEM;
 
         *ret_strv = TAKE_PTR(l);
-        return 0;
+        वापस 0;
 }
 
-static int listxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+अटल पूर्णांक listxattr_pinned_internal(
+                पूर्णांक fd,
+                स्थिर अक्षर *path,
+                पूर्णांक at_flags,
                 bool by_procfs,
-                char *buf,
-                size_t size) {
+                अक्षर *buf,
+                माप_प्रकार आकार) {
 
         ssize_t n;
 
-        assert(!path || !isempty(path));
-        assert((fd >= 0) == !path);
-        assert(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
-        assert(buf || size == 0);
+        निश्चित(!path || !isempty(path));
+        निश्चित((fd >= 0) == !path);
+        निश्चित(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
+        निश्चित(buf || आकार == 0);
 
-        if (path)
-                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? listxattr(path, buf, size)
-                                                           : llistxattr(path, buf, size);
-        else
-                n = by_procfs ? listxattr(FORMAT_PROC_FD_PATH(fd), buf, size)
-                              : flistxattr(fd, buf, size);
-        if (n < 0)
-                return -errno;
+        अगर (path)
+                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? listxattr(path, buf, आकार)
+                                                           : llistxattr(path, buf, आकार);
+        अन्यथा
+                n = by_procfs ? listxattr(FORMAT_PROC_FD_PATH(fd), buf, आकार)
+                              : flistxattr(fd, buf, आकार);
+        अगर (n < 0)
+                वापस -त्रुटि_सं;
 
-        assert(size == 0 || (size_t) n <= size);
+        निश्चित(आकार == 0 || (माप_प्रकार) n <= आकार);
 
-        if (n > INT_MAX) /* We couldn't return this as 'int' anymore */
-                return -E2BIG;
+        अगर (n > पूर्णांक_उच्च) /* We couldn't return this as 'int' anymore */
+                वापस -E2BIG;
 
-        return (int) n;
+        वापस (पूर्णांक) n;
 }
 
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret) {
-        _cleanup_close_ int opened_fd = -EBADF;
+पूर्णांक listxattr_at_malloc(पूर्णांक fd, स्थिर अक्षर *path, पूर्णांक at_flags, अक्षर **ret) {
+        _cleanup_close_ पूर्णांक opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(ret);
+        निश्चित(fd >= 0 || fd == AT_FDCWD);
+        निश्चित((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
+        निश्चित(ret);
 
         /* This is to listxattr()/llistattr()/flistattr() what getxattr_at_malloc() is to getxattr()/… */
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        माप_प्रकार l = 100;
+        क्रम (अचिन्हित n_attempts = 7;;) {
+                _cleanup_free_ अक्षर *v = शून्य;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                अगर (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        वापस -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(अक्षर, l+1);
+                अगर (!v)
+                        वापस -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
                 r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, v, l);
-                if (r >= 0) {
+                अगर (r >= 0) {
                         v[r] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        return r;
+                        वापस r;
                 }
-                if (r != -ERANGE)
-                        return r;
+                अगर (r != -दुस्फल)
+                        वापस r;
 
-                r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, NULL, 0);
-                if (r < 0)
-                        return r;
+                r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, शून्य, 0);
+                अगर (r < 0)
+                        वापस r;
 
-                l = (size_t) r;
+                l = (माप_प्रकार) r;
         }
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
-                size_t size,
-                int xattr_flags) {
+पूर्णांक xsetxattr_full(
+                पूर्णांक fd,
+                स्थिर अक्षर *path,
+                पूर्णांक at_flags,
+                स्थिर अक्षर *name,
+                स्थिर अक्षर *मूल्य,
+                माप_प्रकार आकार,
+                पूर्णांक xattr_flags) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(name);
-        assert(value || size == 0);
+        निश्चित(fd >= 0 || fd == AT_FDCWD);
+        निश्चित((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
+        निश्चित(name);
+        निश्चित(मूल्य || आकार == 0);
 
-        if (size == SIZE_MAX)
-                size = strlen(value);
+        अगर (आकार == SIZE_MAX)
+                आकार = म_माप(मूल्य);
 
         /* Skip the write if the xattr already has the correct value, to avoid
          * unnecessary timestamp changes on the file. Only do this for plain
          * replace mode (xattr_flags == 0) — XATTR_CREATE callers expect
          * -EEXIST when the xattr already exists. */
-        _cleanup_free_ char *old_value = NULL;
-        size_t old_size;
+        _cleanup_free_ अक्षर *old_मूल्य = शून्य;
+        माप_प्रकार old_आकार;
 
-        if (xattr_flags == 0 &&
-            getxattr_at_malloc(fd, path, name, at_flags, &old_value, &old_size) >= 0 &&
-            memcmp_nn(old_value, old_size, value, size) == 0)
-                return 0;
+        अगर (xattr_flags == 0 &&
+            getxattr_at_malloc(fd, path, name, at_flags, &old_मूल्य, &old_आकार) >= 0 &&
+            memcmp_nn(old_मूल्य, old_आकार, मूल्य, आकार) == 0)
+                वापस 0;
 
-        if (have_xattrat && !isempty(path)) {
-                struct xattr_args args = {
-                        .value = PTR_TO_UINT64(value),
-                        .size = size,
+        अगर (have_xattrat && !isempty(path)) {
+                काष्ठा xattr_args args = {
+                        .मूल्य = PTR_TO_UINT64(मूल्य),
+                        .आकार = आकार,
                         .flags = xattr_flags,
                 };
 
                 r = RET_NERRNO(setxattrat(fd, path,
                                           at_flags_normalize_nofollow(at_flags),
                                           name,
-                                          &args, sizeof(args)));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                                          &args, माप(args)));
+                अगर (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        वापस r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ पूर्णांक opened_fd = -EBADF;
         bool by_procfs;
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (path)
-                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(path, name, value, size, xattr_flags)
-                                                           : lsetxattr(path, name, value, size, xattr_flags);
-        else
-                r = by_procfs ? setxattr(FORMAT_PROC_FD_PATH(fd), name, value, size, xattr_flags)
-                              : fsetxattr(fd, name, value, size, xattr_flags);
-        if (r < 0)
-                return -errno;
+        अगर (path)
+                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(path, name, मूल्य, आकार, xattr_flags)
+                                                           : lsetxattr(path, name, मूल्य, आकार, xattr_flags);
+        अन्यथा
+                r = by_procfs ? setxattr(FORMAT_PROC_FD_PATH(fd), name, मूल्य, आकार, xattr_flags)
+                              : fsetxattr(fd, name, मूल्य, आकार, xattr_flags);
+        अगर (r < 0)
+                वापस -त्रुटि_सं;
 
-        return 0;
+        वापस 0;
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l) {
-        _cleanup_free_ char *nulstr = NULL;
-        size_t size;
-        int r;
+पूर्णांक xsetxattr_strv(पूर्णांक fd, स्थिर अक्षर *path, पूर्णांक at_flags, स्थिर अक्षर *name, अक्षर * स्थिर *l) {
+        _cleanup_free_ अक्षर *nulstr = शून्य;
+        माप_प्रकार आकार;
+        पूर्णांक r;
 
-        assert(name);
+        निश्चित(name);
 
-        r = strv_make_nulstr(l, &nulstr, &size);
-        if (r < 0)
-                return r;
+        r = strv_make_nulstr(l, &nulstr, &आकार);
+        अगर (r < 0)
+                वापस r;
 
-        return xsetxattr_full(fd, path, at_flags, name, nulstr, size, /* xattr_flags= */ 0);
+        वापस xsetxattr_full(fd, path, at_flags, name, nulstr, आकार, /* xattr_flags= */ 0);
 }
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name) {
-        int r;
+पूर्णांक xremovexattr(पूर्णांक fd, स्थिर अक्षर *path, पूर्णांक at_flags, स्थिर अक्षर *name) {
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(name);
+        निश्चित(fd >= 0 || fd == AT_FDCWD);
+        निश्चित((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
+        निश्चित(name);
 
-        if (have_xattrat && !isempty(path)) {
+        अगर (have_xattrat && !isempty(path)) {
                 r = RET_NERRNO(removexattrat(fd, path,
                                              at_flags_normalize_nofollow(at_flags),
                                              name));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                अगर (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        वापस r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int tfd = -EBADF;
+        _cleanup_close_ पूर्णांक tfd = -EBADF;
         bool by_procfs;
 
         r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &tfd, &by_procfs);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (path)
+        अगर (path)
                 r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? removexattr(path, name)
                                                            : lremovexattr(path, name);
-        else
+        अन्यथा
                 r = by_procfs ? removexattr(FORMAT_PROC_FD_PATH(fd), name)
                               : fremovexattr(fd, name);
-        if (r < 0)
-                return -errno;
+        अगर (r < 0)
+                वापस -त्रुटि_सं;
 
-        return 0;
+        वापस 0;
 }
 
-static int parse_crtime(le64_t le, usec_t *ret) {
+अटल पूर्णांक parse_crtime(le64_t le, usec_t *ret) {
         usec_t u;
 
-        assert(ret);
+        निश्चित(ret);
 
-        assert_cc(sizeof(usec_t) == sizeof(uint64_t));
+        assert_cc(माप(usec_t) == माप(uint64_t));
         assert_cc((usec_t) UINT64_MAX == USEC_INFINITY);
 
         u = (usec_t) le64toh(le);
-        if (!timestamp_is_set(u))
-                return -EIO;
+        अगर (!timestamp_is_set(u))
+                वापस -EIO;
 
         *ret = u;
-        return 0;
+        वापस 0;
 }
 
-int getcrtime_at(
-                int fd,
-                const char *path,
-                int at_flags,
+पूर्णांक getcrtime_at(
+                पूर्णांक fd,
+                स्थिर अक्षर *path,
+                पूर्णांक at_flags,
                 usec_t *ret) {
 
-        _cleanup_free_ le64_t *le = NULL;
-        struct statx sx;
+        _cleanup_free_ le64_t *le = शून्य;
+        काष्ठा statx sx;
         usec_t a, b;
-        int r;
+        पूर्णांक r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
+        निश्चित(fd >= 0 || fd == AT_FDCWD);
+        निश्चित((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
 
         /* So here's the deal: the creation/birth time (crtime/btime) of a file is a relatively newly supported concept
          * on Linux (or more strictly speaking: a concept that only recently got supported in the API, it was
@@ -448,55 +448,55 @@ int getcrtime_at(
                         STATX_BTIME,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
+        अगर (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
                 a = statx_timestamp_load(&sx.stx_btime);
-        else
+        अन्यथा
                 a = USEC_INFINITY;
 
-        size_t le_size;
-        r = getxattr_at_malloc(fd, path, "user.crtime_usec", at_flags, (char**) &le, &le_size);
-        if (r >= 0) {
-                if (le_size != sizeof(*le))
+        माप_प्रकार le_आकार;
+        r = getxattr_at_malloc(fd, path, "user.crtime_usec", at_flags, (अक्षर**) &le, &le_आकार);
+        अगर (r >= 0) {
+                अगर (le_आकार != माप(*le))
                         r = -EIO;
-                else
+                अन्यथा
                         r = parse_crtime(*le, &b);
         }
-        if (r < 0) {
-                if (a != USEC_INFINITY) {
-                        if (ret)
+        अगर (r < 0) {
+                अगर (a != USEC_INFINITY) {
+                        अगर (ret)
                                 *ret = a;
-                        return 0;
+                        वापस 0;
                 }
 
-                return r;
+                वापस r;
         }
 
-        if (ret)
+        अगर (ret)
                 *ret = MIN(a, b);
-        return 0;
+        वापस 0;
 }
 
-int fd_setcrtime(int fd, usec_t usec) {
+पूर्णांक fd_setcrtime(पूर्णांक fd, usec_t usec) {
         le64_t le;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
-        if (!timestamp_is_set(usec))
+        अगर (!timestamp_is_set(usec))
                 usec = now(CLOCK_REALTIME);
 
         le = htole64((uint64_t) usec);
-        return xsetxattr_full(fd, /* path= */ NULL, AT_EMPTY_PATH,
-                              "user.crtime_usec", (const char*) &le, sizeof(le),
+        वापस xsetxattr_full(fd, /* path= */ शून्य, AT_EMPTY_PATH,
+                              "user.crtime_usec", (स्थिर अक्षर*) &le, माप(le),
                               /* xattr_flags= */ 0);
 }
 
-bool xattr_is_acl(const char *name) {
-        return STR_IN_SET(
+bool xattr_is_acl(स्थिर अक्षर *name) {
+        वापस STR_IN_SET(
                         ASSERT_PTR(name),
                         "system.posix_acl_access",
                         "system.posix_acl_default");
 }
 
-bool xattr_is_selinux(const char *name) {
-        return streq(ASSERT_PTR(name), "security.selinux");
+bool xattr_is_selinux(स्थिर अक्षर *name) {
+        वापस streq(ASSERT_PTR(name), "security.selinux");
 }

@@ -5,11 +5,11 @@
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
 
-#include <stdlib.h>
+#समावेश <stdlib.h>
 
-#include "gunicode.h"
+#समावेश "gunicode.h"
 
-#define unichar uint32_t
+#घोषणा unichar uint32_t
 
 /**
  * g_utf8_prev_char:
@@ -24,36 +24,36 @@
  *
  * Return value: a pointer to the found character.
  **/
-char *
-utf8_prev_char (const char *p)
+अक्षर *
+utf8_पूर्व_char (स्थिर अक्षर *p)
 {
-  assert(p);
+  निश्चित(p);
 
-  for (;;)
+  क्रम (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      अगर ((*p & 0xc0) != 0x80)
+        वापस (अक्षर *)p;
     }
 }
 
-struct Interval
+काष्ठा Interval
 {
   unichar start, end;
 };
 
-static int
-interval_compare (const void *key, const void *elt)
+अटल पूर्णांक
+interval_compare (स्थिर व्योम *कुंजी, स्थिर व्योम *elt)
 {
-  unichar c = (unichar) (long) (key);
-  struct Interval *interval = (struct Interval *)elt;
+  unichar c = (unichar) (दीर्घ) (कुंजी);
+  काष्ठा Interval *interval = (काष्ठा Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  अगर (c < interval->start)
+    वापस -1;
+  अगर (c > interval->end)
+    वापस +1;
 
-  return 0;
+  वापस 0;
 }
 
 /*
@@ -82,7 +82,7 @@ bool
 unichar_iswide (unichar c)
 {
   /* See NOTE earlier for how to update this table. */
-  static const struct Interval wide[] = {
+  अटल स्थिर काष्ठा Interval wide[] = {
     {0x1100, 0x115F}, {0x2329, 0x232A}, {0x2E80, 0x2E99}, {0x2E9B, 0x2EF3},
     {0x2F00, 0x2FD5}, {0x2FF0, 0x2FFB}, {0x3000, 0x303E}, {0x3041, 0x3096},
     {0x3099, 0x30FF}, {0x3105, 0x312D}, {0x3131, 0x318E}, {0x3190, 0x31BA},
@@ -96,14 +96,14 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  अगर (द्वा_खोज ((व्योम *)(uintptr_t)c, wide, ELEMENTSOF(wide), माप wide[0],
                interval_compare))
-    return true;
+    वापस true;
 
-  return false;
+  वापस false;
 }
 
-const char utf8_skip_data[256] = {
+स्थिर अक्षर utf8_skip_तथ्य[256] = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

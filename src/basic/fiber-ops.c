@@ -1,51 +1,51 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#include <poll.h>
-#include <threads.h>
-#include <unistd.h>
+#समावेश <poll.h>
+#समावेश <threads.h>
+#समावेश <unistd.h>
 
-#include "errno-util.h"
-#include "fiber-ops.h"
+#समावेश "errno-util.h"
+#समावेश "fiber-ops.h"
 
-static thread_local const FiberOps *fiber_ops = NULL;
+अटल thread_local स्थिर FiberOps *fiber_ops = शून्य;
 
-bool fiber_ops_is_set(void) {
-        return fiber_ops != NULL;
+bool fiber_ops_is_set(व्योम) {
+        वापस fiber_ops != शून्य;
 }
 
-void fiber_ops_set(const FiberOps *ops) {
+व्योम fiber_ops_set(स्थिर FiberOps *ops) {
         fiber_ops = ops;
 }
 
-int fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask) {
-        if (fiber_ops)
-                return fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
+पूर्णांक fiber_ops_ppoll(काष्ठा pollfd *fds, माप_प्रकार n_fds, स्थिर काष्ठा timespec *timeout, स्थिर sigset_t *sigmask) {
+        अगर (fiber_ops)
+                वापस fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
 
-        return RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
+        वापस RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
 }
 
-ssize_t fiber_ops_read(int fd, void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->read(fd, buf, count);
+ssize_t fiber_ops_read(पूर्णांक fd, व्योम *buf, माप_प्रकार गिनती) {
+        अगर (fiber_ops)
+                वापस fiber_ops->पढ़ो(fd, buf, गिनती);
 
-        ssize_t n = read(fd, buf, count);
-        return n < 0 ? -errno : n;
+        ssize_t n = पढ़ो(fd, buf, गिनती);
+        वापस n < 0 ? -त्रुटि_सं : n;
 }
 
-ssize_t fiber_ops_write(int fd, const void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->write(fd, buf, count);
+ssize_t fiber_ops_write(पूर्णांक fd, स्थिर व्योम *buf, माप_प्रकार गिनती) {
+        अगर (fiber_ops)
+                वापस fiber_ops->ग_लिखो(fd, buf, गिनती);
 
-        return RET_NERRNO(write(fd, buf, count));
+        वापस RET_NERRNO(ग_लिखो(fd, buf, गिनती));
 }
 
 sd_future* fiber_ops_timeout(uint64_t timeout) {
-        assert(fiber_ops);
+        निश्चित(fiber_ops);
 
-        return fiber_ops->timeout(timeout);
+        वापस fiber_ops->timeout(timeout);
 }
 
 sd_future* fiber_ops_timeout_unref(sd_future *timer) {
-        assert(fiber_ops);
+        निश्चित(fiber_ops);
 
-        return fiber_ops->timeout_unref(timer);
+        वापस fiber_ops->timeout_unref(timer);
 }

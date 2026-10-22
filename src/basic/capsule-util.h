@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include "forward.h"
+#समावेश "forward.h"
 
-int capsule_name_is_valid(const char *name);
+पूर्णांक capsule_name_is_valid(स्थिर अक्षर *name);

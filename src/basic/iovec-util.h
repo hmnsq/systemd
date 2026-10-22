@@ -1,60 +1,60 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#समावेश <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#समावेश "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#समावेश "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+बाह्य स्थिर काष्ठा iovec iovec_nul_byte; /* Points to a single NUL byte */
+बाह्य स्थिर काष्ठा iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+पूर्णांक iovec_alloc(माप_प्रकार n, काष्ठा iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+माप_प्रकार iovec_योग_आकार(स्थिर काष्ठा iovec *iovec, माप_प्रकार n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(काष्ठा iovec *iovec, माप_प्रकार n, माप_प्रकार k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+काष्ठा iovec* iovec_make_string(काष्ठा iovec *iovec, स्थिर अक्षर *s);
 
-#define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+#घोषणा IOVEC_MAKE_STRING(s) \
+        *iovec_make_string(&(काष्ठा iovec) {}, s)
 
-#define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+#घोषणा CONST_IOVEC_MAKE_STRING(s)              \
+        (स्थिर काष्ठा iovec) {                  \
+                .iov_base = (अक्षर*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
-#define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+#घोषणा IOVEC_MAKE_BYTE(c)                                      \
+        (स्थिर काष्ठा iovec) {                                  \
+                .iov_base = (अक्षर*) ((स्थिर अक्षर[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
-#define IOVEC_ALLOCA(n)                              \
+#घोषणा IOVEC_ALLOCA(n)                              \
         ({                                           \
-                size_t _n_ = (n);                    \
+                माप_प्रकार _n_ = (n);                    \
                 IOVEC_MAKE(alloca_safe(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+व्योम iovec_erase(काष्ठा iovec *iovec);
+व्योम iovec_done_erase(काष्ठा iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+अक्षर* set_iovec_string_field(काष्ठा iovec *iovec, माप_प्रकार *n_iovec, स्थिर अक्षर *field, स्थिर अक्षर *मूल्य);
+अक्षर* set_iovec_string_field_free(काष्ठा iovec *iovec, माप_प्रकार *n_iovec, स्थिर अक्षर *field, अक्षर *मूल्य);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+व्योम iovec_array_free(काष्ठा iovec *iovec, माप_प्रकार n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+पूर्णांक iovec_memcmp(स्थिर काष्ठा iovec *a, स्थिर काष्ठा iovec *b) _pure_;
+अटल अंतरभूत bool iovec_equal(स्थिर काष्ठा iovec *a, स्थिर काष्ठा iovec *b) {
+        वापस iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+काष्ठा iovec* iovec_memdup(स्थिर काष्ठा iovec *source, काष्ठा iovec *ret);
+पूर्णांक iovec_done_and_memdup(काष्ठा iovec *iovec, स्थिर काष्ठा iovec *source);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+काष्ठा iovec* iovec_append(काष्ठा iovec *iovec, स्थिर काष्ठा iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+काष्ठा iovec* iovec_consume(काष्ठा iovec *iovec, माप_प्रकार n);

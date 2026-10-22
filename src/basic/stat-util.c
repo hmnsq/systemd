@@ -1,429 +1,429 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/magic.h>
-#include <sys/statvfs.h>
-#include <unistd.h>
+#समावेश <fcntl.h>
+#समावेश <linux/magic.h>
+#समावेश <sys/statvfs.h>
+#समावेश <unistd.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "chase.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "filesystems.h"
-#include "fs-util.h"
-#include "hash-funcs.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "path-util.h"
-#include "siphash24.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
+#समावेश "alloc-util.h"
+#समावेश "bitfield.h"
+#समावेश "chase.h"
+#समावेश "dirent-util.h"
+#समावेश "errno-util.h"
+#समावेश "fd-util.h"
+#समावेश "filesystems.h"
+#समावेश "fs-util.h"
+#समावेश "hash-funcs.h"
+#समावेश "log.h"
+#समावेश "mountpoint-util.h"
+#समावेश "path-util.h"
+#समावेश "siphash24.h"
+#समावेश "stat-util.h"
+#समावेश "string-util.h"
+#समावेश "time-util.h"
 
-static int verify_stat_at(
-                int fd,
-                const char *path,
+अटल पूर्णांक verify_stat_at(
+                पूर्णांक fd,
+                स्थिर अक्षर *path,
                 bool follow,
-                int (*verify_func)(const struct stat *st),
+                पूर्णांक (*verify_func)(स्थिर काष्ठा stat *st),
                 bool verify) {
 
-        struct stat st;
-        int r;
+        काष्ठा stat st;
+        पूर्णांक r;
 
-        assert(wildcard_fd_is_valid(fd));
-        assert(!isempty(path) || !follow);
-        assert(verify_func);
+        निश्चित(wildcard_fd_is_valid(fd));
+        निश्चित(!isempty(path) || !follow);
+        निश्चित(verify_func);
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ अक्षर *p = शून्य;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (fstatat(fd, strempty(path), &st,
+        अगर (fstatat(fd, strempty(path), &st,
                     (isempty(path) ? AT_EMPTY_PATH : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
-                return -errno;
+                वापस -त्रुटि_सं;
 
         r = verify_func(&st);
-        return verify ? r : r >= 0;
+        वापस verify ? r : r >= 0;
 }
 
-static int mode_verify_regular(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+अटल पूर्णांक mode_verify_regular(mode_t mode) {
+        अगर (S_ISDIR(mode))
+                वापस -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        अगर (S_ISLNK(mode))
+                वापस -ELOOP;
 
-        if (!S_ISREG(mode))
-                return -EBADFD;
+        अगर (!S_ISREG(mode))
+                वापस -EBADFD;
 
-        return 0;
+        वापस 0;
 }
 
-int stat_verify_regular(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_regular(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
         /* Checks whether the specified stat() structure refers to a regular file. If not returns an
          * appropriate error code. */
 
-        return mode_verify_regular(st->st_mode);
+        वापस mode_verify_regular(st->st_mode);
 }
 
-int statx_verify_regular(const struct statx *stx) {
-        assert(stx);
+पूर्णांक statx_verify_regular(स्थिर काष्ठा statx *stx) {
+        निश्चित(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        अगर (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                वापस -ENODATA;
 
-        return mode_verify_regular(stx->stx_mode);
+        वापस mode_verify_regular(stx->stx_mode);
 }
 
-int verify_regular_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_regular, true);
+पूर्णांक verify_regular_at(पूर्णांक fd, स्थिर अक्षर *path, bool follow) {
+        वापस verify_stat_at(fd, path, follow, stat_verify_regular, true);
 }
 
-int fd_verify_regular(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+पूर्णांक fd_verify_regular(पूर्णांक fd) {
+        अगर (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                वापस -EISDIR;
 
-        return verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
+        वापस verify_regular_at(fd, /* path= */ शून्य, /* follow= */ false);
 }
 
-static int mode_verify_directory(mode_t mode) {
-        if (S_ISLNK(mode))
-                return -ELOOP;
+अटल पूर्णांक mode_verify_directory(mode_t mode) {
+        अगर (S_ISLNK(mode))
+                वापस -ELOOP;
 
-        if (!S_ISDIR(mode))
-                return -ENOTDIR;
+        अगर (!S_ISDIR(mode))
+                वापस -ENOTDIR;
 
-        return 0;
+        वापस 0;
 }
 
-int stat_verify_directory(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_directory(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        return mode_verify_directory(st->st_mode);
+        वापस mode_verify_directory(st->st_mode);
 }
 
-int statx_verify_directory(const struct statx *stx) {
-        assert(stx);
+पूर्णांक statx_verify_directory(स्थिर काष्ठा statx *stx) {
+        निश्चित(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        अगर (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                वापस -ENODATA;
 
-        return mode_verify_directory(stx->stx_mode);
+        वापस mode_verify_directory(stx->stx_mode);
 }
 
-int fd_verify_directory(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return 0;
+पूर्णांक fd_verify_directory(पूर्णांक fd) {
+        अगर (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                वापस 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_directory, true);
+        वापस verify_stat_at(fd, शून्य, false, stat_verify_directory, true);
 }
 
-int is_dir_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_directory, false);
+पूर्णांक is_dir_at(पूर्णांक fd, स्थिर अक्षर *path, bool follow) {
+        वापस verify_stat_at(fd, path, follow, stat_verify_directory, false);
 }
 
-int is_dir(const char *path, bool follow) {
-        assert(!isempty(path));
-        return is_dir_at(AT_FDCWD, path, follow);
+पूर्णांक is_dir(स्थिर अक्षर *path, bool follow) {
+        निश्चित(!isempty(path));
+        वापस is_dir_at(AT_FDCWD, path, follow);
 }
 
-int stat_verify_symlink(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_symlink(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        अगर (S_ISDIR(st->st_mode))
+                वापस -EISDIR;
 
-        if (!S_ISLNK(st->st_mode))
-                return -ENOLINK;
+        अगर (!S_ISLNK(st->st_mode))
+                वापस -ENOLINK;
 
-        return 0;
+        वापस 0;
 }
 
-int fd_verify_symlink(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+पूर्णांक fd_verify_symlink(पूर्णांक fd) {
+        अगर (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                वापस -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
+        वापस verify_stat_at(fd, /* path= */ शून्य, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
 }
 
-int is_symlink(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
+पूर्णांक is_symlink(स्थिर अक्षर *path) {
+        निश्चित(!isempty(path));
+        वापस verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
 }
 
-static int mode_verify_socket(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+अटल पूर्णांक mode_verify_socket(mode_t mode) {
+        अगर (S_ISDIR(mode))
+                वापस -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        अगर (S_ISLNK(mode))
+                वापस -ELOOP;
 
-        if (!S_ISSOCK(mode))
-                return -ENOTSOCK;
+        अगर (!S_ISSOCK(mode))
+                वापस -ENOTSOCK;
 
-        return 0;
+        वापस 0;
 }
 
-int stat_verify_socket(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_socket(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        return mode_verify_socket(st->st_mode);
+        वापस mode_verify_socket(st->st_mode);
 }
 
-int statx_verify_socket(const struct statx *stx) {
-        assert(stx);
+पूर्णांक statx_verify_socket(स्थिर काष्ठा statx *stx) {
+        निश्चित(stx);
 
-        return mode_verify_socket(stx->stx_mode);
+        वापस mode_verify_socket(stx->stx_mode);
 }
 
-int fd_verify_socket(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+पूर्णांक fd_verify_socket(पूर्णांक fd) {
+        अगर (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                वापस -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
+        वापस verify_stat_at(fd, /* path= */ शून्य, /* follow= */ false, stat_verify_socket, /* verify= */ true);
 }
 
-int is_socket(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
+पूर्णांक is_socket(स्थिर अक्षर *path) {
+        निश्चित(!isempty(path));
+        वापस verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
 }
 
-int stat_verify_linked(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_linked(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        if (st->st_nlink <= 0)
-                return -EIDRM; /* recognizable error. */
+        अगर (st->st_nlink <= 0)
+                वापस -EIDRM; /* recognizable error. */
 
-        return 0;
+        वापस 0;
 }
 
-int fd_verify_linked(int fd) {
+पूर्णांक fd_verify_linked(पूर्णांक fd) {
 
-        if (fd == XAT_FDROOT)
-                return 0;
+        अगर (fd == XAT_FDROOT)
+                वापस 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_linked, true);
+        वापस verify_stat_at(fd, शून्य, false, stat_verify_linked, true);
 }
 
-int stat_verify_block(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_block(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        अगर (S_ISDIR(st->st_mode))
+                वापस -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        अगर (S_ISLNK(st->st_mode))
+                वापस -ELOOP;
 
-        if (!S_ISBLK(st->st_mode))
-                return -ENOTBLK;
+        अगर (!S_ISBLK(st->st_mode))
+                वापस -ENOTBLK;
 
-        return 0;
+        वापस 0;
 }
 
-int fd_verify_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+पूर्णांक fd_verify_block(पूर्णांक fd) {
+        अगर (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                वापस -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
+        वापस verify_stat_at(fd, /* path= */ शून्य, /* follow= */ false, stat_verify_block, /* verify= */ true);
 }
 
-int stat_verify_char(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_char(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        अगर (S_ISDIR(st->st_mode))
+                वापस -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        अगर (S_ISLNK(st->st_mode))
+                वापस -ELOOP;
 
-        if (!S_ISCHR(st->st_mode))
-                return -EBADFD;
+        अगर (!S_ISCHR(st->st_mode))
+                वापस -EBADFD;
 
-        return 0;
+        वापस 0;
 }
 
-int stat_verify_device_node(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_device_गाँठ(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        अगर (S_ISDIR(st->st_mode))
+                वापस -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        अगर (S_ISLNK(st->st_mode))
+                वापस -ELOOP;
 
-        if (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
-                return -ENOTTY;
+        अगर (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
+                वापस -ENOTTY;
 
-        return 0;
+        वापस 0;
 }
 
-int is_device_node(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
+पूर्णांक is_device_गाँठ(स्थिर अक्षर *path) {
+        निश्चित(!isempty(path));
+        वापस verify_stat_at(AT_FDCWD, path, false, stat_verify_device_गाँठ, false);
 }
 
-int stat_verify_regular_or_block(const struct stat *st) {
-        assert(st);
+पूर्णांक stat_verify_regular_or_block(स्थिर काष्ठा stat *st) {
+        निश्चित(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        अगर (S_ISDIR(st->st_mode))
+                वापस -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        अगर (S_ISLNK(st->st_mode))
+                वापस -ELOOP;
 
-        if (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
-                return -EBADFD;
+        अगर (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
+                वापस -EBADFD;
 
-        return 0;
+        वापस 0;
 }
 
-int fd_verify_regular_or_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+पूर्णांक fd_verify_regular_or_block(पूर्णांक fd) {
+        अगर (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                वापस -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
+        वापस verify_stat_at(fd, /* path= */ शून्य, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
 }
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) {
-        _cleanup_close_ int fd = -EBADF;
-        struct dirent *buf;
-        size_t m;
+पूर्णांक dir_is_empty_at(पूर्णांक dir_fd, स्थिर अक्षर *path, bool ignore_hidden_or_backup) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
+        काष्ठा dirent *buf;
+        माप_प्रकार m;
 
         fd = xopenat(dir_fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        अगर (fd < 0)
+                वापस fd;
 
         /* Allocate space for at least 3 full dirents, since every dir has at least two entries ("."  +
          * ".."), and only once we have seen if there's a third we know whether the dir is empty or not. If
          * 'ignore_hidden_or_backup' is true we'll allocate a bit more, since we might skip over a bunch of
          * entries that we end up ignoring. */
-        m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_SIZE_MAX;
+        m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_आकार_MAX;
         buf = alloca(m);
 
-        for (;;) {
-                struct dirent *de;
+        क्रम (;;) {
+                काष्ठा dirent *de;
                 ssize_t n;
 
                 n = getdents64(fd, buf, m);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                अगर (n < 0)
+                        वापस -त्रुटि_सं;
+                अगर (n == 0)
+                        अवरोध;
 
-                assert((size_t) n <= m);
+                निश्चित((माप_प्रकार) n <= m);
                 msan_unpoison(buf, n);
 
-                FOREACH_DIRENT_IN_BUFFER(de, buf, n)
-                        if (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
-                                return 0;
+                FOREACH_DIRENT_IN_बफर(de, buf, n)
+                        अगर (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
+                                वापस 0;
         }
 
-        return 1;
+        वापस 1;
 }
 
-bool stat_may_be_dev_null(struct stat *st) {
-        assert(st);
+bool stat_may_be_dev_null(काष्ठा stat *st) {
+        निश्चित(st);
 
         /* We don't want to hardcode the major/minor of /dev/null, hence we do a simpler "is this a character
          * device node?" check. */
 
-        return S_ISCHR(st->st_mode);
+        वापस S_ISCHR(st->st_mode);
 }
 
-bool stat_is_empty(struct stat *st) {
-        assert(st);
+bool stat_is_empty(काष्ठा stat *st) {
+        निश्चित(st);
 
-        return S_ISREG(st->st_mode) && st->st_size <= 0;
+        वापस S_ISREG(st->st_mode) && st->st_size <= 0;
 }
 
-int null_or_empty_path_with_root(const char *fn, const char *root) {
-        _cleanup_free_ char *resolved = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        struct stat st;
-        int r;
+पूर्णांक null_or_empty_path_with_मूल(स्थिर अक्षर *fn, स्थिर अक्षर *मूल) {
+        _cleanup_free_ अक्षर *resolved = शून्य;
+        _cleanup_close_ पूर्णांक fd = -EBADF;
+        काष्ठा stat st;
+        पूर्णांक r;
 
-        assert(fn);
+        निश्चित(fn);
 
         /* fn includes the root prefix. */
 
-        if (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
-                return true;
+        अगर (path_equal(path_startswith(fn, मूल ?: "/"), "dev/null"))
+                वापस true;
 
-        if (empty_or_root(root)) {
-                if (stat(fn, &st) < 0)
-                        return -errno;
+        अगर (empty_or_मूल(मूल)) {
+                अगर (stat(fn, &st) < 0)
+                        वापस -त्रुटि_सं;
 
-                return null_or_empty(&st);
+                वापस null_or_empty(&st);
         }
 
         /* An image below a root directory usually has no /dev/null, so a symlink to /dev/null dangles there.
          * CHASE_NONEXISTENT resolves such a symlink without requiring the target to exist. */
-        r = chase(fn, root, CHASE_NONEXISTENT, &resolved, &fd);
-        if (r < 0)
-                return r;
+        r = chase(fn, मूल, CHASE_NONEXISTENT, &resolved, &fd);
+        अगर (r < 0)
+                वापस r;
 
-        if (path_equal(path_startswith(resolved, root), "dev/null"))
-                return true;
+        अगर (path_equal(path_startswith(resolved, मूल), "dev/null"))
+                वापस true;
 
-        if (r == 0)
-                return -ENOENT;
+        अगर (r == 0)
+                वापस -ENOENT;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        अगर (ख_स्थिति(fd, &st) < 0)
+                वापस -त्रुटि_सं;
 
-        return null_or_empty(&st);
+        वापस null_or_empty(&st);
 }
 
-static const char* statx_mask_one_to_name(unsigned mask);
-static const char* statx_attribute_to_name(uint64_t attr);
+अटल स्थिर अक्षर* statx_mask_one_to_name(अचिन्हित mask);
+अटल स्थिर अक्षर* statx_attribute_to_name(uint64_t attr);
 
-#include "statx-attribute-to-name.inc"
-#include "statx-mask-to-name.inc"
+#समावेश "statx-attribute-to-name.inc"
+#समावेश "statx-mask-to-name.inc"
 
-#define DEFINE_STATX_BITS_TO_STRING(prefix, type, func, format_str)             \
-        static char* prefix##_to_string(type v) {                               \
-                if (v == 0)                                                     \
-                        return strdup("");                                      \
+#घोषणा DEFINE_STATX_BITS_TO_STRING(prefix, type, func, format_str)             \
+        अटल अक्षर* prefix##_to_string(type v) {                               \
+                अगर (v == 0)                                                     \
+                        वापस strdup("");                                      \
                                                                                 \
-                _cleanup_free_ char *s = NULL;                                  \
+                _cleanup_free_ अक्षर *s = शून्य;                                  \
                                                                                 \
                 BIT_FOREACH(i, v) {                                             \
                         type f = 1 << i;                                        \
                                                                                 \
-                        const char *n = func(f);                                \
-                        if (!n)                                                 \
-                                continue;                                       \
+                        स्थिर अक्षर *n = func(f);                                \
+                        अगर (!n)                                                 \
+                                जारी;                                       \
                                                                                 \
-                        if (!strextend_with_separator(&s, "|", n))              \
-                                return NULL;                                    \
+                        अगर (!strextend_with_separator(&s, "|", n))              \
+                                वापस शून्य;                                    \
                         v &= ~f;                                                \
                 }                                                               \
                                                                                 \
-                if (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
-                        return NULL;                                            \
+                अगर (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
+                        वापस शून्य;                                            \
                                                                                 \
-                return TAKE_PTR(s);                                             \
+                वापस TAKE_PTR(s);                                             \
         }
 
-DEFINE_STATX_BITS_TO_STRING(statx_mask,       unsigned, statx_mask_one_to_name,  "0x%x");
+DEFINE_STATX_BITS_TO_STRING(statx_mask,       अचिन्हित, statx_mask_one_to_name,  "0x%x");
 DEFINE_STATX_BITS_TO_STRING(statx_attributes, uint64_t, statx_attribute_to_name, "0x%" PRIx64);
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+पूर्णांक xstatx_full(पूर्णांक fd,
+                स्थिर अक्षर *path,
+                पूर्णांक statx_flags,
                 XStatXFlags xstatx_flags,
-                unsigned mandatory_mask,
-                unsigned optional_mask,
+                अचिन्हित mandatory_mask,
+                अचिन्हित optional_mask,
                 uint64_t mandatory_attributes,
-                struct statx *ret) {
+                काष्ठा statx *ret) {
 
-        struct statx sx = {}; /* explicitly initialize the struct to make msan silent. */
-        int r;
+        काष्ठा statx sx = {}; /* explicitly initialize the struct to make msan silent. */
+        पूर्णांक r;
 
         /* Wrapper around statx(), with additional bells and whistles:
          *
@@ -436,159 +436,159 @@ int xstatx_full(int fd,
          *    STATX_MNT_ID if not.
          */
 
-        assert(wildcard_fd_is_valid(fd));
-        assert((mandatory_mask & optional_mask) == 0);
-        assert(!FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) || !((mandatory_mask|optional_mask) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
-        assert(ret);
+        निश्चित(wildcard_fd_is_valid(fd));
+        निश्चित((mandatory_mask & optional_mask) == 0);
+        निश्चित(!FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) || !((mandatory_mask|optional_mask) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
+        निश्चित(ret);
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ अक्षर *p = शून्य;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        unsigned request_mask = mandatory_mask|optional_mask;
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
+        अचिन्हित request_mask = mandatory_mask|optional_mask;
+        अगर (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
                 request_mask |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
 
-        if (statx(fd,
+        अगर (statx(fd,
                   strempty(path),
                   statx_flags|(isempty(path) ? AT_EMPTY_PATH : 0),
                   request_mask,
                   &sx) < 0)
-                return negative_errno();
+                वापस negative_errno();
 
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
+        अगर (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
             !(sx.stx_mask & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
-                return log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
+                वापस log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
 
-        if (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
+        अगर (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
+                अगर (DEBUG_LOGGING) {
+                        _cleanup_free_ अक्षर *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
                         log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(mask_str));
                 }
 
-                return -EUNATCH;
+                वापस -EUNATCH;
         }
 
-        if (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
+        अगर (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
+                अगर (DEBUG_LOGGING) {
+                        _cleanup_free_ अक्षर *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
                         log_debug("statx() does not support '%s' attribute (running on an old kernel?)", strnull(attr_str));
                 }
 
-                return -EUNATCH;
+                वापस -EUNATCH;
         }
 
         *ret = sx;
-        return FLAGS_SET(sx.stx_mask, optional_mask);
+        वापस FLAGS_SET(sx.stx_mask, optional_mask);
 }
 
-static int xfstatfs(int fd, struct statfs *ret) {
-        assert(ret);
+अटल पूर्णांक xfstatfs(पूर्णांक fd, काष्ठा statfs *ret) {
+        निश्चित(ret);
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(statfs(".", ret));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(statfs("/", ret));
+        अगर (fd == AT_FDCWD)
+                वापस RET_NERRNO(statfs(".", ret));
+        अगर (fd == XAT_FDROOT)
+                वापस RET_NERRNO(statfs("/", ret));
 
-        assert(fd >= 0);
-        return RET_NERRNO(fstatfs(fd, ret));
+        निश्चित(fd >= 0);
+        वापस RET_NERRNO(fstatfs(fd, ret));
 }
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret) {
-        _cleanup_close_ int fd = -EBADF;
+पूर्णांक xstatfsat(पूर्णांक dir_fd, स्थिर अक्षर *path, काष्ठा statfs *ret) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        निश्चित(wildcard_fd_is_valid(dir_fd));
+        निश्चित(ret);
 
-        if (!isempty(path)) {
+        अगर (!isempty(path)) {
                 fd = xopenat(dir_fd, path, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                अगर (fd < 0)
+                        वापस fd;
                 dir_fd = fd;
         }
 
-        return xfstatfs(dir_fd, ret);
+        वापस xfstatfs(dir_fd, ret);
 }
 
-int fd_is_read_only_fs(int fd) {
-        int r;
+पूर्णांक fd_is_read_only_fs(पूर्णांक fd) {
+        पूर्णांक r;
 
-        struct statfs st;
+        काष्ठा statfs st;
         r = xfstatfs(fd, &st);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (st.f_flags & ST_RDONLY)
-                return true;
+        अगर (st.f_flags & ST_RDONLY)
+                वापस true;
 
-        if (is_network_fs(&st))
+        अगर (is_network_fs(&st))
                 /* On NFS, fstatfs() might not reflect whether we can actually write to the remote share.
                  * Let's try again with access(W_OK) which is more reliable, at least sometimes. */
-                return access_fd(fd, W_OK) == -EROFS;
+                वापस access_fd(fd, W_OK) == -EROFS;
 
-        return false;
+        वापस false;
 }
 
-int path_is_read_only_fs(const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+पूर्णांक path_is_read_only_fs(स्थिर अक्षर *path) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
 
-        assert(path);
+        निश्चित(path);
 
-        fd = open(path, O_CLOEXEC | O_PATH);
-        if (fd < 0)
-                return -errno;
+        fd = खोलो(path, O_CLOEXEC | O_PATH);
+        अगर (fd < 0)
+                वापस -त्रुटि_सं;
 
-        return fd_is_read_only_fs(fd);
+        वापस fd_is_read_only_fs(fd);
 }
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags) {
-        struct stat sta, stb;
-        int r;
+पूर्णांक inode_same_at(पूर्णांक fda, स्थिर अक्षर *filea, पूर्णांक fdb, स्थिर अक्षर *fileb, पूर्णांक flags) {
+        काष्ठा stat sta, stb;
+        पूर्णांक r;
 
-        assert(fda >= 0 || fda == AT_FDCWD);
-        assert(fdb >= 0 || fdb == AT_FDCWD);
-        assert((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
+        निश्चित(fda >= 0 || fda == AT_FDCWD);
+        निश्चित(fdb >= 0 || fdb == AT_FDCWD);
+        निश्चित((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
 
         /* Refuse an unset filea or fileb early unless AT_EMPTY_PATH is set */
-        if ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
-                return -EINVAL;
+        अगर ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
+                वापस -EINVAL;
 
         /* Shortcut: comparing the same fd with itself means we can return true */
-        if (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
-                return true;
+        अगर (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
+                वापस true;
 
-        _cleanup_close_ int pin_a = -EBADF, pin_b = -EBADF;
-        if (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
+        _cleanup_close_ पूर्णांक pin_a = -EBADF, pin_b = -EBADF;
+        अगर (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
                 /* Let's try to use the name_to_handle_at() AT_HANDLE_FID API to identify identical
                  * inodes. We have to issue multiple calls on the same file for that (first, to acquire the
                  * FID, and then to check if .st_dev is actually the same). Hence let's pin the inode in
                  * between via O_PATH, unless we already have an fd for it. */
 
-                if (!isempty(filea)) {
+                अगर (!isempty(filea)) {
                         pin_a = openat(fda, filea, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_a < 0)
-                                return -errno;
+                        अगर (pin_a < 0)
+                                वापस -त्रुटि_सं;
 
                         fda = pin_a;
-                        filea = NULL;
+                        filea = शून्य;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                if (!isempty(fileb)) {
+                अगर (!isempty(fileb)) {
                         pin_b = openat(fdb, fileb, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_b < 0)
-                                return -errno;
+                        अगर (pin_b < 0)
+                                वापस -त्रुटि_सं;
 
                         fdb = pin_b;
-                        fileb = NULL;
+                        fileb = शून्य;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                int ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
-                _cleanup_free_ struct file_handle *ha = NULL, *hb = NULL;
+                पूर्णांक ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
+                _cleanup_free_ काष्ठा file_handle *ha = शून्य, *hb = शून्य;
                 uint64_t mntida, mntidb;
-                int _mntida, _mntidb;
+                पूर्णांक _mntida, _mntidb;
 
                 r = name_to_handle_at_try_fid(
                                 fda,
@@ -597,43 +597,43 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
                                 &_mntida,
                                 &mntida,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                अगर (r < 0) {
+                        अगर (is_name_to_handle_at_fatal_error(r))
+                                वापस r;
 
-                        goto fallback;
+                        जाओ fallback;
                 }
                 bool have_unique_mntid = r > 0;
 
-                if (!have_unique_mntid)
+                अगर (!have_unique_mntid)
                         mntida = _mntida;
 
                 r = name_to_handle_at_try_fid(
                                 fdb,
                                 fileb,
                                 &hb,
-                                have_unique_mntid ? NULL : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
-                                have_unique_mntid ? &mntidb : NULL,
+                                have_unique_mntid ? शून्य : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
+                                have_unique_mntid ? &mntidb : शून्य,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                अगर (r < 0) {
+                        अगर (is_name_to_handle_at_fatal_error(r))
+                                वापस r;
 
-                        goto fallback;
+                        जाओ fallback;
                 }
-                if (r == 0) {
-                        assert(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
+                अगर (r == 0) {
+                        निश्चित(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
                         mntidb = _mntidb;
                 }
 
                 /* Now compare the two file handles */
-                if (!file_handle_equal(ha, hb))
-                        return false;
+                अगर (!file_handle_equal(ha, hb))
+                        वापस false;
 
                 /* If the file handles are the same and they come from the same mount ID? Great, then we are
                  * good, they are definitely the same */
-                if (mntida == mntidb)
-                        return true;
+                अगर (mntida == mntidb)
+                        वापस true;
 
                 /* File handles are the same, they are not on the same mount id. This might either be because
                  * they are on two entirely different file systems, that just happen to have the same FIDs
@@ -644,107 +644,107 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
         }
 
 fallback:
-        if (fstatat(fda, strempty(filea), &sta, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
+        अगर (fstatat(fda, strempty(filea), &sta, flags) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Cannot stat %s: %m", strna(filea));
 
-        if (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
+        अगर (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Cannot stat %s: %m", strna(fileb));
 
-        return stat_inode_same(&sta, &stb);
+        वापस stat_inode_same(&sta, &stb);
 }
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
-        assert(s);
-        assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
+bool is_fs_type(स्थिर काष्ठा statfs *s, statfs_f_type_t magic_मूल्य) {
+        निश्चित(s);
+        assert_cc(माप(statfs_f_type_t) >= माप(s->f_type));
 
-        return F_TYPE_EQUAL(s->f_type, magic_value);
+        वापस F_TYPE_EQUAL(s->f_type, magic_मूल्य);
 }
 
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
-        int r;
+पूर्णांक is_fs_type_at(पूर्णांक dir_fd, स्थिर अक्षर *path, statfs_f_type_t magic_मूल्य) {
+        पूर्णांक r;
 
-        struct statfs s;
+        काष्ठा statfs s;
         r = xstatfsat(dir_fd, path, &s);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return is_fs_type(&s, magic_value);
+        वापस is_fs_type(&s, magic_मूल्य);
 }
 
-bool is_temporary_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
+bool is_temporary_fs(स्थिर काष्ठा statfs *s) {
+        वापस fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
 }
 
-bool is_network_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_NETWORK);
+bool is_network_fs(स्थिर काष्ठा statfs *s) {
+        वापस fs_in_group(s, FILESYSTEM_SET_NETWORK);
 }
 
-int fd_is_temporary_fs(int fd) {
-        int r;
+पूर्णांक fd_is_temporary_fs(पूर्णांक fd) {
+        पूर्णांक r;
 
-        struct statfs s;
+        काष्ठा statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return is_temporary_fs(&s);
+        वापस is_temporary_fs(&s);
 }
 
-int fd_is_network_fs(int fd) {
-        int r;
+पूर्णांक fd_is_network_fs(पूर्णांक fd) {
+        पूर्णांक r;
 
-        struct statfs s;
+        काष्ठा statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return is_network_fs(&s);
+        वापस is_network_fs(&s);
 }
 
-int path_is_temporary_fs(const char *path) {
-        struct statfs s;
+पूर्णांक path_is_temporary_fs(स्थिर अक्षर *path) {
+        काष्ठा statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        अगर (statfs(path, &s) < 0)
+                वापस -त्रुटि_सं;
 
-        return is_temporary_fs(&s);
+        वापस is_temporary_fs(&s);
 }
 
-int path_is_network_fs(const char *path) {
-        struct statfs s;
+पूर्णांक path_is_network_fs(स्थिर अक्षर *path) {
+        काष्ठा statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        अगर (statfs(path, &s) < 0)
+                वापस -त्रुटि_सं;
 
-        return is_network_fs(&s);
+        वापस is_network_fs(&s);
 }
 
-int proc_mounted(void) {
+पूर्णांक proc_mounted(व्योम) {
         /* This is typically used in error path. So, it is better to not overwrite the original errno. */
         PROTECT_ERRNO;
-        int r;
+        पूर्णांक r;
 
         /* A quick check of procfs is properly mounted */
 
         r = path_is_fs_type("/proc/", PROC_SUPER_MAGIC);
-        if (r == -ENOENT) /* not mounted at all */
-                return false;
+        अगर (r == -ENOENT) /* not mounted at all */
+                वापस false;
 
-        return r;
+        वापस r;
 }
 
-bool stat_inode_same(const struct stat *a, const struct stat *b) {
+bool stat_inode_same(स्थिर काष्ठा stat *a, स्थिर काष्ठा stat *b) {
 
         /* Returns if the specified stat structure references the same (though possibly modified) inode. Does
          * a thorough check, comparing inode nr, backing device and if the inode is still of the same type. */
 
-        return stat_is_set(a) && stat_is_set(b) &&
+        वापस stat_is_set(a) && stat_is_set(b) &&
                 ((a->st_mode ^ b->st_mode) & S_IFMT) == 0 &&  /* same inode type */
                 a->st_dev == b->st_dev &&
                 a->st_ino == b->st_ino;
 }
 
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
+bool stat_inode_unmodified(स्थिर काष्ठा stat *a, स्थिर काष्ठा stat *b) {
 
         /* Returns if the specified stat structures reference the same, unmodified inode. This check tries to
          * be reasonably careful when detecting changes: we check both inode and mtime, to cater for file
@@ -755,55 +755,55 @@ bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
          * about contents of the file. The purpose here is to detect file contents changes, and nothing
          * else. */
 
-        assert(a);
-        assert(b);
+        निश्चित(a);
+        निश्चित(b);
 
-        return stat_inode_same(a, b) &&
+        वापस stat_inode_same(a, b) &&
                 a->st_mtim.tv_sec == b->st_mtim.tv_sec &&
                 a->st_mtim.tv_nsec == b->st_mtim.tv_nsec &&
                 (!S_ISREG(a->st_mode) || a->st_size == b->st_size) && /* if regular file, compare file size */
                 (!(S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) || a->st_rdev == b->st_rdev); /* if device node, also compare major/minor, because we can */
 }
 
-bool statx_inode_same(const struct statx *a, const struct statx *b) {
+bool statx_inode_same(स्थिर काष्ठा statx *a, स्थिर काष्ठा statx *b) {
 
         /* Same as stat_inode_same() but for struct statx */
 
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+        अगर (!statx_is_set(a) || !statx_is_set(b))
+                वापस false;
 
-        assert(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
-        assert(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
+        निश्चित(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
+        निश्चित(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
 
-        return
+        वापस
                 ((a->stx_mode ^ b->stx_mode) & S_IFMT) == 0 &&
                 a->stx_dev_major == b->stx_dev_major &&
                 a->stx_dev_minor == b->stx_dev_minor &&
                 a->stx_ino == b->stx_ino;
 }
 
-int statx_mount_same(const struct statx *a, const struct statx *b) {
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+पूर्णांक statx_mount_same(स्थिर काष्ठा statx *a, स्थिर काष्ठा statx *b) {
+        अगर (!statx_is_set(a) || !statx_is_set(b))
+                वापस false;
 
-        if ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
+        अगर ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
             (FLAGS_SET(a->stx_mask, STATX_MNT_ID_UNIQUE) && FLAGS_SET(b->stx_mask, STATX_MNT_ID_UNIQUE)))
-                return a->stx_mnt_id == b->stx_mnt_id;
+                वापस a->stx_mnt_id == b->stx_mnt_id;
 
-        return -ENODATA;
+        वापस -ENODATA;
 }
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+usec_t statx_timestamp_load(स्थिर काष्ठा statx_timestamp *ts) {
+        निश्चित(ts);
+        वापस timespec_load(&(स्थिर काष्ठा timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load_nsec(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+nsec_t statx_timestamp_load_nsec(स्थिर काष्ठा statx_timestamp *ts) {
+        निश्चित(ts);
+        वापस timespec_load_nsec(&(स्थिर काष्ठा timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
 
-void inode_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+व्योम inode_hash_func(स्थिर काष्ठा stat *q, काष्ठा siphash *state) {
+        निश्चित(q);
 
         siphash24_compress_typesafe(q->st_dev, state);
         siphash24_compress_typesafe(q->st_ino, state);
@@ -813,145 +813,145 @@ void inode_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(type, state);
 }
 
-int inode_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+पूर्णांक inode_compare_func(स्थिर काष्ठा stat *a, स्थिर काष्ठा stat *b) {
+        पूर्णांक r;
 
-        assert(a);
-        assert(b);
+        निश्चित(a);
+        निश्चित(b);
 
         r = CMP(a->st_dev, b->st_dev);
-        if (r != 0)
-                return r;
+        अगर (r != 0)
+                वापस r;
 
         r = CMP(a->st_ino, b->st_ino);
-        if (r != 0)
-                return r;
+        अगर (r != 0)
+                वापस r;
 
-        return CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
+        वापस CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
+DEFINE_HASH_OPS_WITH_कुंजी_DESTRUCTOR(inode_hash_ops, काष्ठा stat, inode_hash_func, inode_compare_func, मुक्त);
 
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+व्योम inode_unmodified_hash_func(स्थिर काष्ठा stat *q, काष्ठा siphash *state) {
+        निश्चित(q);
 
         inode_hash_func(q, state);
 
         siphash24_compress_typesafe(q->st_mtim.tv_sec, state);
         siphash24_compress_typesafe(q->st_mtim.tv_nsec, state);
 
-        if (S_ISREG(q->st_mode))
+        अगर (S_ISREG(q->st_mode))
                 siphash24_compress_typesafe(q->st_size, state);
-        else {
+        अन्यथा {
                 uint64_t invalid = UINT64_MAX;
                 siphash24_compress_typesafe(invalid, state);
         }
 
-        if (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
+        अगर (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
                 siphash24_compress_typesafe(q->st_rdev, state);
-        else {
+        अन्यथा {
                 dev_t invalid = (dev_t) -1;
                 siphash24_compress_typesafe(invalid, state);
         }
 }
 
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+पूर्णांक inode_unmodified_compare_func(स्थिर काष्ठा stat *a, स्थिर काष्ठा stat *b) {
+        पूर्णांक r;
 
-        assert(a);
-        assert(b);
+        निश्चित(a);
+        निश्चित(b);
 
         r = inode_compare_func(a, b);
-        if (r != 0)
-                return r;
+        अगर (r != 0)
+                वापस r;
 
         r = CMP(a->st_mtim.tv_sec, b->st_mtim.tv_sec);
-        if (r != 0)
-                return r;
+        अगर (r != 0)
+                वापस r;
 
         r = CMP(a->st_mtim.tv_nsec, b->st_mtim.tv_nsec);
-        if (r != 0)
-                return r;
+        अगर (r != 0)
+                वापस r;
 
-        if (S_ISREG(a->st_mode)) {
+        अगर (S_ISREG(a->st_mode)) {
                 r = CMP(a->st_size, b->st_size);
-                if (r != 0)
-                        return r;
+                अगर (r != 0)
+                        वापस r;
         }
 
-        if (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
+        अगर (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
                 r = CMP(a->st_rdev, b->st_rdev);
-                if (r != 0)
-                        return r;
+                अगर (r != 0)
+                        वापस r;
         }
 
-        return 0;
+        वापस 0;
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
+DEFINE_HASH_OPS_WITH_कुंजी_DESTRUCTOR(inode_unmodified_hash_ops, काष्ठा stat, inode_unmodified_hash_func, inode_unmodified_compare_func, मुक्त);
 
-const char* inode_type_to_string(mode_t m) {
+स्थिर अक्षर* inode_type_to_string(mode_t m) {
 
         /* Returns a short string for the inode type. We use the same name as the underlying macros for each
          * inode type. */
 
-        switch (m & S_IFMT) {
-        case S_IFREG:
-                return "reg";
-        case S_IFDIR:
-                return "dir";
-        case S_IFLNK:
-                return "lnk";
-        case S_IFCHR:
-                return "chr";
-        case S_IFBLK:
-                return "blk";
-        case S_IFIFO:
-                return "fifo";
-        case S_IFSOCK:
-                return "sock";
+        चयन (m & S_IFMT) {
+        हाल S_IFREG:
+                वापस "reg";
+        हाल S_IFDIR:
+                वापस "dir";
+        हाल S_IFLNK:
+                वापस "lnk";
+        हाल S_IFCHR:
+                वापस "chr";
+        हाल S_IFBLK:
+                वापस "blk";
+        हाल S_IFIFO:
+                वापस "fifo";
+        हाल S_IFSOCK:
+                वापस "sock";
         }
 
         /* Note anonymous inodes in the kernel will have a zero type. Hence fstat() of an eventfd() will
          * return an .st_mode where we'll return NULL here! */
-        return NULL;
+        वापस शून्य;
 }
 
-mode_t inode_type_from_string(const char *s) {
-        if (!s)
-                return MODE_INVALID;
+mode_t inode_type_from_string(स्थिर अक्षर *s) {
+        अगर (!s)
+                वापस MODE_INVALID;
 
-        if (streq(s, "reg"))
-                return S_IFREG;
-        if (streq(s, "dir"))
-                return S_IFDIR;
-        if (streq(s, "lnk"))
-                return S_IFLNK;
-        if (streq(s, "chr"))
-                return S_IFCHR;
-        if (streq(s, "blk"))
-                return S_IFBLK;
-        if (streq(s, "fifo"))
-                return S_IFIFO;
-        if (streq(s, "sock"))
-                return S_IFSOCK;
+        अगर (streq(s, "reg"))
+                वापस S_IFREG;
+        अगर (streq(s, "dir"))
+                वापस S_IFDIR;
+        अगर (streq(s, "lnk"))
+                वापस S_IFLNK;
+        अगर (streq(s, "chr"))
+                वापस S_IFCHR;
+        अगर (streq(s, "blk"))
+                वापस S_IFBLK;
+        अगर (streq(s, "fifo"))
+                वापस S_IFIFO;
+        अगर (streq(s, "sock"))
+                वापस S_IFSOCK;
 
-        return MODE_INVALID;
+        वापस MODE_INVALID;
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret) {
-        assert(fd >= 0);
-        assert(ret);
+पूर्णांक vfs_free_bytes(पूर्णांक fd, uint64_t *ret) {
+        निश्चित(fd >= 0);
+        निश्चित(ret);
 
         /* Safely returns the current available disk space (for root, i.e. including any space reserved for
          * root) of the disk referenced by the fd, converted to bytes. */
 
-        struct statvfs sv;
-        if (fstatvfs(fd, &sv) < 0)
-                return -errno;
+        काष्ठा statvfs sv;
+        अगर (fstatvfs(fd, &sv) < 0)
+                वापस -त्रुटि_सं;
 
-        if (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
-                return -ERANGE;
+        अगर (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
+                वापस -दुस्फल;
 
-        return 0;
+        वापस 0;
 }

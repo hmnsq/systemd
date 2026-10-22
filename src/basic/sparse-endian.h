@@ -20,72 +20,72 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#pragma once
+#आशय once
 
-#include <byteswap.h>
-#include <endian.h>
+#समावेश <byteswap.h>
+#समावेश <endian.h>
 
-#include "forward.h"
+#समावेश "forward.h"
 
-#ifdef __CHECKER__
-#define __sd_bitwise __attribute__((__bitwise__))
-#define __sd_force __attribute__((__force__))
-#else
-#define __sd_bitwise
-#define __sd_force
-#endif
+#अगर_घोषित __CHECKER__
+#घोषणा __sd_bitwise __attribute__((__bitwise__))
+#घोषणा __sd_force __attribute__((__force__))
+#अन्यथा
+#घोषणा __sd_bitwise
+#घोषणा __sd_force
+#पूर्ण_अगर
 
-typedef uint16_t __sd_bitwise le16_t;
-typedef uint16_t __sd_bitwise be16_t;
-typedef uint32_t __sd_bitwise le32_t;
-typedef uint32_t __sd_bitwise be32_t;
-typedef uint64_t __sd_bitwise le64_t;
-typedef uint64_t __sd_bitwise be64_t;
+प्रकार uint16_t __sd_bitwise le16_t;
+प्रकार uint16_t __sd_bitwise be16_t;
+प्रकार uint32_t __sd_bitwise le32_t;
+प्रकार uint32_t __sd_bitwise be32_t;
+प्रकार uint64_t __sd_bitwise le64_t;
+प्रकार uint64_t __sd_bitwise be64_t;
 
-#undef htobe16
-#undef htole16
-#undef be16toh
-#undef le16toh
-#undef htobe32
-#undef htole32
-#undef be32toh
-#undef le32toh
-#undef htobe64
-#undef htole64
-#undef be64toh
-#undef le64toh
+#अघोषित htobe16
+#अघोषित htole16
+#अघोषित be16toh
+#अघोषित le16toh
+#अघोषित htobe32
+#अघोषित htole32
+#अघोषित be32toh
+#अघोषित le32toh
+#अघोषित htobe64
+#अघोषित htole64
+#अघोषित be64toh
+#अघोषित le64toh
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#define bswap_16_on_le(x) bswap_16(x)
-#define bswap_32_on_le(x) bswap_32(x)
-#define bswap_64_on_le(x) bswap_64(x)
-#define bswap_16_on_be(x) (x)
-#define bswap_32_on_be(x) (x)
-#define bswap_64_on_be(x) (x)
-#elif __BYTE_ORDER == __BIG_ENDIAN
-#define bswap_16_on_le(x) (x)
-#define bswap_32_on_le(x) (x)
-#define bswap_64_on_le(x) (x)
-#define bswap_16_on_be(x) bswap_16(x)
-#define bswap_32_on_be(x) bswap_32(x)
-#define bswap_64_on_be(x) bswap_64(x)
-#endif
+#अगर __BYTE_ORDER == __LITTLE_ENDIAN
+#घोषणा bswap_16_on_le(x) bswap_16(x)
+#घोषणा bswap_32_on_le(x) bswap_32(x)
+#घोषणा bswap_64_on_le(x) bswap_64(x)
+#घोषणा bswap_16_on_be(x) (x)
+#घोषणा bswap_32_on_be(x) (x)
+#घोषणा bswap_64_on_be(x) (x)
+#या_अगर __BYTE_ORDER == __BIG_ENDIAN
+#घोषणा bswap_16_on_le(x) (x)
+#घोषणा bswap_32_on_le(x) (x)
+#घोषणा bswap_64_on_le(x) (x)
+#घोषणा bswap_16_on_be(x) bswap_16(x)
+#घोषणा bswap_32_on_be(x) bswap_32(x)
+#घोषणा bswap_64_on_be(x) bswap_64(x)
+#पूर्ण_अगर
 
-static inline le16_t htole16(uint16_t value) { return (le16_t __sd_force) bswap_16_on_be(value); }
-static inline le32_t htole32(uint32_t value) { return (le32_t __sd_force) bswap_32_on_be(value); }
-static inline le64_t htole64(uint64_t value) { return (le64_t __sd_force) bswap_64_on_be(value); }
+अटल अंतरभूत le16_t htole16(uint16_t मूल्य) { वापस (le16_t __sd_force) bswap_16_on_be(मूल्य); }
+अटल अंतरभूत le32_t htole32(uint32_t मूल्य) { वापस (le32_t __sd_force) bswap_32_on_be(मूल्य); }
+अटल अंतरभूत le64_t htole64(uint64_t मूल्य) { वापस (le64_t __sd_force) bswap_64_on_be(मूल्य); }
 
-static inline be16_t htobe16(uint16_t value) { return (be16_t __sd_force) bswap_16_on_le(value); }
-static inline be32_t htobe32(uint32_t value) { return (be32_t __sd_force) bswap_32_on_le(value); }
-static inline be64_t htobe64(uint64_t value) { return (be64_t __sd_force) bswap_64_on_le(value); }
+अटल अंतरभूत be16_t htobe16(uint16_t मूल्य) { वापस (be16_t __sd_force) bswap_16_on_le(मूल्य); }
+अटल अंतरभूत be32_t htobe32(uint32_t मूल्य) { वापस (be32_t __sd_force) bswap_32_on_le(मूल्य); }
+अटल अंतरभूत be64_t htobe64(uint64_t मूल्य) { वापस (be64_t __sd_force) bswap_64_on_le(मूल्य); }
 
-static inline uint16_t le16toh(le16_t value) { return bswap_16_on_be((uint16_t __sd_force)value); }
-static inline uint32_t le32toh(le32_t value) { return bswap_32_on_be((uint32_t __sd_force)value); }
-static inline uint64_t le64toh(le64_t value) { return bswap_64_on_be((uint64_t __sd_force)value); }
+अटल अंतरभूत uint16_t le16toh(le16_t मूल्य) { वापस bswap_16_on_be((uint16_t __sd_force)मूल्य); }
+अटल अंतरभूत uint32_t le32toh(le32_t मूल्य) { वापस bswap_32_on_be((uint32_t __sd_force)मूल्य); }
+अटल अंतरभूत uint64_t le64toh(le64_t मूल्य) { वापस bswap_64_on_be((uint64_t __sd_force)मूल्य); }
 
-static inline uint16_t be16toh(be16_t value) { return bswap_16_on_le((uint16_t __sd_force)value); }
-static inline uint32_t be32toh(be32_t value) { return bswap_32_on_le((uint32_t __sd_force)value); }
-static inline uint64_t be64toh(be64_t value) { return bswap_64_on_le((uint64_t __sd_force)value); }
+अटल अंतरभूत uint16_t be16toh(be16_t मूल्य) { वापस bswap_16_on_le((uint16_t __sd_force)मूल्य); }
+अटल अंतरभूत uint32_t be32toh(be32_t मूल्य) { वापस bswap_32_on_le((uint32_t __sd_force)मूल्य); }
+अटल अंतरभूत uint64_t be64toh(be64_t मूल्य) { वापस bswap_64_on_le((uint64_t __sd_force)मूल्य); }
 
-#undef __sd_bitwise
-#undef __sd_force
+#अघोषित __sd_bitwise
+#अघोषित __sd_force

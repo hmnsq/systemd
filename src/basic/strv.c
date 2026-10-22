@@ -1,219 +1,219 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
+#समावेश <fnmatch.h>
+#समावेश <stdio.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "gunicode.h"
-#include "hashmap.h"
-#include "log.h"
-#include "memory-util.h"
-#include "sort-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#समावेश "alloc-util.h"
+#समावेश "env-util.h"
+#समावेश "escape.h"
+#समावेश "extract-word.h"
+#समावेश "fileio.h"
+#समावेश "gunicode.h"
+#समावेश "hashmap.h"
+#समावेश "log.h"
+#समावेश "memory-util.h"
+#समावेश "sort-util.h"
+#समावेश "string-util.h"
+#समावेश "strv.h"
+#समावेश "utf8.h"
 
-char* strv_find(char * const *l, const char *name) {
-        assert(name);
-
-        STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
-
-        return NULL;
-}
-
-char* strv_find_case(char * const *l, const char *name) {
-        assert(name);
+अक्षर* strv_find(अक्षर * स्थिर *l, स्थिर अक्षर *name) {
+        निश्चित(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                अगर (streq(*i, name))
+                        वापस *i;
 
-        return NULL;
+        वापस शून्य;
 }
 
-char* strv_find_prefix(char * const *l, const char *name) {
-        assert(name);
+अक्षर* strv_find_case(अक्षर * स्थिर *l, स्थिर अक्षर *name) {
+        निश्चित(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                अगर (strcaseeq(*i, name))
+                        वापस *i;
 
-        return NULL;
+        वापस शून्य;
 }
 
-char* strv_find_startswith(char * const *l, const char *name) {
-        assert(name);
+अक्षर* strv_find_prefix(अक्षर * स्थिर *l, स्थिर अक्षर *name) {
+        निश्चित(name);
+
+        STRV_FOREACH(i, l)
+                अगर (startswith(*i, name))
+                        वापस *i;
+
+        वापस शून्य;
+}
+
+अक्षर* strv_find_startswith(अक्षर * स्थिर *l, स्थिर अक्षर *name) {
+        निश्चित(name);
 
         /* Like strv_find_prefix, but actually returns only the
          * suffix, not the whole item */
 
         STRV_FOREACH(i, l) {
-                char *e;
+                अक्षर *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                अगर (e)
+                        वापस e;
         }
 
-        return NULL;
+        वापस शून्य;
 }
 
-static char* strv_find_closest_prefix(char * const *l, const char *name) {
-        size_t best_distance = SIZE_MAX;
-        char *best = NULL;
+अटल अक्षर* strv_find_closest_prefix(अक्षर * स्थिर *l, स्थिर अक्षर *name) {
+        माप_प्रकार best_distance = SIZE_MAX;
+        अक्षर *best = शून्य;
 
-        assert(name);
+        निश्चित(name);
 
         STRV_FOREACH(s, l) {
-                char *e = startswith(*s, name);
-                if (!e)
-                        continue;
+                अक्षर *e = startswith(*s, name);
+                अगर (!e)
+                        जारी;
 
-                size_t n = strlen(e);
-                if (n < best_distance) {
+                माप_प्रकार n = म_माप(e);
+                अगर (n < best_distance) {
                         best_distance = n;
                         best = *s;
                 }
         }
 
-        return best;
+        वापस best;
 }
 
-static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
+अटल अक्षर* strv_find_closest_by_levenshtein(अक्षर * स्थिर *l, स्थिर अक्षर *name) {
         ssize_t best_distance = SSIZE_MAX;
-        char *best = NULL;
+        अक्षर *best = शून्य;
 
-        assert(name);
+        निश्चित(name);
 
         STRV_FOREACH(i, l) {
                 ssize_t distance;
 
                 distance = strlevenshtein(*i, name);
-                if (distance < 0) {
+                अगर (distance < 0) {
                         log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                        वापस शून्य;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
-                        continue;
+                अगर (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                        जारी;
 
-                if (distance < best_distance) {
+                अगर (distance < best_distance) {
                         best_distance = distance;
                         best = *i;
                 }
         }
 
-        return best;
+        वापस best;
 }
 
-char* strv_find_closest(char * const *l, const char *name) {
-        assert(name);
+अक्षर* strv_find_closest(अक्षर * स्थिर *l, स्थिर अक्षर *name) {
+        निश्चित(name);
 
         /* Be more helpful to the user, and give a hint what the user might have wanted to type. We search
          * with two mechanisms: a simple prefix match and – if that didn't yield results –, a Levenshtein
          * word distance based match. */
 
-        char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        अक्षर *found = strv_find_closest_prefix(l, name);
+        अगर (found)
+                वापस found;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        वापस strv_find_closest_by_levenshtein(l, name);
 }
 
-char* strv_find_first_field(char * const *needles, char * const *haystack) {
+अक्षर* strv_find_first_field(अक्षर * स्थिर *needles, अक्षर * स्थिर *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                अक्षर *मूल्य = strv_env_pairs_get((अक्षर **)haystack, *k);
+                अगर (मूल्य)
+                        वापस मूल्य;
         }
 
-        return NULL;
+        वापस शून्य;
 }
 
-char** strv_free(char **l) {
+अक्षर** strv_free(अक्षर **l) {
         STRV_FOREACH(k, l)
-                free(*k);
+                मुक्त(*k);
 
-        return mfree(l);
+        वापस mfree(l);
 }
 
-char** strv_free_erase(char **l) {
+अक्षर** strv_free_erase(अक्षर **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        वापस mfree(l);
 }
 
-void strv_free_many(char ***strvs, size_t n) {
-        assert(strvs || n == 0);
+व्योम strv_free_many(अक्षर ***strvs, माप_प्रकार n) {
+        निश्चित(strvs || n == 0);
 
         FOREACH_ARRAY (i, strvs, n)
                 strv_free(*i);
 
-        free(strvs);
+        मुक्त(strvs);
 }
 
-char** strv_copy_n(char * const *l, size_t n) {
-        _cleanup_strv_free_ char **result = NULL;
-        char **k;
+अक्षर** strv_copy_n(अक्षर * स्थिर *l, माप_प्रकार n) {
+        _cleanup_strv_free_ अक्षर **परिणाम = शून्य;
+        अक्षर **k;
 
-        result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        परिणाम = new(अक्षर*, MIN(strv_लंबाई(l), n) + 1);
+        अगर (!परिणाम)
+                वापस शून्य;
 
-        k = result;
+        k = परिणाम;
         STRV_FOREACH(i, l) {
-                if (n == 0)
-                        break;
+                अगर (n == 0)
+                        अवरोध;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                अगर (!*k)
+                        वापस शून्य;
                 k++;
 
-                if (n != SIZE_MAX)
+                अगर (n != SIZE_MAX)
                         n--;
         }
 
-        *k = NULL;
-        return TAKE_PTR(result);
+        *k = शून्य;
+        वापस TAKE_PTR(परिणाम);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
-        assert(ret);
+पूर्णांक strv_copy_unless_empty(अक्षर * स्थिर *l, अक्षर ***ret) {
+        निश्चित(ret);
 
-        if (strv_isempty(l)) {
-                *ret = NULL;
-                return 0;
+        अगर (strv_isempty(l)) {
+                *ret = शून्य;
+                वापस 0;
         }
 
-        char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        अक्षर **copy = strv_copy(l);
+        अगर (!copy)
+                वापस -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        वापस 1;
 }
 
-size_t strv_length(char * const *l) {
-        size_t n = 0;
+माप_प्रकार strv_लंबाई(अक्षर * स्थिर *l) {
+        माप_प्रकार n = 0;
 
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        वापस n;
 }
 
-char** strv_new_ap(const char *x, va_list ap) {
-        _cleanup_strv_free_ char **a = NULL;
-        size_t n = 0, i = 0;
-        va_list aq;
+अक्षर** strv_new_ap(स्थिर अक्षर *x, बहु_सूची ap) {
+        _cleanup_strv_free_ अक्षर **a = शून्य;
+        माप_प्रकार n = 0, i = 0;
+        बहु_सूची aq;
 
         /* As a special trick we ignore all listed strings that equal
          * STRV_IGNORE. This is supposed to be used with the
@@ -221,343 +221,343 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        क्रम (स्थिर अक्षर *s = x; s; s = बहु_तर्क(aq, स्थिर अक्षर*)) {
+                अगर (s == STRV_IGNORE)
+                        जारी;
 
                 n++;
         }
-        va_end(aq);
+        बहु_पूर्ण(aq);
 
-        a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        a = new(अक्षर*, n+1);
+        अगर (!a)
+                वापस शून्य;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        क्रम (स्थिर अक्षर *s = x; s; s = बहु_तर्क(ap, स्थिर अक्षर*)) {
+                अगर (s == STRV_IGNORE)
+                        जारी;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                अगर (!a[i])
+                        वापस शून्य;
 
                 i++;
         }
 
-        a[i] = NULL;
+        a[i] = शून्य;
 
-        return TAKE_PTR(a);
+        वापस TAKE_PTR(a);
 }
 
-char** strv_new_internal(const char *x, ...) {
-        char **r;
-        va_list ap;
+अक्षर** strv_new_internal(स्थिर अक्षर *x, ...) {
+        अक्षर **r;
+        बहु_सूची ap;
 
-        va_start(ap, x);
+        बहु_शुरू(ap, x);
         r = strv_new_ap(x, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        return r;
+        वापस r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
-        size_t p, q, i = 0;
+पूर्णांक strv_extend_strv(अक्षर ***a, अक्षर * स्थिर *b, bool filter_duplicates) {
+        माप_प्रकार p, q, i = 0;
 
-        assert(a);
+        निश्चित(a);
 
-        q = strv_length(b);
-        if (q == 0)
-                return 0;
+        q = strv_लंबाई(b);
+        अगर (q == 0)
+                वापस 0;
 
-        p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        p = strv_लंबाई(*a);
+        अगर (p >= SIZE_MAX - q)
+                वापस -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        अक्षर **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), माप(अक्षर *));
+        अगर (!t)
+                वापस -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = शून्य;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
-                        continue;
+                अगर (filter_duplicates && strv_contains(t, *s))
+                        जारी;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
-                        goto rollback;
+                अगर (!t[p+i])
+                        जाओ rollback;
 
                 i++;
-                t[p+i] = NULL;
+                t[p+i] = शून्य;
         }
 
-        assert(i <= q);
+        निश्चित(i <= q);
 
-        return (int) i;
+        वापस (पूर्णांक) i;
 
 rollback:
         free_many_charp(t + p, i);
-        t[p] = NULL;
-        return -ENOMEM;
+        t[p] = शून्य;
+        वापस -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
-        _cleanup_strv_free_ char **b_consume = b;
-        size_t p, q, i;
+पूर्णांक strv_extend_strv_consume(अक्षर ***a, अक्षर **b, bool filter_duplicates) {
+        _cleanup_strv_free_ अक्षर **b_consume = b;
+        माप_प्रकार p, q, i;
 
-        assert(a);
+        निश्चित(a);
 
-        q = strv_length(b);
-        if (q == 0)
-                return 0;
+        q = strv_लंबाई(b);
+        अगर (q == 0)
+                वापस 0;
 
-        p = strv_length(*a);
-        if (p == 0) {
+        p = strv_लंबाई(*a);
+        अगर (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                अगर (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                वापस strv_लंबाई(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        अगर (p >= SIZE_MAX - q)
+                वापस -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        अक्षर **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), माप(अक्षर *));
+        अगर (!t)
+                वापस -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = शून्य;
         *a = t;
 
-        if (!filter_duplicates) {
-                *mempcpy_typesafe(t + p, b, q) = NULL;
+        अगर (!filter_duplicates) {
+                *mempcpy_typesafe(t + p, b, q) = शून्य;
                 i = q;
-        } else {
+        } अन्यथा {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
-                                free(*s);
-                                continue;
+                        अगर (strv_contains(t, *s)) {
+                                मुक्त(*s);
+                                जारी;
                         }
 
                         t[p+i] = *s;
 
                         i++;
-                        t[p+i] = NULL;
+                        t[p+i] = शून्य;
                 }
         }
 
-        assert(i <= q);
+        निश्चित(i <= q);
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        वापस (पूर्णांक) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+पूर्णांक strv_extend_strv_biconcat(अक्षर ***a, स्थिर अक्षर *prefix, स्थिर अक्षर* स्थिर *b, स्थिर अक्षर *suffix) {
+        पूर्णांक r;
 
-        assert(a);
+        निश्चित(a);
 
         STRV_FOREACH(s, b) {
-                char *v;
+                अक्षर *v;
 
                 v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                अगर (!v)
+                        वापस -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
-        return 0;
+        वापस 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
-        size_t n;
-        int r;
+पूर्णांक strv_split_newlines_full(अक्षर ***ret, स्थिर अक्षर *s, ExtractFlags flags) {
+        _cleanup_strv_free_ अक्षर **l = शून्य;
+        माप_प्रकार n;
+        पूर्णांक r;
 
-        assert(ret);
-        assert(s);
+        निश्चित(ret);
+        निश्चित(s);
 
         /* Special version of strv_split_full() that splits on newlines and
          * suppresses an empty string at the end. */
 
         r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        n = strv_लंबाई(l);
+        अगर (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        वापस n;
 }
 
-char** strv_split_newlines(const char *s) {
-        char **ret;
+अक्षर** strv_split_newlines(स्थिर अक्षर *s) {
+        अक्षर **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        अगर (strv_split_newlines_full(&ret, s, 0) < 0)
+                वापस शून्य;
 
-        return ret;
+        वापस ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
-        size_t n = 0;
-        int r;
+पूर्णांक strv_split_full(अक्षर ***t, स्थिर अक्षर *s, स्थिर अक्षर *separators, ExtractFlags flags) {
+        _cleanup_strv_free_ अक्षर **l = शून्य;
+        माप_प्रकार n = 0;
+        पूर्णांक r;
 
-        assert(t);
-        assert(s);
+        निश्चित(t);
+        निश्चित(s);
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
+        क्रम (;;) {
+                _cleanup_free_ अक्षर *word = शून्य;
 
                 r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                अगर (r < 0)
+                        वापस r;
+                अगर (r == 0)
+                        अवरोध;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                अगर (!GREEDY_REALLOC(l, n + 2))
+                        वापस -ENOMEM;
 
                 l[n++] = TAKE_PTR(word);
-                l[n] = NULL;
+                l[n] = शून्य;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        अगर (!l) {
+                l = new0(अक्षर*, 1);
+                अगर (!l)
+                        वापस -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        वापस (पूर्णांक) n;
 }
 
-char** strv_split(const char *s, const char *separators) {
-        char **ret;
+अक्षर** strv_split(स्थिर अक्षर *s, स्थिर अक्षर *separators) {
+        अक्षर **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        अगर (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
+                वापस शून्य;
 
-        return ret;
+        वापस ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
-        char **l;
-        int r;
+पूर्णांक strv_split_and_extend_full(अक्षर ***t, स्थिर अक्षर *s, स्थिर अक्षर *separators, bool filter_duplicates, ExtractFlags flags) {
+        अक्षर **l;
+        पूर्णांक r;
 
-        assert(t);
-        assert(s);
+        निश्चित(t);
+        निश्चित(s);
 
         r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return (int) strv_length(*t);
+        वापस (पूर्णांक) strv_लंबाई(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+पूर्णांक strv_split_and_extend(अक्षर ***t, स्थिर अक्षर *s, स्थिर अक्षर *separators, bool filter_duplicates) {
+        वापस strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
-        size_t n = 0;
-        int r;
+पूर्णांक strv_split_colon_pairs(अक्षर ***t, स्थिर अक्षर *s) {
+        _cleanup_strv_free_ अक्षर **l = शून्य;
+        माप_प्रकार n = 0;
+        पूर्णांक r;
 
-        assert(t);
-        assert(s);
+        निश्चित(t);
+        निश्चित(s);
 
-        for (;;) {
-                _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
+        क्रम (;;) {
+                _cleanup_free_ अक्षर *first = शून्य, *second = शून्य, *tuple = शून्य, *second_or_empty = शून्य;
 
-                r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&s, &tuple, शून्य, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
+                अगर (r < 0)
+                        वापस r;
+                अगर (r == 0)
+                        अवरोध;
 
-                const char *p = tuple;
-                r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
+                स्थिर अक्षर *p = tuple;
+                r = extract_many_शब्दगण(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        continue;
+                अगर (r < 0)
+                        वापस r;
+                अगर (r == 0)
+                        जारी;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                अगर (!isempty(p))
+                        वापस -EINVAL;
 
                 second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                अगर (!second_or_empty)
+                        वापस -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                अगर (!GREEDY_REALLOC(l, n + 3))
+                        वापस -ENOMEM;
 
                 l[n++] = TAKE_PTR(first);
                 l[n++] = TAKE_PTR(second_or_empty);
 
-                l[n] = NULL;
+                l[n] = शून्य;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        अगर (!l) {
+                l = new0(अक्षर*, 1);
+                अगर (!l)
+                        वापस -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        वापस (पूर्णांक) n;
 }
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
-        char *r, *e;
-        size_t n, k, m;
+अक्षर* strv_join_full(अक्षर * स्थिर *l, स्थिर अक्षर *separator, स्थिर अक्षर *prefix) {
+        अक्षर *r, *e;
+        माप_प्रकार n, k, m;
 
-        if (!separator)
+        अगर (!separator)
                 separator = " ";
 
-        k = strlen(separator);
+        k = म_माप(separator);
         m = strlen_ptr(prefix);
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                अगर (s != l)
                         n += k;
 
-                n += m + strlen(*s);
+                n += m + म_माप(*s);
         }
 
-        r = new(char, n+1);
-        if (!r)
-                return NULL;
+        r = new(अक्षर, n+1);
+        अगर (!r)
+                वापस शून्य;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                अगर (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
+                अगर (prefix)
                         e = stpcpy(e, prefix);
 
                 e = stpcpy(e, *s);
@@ -565,683 +565,683 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         *e = 0;
 
-        return r;
+        वापस r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+पूर्णांक strv_धकेलो_with_आकार(अक्षर ***l, माप_प्रकार *n, अक्षर *मूल्य) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
          * If value is empty, no action is taken and *n is not set. */
 
-        assert(l);
+        निश्चित(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        अगर (!मूल्य)
+                वापस 0;
 
-        size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
-                size = strv_length(*l);
+        माप_प्रकार आकार = n ? *n : SIZE_MAX;
+        अगर (आकार == SIZE_MAX)
+                आकार = strv_लंबाई(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        अगर (आकार > SIZE_MAX-2)
+                वापस -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        अक्षर **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(आकार + 2), माप(अक्षर*));
+        अगर (!c)
+                वापस -ENOMEM;
 
-        c[size] = value;
-        c[size+1] = NULL;
+        c[आकार] = मूल्य;
+        c[आकार+1] = शून्य;
 
         *l = c;
-        if (n)
-                *n = size + 1;
-        return 0;
+        अगर (n)
+                *n = आकार + 1;
+        वापस 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
-        char **c;
-        size_t n;
+पूर्णांक strv_धकेलो_pair(अक्षर ***l, अक्षर *a, अक्षर *b) {
+        अक्षर **c;
+        माप_प्रकार n;
 
-        assert(l);
+        निश्चित(l);
 
-        if (!a && !b)
-                return 0;
+        अगर (!a && !b)
+                वापस 0;
 
-        n = strv_length(*l);
+        n = strv_लंबाई(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        अगर (n > SIZE_MAX-3)
+                वापस -ENOMEM;
 
         /* increase and check for overflow */
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), माप(अक्षर*));
+        अगर (!c)
+                वापस -ENOMEM;
 
-        if (a)
+        अगर (a)
                 c[n++] = a;
-        if (b)
+        अगर (b)
                 c[n++] = b;
-        c[n] = NULL;
+        c[n] = शून्य;
 
         *l = c;
-        return 0;
+        वापस 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
-        char **c;
-        size_t n, m;
+पूर्णांक strv_जोड़ो(अक्षर ***l, माप_प्रकार position, अक्षर *मूल्य) {
+        अक्षर **c;
+        माप_प्रकार n, m;
 
-        assert(l);
+        निश्चित(l);
 
-        if (!value)
-                return 0;
+        अगर (!मूल्य)
+                वापस 0;
 
-        n = strv_length(*l);
+        n = strv_लंबाई(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        अगर (n > SIZE_MAX - 2)
+                वापस -ENOMEM;
         m = n + 2;
 
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), माप(अक्षर*));
+        अगर (!c)
+                वापस -ENOMEM;
 
-        if (n > position)
-                memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
+        अगर (n > position)
+                स_हटाओ(c + position + 1, c + position, (n - position) * माप(अक्षर*));
 
-        c[position] = value;
-        c[n + 1] = NULL;
+        c[position] = मूल्य;
+        c[n + 1] = शून्य;
 
         *l = c;
-        return 0;
+        वापस 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+पूर्णांक strv_consume_with_आकार(अक्षर ***l, माप_प्रकार *n, अक्षर *मूल्य) {
+        पूर्णांक r;
 
-        r = strv_push_with_size(l, n, value);
-        if (r < 0)
-                free(value);
+        r = strv_धकेलो_with_आकार(l, n, मूल्य);
+        अगर (r < 0)
+                मुक्त(मूल्य);
 
-        return r;
+        वापस r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+पूर्णांक strv_consume_pair(अक्षर ***l, अक्षर *a, अक्षर *b) {
+        पूर्णांक r;
 
-        r = strv_push_pair(l, a, b);
-        if (r < 0) {
-                free(a);
-                free(b);
+        r = strv_धकेलो_pair(l, a, b);
+        अगर (r < 0) {
+                मुक्त(a);
+                मुक्त(b);
         }
 
-        return r;
+        वापस r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+पूर्णांक strv_consume_prepend(अक्षर ***l, अक्षर *मूल्य) {
+        पूर्णांक r;
 
-        r = strv_push_prepend(l, value);
-        if (r < 0)
-                free(value);
+        r = strv_धकेलो_prepend(l, मूल्य);
+        अगर (r < 0)
+                मुक्त(मूल्य);
 
-        return r;
+        वापस r;
 }
 
-int strv_prepend(char ***l, const char *value) {
-        char *v;
+पूर्णांक strv_prepend(अक्षर ***l, स्थिर अक्षर *मूल्य) {
+        अक्षर *v;
 
-        if (!value)
-                return 0;
+        अगर (!मूल्य)
+                वापस 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(मूल्य);
+        अगर (!v)
+                वापस -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        वापस strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
-        char *v;
+पूर्णांक strv_extend_with_आकार(अक्षर ***l, माप_प्रकार *n, स्थिर अक्षर *मूल्य) {
+        अक्षर *v;
 
-        if (!value)
-                return 0;
+        अगर (!मूल्य)
+                वापस 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(मूल्य);
+        अगर (!v)
+                वापस -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        वापस strv_consume_with_आकार(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
-        va_list ap;
-        size_t n, m;
-        int r;
+पूर्णांक strv_extend_many_internal(अक्षर ***l, स्थिर अक्षर *मूल्य, ...) {
+        बहु_सूची ap;
+        माप_प्रकार n, m;
+        पूर्णांक r;
 
-        assert(l);
+        निश्चित(l);
 
-        m = n = strv_length(*l);
+        m = n = strv_लंबाई(*l);
 
         r = 0;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        बहु_शुरू(ap, मूल्य);
+        क्रम (स्थिर अक्षर *s = मूल्य; s != POINTER_MAX; s = बहु_तर्क(ap, स्थिर अक्षर*)) {
+                अगर (!s)
+                        जारी;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                अगर (m > SIZE_MAX-1) { /* overflow */
                         r = -ENOMEM;
-                        break;
+                        अवरोध;
                 }
                 m++;
         }
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        अगर (r < 0)
+                वापस r;
+        अगर (m > SIZE_MAX-1)
+                वापस -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        अक्षर **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), माप(अक्षर*));
+        अगर (!c)
+                वापस -ENOMEM;
         *l = c;
 
         r = 0;
-        size_t i = n;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        माप_प्रकार i = n;
+        बहु_शुरू(ap, मूल्य);
+        क्रम (स्थिर अक्षर *s = मूल्य; s != POINTER_MAX; s = बहु_तर्क(ap, स्थिर अक्षर*)) {
+                अगर (!s)
+                        जारी;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                अगर (!c[i]) {
                         r = -ENOMEM;
-                        break;
+                        अवरोध;
                 }
                 i++;
         }
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        if (r < 0) {
+        अगर (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                क्रम (माप_प्रकार j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                वापस r;
         }
 
-        c[i] = NULL;
-        return 0;
+        c[i] = शून्य;
+        वापस 0;
 }
 
-char** strv_uniq(char **l) {
+अक्षर** strv_uniq(अक्षर **l) {
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        वापस l;
 }
 
-bool strv_is_uniq(char * const *l) {
+bool strv_is_uniq(अक्षर * स्थिर *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                अगर (strv_contains(i+1, *i))
+                        वापस false;
 
-        return true;
+        वापस true;
 }
 
-char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+अक्षर** strv_remove(अक्षर **l, स्थिर अक्षर *s) {
+        अगर (!l)
+                वापस शून्य;
 
-        assert(s);
+        निश्चित(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
-                        free(*f);
-                else
+        अक्षर **f, **t;
+        क्रम (f = t = l; *f; f++)
+                अगर (streq(*f, s))
+                        मुक्त(*f);
+                अन्यथा
                         *(t++) = *f;
 
-        *t = NULL;
-        return l;
+        *t = शून्य;
+        वापस l;
 }
 
-char** strv_remove_strv(char **l, char *const*ll) {
+अक्षर** strv_remove_strv(अक्षर **l, अक्षर *स्थिर*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        अगर (strv_isempty(l))
+                वापस l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        वापस l;
 }
 
-bool strv_overlap(char * const *a, char * const *b) {
+bool strv_overlap(अक्षर * स्थिर *a, अक्षर * स्थिर *b) {
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                अगर (strv_contains(b, *i))
+                        वापस true;
 
-        return false;
+        वापस false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+अटल पूर्णांक str_compare(अक्षर * स्थिर *a, अक्षर * स्थिर *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        वापस म_भेद(*a, *b);
 }
 
-char** strv_sort(char **l) {
-        typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+अक्षर** strv_sort(अक्षर **l) {
+        typesafe_qsort(l, strv_लंबाई(l), str_compare);
+        वापस l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
-        assert(compare);
+अक्षर** strv_sort_uniq_full(अक्षर **l, पूर्णांक (*compare)(अक्षर * स्थिर *a, अक्षर * स्थिर *b)) {
+        निश्चित(compare);
 
-        if (strv_isempty(l))
-                return l;
+        अगर (strv_isempty(l))
+                वापस l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
 
-        typesafe_qsort(l, strv_length(l), compare);
+        typesafe_qsort(l, strv_लंबाई(l), compare);
 
-        char **tail = l + 1;
+        अक्षर **पुच्छ_2 = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
-                        free(*i);
-                else
-                        *(tail++) = *i;
+                अगर (compare(i, पुच्छ_2 - 1) == 0)
+                        मुक्त(*i);
+                अन्यथा
+                        *(पुच्छ_2++) = *i;
 
-        *tail = NULL;
-        return l;
+        *पुच्छ_2 = शून्य;
+        वापस l;
 }
 
-char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+अक्षर** strv_sort_uniq(अक्षर **l) {
+        वापस strv_sort_uniq_full(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+पूर्णांक strv_compare(अक्षर * स्थिर *a, अक्षर * स्थिर *b) {
+        पूर्णांक r;
 
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        अगर (strv_isempty(a)) {
+                अगर (strv_isempty(b))
+                        वापस 0;
+                अन्यथा
+                        वापस -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        अगर (strv_isempty(b))
+                वापस 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        क्रम ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                अगर (r != 0)
+                        वापस r;
         }
 
-        return 0;
+        वापस 0;
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) {
+bool strv_equal_ignore_order(अक्षर * स्थिर *a, अक्षर * स्थिर *b) {
 
         /* Just like strv_equal(), but doesn't care about the order of elements or about redundant entries
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        अगर (a == b)
+                वापस true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                अगर (!strv_contains(b, *i))
+                        वापस false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                अगर (!strv_contains(a, *i))
+                        वापस false;
 
-        return true;
+        वापस true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+व्योम strv_print_full(अक्षर * स्थिर *l, स्थिर अक्षर *prefix) {
         STRV_FOREACH(s, l)
-                printf("%s%s\n", strempty(prefix), *s);
+                म_लिखो("%s%s\n", strempty(prefix), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
-        va_list ap;
-        char *x;
-        int r;
+पूर्णांक strv_extendf_with_आकार(अक्षर ***l, माप_प्रकार *n, स्थिर अक्षर *format, ...) {
+        बहु_सूची ap;
+        अक्षर *x;
+        पूर्णांक r;
 
-        va_start(ap, format);
+        बहु_शुरू(ap, format);
         r = vasprintf(&x, format, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        अगर (r < 0)
+                वापस -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        वापस strv_consume_with_आकार(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
-        va_list ap;
+पूर्णांक strv_extend_joined_with_आकार_sentinel(अक्षर ***l, माप_प्रकार *n, ...) {
+        बहु_सूची ap;
 
-        va_start(ap, n);
-        char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
-        va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        बहु_शुरू(ap, n);
+        अक्षर *x = strextendv_with_separator(/* x= */ शून्य, /* separator= */ शून्य, ap);
+        बहु_पूर्ण(ap);
+        अगर (!x)
+                वापस -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        वापस strv_consume_with_आकार(l, n, x);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l) {
+अक्षर* startswith_strv_internal(स्थिर अक्षर *s, अक्षर * स्थिर *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                अक्षर *found = (अक्षर*) startswith(s, *i);
+                अगर (found)
+                        वापस found;
         }
 
-        return NULL;
+        वापस शून्य;
 }
 
-char* endswith_strv_internal(const char *s, char * const *l) {
+अक्षर* endswith_strv_internal(स्थिर अक्षर *s, अक्षर * स्थिर *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                अक्षर *found = (अक्षर*) endswith(s, *i);
+                अगर (found)
+                        वापस found;
         }
 
-        return NULL;
+        वापस शून्य;
 }
 
-char** strv_reverse(char **l) {
-        size_t n;
+अक्षर** strv_reverse(अक्षर **l) {
+        माप_प्रकार n;
 
-        n = strv_length(l);
-        if (n <= 1)
-                return l;
+        n = strv_लंबाई(l);
+        अगर (n <= 1)
+                वापस l;
 
-        for (size_t i = 0; i < n / 2; i++)
+        क्रम (माप_प्रकार i = 0; i < n / 2; i++)
                 SWAP_TWO(l[i], l[n-1-i]);
 
-        return l;
+        वापस l;
 }
 
-char** strv_shell_escape(char **l, const char *bad) {
+अक्षर** strv_shell_escape(अक्षर **l, स्थिर अक्षर *bad) {
         /* Escapes every character in every string in l that is in bad,
          * edits in-place, does not roll-back on error. */
 
         STRV_FOREACH(s, l) {
-                char *v;
+                अक्षर *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                अगर (!v)
+                        वापस शून्य;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        वापस l;
 }
 
 bool strv_fnmatch_full(
-                char* const* patterns,
-                const char *s,
-                int flags,
-                size_t *ret_matched_pos) {
+                अक्षर* स्थिर* patterns,
+                स्थिर अक्षर *s,
+                पूर्णांक flags,
+                माप_प्रकार *ret_matched_pos) {
 
-        assert(s);
+        निश्चित(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        अगर (patterns)
+                क्रम (माप_प्रकार i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        अगर (fnmatch(patterns[i], s, flags) == 0) {
+                                अगर (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                वापस true;
                         }
 
-        if (ret_matched_pos)
+        अगर (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        वापस false;
 }
 
-char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+अक्षर** strv_skip(अक्षर **l, माप_प्रकार n) {
+        जबतक (n > 0) {
+                अगर (strv_isempty(l))
+                        वापस शून्य;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        अगर (strv_isempty(l))
+                वापस शून्य;
+        वापस l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
-        size_t i, k;
-        char **nl;
+पूर्णांक strv_extend_n(अक्षर ***l, स्थिर अक्षर *मूल्य, माप_प्रकार n) {
+        माप_प्रकार i, k;
+        अक्षर **nl;
 
-        assert(l);
+        निश्चित(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        अगर (!मूल्य)
+                वापस 0;
+        अगर (n == 0)
+                वापस 0;
 
         /* Adds the value n times to l */
 
-        k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        k = strv_लंबाई(*l);
+        अगर (n >= SIZE_MAX - k)
+                वापस -ENOMEM;
 
-        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), माप(अक्षर *));
+        अगर (!nl)
+                वापस -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
-                nl[i] = strdup(value);
-                if (!nl[i])
-                        goto rollback;
+        क्रम (i = k; i < k + n; i++) {
+                nl[i] = strdup(मूल्य);
+                अगर (!nl[i])
+                        जाओ rollback;
         }
-        nl[i] = NULL;
+        nl[i] = शून्य;
 
-        return 0;
+        वापस 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
-                free(nl[j]);
-        nl[k] = NULL;
+        क्रम (माप_प्रकार j = k; j < i; j++)
+                मुक्त(nl[j]);
+        nl[k] = शून्य;
 
-        return -ENOMEM;
+        वापस -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
-        char *j;
+पूर्णांक strv_extend_assignment(अक्षर ***l, स्थिर अक्षर *lhs, स्थिर अक्षर *rhs) {
+        अक्षर *j;
 
-        assert(l);
-        assert(lhs);
+        निश्चित(l);
+        निश्चित(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        अगर (!rhs) /* value is optional, in which case we suppress the field */
+                वापस 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        अगर (!j)
+                वापस -ENOMEM;
 
-        return strv_consume(l, j);
+        वापस strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+पूर्णांक fputstrv(खाता *f, अक्षर * स्थिर *l, स्थिर अक्षर *separator, bool *space) {
         bool b = false;
-        int r;
+        पूर्णांक r;
 
-        assert(f);
+        निश्चित(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        अगर (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
-        return 0;
+        वापस 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+व्योम string_strv_hashmap_remove(Hashmap *h, स्थिर अक्षर *कुंजी, स्थिर अक्षर *मूल्य) {
+        निश्चित(कुंजी);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+        अगर (मूल्य) {
+                अक्षर **l = hashmap_get(h, कुंजी);
+                अगर (!l)
+                        वापस;
 
-                strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                strv_remove(l, मूल्य);
+                अगर (!strv_isempty(l))
+                        वापस;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        _unused_ _cleanup_free_ अक्षर *कुंजी_free = शून्य;
+        strv_free(hashmap_remove2(h, कुंजी, (व्योम**) &कुंजी_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
-        string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
+व्योम string_strv_ordered_hashmap_remove(OrderedHashmap *h, स्थिर अक्षर *कुंजी, स्थिर अक्षर *मूल्य) {
+        string_strv_hashmap_remove(PLAIN_HASHMAP(h), कुंजी, मूल्य);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
-        char **l;
-        int r;
+अटल पूर्णांक string_strv_hashmap_put_internal(Hashmap *h, स्थिर अक्षर *कुंजी, स्थिर अक्षर *मूल्य) {
+        अक्षर **l;
+        पूर्णांक r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        निश्चित(h);
+        निश्चित(कुंजी);
+        निश्चित(मूल्य);
 
-        l = hashmap_get(h, key);
-        if (l) {
+        l = hashmap_get(h, कुंजी);
+        अगर (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                अगर (strv_contains(l, मूल्य))
+                        वापस 0;
 
-                r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l, मूल्य);
+                अगर (r < 0)
+                        वापस r;
 
-                assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+                assert_se(hashmap_update(h, कुंजी, l) >= 0);
+        } अन्यथा {
                 /* No list for this key exists yet, create one */
-                _cleanup_strv_free_ char **l2 = NULL;
-                _cleanup_free_ char *t = NULL;
+                _cleanup_strv_free_ अक्षर **l2 = शून्य;
+                _cleanup_free_ अक्षर *t = शून्य;
 
-                t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                t = strdup(कुंजी);
+                अगर (!t)
+                        वापस -ENOMEM;
 
-                r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l2, मूल्य);
+                अगर (r < 0)
+                        वापस r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        वापस 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+पूर्णांक string_strv_hashmap_put(Hashmap **h, स्थिर अक्षर *कुंजी, स्थिर अक्षर *मूल्य) {
+        पूर्णांक r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        निश्चित(h);
+        निश्चित(कुंजी);
+        निश्चित(मूल्य);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        वापस string_strv_hashmap_put_internal(*h, कुंजी, मूल्य);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+पूर्णांक string_strv_ordered_hashmap_put(OrderedHashmap **h, स्थिर अक्षर *कुंजी, स्थिर अक्षर *मूल्य) {
+        पूर्णांक r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        निश्चित(h);
+        निश्चित(कुंजी);
+        निश्चित(मूल्य);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        वापस string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), कुंजी, मूल्य);
 }
 
-static int rebreak_flush_line(
-                char ***broken,
-                const char *start,
-                const char *end,
+अटल पूर्णांक rebreak_flush_पंक्ति(
+                अक्षर ***broken,
+                स्थिर अक्षर *start,
+                स्थिर अक्षर *end,
                 bool in_prefix,
-                const char *whitespace_begin,
-                const char *whitespace_end) {
+                स्थिर अक्षर *whitespace_begin,
+                स्थिर अक्षर *whitespace_end) {
 
-        assert(broken);
-        assert(start);
-        assert(end >= start);
+        निश्चित(broken);
+        निश्चित(start);
+        निश्चित(end >= start);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        अगर (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
+                वापस strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
+        अगर (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
                 end = whitespace_begin;
 
-        _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        _cleanup_free_ अक्षर *truncated = strndup(start, end - start);
+        अगर (!truncated)
+                वापस -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        वापस strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
-        _cleanup_strv_free_ char **broken = NULL;
-        int r;
+पूर्णांक strv_rebreak_पंक्तियाँ(अक्षर **l, माप_प्रकार width, अक्षर ***ret) {
+        _cleanup_strv_free_ अक्षर **broken = शून्य;
+        पूर्णांक r;
 
-        assert(ret);
+        निश्चित(ret);
 
         /* Implements a simple UTF-8 line breaking algorithm
          *
@@ -1250,44 +1250,44 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        अगर (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                अगर (!broken)
+                        वापस -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                वापस 0;
         }
 
         STRV_FOREACH(i, l) {
-                const char *start = *i, *whitespace_begin = NULL, *whitespace_end = NULL;
+                स्थिर अक्षर *start = *i, *whitespace_begin = शून्य, *whitespace_end = शून्य;
                 bool in_prefix = true; /* still in the whitespace in the beginning of the line? */
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
-                size_t w = 0;
+                माप_प्रकार w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                क्रम (स्थिर अक्षर *p = start; *p != 0; ) {
+                        अगर (म_अक्षर(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
-                                r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                r = rebreak_flush_पंक्ति(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
+                                अगर (r < 0)
+                                        वापस r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
                                 start = p;
                                 in_prefix = true;
                                 after_newline = true;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = शून्य;
                                 w = 0;
-                                continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                                जारी;
+                        } अन्यथा अगर (म_अक्षर(WHITESPACE, *p)) {
+                                अगर (!in_prefix && (!whitespace_begin || whitespace_end)) {
                                         whitespace_begin = p;
-                                        whitespace_end = NULL;
+                                        whitespace_end = शून्य;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
+                        } अन्यथा {
+                                अगर (whitespace_begin && !whitespace_end)
                                         whitespace_end = p;
 
                                 in_prefix = false;
@@ -1298,71 +1298,71 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        पूर्णांक cw = utf8_char_console_width(p);
+                        अगर (cw < 0)
+                                वापस log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
-                                _cleanup_free_ char *truncated = NULL;
+                        अगर (w > width && whitespace_begin && whitespace_end) {
+                                _cleanup_free_ अक्षर *truncated = शून्य;
 
                                 truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                अगर (!truncated)
+                                        वापस -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                अगर (r < 0)
+                                        वापस r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
                                  * the new line yet, hence reset the width and reprocess it. */
                                 p = start = whitespace_end;
                                 after_newline = false;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = शून्य;
                                 w = 0;
-                                continue;
+                                जारी;
                         }
 
-                        p = utf8_next_char(p);
+                        p = utf8_अग्र_char(p);
                 }
 
                 /* Process rest of the line, except if all that's left after the last newline we already
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
-                assert(start);
-                if (after_newline && in_prefix)
-                        continue;
+                निश्चित(start);
+                अगर (after_newline && in_prefix)
+                        जारी;
 
-                r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                r = rebreak_flush_पंक्ति(&broken, start, start + म_माप(start), in_prefix, whitespace_begin, whitespace_end);
+                अगर (r < 0)
+                        वापस r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        वापस 0;
 }
 
-char** strv_filter_prefix(char * const *l, const char *prefix) {
+अक्षर** strv_filter_prefix(अक्षर * स्थिर *l, स्थिर अक्षर *prefix) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        अगर (isempty(prefix))
+                वापस strv_copy(l);
 
-        _cleanup_strv_free_ char **f = NULL;
-        size_t sz = 0;
+        _cleanup_strv_free_ अक्षर **f = शून्य;
+        माप_प्रकार sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
-                        continue;
+                अगर (!startswith(*i, prefix))
+                        जारी;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                अगर (strv_extend_with_आकार(&f, &sz, *i) < 0)
+                        वापस शून्य;
         }
 
-        return TAKE_PTR(f);
+        वापस TAKE_PTR(f);
 }
 
-const char* const strv_empty[] = { NULL };
+स्थिर अक्षर* स्थिर strv_empty[] = { शून्य };

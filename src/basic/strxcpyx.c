@@ -11,135 +11,135 @@
  * occur outside of a loop where this is the preferred behavior.
  */
 
-#include <stdio.h>
-#include <string.h>
+#समावेश <stdio.h>
+#समावेश <string.h>
 
-#include "strxcpyx.h"
+#समावेश "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+माप_प्रकार strnpcpy_full(अक्षर **dest, माप_प्रकार आकार, स्थिर अक्षर *src, माप_प्रकार len, bool *ret_truncated) {
         bool truncated = false;
 
-        assert(dest);
-        assert(src);
+        निश्चित(dest);
+        निश्चित(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        अगर (आकार == 0) {
+                अगर (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                वापस 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
-                        *dest = mempcpy(*dest, src, size-1);
-                size = 0;
+        अगर (len >= आकार) {
+                अगर (आकार > 1)
+                        *dest = mempcpy(*dest, src, आकार-1);
+                आकार = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } अन्यथा अगर (len > 0) {
                 *dest = mempcpy(*dest, src, len);
-                size -= len;
+                आकार -= len;
         }
 
-        if (ret_truncated)
+        अगर (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        वापस आकार;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+माप_प्रकार strpcpy_full(अक्षर **dest, माप_प्रकार आकार, स्थिर अक्षर *src, bool *ret_truncated) {
+        निश्चित(dest);
+        निश्चित(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        वापस strnpcpy_full(dest, आकार, src, म_माप(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+माप_प्रकार strpcpyf_full(अक्षर **dest, माप_प्रकार आकार, bool *ret_truncated, स्थिर अक्षर *src, ...) {
         bool truncated = false;
-        va_list va;
-        int i;
+        बहु_सूची va;
+        पूर्णांक i;
 
-        assert(dest);
-        assert(src);
+        निश्चित(dest);
+        निश्चित(src);
 
-        va_start(va, src);
-        i = vsnprintf(*dest, size, src, va);
-        va_end(va);
+        बहु_शुरू(va, src);
+        i = vsnprintf(*dest, आकार, src, va);
+        बहु_पूर्ण(va);
 
-        assert(i >= 0);
+        निश्चित(i >= 0);
 
-        if (i < (int) size) {
+        अगर (i < (पूर्णांक) आकार) {
                 *dest += i;
-                size -= i;
-        } else {
-                size = 0;
+                आकार -= i;
+        } अन्यथा {
+                आकार = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        अगर (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        वापस आकार;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+माप_प्रकार strpcpyl_full(अक्षर **dest, माप_प्रकार आकार, bool *ret_truncated, स्थिर अक्षर *src, ...) {
         bool truncated = false;
-        va_list va;
+        बहु_सूची va;
 
-        assert(dest);
-        assert(src);
+        निश्चित(dest);
+        निश्चित(src);
 
-        va_start(va, src);
-        do {
+        बहु_शुरू(va, src);
+        करो {
                 bool t;
 
-                size = strpcpy_full(dest, size, src, &t);
+                आकार = strpcpy_full(dest, आकार, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
-        va_end(va);
+                src = बहु_तर्क(va, अक्षर *);
+        } जबतक (src);
+        बहु_पूर्ण(va);
 
-        if (ret_truncated)
+        अगर (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        वापस आकार;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+माप_प्रकार strnscpy_full(अक्षर *dest, माप_प्रकार आकार, स्थिर अक्षर *src, माप_प्रकार len, bool *ret_truncated) {
+        अक्षर *s;
 
-        assert(dest);
-        assert(src);
+        निश्चित(dest);
+        निश्चित(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        वापस strnpcpy_full(&s, आकार, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+माप_प्रकार strscpy_full(अक्षर *dest, माप_प्रकार आकार, स्थिर अक्षर *src, bool *ret_truncated) {
+        निश्चित(dest);
+        निश्चित(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        वापस strnscpy_full(dest, आकार, src, म_माप(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+माप_प्रकार strscpyl_full(अक्षर *dest, माप_प्रकार आकार, bool *ret_truncated, स्थिर अक्षर *src, ...) {
         bool truncated = false;
-        va_list va;
-        char *s;
+        बहु_सूची va;
+        अक्षर *s;
 
-        assert(dest);
-        assert(src);
+        निश्चित(dest);
+        निश्चित(src);
 
-        va_start(va, src);
+        बहु_शुरू(va, src);
         s = dest;
-        do {
+        करो {
                 bool t;
 
-                size = strpcpy_full(&s, size, src, &t);
+                आकार = strpcpy_full(&s, आकार, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
-        va_end(va);
+                src = बहु_तर्क(va, अक्षर *);
+        } जबतक (src);
+        बहु_पूर्ण(va);
 
-        if (ret_truncated)
+        अगर (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        वापस आकार;
 }

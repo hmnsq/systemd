@@ -1,16 +1,16 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include <pthread.h> /* IWYU pragma: export */
+#समावेश <pthread.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#समावेश "forward.h"
 
-static inline pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
+अटल अंतरभूत pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
         assert_se(pthread_mutex_lock(mutex) == 0);
-        return mutex;
+        वापस mutex;
 }
 
-static inline void pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
-        if (*mutexp)
+अटल अंतरभूत व्योम pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
+        अगर (*mutexp)
                 assert_se(pthread_mutex_unlock(*mutexp) == 0);
 }

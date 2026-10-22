@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include "forward.h"
+#समावेश "forward.h"
 
-struct strbuf {
-        char *buf;
-        size_t len;
-        struct strbuf_node *root;
+काष्ठा strbuf {
+        अक्षर *buf;
+        माप_प्रकार len;
+        काष्ठा strbuf_गाँठ *मूल;
 
-        size_t nodes_count;
-        size_t in_count;
-        size_t in_len;
-        size_t dedup_len;
-        size_t dedup_count;
+        माप_प्रकार nodes_गिनती;
+        माप_प्रकार in_गिनती;
+        माप_प्रकार in_len;
+        माप_प्रकार dedup_len;
+        माप_प्रकार dedup_गिनती;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+काष्ठा strbuf_गाँठ {
+        माप_प्रकार मूल्य_off;
+        माप_प्रकार मूल्य_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        काष्ठा strbuf_child_entry *children;
+        uint8_t children_गिनती;
 };
 
-struct strbuf_child_entry {
+काष्ठा strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        काष्ठा strbuf_गाँठ *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+काष्ठा strbuf* strbuf_new(व्योम);
+ssize_t strbuf_add_string_full(काष्ठा strbuf *str, स्थिर अक्षर *s, माप_प्रकार len);
+अटल अंतरभूत ssize_t strbuf_add_string(काष्ठा strbuf *str, स्थिर अक्षर *s) {
+        वापस strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+व्योम strbuf_complete(काष्ठा strbuf *str);
+काष्ठा strbuf* strbuf_free(काष्ठा strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(काष्ठा strbuf*, strbuf_free);

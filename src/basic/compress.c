@@ -1,65 +1,65 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#समावेश <fcntl.h>
+#समावेश <stdio.h>
+#समावेश <sys/stat.h>
+#समावेश <unistd.h>
 
-#if HAVE_XZ
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBXZ
+#अगर HAVE_XZ
+#अगर_अघोषित SYSTEMD_CFLAGS_MARKER_LIBXZ
 #  error "missing libxz_cflags in meson dependency."
-#endif
-#include <lzma.h>
-#endif
+#पूर्ण_अगर
+#समावेश <lzma.h>
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBLZ4
+#अगर HAVE_LZ4
+#अगर_अघोषित SYSTEMD_CFLAGS_MARKER_LIBLZ4
 #  error "missing liblz4_cflags in meson dependency."
-#endif
-#include <lz4.h>
-#include <lz4frame.h>
-#include <lz4hc.h>
-#endif
+#पूर्ण_अगर
+#समावेश <lz4.h>
+#समावेश <lz4frame.h>
+#समावेश <lz4hc.h>
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBZSTD
+#अगर HAVE_ZSTD
+#अगर_अघोषित SYSTEMD_CFLAGS_MARKER_LIBZSTD
 #  error "missing libzstd_cflags in meson dependency."
-#endif
-#include <zstd.h>
-#include <zstd_errors.h>
-#endif
+#पूर्ण_अगर
+#समावेश <zstd.h>
+#समावेश <zstd_errors.h>
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBZ
+#अगर HAVE_ZLIB
+#अगर_अघोषित SYSTEMD_CFLAGS_MARKER_LIBZ
 #  error "missing libz_cflags in meson dependency."
-#endif
-#include <zlib.h>
-#endif
+#पूर्ण_अगर
+#समावेश <zlib.h>
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBBZIP2
+#अगर HAVE_BZIP2
+#अगर_अघोषित SYSTEMD_CFLAGS_MARKER_LIBBZIP2
 #  error "missing libbzip2_cflags in meson dependency."
-#endif
-#include <bzlib.h>
-#endif
+#पूर्ण_अगर
+#समावेश <bzlib.h>
+#पूर्ण_अगर
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "compress.h"
-#include "dlfcn-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "string-table.h"
-#include "unaligned.h"
+#समावेश "alloc-util.h"
+#समावेश "bitfield.h"
+#समावेश "compress.h"
+#समावेश "dlfcn-util.h"
+#समावेश "io-util.h"
+#समावेश "log.h"
+#समावेश "string-table.h"
+#समावेश "unaligned.h"
 
-#if HAVE_XZ
-static DLSYM_PROTOTYPE(lzma_auto_decoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_code) = NULL;
-static DLSYM_PROTOTYPE(lzma_easy_encoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_end) = NULL;
-static DLSYM_PROTOTYPE(lzma_stream_buffer_encode) = NULL;
-static DLSYM_PROTOTYPE(lzma_stream_decoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_lzma_preset) = NULL;
+#अगर HAVE_XZ
+अटल DLSYM_PROTOTYPE(lzma_auto_decoder) = शून्य;
+अटल DLSYM_PROTOTYPE(lzma_code) = शून्य;
+अटल DLSYM_PROTOTYPE(lzma_easy_encoder) = शून्य;
+अटल DLSYM_PROTOTYPE(lzma_end) = शून्य;
+अटल DLSYM_PROTOTYPE(lzma_stream_बफर_encode) = शून्य;
+अटल DLSYM_PROTOTYPE(lzma_stream_decoder) = शून्य;
+अटल DLSYM_PROTOTYPE(lzma_lzma_preset) = शून्य;
 
 /* We can’t just do _cleanup_(sym_lzma_end) because a compiler bug makes
  * this fail with:
@@ -68,136 +68,136 @@ static DLSYM_PROTOTYPE(lzma_lzma_preset) = NULL;
  *   304 |         _cleanup_(sym_lzma_end) lzma_stream s = LZMA_STREAM_INIT;
  *       |         ^~~~~~~~~
  */
-static inline void lzma_end_wrapper(lzma_stream *ls) {
+अटल अंतरभूत व्योम lzma_end_wrapper(lzma_stream *ls) {
         sym_lzma_end(ls);
 }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-static DLSYM_PROTOTYPE(LZ4F_compressBegin) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressBound) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressEnd) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressUpdate) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_createCompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_createDecompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_decompress) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_freeCompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_freeDecompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_isError) = NULL;
-static DLSYM_PROTOTYPE(LZ4_compress_HC) = NULL;
-static DLSYM_PROTOTYPE(LZ4_compress_default) = NULL;
-static DLSYM_PROTOTYPE(LZ4_decompress_safe) = NULL;
-static DLSYM_PROTOTYPE(LZ4_decompress_safe_partial) = NULL;
-static DLSYM_PROTOTYPE(LZ4_versionNumber) = NULL;
+#अगर HAVE_LZ4
+अटल DLSYM_PROTOTYPE(LZ4F_compressBegin) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_compressBound) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_compressEnd) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_compressUpdate) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_createCompressionContext) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_createDecompressionContext) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_decompress) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_freeCompressionContext) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_freeDecompressionContext) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4F_isError) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4_compress_HC) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4_compress_default) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4_decompress_safe) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4_decompress_safe_partial) = शून्य;
+अटल DLSYM_PROTOTYPE(LZ4_version_संख्या) = शून्य;
 
-static const LZ4F_preferences_t lz4_preferences = {
-        .frameInfo.blockSizeID = 5,
+अटल स्थिर LZ4F_preferences_t lz4_preferences = {
+        .frameInfo.block_आकार_ID = 5,
 };
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-static DLSYM_PROTOTYPE(ZSTD_CCtx_setParameter) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_compress) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_compressStream2) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_createCCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_createDCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_CStreamInSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_CStreamOutSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_decompressStream) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_DStreamInSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_DStreamOutSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_freeCCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_freeDCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getErrorCode) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getErrorName) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getFrameContentSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_isError) = NULL;
+#अगर HAVE_ZSTD
+अटल DLSYM_PROTOTYPE(ZSTD_CCtx_setParameter) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_compress) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_compressStream2) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_createCCtx) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_createDCtx) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_CStream_In_आकार) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_CStream_Out_आकार) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_decompressStream) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_DStream_In_आकार) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_DStream_Out_आकार) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_freeCCtx) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_freeDCtx) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_getErrorCode) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_getErrorName) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_get_Frame_Content_आकार) = शून्य;
+अटल DLSYM_PROTOTYPE(ZSTD_isError) = शून्य;
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL_RENAME(ZSTD_DCtx*, sym_ZSTD_freeDCtx, ZSTD_freeDCtxp, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_FULL_RENAME(ZSTD_DCtx*, sym_ZSTD_freeDCtx, ZSTD_freeDCtxp, शून्य);
 
-static int zstd_ret_to_errno(size_t ret) {
-        switch (sym_ZSTD_getErrorCode(ret)) {
-        case ZSTD_error_dstSize_tooSmall:
-                return -ENOBUFS;
-        case ZSTD_error_memory_allocation:
-                return -ENOMEM;
-        default:
-                return -EBADMSG;
+अटल पूर्णांक zstd_ret_to_errno(माप_प्रकार ret) {
+        चयन (sym_ZSTD_getErrorCode(ret)) {
+        हाल ZSTD_error_dst_आकार_too_Small:
+                वापस -ENOBUFS;
+        हाल ZSTD_error_memory_allocation:
+                वापस -ENOMEM;
+        शेष:
+                वापस -EBADMSG;
         }
 }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-static DLSYM_PROTOTYPE(deflateInit2_) = NULL;
-static DLSYM_PROTOTYPE(deflate) = NULL;
-static DLSYM_PROTOTYPE(deflateEnd) = NULL;
-static DLSYM_PROTOTYPE(inflateInit2_) = NULL;
-static DLSYM_PROTOTYPE(inflate) = NULL;
-static DLSYM_PROTOTYPE(inflateEnd) = NULL;
-static DLSYM_PROTOTYPE(inflateReset) = NULL;
+#अगर HAVE_ZLIB
+अटल DLSYM_PROTOTYPE(deflateInit2_) = शून्य;
+अटल DLSYM_PROTOTYPE(deflate) = शून्य;
+अटल DLSYM_PROTOTYPE(deflateEnd) = शून्य;
+अटल DLSYM_PROTOTYPE(inflateInit2_) = शून्य;
+अटल DLSYM_PROTOTYPE(inflate) = शून्य;
+अटल DLSYM_PROTOTYPE(inflateEnd) = शून्य;
+अटल DLSYM_PROTOTYPE(inflateReset) = शून्य;
 
-static inline void deflateEnd_wrapper(z_stream *s) {
+अटल अंतरभूत व्योम deflateEnd_wrapper(z_stream *s) {
         sym_deflateEnd(s);
 }
 
-static inline void inflateEnd_wrapper(z_stream *s) {
+अटल अंतरभूत व्योम inflateEnd_wrapper(z_stream *s) {
         sym_inflateEnd(s);
 }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-static DLSYM_PROTOTYPE(BZ2_bzCompressInit) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzCompress) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzCompressEnd) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompressInit) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompress) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompressEnd) = NULL;
+#अगर HAVE_BZIP2
+अटल DLSYM_PROTOTYPE(BZ2_bzCompressInit) = शून्य;
+अटल DLSYM_PROTOTYPE(BZ2_bzCompress) = शून्य;
+अटल DLSYM_PROTOTYPE(BZ2_bzCompressEnd) = शून्य;
+अटल DLSYM_PROTOTYPE(BZ2_bzDecompressInit) = शून्य;
+अटल DLSYM_PROTOTYPE(BZ2_bzDecompress) = शून्य;
+अटल DLSYM_PROTOTYPE(BZ2_bzDecompressEnd) = शून्य;
 
-static inline void BZ2_bzCompressEnd_wrapper(bz_stream *s) {
+अटल अंतरभूत व्योम BZ2_bzCompressEnd_wrapper(bz_stream *s) {
         sym_BZ2_bzCompressEnd(s);
 }
 
-static inline void BZ2_bzDecompressEnd_wrapper(bz_stream *s) {
+अटल अंतरभूत व्योम BZ2_bzDecompressEnd_wrapper(bz_stream *s) {
         sym_BZ2_bzDecompressEnd(s);
 }
-#endif
+#पूर्ण_अगर
 
 /* Opaque Compressor/Decompressor struct definition */
-struct Compressor {
+काष्ठा Compressor {
         Compression type;
         bool encoding;
         bool finished;
-        union {
-#if HAVE_XZ
+        जोड़ {
+#अगर HAVE_XZ
                 lzma_stream xz;
-#endif
-#if HAVE_LZ4
-                struct {
+#पूर्ण_अगर
+#अगर HAVE_LZ4
+                काष्ठा {
                         LZ4F_compressionContext_t c_lz4;
-                        void *lz4_header;        /* stashed frame header from LZ4F_compressBegin */
-                        size_t lz4_header_size;
+                        व्योम *lz4_header;        /* stashed frame header from LZ4F_compressBegin */
+                        माप_प्रकार lz4_header_आकार;
                 };
                 LZ4F_decompressionContext_t d_lz4;
-#endif
-#if HAVE_ZSTD
+#पूर्ण_अगर
+#अगर HAVE_ZSTD
                 ZSTD_CCtx *c_zstd;
                 ZSTD_DCtx *d_zstd;
-#endif
-#if HAVE_ZLIB
+#पूर्ण_अगर
+#अगर HAVE_ZLIB
                 z_stream gzip;
-#endif
-#if HAVE_BZIP2
+#पूर्ण_अगर
+#अगर HAVE_BZIP2
                 bz_stream bzip2;
-#endif
+#पूर्ण_अगर
         };
 };
 
-#define ALIGN_8(l) ALIGN_TO(l, sizeof(size_t))
+#घोषणा ALIGN_8(l) ALIGN_TO(l, माप(माप_प्रकार))
 
 /* zlib windowBits value for gzip format: MAX_WBITS (15) + 16 to enable gzip header detection/generation */
-#define ZLIB_WBITS_GZIP (15 + 16)
+#घोषणा ZLIB_WBITS_GZIP (15 + 16)
 
-static const char* const compression_table[_COMPRESSION_MAX] = {
+अटल स्थिर अक्षर* स्थिर compression_table[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "uncompressed", /* backwards compatibility with importd */
         [COMPRESSION_XZ]    = "xz",
         [COMPRESSION_LZ4]   = "lz4",
@@ -206,7 +206,7 @@ static const char* const compression_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = "bzip2",
 };
 
-static const char* const compression_uppercase_table[_COMPRESSION_MAX] = {
+अटल स्थिर अक्षर* स्थिर compression_uppercase_table[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "NONE", /* backwards compatibility with SYSTEMD_JOURNAL_COMPRESS=NONE */
         [COMPRESSION_XZ]    = "XZ",
         [COMPRESSION_LZ4]   = "LZ4",
@@ -215,7 +215,7 @@ static const char* const compression_uppercase_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = "BZIP2",
 };
 
-static const char* const compression_extension_table[_COMPRESSION_MAX] = {
+अटल स्थिर अक्षर* स्थिर compression_extension_table[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "",
         [COMPRESSION_XZ]    = ".xz",
         [COMPRESSION_LZ4]   = ".lz4",
@@ -228,50 +228,50 @@ DEFINE_STRING_TABLE_LOOKUP(compression, Compression);
 DEFINE_STRING_TABLE_LOOKUP(compression_uppercase, Compression);
 DEFINE_STRING_TABLE_LOOKUP(compression_extension, Compression);
 
-Compression compression_from_string_harder(const char *s) {
+Compression compression_from_string_harder(स्थिर अक्षर *s) {
         Compression c;
 
-        assert(s);
+        निश्चित(s);
 
         c = compression_from_string(s);
-        if (c >= 0)
-                return c;
+        अगर (c >= 0)
+                वापस c;
 
-        return compression_uppercase_from_string(s);
+        वापस compression_uppercase_from_string(s);
 }
 
-Compression compression_from_filename(const char *filename) {
+Compression compression_from_filename(स्थिर अक्षर *filename) {
         Compression c;
-        const char *e;
+        स्थिर अक्षर *e;
 
-        assert(filename);
+        निश्चित(filename);
 
-        e = strrchr(filename, '.');
-        if (!e)
-                return COMPRESSION_NONE;
+        e = म_खोजप(filename, '.');
+        अगर (!e)
+                वापस COMPRESSION_NONE;
 
         c = compression_extension_from_string(e);
-        if (c < 0)
-                return COMPRESSION_NONE;
+        अगर (c < 0)
+                वापस COMPRESSION_NONE;
 
-        return c;
+        वापस c;
 }
 
 bool compression_supported_journal(Compression c) {
-        static const unsigned supported =
+        अटल स्थिर अचिन्हित supported =
                 (1U << COMPRESSION_NONE) |
                 (1U << COMPRESSION_XZ) * HAVE_XZ |
                 (1U << COMPRESSION_LZ4) * HAVE_LZ4 |
                 (1U << COMPRESSION_ZSTD) * HAVE_ZSTD;
 
-        assert(c >= 0);
-        assert(c < _COMPRESSION_MAX);
+        निश्चित(c >= 0);
+        निश्चित(c < _COMPRESSION_MAX);
 
-        return BIT_SET(supported, c);
+        वापस BIT_SET(supported, c);
 }
 
 bool compression_supported(Compression c) {
-        static const unsigned supported =
+        अटल स्थिर अचिन्हित supported =
                 (1U << COMPRESSION_NONE) |
                 (1U << COMPRESSION_XZ) * HAVE_XZ |
                 (1U << COMPRESSION_LZ4) * HAVE_LZ4 |
@@ -279,59 +279,59 @@ bool compression_supported(Compression c) {
                 (1U << COMPRESSION_GZIP) * HAVE_ZLIB |
                 (1U << COMPRESSION_BZIP2) * HAVE_BZIP2;
 
-        assert(c >= 0);
-        assert(c < _COMPRESSION_MAX);
+        निश्चित(c >= 0);
+        निश्चित(c < _COMPRESSION_MAX);
 
-        return BIT_SET(supported, c);
+        वापस BIT_SET(supported, c);
 }
 
-Compression compression_detect_from_magic(const uint8_t data[static COMPRESSION_MAGIC_BYTES_MAX]) {
+Compression compression_detect_from_magic(स्थिर uint8_t तथ्य[अटल COMPRESSION_MAGIC_BYTES_MAX]) {
         /* Magic signatures per RFC 1952 (gzip), tukaani.org/xz/xz-file-format.txt (xz),
          * RFC 8878 (zstd), lz4/doc/lz4_Frame_format.md (lz4), and the bzip2 file format.
          * Make sure to update COMPRESSION_MAGIC_BYTES_MAX if needed when adding a new magic. */
-        if (memcmp(data, (const uint8_t[]) { 0x1f, 0x8b }, 2) == 0)
-                return COMPRESSION_GZIP;
-        if (memcmp(data, (const uint8_t[]) { 0xfd, '7', 'z', 'X', 'Z', 0x00 }, 6) == 0)
-                return COMPRESSION_XZ;
-        if (memcmp(data, (const uint8_t[]) { 0x28, 0xb5, 0x2f, 0xfd }, 4) == 0)
-                return COMPRESSION_ZSTD;
-        if (memcmp(data, (const uint8_t[]) { 0x04, 0x22, 0x4d, 0x18 }, 4) == 0)
-                return COMPRESSION_LZ4;
-        if (memcmp(data, (const uint8_t[]) { 'B', 'Z', 'h' }, 3) == 0)
-                return COMPRESSION_BZIP2;
+        अगर (स_भेद(तथ्य, (स्थिर uint8_t[]) { 0x1f, 0x8b }, 2) == 0)
+                वापस COMPRESSION_GZIP;
+        अगर (स_भेद(तथ्य, (स्थिर uint8_t[]) { 0xfd, '7', 'z', 'X', 'Z', 0x00 }, 6) == 0)
+                वापस COMPRESSION_XZ;
+        अगर (स_भेद(तथ्य, (स्थिर uint8_t[]) { 0x28, 0xb5, 0x2f, 0xfd }, 4) == 0)
+                वापस COMPRESSION_ZSTD;
+        अगर (स_भेद(तथ्य, (स्थिर uint8_t[]) { 0x04, 0x22, 0x4d, 0x18 }, 4) == 0)
+                वापस COMPRESSION_LZ4;
+        अगर (स_भेद(तथ्य, (स्थिर uint8_t[]) { 'B', 'Z', 'h' }, 3) == 0)
+                वापस COMPRESSION_BZIP2;
 
-        return _COMPRESSION_INVALID;
+        वापस _COMPRESSION_INVALID;
 }
 
-int dlopen_xz(int log_level) {
-#if HAVE_XZ
-        static void *lzma_dl = NULL;
+पूर्णांक dlopen_xz(पूर्णांक log_level) {
+#अगर HAVE_XZ
+        अटल व्योम *lzma_dl = शून्य;
 
         LIBLZMA_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        वापस dlopen_many_sym_or_warn(
                         &lzma_dl,
                         "liblzma.so.5", log_level,
                         DLSYM_ARG(lzma_auto_decoder),
                         DLSYM_ARG(lzma_code),
                         DLSYM_ARG(lzma_easy_encoder),
                         DLSYM_ARG(lzma_end),
-                        DLSYM_ARG(lzma_stream_buffer_encode),
+                        DLSYM_ARG(lzma_stream_बफर_encode),
                         DLSYM_ARG(lzma_lzma_preset),
                         DLSYM_ARG(lzma_stream_decoder));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#अन्यथा
+        वापस log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "lzma support is not compiled in.");
-#endif
+#पूर्ण_अगर
 }
 
-int dlopen_lz4(int log_level) {
-#if HAVE_LZ4
-        static void *lz4_dl = NULL;
+पूर्णांक dlopen_lz4(पूर्णांक log_level) {
+#अगर HAVE_LZ4
+        अटल व्योम *lz4_dl = शून्य;
 
         LIBLZ4_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        वापस dlopen_many_sym_or_warn(
                         &lz4_dl,
                         "liblz4.so.1", log_level,
                         DLSYM_ARG(LZ4F_compressBegin),
@@ -348,51 +348,51 @@ int dlopen_lz4(int log_level) {
                         DLSYM_ARG(LZ4_compress_HC),
                         DLSYM_ARG(LZ4_decompress_safe),
                         DLSYM_ARG(LZ4_decompress_safe_partial),
-                        DLSYM_ARG(LZ4_versionNumber));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+                        DLSYM_ARG(LZ4_version_संख्या));
+#अन्यथा
+        वापस log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "lz4 support is not compiled in.");
-#endif
+#पूर्ण_अगर
 }
 
-int dlopen_zstd(int log_level) {
-#if HAVE_ZSTD
-        static void *zstd_dl = NULL;
+पूर्णांक dlopen_zstd(पूर्णांक log_level) {
+#अगर HAVE_ZSTD
+        अटल व्योम *zstd_dl = शून्य;
 
         LIBZSTD_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        वापस dlopen_many_sym_or_warn(
                         &zstd_dl,
                         "libzstd.so.1", log_level,
                         DLSYM_ARG(ZSTD_getErrorCode),
                         DLSYM_ARG(ZSTD_compress),
-                        DLSYM_ARG(ZSTD_getFrameContentSize),
+                        DLSYM_ARG(ZSTD_get_Frame_Content_आकार),
                         DLSYM_ARG(ZSTD_decompressStream),
                         DLSYM_ARG(ZSTD_getErrorName),
-                        DLSYM_ARG(ZSTD_DStreamOutSize),
-                        DLSYM_ARG(ZSTD_CStreamInSize),
-                        DLSYM_ARG(ZSTD_CStreamOutSize),
+                        DLSYM_ARG(ZSTD_DStream_Out_आकार),
+                        DLSYM_ARG(ZSTD_CStream_In_आकार),
+                        DLSYM_ARG(ZSTD_CStream_Out_आकार),
                         DLSYM_ARG(ZSTD_CCtx_setParameter),
                         DLSYM_ARG(ZSTD_compressStream2),
-                        DLSYM_ARG(ZSTD_DStreamInSize),
+                        DLSYM_ARG(ZSTD_DStream_In_आकार),
                         DLSYM_ARG(ZSTD_freeCCtx),
                         DLSYM_ARG(ZSTD_freeDCtx),
                         DLSYM_ARG(ZSTD_isError),
                         DLSYM_ARG(ZSTD_createDCtx),
                         DLSYM_ARG(ZSTD_createCCtx));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#अन्यथा
+        वापस log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "zstd support is not compiled in.");
-#endif
+#पूर्ण_अगर
 }
 
-int dlopen_zlib(int log_level) {
-#if HAVE_ZLIB
-        static void *zlib_dl = NULL;
+पूर्णांक dlopen_zlib(पूर्णांक log_level) {
+#अगर HAVE_ZLIB
+        अटल व्योम *zlib_dl = शून्य;
 
         LIBZ_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        वापस dlopen_many_sym_or_warn(
                         &zlib_dl,
                         "libz.so.1", log_level,
                         DLSYM_ARG(deflateInit2_),
@@ -402,19 +402,19 @@ int dlopen_zlib(int log_level) {
                         DLSYM_ARG(inflate),
                         DLSYM_ARG(inflateEnd),
                         DLSYM_ARG(inflateReset));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#अन्यथा
+        वापस log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "zlib support is not compiled in.");
-#endif
+#पूर्ण_अगर
 }
 
-int dlopen_bzip2(int log_level) {
-#if HAVE_BZIP2
-        static void *bzip2_dl = NULL;
+पूर्णांक dlopen_bzip2(पूर्णांक log_level) {
+#अगर HAVE_BZIP2
+        अटल व्योम *bzip2_dl = शून्य;
 
         LIBBZ2_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        वापस dlopen_many_sym_or_warn(
                         &bzip2_dl,
                         "libbz2.so.1", log_level,
                         DLSYM_ARG(BZ2_bzCompressInit),
@@ -423,193 +423,193 @@ int dlopen_bzip2(int log_level) {
                         DLSYM_ARG(BZ2_bzDecompressInit),
                         DLSYM_ARG(BZ2_bzDecompress),
                         DLSYM_ARG(BZ2_bzDecompressEnd));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#अन्यथा
+        वापस log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "bzip2 support is not compiled in.");
-#endif
+#पूर्ण_अगर
 }
 
-int dlopen_compress_journal(Compression c, int log_level) {
-        switch (c) {
-        case COMPRESSION_NONE:
-                return 0;
-        case COMPRESSION_XZ:
-                return dlopen_xz(log_level);
-        case COMPRESSION_LZ4:
-                return dlopen_lz4(log_level);
-        case COMPRESSION_ZSTD:
-                return dlopen_zstd(log_level);
-        default:
-                return -EOPNOTSUPP;
+पूर्णांक dlopen_compress_journal(Compression c, पूर्णांक log_level) {
+        चयन (c) {
+        हाल COMPRESSION_NONE:
+                वापस 0;
+        हाल COMPRESSION_XZ:
+                वापस dlopen_xz(log_level);
+        हाल COMPRESSION_LZ4:
+                वापस dlopen_lz4(log_level);
+        हाल COMPRESSION_ZSTD:
+                वापस dlopen_zstd(log_level);
+        शेष:
+                वापस -EOPNOTSUPP;
         }
 }
 
-int dlopen_compress(Compression c, int log_level) {
-        switch (c) {
-        case COMPRESSION_GZIP:
-                return dlopen_zlib(log_level);
-        case COMPRESSION_BZIP2:
-                return dlopen_bzip2(log_level);
-        default:
-                return dlopen_compress_journal(c, log_level);
+पूर्णांक dlopen_compress(Compression c, पूर्णांक log_level) {
+        चयन (c) {
+        हाल COMPRESSION_GZIP:
+                वापस dlopen_zlib(log_level);
+        हाल COMPRESSION_BZIP2:
+                वापस dlopen_bzip2(log_level);
+        शेष:
+                वापस dlopen_compress_journal(c, log_level);
         }
 }
 
-static int compress_blob_xz(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+अटल पूर्णांक compress_blob_xz(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम *dst,
+                माप_प्रकार dst_alloc_आकार,
+                माप_प्रकार *dst_आकार,
+                पूर्णांक level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_alloc_आकार > 0);
+        निश्चित(dst_आकार);
 
-#if HAVE_XZ
+#अगर HAVE_XZ
         lzma_options_lzma opt = {
-                1u << 20u, NULL, 0, LZMA_LC_DEFAULT, LZMA_LP_DEFAULT,
+                1u << 20u, शून्य, 0, LZMA_LC_DEFAULT, LZMA_LP_DEFAULT,
                 LZMA_PB_DEFAULT, LZMA_MODE_FAST, 128, LZMA_MF_HC3, 4
         };
         lzma_filter filters[] = {
                 { LZMA_FILTER_LZMA2, &opt },
-                { LZMA_VLI_UNKNOWN, NULL }
+                { LZMA_VLI_UNKNOWN, शून्य }
         };
         lzma_ret ret;
-        size_t out_pos = 0;
-        int r;
+        माप_प्रकार out_pos = 0;
+        पूर्णांक r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (level >= 0) {
+        अगर (level >= 0) {
                 /* This returns lzma_bool, and true means failure, i.e. the specified level is not supported. */
-                if (sym_lzma_lzma_preset(&opt, (uint32_t) level))
-                        return -EINVAL;
+                अगर (sym_lzma_lzma_preset(&opt, (uint32_t) level))
+                        वापस -EINVAL;
         }
 
         /* Returns < 0 if we couldn't compress the data or the
          * compressed result is longer than the original */
 
-        if (src_size < 80)
-                return -ENOBUFS;
+        अगर (src_आकार < 80)
+                वापस -ENOBUFS;
 
-        ret = sym_lzma_stream_buffer_encode(filters, LZMA_CHECK_NONE, /* allocator= */ NULL,
-                                            src, src_size, dst, &out_pos, dst_alloc_size);
-        if (ret != LZMA_OK)
-                return -ENOBUFS;
+        ret = sym_lzma_stream_बफर_encode(filters, LZMA_CHECK_NONE, /* allocator= */ शून्य,
+                                            src, src_आकार, dst, &out_pos, dst_alloc_आकार);
+        अगर (ret != LZMA_OK)
+                वापस -ENOBUFS;
 
-        *dst_size = out_pos;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = out_pos;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int compress_blob_lz4(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+अटल पूर्णांक compress_blob_lz4(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम *dst,
+                माप_प्रकार dst_alloc_आकार,
+                माप_प्रकार *dst_आकार,
+                पूर्णांक level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_alloc_आकार > 0);
+        निश्चित(dst_आकार);
 
-#if HAVE_LZ4
-        int r;
+#अगर HAVE_LZ4
+        पूर्णांक r;
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
         /* Returns < 0 if we couldn't compress the data or the
          * compressed result is longer than the original */
 
-        if (src_size < 9)
-                return -ENOBUFS;
+        अगर (src_आकार < 9)
+                वापस -ENOBUFS;
 
-        if (src_size > INT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > INT_MAX)
-                dst_alloc_size = INT_MAX;
+        अगर (src_आकार > पूर्णांक_उच्च)
+                वापस -EFBIG;
+        अगर (dst_alloc_आकार > पूर्णांक_उच्च)
+                dst_alloc_आकार = पूर्णांक_उच्च;
 
-        if (level <= 0)
-                r = sym_LZ4_compress_default(src, (char*)dst + 8, src_size, (int) dst_alloc_size - 8);
-        else
-                r = sym_LZ4_compress_HC(src, (char*)dst + 8, src_size, (int) dst_alloc_size - 8, level);
-        if (r <= 0)
-                return -ENOBUFS;
+        अगर (level <= 0)
+                r = sym_LZ4_compress_default(src, (अक्षर*)dst + 8, src_आकार, (पूर्णांक) dst_alloc_आकार - 8);
+        अन्यथा
+                r = sym_LZ4_compress_HC(src, (अक्षर*)dst + 8, src_आकार, (पूर्णांक) dst_alloc_आकार - 8, level);
+        अगर (r <= 0)
+                वापस -ENOBUFS;
 
-        unaligned_write_le64(dst, src_size);
-        *dst_size = r + 8;
+        unaligned_write_le64(dst, src_आकार);
+        *dst_आकार = r + 8;
 
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int compress_blob_zstd(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+अटल पूर्णांक compress_blob_zstd(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम *dst,
+                माप_प्रकार dst_alloc_आकार,
+                माप_प्रकार *dst_आकार,
+                पूर्णांक level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_alloc_आकार > 0);
+        निश्चित(dst_आकार);
 
-#if HAVE_ZSTD
-        size_t k;
-        int r;
+#अगर HAVE_ZSTD
+        माप_प्रकार k;
+        पूर्णांक r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        k = sym_ZSTD_compress(dst, dst_alloc_size, src, src_size, level < 0 ? 0 : level);
-        if (sym_ZSTD_isError(k))
-                return zstd_ret_to_errno(k);
+        k = sym_ZSTD_compress(dst, dst_alloc_आकार, src, src_आकार, level < 0 ? 0 : level);
+        अगर (sym_ZSTD_isError(k))
+                वापस zstd_ret_to_errno(k);
 
-        *dst_size = k;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = k;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int compress_blob_gzip(const void *src, uint64_t src_size,
-                       void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+अटल पूर्णांक compress_blob_gzip(स्थिर व्योम *src, uint64_t src_आकार,
+                       व्योम *dst, माप_प्रकार dst_alloc_आकार, माप_प्रकार *dst_आकार, पूर्णांक level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_alloc_आकार > 0);
+        निश्चित(dst_आकार);
 
-#if HAVE_ZLIB
-        int r;
+#अगर HAVE_ZLIB
+        पूर्णांक r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > UINT_MAX)
-                dst_alloc_size = UINT_MAX;
+        अगर (src_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
+        अगर (dst_alloc_आकार > अच_पूर्णांक_उच्च)
+                dst_alloc_आकार = अच_पूर्णांक_उच्च;
 
         _cleanup_(deflateEnd_wrapper) z_stream s = {};
 
@@ -618,250 +618,250 @@ static int compress_blob_gzip(const void *src, uint64_t src_size,
                               /* windowBits= */ ZLIB_WBITS_GZIP,
                               /* memLevel= */ 8,
                               /* strategy= */ Z_DEFAULT_STRATEGY,
-                              ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -ENOMEM;
+                              ZLIB_VERSION, (पूर्णांक) माप(s));
+        अगर (r != Z_OK)
+                वापस -ENOMEM;
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
-        s.next_out = dst;
-        s.avail_out = dst_alloc_size;
+        s.अग्र_in = (व्योम*) src;
+        s.avail_in = src_आकार;
+        s.अग्र_out = dst;
+        s.avail_out = dst_alloc_आकार;
 
         r = sym_deflate(&s, Z_FINISH);
-        if (r != Z_STREAM_END)
-                return -ENOBUFS;
+        अगर (r != Z_STREAM_END)
+                वापस -ENOBUFS;
 
-        *dst_size = dst_alloc_size - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = dst_alloc_आकार - s.avail_out;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int compress_blob_bzip2(
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+अटल पूर्णांक compress_blob_bzip2(
+                स्थिर व्योम *src, uint64_t src_आकार,
+                व्योम *dst, माप_प्रकार dst_alloc_आकार, माप_प्रकार *dst_आकार, पूर्णांक level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_alloc_आकार > 0);
+        निश्चित(dst_आकार);
 
-#if HAVE_BZIP2
-        int r;
+#अगर HAVE_BZIP2
+        पूर्णांक r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > UINT_MAX)
-                dst_alloc_size = UINT_MAX;
+        अगर (src_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
+        अगर (dst_alloc_आकार > अच_पूर्णांक_उच्च)
+                dst_alloc_आकार = अच_पूर्णांक_उच्च;
 
         _cleanup_(BZ2_bzCompressEnd_wrapper) bz_stream s = {};
 
         r = sym_BZ2_bzCompressInit(&s, level < 0 ? 9 : level, /* verbosity= */ 0, /* workFactor= */ 0);
-        if (r != BZ_OK)
-                return -ENOMEM;
+        अगर (r != BZ_OK)
+                वापस -ENOMEM;
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
-        s.next_out = (char*) dst;
-        s.avail_out = dst_alloc_size;
+        s.अग्र_in = (अक्षर*) src;
+        s.avail_in = src_आकार;
+        s.अग्र_out = (अक्षर*) dst;
+        s.avail_out = dst_alloc_आकार;
 
         r = sym_BZ2_bzCompress(&s, BZ_FINISH);
 
-        if (r != BZ_STREAM_END)
-                return -ENOBUFS;
+        अगर (r != BZ_STREAM_END)
+                वापस -ENOBUFS;
 
-        *dst_size = dst_alloc_size - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = dst_alloc_आकार - s.avail_out;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-int compress_blob_journal(
+पूर्णांक compress_blob_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+                स्थिर व्योम *src, uint64_t src_आकार,
+                व्योम *dst, माप_प्रकार dst_alloc_आकार, माप_प्रकार *dst_आकार, पूर्णांक level) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return compress_blob_xz(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_LZ4:
-                return compress_blob_lz4(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_ZSTD:
-                return compress_blob_zstd(src, src_size, dst, dst_alloc_size, dst_size, level);
-        default:
-                return -EOPNOTSUPP;
+        चयन (compression) {
+        हाल COMPRESSION_XZ:
+                वापस compress_blob_xz(src, src_आकार, dst, dst_alloc_आकार, dst_आकार, level);
+        हाल COMPRESSION_LZ4:
+                वापस compress_blob_lz4(src, src_आकार, dst, dst_alloc_आकार, dst_आकार, level);
+        हाल COMPRESSION_ZSTD:
+                वापस compress_blob_zstd(src, src_आकार, dst, dst_alloc_आकार, dst_आकार, level);
+        शेष:
+                वापस -EOPNOTSUPP;
         }
 }
 
-int compress_blob(
+पूर्णांक compress_blob(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+                स्थिर व्योम *src, uint64_t src_आकार,
+                व्योम *dst, माप_प्रकार dst_alloc_आकार, माप_प्रकार *dst_आकार, पूर्णांक level) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return compress_blob_gzip(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_BZIP2:
-                return compress_blob_bzip2(src, src_size, dst, dst_alloc_size, dst_size, level);
-        default:
-                return compress_blob_journal(compression, src, src_size, dst, dst_alloc_size, dst_size, level);
+        चयन (compression) {
+        हाल COMPRESSION_GZIP:
+                वापस compress_blob_gzip(src, src_आकार, dst, dst_alloc_आकार, dst_आकार, level);
+        हाल COMPRESSION_BZIP2:
+                वापस compress_blob_bzip2(src, src_आकार, dst, dst_alloc_आकार, dst_आकार, level);
+        शेष:
+                वापस compress_blob_journal(compression, src, src_आकार, dst, dst_alloc_आकार, dst_आकार, level);
         }
 }
 
-static int decompress_blob_xz(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
-                size_t dst_max) {
+अटल पूर्णांक decompress_blob_xz(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **dst,
+                माप_प्रकार *dst_आकार,
+                माप_प्रकार dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_आकार);
 
-#if HAVE_XZ
-        int r;
+#अगर HAVE_XZ
+        पूर्णांक r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         _cleanup_(lzma_end_wrapper) lzma_stream s = LZMA_STREAM_INIT;
         lzma_ret ret = sym_lzma_stream_decoder(&s, UINT64_MAX, /* flags= */ 0);
-        if (ret != LZMA_OK)
-                return -ENOMEM;
+        अगर (ret != LZMA_OK)
+                वापस -ENOMEM;
 
-        size_t space = MIN(src_size * 2, dst_max ?: SIZE_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        माप_प्रकार space = MIN(src_आकार * 2, dst_max ?: SIZE_MAX);
+        अगर (!greedy_realloc(dst, space, 1))
+                वापस -ENOMEM;
 
-        s.next_in = src;
-        s.avail_in = src_size;
+        s.अग्र_in = src;
+        s.avail_in = src_आकार;
 
-        s.next_out = *dst;
+        s.अग्र_out = *dst;
         s.avail_out = space;
 
-        for (;;) {
-                size_t used;
+        क्रम (;;) {
+                माप_प्रकार used;
 
                 ret = sym_lzma_code(&s, LZMA_FINISH);
-                if (ret == LZMA_STREAM_END)
-                        break;
-                if (ret != LZMA_OK)
-                        return -ENOMEM;
+                अगर (ret == LZMA_STREAM_END)
+                        अवरोध;
+                अगर (ret != LZMA_OK)
+                        वापस -ENOMEM;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                अगर (dst_max > 0 && (space - s.avail_out) >= dst_max)
+                        अवरोध;
+                अगर (dst_max > 0 && space == dst_max)
+                        वापस -ENOBUFS;
 
                 used = space - s.avail_out;
                 /* Silence static analyzers, space is bounded by allocation size */
-                assert(space <= SIZE_MAX / 2);
+                निश्चित(space <= SIZE_MAX / 2);
                 space = MIN(2 * space, dst_max ?: SIZE_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                अगर (!greedy_realloc(dst, space, 1))
+                        वापस -ENOMEM;
 
                 s.avail_out = space - used;
-                s.next_out = *(uint8_t**)dst + used;
+                s.अग्र_out = *(uint8_t**)dst + used;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = space - s.avail_out;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_blob_lz4(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
-                size_t dst_max) {
+अटल पूर्णांक decompress_blob_lz4(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **dst,
+                माप_प्रकार *dst_आकार,
+                माप_प्रकार dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_आकार);
 
-#if HAVE_LZ4
-        char* out;
-        int r, size; /* LZ4 uses int for size */
+#अगर HAVE_LZ4
+        अक्षर* out;
+        पूर्णांक r, आकार; /* LZ4 uses int for size */
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size <= 8)
-                return -EBADMSG;
+        अगर (src_आकार <= 8)
+                वापस -EBADMSG;
 
-        if (src_size - 8 > INT_MAX)
-                return -EFBIG;
+        अगर (src_आकार - 8 > पूर्णांक_उच्च)
+                वापस -EFBIG;
 
-        size = unaligned_read_le64(src);
-        if (size < 0 || (unsigned) size != unaligned_read_le64(src))
-                return -EFBIG;
-        if (dst_max > 0 && (size_t) size > dst_max)
-                return -ENOBUFS;
-        out = greedy_realloc(dst, size, 1);
-        if (!out)
-                return -ENOMEM;
+        आकार = unaligned_read_le64(src);
+        अगर (आकार < 0 || (अचिन्हित) आकार != unaligned_read_le64(src))
+                वापस -EFBIG;
+        अगर (dst_max > 0 && (माप_प्रकार) आकार > dst_max)
+                वापस -ENOBUFS;
+        out = greedy_realloc(dst, आकार, 1);
+        अगर (!out)
+                वापस -ENOMEM;
 
-        r = sym_LZ4_decompress_safe((char*)src + 8, out, src_size - 8, size);
-        if (r < 0 || r != size)
-                return -EBADMSG;
+        r = sym_LZ4_decompress_safe((अक्षर*)src + 8, out, src_आकार - 8, आकार);
+        अगर (r < 0 || r != आकार)
+                वापस -EBADMSG;
 
-        *dst_size = size;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = आकार;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-size_t zstd_dstream_out_size(void) {
-#if HAVE_ZSTD
-        if (dlopen_zstd(LOG_DEBUG) < 0)
-                return 0;
+माप_प्रकार zstd_dstream_out_आकार(व्योम) {
+#अगर HAVE_ZSTD
+        अगर (dlopen_zstd(LOG_DEBUG) < 0)
+                वापस 0;
 
-        return sym_ZSTD_DStreamOutSize();
-#else
-        return 0;
-#endif
+        वापस sym_ZSTD_DStream_Out_आकार();
+#अन्यथा
+        वापस 0;
+#पूर्ण_अगर
 }
 
-static int decompress_blob_zstd(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
-                size_t dst_max) {
+अटल पूर्णांक decompress_blob_zstd(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **dst,
+                माप_प्रकार *dst_आकार,
+                माप_प्रकार dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_आकार);
 
-#if HAVE_ZSTD
-        int r;
+#अगर HAVE_ZSTD
+        पूर्णांक r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         /* ZSTD_getFrameContentSize() returns unsigned long long, which is not necessarily size_t, so
          * keep the value in that type until we've clamped it down to something that fits size_t. */
-        unsigned long long size = sym_ZSTD_getFrameContentSize(src, src_size);
-        if (size == ZSTD_CONTENTSIZE_ERROR)
-                return -EBADMSG;
+        अचिन्हित दीर्घ दीर्घ आकार = sym_ZSTD_get_Frame_Content_आकार(src, src_आकार);
+        अगर (आकार == ZSTD_CONTENTSIZE_ERROR)
+                वापस -EBADMSG;
 
         /* ZSTD_CONTENTSIZE_UNKNOWN is returned when the frame header doesn't record the decompressed
          * size, which is the case e.g. for kernel images compressed with 'zstd'. Per the zstd
@@ -870,420 +870,420 @@ static int decompress_blob_zstd(
 
         /* dst_max == 0 means "no limit"; fold that into a single ceiling up front so the rest of the
          * function can treat the unlimited case like any other rather than repeating the sentinel. */
-        size_t cap = dst_max ?: SIZE_MAX;
+        माप_प्रकार cap = dst_max ?: SIZE_MAX;
 
-        size_t space;
-        if (size != ZSTD_CONTENTSIZE_UNKNOWN)
+        माप_प्रकार space;
+        अगर (आकार != ZSTD_CONTENTSIZE_UNKNOWN)
                 /* The MIN clamps the (possibly 64-bit) content size to the ceiling, which is <= SIZE_MAX,
                  * so the result always fits size_t. */
-                space = MAX(sym_ZSTD_DStreamOutSize(), (size_t) MIN(size, (unsigned long long) cap));
-        else {
+                space = MAX(sym_ZSTD_DStream_Out_आकार(), (माप_प्रकार) MIN(आकार, (अचिन्हित दीर्घ दीर्घ) cap));
+        अन्यथा {
                 /* Start from twice the compressed size, guarding the doubling against overflow, then
                  * clamp to the ceiling. */
-                uint64_t twice = src_size <= UINT64_MAX / 2 ? src_size * 2 : UINT64_MAX;
-                space = MAX(sym_ZSTD_DStreamOutSize(), (size_t) MIN(twice, (uint64_t) cap));
+                uint64_t twice = src_आकार <= UINT64_MAX / 2 ? src_आकार * 2 : UINT64_MAX;
+                space = MAX(sym_ZSTD_DStream_Out_आकार(), (माप_प्रकार) MIN(twice, (uint64_t) cap));
         }
 
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        अगर (!greedy_realloc(dst, space, 1))
+                वापस -ENOMEM;
         space = MALLOC_SIZEOF_SAFE(*dst);
 
         _cleanup_(ZSTD_freeDCtxp) ZSTD_DCtx *dctx = sym_ZSTD_createDCtx();
-        if (!dctx)
-                return -ENOMEM;
+        अगर (!dctx)
+                वापस -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_in_बफर निवेश = {
                 .src = src,
-                .size = src_size,
+                .आकार = src_आकार,
         };
-        ZSTD_outBuffer output = {
+        ZSTD_out_बफर output = {
                 .dst = *dst,
                 /* Never offer the decoder more room than the cap: greedy_realloc() over-allocates, so
                  * without this clamp a single ZSTD_decompressStream() call could write past dst_max
                  * before the output.pos >= cap check below fires. */
-                .size = MIN(space, cap),
+                .आकार = MIN(space, cap),
         };
 
-        for (;;) {
-                size_t k = sym_ZSTD_decompressStream(dctx, &output, &input);
-                if (sym_ZSTD_isError(k))
-                        return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
+        क्रम (;;) {
+                माप_प्रकार k = sym_ZSTD_decompressStream(dctx, &output, &निवेश);
+                अगर (sym_ZSTD_isError(k))
+                        वापस log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
 
                 /* output.size is clamped to MIN(space, cap) here and after every grow, and zstd keeps
                  * output.pos <= output.size, so output.pos never exceeds cap: this fires exactly when the
                  * caller's limit has been filled. */
-                if (output.pos >= cap)
-                        break;
+                अगर (output.pos >= cap)
+                        अवरोध;
 
                 /* k == 0 means the current frame was fully decoded and flushed. If no input is left
                  * either, the whole stream is done. This must be checked before the grow branch below:
                  * the frame can finish exactly as the output buffer fills, and growing then would call
                  * the decoder again on already-exhausted input, which it'd misread as a truncated next
                  * frame. */
-                if (k == 0 && input.pos >= input.size)
-                        break;
+                अगर (k == 0 && निवेश.pos >= निवेश.आकार)
+                        अवरोध;
 
                 /* Otherwise there is still work to do: either decoded data buffered inside the decoder
                  * that didn't fit (k != 0, e.g. zstd's buffered-flush mode), or another concatenated
                  * frame to decode (k == 0 with input left). If the output buffer is full, grow it and
                  * call again. Guard against the doubling overflowing size_t (only reachable with an
                  * uncapped dst_max once the allocation has already grown past SIZE_MAX/2). */
-                if (output.pos == output.size) {
-                        if (space > SIZE_MAX / 2)
-                                return -E2BIG;
+                अगर (output.pos == output.आकार) {
+                        अगर (space > SIZE_MAX / 2)
+                                वापस -E2BIG;
                         space = MIN(2 * space, cap);
-                        if (!greedy_realloc(dst, space, 1))
-                                return -ENOMEM;
+                        अगर (!greedy_realloc(dst, space, 1))
+                                वापस -ENOMEM;
                         space = MALLOC_SIZEOF_SAFE(*dst);
                         output.dst = *dst;
-                        output.size = MIN(space, cap);
-                        continue;
+                        output.आकार = MIN(space, cap);
+                        जारी;
                 }
 
                 /* The output buffer still has room but the decoder stopped. If input is exhausted the
                  * decoder wanted more (k != 0, since k == 0 + no input broke above), i.e. the stream was
                  * truncated mid-frame. Otherwise input remains (a concatenated frame) and we loop. */
-                if (input.pos >= input.size)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
+                अगर (निवेश.pos >= निवेश.आकार)
+                        वापस log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
         }
 
-        *dst_size = output.pos;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = output.pos;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_blob_gzip(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
-                size_t dst_max) {
+अटल पूर्णांक decompress_blob_gzip(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **dst,
+                माप_प्रकार *dst_आकार,
+                माप_प्रकार dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_आकार);
 
-#if HAVE_ZLIB
-        int r;
+#अगर HAVE_ZLIB
+        पूर्णांक r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        अगर (src_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
 
         _cleanup_(inflateEnd_wrapper) z_stream s = {};
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -ENOMEM;
+        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (पूर्णांक) माप(s));
+        अगर (r != Z_OK)
+                वापस -ENOMEM;
 
-        size_t space = MIN3(src_size * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        माप_प्रकार space = MIN3(src_आकार * 2, dst_max ?: SIZE_MAX, (माप_प्रकार) अच_पूर्णांक_उच्च);
+        अगर (!greedy_realloc(dst, space, 1))
+                वापस -ENOMEM;
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
-        s.next_out = *dst;
+        s.अग्र_in = (व्योम*) src;
+        s.avail_in = src_आकार;
+        s.अग्र_out = *dst;
         s.avail_out = space;
 
-        for (;;) {
-                size_t used;
+        क्रम (;;) {
+                माप_प्रकार used;
 
                 r = sym_inflate(&s, Z_NO_FLUSH);
-                if (r == Z_STREAM_END)
-                        break;
-                if (!IN_SET(r, Z_OK, Z_BUF_ERROR))
-                        return -EBADMSG;
+                अगर (r == Z_STREAM_END)
+                        अवरोध;
+                अगर (!IN_SET(r, Z_OK, Z_BUF_ERROR))
+                        वापस -EBADMSG;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                अगर (dst_max > 0 && (space - s.avail_out) >= dst_max)
+                        अवरोध;
+                अगर (dst_max > 0 && space == dst_max)
+                        वापस -ENOBUFS;
 
                 used = space - s.avail_out;
-                space = MIN3(2 * space, dst_max ?: SIZE_MAX, UINT_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                space = MIN3(2 * space, dst_max ?: SIZE_MAX, अच_पूर्णांक_उच्च);
+                अगर (!greedy_realloc(dst, space, 1))
+                        वापस -ENOMEM;
 
                 s.avail_out = space - used;
-                s.next_out = *(uint8_t**)dst + used;
+                s.अग्र_out = *(uint8_t**)dst + used;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = space - s.avail_out;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_blob_bzip2(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
-                size_t dst_max) {
+अटल पूर्णांक decompress_blob_bzip2(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **dst,
+                माप_प्रकार *dst_आकार,
+                माप_प्रकार dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(dst);
+        निश्चित(dst_आकार);
 
-#if HAVE_BZIP2
-        int r;
+#अगर HAVE_BZIP2
+        पूर्णांक r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        अगर (src_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
 
         _cleanup_(BZ2_bzDecompressEnd_wrapper) bz_stream s = {};
 
-        if (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                return -EIO;
+        अगर (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                वापस -EIO;
 
-        size_t space = MIN3(src_size * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        माप_प्रकार space = MIN3(src_आकार * 2, dst_max ?: SIZE_MAX, (माप_प्रकार) अच_पूर्णांक_उच्च);
+        अगर (!greedy_realloc(dst, space, 1))
+                वापस -ENOMEM;
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
-        s.next_out = (char*) *dst;
+        s.अग्र_in = (अक्षर*) src;
+        s.avail_in = src_आकार;
+        s.अग्र_out = (अक्षर*) *dst;
         s.avail_out = space;
 
-        for (;;) {
-                size_t used;
+        क्रम (;;) {
+                माप_प्रकार used;
 
                 r = sym_BZ2_bzDecompress(&s);
-                if (r == BZ_STREAM_END)
-                        break;
-                if (r != BZ_OK)
-                        return -EBADMSG;
+                अगर (r == BZ_STREAM_END)
+                        अवरोध;
+                अगर (r != BZ_OK)
+                        वापस -EBADMSG;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                अगर (dst_max > 0 && (space - s.avail_out) >= dst_max)
+                        अवरोध;
+                अगर (dst_max > 0 && space == dst_max)
+                        वापस -ENOBUFS;
 
                 used = space - s.avail_out;
-                space = MIN3(2 * space, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                space = MIN3(2 * space, dst_max ?: SIZE_MAX, (माप_प्रकार) अच_पूर्णांक_उच्च);
+                अगर (!greedy_realloc(dst, space, 1))
+                        वापस -ENOMEM;
 
                 s.avail_out = space - used;
-                s.next_out = (char*) *dst + used;
+                s.अग्र_out = (अक्षर*) *dst + used;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_आकार = space - s.avail_out;
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-int decompress_blob_journal(
+पूर्णांक decompress_blob_journal(
                 Compression compression,
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
-                size_t dst_max) {
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **dst,
+                माप_प्रकार *dst_आकार,
+                माप_प्रकार dst_max) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return decompress_blob_xz(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_LZ4:
-                return decompress_blob_lz4(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_ZSTD:
-                return decompress_blob_zstd(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        default:
-                return -EPROTONOSUPPORT;
+        चयन (compression) {
+        हाल COMPRESSION_XZ:
+                वापस decompress_blob_xz(
+                                src, src_आकार,
+                                dst, dst_आकार, dst_max);
+        हाल COMPRESSION_LZ4:
+                वापस decompress_blob_lz4(
+                                src, src_आकार,
+                                dst, dst_आकार, dst_max);
+        हाल COMPRESSION_ZSTD:
+                वापस decompress_blob_zstd(
+                                src, src_आकार,
+                                dst, dst_आकार, dst_max);
+        शेष:
+                वापस -EPROTONOSUPPORT;
         }
 }
 
-int decompress_blob(
+पूर्णांक decompress_blob(
                 Compression compression,
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
-                size_t dst_max) {
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **dst,
+                माप_प्रकार *dst_आकार,
+                माप_प्रकार dst_max) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return decompress_blob_gzip(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_BZIP2:
-                return decompress_blob_bzip2(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        default:
-                return decompress_blob_journal(
+        चयन (compression) {
+        हाल COMPRESSION_GZIP:
+                वापस decompress_blob_gzip(
+                                src, src_आकार,
+                                dst, dst_आकार, dst_max);
+        हाल COMPRESSION_BZIP2:
+                वापस decompress_blob_bzip2(
+                                src, src_आकार,
+                                dst, dst_आकार, dst_max);
+        शेष:
+                वापस decompress_blob_journal(
                                 compression,
-                                src, src_size,
-                                dst, dst_size, dst_max);
+                                src, src_आकार,
+                                dst, dst_आकार, dst_max);
         }
 }
 
-int decompress_zlib_raw(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_size,
-                int wbits) {
+पूर्णांक decompress_zlib_raw(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम *dst,
+                माप_प्रकार dst_आकार,
+                पूर्णांक wbits) {
 
-#if HAVE_ZLIB
-        int r;
+#अगर HAVE_ZLIB
+        पूर्णांक r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_size > UINT_MAX)
-                return -EFBIG;
+        अगर (src_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
+        अगर (dst_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
 
         _cleanup_(inflateEnd_wrapper) z_stream s = {
-                .next_in = (void*) src,
-                .avail_in = src_size,
-                .next_out = dst,
-                .avail_out = dst_size,
+                .अग्र_in = (व्योम*) src,
+                .avail_in = src_आकार,
+                .अग्र_out = dst,
+                .avail_out = dst_आकार,
         };
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ wbits, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -EIO;
+        r = sym_inflateInit2_(&s, /* windowBits= */ wbits, ZLIB_VERSION, (पूर्णांक) माप(s));
+        अगर (r != Z_OK)
+                वापस -EIO;
 
         r = sym_inflate(&s, Z_FINISH);
-        size_t produced = (uint8_t*) s.next_out - (uint8_t*) dst;
+        माप_प्रकार produced = (uint8_t*) s.अग्र_out - (uint8_t*) dst;
 
-        if (r != Z_STREAM_END || produced != dst_size)
-                return -EBADMSG;
+        अगर (r != Z_STREAM_END || produced != dst_आकार)
+                वापस -EBADMSG;
 
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        वापस 0;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_startswith_xz(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+अटल पूर्णांक decompress_startswith_xz(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **बफर,
+                स्थिर व्योम *prefix,
+                माप_प्रकार prefix_len,
                 uint8_t extra) {
 
         /* Checks whether the decompressed blob starts with the mentioned prefix. The byte extra needs to
          * follow the prefix */
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(बफर);
+        निश्चित(prefix);
 
-#if HAVE_XZ
-        int r;
+#अगर HAVE_XZ
+        पूर्णांक r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         _cleanup_(lzma_end_wrapper) lzma_stream s = LZMA_STREAM_INIT;
         lzma_ret ret = sym_lzma_stream_decoder(&s, UINT64_MAX, /* flags= */ 0);
-        if (ret != LZMA_OK)
-                return -EBADMSG;
+        अगर (ret != LZMA_OK)
+                वापस -EBADMSG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        अगर (!(greedy_realloc(बफर, ALIGN_8(prefix_len + 1), 1)))
+                वापस -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        माप_प्रकार allocated = MALLOC_SIZEOF_SAFE(*बफर);
 
-        s.next_in = src;
-        s.avail_in = src_size;
+        s.अग्र_in = src;
+        s.avail_in = src_आकार;
 
-        s.next_out = *buffer;
+        s.अग्र_out = *बफर;
         s.avail_out = allocated;
 
-        for (;;) {
+        क्रम (;;) {
                 ret = sym_lzma_code(&s, LZMA_FINISH);
 
-                if (!IN_SET(ret, LZMA_OK, LZMA_STREAM_END))
-                        return -EBADMSG;
+                अगर (!IN_SET(ret, LZMA_OK, LZMA_STREAM_END))
+                        वापस -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                अगर (allocated - s.avail_out >= prefix_len + 1)
+                        वापस स_भेद(*बफर, prefix, prefix_len) == 0 &&
+                                ((स्थिर uint8_t*) *बफर)[prefix_len] == extra;
 
-                if (ret == LZMA_STREAM_END)
-                        return 0;
+                अगर (ret == LZMA_STREAM_END)
+                        वापस 0;
 
                 s.avail_out += allocated;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                अगर (!(greedy_realloc(बफर, allocated * 2, 1)))
+                        वापस -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.next_out = *(uint8_t**)buffer + allocated - s.avail_out;
+                allocated = MALLOC_SIZEOF_SAFE(*बफर);
+                s.अग्र_out = *(uint8_t**)बफर + allocated - s.avail_out;
         }
 
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_startswith_lz4(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+अटल पूर्णांक decompress_startswith_lz4(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **बफर,
+                स्थिर व्योम *prefix,
+                माप_प्रकार prefix_len,
                 uint8_t extra) {
 
         /* Checks whether the decompressed blob starts with the mentioned prefix. The byte extra needs to
          * follow the prefix */
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(बफर);
+        निश्चित(prefix);
 
-#if HAVE_LZ4
-        size_t allocated;
-        int r;
+#अगर HAVE_LZ4
+        माप_प्रकार allocated;
+        पूर्णांक r;
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size <= 8)
-                return -EBADMSG;
+        अगर (src_आकार <= 8)
+                वापस -EBADMSG;
 
-        if (src_size - 8 > INT_MAX)
-                return -EFBIG;
+        अगर (src_आकार - 8 > पूर्णांक_उच्च)
+                वापस -EFBIG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
-        allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        अगर (!(greedy_realloc(बफर, ALIGN_8(prefix_len + 1), 1)))
+                वापस -ENOMEM;
+        allocated = MALLOC_SIZEOF_SAFE(*बफर);
 
         r = sym_LZ4_decompress_safe_partial(
-                        (char*)src + 8,
-                        *buffer,
-                        src_size - 8,
+                        (अक्षर*)src + 8,
+                        *बफर,
+                        src_आकार - 8,
                         prefix_len + 1,
                         allocated);
 
@@ -1291,1180 +1291,1180 @@ static int decompress_startswith_lz4(
          * decompressed. But if we get a smaller amount of bytes than requested, we don't know whether there
          * isn't enough data to fill the requested size or whether we just got a partial answer.
          */
-        if (r < 0 || (size_t) r < prefix_len + 1) {
-                size_t size;
+        अगर (r < 0 || (माप_प्रकार) r < prefix_len + 1) {
+                माप_प्रकार आकार;
 
-                if (sym_LZ4_versionNumber() >= 10803)
+                अगर (sym_LZ4_version_संख्या() >= 10803)
                         /* We trust that the newer lz4 decompresses the number of bytes we
                          * requested if available in the compressed string. */
-                        return 0;
+                        वापस 0;
 
-                if (r > 0)
+                अगर (r > 0)
                         /* Compare what we have first, in case of mismatch we can
                          * shortcut the full comparison. */
-                        if (memcmp(*buffer, prefix, r) != 0)
-                                return 0;
+                        अगर (स_भेद(*बफर, prefix, r) != 0)
+                                वापस 0;
 
                 /* Before version 1.8.3, lz4 always tries to decode full a "sequence",
                  * so in pathological cases might need to decompress the full field. */
-                r = decompress_blob_lz4(src, src_size, buffer, &size, 0);
-                if (r < 0)
-                        return r;
+                r = decompress_blob_lz4(src, src_आकार, बफर, &आकार, 0);
+                अगर (r < 0)
+                        वापस r;
 
-                if (size < prefix_len + 1)
-                        return 0;
+                अगर (आकार < prefix_len + 1)
+                        वापस 0;
         }
 
-        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                ((const uint8_t*) *buffer)[prefix_len] == extra;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        वापस स_भेद(*बफर, prefix, prefix_len) == 0 &&
+                ((स्थिर uint8_t*) *बफर)[prefix_len] == extra;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_startswith_zstd(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+अटल पूर्णांक decompress_startswith_zstd(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **बफर,
+                स्थिर व्योम *prefix,
+                माप_प्रकार prefix_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(बफर);
+        निश्चित(prefix);
 
-#if HAVE_ZSTD
-        int r;
+#अगर HAVE_ZSTD
+        पूर्णांक r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         /* ZSTD_getFrameContentSize() returns unsigned long long, which is not necessarily size_t. */
-        unsigned long long size = sym_ZSTD_getFrameContentSize(src, src_size);
-        if (size == ZSTD_CONTENTSIZE_ERROR)
-                return -EBADMSG;
+        अचिन्हित दीर्घ दीर्घ आकार = sym_ZSTD_get_Frame_Content_आकार(src, src_आकार);
+        अगर (आकार == ZSTD_CONTENTSIZE_ERROR)
+                वापस -EBADMSG;
 
         /* ZSTD_CONTENTSIZE_UNKNOWN means the frame doesn't record the decompressed size, so we can't
          * shortcut here. The single decompression below only needs prefix_len + 1 bytes anyway. */
-        if (size != ZSTD_CONTENTSIZE_UNKNOWN && size < prefix_len + 1)
-                return 0; /* Decompressed text too short to match the prefix and extra */
+        अगर (आकार != ZSTD_CONTENTSIZE_UNKNOWN && आकार < prefix_len + 1)
+                वापस 0; /* Decompressed text too short to match the prefix and extra */
 
         _cleanup_(ZSTD_freeDCtxp) ZSTD_DCtx *dctx = sym_ZSTD_createDCtx();
-        if (!dctx)
-                return -ENOMEM;
+        अगर (!dctx)
+                वापस -ENOMEM;
 
-        if (!(greedy_realloc(buffer, MAX(sym_ZSTD_DStreamOutSize(), prefix_len + 1), 1)))
-                return -ENOMEM;
+        अगर (!(greedy_realloc(बफर, MAX(sym_ZSTD_DStream_Out_आकार(), prefix_len + 1), 1)))
+                वापस -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_in_बफर निवेश = {
                 .src = src,
-                .size = src_size,
+                .आकार = src_आकार,
         };
-        ZSTD_outBuffer output = {
-                .dst = *buffer,
-                .size = MALLOC_SIZEOF_SAFE(*buffer),
+        ZSTD_out_बफर output = {
+                .dst = *बफर,
+                .आकार = MALLOC_SIZEOF_SAFE(*बफर),
         };
-        size_t k;
+        माप_प्रकार k;
 
-        k = sym_ZSTD_decompressStream(dctx, &output, &input);
-        if (sym_ZSTD_isError(k))
-                return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
-        if (output.pos < prefix_len + 1) {
+        k = sym_ZSTD_decompressStream(dctx, &output, &निवेश);
+        अगर (sym_ZSTD_isError(k))
+                वापस log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
+        अगर (output.pos < prefix_len + 1) {
                 /* The output buffer is at least prefix_len + 1 bytes, so if it isn't full the decoder
                  * stopped for another reason: either the frame ended (k == 0), in which case the stream
                  * is simply too short to match the prefix, or it's still expecting input (k != 0), which
                  * means the stream was truncated mid-frame. */
-                if (k != 0)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
-                return 0; /* Decompressed text too short to match the prefix and extra */
+                अगर (k != 0)
+                        वापस log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
+                वापस 0; /* Decompressed text too short to match the prefix and extra */
         }
 
-        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                ((const uint8_t*) *buffer)[prefix_len] == extra;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        वापस स_भेद(*बफर, prefix, prefix_len) == 0 &&
+                ((स्थिर uint8_t*) *बफर)[prefix_len] == extra;
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_startswith_gzip(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+अटल पूर्णांक decompress_startswith_gzip(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **बफर,
+                स्थिर व्योम *prefix,
+                माप_प्रकार prefix_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(बफर);
+        निश्चित(prefix);
 
-#if HAVE_ZLIB
-        int r;
+#अगर HAVE_ZLIB
+        पूर्णांक r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        अगर (src_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
 
         _cleanup_(inflateEnd_wrapper) z_stream s = {};
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -EBADMSG;
+        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (पूर्णांक) माप(s));
+        अगर (r != Z_OK)
+                वापस -EBADMSG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        अगर (!(greedy_realloc(बफर, ALIGN_8(prefix_len + 1), 1)))
+                वापस -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        माप_प्रकार allocated = MALLOC_SIZEOF_SAFE(*बफर);
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
+        s.अग्र_in = (व्योम*) src;
+        s.avail_in = src_आकार;
 
-        s.next_out = *buffer;
-        s.avail_out = MIN(allocated, (size_t) UINT_MAX);
+        s.अग्र_out = *बफर;
+        s.avail_out = MIN(allocated, (माप_प्रकार) अच_पूर्णांक_उच्च);
 
-        for (;;) {
+        क्रम (;;) {
                 r = sym_inflate(&s, Z_FINISH);
 
-                if (!IN_SET(r, Z_OK, Z_STREAM_END, Z_BUF_ERROR))
-                        return -EBADMSG;
+                अगर (!IN_SET(r, Z_OK, Z_STREAM_END, Z_BUF_ERROR))
+                        वापस -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                अगर (allocated - s.avail_out >= prefix_len + 1)
+                        वापस स_भेद(*बफर, prefix, prefix_len) == 0 &&
+                                ((स्थिर uint8_t*) *बफर)[prefix_len] == extra;
 
-                if (r == Z_STREAM_END)
-                        return 0;
+                अगर (r == Z_STREAM_END)
+                        वापस 0;
 
-                if (s.avail_out > 0)
-                        return -EBADMSG; /* truncated */
+                अगर (s.avail_out > 0)
+                        वापस -EBADMSG; /* truncated */
 
-                size_t used = allocated - s.avail_out;
+                माप_प्रकार used = allocated - s.avail_out;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                अगर (!(greedy_realloc(बफर, allocated * 2, 1)))
+                        वापस -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.avail_out = MIN(allocated - used, (size_t) UINT_MAX);
-                s.next_out = *(uint8_t**)buffer + used;
+                allocated = MALLOC_SIZEOF_SAFE(*बफर);
+                s.avail_out = MIN(allocated - used, (माप_प्रकार) अच_पूर्णांक_उच्च);
+                s.अग्र_out = *(uint8_t**)बफर + used;
         }
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-static int decompress_startswith_bzip2(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+अटल पूर्णांक decompress_startswith_bzip2(
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                व्योम **बफर,
+                स्थिर व्योम *prefix,
+                माप_प्रकार prefix_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        निश्चित(src);
+        निश्चित(src_आकार > 0);
+        निश्चित(बफर);
+        निश्चित(prefix);
 
-#if HAVE_BZIP2
-        int r;
+#अगर HAVE_BZIP2
+        पूर्णांक r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        अगर (src_आकार > अच_पूर्णांक_उच्च)
+                वापस -EFBIG;
 
         _cleanup_(BZ2_bzDecompressEnd_wrapper) bz_stream s = {};
 
-        if (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                return -EIO;
+        अगर (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                वापस -EIO;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        अगर (!(greedy_realloc(बफर, ALIGN_8(prefix_len + 1), 1)))
+                वापस -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        माप_प्रकार allocated = MALLOC_SIZEOF_SAFE(*बफर);
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
+        s.अग्र_in = (अक्षर*) src;
+        s.avail_in = src_आकार;
 
-        s.next_out = *buffer;
-        s.avail_out = MIN(allocated, (size_t) UINT_MAX);
+        s.अग्र_out = *बफर;
+        s.avail_out = MIN(allocated, (माप_प्रकार) अच_पूर्णांक_उच्च);
 
-        for (;;) {
+        क्रम (;;) {
                 r = sym_BZ2_bzDecompress(&s);
 
-                if (!IN_SET(r, BZ_OK, BZ_STREAM_END))
-                        return -EBADMSG;
+                अगर (!IN_SET(r, BZ_OK, BZ_STREAM_END))
+                        वापस -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                अगर (allocated - s.avail_out >= prefix_len + 1)
+                        वापस स_भेद(*बफर, prefix, prefix_len) == 0 &&
+                                ((स्थिर uint8_t*) *बफर)[prefix_len] == extra;
 
-                if (r == BZ_STREAM_END)
-                        return 0;
+                अगर (r == BZ_STREAM_END)
+                        वापस 0;
 
-                if (s.avail_out > 0)
-                        return -EBADMSG; /* truncated */
+                अगर (s.avail_out > 0)
+                        वापस -EBADMSG; /* truncated */
 
-                size_t used = allocated - s.avail_out;
+                माप_प्रकार used = allocated - s.avail_out;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                अगर (!(greedy_realloc(बफर, allocated * 2, 1)))
+                        वापस -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.avail_out = MIN(allocated - used, (size_t) UINT_MAX);
-                s.next_out = (char*) *buffer + used;
+                allocated = MALLOC_SIZEOF_SAFE(*बफर);
+                s.avail_out = MIN(allocated - used, (माप_प्रकार) अच_पूर्णांक_उच्च);
+                s.अग्र_out = (अक्षर*) *बफर + used;
         }
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#अन्यथा
+        वापस -EPROTONOSUPPORT;
+#पूर्ण_अगर
 }
 
-int decompress_startswith_journal(
+पूर्णांक decompress_startswith_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **buffer,
-                const void *prefix, size_t prefix_len,
+                स्थिर व्योम *src, uint64_t src_आकार,
+                व्योम **बफर,
+                स्थिर व्योम *prefix, माप_प्रकार prefix_len,
                 uint8_t extra) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return decompress_startswith_xz(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_LZ4:
-                return decompress_startswith_lz4(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_ZSTD:
-                return decompress_startswith_zstd(src, src_size, buffer, prefix, prefix_len, extra);
-        default:
-                return -EOPNOTSUPP;
+        चयन (compression) {
+        हाल COMPRESSION_XZ:
+                वापस decompress_startswith_xz(src, src_आकार, बफर, prefix, prefix_len, extra);
+        हाल COMPRESSION_LZ4:
+                वापस decompress_startswith_lz4(src, src_आकार, बफर, prefix, prefix_len, extra);
+        हाल COMPRESSION_ZSTD:
+                वापस decompress_startswith_zstd(src, src_आकार, बफर, prefix, prefix_len, extra);
+        शेष:
+                वापस -EOPNOTSUPP;
         }
 }
 
-int decompress_startswith(
+पूर्णांक decompress_startswith(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **buffer,
-                const void *prefix, size_t prefix_len,
+                स्थिर व्योम *src, uint64_t src_आकार,
+                व्योम **बफर,
+                स्थिर व्योम *prefix, माप_प्रकार prefix_len,
                 uint8_t extra) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return decompress_startswith_gzip(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_BZIP2:
-                return decompress_startswith_bzip2(src, src_size, buffer, prefix, prefix_len, extra);
-        default:
-                return decompress_startswith_journal(compression, src, src_size, buffer, prefix, prefix_len, extra);
+        चयन (compression) {
+        हाल COMPRESSION_GZIP:
+                वापस decompress_startswith_gzip(src, src_आकार, बफर, prefix, prefix_len, extra);
+        हाल COMPRESSION_BZIP2:
+                वापस decompress_startswith_bzip2(src, src_आकार, बफर, prefix, prefix_len, extra);
+        शेष:
+                वापस decompress_startswith_journal(compression, src, src_आकार, बफर, prefix, prefix_len, extra);
         }
 }
 
-int compress_stream(
+पूर्णांक compress_stream(
                 Compression type,
-                int fdf, int fdt,
+                पूर्णांक fdf, पूर्णांक fdt,
                 uint64_t max_bytes,
-                uint64_t *ret_uncompressed_size) {
+                uint64_t *ret_uncompressed_आकार) {
 
-        _cleanup_(compressor_freep) Compressor *c = NULL;
-        _cleanup_free_ void *buf = NULL;
-        _cleanup_free_ uint8_t *input = NULL;
-        size_t buf_size = 0, buf_alloc = 0;
-        uint64_t total_in = 0, total_out = 0;
-        int r;
+        _cleanup_(compressor_freep) Compressor *c = शून्य;
+        _cleanup_free_ व्योम *buf = शून्य;
+        _cleanup_free_ uint8_t *निवेश = शून्य;
+        माप_प्रकार buf_size = 0, buf_alloc = 0;
+        uint64_t योग_in = 0, योग_out = 0;
+        पूर्णांक r;
 
-        assert(fdf >= 0);
-        assert(fdt >= 0);
+        निश्चित(fdf >= 0);
+        निश्चित(fdt >= 0);
 
         r = compressor_new(&c, type);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        input = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-        if (!input)
-                return -ENOMEM;
+        निवेश = new(uint8_t, COMPRESS_PIPE_बफर_आकार);
+        अगर (!निवेश)
+                वापस -ENOMEM;
 
-        for (;;) {
-                size_t m = COMPRESS_PIPE_BUFFER_SIZE;
+        क्रम (;;) {
+                माप_प्रकार m = COMPRESS_PIPE_बफर_आकार;
                 ssize_t n;
 
-                if (max_bytes != UINT64_MAX && (uint64_t) m > max_bytes)
-                        m = (size_t) max_bytes;
+                अगर (max_bytes != UINT64_MAX && (uint64_t) m > max_bytes)
+                        m = (माप_प्रकार) max_bytes;
 
-                n = read(fdf, input, m);
-                if (n < 0)
-                        return -errno;
+                n = पढ़ो(fdf, निवेश, m);
+                अगर (n < 0)
+                        वापस -त्रुटि_सं;
 
-                if (n == 0) {
+                अगर (n == 0) {
                         r = compressor_finish(c, &buf, &buf_size, &buf_alloc);
-                        if (r < 0)
-                                return r;
+                        अगर (r < 0)
+                                वापस r;
 
-                        if (buf_size > 0) {
+                        अगर (buf_size > 0) {
                                 r = loop_write(fdt, buf, buf_size);
-                                if (r < 0)
-                                        return r;
-                                total_out += buf_size;
+                                अगर (r < 0)
+                                        वापस r;
+                                योग_out += buf_size;
                         }
-                        break;
+                        अवरोध;
                 }
 
-                total_in += n;
-                if (max_bytes != UINT64_MAX) {
-                        assert(max_bytes >= (uint64_t) n);
+                योग_in += n;
+                अगर (max_bytes != UINT64_MAX) {
+                        निश्चित(max_bytes >= (uint64_t) n);
                         max_bytes -= n;
                 }
 
-                r = compressor_start(c, input, n, &buf, &buf_size, &buf_alloc);
-                if (r < 0)
-                        return r;
+                r = compressor_start(c, निवेश, n, &buf, &buf_size, &buf_alloc);
+                अगर (r < 0)
+                        वापस r;
 
-                if (buf_size > 0) {
+                अगर (buf_size > 0) {
                         r = loop_write(fdt, buf, buf_size);
-                        if (r < 0)
-                                return r;
-                        total_out += buf_size;
+                        अगर (r < 0)
+                                वापस r;
+                        योग_out += buf_size;
                 }
         }
 
-        if (ret_uncompressed_size)
-                *ret_uncompressed_size = total_in;
+        अगर (ret_uncompressed_आकार)
+                *ret_uncompressed_आकार = योग_in;
 
-        if (total_in == 0)
+        अगर (योग_in == 0)
                 log_debug("%s compression finished (no input data)", compression_to_string(type));
-        else
+        अन्यथा
                 log_debug("%s compression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                          compression_to_string(type), total_in, total_out, (double) total_out / total_in * 100);
+                          compression_to_string(type), योग_in, योग_out, (द्विगुन) योग_out / योग_in * 100);
 
-        return 0;
+        वापस 0;
 }
 
-static int should_sparse(int fd) {
-        struct stat st;
+अटल पूर्णांक should_sparse(पूर्णांक fd) {
+        काष्ठा stat st;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
         /* Determine whether sparse writes should be used for this fd. Sparse writes are only safe on regular
          * files, without O_APPEND (which ignores the lseek position, collapsing any holes we try to create),
          * and only when starting from a position at or beyond the current end of file (otherwise the skipped
          * ranges would overlap pre-existing data instead of being genuinely unwritten). */
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        अगर (ख_स्थिति(fd, &st) < 0)
+                वापस -त्रुटि_सं;
 
-        if (!S_ISREG(st.st_mode))
-                return false;
+        अगर (!S_ISREG(st.st_mode))
+                वापस false;
 
-        int flags = fcntl(fd, F_GETFL);
-        if (flags < 0)
-                return -errno;
+        पूर्णांक flags = fcntl(fd, F_GETFL);
+        अगर (flags < 0)
+                वापस -त्रुटि_सं;
 
-        if (FLAGS_SET(flags, O_APPEND))
-                return false;
+        अगर (FLAGS_SET(flags, O_APPEND))
+                वापस false;
 
-        off_t pos = lseek(fd, 0, SEEK_CUR);
-        if (pos < 0)
-                return -errno;
+        off_t pos = lseek(fd, 0, प्रस्तुत_से);
+        अगर (pos < 0)
+                वापस -त्रुटि_सं;
 
-        return pos >= st.st_size;
+        वापस pos >= st.st_size;
 }
 
 /* After sparse decompression, set the file size to the current position to account for
  * trailing holes that sparse_write() created via lseek but never extended the file size for. */
-static int finalize_sparse(int fd) {
+अटल पूर्णांक finalize_sparse(पूर्णांक fd) {
         off_t pos;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
-        pos = lseek(fd, 0, SEEK_CUR);
-        if (pos < 0)
-                return -errno;
+        pos = lseek(fd, 0, प्रस्तुत_से);
+        अगर (pos < 0)
+                वापस -त्रुटि_सं;
 
-        if (ftruncate(fd, pos) < 0)
-                return -errno;
+        अगर (ftruncate(fd, pos) < 0)
+                वापस -त्रुटि_सं;
 
-        return 0;
+        वापस 0;
 }
 
 /* Common helper for decompress_stream_*() wrappers */
 
-struct decompress_stream_userdata {
-        int fd;
+काष्ठा decompress_stream_userdata {
+        पूर्णांक fd;
         uint64_t max_bytes;
-        uint64_t total_out;
+        uint64_t योग_out;
         uint64_t skip; /* bytes to discard from the very start of the decompressed stream before anything is
                         * actually written */
         bool sparse;
 };
 
-static int decompress_stream_write_callback(const void *data, size_t size, void *userdata) {
-        struct decompress_stream_userdata *u = ASSERT_PTR(userdata);
+अटल पूर्णांक decompress_stream_write_callback(स्थिर व्योम *तथ्य, माप_प्रकार आकार, व्योम *userdata) {
+        काष्ठा decompress_stream_userdata *u = ASSERT_PTR(userdata);
 
         /* Accounting (max_bytes/total_out) happens against the *full* decompressed stream, including the
          * part we're about to skip. */
-        if (u->max_bytes != UINT64_MAX) {
-                if (u->max_bytes < size)
-                        return -EFBIG;
-                u->max_bytes -= size;
+        अगर (u->max_bytes != UINT64_MAX) {
+                अगर (u->max_bytes < आकार)
+                        वापस -EFBIG;
+                u->max_bytes -= आकार;
         }
 
-        u->total_out += size;
+        u->योग_out += आकार;
 
-        if (u->skip > 0) {
-                if (u->skip >= size) {
-                        u->skip -= size;
-                        return 0;
+        अगर (u->skip > 0) {
+                अगर (u->skip >= आकार) {
+                        u->skip -= आकार;
+                        वापस 0;
                 }
 
-                data = (const uint8_t*) data + u->skip;
-                size -= u->skip;
+                तथ्य = (स्थिर uint8_t*) तथ्य + u->skip;
+                आकार -= u->skip;
                 u->skip = 0;
         }
 
-        if (size == 0)
-                return 0;
+        अगर (आकार == 0)
+                वापस 0;
 
-        if (u->sparse) {
+        अगर (u->sparse) {
                 /* Note: sparse_write() does not retry on EINTR and converts short writes to -EIO.
                  * This is fine here since sparse mode is only used on regular files, where short
                  * writes and EINTR are not expected in practice. */
-                ssize_t k = sparse_write(u->fd, data, size, 64);
-                if (k < 0)
-                        return (int) k;
-                return 0;
+                ssize_t k = sparse_write(u->fd, तथ्य, आकार, 64);
+                अगर (k < 0)
+                        वापस (पूर्णांक) k;
+                वापस 0;
         }
 
-        return loop_write(u->fd, data, size);
+        वापस loop_write(u->fd, तथ्य, आकार);
 }
 
-static int decompressor_new(Decompressor **ret, Compression type, DecompressFlags flags) {
-        assert(ret);
+अटल पूर्णांक decompressor_new(Decompressor **ret, Compression type, DecompressFlags flags) {
+        निश्चित(ret);
 
         _cleanup_(compressor_freep) Decompressor *c = new0(Decompressor, 1);
-        if (!c)
-                return -ENOMEM;
+        अगर (!c)
+                वापस -ENOMEM;
 
         c->type = _COMPRESSION_INVALID;
 
-        switch (type) {
-        case COMPRESSION_NONE:
-                break;
+        चयन (type) {
+        हाल COMPRESSION_NONE:
+                अवरोध;
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#अगर HAVE_XZ
+        हाल COMPRESSION_XZ: {
                 uint32_t xz_flags = LZMA_TELL_UNSUPPORTED_CHECK |
                         (FLAGS_SET(flags, DECOMPRESS_REFUSE_CONCATENATED) ? 0 : LZMA_CONCATENATED);
                 lzma_ret xz_ret = FLAGS_SET(flags, DECOMPRESS_LEGACY_LZMA) ?
                         sym_lzma_auto_decoder(&c->xz, UINT64_MAX, xz_flags) :
                         sym_lzma_stream_decoder(&c->xz, UINT64_MAX, xz_flags);
-                if (xz_ret != LZMA_OK)
-                        return -EIO;
-                break;
+                अगर (xz_ret != LZMA_OK)
+                        वापस -EIO;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                size_t rc = sym_LZ4F_createDecompressionContext(&c->d_lz4, LZ4F_VERSION);
-                if (sym_LZ4F_isError(rc))
-                        return -ENOMEM;
+#अगर HAVE_LZ4
+        हाल COMPRESSION_LZ4: {
+                माप_प्रकार rc = sym_LZ4F_createDecompressionContext(&c->d_lz4, LZ4F_VERSION);
+                अगर (sym_LZ4F_isError(rc))
+                        वापस -ENOMEM;
 
-                break;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
+#अगर HAVE_ZSTD
+        हाल COMPRESSION_ZSTD:
                 c->d_zstd = sym_ZSTD_createDCtx();
-                if (!c->d_zstd)
-                        return -ENOMEM;
-                break;
-#endif
+                अगर (!c->d_zstd)
+                        वापस -ENOMEM;
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (sym_inflateInit2_(&c->gzip, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(c->gzip)) != Z_OK)
-                        return -EIO;
-                break;
-#endif
+#अगर HAVE_ZLIB
+        हाल COMPRESSION_GZIP:
+                अगर (sym_inflateInit2_(&c->gzip, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (पूर्णांक) माप(c->gzip)) != Z_OK)
+                        वापस -EIO;
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                        return -EIO;
-                break;
-#endif
+#अगर HAVE_BZIP2
+        हाल COMPRESSION_BZIP2:
+                अगर (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                        वापस -EIO;
+                अवरोध;
+#पूर्ण_अगर
 
-        default:
+        शेष:
                 assert_not_reached();
         }
 
         c->type = type;
         c->encoding = false;
         *ret = TAKE_PTR(c);
-        return 0;
+        वापस 0;
 }
 
-static int decompress_blob_to_fd_impl(
+अटल पूर्णांक decompress_blob_to_fd_impl(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                पूर्णांक fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                माप_प्रकार *ret_आकार) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(src);
-        assert(fdt >= 0);
+        निश्चित(src);
+        निश्चित(fdt >= 0);
 
-        if (type == COMPRESSION_NONE)
-                return -EOPNOTSUPP;
+        अगर (type == COMPRESSION_NONE)
+                वापस -EOPNOTSUPP;
 
-        if (src_size == 0)
-                return -EBADMSG;
+        अगर (src_आकार == 0)
+                वापस -EBADMSG;
 
         /* LZ4 is special: compress_blob() produces the raw LZ4 block format (with a custom 8-byte size
          * header), while the streaming decompressor infra (decompressor_push()) expects LZ4 Frame format, as
          * produced by compress_stream(). The two are not interchangeable, so route LZ4 blobs through the raw
          * block decoder instead. */
-        if (type == COMPRESSION_LZ4 &&
-            src_size >= COMPRESSION_MAGIC_BYTES_MAX &&
+        अगर (type == COMPRESSION_LZ4 &&
+            src_आकार >= COMPRESSION_MAGIC_BYTES_MAX &&
             compression_detect_from_magic(src) != COMPRESSION_LZ4) {
 
                 /* Hopefully, the data is produced by compress_blob(). In that case, let's use
                  * decompress_blob_lz4() + loop_write(). */
 
-                if (skip > 0) {
+                अगर (skip > 0) {
                         /* Check if the result size is larger than skip. */
 
-                        if (src_size <= sizeof(uint64_t))
-                                return -EBADMSG;
+                        अगर (src_आकार <= माप(uint64_t))
+                                वापस -EBADMSG;
 
                         uint64_t sz = unaligned_read_le64(src);
-                        if (sz < skip)
-                                return -EBADMSG;
+                        अगर (sz < skip)
+                                वापस -EBADMSG;
                 }
 
                 /* max_bytes == 0 means do not write anything, but decompress_blob_lz4() with
                  * dst_max=0 means no size limit. Let's return earlier when max_bytes == 0. */
-                if (max_bytes == 0)
-                        return -ENOBUFS;
+                अगर (max_bytes == 0)
+                        वापस -ENOBUFS;
 
-                _cleanup_free_ void *buf = NULL;
-                size_t size = 0;  /* avoid false maybe-uninitialized warning */
-                r = decompress_blob_lz4(src, src_size, &buf, &size,
-                                        max_bytes >= SIZE_MAX ? 0 : (size_t) max_bytes);
-                if (r < 0)
-                        return r;
+                _cleanup_free_ व्योम *buf = शून्य;
+                माप_प्रकार आकार = 0;  /* avoid false maybe-uninitialized warning */
+                r = decompress_blob_lz4(src, src_आकार, &buf, &आकार,
+                                        max_bytes >= SIZE_MAX ? 0 : (माप_प्रकार) max_bytes);
+                अगर (r < 0)
+                        वापस r;
 
                 /* Check the result size again for safety. */
-                if (size < skip)
-                        return -EBADMSG;
+                अगर (आकार < skip)
+                        वापस -EBADMSG;
 
-                r = loop_write(fdt, (uint8_t*) buf + skip, size - skip);
-                if (r < 0)
-                        return r;
+                r = loop_write(fdt, (uint8_t*) buf + skip, आकार - skip);
+                अगर (r < 0)
+                        वापस r;
 
                 log_debug("lz4 decompression finished (%" PRIu64 " -> %zu bytes, %.1f%%)",
-                          src_size, size, (double) size / src_size * 100);
+                          src_आकार, आकार, (द्विगुन) आकार / src_आकार * 100);
 
-                if (ret_size)
-                        *ret_size = size - skip;
-                return 0;
+                अगर (ret_आकार)
+                        *ret_आकार = आकार - skip;
+                वापस 0;
         }
 
-        _cleanup_(compressor_freep) Decompressor *c = NULL;
+        _cleanup_(compressor_freep) Decompressor *c = शून्य;
         r = decompressor_new(&c, type, DECOMPRESS_REFUSE_CONCATENATED);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        struct decompress_stream_userdata userdata = {
+        काष्ठा decompress_stream_userdata userdata = {
                 .fd = fdt,
                 .max_bytes = max_bytes,
                 .skip = skip,
                 .sparse = should_sparse(fdt) > 0,
         };
 
-        r = decompressor_push(c, src, src_size, decompress_stream_write_callback, &userdata);
-        if (r < 0)
-                return r;
+        r = decompressor_धकेलो(c, src, src_आकार, decompress_stream_write_callback, &userdata);
+        अगर (r < 0)
+                वापस r;
 
         /* Finalize */
-        r = decompressor_push(c, /* data= */ NULL, /* size= */ 0, decompress_stream_write_callback, &userdata);
-        if (r < 0)
-                return r;
+        r = decompressor_धकेलो(c, /* data= */ शून्य, /* size= */ 0, decompress_stream_write_callback, &userdata);
+        अगर (r < 0)
+                वापस r;
 
-        if (userdata.total_out < skip)
-                return -EBADMSG;
+        अगर (userdata.योग_out < skip)
+                वापस -EBADMSG;
 
-        if (userdata.sparse) {
+        अगर (userdata.sparse) {
                 r = finalize_sparse(fdt);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
         log_debug("%s decompression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                  compression_to_string(type), src_size, userdata.total_out,
-                  (double) userdata.total_out / src_size * 100);
+                  compression_to_string(type), src_आकार, userdata.योग_out,
+                  (द्विगुन) userdata.योग_out / src_आकार * 100);
 
-        if (ret_size)
-                *ret_size = userdata.total_out - skip;
+        अगर (ret_आकार)
+                *ret_आकार = userdata.योग_out - skip;
 
-        return 0;
+        वापस 0;
 }
 
-int decompress_blob_to_fd_journal(
+पूर्णांक decompress_blob_to_fd_journal(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                पूर्णांक fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                माप_प्रकार *ret_आकार) {
 
-        int r;
+        पूर्णांक r;
 
         r = dlopen_compress_journal(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return decompress_blob_to_fd_impl(type, src, src_size, fdt, max_bytes, skip, ret_size);
+        वापस decompress_blob_to_fd_impl(type, src, src_आकार, fdt, max_bytes, skip, ret_आकार);
 }
 
-int decompress_blob_to_fd(
+पूर्णांक decompress_blob_to_fd(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                स्थिर व्योम *src,
+                uint64_t src_आकार,
+                पूर्णांक fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                माप_प्रकार *ret_आकार) {
 
-        int r;
+        पूर्णांक r;
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return decompress_blob_to_fd_impl(type, src, src_size, fdt, max_bytes, skip, ret_size);
+        वापस decompress_blob_to_fd_impl(type, src, src_आकार, fdt, max_bytes, skip, ret_आकार);
 }
 
-int decompress_stream_full(
+पूर्णांक decompress_stream_full(
                 Compression type,
-                int fdf, int fdt,
+                पूर्णांक fdf, पूर्णांक fdt,
                 uint64_t max_bytes,
                 DecompressFlags flags) {
 
-        _cleanup_(compressor_freep) Decompressor *c = NULL;
-        _cleanup_free_ uint8_t *buf = NULL;
-        uint64_t total_in = 0;
-        int r;
+        _cleanup_(compressor_freep) Decompressor *c = शून्य;
+        _cleanup_free_ uint8_t *buf = शून्य;
+        uint64_t योग_in = 0;
+        पूर्णांक r;
 
-        assert(fdf >= 0);
-        assert(fdt >= 0);
+        निश्चित(fdf >= 0);
+        निश्चित(fdt >= 0);
 
-        if (type == COMPRESSION_NONE)
-                return -EOPNOTSUPP;
+        अगर (type == COMPRESSION_NONE)
+                वापस -EOPNOTSUPP;
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         r = decompressor_new(&c, type, flags);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        struct decompress_stream_userdata userdata = {
+        काष्ठा decompress_stream_userdata userdata = {
                 .fd = fdt,
                 .max_bytes = max_bytes,
                 .sparse = should_sparse(fdt) > 0,
         };
 
-        buf = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-        if (!buf)
-                return -ENOMEM;
+        buf = new(uint8_t, COMPRESS_PIPE_बफर_आकार);
+        अगर (!buf)
+                वापस -ENOMEM;
 
-        for (;;) {
+        क्रम (;;) {
                 ssize_t n;
 
-                n = read(fdf, buf, COMPRESS_PIPE_BUFFER_SIZE);
-                if (n < 0)
-                        return -errno;
+                n = पढ़ो(fdf, buf, COMPRESS_PIPE_बफर_आकार);
+                अगर (n < 0)
+                        वापस -त्रुटि_सं;
 
-                total_in += n;
+                योग_in += n;
 
-                r = decompressor_push(c, buf, n, decompress_stream_write_callback, &userdata);
-                if (r < 0)
-                        return r;
+                r = decompressor_धकेलो(c, buf, n, decompress_stream_write_callback, &userdata);
+                अगर (r < 0)
+                        वापस r;
 
-                if (n == 0)
-                        break;
+                अगर (n == 0)
+                        अवरोध;
         }
 
-        if (total_in == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "%s decompression failed: no data read",
+        अगर (योग_in == 0)
+                वापस log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "%s decompression failed: no data read",
                                        compression_to_string(type));
 
-        if (userdata.sparse) {
+        अगर (userdata.sparse) {
                 r = finalize_sparse(fdt);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
         log_debug("%s decompression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                  compression_to_string(type), total_in, userdata.total_out,
-                  (double) userdata.total_out / total_in * 100);
+                  compression_to_string(type), योग_in, userdata.योग_out,
+                  (द्विगुन) userdata.योग_out / योग_in * 100);
 
-        return 0;
+        वापस 0;
 }
 
-int decompress_stream_by_filename(const char *filename, int fdf, int fdt, uint64_t max_bytes) {
+पूर्णांक decompress_stream_by_filename(स्थिर अक्षर *filename, पूर्णांक fdf, पूर्णांक fdt, uint64_t max_bytes) {
         Compression c = compression_from_filename(filename);
-        if (c == COMPRESSION_NONE)
-                return -EPROTONOSUPPORT;
+        अगर (c == COMPRESSION_NONE)
+                वापस -EPROTONOSUPPORT;
 
-        return decompress_stream(c, fdf, fdt, max_bytes);
+        वापस decompress_stream(c, fdf, fdt, max_bytes);
 }
 
 /* Push-based streaming compression/decompression context API */
 
 Compressor* compressor_free(Compressor *c) {
-        if (!c)
-                return NULL;
+        अगर (!c)
+                वापस शून्य;
 
-        switch (c->type) {
+        चयन (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
+#अगर HAVE_XZ
+        हाल COMPRESSION_XZ:
                 sym_lzma_end(&c->xz);
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4:
-                if (c->encoding) {
+#अगर HAVE_LZ4
+        हाल COMPRESSION_LZ4:
+                अगर (c->encoding) {
                         sym_LZ4F_freeCompressionContext(c->c_lz4);
-                        c->c_lz4 = NULL;
+                        c->c_lz4 = शून्य;
                         c->lz4_header = mfree(c->lz4_header);
-                } else {
+                } अन्यथा {
                         sym_LZ4F_freeDecompressionContext(c->d_lz4);
-                        c->d_lz4 = NULL;
+                        c->d_lz4 = शून्य;
                 }
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
-                if (c->encoding) {
+#अगर HAVE_ZSTD
+        हाल COMPRESSION_ZSTD:
+                अगर (c->encoding) {
                         sym_ZSTD_freeCCtx(c->c_zstd);
-                        c->c_zstd = NULL;
-                } else {
+                        c->c_zstd = शून्य;
+                } अन्यथा {
                         sym_ZSTD_freeDCtx(c->d_zstd);
-                        c->d_zstd = NULL;
+                        c->d_zstd = शून्य;
                 }
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (c->encoding)
+#अगर HAVE_ZLIB
+        हाल COMPRESSION_GZIP:
+                अगर (c->encoding)
                         sym_deflateEnd(&c->gzip);
-                else
+                अन्यथा
                         sym_inflateEnd(&c->gzip);
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (c->encoding)
+#अगर HAVE_BZIP2
+        हाल COMPRESSION_BZIP2:
+                अगर (c->encoding)
                         sym_BZ2_bzCompressEnd(&c->bzip2);
-                else
+                अन्यथा
                         sym_BZ2_bzDecompressEnd(&c->bzip2);
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-        default:
-                break;
+        शेष:
+                अवरोध;
         }
 
-        return mfree(c);
+        वापस mfree(c);
 }
 
-Compression compressor_type(const Compressor *c) {
-        return c ? c->type : _COMPRESSION_INVALID;
+Compression compressor_type(स्थिर Compressor *c) {
+        वापस c ? c->type : _COMPRESSION_INVALID;
 }
 
-int decompressor_detect(Decompressor **decompressor, const void *data, size_t size) {
-        int r;
+पूर्णांक decompressor_detect(Decompressor **decompressor, स्थिर व्योम *तथ्य, माप_प्रकार आकार) {
+        पूर्णांक r;
 
-        assert(decompressor);
+        निश्चित(decompressor);
 
-        if (*decompressor)
-                return 1;
+        अगर (*decompressor)
+                वापस 1;
 
-        if (size < COMPRESSION_MAGIC_BYTES_MAX)
-                return 0;
+        अगर (आकार < COMPRESSION_MAGIC_BYTES_MAX)
+                वापस 0;
 
-        assert(data);
+        निश्चित(तथ्य);
 
-        Compression type = compression_detect_from_magic(data);
-        if (type == _COMPRESSION_INVALID)
+        Compression type = compression_detect_from_magic(तथ्य);
+        अगर (type == _COMPRESSION_INVALID)
                 type = COMPRESSION_NONE;
 
         log_debug("Detected compression type: %s", compression_to_string(type));
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         r = decompressor_new(decompressor, type, /* flags= */ 0);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return 1;
+        वापस 1;
 }
 
-int decompressor_force(Decompressor **decompressor, Compression type) {
-        int r;
+पूर्णांक decompressor_force(Decompressor **decompressor, Compression type) {
+        पूर्णांक r;
 
-        assert(decompressor);
-        assert(type >= 0 && type < _COMPRESSION_MAX);
+        निश्चित(decompressor);
+        निश्चित(type >= 0 && type < _COMPRESSION_MAX);
 
         /* Like decompressor_detect(), but uses the specified compression algorithm instead of guessing
          * from the magic bytes. Replaces any decompressor already set up. */
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         *decompressor = compressor_free(*decompressor);
-        return decompressor_new(decompressor, type, /* flags= */ 0);
+        वापस decompressor_new(decompressor, type, /* flags= */ 0);
 }
 
-int decompressor_force_off(Decompressor **decompressor) {
-        return decompressor_force(decompressor, COMPRESSION_NONE);
+पूर्णांक decompressor_force_off(Decompressor **decompressor) {
+        वापस decompressor_force(decompressor, COMPRESSION_NONE);
 }
 
-int decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata) {
-        int r;
+पूर्णांक decompressor_धकेलो(Decompressor *c, स्थिर व्योम *तथ्य, माप_प्रकार आकार, DecompressorCallback callback, व्योम *userdata) {
+        पूर्णांक r;
 
-        assert(c);
-        assert(data || size == 0);
-        assert(callback);
+        निश्चित(c);
+        निश्चित(तथ्य || आकार == 0);
+        निश्चित(callback);
 
         /* This feeds `size` bytes of compressed data into `c`. Passing size == 0 has special meaning: it
          * signals that no further input will be provided, and the function will attempt to finalize the
          * stream, failing with -EBADMSG if the compressed data was truncated or has trailing garbage after
          * the logical end of stream. */
 
-        if (c->encoding)
-                return -EINVAL;
+        अगर (c->encoding)
+                वापस -EINVAL;
 
-        if (c->finished && size == 0)
+        अगर (c->finished && आकार == 0)
                 /* The previous stream was correctly finished, and it was the last one. */
-                return 0;
+                वापस 0;
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        _cleanup_free_ uint8_t *buffer = NULL;
-        if (c->type != COMPRESSION_NONE) {
-                buffer = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-                if (!buffer)
-                        return -ENOMEM;
+#अगर HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        _cleanup_free_ uint8_t *बफर = शून्य;
+        अगर (c->type != COMPRESSION_NONE) {
+                बफर = new(uint8_t, COMPRESS_PIPE_बफर_आकार);
+                अगर (!बफर)
+                        वापस -ENOMEM;
         }
-#endif
+#पूर्ण_अगर
 
-        switch (c->type) {
+        चयन (c->type) {
 
-        case COMPRESSION_NONE:
-                if (c->finished)
-                        return -EBADMSG;
+        हाल COMPRESSION_NONE:
+                अगर (c->finished)
+                        वापस -EBADMSG;
 
-                if (size == 0) {
+                अगर (आकार == 0) {
                         c->finished = true;
-                        return 0;
+                        वापस 0;
                 }
 
-                r = callback(data, size, userdata);
-                if (r < 0)
-                        return r;
+                r = callback(तथ्य, आकार, userdata);
+                अगर (r < 0)
+                        वापस r;
 
-                return 0;
+                वापस 0;
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
-                if (c->finished)
-                        return -EBADMSG;
+#अगर HAVE_XZ
+        हाल COMPRESSION_XZ:
+                अगर (c->finished)
+                        वापस -EBADMSG;
 
-                c->xz.next_in = data;
-                c->xz.avail_in = size;
+                c->xz.अग्र_in = तथ्य;
+                c->xz.avail_in = आकार;
 
-                for (;;) {
-                        c->xz.next_out = buffer;
-                        c->xz.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
+                क्रम (;;) {
+                        c->xz.अग्र_out = बफर;
+                        c->xz.avail_out = COMPRESS_PIPE_बफर_आकार;
 
-                        lzma_ret lzr = sym_lzma_code(&c->xz, size == 0 ? LZMA_FINISH : LZMA_RUN);
-                        if (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
-                                return -EBADMSG;
+                        lzma_ret lzr = sym_lzma_code(&c->xz, आकार == 0 ? LZMA_FINISH : LZMA_RUN);
+                        अगर (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
+                                वापस -EBADMSG;
 
-                        if (c->xz.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        अगर (c->xz.avail_out > COMPRESS_PIPE_बफर_आकार)
+                                वापस -EIO;
 
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->xz.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        माप_प्रकार produced = COMPRESS_PIPE_बफर_आकार - c->xz.avail_out;
+                        अगर (produced > 0) {
+                                r = callback(बफर, produced, userdata);
+                                अगर (r < 0)
+                                        वापस r;
                         }
 
-                        if (lzr == LZMA_STREAM_END) {
-                                if (c->xz.avail_in > 0)
-                                        return -EBADMSG; /* garbage data at the end */
+                        अगर (lzr == LZMA_STREAM_END) {
+                                अगर (c->xz.avail_in > 0)
+                                        वापस -EBADMSG; /* garbage data at the end */
 
                                 c->finished = true;
-                                return 0;
+                                वापस 0;
                         }
 
-                        if (c->xz.avail_in == 0 && c->xz.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                        अगर (c->xz.avail_in == 0 && c->xz.avail_out > 0) {
+                                अगर (आकार == 0)
+                                        वापस -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                वापस 0; /* No progress possible with the current input. */
                         }
                 }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                const uint8_t *src = data;
-                size_t src_remaining = size;
+#अगर HAVE_LZ4
+        हाल COMPRESSION_LZ4: {
+                स्थिर uint8_t *src = तथ्य;
+                माप_प्रकार src_remaining = आकार;
 
                 c->finished = false;
 
-                for (;;) {
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE;
-                        size_t consumed = src_remaining;
+                क्रम (;;) {
+                        माप_प्रकार produced = COMPRESS_PIPE_बफर_आकार;
+                        माप_प्रकार consumed = src_remaining;
 
-                        size_t rc = sym_LZ4F_decompress(c->d_lz4, buffer, &produced, src, &consumed, NULL);
-                        if (sym_LZ4F_isError(rc))
-                                return -EBADMSG;
+                        माप_प्रकार rc = sym_LZ4F_decompress(c->d_lz4, बफर, &produced, src, &consumed, शून्य);
+                        अगर (sym_LZ4F_isError(rc))
+                                वापस -EBADMSG;
 
-                        if (consumed > src_remaining ||
-                            produced > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        अगर (consumed > src_remaining ||
+                            produced > COMPRESS_PIPE_बफर_आकार)
+                                वापस -EIO;
 
-                        if (consumed > 0) {
-                                assert(src);
+                        अगर (consumed > 0) {
+                                निश्चित(src);
                                 src += consumed;
                                 src_remaining -= consumed;
                         }
 
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        अगर (produced > 0) {
+                                r = callback(बफर, produced, userdata);
+                                अगर (r < 0)
+                                        वापस r;
                         }
 
-                        if (src_remaining == 0) {
-                                if (rc == 0) {
+                        अगर (src_remaining == 0) {
+                                अगर (rc == 0) {
                                         /* The current stream has finished. */
                                         c->finished = true;
-                                        return 0;
+                                        वापस 0;
                                 }
 
-                                if (produced == COMPRESS_PIPE_BUFFER_SIZE)
+                                अगर (produced == COMPRESS_PIPE_बफर_आकार)
                                         /* Remaining data exist in the library buffer. We need to read them. */
-                                        continue;
+                                        जारी;
 
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                                अगर (आकार == 0)
+                                        वापस -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                वापस 0; /* No progress possible with the current input. */
                         }
                 }
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
-                        .src =  (void*) data,
-                        .size = size,
+#अगर HAVE_ZSTD
+        हाल COMPRESSION_ZSTD: {
+                ZSTD_in_बफर निवेश = {
+                        .src =  (व्योम*) तथ्य,
+                        .आकार = आकार,
                 };
 
                 c->finished = false;
 
-                for (;;) {
-                        ZSTD_outBuffer output = {
-                                .dst = buffer,
-                                .size = COMPRESS_PIPE_BUFFER_SIZE,
+                क्रम (;;) {
+                        ZSTD_out_बफर output = {
+                                .dst = बफर,
+                                .आकार = COMPRESS_PIPE_बफर_आकार,
                         };
 
-                        size_t res = sym_ZSTD_decompressStream(c->d_zstd, &output, &input);
-                        if (sym_ZSTD_isError(res))
-                                return -EBADMSG;
+                        माप_प्रकार res = sym_ZSTD_decompressStream(c->d_zstd, &output, &निवेश);
+                        अगर (sym_ZSTD_isError(res))
+                                वापस -EBADMSG;
 
-                        if (input.pos > input.size ||
-                            output.pos > output.size)
-                                return -EIO;
+                        अगर (निवेश.pos > निवेश.आकार ||
+                            output.pos > output.आकार)
+                                वापस -EIO;
 
-                        if (output.pos > 0) {
+                        अगर (output.pos > 0) {
                                 r = callback(output.dst, output.pos, userdata);
-                                if (r < 0)
-                                        return r;
+                                अगर (r < 0)
+                                        वापस r;
                         }
 
-                        if (input.pos == input.size) {
-                                if (res == 0) {
+                        अगर (निवेश.pos == निवेश.आकार) {
+                                अगर (res == 0) {
                                         /* The current stream has finished. */
                                         c->finished = true;
-                                        return 0;
+                                        वापस 0;
                                 }
 
-                                if (output.pos == COMPRESS_PIPE_BUFFER_SIZE)
+                                अगर (output.pos == COMPRESS_PIPE_बफर_आकार)
                                         /* Remaining data exist in the library buffer. We need to read them. */
-                                        continue;
+                                        जारी;
 
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                                अगर (आकार == 0)
+                                        वापस -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                वापस 0; /* No progress possible with the current input. */
                         }
                 }
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#अगर HAVE_ZLIB
+        हाल COMPRESSION_GZIP:
+                अगर (आकार > अच_पूर्णांक_उच्च)
+                        वापस -EFBIG;
 
-                c->gzip.next_in = (void*) data;
-                c->gzip.avail_in = size;
+                c->gzip.अग्र_in = (व्योम*) तथ्य;
+                c->gzip.avail_in = आकार;
 
-                for (;;) {
-                        if (c->finished) {
-                                if (sym_inflateReset(&c->gzip) != Z_OK)
-                                        return -EIO;
+                क्रम (;;) {
+                        अगर (c->finished) {
+                                अगर (sym_inflateReset(&c->gzip) != Z_OK)
+                                        वापस -EIO;
 
                                 c->finished = false;
                         }
 
-                        c->gzip.next_out = buffer;
-                        c->gzip.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
+                        c->gzip.अग्र_out = बफर;
+                        c->gzip.avail_out = COMPRESS_PIPE_बफर_आकार;
 
                         /* Z_BUF_ERROR is not fatal if all input is used up: it just means no progress was
                          * possible, which happens if the previous iteration filled the output buffer exactly
                          * while also consuming all input. That case is handled by the avail_in check
                          * below. If there's still input left however, Z_BUF_ERROR means we are stuck, hence
                          * refuse it, so that we don't loop forever. */
-                        int zr = sym_inflate(&c->gzip, Z_NO_FLUSH);
-                        if (!IN_SET(zr, Z_OK, Z_STREAM_END) &&
+                        पूर्णांक zr = sym_inflate(&c->gzip, Z_NO_FLUSH);
+                        अगर (!IN_SET(zr, Z_OK, Z_STREAM_END) &&
                             !(zr == Z_BUF_ERROR && c->gzip.avail_in == 0))
-                                return -EBADMSG;
+                                वापस -EBADMSG;
 
-                        if (c->gzip.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        अगर (c->gzip.avail_out > COMPRESS_PIPE_बफर_आकार)
+                                वापस -EIO;
 
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->gzip.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        माप_प्रकार produced = COMPRESS_PIPE_बफर_आकार - c->gzip.avail_out;
+                        अगर (produced > 0) {
+                                r = callback(बफर, produced, userdata);
+                                अगर (r < 0)
+                                        वापस r;
                         }
 
-                        if (zr == Z_STREAM_END) {
+                        अगर (zr == Z_STREAM_END) {
                                 c->finished = true;
 
-                                if (c->gzip.avail_in > 0)
-                                        continue; /* New stream may be pending. */
+                                अगर (c->gzip.avail_in > 0)
+                                        जारी; /* New stream may be pending. */
 
-                                return 0;
+                                वापस 0;
                         }
 
-                        if (c->gzip.avail_in == 0 && c->gzip.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                        अगर (c->gzip.avail_in == 0 && c->gzip.avail_out > 0) {
+                                अगर (आकार == 0)
+                                        वापस -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                वापस 0; /* No progress possible with the current input. */
                         }
                 }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#अगर HAVE_BZIP2
+        हाल COMPRESSION_BZIP2:
+                अगर (आकार > अच_पूर्णांक_उच्च)
+                        वापस -EFBIG;
 
-                c->bzip2.next_in = (char*) data;
-                c->bzip2.avail_in = size;
+                c->bzip2.अग्र_in = (अक्षर*) तथ्य;
+                c->bzip2.avail_in = आकार;
 
-                for (;;) {
-                        if (c->finished) {
+                क्रम (;;) {
+                        अगर (c->finished) {
                                 sym_BZ2_bzDecompressEnd(&c->bzip2);
-                                if (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                                        return -EIO;
+                                अगर (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                                        वापस -EIO;
 
                                 c->finished = false;
                         }
 
-                        c->bzip2.next_out = (char*) buffer;
-                        c->bzip2.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
+                        c->bzip2.अग्र_out = (अक्षर*) बफर;
+                        c->bzip2.avail_out = COMPRESS_PIPE_बफर_आकार;
 
-                        int bzr = sym_BZ2_bzDecompress(&c->bzip2);
-                        if (!IN_SET(bzr, BZ_OK, BZ_STREAM_END))
-                                return -EBADMSG;
+                        पूर्णांक bzr = sym_BZ2_bzDecompress(&c->bzip2);
+                        अगर (!IN_SET(bzr, BZ_OK, BZ_STREAM_END))
+                                वापस -EBADMSG;
 
-                        if (c->bzip2.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        अगर (c->bzip2.avail_out > COMPRESS_PIPE_बफर_आकार)
+                                वापस -EIO;
 
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->bzip2.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        माप_प्रकार produced = COMPRESS_PIPE_बफर_आकार - c->bzip2.avail_out;
+                        अगर (produced > 0) {
+                                r = callback(बफर, produced, userdata);
+                                अगर (r < 0)
+                                        वापस r;
                         }
 
-                        if (bzr == BZ_STREAM_END) {
+                        अगर (bzr == BZ_STREAM_END) {
                                 c->finished = true;
 
-                                if (c->bzip2.avail_in > 0)
-                                        continue; /* New stream may be pending. */
+                                अगर (c->bzip2.avail_in > 0)
+                                        जारी; /* New stream may be pending. */
 
-                                return 0;
+                                वापस 0;
                         }
 
-                        if (c->bzip2.avail_in == 0 && c->bzip2.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                        अगर (c->bzip2.avail_in == 0 && c->bzip2.avail_out > 0) {
+                                अगर (आकार == 0)
+                                        वापस -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                वापस 0; /* No progress possible with the current input. */
                         }
                 }
-#endif
+#पूर्ण_अगर
 
-        default:
+        शेष:
                 assert_not_reached();
         }
 }
 
-int compressor_new(Compressor **ret, Compression type) {
-        int r;
+पूर्णांक compressor_new(Compressor **ret, Compression type) {
+        पूर्णांक r;
 
-        assert(ret);
+        निश्चित(ret);
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         _cleanup_(compressor_freep) Compressor *c = new0(Compressor, 1);
-        if (!c)
-                return -ENOMEM;
+        अगर (!c)
+                वापस -ENOMEM;
 
         c->type = _COMPRESSION_INVALID;
         /* Set encoding early so that compressor_freep calls the correct cleanup (compression vs
@@ -2472,444 +2472,444 @@ int compressor_new(Compressor **ret, Compression type) {
          * because _COMPRESSION_INVALID hits the default: break case regardless of the encoding flag. */
         c->encoding = true;
 
-        switch (type) {
+        चयन (type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#अगर HAVE_XZ
+        हाल COMPRESSION_XZ: {
                 lzma_ret xzr = sym_lzma_easy_encoder(&c->xz, LZMA_PRESET_DEFAULT, LZMA_CHECK_CRC64);
-                if (xzr != LZMA_OK)
-                        return -EIO;
+                अगर (xzr != LZMA_OK)
+                        वापस -EIO;
 
                 c->type = COMPRESSION_XZ;
-                break;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                size_t rc = sym_LZ4F_createCompressionContext(&c->c_lz4, LZ4F_VERSION);
-                if (sym_LZ4F_isError(rc))
-                        return -ENOMEM;
+#अगर HAVE_LZ4
+        हाल COMPRESSION_LZ4: {
+                माप_प्रकार rc = sym_LZ4F_createCompressionContext(&c->c_lz4, LZ4F_VERSION);
+                अगर (sym_LZ4F_isError(rc))
+                        वापस -ENOMEM;
 
                 c->type = COMPRESSION_LZ4;
 
                 /* Generate the frame header and stash it for the first compressor_start call */
-                size_t header_bound = sym_LZ4F_compressBound(0, &lz4_preferences);
-                c->lz4_header = malloc(header_bound);
-                if (!c->lz4_header)
-                        return -ENOMEM;
+                माप_प्रकार header_bound = sym_LZ4F_compressBound(0, &lz4_preferences);
+                c->lz4_header = दो_स्मृति(header_bound);
+                अगर (!c->lz4_header)
+                        वापस -ENOMEM;
 
-                c->lz4_header_size = sym_LZ4F_compressBegin(c->c_lz4, c->lz4_header, header_bound, &lz4_preferences);
-                if (sym_LZ4F_isError(c->lz4_header_size))
-                        return -EINVAL;
+                c->lz4_header_आकार = sym_LZ4F_compressBegin(c->c_lz4, c->lz4_header, header_bound, &lz4_preferences);
+                अगर (sym_LZ4F_isError(c->lz4_header_आकार))
+                        वापस -EINVAL;
 
-                break;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
+#अगर HAVE_ZSTD
+        हाल COMPRESSION_ZSTD:
                 c->c_zstd = sym_ZSTD_createCCtx();
-                if (!c->c_zstd)
-                        return -ENOMEM;
+                अगर (!c->c_zstd)
+                        वापस -ENOMEM;
 
                 c->type = COMPRESSION_ZSTD;
 
-                size_t z = sym_ZSTD_CCtx_setParameter(c->c_zstd, ZSTD_c_compressionLevel, ZSTD_CLEVEL_DEFAULT);
-                if (sym_ZSTD_isError(z))
-                        return -EIO;
+                माप_प्रकार z = sym_ZSTD_CCtx_setParameter(c->c_zstd, ZSTD_c_compressionLevel, ZSTD_CLEVEL_DEFAULT);
+                अगर (sym_ZSTD_isError(z))
+                        वापस -EIO;
 
                 z = sym_ZSTD_CCtx_setParameter(c->c_zstd, ZSTD_c_checksumFlag, /* enable= */ 1);
-                if (sym_ZSTD_isError(z))
+                अगर (sym_ZSTD_isError(z))
                         log_debug("Failed to enable ZSTD checksum, ignoring: %s", sym_ZSTD_getErrorName(z));
 
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
+#अगर HAVE_ZLIB
+        हाल COMPRESSION_GZIP:
                 r = sym_deflateInit2_(&c->gzip,
                                       Z_DEFAULT_COMPRESSION,
                                       /* method= */ Z_DEFLATED,
                                       /* windowBits= */ ZLIB_WBITS_GZIP,
                                       /* memLevel= */ 8,
                                       /* strategy= */ Z_DEFAULT_STRATEGY,
-                                      ZLIB_VERSION, (int) sizeof(c->gzip));
-                if (r != Z_OK)
-                        return -EIO;
+                                      ZLIB_VERSION, (पूर्णांक) माप(c->gzip));
+                अगर (r != Z_OK)
+                        वापस -EIO;
 
                 c->type = COMPRESSION_GZIP;
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
+#अगर HAVE_BZIP2
+        हाल COMPRESSION_BZIP2:
                 r = sym_BZ2_bzCompressInit(&c->bzip2, /* blockSize100k= */ 9, /* verbosity= */ 0, /* workFactor= */ 0);
-                if (r != BZ_OK)
-                        return -EIO;
+                अगर (r != BZ_OK)
+                        वापस -EIO;
 
                 c->type = COMPRESSION_BZIP2;
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-        case COMPRESSION_NONE:
+        हाल COMPRESSION_NONE:
                 c->type = COMPRESSION_NONE;
-                break;
+                अवरोध;
 
-        default:
-                return -EOPNOTSUPP;
+        शेष:
+                वापस -EOPNOTSUPP;
         }
 
         *ret = TAKE_PTR(c);
-        return 0;
+        वापस 0;
 }
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-static int enlarge_buffer(void **buffer, size_t *buffer_size, size_t *buffer_allocated, size_t need) {
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+#अगर HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+अटल पूर्णांक enlarge_बफर(व्योम **बफर, माप_प्रकार *बफर_आकार, माप_प्रकार *बफर_allocated, माप_प्रकार need) {
+        निश्चित(बफर);
+        निश्चित(बफर_आकार);
+        निश्चित(बफर_allocated);
 
-        need = MAX3(need, *buffer_size + 1, (size_t) COMPRESS_PIPE_BUFFER_SIZE);
-        if (*buffer_allocated >= need)
-                return 0;
+        need = MAX3(need, *बफर_आकार + 1, (माप_प्रकार) COMPRESS_PIPE_बफर_आकार);
+        अगर (*बफर_allocated >= need)
+                वापस 0;
 
-        if (!greedy_realloc(buffer, need, 1))
-                return -ENOMEM;
+        अगर (!greedy_realloc(बफर, need, 1))
+                वापस -ENOMEM;
 
-        *buffer_allocated = MALLOC_SIZEOF_SAFE(*buffer);
-        return 1;
+        *बफर_allocated = MALLOC_SIZEOF_SAFE(*बफर);
+        वापस 1;
 }
-#endif
+#पूर्ण_अगर
 
-int compressor_start(
+पूर्णांक compressor_start(
                 Compressor *c,
-                const void *data,
-                size_t size,
-                void **buffer,
-                size_t *buffer_size,
-                size_t *buffer_allocated) {
+                स्थिर व्योम *तथ्य,
+                माप_प्रकार आकार,
+                व्योम **बफर,
+                माप_प्रकार *बफर_आकार,
+                माप_प्रकार *बफर_allocated) {
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        int r;
-#endif
+#अगर HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        पूर्णांक r;
+#पूर्ण_अगर
 
-        assert(c);
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+        निश्चित(c);
+        निश्चित(बफर);
+        निश्चित(बफर_आकार);
+        निश्चित(बफर_allocated);
 
-        if (!c->encoding)
-                return -EINVAL;
+        अगर (!c->encoding)
+                वापस -EINVAL;
 
-        if (size == 0)
-                return 0;
+        अगर (आकार == 0)
+                वापस 0;
 
-        assert(data);
+        निश्चित(तथ्य);
 
-        *buffer_size = 0;
+        *बफर_आकार = 0;
 
-        switch (c->type) {
+        चयन (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
+#अगर HAVE_XZ
+        हाल COMPRESSION_XZ:
 
-                c->xz.next_in = data;
-                c->xz.avail_in = size;
+                c->xz.अग्र_in = तथ्य;
+                c->xz.avail_in = आकार;
 
-                while (c->xz.avail_in > 0) {
+                जबतक (c->xz.avail_in > 0) {
                         lzma_ret lzr;
 
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        c->xz.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->xz.avail_out = *buffer_allocated - *buffer_size;
+                        c->xz.अग्र_out = (uint8_t*) *बफर + *बफर_आकार;
+                        c->xz.avail_out = *बफर_allocated - *बफर_आकार;
 
                         lzr = sym_lzma_code(&c->xz, LZMA_RUN);
-                        if (lzr != LZMA_OK)
-                                return -EIO;
+                        अगर (lzr != LZMA_OK)
+                                वापस -EIO;
 
-                        *buffer_size += (*buffer_allocated - *buffer_size) - c->xz.avail_out;
+                        *बफर_आकार += (*बफर_allocated - *बफर_आकार) - c->xz.avail_out;
                 }
 
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
+#अगर HAVE_LZ4
+        हाल COMPRESSION_LZ4: {
                 /* Prepend any stashed frame header from compressor_new */
-                if (c->lz4_header_size > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, c->lz4_header_size);
-                        if (r < 0)
-                                return r;
+                अगर (c->lz4_header_आकार > 0) {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, c->lz4_header_आकार);
+                        अगर (r < 0)
+                                वापस r;
 
-                        memcpy(*buffer, c->lz4_header, c->lz4_header_size);
-                        *buffer_size = c->lz4_header_size;
+                        स_नकल(*बफर, c->lz4_header, c->lz4_header_आकार);
+                        *बफर_आकार = c->lz4_header_आकार;
                         c->lz4_header = mfree(c->lz4_header);
-                        c->lz4_header_size = 0;
+                        c->lz4_header_आकार = 0;
                 }
 
-                size_t bound = sym_LZ4F_compressBound(size, &lz4_preferences);
-                r = enlarge_buffer(buffer, buffer_size, buffer_allocated, *buffer_size + bound);
-                if (r < 0)
-                        return r;
+                माप_प्रकार bound = sym_LZ4F_compressBound(आकार, &lz4_preferences);
+                r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, *बफर_आकार + bound);
+                अगर (r < 0)
+                        वापस r;
 
-                size_t n = sym_LZ4F_compressUpdate(c->c_lz4,
-                                                   (uint8_t*) *buffer + *buffer_size,
-                                                   *buffer_allocated - *buffer_size,
-                                                   data, size, NULL);
-                if (sym_LZ4F_isError(n))
-                        return -EIO;
+                माप_प्रकार n = sym_LZ4F_compressUpdate(c->c_lz4,
+                                                   (uint8_t*) *बफर + *बफर_आकार,
+                                                   *बफर_allocated - *बफर_आकार,
+                                                   तथ्य, आकार, शून्य);
+                अगर (sym_LZ4F_isError(n))
+                        वापस -EIO;
 
-                *buffer_size += n;
-                break;
+                *बफर_आकार += n;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
-                        .src = data,
-                        .size = size,
+#अगर HAVE_ZSTD
+        हाल COMPRESSION_ZSTD: {
+                ZSTD_in_बफर निवेश = {
+                        .src = तथ्य,
+                        .आकार = आकार,
                 };
 
-                while (input.pos < input.size) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                जबतक (निवेश.pos < निवेश.आकार) {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        ZSTD_outBuffer output = {
-                                .dst = ((uint8_t *) *buffer + *buffer_size),
-                                .size = *buffer_allocated - *buffer_size,
+                        ZSTD_out_बफर output = {
+                                .dst = ((uint8_t *) *बफर + *बफर_आकार),
+                                .आकार = *बफर_allocated - *बफर_आकार,
                         };
 
-                        size_t res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_continue);
-                        if (sym_ZSTD_isError(res))
-                                return -EIO;
+                        माप_प्रकार res = sym_ZSTD_compressStream2(c->c_zstd, &output, &निवेश, ZSTD_e_continue);
+                        अगर (sym_ZSTD_isError(res))
+                                वापस -EIO;
 
-                        *buffer_size += output.pos;
+                        *बफर_आकार += output.pos;
                 }
 
-                break;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#अगर HAVE_ZLIB
+        हाल COMPRESSION_GZIP:
+                अगर (आकार > अच_पूर्णांक_उच्च)
+                        वापस -EFBIG;
 
-                c->gzip.next_in = (void*) data;
-                c->gzip.avail_in = size;
+                c->gzip.अग्र_in = (व्योम*) तथ्य;
+                c->gzip.avail_in = आकार;
 
-                while (c->gzip.avail_in > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                जबतक (c->gzip.avail_in > 0) {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->gzip.next_out = (uint8_t*) *buffer + *buffer_size;
+                        माप_प्रकार avail = MIN(*बफर_allocated - *बफर_आकार, (माप_प्रकार) अच_पूर्णांक_उच्च);
+                        c->gzip.अग्र_out = (uint8_t*) *बफर + *बफर_आकार;
                         c->gzip.avail_out = avail;
 
                         r = sym_deflate(&c->gzip, Z_NO_FLUSH);
-                        if (r != Z_OK)
-                                return -EIO;
+                        अगर (r != Z_OK)
+                                वापस -EIO;
 
-                        *buffer_size += avail - c->gzip.avail_out;
+                        *बफर_आकार += avail - c->gzip.avail_out;
                 }
 
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#अगर HAVE_BZIP2
+        हाल COMPRESSION_BZIP2:
+                अगर (आकार > अच_पूर्णांक_उच्च)
+                        वापस -EFBIG;
 
-                c->bzip2.next_in = (void*) data;
-                c->bzip2.avail_in = size;
+                c->bzip2.अग्र_in = (व्योम*) तथ्य;
+                c->bzip2.avail_in = आकार;
 
-                while (c->bzip2.avail_in > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                जबतक (c->bzip2.avail_in > 0) {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->bzip2.next_out = (void*) ((uint8_t*) *buffer + *buffer_size);
+                        माप_प्रकार avail = MIN(*बफर_allocated - *बफर_आकार, (माप_प्रकार) अच_पूर्णांक_उच्च);
+                        c->bzip2.अग्र_out = (व्योम*) ((uint8_t*) *बफर + *बफर_आकार);
                         c->bzip2.avail_out = avail;
 
                         r = sym_BZ2_bzCompress(&c->bzip2, BZ_RUN);
-                        if (r != BZ_RUN_OK)
-                                return -EIO;
+                        अगर (r != BZ_RUN_OK)
+                                वापस -EIO;
 
-                        *buffer_size += avail - c->bzip2.avail_out;
+                        *बफर_आकार += avail - c->bzip2.avail_out;
                 }
 
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-        case COMPRESSION_NONE:
+        हाल COMPRESSION_NONE:
 
-                if (*buffer_allocated < size) {
-                        void *p;
+                अगर (*बफर_allocated < आकार) {
+                        व्योम *p;
 
-                        p = realloc(*buffer, size);
-                        if (!p)
-                                return -ENOMEM;
+                        p = पुनः_स्मृति(*बफर, आकार);
+                        अगर (!p)
+                                वापस -ENOMEM;
 
-                        *buffer = p;
-                        *buffer_allocated = size;
+                        *बफर = p;
+                        *बफर_allocated = आकार;
                 }
 
-                memcpy(*buffer, data, size);
-                *buffer_size = size;
-                break;
+                स_नकल(*बफर, तथ्य, आकार);
+                *बफर_आकार = आकार;
+                अवरोध;
 
-        default:
-                return -EOPNOTSUPP;
+        शेष:
+                वापस -EOPNOTSUPP;
         }
 
-        return 0;
+        वापस 0;
 }
 
-int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t *buffer_allocated) {
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        int r;
-#endif
+पूर्णांक compressor_finish(Compressor *c, व्योम **बफर, माप_प्रकार *बफर_आकार, माप_प्रकार *बफर_allocated) {
+#अगर HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        पूर्णांक r;
+#पूर्ण_अगर
 
-        assert(c);
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+        निश्चित(c);
+        निश्चित(बफर);
+        निश्चित(बफर_आकार);
+        निश्चित(बफर_allocated);
 
-        if (!c->encoding)
-                return -EINVAL;
+        अगर (!c->encoding)
+                वापस -EINVAL;
 
-        *buffer_size = 0;
+        *बफर_आकार = 0;
 
-        switch (c->type) {
+        चयन (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#अगर HAVE_XZ
+        हाल COMPRESSION_XZ: {
                 lzma_ret lzr;
 
                 c->xz.avail_in = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                करो {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        c->xz.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->xz.avail_out = *buffer_allocated - *buffer_size;
+                        c->xz.अग्र_out = (uint8_t*) *बफर + *बफर_आकार;
+                        c->xz.avail_out = *बफर_allocated - *बफर_आकार;
 
                         lzr = sym_lzma_code(&c->xz, LZMA_FINISH);
-                        if (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
-                                return -EIO;
+                        अगर (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
+                                वापस -EIO;
 
-                        *buffer_size += (*buffer_allocated - *buffer_size) - c->xz.avail_out;
-                } while (lzr != LZMA_STREAM_END);
+                        *बफर_आकार += (*बफर_allocated - *बफर_आकार) - c->xz.avail_out;
+                } जबतक (lzr != LZMA_STREAM_END);
 
-                break;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                size_t bound = sym_LZ4F_compressBound(0, &lz4_preferences);
-                r = enlarge_buffer(buffer, buffer_size, buffer_allocated, bound);
-                if (r < 0)
-                        return r;
+#अगर HAVE_LZ4
+        हाल COMPRESSION_LZ4: {
+                माप_प्रकार bound = sym_LZ4F_compressBound(0, &lz4_preferences);
+                r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, bound);
+                अगर (r < 0)
+                        वापस r;
 
-                size_t n = sym_LZ4F_compressEnd(c->c_lz4, *buffer, *buffer_allocated, NULL);
-                if (sym_LZ4F_isError(n))
-                        return -EIO;
+                माप_प्रकार n = sym_LZ4F_compressEnd(c->c_lz4, *बफर, *बफर_allocated, शून्य);
+                अगर (sym_LZ4F_isError(n))
+                        वापस -EIO;
 
-                *buffer_size = n;
-                break;
+                *बफर_आकार = n;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {};
-                size_t res;
+#अगर HAVE_ZSTD
+        हाल COMPRESSION_ZSTD: {
+                ZSTD_in_बफर निवेश = {};
+                माप_प्रकार res;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                करो {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        ZSTD_outBuffer output = {
-                                .dst = ((uint8_t *) *buffer + *buffer_size),
-                                .size = *buffer_allocated - *buffer_size,
+                        ZSTD_out_बफर output = {
+                                .dst = ((uint8_t *) *बफर + *बफर_आकार),
+                                .आकार = *बफर_allocated - *बफर_आकार,
                         };
 
-                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_end);
-                        if (sym_ZSTD_isError(res))
-                                return -EIO;
+                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &निवेश, ZSTD_e_end);
+                        अगर (sym_ZSTD_isError(res))
+                                वापस -EIO;
 
-                        *buffer_size += output.pos;
-                } while (res != 0);
+                        *बफर_आकार += output.pos;
+                } जबतक (res != 0);
 
-                break;
+                अवरोध;
         }
-#endif
+#पूर्ण_अगर
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
+#अगर HAVE_ZLIB
+        हाल COMPRESSION_GZIP:
                 c->gzip.avail_in = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                करो {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->gzip.next_out = (uint8_t*) *buffer + *buffer_size;
+                        माप_प्रकार avail = MIN(*बफर_allocated - *बफर_आकार, (माप_प्रकार) अच_पूर्णांक_उच्च);
+                        c->gzip.अग्र_out = (uint8_t*) *बफर + *बफर_आकार;
                         c->gzip.avail_out = avail;
 
                         r = sym_deflate(&c->gzip, Z_FINISH);
-                        if (!IN_SET(r, Z_OK, Z_STREAM_END))
-                                return -EIO;
+                        अगर (!IN_SET(r, Z_OK, Z_STREAM_END))
+                                वापस -EIO;
 
-                        *buffer_size += avail - c->gzip.avail_out;
-                } while (r != Z_STREAM_END);
+                        *बफर_आकार += avail - c->gzip.avail_out;
+                } जबतक (r != Z_STREAM_END);
 
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
+#अगर HAVE_BZIP2
+        हाल COMPRESSION_BZIP2:
                 c->bzip2.avail_in = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                करो {
+                        r = enlarge_बफर(बफर, बफर_आकार, बफर_allocated, /* need= */ 0);
+                        अगर (r < 0)
+                                वापस r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->bzip2.next_out = (void*) ((uint8_t*) *buffer + *buffer_size);
+                        माप_प्रकार avail = MIN(*बफर_allocated - *बफर_आकार, (माप_प्रकार) अच_पूर्णांक_उच्च);
+                        c->bzip2.अग्र_out = (व्योम*) ((uint8_t*) *बफर + *बफर_आकार);
                         c->bzip2.avail_out = avail;
 
                         r = sym_BZ2_bzCompress(&c->bzip2, BZ_FINISH);
-                        if (!IN_SET(r, BZ_FINISH_OK, BZ_STREAM_END))
-                                return -EIO;
+                        अगर (!IN_SET(r, BZ_FINISH_OK, BZ_STREAM_END))
+                                वापस -EIO;
 
-                        *buffer_size += avail - c->bzip2.avail_out;
-                } while (r != BZ_STREAM_END);
+                        *बफर_आकार += avail - c->bzip2.avail_out;
+                } जबतक (r != BZ_STREAM_END);
 
-                break;
-#endif
+                अवरोध;
+#पूर्ण_अगर
 
-        case COMPRESSION_NONE:
-                break;
+        हाल COMPRESSION_NONE:
+                अवरोध;
 
-        default:
-                return -EOPNOTSUPP;
+        शेष:
+                वापस -EOPNOTSUPP;
         }
 
-        return 0;
+        वापस 0;
 }

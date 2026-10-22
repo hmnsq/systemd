@@ -1,112 +1,112 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include "forward.h"
+#समावेश "forward.h"
 
-typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
+प्रकार व्योम (*hash_func_t)(स्थिर व्योम *p, काष्ठा siphash *state);
+प्रकार पूर्णांक (*compare_func_t)(स्थिर व्योम *a, स्थिर व्योम *b);
 
-struct hash_ops {
+काष्ठा hash_ops {
         hash_func_t hash;
         compare_func_t compare;
-        free_func_t free_key;
-        free_func_t free_value;
+        free_func_t free_कुंजी;
+        free_func_t free_मूल्य;
 };
 
-#define _DEFINE_HASH_OPS(uq, name, type, hash_func, compare_func, free_key_func, free_value_func, scope) \
-        _unused_ static void (* UNIQ_T(static_hash_wrapper, uq))(const type *, struct siphash *) = hash_func; \
-        _unused_ static int (* UNIQ_T(static_compare_wrapper, uq))(const type *, const type *) = compare_func; \
-        scope const struct hash_ops name = {                            \
+#घोषणा _DEFINE_HASH_OPS(uq, name, type, hash_func, compare_func, free_कुंजी_func, free_मूल्य_func, scope) \
+        _unused_ अटल व्योम (* UNIQ_T(static_hash_wrapper, uq))(स्थिर type *, काष्ठा siphash *) = hash_func; \
+        _unused_ अटल पूर्णांक (* UNIQ_T(static_compare_wrapper, uq))(स्थिर type *, स्थिर type *) = compare_func; \
+        scope स्थिर काष्ठा hash_ops name = {                            \
                 .hash = (hash_func_t) hash_func,                        \
                 .compare = (compare_func_t) compare_func,               \
-                .free_key = free_key_func,                              \
-                .free_value = free_value_func,                          \
+                .free_कुंजी = free_कुंजी_func,                              \
+                .free_मूल्य = free_मूल्य_func,                          \
         }
 
-#define _DEFINE_FREE_FUNC(uq, type, wrapper_name, func)                 \
+#घोषणा _DEFINE_FREE_FUNC(uq, type, wrapper_name, func)                 \
         /* Type-safe free function */                                   \
-        static void UNIQ_T(wrapper_name, uq)(void *a) {                 \
+        अटल व्योम UNIQ_T(wrapper_name, uq)(व्योम *a) {                 \
                 type *_a = a;                                           \
                 func(_a);                                               \
         }
 
-#define _DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(uq, name, type, hash_func, compare_func, free_func, scope) \
+#घोषणा DEFINE_HASH_OPS_WITH_कुंजी_DESTRUCTOR_2(uq, name, type, hash_func, compare_func, free_func, scope) \
         _DEFINE_FREE_FUNC(uq, type, static_free_wrapper, free_func);    \
         _DEFINE_HASH_OPS(uq, name, type, hash_func, compare_func,       \
-                         UNIQ_T(static_free_wrapper, uq), NULL, scope)
+                         UNIQ_T(static_free_wrapper, uq), शून्य, scope)
 
-#define _DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(uq, name, type, hash_func, compare_func, type_value, free_func, scope) \
-        _DEFINE_FREE_FUNC(uq, type_value, static_free_wrapper, free_func); \
+#घोषणा DEFINE_HASH_OPS_WITH_मूल्य_DESTRUCTOR_2(uq, name, type, hash_func, compare_func, type_मूल्य, free_func, scope) \
+        _DEFINE_FREE_FUNC(uq, type_मूल्य, static_free_wrapper, free_func); \
         _DEFINE_HASH_OPS(uq, name, type, hash_func, compare_func,       \
-                         NULL, UNIQ_T(static_free_wrapper, uq), scope)
+                         शून्य, UNIQ_T(static_free_wrapper, uq), scope)
 
-#define _DEFINE_HASH_OPS_FULL(uq, name, type, hash_func, compare_func, free_key_func, type_value, free_value_func, scope) \
-        _DEFINE_FREE_FUNC(uq, type, static_free_key_wrapper, free_key_func); \
-        _DEFINE_FREE_FUNC(uq, type_value, static_free_value_wrapper, free_value_func); \
+#घोषणा _DEFINE_HASH_OPS_FULL(uq, name, type, hash_func, compare_func, free_कुंजी_func, type_मूल्य, free_मूल्य_func, scope) \
+        _DEFINE_FREE_FUNC(uq, type, static_free_कुंजी_wrapper, free_कुंजी_func); \
+        _DEFINE_FREE_FUNC(uq, type_मूल्य, static_free_मूल्य_wrapper, free_मूल्य_func); \
         _DEFINE_HASH_OPS(uq, name, type, hash_func, compare_func,       \
-                         UNIQ_T(static_free_key_wrapper, uq),           \
-                         UNIQ_T(static_free_value_wrapper, uq), scope)
+                         UNIQ_T(static_free_कुंजी_wrapper, uq),           \
+                         UNIQ_T(static_free_मूल्य_wrapper, uq), scope)
 
-#define DEFINE_HASH_OPS(name, type, hash_func, compare_func)            \
-        _DEFINE_HASH_OPS(UNIQ, name, type, hash_func, compare_func, NULL, NULL,)
+#घोषणा DEFINE_HASH_OPS(name, type, hash_func, compare_func)            \
+        _DEFINE_HASH_OPS(UNIQ, name, type, hash_func, compare_func, शून्य, शून्य,)
 
-#define DEFINE_PRIVATE_HASH_OPS(name, type, hash_func, compare_func)    \
-        _DEFINE_HASH_OPS(UNIQ, name, type, hash_func, compare_func, NULL, NULL, static)
+#घोषणा DEFINE_PRIVATE_HASH_OPS(name, type, hash_func, compare_func)    \
+        _DEFINE_HASH_OPS(UNIQ, name, type, hash_func, compare_func, शून्य, शून्य, अटल)
 
-#define DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(name, type, hash_func, compare_func, free_func) \
-        _DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(UNIQ, name, type, hash_func, compare_func, free_func,)
+#घोषणा DEFINE_HASH_OPS_WITH_कुंजी_DESTRUCTOR(name, type, hash_func, compare_func, free_func) \
+        DEFINE_HASH_OPS_WITH_कुंजी_DESTRUCTOR_2(UNIQ, name, type, hash_func, compare_func, free_func,)
 
-#define DEFINE_PRIVATE_HASH_OPS_WITH_KEY_DESTRUCTOR(name, type, hash_func, compare_func, free_func) \
-        _DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(UNIQ, name, type, hash_func, compare_func, free_func, static)
+#घोषणा DEFINE_PRIVATE_HASH_OPS_WITH_कुंजी_DESTRUCTOR(name, type, hash_func, compare_func, free_func) \
+        DEFINE_HASH_OPS_WITH_कुंजी_DESTRUCTOR_2(UNIQ, name, type, hash_func, compare_func, free_func, अटल)
 
-#define DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(name, type, hash_func, compare_func, value_type, free_func) \
-        _DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(UNIQ, name, type, hash_func, compare_func, value_type, free_func,)
+#घोषणा DEFINE_HASH_OPS_WITH_मूल्य_DESTRUCTOR(name, type, hash_func, compare_func, मूल्य_type, free_func) \
+        DEFINE_HASH_OPS_WITH_मूल्य_DESTRUCTOR_2(UNIQ, name, type, hash_func, compare_func, मूल्य_type, free_func,)
 
-#define DEFINE_PRIVATE_HASH_OPS_WITH_VALUE_DESTRUCTOR(name, type, hash_func, compare_func, value_type, free_func) \
-        _DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(UNIQ, name, type, hash_func, compare_func, value_type, free_func, static)
+#घोषणा DEFINE_PRIVATE_HASH_OPS_WITH_मूल्य_DESTRUCTOR(name, type, hash_func, compare_func, मूल्य_type, free_func) \
+        DEFINE_HASH_OPS_WITH_मूल्य_DESTRUCTOR_2(UNIQ, name, type, hash_func, compare_func, मूल्य_type, free_func, अटल)
 
-#define DEFINE_HASH_OPS_FULL(name, type, hash_func, compare_func, free_key_func, value_type, free_value_func) \
-        _DEFINE_HASH_OPS_FULL(UNIQ, name, type, hash_func, compare_func, free_key_func, value_type, free_value_func,)
+#घोषणा DEFINE_HASH_OPS_FULL(name, type, hash_func, compare_func, free_कुंजी_func, मूल्य_type, free_मूल्य_func) \
+        _DEFINE_HASH_OPS_FULL(UNIQ, name, type, hash_func, compare_func, free_कुंजी_func, मूल्य_type, free_मूल्य_func,)
 
-#define DEFINE_PRIVATE_HASH_OPS_FULL(name, type, hash_func, compare_func, free_key_func, value_type, free_value_func) \
-        _DEFINE_HASH_OPS_FULL(UNIQ, name, type, hash_func, compare_func, free_key_func, value_type, free_value_func, static)
+#घोषणा DEFINE_PRIVATE_HASH_OPS_FULL(name, type, hash_func, compare_func, free_कुंजी_func, मूल्य_type, free_मूल्य_func) \
+        _DEFINE_HASH_OPS_FULL(UNIQ, name, type, hash_func, compare_func, free_कुंजी_func, मूल्य_type, free_मूल्य_func, अटल)
 
-void string_hash_func(const char *p, struct siphash *state);
-#define string_compare_func strcmp
-extern const struct hash_ops string_hash_ops;
-extern const struct hash_ops string_hash_ops_free;
-extern const struct hash_ops string_hash_ops_value_free;
-extern const struct hash_ops string_hash_ops_free_free;
-extern const struct hash_ops string_hash_ops_free_strv_free;
+व्योम string_hash_func(स्थिर अक्षर *p, काष्ठा siphash *state);
+#घोषणा string_compare_func म_भेद
+बाह्य स्थिर काष्ठा hash_ops string_hash_ops;
+बाह्य स्थिर काष्ठा hash_ops string_hash_ops_free;
+बाह्य स्थिर काष्ठा hash_ops string_hash_ops_मूल्य_free;
+बाह्य स्थिर काष्ठा hash_ops string_hash_ops_free_free;
+बाह्य स्थिर काष्ठा hash_ops string_hash_ops_free_strv_free;
 
-void path_hash_func(const char *p, struct siphash *state);
-extern const struct hash_ops path_hash_ops;
-extern const struct hash_ops path_hash_ops_free;
-extern const struct hash_ops path_hash_ops_free_free;
+व्योम path_hash_func(स्थिर अक्षर *p, काष्ठा siphash *state);
+बाह्य स्थिर काष्ठा hash_ops path_hash_ops;
+बाह्य स्थिर काष्ठा hash_ops path_hash_ops_free;
+बाह्य स्थिर काष्ठा hash_ops path_hash_ops_free_free;
 
 /* This will compare the passed pointers directly, and will not dereference them. This is hence not useful for strings
  * or suchlike. */
-void trivial_hash_func(const void *p, struct siphash *state);
-int trivial_compare_func(const void *a, const void *b) _const_;
-extern const struct hash_ops trivial_hash_ops;
-extern const struct hash_ops trivial_hash_ops_free;
-extern const struct hash_ops trivial_hash_ops_value_free;
-extern const struct hash_ops trivial_hash_ops_free_free;
+व्योम trivial_hash_func(स्थिर व्योम *p, काष्ठा siphash *state);
+पूर्णांक trivial_compare_func(स्थिर व्योम *a, स्थिर व्योम *b) _const_;
+बाह्य स्थिर काष्ठा hash_ops trivial_hash_ops;
+बाह्य स्थिर काष्ठा hash_ops trivial_hash_ops_free;
+बाह्य स्थिर काष्ठा hash_ops trivial_hash_ops_मूल्य_free;
+बाह्य स्थिर काष्ठा hash_ops trivial_hash_ops_free_free;
 
 /* 32-bit values we can always just embed in the pointer itself, but in order to support 32-bit archs we need store 64-bit
  * values indirectly, since they don't fit in a pointer. */
-void uint64_hash_func(const uint64_t *p, struct siphash *state);
-int uint64_compare_func(const uint64_t *a, const uint64_t *b) _pure_;
-extern const struct hash_ops uint64_hash_ops;
-extern const struct hash_ops uint64_hash_ops_value_free;
+व्योम uint64_hash_func(स्थिर uint64_t *p, काष्ठा siphash *state);
+पूर्णांक uint64_compare_func(स्थिर uint64_t *a, स्थिर uint64_t *b) _pure_;
+बाह्य स्थिर काष्ठा hash_ops uint64_hash_ops;
+बाह्य स्थिर काष्ठा hash_ops uint64_hash_ops_मूल्य_free;
 
 /* On some archs dev_t is 32-bit, and on others 64-bit. And sometimes it's 64-bit on 32-bit archs, and sometimes 32-bit on
  * 64-bit archs. Yuck! */
-#if SIZEOF_DEV_T != 8
-void devt_hash_func(const dev_t *p, struct siphash *state);
-#else
-#define devt_hash_func uint64_hash_func
-#endif
+#अगर SIZEOF_DEV_T != 8
+व्योम devt_hash_func(स्थिर dev_t *p, काष्ठा siphash *state);
+#अन्यथा
+#घोषणा devt_hash_func uint64_hash_func
+#पूर्ण_अगर
 
-int devt_compare_func(const dev_t *a, const dev_t *b) _pure_;
-extern const struct hash_ops devt_hash_ops;
+पूर्णांक devt_compare_func(स्थिर dev_t *a, स्थिर dev_t *b) _pure_;
+बाह्य स्थिर काष्ठा hash_ops devt_hash_ops;

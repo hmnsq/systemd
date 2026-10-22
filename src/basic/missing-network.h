@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include <netinet/in.h> /* IWYU pragma: export */
+#समावेश <netinet/in.h> /* IWYU pragma: export */
 
 /* Not exposed but defined at include/net/ip.h */
-#ifndef IPV4_MIN_MTU
-#define IPV4_MIN_MTU 68
-#endif
+#अगर_अघोषित IPV4_MIN_MTU
+#घोषणा IPV4_MIN_MTU 68
+#पूर्ण_अगर
 
 /* Note that LOOPBACK_IFINDEX is currently not exposed by the
  * kernel/glibc, but hardcoded internally by the kernel.  However, as
  * it is exported to userspace indirectly via rtnetlink and the
  * ioctls, and made use of widely we define it here too, in a way that
  * is compatible with the kernel's internal definition. */
-#ifndef LOOPBACK_IFINDEX
-#define LOOPBACK_IFINDEX 1
-#endif
+#अगर_अघोषित LOOPBACK_IFINDEX
+#घोषणा LOOPBACK_IFINDEX 1
+#पूर्ण_अगर
 
 /* Not exposed but defined in linux/netdevice.h */
-#ifndef MAX_PHYS_ITEM_ID_LEN
-#define MAX_PHYS_ITEM_ID_LEN 32
-#endif
+#अगर_अघोषित MAX_PHYS_ITEM_ID_LEN
+#घोषणा MAX_PHYS_ITEM_ID_LEN 32
+#पूर्ण_अगर
 
 /* Not exposed but defined in include/net/bonding.h */
-#ifndef BOND_MAX_ARP_TARGETS
-#define BOND_MAX_ARP_TARGETS 16
-#endif
+#अगर_अघोषित BOND_MAX_ARP_TARGETS
+#घोषणा BOND_MAX_ARP_TARGETS 16
+#पूर्ण_अगर
 
 /* Not exposed but defined in include/linux/ieee80211.h */
-#ifndef IEEE80211_MAX_SSID_LEN
-#define IEEE80211_MAX_SSID_LEN 32
-#endif
+#अगर_अघोषित IEEE80211_MAX_SSID_LEN
+#घोषणा IEEE80211_MAX_SSID_LEN 32
+#पूर्ण_अगर
 
 /* Not exposed but defined in include/net/netlabel.h */
-#ifndef NETLBL_NLTYPE_UNLABELED_NAME
-#define NETLBL_NLTYPE_UNLABELED_NAME "NLBL_UNLBL"
-#endif
+#अगर_अघोषित NETLBL_NLTYPE_UNLABELED_NAME
+#घोषणा NETLBL_NLTYPE_UNLABELED_NAME "NLBL_UNLBL"
+#पूर्ण_अगर
 
 /* Not exposed but defined in net/netlabel/netlabel_unlabeled.h */
-enum {
+क्रमागत {
         NLBL_UNLABEL_C_UNSPEC,
         NLBL_UNLABEL_C_ACCEPT,
         NLBL_UNLABEL_C_LIST,
@@ -52,7 +52,7 @@ enum {
 };
 
 /* Not exposed but defined in net/netlabel/netlabel_unlabeled.h */
-enum {
+क्रमागत {
         NLBL_UNLABEL_A_UNSPEC,
         NLBL_UNLABEL_A_ACPTFLG,
         NLBL_UNLABEL_A_IPV6ADDR,

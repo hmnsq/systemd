@@ -1,267 +1,267 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/kd.h>
-#include <linux/magic.h>
-#include <linux/tiocl.h>
-#include <linux/vt.h>
-#include <poll.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/inotify.h>
-#include <sys/ioctl.h>
-#include <sys/sysmacros.h>
-#include <termios.h>
-#include <time.h>
-#include <unistd.h>
+#समावेश <fcntl.h>
+#समावेश <linux/kd.h>
+#समावेश <linux/magic.h>
+#समावेश <linux/tiocl.h>
+#समावेश <linux/vt.h>
+#समावेश <poll.h>
+#समावेश <signal.h>
+#समावेश <stdlib.h>
+#समावेश <sys/inotify.h>
+#समावेश <sys/ioctl.h>
+#समावेश <sys/sysmacros.h>
+#समावेश <termios.h>
+#समावेश <time.h>
+#समावेश <unistd.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "chase.h"
-#include "devnum-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "hexdecoct.h"
-#include "inotify-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "namespace-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "terminal-util.h"
-#include "time-util.h"
-#include "utf8.h"
+#समावेश "alloc-util.h"
+#समावेश "ansi-color.h"
+#समावेश "chase.h"
+#समावेश "devnum-util.h"
+#समावेश "errno-util.h"
+#समावेश "extract-word.h"
+#समावेश "fd-util.h"
+#समावेश "fileio.h"
+#समावेश "fs-util.h"
+#समावेश "hexdecoct.h"
+#समावेश "inotify-util.h"
+#समावेश "io-util.h"
+#समावेश "log.h"
+#समावेश "namespace-util.h"
+#समावेश "parse-util.h"
+#समावेश "path-util.h"
+#समावेश "pidref.h"
+#समावेश "proc-cmdline.h"
+#समावेश "process-util.h"
+#समावेश "signal-util.h"
+#समावेश "socket-util.h"
+#समावेश "stat-util.h"
+#समावेश "stdio-util.h"
+#समावेश "string-util.h"
+#समावेश "strv.h"
+#समावेश "terminal-util.h"
+#समावेश "time-util.h"
+#समावेश "utf8.h"
 
 /* How much to wait when reading/writing ANSI sequences from/to the console */
-#define CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC (333 * USEC_PER_MSEC)
+#घोषणा CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC (333 * USEC_PER_MSEC)
 
-static volatile unsigned cached_columns = 0;
-static volatile unsigned cached_lines = 0;
+अटल अस्थिर अचिन्हित cached_columns = 0;
+अटल अस्थिर अचिन्हित cached_पंक्तियाँ = 0;
 
-static volatile int cached_on_tty = -1;
-static volatile int cached_on_dev_null = -1;
+अटल अस्थिर पूर्णांक cached_on_tty = -1;
+अटल अस्थिर पूर्णांक cached_on_dev_null = -1;
 
-bool isatty_safe(int fd) {
-        assert(fd >= 0);
+bool isatty_safe(पूर्णांक fd) {
+        निश्चित(fd >= 0);
 
-        if (isatty(fd))
-                return true;
+        अगर (isatty(fd))
+                वापस true;
 
         /* Linux/glibc returns EIO for hung up TTY on isatty(). Which is wrong, the thing doesn't stop being
          * a TTY after all, just because it is temporarily hung up. Let's work around this here, until this
          * is fixed in glibc. See: https://sourceware.org/bugzilla/show_bug.cgi?id=32103 */
-        if (errno == EIO)
-                return true;
+        अगर (त्रुटि_सं == EIO)
+                वापस true;
 
         /* Be resilient if we're working on stdio, since they're set up by parent process. */
-        assert(errno != EBADF || IN_SET(fd, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO));
+        निश्चित(त्रुटि_सं != EBADF || IN_SET(fd, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO));
 
-        return false;
+        वापस false;
 }
 
-int chvt(int vt) {
-        _cleanup_close_ int fd = -EBADF;
+पूर्णांक chvt(पूर्णांक vt) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
 
         /* Switch to the specified vt number. If the VT is specified <= 0 switch to the VT the kernel log messages go,
          * if that's configured. */
 
         fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return fd;
+        अगर (fd < 0)
+                वापस fd;
 
-        if (vt <= 0) {
-                int tiocl[2] = {
+        अगर (vt <= 0) {
+                पूर्णांक tiocl[2] = {
                         TIOCL_GETKMSGREDIRECT,
                         0
                 };
 
-                if (ioctl(fd, TIOCLINUX, tiocl) < 0)
-                        return -errno;
+                अगर (ioctl(fd, TIOCLINUX, tiocl) < 0)
+                        वापस -त्रुटि_सं;
 
                 vt = tiocl[0] <= 0 ? 1 : tiocl[0];
         }
 
-        return RET_NERRNO(ioctl(fd, VT_ACTIVATE, vt));
+        वापस RET_NERRNO(ioctl(fd, VT_ACTIVATE, vt));
 }
 
-int read_one_char(FILE *f, char *ret, usec_t t, bool echo, bool *need_nl) {
-        _cleanup_free_ char *line = NULL;
-        struct termios old_termios;
-        int r, fd;
+पूर्णांक read_one_char(खाता *f, अक्षर *ret, usec_t t, bool echo, bool *need_nl) {
+        _cleanup_free_ अक्षर *पंक्ति = शून्य;
+        काष्ठा termios old_termios;
+        पूर्णांक r, fd;
 
-        assert(ret);
+        निश्चित(ret);
 
-        if (!f)
-                f = stdin;
+        अगर (!f)
+                f = मानक_निवेश;
 
         /* If this is a terminal, then switch canonical mode off, so that we can read a single
          * character. (Note that fmemopen() streams do not have an fd associated with them, let's handle that
          * nicely.) If 'echo' is false we'll also disable ECHO mode so that the pressed key is not made
          * visible to the user. */
         fd = fileno(f);
-        if (fd >= 0 && tcgetattr(fd, &old_termios) >= 0) {
-                struct termios new_termios = old_termios;
+        अगर (fd >= 0 && tcgetattr(fd, &old_termios) >= 0) {
+                काष्ठा termios new_termios = old_termios;
 
                 new_termios.c_lflag &= ~(ICANON|(echo ? 0 : ECHO));
                 new_termios.c_cc[VMIN] = 1;
                 new_termios.c_cc[VTIME] = 0;
 
-                if (tcsetattr(fd, TCSANOW, &new_termios) >= 0) {
-                        char c;
+                अगर (tcsetattr(fd, TCSANOW, &new_termios) >= 0) {
+                        अक्षर c;
 
-                        if (t != USEC_INFINITY) {
-                                if (fd_wait_for_event(fd, POLLIN, t) <= 0) {
-                                        (void) tcsetattr(fd, TCSANOW, &old_termios);
-                                        return -ETIMEDOUT;
+                        अगर (t != USEC_INFINITY) {
+                                अगर (fd_wait_for_event(fd, POLLIN, t) <= 0) {
+                                        (व्योम) tcsetattr(fd, TCSANOW, &old_termios);
+                                        वापस -ETIMEDOUT;
                                 }
                         }
 
                         r = safe_fgetc(f, &c);
-                        (void) tcsetattr(fd, TCSANOW, &old_termios);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EIO;
+                        (व्योम) tcsetattr(fd, TCSANOW, &old_termios);
+                        अगर (r < 0)
+                                वापस r;
+                        अगर (r == 0)
+                                वापस -EIO;
 
-                        if (need_nl)
+                        अगर (need_nl)
                                 *need_nl = c != '\n';
 
                         *ret = c;
-                        return 0;
+                        वापस 0;
                 }
         }
 
-        if (t != USEC_INFINITY && fd >= 0) {
+        अगर (t != USEC_INFINITY && fd >= 0) {
                 /* Let's wait the specified amount of time for input. When we have no fd we skip this, under
                  * the assumption that this is an fmemopen() stream or so where waiting doesn't make sense
                  * anyway, as the data is either already in the stream or cannot possible be placed there
                  * while we access the stream */
 
-                if (fd_wait_for_event(fd, POLLIN, t) <= 0)
-                        return -ETIMEDOUT;
+                अगर (fd_wait_for_event(fd, POLLIN, t) <= 0)
+                        वापस -ETIMEDOUT;
         }
 
         /* If this is not a terminal, then read a full line instead */
 
-        r = read_line(f, 16, &line); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EIO;
+        r = read_पंक्ति(f, 16, &पंक्ति); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
+        अगर (r < 0)
+                वापस r;
+        अगर (r == 0)
+                वापस -EIO;
 
-        if (strlen(line) != 1)
-                return -EBADMSG;
+        अगर (म_माप(पंक्ति) != 1)
+                वापस -EBADMSG;
 
-        if (need_nl)
+        अगर (need_nl)
                 *need_nl = false;
 
-        *ret = line[0];
-        return 0;
+        *ret = पंक्ति[0];
+        वापस 0;
 }
 
-#define DEFAULT_ASK_REFRESH_USEC (2*USEC_PER_SEC)
+#घोषणा DEFAULT_ASK_REFRESH_USEC (2*USEC_PER_SEC)
 
-int ask_char(char *ret, const char *replies, const char *fmt, ...) {
-        int r;
+पूर्णांक ask_char(अक्षर *ret, स्थिर अक्षर *replies, स्थिर अक्षर *fmt, ...) {
+        पूर्णांक r;
 
-        assert(ret);
-        assert(replies);
-        assert(fmt);
+        निश्चित(ret);
+        निश्चित(replies);
+        निश्चित(fmt);
 
-        for (;;) {
-                va_list ap;
-                char c;
+        क्रम (;;) {
+                बहु_सूची ap;
+                अक्षर c;
                 bool need_nl = true;
 
-                fputs(ansi_highlight(), stdout);
+                ख_माला_दो(ansi_highlight(), मानक_निकास);
 
-                putchar('\r');
+                अक्षर_दो('\r');
 
-                va_start(ap, fmt);
-                vprintf(fmt, ap);
-                va_end(ap);
+                बहु_शुरू(ap, fmt);
+                भ_लिखो(fmt, ap);
+                बहु_पूर्ण(ap);
 
-                fputs(ansi_normal(), stdout);
+                ख_माला_दो(ansi_normal(), मानक_निकास);
 
-                fflush(stdout);
+                ख_साफ(मानक_निकास);
 
-                r = read_one_char(stdin, &c, DEFAULT_ASK_REFRESH_USEC, /* echo= */ true, &need_nl);
-                if (r < 0) {
+                r = read_one_char(मानक_निवेश, &c, DEFAULT_ASK_REFRESH_USEC, /* echo= */ true, &need_nl);
+                अगर (r < 0) {
 
-                        if (r == -ETIMEDOUT)
-                                continue;
+                        अगर (r == -ETIMEDOUT)
+                                जारी;
 
-                        if (r == -EBADMSG) {
-                                puts("Bad input, please try again.");
-                                continue;
+                        अगर (r == -EBADMSG) {
+                                माला_दो("Bad input, please try again.");
+                                जारी;
                         }
 
-                        putchar('\n');
-                        return r;
+                        अक्षर_दो('\n');
+                        वापस r;
                 }
 
-                if (need_nl)
-                        putchar('\n');
+                अगर (need_nl)
+                        अक्षर_दो('\n');
 
-                if (strchr(replies, c)) {
+                अगर (म_अक्षर(replies, c)) {
                         *ret = c;
-                        return 0;
+                        वापस 0;
                 }
 
-                puts("Read unexpected character, please try again.");
+                माला_दो("Read unexpected character, please try again.");
         }
 }
 
-typedef enum CompletionResult{
+प्रकार क्रमागत Completion_परिणाम{
         COMPLETION_ALREADY,       /* the input string is already complete */
         COMPLETION_FULL,          /* completed the input string to be complete now */
         COMPLETION_PARTIAL,       /* completed the input string so that is still incomplete */
         COMPLETION_NONE,          /* found no matching completion */
-        _COMPLETION_RESULT_MAX,
-        _COMPLETION_RESULT_INVALID = -EINVAL,
-        _COMPLETION_RESULT_ERRNO_MAX = -ERRNO_MAX,
-} CompletionResult;
+        COMPLETION_परिणाम_MAX,
+        COMPLETION_परिणाम_INVALID = -EINVAL,
+        COMPLETION_परिणाम_ERRNO_MAX = -ERRNO_MAX,
+} Completion_परिणाम;
 
-static CompletionResult pick_completion(const char *string, char *const*completions, char **ret) {
-        _cleanup_free_ char *found = NULL;
+अटल Completion_परिणाम pick_completion(स्थिर अक्षर *string, अक्षर *स्थिर*completions, अक्षर **ret) {
+        _cleanup_free_ अक्षर *found = शून्य;
         bool partial = false;
 
-        assert(ret);
+        निश्चित(ret);
 
         string = strempty(string);
 
         STRV_FOREACH(c, completions) {
 
                 /* Ignore entries that are not actually completions */
-                if (!startswith(*c, string))
-                        continue;
+                अगर (!startswith(*c, string))
+                        जारी;
 
                 /* Store first completion that matches */
-                if (!found) {
+                अगर (!found) {
                         found = strdup(*c);
-                        if (!found)
-                                return -ENOMEM;
+                        अगर (!found)
+                                वापस -ENOMEM;
 
-                        continue;
+                        जारी;
                 }
 
                 /* If there's another completion that works truncate the one we already found by common
                  * prefix */
-                size_t n = str_common_prefix(found, *c);
-                if (n == SIZE_MAX)
-                        continue;
+                माप_प्रकार n = str_common_prefix(found, *c);
+                अगर (n == SIZE_MAX)
+                        जारी;
 
                 found[n] = 0;
                 partial = true;
@@ -269,138 +269,138 @@ static CompletionResult pick_completion(const char *string, char *const*completi
 
         *ret = TAKE_PTR(found);
 
-        if (!*ret)
-                return COMPLETION_NONE;
-        if (partial)
-                return COMPLETION_PARTIAL;
+        अगर (!*ret)
+                वापस COMPLETION_NONE;
+        अगर (partial)
+                वापस COMPLETION_PARTIAL;
 
-        return streq(string, *ret) ? COMPLETION_ALREADY : COMPLETION_FULL;
+        वापस streq(string, *ret) ? COMPLETION_ALREADY : COMPLETION_FULL;
 }
 
-static void clear_by_backspace(size_t n) {
+अटल व्योम clear_by_backspace(माप_प्रकार n) {
         /* Erase the specified number of character cells backwards on the terminal */
-        for (size_t i = 0; i < n; i++)
-                fputs("\b \b", stdout);
+        क्रम (माप_प्रकार i = 0; i < n; i++)
+                ख_माला_दो("\b \b", मानक_निकास);
 }
 
-int ask_string_full(
-                char **ret,
-                const char *prefill,
+पूर्णांक ask_string_full(
+                अक्षर **ret,
+                स्थिर अक्षर *prefill,
                 GetCompletionsCallback get_completions,
-                void *userdata,
-                const char *text, ...) {
+                व्योम *userdata,
+                स्थिर अक्षर *text, ...) {
 
-        va_list ap;
-        int r;
+        बहु_सूची ap;
+        पूर्णांक r;
 
-        assert(ret);
-        assert(text);
+        निश्चित(ret);
+        निश्चित(text);
 
-        _cleanup_free_ char *string = NULL;
-        size_t n = 0;
+        _cleanup_free_ अक्षर *string = शून्य;
+        माप_प्रकार n = 0;
 
-        if (prefill) {
+        अगर (prefill) {
                 /* Prefill query with explicit data if specified */
 
                 string = strdup(prefill);
-                if (!string)
-                        return -ENOMEM;
+                अगर (!string)
+                        वापस -ENOMEM;
 
-                n = strlen(string);
+                n = म_माप(string);
 
-        } else if (get_completions) {
+        } अन्यथा अगर (get_completions) {
                 /* Otherwise, figure out what string to preselect the query with */
-                _cleanup_strv_free_ char **completions = NULL;
+                _cleanup_strv_free_ अक्षर **completions = शून्य;
                 r = get_completions("", GET_COMPLETIONS_PRESELECT, &completions, userdata);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
-                CompletionResult cr = pick_completion(string, completions, &string);
-                if (cr < 0)
-                        return cr;
+                Completion_परिणाम cr = pick_completion(string, completions, &string);
+                अगर (cr < 0)
+                        वापस cr;
 
                 n = strlen_ptr(string);
         }
 
         /* Output the prompt */
-        fputs(ansi_highlight(), stdout);
-        va_start(ap, text);
-        vprintf(text, ap);
-        va_end(ap);
-        fputs(ansi_normal(), stdout);
-        if (string)
-                fputs(string, stdout);
-        fflush(stdout);
+        ख_माला_दो(ansi_highlight(), मानक_निकास);
+        बहु_शुरू(ap, text);
+        भ_लिखो(text, ap);
+        बहु_पूर्ण(ap);
+        ख_माला_दो(ansi_normal(), मानक_निकास);
+        अगर (string)
+                ख_माला_दो(string, मानक_निकास);
+        ख_साफ(मानक_निकास);
 
         /* Do interactive logic only if stdin + stdout are connected to the same place. And yes, we could use
          * STDIN_FILENO and STDOUT_FILENO here, but let's be overly correct for once, after all libc allows
          * swapping out stdin/stdout. */
-        int fd_input = fileno(stdin);
-        int fd_output = fileno(stdout);
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(fd_input, old_termios);
+        पूर्णांक fd_निवेश = fileno(मानक_निवेश);
+        पूर्णांक fd_output = fileno(मानक_निकास);
+        काष्ठा termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(fd_निवेश, old_termios);
 
-        if (fd_input < 0 || fd_output < 0 || same_fd(fd_input, fd_output) <= 0)
-                goto fallback;
+        अगर (fd_निवेश < 0 || fd_output < 0 || same_fd(fd_निवेश, fd_output) <= 0)
+                जाओ fallback;
 
         /* Try to disable echo, which also tells us if this even is a terminal */
-        if (tcgetattr(fd_input, &old_termios) < 0) {
+        अगर (tcgetattr(fd_निवेश, &old_termios) < 0) {
                 old_termios = TERMIOS_NULL;
-                goto fallback;
+                जाओ fallback;
         }
 
-        struct termios new_termios = old_termios;
+        काष्ठा termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
-        if (tcsetattr(fd_input, TCSANOW, &new_termios) < 0)
-                return -errno;
+        अगर (tcsetattr(fd_निवेश, TCSANOW, &new_termios) < 0)
+                वापस -त्रुटि_सं;
 
-        for (;;) {
-                int c = fgetc(stdin);
+        क्रम (;;) {
+                पूर्णांक c = ख_अक्षर_लो(मानक_निवेश);
 
                 /* On EOF or NUL, end the request, don't output anything anymore */
-                if (IN_SET(c, EOF, 0))
-                        break;
+                अगर (IN_SET(c, खातापूर्ण, 0))
+                        अवरोध;
 
                 /* On Return also end the request, but make this visible */
-                if (IN_SET(c, '\n', '\r')) {
-                        fputc('\n', stdout);
-                        break;
+                अगर (IN_SET(c, '\n', '\r')) {
+                        ख_अक्षर_दो('\n', मानक_निकास);
+                        अवरोध;
                 }
 
-                if (c == '\t') {
+                अगर (c == '\t') {
                         /* Tab */
 
-                        _cleanup_strv_free_ char **completions = NULL;
-                        if (get_completions) {
+                        _cleanup_strv_free_ अक्षर **completions = शून्य;
+                        अगर (get_completions) {
                                 r = get_completions(string, /* flags= */ 0, &completions, userdata);
-                                if (r < 0)
-                                        return r;
+                                अगर (r < 0)
+                                        वापस r;
                         }
 
-                        _cleanup_free_ char *new_string = NULL;
-                        CompletionResult cr = pick_completion(string, completions, &new_string);
-                        if (cr < 0)
-                                return cr;
-                        if (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_FULL)) {
+                        _cleanup_free_ अक्षर *new_string = शून्य;
+                        Completion_परिणाम cr = pick_completion(string, completions, &new_string);
+                        अगर (cr < 0)
+                                वापस cr;
+                        अगर (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_FULL)) {
                                 /* Output the new suffix we learned */
-                                fputs(ASSERT_PTR(startswith(new_string, strempty(string))), stdout);
+                                ख_माला_दो(ASSERT_PTR(startswith(new_string, strempty(string))), मानक_निकास);
 
                                 /* And update the whole string */
                                 free_and_replace(string, new_string);
-                                n = strlen(string);
+                                n = म_माप(string);
                         }
-                        if (cr == COMPLETION_NONE)
-                                fputc('\a', stdout); /* BEL */
+                        अगर (cr == COMPLETION_NONE)
+                                ख_अक्षर_दो('\a', मानक_निकास); /* BEL */
 
-                        if (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_ALREADY)) {
+                        अगर (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_ALREADY)) {
                                 /* If this worked only partially, or if the user hit TAB even though we were
                                  * complete already, then show the remaining options (in the latter case just
                                  * the one). */
-                                fputc('\n', stdout);
+                                ख_अक्षर_दो('\n', मानक_निकास);
 
-                                _cleanup_strv_free_ char **filtered = strv_filter_prefix(completions, string);
-                                if (!filtered)
-                                        return -ENOMEM;
+                                _cleanup_strv_free_ अक्षर **filtered = strv_filter_prefix(completions, string);
+                                अगर (!filtered)
+                                        वापस -ENOMEM;
 
                                 r = show_menu(filtered,
                                               /* n_columns= */ SIZE_MAX,
@@ -408,149 +408,149 @@ int ask_string_full(
                                               /* ellipsize_percentage= */ 0,
                                               /* grey_prefix= */ string,
                                               /* with_numbers= */ false);
-                                if (r < 0)
-                                        return r;
+                                अगर (r < 0)
+                                        वापस r;
 
                                 /* Show the prompt again */
-                                fputs(ansi_highlight(), stdout);
-                                va_start(ap, text);
-                                vprintf(text, ap);
-                                va_end(ap);
-                                fputs(ansi_normal(), stdout);
-                                fputs(string, stdout);
+                                ख_माला_दो(ansi_highlight(), मानक_निकास);
+                                बहु_शुरू(ap, text);
+                                भ_लिखो(text, ap);
+                                बहु_पूर्ण(ap);
+                                ख_माला_दो(ansi_normal(), मानक_निकास);
+                                ख_माला_दो(string, मानक_निकास);
                         }
 
-                } else if (IN_SET(c, '\b', 127)) {
+                } अन्यथा अगर (IN_SET(c, '\b', 127)) {
                         /* Backspace */
 
-                        if (n == 0)
-                                fputc('\a', stdout); /* BEL */
-                        else {
-                                size_t m = utf8_last_length(string, n);
+                        अगर (n == 0)
+                                ख_अक्षर_दो('\a', मानक_निकास); /* BEL */
+                        अन्यथा {
+                                माप_प्रकार m = utf8_last_लंबाई(string, n);
 
-                                char *e = string + n - m;
+                                अक्षर *e = string + n - m;
                                 clear_by_backspace(utf8_console_width(e));
 
                                 *e = 0;
                                 n -= m;
                         }
 
-                } else if (c == 21) {
+                } अन्यथा अगर (c == 21) {
                         /* Ctrl-u → erase all input */
 
                         clear_by_backspace(utf8_console_width(string));
-                        if (string)
+                        अगर (string)
                                 string[n = 0] = 0;
-                        else
-                                assert(n == 0);
+                        अन्यथा
+                                निश्चित(n == 0);
 
-                } else if (c == 4) {
+                } अन्यथा अगर (c == 4) {
                         /* Ctrl-d → cancel this field input */
 
-                        return -ECANCELED;
+                        वापस -ECANCELED;
 
-                } else if (char_is_cc(c) || n >= LINE_MAX)
+                } अन्यथा अगर (char_is_cc(c) || n >= LINE_MAX)
                         /* refuse control characters and too long strings */
-                        fputc('\a', stdout); /* BEL */
-                else {
+                        ख_अक्षर_दो('\a', मानक_निकास); /* BEL */
+                अन्यथा {
                         /* Regular char */
 
-                        if (!GREEDY_REALLOC(string, n+2))
-                                return -ENOMEM;
+                        अगर (!GREEDY_REALLOC(string, n+2))
+                                वापस -ENOMEM;
 
-                        string[n++] = (char) c;
+                        string[n++] = (अक्षर) c;
                         string[n] = 0;
 
-                        fputc(c, stdout);
+                        ख_अक्षर_दो(c, मानक_निकास);
                 }
 
-                fflush(stdout);
+                ख_साफ(मानक_निकास);
         }
 
-        if (!string) {
+        अगर (!string) {
                 string = strdup("");
-                if (!string)
-                        return -ENOMEM;
+                अगर (!string)
+                        वापस -ENOMEM;
         }
 
         *ret = TAKE_PTR(string);
-        return 0;
+        वापस 0;
 
 fallback:
         /* A simple fallback without TTY magic */
         string = mfree(string);
-        r = read_line(stdin, LONG_LINE_MAX, &string);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EIO;
+        r = read_पंक्ति(मानक_निवेश, LONG_पंक्ति_MAX, &string);
+        अगर (r < 0)
+                वापस r;
+        अगर (r == 0)
+                वापस -EIO;
 
         *ret = TAKE_PTR(string);
-        return 0;
+        वापस 0;
 }
 
-bool any_key_to_proceed(void) {
+bool any_कुंजी_to_proceed(व्योम) {
 
         /* Insert a new line here as well as to when the user inputs, as this is also used during the boot up
          * sequence when status messages may be interleaved with the current program output. This ensures
          * that the status messages aren't appended on the same line as this message. */
 
-        fputc('\n', stdout);
-        fputs(ansi_highlight_magenta(), stdout);
-        fputs("-- Press any key to proceed --", stdout);
-        fputs(ansi_normal(), stdout);
-        fputc('\n', stdout);
-        fflush(stdout);
+        ख_अक्षर_दो('\n', मानक_निकास);
+        ख_माला_दो(ansi_highlight_magenta(), मानक_निकास);
+        ख_माला_दो("-- Press any key to proceed --", मानक_निकास);
+        ख_माला_दो(ansi_normal(), मानक_निकास);
+        ख_अक्षर_दो('\n', मानक_निकास);
+        ख_साफ(मानक_निकास);
 
-        char key = 0;
-        (void) read_one_char(stdin, &key, USEC_INFINITY, /* echo= */ false, /* need_nl= */ NULL);
+        अक्षर कुंजी = 0;
+        (व्योम) read_one_char(मानक_निवेश, &कुंजी, USEC_INFINITY, /* echo= */ false, /* need_nl= */ शून्य);
 
-        fputc('\n', stdout);
-        fflush(stdout);
+        ख_अक्षर_दो('\n', मानक_निकास);
+        ख_साफ(मानक_निकास);
 
-        return key != 'q';
+        वापस कुंजी != 'q';
 }
 
-static size_t widest_list_element(char *const*l) {
-        size_t w = 0;
+अटल माप_प्रकार widest_list_element(अक्षर *स्थिर*l) {
+        माप_प्रकार w = 0;
 
         /* Returns the largest console width of all elements in 'l' */
 
         STRV_FOREACH(i, l)
                 w = MAX(w, utf8_console_width(*i));
 
-        return w;
+        वापस w;
 }
 
-int show_menu(char **x,
-              size_t n_columns,
-              size_t column_width,
-              unsigned ellipsize_percentage,
-              const char *grey_prefix,
+पूर्णांक show_menu(अक्षर **x,
+              माप_प्रकार n_columns,
+              माप_प्रकार column_width,
+              अचिन्हित ellipsize_percentage,
+              स्थिर अक्षर *grey_prefix,
               bool with_numbers) {
 
-        assert(n_columns > 0);
-        assert(column_width > 0);
+        निश्चित(n_columns > 0);
+        निश्चित(column_width > 0);
 
-        if (n_columns == SIZE_MAX)
+        अगर (n_columns == SIZE_MAX)
                 n_columns = 3;
 
-        if (column_width == SIZE_MAX) {
-                size_t widest = widest_list_element(x);
+        अगर (column_width == SIZE_MAX) {
+                माप_प्रकार widest = widest_list_element(x);
 
                 /* If not specified, derive column width from screen width */
-                size_t column_max = (columns()-1) / n_columns;
+                माप_प्रकार column_max = (columns()-1) / n_columns;
 
                 /* Subtract room for numbers */
-                if (with_numbers)
+                अगर (with_numbers)
                         column_max = LESS_BY(column_max, 6U);
 
                 /* If columns would get too tight let's make this a linear list instead. */
-                if (column_max < 10 && widest > 10) {
+                अगर (column_max < 10 && widest > 10) {
                         n_columns = 1;
                         column_max = columns()-1;
 
-                        if (with_numbers)
+                        अगर (with_numbers)
                                 column_max = LESS_BY(column_max, 6U);
                 }
 
@@ -559,62 +559,62 @@ int show_menu(char **x,
                 column_width = CLAMP(widest+1, 10U, column_max);
         }
 
-        size_t n = strv_length(x);
-        size_t per_column = DIV_ROUND_UP(n, n_columns);
+        माप_प्रकार n = strv_लंबाई(x);
+        माप_प्रकार per_column = DIV_ROUND_UP(n, n_columns);
 
-        size_t break_lines = lines();
-        if (break_lines > 2)
-                break_lines--;
+        माप_प्रकार break_पंक्तियाँ = पंक्तियाँ();
+        अगर (break_पंक्तियाँ > 2)
+                break_पंक्तियाँ--;
 
         /* The first page gets two extra lines, since we want to show a title */
-        size_t break_modulo = break_lines;
-        if (break_modulo > 3)
+        माप_प्रकार break_modulo = break_पंक्तियाँ;
+        अगर (break_modulo > 3)
                 break_modulo -= 3;
 
-        for (size_t i = 0; i < per_column; i++) {
+        क्रम (माप_प्रकार i = 0; i < per_column; i++) {
 
-                for (size_t j = 0; j < n_columns; j++) {
-                        _cleanup_free_ char *e = NULL;
+                क्रम (माप_प्रकार j = 0; j < n_columns; j++) {
+                        _cleanup_free_ अक्षर *e = शून्य;
 
-                        size_t p = j * per_column + i;
-                        if (p >= n)
-                                break;
+                        माप_प्रकार p = j * per_column + i;
+                        अगर (p >= n)
+                                अवरोध;
 
                         e = ellipsize(x[p], column_width, ellipsize_percentage);
-                        if (!e)
-                                return -ENOMEM;
+                        अगर (!e)
+                                वापस -ENOMEM;
 
-                        if (with_numbers)
-                                printf("%s%4zu)%s ",
+                        अगर (with_numbers)
+                                म_लिखो("%s%4zu)%s ",
                                        ansi_grey(),
                                        p + 1,
                                        ansi_normal());
 
-                        if (grey_prefix && startswith(e, grey_prefix)) {
-                                size_t k = MIN(strlen(grey_prefix), column_width);
-                                printf("%s%.*s%s",
+                        अगर (grey_prefix && startswith(e, grey_prefix)) {
+                                माप_प्रकार k = MIN(म_माप(grey_prefix), column_width);
+                                म_लिखो("%s%.*s%s",
                                        ansi_grey(),
-                                       (int) k, e,
+                                       (पूर्णांक) k, e,
                                        ansi_normal());
-                                printf("%-*s",
-                                       (int) (column_width - k), e+k);
-                        } else
-                                printf("%-*s", (int) column_width, e);
+                                म_लिखो("%-*s",
+                                       (पूर्णांक) (column_width - k), e+k);
+                        } अन्यथा
+                                म_लिखो("%-*s", (पूर्णांक) column_width, e);
                 }
 
-                putchar('\n');
+                अक्षर_दो('\n');
 
                 /* on the first screen we reserve 2 extra lines for the title */
-                if (i % break_lines == break_modulo)
-                        if (!any_key_to_proceed())
-                                return 0;
+                अगर (i % break_पंक्तियाँ == break_modulo)
+                        अगर (!any_कुंजी_to_proceed())
+                                वापस 0;
         }
 
-        return 0;
+        वापस 0;
 }
 
-int open_terminal(const char *name, int mode) {
-        _cleanup_close_ int fd = -EBADF;
+पूर्णांक open_terminal(स्थिर अक्षर *name, पूर्णांक mode) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
 
         /*
          * If a TTY is in the process of being closed opening it might cause EIO. This is horribly awful, but
@@ -624,43 +624,43 @@ int open_terminal(const char *name, int mode) {
          * https://bugs.launchpad.net/ubuntu/+source/linux/+bug/554172/comments/245
          */
 
-        assert((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
+        निश्चित((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
 
-        for (unsigned c = 0;; c++) {
-                fd = open(name, mode, 0);
-                if (fd >= 0)
-                        break;
+        क्रम (अचिन्हित c = 0;; c++) {
+                fd = खोलो(name, mode, 0);
+                अगर (fd >= 0)
+                        अवरोध;
 
-                if (errno != EIO)
-                        return -errno;
+                अगर (त्रुटि_सं != EIO)
+                        वापस -त्रुटि_सं;
 
                 /* Max 1s in total */
-                if (c >= 20)
-                        return -EIO;
+                अगर (c >= 20)
+                        वापस -EIO;
 
-                (void) usleep_safe(50 * USEC_PER_MSEC);
+                (व्योम) usleep_safe(50 * USEC_PER_MSEC);
         }
 
-        if (!isatty_safe(fd))
-                return -ENOTTY;
+        अगर (!isatty_safe(fd))
+                वापस -ENOTTY;
 
-        return TAKE_FD(fd);
+        वापस TAKE_FD(fd);
 }
 
-int acquire_terminal(
-                const char *name,
+पूर्णांक acquire_terminal(
+                स्थिर अक्षर *name,
                 AcquireTerminalFlags flags,
                 usec_t timeout) {
 
-        _cleanup_close_ int notify = -EBADF, fd = -EBADF;
+        _cleanup_close_ पूर्णांक notify = -EBADF, fd = -EBADF;
         usec_t ts = USEC_INFINITY;
-        int r, wd = -1;
+        पूर्णांक r, wd = -1;
 
-        assert(name);
+        निश्चित(name);
 
         AcquireTerminalFlags mode = flags & _ACQUIRE_TERMINAL_MODE_MASK;
-        assert(IN_SET(mode, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
-        assert(mode == ACQUIRE_TERMINAL_WAIT || !FLAGS_SET(flags, ACQUIRE_TERMINAL_WATCH_SIGTERM));
+        निश्चित(IN_SET(mode, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
+        निश्चित(mode == ACQUIRE_TERMINAL_WAIT || !FLAGS_SET(flags, ACQUIRE_TERMINAL_WATCH_SIGTERM));
 
         /* We use inotify to be notified when the tty is closed. We create the watch before checking if we can actually
          * acquire it, so that we don't lose any event.
@@ -671,115 +671,115 @@ int acquire_terminal(
          * not configure any service on the same tty as an untrusted user this should not be a problem. (Which they
          * probably should not do anyway.) */
 
-        if (mode == ACQUIRE_TERMINAL_WAIT) {
+        अगर (mode == ACQUIRE_TERMINAL_WAIT) {
                 notify = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);
-                if (notify < 0)
-                        return -errno;
+                अगर (notify < 0)
+                        वापस -त्रुटि_सं;
 
                 wd = inotify_add_watch(notify, name, IN_CLOSE);
-                if (wd < 0)
-                        return -errno;
+                अगर (wd < 0)
+                        वापस -त्रुटि_सं;
 
-                if (timeout != USEC_INFINITY)
+                अगर (timeout != USEC_INFINITY)
                         ts = now(CLOCK_MONOTONIC);
         }
 
         /* If we are called with ACQUIRE_TERMINAL_WATCH_SIGTERM we'll unblock SIGTERM during ppoll() temporarily */
         sigset_t poll_ss;
-        assert_se(sigprocmask(SIG_SETMASK, /* newset= */ NULL, &poll_ss) >= 0);
-        if (flags & ACQUIRE_TERMINAL_WATCH_SIGTERM) {
-                assert_se(sigismember(&poll_ss, SIGTERM) > 0);
-                assert_se(sigdelset(&poll_ss, SIGTERM) >= 0);
+        assert_se(sigprocmask(SIG_SETMASK, /* newset= */ शून्य, &poll_ss) >= 0);
+        अगर (flags & ACQUIRE_TERMINAL_WATCH_SIGTERM) {
+                assert_se(sigismember(&poll_ss, संक_इति) > 0);
+                assert_se(sigdelset(&poll_ss, संक_इति) >= 0);
         }
 
-        for (;;) {
-                if (notify >= 0) {
+        क्रम (;;) {
+                अगर (notify >= 0) {
                         r = flush_fd(notify);
-                        if (r < 0)
-                                return r;
+                        अगर (r < 0)
+                                वापस r;
                 }
 
                 /* We pass here O_NOCTTY only so that we can check the return value TIOCSCTTY and have a reliable way
                  * to figure out if we successfully became the controlling process of the tty */
                 fd = open_terminal(name, O_RDWR|O_NOCTTY|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                अगर (fd < 0)
+                        वापस fd;
 
                 /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed if we already own the tty. */
-                struct sigaction sa_old;
+                काष्ठा sigaction sa_old;
                 assert_se(sigaction(SIGHUP, &sigaction_ignore, &sa_old) >= 0);
 
                 /* First, try to get the tty */
                 r = RET_NERRNO(ioctl(fd, TIOCSCTTY, mode == ACQUIRE_TERMINAL_FORCE));
 
                 /* Reset signal handler to old value */
-                assert_se(sigaction(SIGHUP, &sa_old, NULL) >= 0);
+                assert_se(sigaction(SIGHUP, &sa_old, शून्य) >= 0);
 
                 /* Success? Exit the loop now! */
-                if (r >= 0)
-                        break;
+                अगर (r >= 0)
+                        अवरोध;
 
                 /* Any failure besides -EPERM? Fail, regardless of the mode. */
-                if (r != -EPERM)
-                        return r;
+                अगर (r != -EPERM)
+                        वापस r;
 
-                if (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
+                अगर (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
                                                           * into a success. Note that EPERM is also returned if we
                                                           * already are the owner of the TTY. */
-                        break;
+                        अवरोध;
 
-                if (mode != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
-                        return r;
+                अगर (mode != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
+                        वापस r;
 
-                assert(notify >= 0);
-                assert(wd >= 0);
+                निश्चित(notify >= 0);
+                निश्चित(wd >= 0);
 
-                for (;;) {
-                        usec_t left;
-                        if (timeout == USEC_INFINITY)
-                                left = USEC_INFINITY;
-                        else {
-                                assert(ts != USEC_INFINITY);
+                क्रम (;;) {
+                        usec_t बायाँ;
+                        अगर (timeout == USEC_INFINITY)
+                                बायाँ = USEC_INFINITY;
+                        अन्यथा {
+                                निश्चित(ts != USEC_INFINITY);
 
                                 usec_t n = usec_sub_unsigned(now(CLOCK_MONOTONIC), ts);
-                                if (n >= timeout)
-                                        return -ETIMEDOUT;
+                                अगर (n >= timeout)
+                                        वापस -ETIMEDOUT;
 
-                                left = timeout - n;
+                                बायाँ = timeout - n;
                         }
 
                         r = ppoll_usec_full(
-                                        &(struct pollfd) {
+                                        &(काष्ठा pollfd) {
                                                 .fd = notify,
                                                 .events = POLLIN,
                                         },
                                         /* n_fds= */ 1,
-                                        left,
+                                        बायाँ,
                                         &poll_ss);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIMEDOUT;
+                        अगर (r < 0)
+                                वापस r;
+                        अगर (r == 0)
+                                वापस -ETIMEDOUT;
 
-                        union inotify_event_buffer buffer;
+                        जोड़ inotify_event_बफर बफर;
                         ssize_t l;
-                        l = read(notify, &buffer, sizeof(buffer));
-                        if (l < 0) {
-                                if (ERRNO_IS_TRANSIENT(errno))
-                                        continue;
+                        l = पढ़ो(notify, &बफर, माप(बफर));
+                        अगर (l < 0) {
+                                अगर (ERRNO_IS_TRANSIENT(त्रुटि_सं))
+                                        जारी;
 
-                                return -errno;
+                                वापस -त्रुटि_सं;
                         }
 
-                        FOREACH_INOTIFY_EVENT(e, buffer, l) {
-                                if (e->mask & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
-                                        break;
+                        FOREACH_INOTIFY_EVENT(e, बफर, l) {
+                                अगर (e->mask & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
+                                        अवरोध;
 
-                                if (e->wd != wd || !(e->mask & IN_CLOSE)) /* Safety checks */
-                                        return -EIO;
+                                अगर (e->wd != wd || !(e->mask & IN_CLOSE)) /* Safety checks */
+                                        वापस -EIO;
                         }
 
-                        break;
+                        अवरोध;
                 }
 
                 /* We close the tty fd here since if the old session ended our handle will be dead. It's important that
@@ -787,30 +787,30 @@ int acquire_terminal(
                 fd = safe_close(fd);
         }
 
-        return TAKE_FD(fd);
+        वापस TAKE_FD(fd);
 }
 
-int release_terminal(void) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+पूर्णांक release_terminal(व्योम) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
+        पूर्णांक r;
 
-        fd = open("/dev/tty", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return -errno;
+        fd = खोलो("/dev/tty", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+        अगर (fd < 0)
+                वापस -त्रुटि_सं;
 
         /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed
          * by our own TIOCNOTTY */
-        struct sigaction sa_old;
+        काष्ठा sigaction sa_old;
         assert_se(sigaction(SIGHUP, &sigaction_ignore, &sa_old) >= 0);
 
         r = RET_NERRNO(ioctl(fd, TIOCNOTTY));
 
-        assert_se(sigaction(SIGHUP, &sa_old, NULL) >= 0);
+        assert_se(sigaction(SIGHUP, &sa_old, शून्य) >= 0);
 
-        return r;
+        वापस r;
 }
 
-int terminal_new_session(void) {
+पूर्णांक terminal_new_session(व्योम) {
 
         /* Make us the new session leader, and set stdin tty to be our controlling terminal.
          *
@@ -819,62 +819,62 @@ int terminal_new_session(void) {
          * (that side channel being signal delivery, i.e. SIGINT, SIGHUP et al). Hence we focus on input,
          * not output here. */
 
-        if (!isatty_safe(STDIN_FILENO))
-                return -ENXIO;
+        अगर (!isatty_safe(STDIN_FILENO))
+                वापस -ENXIO;
 
-        (void) setsid();
-        return RET_NERRNO(ioctl(STDIN_FILENO, TIOCSCTTY, 0));
+        (व्योम) setsid();
+        वापस RET_NERRNO(ioctl(STDIN_FILENO, TIOCSCTTY, 0));
 }
 
-void terminal_detach_session(void) {
-        (void) setsid();
-        (void) release_terminal();
+व्योम terminal_detach_session(व्योम) {
+        (व्योम) setsid();
+        (व्योम) release_terminal();
 }
 
-int terminal_vhangup_fd(int fd) {
-        assert(fd >= 0);
-        return RET_NERRNO(ioctl(fd, TIOCVHANGUP));
+पूर्णांक terminal_vhangup_fd(पूर्णांक fd) {
+        निश्चित(fd >= 0);
+        वापस RET_NERRNO(ioctl(fd, TIOCVHANGUP));
 }
 
-int terminal_vhangup(const char *tty) {
-        _cleanup_close_ int fd = -EBADF;
+पूर्णांक terminal_vhangup(स्थिर अक्षर *tty) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
 
-        assert(tty);
+        निश्चित(tty);
 
         fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        अगर (fd < 0)
+                वापस fd;
 
-        return terminal_vhangup_fd(fd);
+        वापस terminal_vhangup_fd(fd);
 }
 
-int vt_disallocate(const char *tty_path) {
-        assert(tty_path);
+पूर्णांक vt_disallocate(स्थिर अक्षर *tty_path) {
+        निश्चित(tty_path);
 
         /* Deallocate the VT if possible. If not possible (i.e. because it is the active one), at least clear
          * it entirely (including the scrollback buffer). */
 
-        int ttynr = vtnr_from_tty(tty_path);
-        if (ttynr > 0) {
-                _cleanup_close_ int fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-                if (fd < 0)
-                        return fd;
+        पूर्णांक ttynr = vtnr_from_tty(tty_path);
+        अगर (ttynr > 0) {
+                _cleanup_close_ पूर्णांक fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+                अगर (fd < 0)
+                        वापस fd;
 
                 /* Try to deallocate */
-                if (ioctl(fd, VT_DISALLOCATE, ttynr) >= 0)
-                        return 0;
-                if (errno != EBUSY)
-                        return -errno;
+                अगर (ioctl(fd, VT_DISALLOCATE, ttynr) >= 0)
+                        वापस 0;
+                अगर (त्रुटि_सं != EBUSY)
+                        वापस -त्रुटि_सं;
         }
 
         /* So this is not a VT (in which case we cannot deallocate it), or we failed to deallocate. Let's at
          * least clear the screen. */
 
-        _cleanup_close_ int fd2 = open_terminal(tty_path, O_WRONLY|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd2 < 0)
-                return fd2;
+        _cleanup_close_ पूर्णांक fd2 = open_terminal(tty_path, O_WRONLY|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+        अगर (fd2 < 0)
+                वापस fd2;
 
-        return loop_write_full(fd2,
+        वापस loop_write_full(fd2,
                                "\033[r"   /* clear scrolling region */
                                "\033[H"   /* move home */
                                "\033[3J"  /* clear screen including scrollback, requires Linux 2.6.40 */
@@ -883,53 +883,53 @@ int vt_disallocate(const char *tty_path) {
                                CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
 }
 
-static int vt_default_utf8(void) {
+अटल पूर्णांक vt_default_utf8(व्योम) {
         /* Read the default VT UTF8 setting from the kernel */
-        return read_boolean_file("/sys/module/vt/parameters/default_utf8");
+        वापस read_boolean_file("/sys/module/vt/parameters/default_utf8");
 }
 
-static int vt_reset_keyboard(int fd) {
-        int r, kb;
+अटल पूर्णांक vt_reset_keyboard(पूर्णांक fd) {
+        पूर्णांक r, kb;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
         /* If we can't read the default, then default to Unicode. It's 2024 after all. */
         r = vt_default_utf8();
-        if (r < 0)
+        अगर (r < 0)
                 log_debug_errno(r, "Failed to determine kernel VT UTF-8 mode, assuming enabled: %m");
 
         kb = vt_default_utf8() != 0 ? K_UNICODE : K_XLATE;
-        return RET_NERRNO(ioctl(fd, KDSKBMODE, kb));
+        वापस RET_NERRNO(ioctl(fd, KDSKBMODE, kb));
 }
 
-static int terminal_reset_ioctl(int fd, bool switch_to_text) {
-        struct termios termios;
-        int r;
+अटल पूर्णांक terminal_reset_ioctl(पूर्णांक fd, bool switch_to_text) {
+        काष्ठा termios termios;
+        पूर्णांक r;
 
         /* Set terminal to some sane defaults */
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
         /* We leave locked terminal attributes untouched, so that Plymouth may set whatever it wants to set,
          * and we don't interfere with that. */
 
         /* Disable exclusive mode, just in case */
-        if (ioctl(fd, TIOCNXCL) < 0)
-                log_debug_errno(errno, "TIOCNXCL ioctl failed on TTY, ignoring: %m");
+        अगर (ioctl(fd, TIOCNXCL) < 0)
+                log_debug_errno(त्रुटि_सं, "TIOCNXCL ioctl failed on TTY, ignoring: %m");
 
         /* Switch to text mode */
-        if (switch_to_text)
-                if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
-                        log_debug_errno(errno, "KDSETMODE ioctl for switching to text mode failed on TTY, ignoring: %m");
+        अगर (switch_to_text)
+                अगर (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
+                        log_debug_errno(त्रुटि_सं, "KDSETMODE ioctl for switching to text mode failed on TTY, ignoring: %m");
 
         /* Set default keyboard mode */
         r = vt_reset_keyboard(fd);
-        if (r < 0)
+        अगर (r < 0)
                 log_debug_errno(r, "Failed to reset VT keyboard, ignoring: %m");
 
-        if (tcgetattr(fd, &termios) < 0) {
-                r = log_debug_errno(errno, "Failed to get terminal parameters: %m");
-                goto finish;
+        अगर (tcgetattr(fd, &termios) < 0) {
+                r = log_debug_errno(त्रुटि_सं, "Failed to get terminal parameters: %m");
+                जाओ finish;
         }
 
         /* We only reset the stuff that matters to the software. How
@@ -960,29 +960,29 @@ static int terminal_reset_ioctl(int fd, bool switch_to_text) {
         termios.c_cc[VMIN]   = 1;
 
         r = RET_NERRNO(tcsetattr(fd, TCSANOW, &termios));
-        if (r < 0)
+        अगर (r < 0)
                 log_debug_errno(r, "Failed to set terminal parameters: %m");
 
 finish:
         /* Just in case, flush all crap out */
-        (void) tcflush(fd, TCIOFLUSH);
+        (व्योम) tcflush(fd, TCIOFLUSH);
 
-        return r;
+        वापस r;
 }
 
-int terminal_reset_ansi_seq(int fd) {
-        _cleanup_(nonblock_resetp) int nonblock_reset = -EBADF;
-        int r;
+पूर्णांक terminal_reset_ansi_seq(पूर्णांक fd) {
+        _cleanup_(nonblock_resetp) पूर्णांक nonblock_reset = -EBADF;
+        पूर्णांक r;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
-        if (getenv_terminal_is_dumb())
-                return 0;
+        अगर (getenv_terminal_is_dumb())
+                वापस 0;
 
         r = fd_nonblock(fd, true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
-        if (r > 0)
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
+        अगर (r > 0)
                 nonblock_reset = fd;
 
         r = loop_write_full(fd,
@@ -994,455 +994,455 @@ int terminal_reset_ansi_seq(int fd) {
                             "\033[0J",             /* erase till end of screen */
                             SIZE_MAX,
                             CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
+        अगर (r < 0)
                 log_debug_errno(r, "Failed to reset terminal through ANSI sequences: %m");
 
-        return r;
+        वापस r;
 }
 
-void reset_dev_console_fd(int fd, bool switch_to_text) {
-        int r;
+व्योम reset_dev_console_fd(पूर्णांक fd, bool switch_to_text) {
+        पूर्णांक r;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
-        _cleanup_close_ int lock_fd = lock_dev_console();
-        if (lock_fd < 0)
+        _cleanup_close_ पूर्णांक lock_fd = lock_dev_console();
+        अगर (lock_fd < 0)
                 log_debug_errno(lock_fd, "Failed to lock /dev/console, ignoring: %m");
 
         r = terminal_reset_ioctl(fd, switch_to_text);
-        if (r < 0)
+        अगर (r < 0)
                 log_warning_errno(r, "Failed to reset /dev/console, ignoring: %m");
 
-        unsigned rows, cols;
-        r = proc_cmdline_tty_size("/dev/console", &rows, &cols);
-        if (r < 0)
+        अचिन्हित rows, cols;
+        r = proc_cmdline_tty_आकार("/dev/console", &rows, &cols);
+        अगर (r < 0)
                 log_warning_errno(r, "Failed to get /dev/console size, ignoring: %m");
-        else if (r > 0) {
-                r = terminal_set_size_fd(fd, NULL, rows, cols);
-                if (r < 0)
+        अन्यथा अगर (r > 0) {
+                r = terminal_set_आकार_fd(fd, शून्य, rows, cols);
+                अगर (r < 0)
                         log_warning_errno(r, "Failed to set configured terminal size on /dev/console, ignoring: %m");
-        } else
-                (void) terminal_fix_size(fd, fd);
+        } अन्यथा
+                (व्योम) terminal_fix_आकार(fd, fd);
 
         r = terminal_reset_ansi_seq(fd);
-        if (r < 0)
+        अगर (r < 0)
                 log_warning_errno(r, "Failed to reset /dev/console using ANSI sequences, ignoring: %m");
 }
 
-int lock_dev_console(void) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+पूर्णांक lock_dev_console(व्योम) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
+        पूर्णांक r;
 
         /* NB: We do not use O_NOFOLLOW here, because some container managers might place a symlink to some
          * pty in /dev/console, in which case it should be fine to lock the target TTY. */
         fd = open_terminal("/dev/console", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd < 0)
-                return fd;
+        अगर (fd < 0)
+                वापस fd;
 
         r = lock_generic(fd, LOCK_BSD, LOCK_EX);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return TAKE_FD(fd);
+        वापस TAKE_FD(fd);
 }
 
-int make_console_stdio(bool switch_to_text) {
-        int fd, r;
+पूर्णांक make_console_stdio(bool switch_to_text) {
+        पूर्णांक fd, r;
 
         /* Make /dev/console the controlling terminal and stdin/stdout/stderr, if we can. If we can't use
          * /dev/null instead. This is particularly useful if /dev/console is turned off, e.g. if console=null
          * is specified on the kernel command line. */
 
         fd = acquire_terminal("/dev/console", ACQUIRE_TERMINAL_FORCE|ACQUIRE_TERMINAL_PERMISSIVE, USEC_INFINITY);
-        if (fd < 0) {
+        अगर (fd < 0) {
                 log_warning_errno(fd, "Failed to acquire terminal, using /dev/null stdin/stdout/stderr instead: %m");
 
                 r = make_null_stdio();
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make /dev/null stdin/stdout/stderr: %m");
+                अगर (r < 0)
+                        वापस log_error_errno(r, "Failed to make /dev/null stdin/stdout/stderr: %m");
 
-        } else {
+        } अन्यथा {
                 reset_dev_console_fd(fd, switch_to_text);
 
                 r = rearrange_stdio(fd, fd, fd); /* This invalidates 'fd' both on success and on failure. */
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make terminal stdin/stdout/stderr: %m");
+                अगर (r < 0)
+                        वापस log_error_errno(r, "Failed to make terminal stdin/stdout/stderr: %m");
         }
 
         reset_terminal_feature_caches();
-        return 0;
+        वापस 0;
 }
 
-static int vtnr_from_tty_raw(const char *tty, unsigned *ret) {
-        assert(tty);
+अटल पूर्णांक vtnr_from_tty_raw(स्थिर अक्षर *tty, अचिन्हित *ret) {
+        निश्चित(tty);
 
         tty = skip_dev_prefix(tty);
 
-        const char *e = startswith(tty, "tty");
-        if (!e)
-                return -EINVAL;
+        स्थिर अक्षर *e = startswith(tty, "tty");
+        अगर (!e)
+                वापस -EINVAL;
 
-        return safe_atou(e, ret);
+        वापस safe_atou(e, ret);
 }
 
-int vtnr_from_tty(const char *tty) {
-        unsigned u;
-        int r;
+पूर्णांक vtnr_from_tty(स्थिर अक्षर *tty) {
+        अचिन्हित u;
+        पूर्णांक r;
 
-        assert(tty);
+        निश्चित(tty);
 
         r = vtnr_from_tty_raw(tty, &u);
-        if (r < 0)
-                return r;
-        if (!vtnr_is_valid(u))
-                return -ERANGE;
+        अगर (r < 0)
+                वापस r;
+        अगर (!vtnr_is_valid(u))
+                वापस -दुस्फल;
 
-        return (int) u;
+        वापस (पूर्णांक) u;
 }
 
-bool tty_is_vc(const char *tty) {
-        assert(tty);
+bool tty_is_vc(स्थिर अक्षर *tty) {
+        निश्चित(tty);
 
         /* NB: for >= 0 values no range check is conducted here, on the assumption that the caller will
          * either extract vtnr through vtnr_from_tty() later where ERANGE would be reported, or doesn't care
          * about whether it's strictly valid, but only asking "does this fall into the vt category?", for which
          * "yes" seems to be a better answer. */
 
-        return vtnr_from_tty_raw(tty, /* ret= */ NULL) >= 0;
+        वापस vtnr_from_tty_raw(tty, /* ret= */ शून्य) >= 0;
 }
 
-bool tty_is_console(const char *tty) {
-        assert(tty);
+bool tty_is_console(स्थिर अक्षर *tty) {
+        निश्चित(tty);
 
-        return streq(skip_dev_prefix(tty), "console");
+        वापस streq(skip_dev_prefix(tty), "console");
 }
 
-int resolve_dev_console(char **ret) {
-        int r;
+पूर्णांक resolve_dev_console(अक्षर **ret) {
+        पूर्णांक r;
 
-        assert(ret);
+        निश्चित(ret);
 
         /* Resolve where /dev/console is pointing to. If /dev/console is a symlink (like in container
          * managers), we'll just resolve the symlink. If it's a real device node, we'll use if
          * /sys/class/tty/tty0/active, but only if /sys/ is actually ours (i.e. not read-only-mounted which
          * is a sign for container setups). */
 
-        _cleanup_free_ char *chased = NULL;
-        r = chase("/dev/console", /* root= */ NULL, /* flags= */ 0, &chased, /* ret_fd= */ NULL);
-        if (r < 0)
-                return r;
-        if (!path_equal(chased, "/dev/console")) {
+        _cleanup_free_ अक्षर *chased = शून्य;
+        r = chase("/dev/console", /* root= */ शून्य, /* flags= */ 0, &chased, /* ret_fd= */ शून्य);
+        अगर (r < 0)
+                वापस r;
+        अगर (!path_equal(chased, "/dev/console")) {
                 *ret = TAKE_PTR(chased);
-                return 0;
+                वापस 0;
         }
 
         r = path_is_read_only_fs("/sys");
-        if (r < 0)
-                return r;
-        if (r > 0)
-                return -ENOMEDIUM;
+        अगर (r < 0)
+                वापस r;
+        अगर (r > 0)
+                वापस -ENOMEDIUM;
 
-        _cleanup_free_ char *active = NULL;
-        r = read_one_line_file("/sys/class/tty/console/active", &active);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENXIO;
+        _cleanup_free_ अक्षर *active = शून्य;
+        r = read_one_पंक्ति_file("/sys/class/tty/console/active", &active);
+        अगर (r < 0)
+                वापस r;
+        अगर (r == 0)
+                वापस -ENXIO;
 
         /* If multiple log outputs are configured the last one is what /dev/console points to */
-        const char *tty = strrchr(active, ' ');
-        if (tty)
+        स्थिर अक्षर *tty = म_खोजप(active, ' ');
+        अगर (tty)
                 tty++;
-        else
+        अन्यथा
                 tty = active;
 
-        if (streq(tty, "tty0")) {
+        अगर (streq(tty, "tty0")) {
                 active = mfree(active);
 
                 /* Get the active VC (e.g. tty1) */
-                r = read_one_line_file("/sys/class/tty/tty0/active", &active);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -ENXIO;
+                r = read_one_पंक्ति_file("/sys/class/tty/tty0/active", &active);
+                अगर (r < 0)
+                        वापस r;
+                अगर (r == 0)
+                        वापस -ENXIO;
 
                 tty = active;
         }
 
-        _cleanup_free_ char *path = NULL;
+        _cleanup_free_ अक्षर *path = शून्य;
         path = path_join("/dev", tty);
-        if (!path)
-                return -ENOMEM;
+        अगर (!path)
+                वापस -ENOMEM;
 
         *ret = TAKE_PTR(path);
-        return 0;
+        वापस 0;
 }
 
-int get_kernel_consoles(char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        _cleanup_free_ char *line = NULL;
-        int r;
+पूर्णांक get_kernel_consoles(अक्षर ***ret) {
+        _cleanup_strv_free_ अक्षर **l = शून्य;
+        _cleanup_free_ अक्षर *पंक्ति = शून्य;
+        पूर्णांक r;
 
-        assert(ret);
+        निश्चित(ret);
 
         /* If /sys/ is mounted read-only this means we are running in some kind of container environment.
          * In that case /sys/ would reflect the host system, not us, hence ignore the data we can read from it. */
-        if (path_is_read_only_fs("/sys") > 0)
-                goto fallback;
+        अगर (path_is_read_only_fs("/sys") > 0)
+                जाओ fallback;
 
-        r = read_one_line_file("/sys/class/tty/console/active", &line);
-        if (r < 0)
-                return r;
+        r = read_one_पंक्ति_file("/sys/class/tty/console/active", &पंक्ति);
+        अगर (r < 0)
+                वापस r;
 
-        for (const char *p = line;;) {
-                _cleanup_free_ char *tty = NULL, *path = NULL;
+        क्रम (स्थिर अक्षर *p = पंक्ति;;) {
+                _cleanup_free_ अक्षर *tty = शून्य, *path = शून्य;
 
-                r = extract_first_word(&p, &tty, NULL, 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&p, &tty, शून्य, 0);
+                अगर (r < 0)
+                        वापस r;
+                अगर (r == 0)
+                        अवरोध;
 
-                if (streq(tty, "tty0")) {
+                अगर (streq(tty, "tty0")) {
                         tty = mfree(tty);
-                        r = read_one_line_file("/sys/class/tty/tty0/active", &tty);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) {
+                        r = read_one_पंक्ति_file("/sys/class/tty/tty0/active", &tty);
+                        अगर (r < 0)
+                                वापस r;
+                        अगर (r == 0) {
                                 log_debug("No VT active, skipping /dev/tty0.");
-                                continue;
+                                जारी;
                         }
                 }
 
                 path = path_join("/dev", tty);
-                if (!path)
-                        return -ENOMEM;
+                अगर (!path)
+                        वापस -ENOMEM;
 
-                if (access(path, F_OK) < 0) {
-                        log_debug_errno(errno, "Console device %s is not accessible, skipping: %m", path);
-                        continue;
+                अगर (access(path, F_OK) < 0) {
+                        log_debug_errno(त्रुटि_सं, "Console device %s is not accessible, skipping: %m", path);
+                        जारी;
                 }
 
                 r = strv_consume(&l, TAKE_PTR(path));
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
-        if (strv_isempty(l)) {
+        अगर (strv_isempty(l)) {
                 log_debug("No devices found for system console");
-                goto fallback;
+                जाओ fallback;
         }
 
         *ret = TAKE_PTR(l);
-        return strv_length(*ret);
+        वापस strv_लंबाई(*ret);
 
 fallback:
         r = strv_extend(&l, "/dev/console");
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         *ret = TAKE_PTR(l);
-        return 0;
+        वापस 0;
 }
 
-bool tty_is_vc_resolve(const char *tty) {
-        _cleanup_free_ char *resolved = NULL;
+bool tty_is_vc_resolve(स्थिर अक्षर *tty) {
+        _cleanup_free_ अक्षर *resolved = शून्य;
 
-        assert(tty);
+        निश्चित(tty);
 
-        if (streq(skip_dev_prefix(tty), "console")) {
-                if (resolve_dev_console(&resolved) < 0)
-                        return false;
+        अगर (streq(skip_dev_prefix(tty), "console")) {
+                अगर (resolve_dev_console(&resolved) < 0)
+                        वापस false;
 
                 tty = resolved;
         }
 
-        return tty_is_vc(tty);
+        वापस tty_is_vc(tty);
 }
 
-int fd_columns(int fd) {
-        struct winsize ws = {};
+पूर्णांक fd_columns(पूर्णांक fd) {
+        काष्ठा winsize ws = {};
 
-        if (fd < 0)
-                return -EBADF;
+        अगर (fd < 0)
+                वापस -EBADF;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return -errno;
+        अगर (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                वापस -त्रुटि_सं;
 
-        if (ws.ws_col <= 0)
-                return -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
+        अगर (ws.ws_col <= 0)
+                वापस -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
 
-        return ws.ws_col;
+        वापस ws.ws_col;
 }
 
-int getenv_columns(void) {
-        int r;
+पूर्णांक getenv_columns(व्योम) {
+        पूर्णांक r;
 
-        const char *e = getenv("COLUMNS");
-        if (!e)
-                return -ENXIO;
+        स्थिर अक्षर *e = दो_पर्या("COLUMNS");
+        अगर (!e)
+                वापस -ENXIO;
 
-        unsigned c;
-        r = safe_atou_bounded(e, 1, USHRT_MAX, &c);
-        if (r < 0)
-                return r;
+        अचिन्हित c;
+        r = safe_atou_bounded(e, 1, अच_लघु_उच्च, &c);
+        अगर (r < 0)
+                वापस r;
 
-        return (int) c;
+        वापस (पूर्णांक) c;
 }
 
-unsigned columns(void) {
+अचिन्हित columns(व्योम) {
 
-        if (cached_columns > 0)
-                return cached_columns;
+        अगर (cached_columns > 0)
+                वापस cached_columns;
 
-        int c = getenv_columns();
-        if (c < 0) {
+        पूर्णांक c = getenv_columns();
+        अगर (c < 0) {
                 c = fd_columns(STDOUT_FILENO);
-                if (c < 0)
+                अगर (c < 0)
                         c = 80;
         }
 
-        assert(c > 0);
+        निश्चित(c > 0);
 
         cached_columns = c;
-        return cached_columns;
+        वापस cached_columns;
 }
 
-int fd_lines(int fd) {
-        struct winsize ws = {};
+पूर्णांक fd_पंक्तियाँ(पूर्णांक fd) {
+        काष्ठा winsize ws = {};
 
-        if (fd < 0)
-                return -EBADF;
+        अगर (fd < 0)
+                वापस -EBADF;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return -errno;
+        अगर (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                वापस -त्रुटि_सं;
 
-        if (ws.ws_row <= 0)
-                return -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
+        अगर (ws.ws_row <= 0)
+                वापस -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
 
-        return ws.ws_row;
+        वापस ws.ws_row;
 }
 
-unsigned lines(void) {
-        const char *e;
-        int l;
+अचिन्हित पंक्तियाँ(व्योम) {
+        स्थिर अक्षर *e;
+        पूर्णांक l;
 
-        if (cached_lines > 0)
-                return cached_lines;
+        अगर (cached_पंक्तियाँ > 0)
+                वापस cached_पंक्तियाँ;
 
         l = 0;
-        e = getenv("LINES");
-        if (e)
-                (void) safe_atoi(e, &l);
+        e = दो_पर्या("LINES");
+        अगर (e)
+                (व्योम) safe_atoi(e, &l);
 
-        if (l <= 0 || l > USHRT_MAX) {
-                l = fd_lines(STDOUT_FILENO);
-                if (l <= 0)
+        अगर (l <= 0 || l > अच_लघु_उच्च) {
+                l = fd_पंक्तियाँ(STDOUT_FILENO);
+                अगर (l <= 0)
                         l = 24;
         }
 
-        cached_lines = l;
-        return cached_lines;
+        cached_पंक्तियाँ = l;
+        वापस cached_पंक्तियाँ;
 }
 
-int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols) {
-        struct winsize ws;
+पूर्णांक terminal_set_आकार_fd(पूर्णांक fd, स्थिर अक्षर *ident, अचिन्हित rows, अचिन्हित cols) {
+        काष्ठा winsize ws;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
-        if (!ident)
+        अगर (!ident)
                 ident = "TTY";
 
-        if (rows == UINT_MAX && cols == UINT_MAX)
-                return 0;
+        अगर (rows == अच_पूर्णांक_उच्च && cols == अच_पूर्णांक_उच्च)
+                वापस 0;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return log_debug_errno(errno,
+        अगर (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                वापस log_debug_errno(त्रुटि_सं,
                                        "TIOCGWINSZ ioctl for getting %s size failed, not setting terminal size: %m",
                                        ident);
 
-        if (rows == UINT_MAX)
+        अगर (rows == अच_पूर्णांक_उच्च)
                 rows = ws.ws_row;
-        else if (rows > USHRT_MAX)
-                rows = USHRT_MAX;
+        अन्यथा अगर (rows > अच_लघु_उच्च)
+                rows = अच_लघु_उच्च;
 
-        if (cols == UINT_MAX)
+        अगर (cols == अच_पूर्णांक_उच्च)
                 cols = ws.ws_col;
-        else if (cols > USHRT_MAX)
-                cols = USHRT_MAX;
+        अन्यथा अगर (cols > अच_लघु_उच्च)
+                cols = अच_लघु_उच्च;
 
-        if (rows == ws.ws_row && cols == ws.ws_col)
-                return 0;
+        अगर (rows == ws.ws_row && cols == ws.ws_col)
+                वापस 0;
 
         ws.ws_row = rows;
         ws.ws_col = cols;
 
-        if (ioctl(fd, TIOCSWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "TIOCSWINSZ ioctl for setting %s size failed: %m", ident);
+        अगर (ioctl(fd, TIOCSWINSZ, &ws) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "TIOCSWINSZ ioctl for setting %s size failed: %m", ident);
 
-        return 0;
+        वापस 0;
 }
 
-int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols) {
-        _cleanup_free_ char *rowskey = NULL, *rowsvalue = NULL, *colskey = NULL, *colsvalue = NULL;
-        unsigned rows = UINT_MAX, cols = UINT_MAX;
-        int r;
+पूर्णांक proc_cmdline_tty_आकार(स्थिर अक्षर *tty, अचिन्हित *ret_rows, अचिन्हित *ret_cols) {
+        _cleanup_free_ अक्षर *rowskey = शून्य, *rowsvalue = शून्य, *colskey = शून्य, *colsvalue = शून्य;
+        अचिन्हित rows = अच_पूर्णांक_उच्च, cols = अच_पूर्णांक_उच्च;
+        पूर्णांक r;
 
-        assert(tty);
+        निश्चित(tty);
 
-        if (!ret_rows && !ret_cols)
-                return 0;
+        अगर (!ret_rows && !ret_cols)
+                वापस 0;
 
         tty = skip_dev_prefix(tty);
-        if (path_startswith(tty, "pts/"))
-                return -EMEDIUMTYPE;
-        if (!in_charset(tty, ALPHANUMERICAL))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        अगर (path_startswith(tty, "pts/"))
+                वापस -EMEDIUMTYPE;
+        अगर (!in_charset(tty, ALPHANUMERICAL))
+                वापस log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "TTY name '%s' contains non-alphanumeric characters, not searching kernel cmdline for size.", tty);
 
         rowskey = strjoin("systemd.tty.rows.", tty);
-        if (!rowskey)
-                return -ENOMEM;
+        अगर (!rowskey)
+                वापस -ENOMEM;
 
         colskey = strjoin("systemd.tty.columns.", tty);
-        if (!colskey)
-                return -ENOMEM;
+        अगर (!colskey)
+                वापस -ENOMEM;
 
-        r = proc_cmdline_get_key_many(/* flags= */ 0,
+        r = proc_cmdline_get_कुंजी_many(/* flags= */ 0,
                                       rowskey, &rowsvalue,
                                       colskey, &colsvalue);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to read TTY size of %s from kernel cmdline: %m", tty);
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to read TTY size of %s from kernel cmdline: %m", tty);
 
-        if (rowsvalue) {
+        अगर (rowsvalue) {
                 r = safe_atou(rowsvalue, &rows);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to parse %s=%s: %m", rowskey, rowsvalue);
+                अगर (r < 0)
+                        वापस log_debug_errno(r, "Failed to parse %s=%s: %m", rowskey, rowsvalue);
         }
 
-        if (colsvalue) {
+        अगर (colsvalue) {
                 r = safe_atou(colsvalue, &cols);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to parse %s=%s: %m", colskey, colsvalue);
+                अगर (r < 0)
+                        वापस log_debug_errno(r, "Failed to parse %s=%s: %m", colskey, colsvalue);
         }
 
-        if (ret_rows)
+        अगर (ret_rows)
                 *ret_rows = rows;
-        if (ret_cols)
+        अगर (ret_cols)
                 *ret_cols = cols;
 
-        return rows != UINT_MAX || cols != UINT_MAX;
+        वापस rows != अच_पूर्णांक_उच्च || cols != अच_पूर्णांक_उच्च;
 }
 
 /* intended to be used as a SIGWINCH sighandler */
-void columns_lines_cache_reset(int signum) {
+व्योम columns_पंक्तियाँ_cache_reset(पूर्णांक signum) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_पंक्तियाँ = 0;
 }
 
-void reset_terminal_feature_caches(void) {
+व्योम reset_terminal_feature_caches(व्योम) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_पंक्तियाँ = 0;
 
         cached_on_tty = -1;
         cached_on_dev_null = -1;
@@ -1450,7 +1450,7 @@ void reset_terminal_feature_caches(void) {
         reset_ansi_feature_caches();
 }
 
-bool on_tty(void) {
+bool on_tty(व्योम) {
 
         /* We check both stdout and stderr, so that situations where pipes on the shell are used are reliably
          * recognized, regardless if only the output or the errors are piped to some place. Since on_tty() is generally
@@ -1458,102 +1458,102 @@ bool on_tty(void) {
          * here, and check for both. Note that we don't check for STDIN_FILENO, because it should fine to use fancy
          * terminal functionality when outputting stuff, even if the input is piped to us. */
 
-        if (cached_on_tty < 0)
+        अगर (cached_on_tty < 0)
                 cached_on_tty =
                         isatty_safe(STDOUT_FILENO) &&
                         isatty_safe(STDERR_FILENO);
 
-        return cached_on_tty;
+        वापस cached_on_tty;
 }
 
-int getttyname_malloc(int fd, char **ret) {
-        char path[PATH_MAX]; /* PATH_MAX is counted *with* the trailing NUL byte */
-        int r;
+पूर्णांक getttyname_malloc(पूर्णांक fd, अक्षर **ret) {
+        अक्षर path[PATH_MAX]; /* PATH_MAX is counted *with* the trailing NUL byte */
+        पूर्णांक r;
 
-        assert(fd >= 0);
-        assert(ret);
+        निश्चित(fd >= 0);
+        निश्चित(ret);
 
-        r = ttyname_r(fd, path, sizeof path); /* positive error */
-        assert(r >= 0);
-        if (r == ERANGE)
-                return -ENAMETOOLONG;
-        if (r > 0)
-                return -r;
+        r = ttyname_r(fd, path, माप path); /* positive error */
+        निश्चित(r >= 0);
+        अगर (r == दुस्फल)
+                वापस -ENAMETOOLONG;
+        अगर (r > 0)
+                वापस -r;
 
-        return strdup_to(ret, skip_dev_prefix(path));
+        वापस strdup_to(ret, skip_dev_prefix(path));
 }
 
-int getttyname_harder(int fd, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+पूर्णांक getttyname_harder(पूर्णांक fd, अक्षर **ret) {
+        _cleanup_free_ अक्षर *s = शून्य;
+        पूर्णांक r;
 
-        assert(ret);
+        निश्चित(ret);
 
         r = getttyname_malloc(fd, &s);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (streq(s, "tty"))
-                return get_ctty(0, NULL, ret);
+        अगर (streq(s, "tty"))
+                वापस get_ctty(0, शून्य, ret);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        वापस 0;
 }
 
-int get_ctty_devnr(pid_t pid, dev_t *ret) {
-        _cleanup_free_ char *line = NULL;
-        unsigned long ttynr;
-        const char *p;
-        int r;
+पूर्णांक get_ctty_devnr(pid_t pid, dev_t *ret) {
+        _cleanup_free_ अक्षर *पंक्ति = शून्य;
+        अचिन्हित दीर्घ ttynr;
+        स्थिर अक्षर *p;
+        पूर्णांक r;
 
-        assert(pid >= 0);
+        निश्चित(pid >= 0);
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
-        if (r < 0)
-                return r;
+        r = read_one_पंक्ति_file(p, &पंक्ति);
+        अगर (r < 0)
+                वापस r;
 
-        p = strrchr(line, ')');
-        if (!p)
-                return -EIO;
+        p = म_खोजप(पंक्ति, ')');
+        अगर (!p)
+                वापस -EIO;
 
         p++;
 
-        if (sscanf(p, " "
+        अगर (माला_पूछो(p, " "
                    "%*c "  /* state */
                    "%*d "  /* ppid */
                    "%*d "  /* pgrp */
                    "%*d "  /* session */
                    "%lu ", /* ttynr */
                    &ttynr) != 1)
-                return -EIO;
+                वापस -EIO;
 
-        if (devnum_is_zero(ttynr))
-                return -ENXIO;
+        अगर (devnum_is_zero(ttynr))
+                वापस -ENXIO;
 
-        if (ret)
+        अगर (ret)
                 *ret = (dev_t) ttynr;
 
-        return 0;
+        वापस 0;
 }
 
-int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret) {
-        char pty[STRLEN("/dev/pts/") + DECIMAL_STR_MAX(dev_t) + 1];
-        _cleanup_free_ char *buf = NULL;
-        const char *fn = NULL, *w;
+पूर्णांक get_ctty(pid_t pid, dev_t *ret_devnr, अक्षर **ret) {
+        अक्षर pty[STRLEN("/dev/pts/") + DECIMAL_STR_MAX(dev_t) + 1];
+        _cleanup_free_ अक्षर *buf = शून्य;
+        स्थिर अक्षर *fn = शून्य, *w;
         dev_t devnr;
-        int r;
+        पूर्णांक r;
 
         r = get_ctty_devnr(pid, &devnr);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         r = device_path_make_canonical(S_IFCHR, devnr, &buf);
-        if (r < 0) {
-                struct stat st;
+        अगर (r < 0) {
+                काष्ठा stat st;
 
-                if (r != -ENOENT) /* No symlink for this in /dev/char/? */
-                        return r;
+                अगर (r != -ENOENT) /* No symlink for this in /dev/char/? */
+                        वापस r;
 
                 /* Maybe this is PTY? PTY devices are not listed in /dev/char/, as they don't follow the
                  * Linux device model and hence device_path_make_canonical() doesn't work for them. Let's
@@ -1563,129 +1563,129 @@ int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret) {
                  * the minor number of the pty. */
                 xsprintf(pty, "/dev/pts/%u", minor(devnr));
 
-                if (stat(pty, &st) < 0) {
-                        if (errno != ENOENT)
-                                return -errno;
+                अगर (stat(pty, &st) < 0) {
+                        अगर (त्रुटि_सं != ENOENT)
+                                वापस -त्रुटि_सं;
 
-                } else if (S_ISCHR(st.st_mode) && devnr == st.st_rdev) /* Bingo! */
+                } अन्यथा अगर (S_ISCHR(st.st_mode) && devnr == st.st_rdev) /* Bingo! */
                         fn = pty;
 
-                if (!fn) {
+                अगर (!fn) {
                         /* Doesn't exist, or not a PTY? Probably something similar to the PTYs which have no
                          * symlink in /dev/char/. Let's return something vaguely useful. */
                         r = device_path_make_major_minor(S_IFCHR, devnr, &buf);
-                        if (r < 0)
-                                return r;
+                        अगर (r < 0)
+                                वापस r;
 
                         fn = buf;
                 }
-        } else
+        } अन्यथा
                 fn = buf;
 
         w = path_startswith(fn, "/dev/");
-        if (!w)
-                return -EINVAL;
+        अगर (!w)
+                वापस -EINVAL;
 
-        if (ret) {
+        अगर (ret) {
                 r = strdup_to(ret, w);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
-        if (ret_devnr)
+        अगर (ret_devnr)
                 *ret_devnr = devnr;
 
-        return 0;
+        वापस 0;
 }
 
-int ptsname_malloc(int fd, char **ret) {
-        assert(fd >= 0);
-        assert(ret);
+पूर्णांक ptsname_malloc(पूर्णांक fd, अक्षर **ret) {
+        निश्चित(fd >= 0);
+        निश्चित(ret);
 
-        for (size_t l = 50;;) {
-                _cleanup_free_ char *c = NULL;
+        क्रम (माप_प्रकार l = 50;;) {
+                _cleanup_free_ अक्षर *c = शून्य;
 
-                c = new(char, l);
-                if (!c)
-                        return -ENOMEM;
+                c = new(अक्षर, l);
+                अगर (!c)
+                        वापस -ENOMEM;
 
-                if (ptsname_r(fd, c, l) >= 0) {
+                अगर (ptsname_r(fd, c, l) >= 0) {
                         *ret = TAKE_PTR(c);
-                        return 0;
+                        वापस 0;
                 }
-                if (errno != ERANGE)
-                        return -errno;
+                अगर (त्रुटि_सं != दुस्फल)
+                        वापस -त्रुटि_सं;
 
-                if (!MUL_ASSIGN_SAFE(&l, 2))
-                        return -ENOMEM;
+                अगर (!MUL_ASSIGN_SAFE(&l, 2))
+                        वापस -ENOMEM;
         }
 }
 
-int openpt_allocate(int flags, char **ret_peer_path) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+पूर्णांक openpt_allocate(पूर्णांक flags, अक्षर **ret_peer_path) {
+        _cleanup_close_ पूर्णांक fd = -EBADF;
+        पूर्णांक r;
 
         fd = posix_openpt(flags|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        अगर (fd < 0)
+                वापस -त्रुटि_सं;
 
-        _cleanup_free_ char *p = NULL;
-        if (ret_peer_path) {
+        _cleanup_free_ अक्षर *p = शून्य;
+        अगर (ret_peer_path) {
                 r = ptsname_malloc(fd, &p);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
-                if (!path_startswith(p, "/dev/pts/"))
-                        return -EINVAL;
+                अगर (!path_startswith(p, "/dev/pts/"))
+                        वापस -EINVAL;
         }
 
-        if (unlockpt(fd) < 0)
-                return -errno;
+        अगर (unlockpt(fd) < 0)
+                वापस -त्रुटि_सं;
 
-        if (ret_peer_path)
+        अगर (ret_peer_path)
                 *ret_peer_path = TAKE_PTR(p);
 
-        return TAKE_FD(fd);
+        वापस TAKE_FD(fd);
 }
 
-static int ptsname_namespace(int pty, char **ret) {
-        int no = -1;
+अटल पूर्णांक ptsname_namespace(पूर्णांक pty, अक्षर **ret) {
+        पूर्णांक no = -1;
 
-        assert(pty >= 0);
-        assert(ret);
+        निश्चित(pty >= 0);
+        निश्चित(ret);
 
         /* Like ptsname(), but doesn't assume that the path is
          * accessible in the local namespace. */
 
-        if (ioctl(pty, TIOCGPTN, &no) < 0)
-                return -errno;
+        अगर (ioctl(pty, TIOCGPTN, &no) < 0)
+                वापस -त्रुटि_सं;
 
-        if (no < 0)
-                return -EIO;
+        अगर (no < 0)
+                वापस -EIO;
 
-        if (asprintf(ret, "/dev/pts/%i", no) < 0)
-                return -ENOMEM;
+        अगर (asprintf(ret, "/dev/pts/%i", no) < 0)
+                वापस -ENOMEM;
 
-        return 0;
+        वापस 0;
 }
 
-int openpt_allocate_in_namespace(
-                const PidRef *pidref,
-                int flags,
-                char **ret_peer_path) {
+पूर्णांक openpt_allocate_in_namespace(
+                स्थिर PidRef *pidref,
+                पूर्णांक flags,
+                अक्षर **ret_peer_path) {
 
-        _cleanup_close_ int pidnsfd = -EBADF, mntnsfd = -EBADF, usernsfd = -EBADF, rootfd = -EBADF, fd = -EBADF;
-        _cleanup_close_pair_ int pair[2] = EBADF_PAIR;
-        int r;
+        _cleanup_close_ पूर्णांक pidnsfd = -EBADF, mntnsfd = -EBADF, usernsfd = -EBADF, rootfd = -EBADF, fd = -EBADF;
+        _cleanup_close_pair_ पूर्णांक pair[2] = EBADF_PAIR;
+        पूर्णांक r;
 
-        assert(pidref);
+        निश्चित(pidref);
 
-        r = pidref_namespace_open(pidref, &pidnsfd, &mntnsfd, /* ret_netns_fd= */ NULL, &usernsfd, &rootfd);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to open namespaces of PID "PID_FMT": %m", pidref->pid);
+        r = pidref_namespace_open(pidref, &pidnsfd, &mntnsfd, /* ret_netns_fd= */ शून्य, &usernsfd, &rootfd);
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to open namespaces of PID "PID_FMT": %m", pidref->pid);
 
-        if (socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pair) < 0)
-                return -errno;
+        अगर (socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pair) < 0)
+                वापस -त्रुटि_सं;
 
         r = namespace_fork(
                         "(sd-openptns)",
@@ -1696,80 +1696,80 @@ int openpt_allocate_in_namespace(
                         /* netns_fd= */ -EBADF,
                         usernsfd,
                         rootfd,
-                        /* ret= */ NULL);
-        if (r < 0)
-                return r;
-        if (r == 0) {
+                        /* ret= */ शून्य);
+        अगर (r < 0)
+                वापस r;
+        अगर (r == 0) {
                 pair[0] = safe_close(pair[0]);
 
-                fd = openpt_allocate(flags, /* ret_peer_path= */ NULL);
-                if (fd < 0)
-                        _exit(EXIT_FAILURE);
+                fd = openpt_allocate(flags, /* ret_peer_path= */ शून्य);
+                अगर (fd < 0)
+                        _निकास(निकास_त्रुटि);
 
-                if (send_one_fd(pair[1], fd, 0) < 0)
-                        _exit(EXIT_FAILURE);
+                अगर (send_one_fd(pair[1], fd, 0) < 0)
+                        _निकास(निकास_त्रुटि);
 
-                _exit(EXIT_SUCCESS);
+                _निकास(निकास_सफल);
         }
 
         pair[1] = safe_close(pair[1]);
 
         fd = receive_one_fd(pair[0], 0);
-        if (fd < 0)
-                return fd;
+        अगर (fd < 0)
+                वापस fd;
 
-        if (ret_peer_path) {
+        अगर (ret_peer_path) {
                 r = ptsname_namespace(fd, ret_peer_path);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
-        return TAKE_FD(fd);
+        वापस TAKE_FD(fd);
 }
 
-static bool on_dev_null(void) {
-        struct stat dst, ost, est;
+अटल bool on_dev_null(व्योम) {
+        काष्ठा stat dst, ost, est;
 
-        if (cached_on_dev_null >= 0)
-                return cached_on_dev_null;
+        अगर (cached_on_dev_null >= 0)
+                वापस cached_on_dev_null;
 
-        if (stat("/dev/null", &dst) < 0 || fstat(STDOUT_FILENO, &ost) < 0 || fstat(STDERR_FILENO, &est) < 0)
+        अगर (stat("/dev/null", &dst) < 0 || ख_स्थिति(STDOUT_FILENO, &ost) < 0 || ख_स्थिति(STDERR_FILENO, &est) < 0)
                 cached_on_dev_null = false;
-        else
+        अन्यथा
                 cached_on_dev_null = stat_inode_same(&dst, &ost) && stat_inode_same(&dst, &est);
 
-        return cached_on_dev_null;
+        वापस cached_on_dev_null;
 }
 
-bool term_env_valid(const char *term) {
+bool term_env_valid(स्थिर अक्षर *term) {
         /* Checks if the specified $TERM value is suitable for propagation, i.e. is not empty, not set to
          * "unknown" (as is common in CI), and only contains characters valid in terminal type names.
          * Valid $TERM values are things like "xterm-256color", "linux", "screen.xterm-256color", i.e.
          * alphanumeric characters, hyphens, underscores, dots, and plus signs. */
-        return !isempty(term) &&
+        वापस !isempty(term) &&
                 !streq(term, "unknown") &&
                 in_charset(term, ALPHANUMERICAL "-_+.");
 }
 
-bool getenv_terminal_is_dumb(void) {
-        const char *e;
+bool getenv_terminal_is_dumb(व्योम) {
+        स्थिर अक्षर *e;
 
-        e = getenv("TERM");
-        if (!e)
-                return true;
+        e = दो_पर्या("TERM");
+        अगर (!e)
+                वापस true;
 
-        return streq(e, "dumb");
+        वापस streq(e, "dumb");
 }
 
-bool terminal_is_dumb(void) {
-        if (!on_tty() && !on_dev_null())
-                return true;
+bool terminal_is_dumb(व्योम) {
+        अगर (!on_tty() && !on_dev_null())
+                वापस true;
 
-        return getenv_terminal_is_dumb();
+        वापस getenv_terminal_is_dumb();
 }
 
-bool dev_console_colors_enabled(void) {
-        _cleanup_free_ char *s = NULL;
+bool dev_console_colors_enabled(व्योम) {
+        _cleanup_free_ अक्षर *s = शून्य;
         ColorMode m;
 
         /* Returns true if we assume that color is supported on /dev/console.
@@ -1780,389 +1780,389 @@ bool dev_console_colors_enabled(void) {
          * colors_enabled() operates. */
 
         m = parse_systemd_colors();
-        if (m >= 0)
-                return m;
+        अगर (m >= 0)
+                वापस m;
 
-        if (getenv("NO_COLOR"))
-                return false;
+        अगर (दो_पर्या("NO_COLOR"))
+                वापस false;
 
-        if (getenv_for_pid(1, "TERM", &s) <= 0)
-                (void) proc_cmdline_get_key("TERM", 0, &s);
+        अगर (getenv_for_pid(1, "TERM", &s) <= 0)
+                (व्योम) proc_cmdline_get_कुंजी("TERM", 0, &s);
 
-        return !streq_ptr(s, "dumb");
+        वापस !streq_ptr(s, "dumb");
 }
 
-int vt_restore(int fd) {
+पूर्णांक vt_restore(पूर्णांक fd) {
 
-        static const struct vt_mode mode = {
+        अटल स्थिर काष्ठा vt_mode mode = {
                 .mode = VT_AUTO,
         };
 
-        int r, ret = 0;
+        पूर्णांक r, ret = 0;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
-        if (!isatty_safe(fd))
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to restore the VT for an fd that does not refer to a terminal.");
+        अगर (!isatty_safe(fd))
+                वापस log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to restore the VT for an fd that does not refer to a terminal.");
 
-        if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
-                RET_GATHER(ret, log_debug_errno(errno, "Failed to set VT to text mode, ignoring: %m"));
+        अगर (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
+                RET_GATHER(ret, log_debug_errno(त्रुटि_सं, "Failed to set VT to text mode, ignoring: %m"));
 
         r = vt_reset_keyboard(fd);
-        if (r < 0)
+        अगर (r < 0)
                 RET_GATHER(ret, log_debug_errno(r, "Failed to reset keyboard mode, ignoring: %m"));
 
-        if (ioctl(fd, VT_SETMODE, &mode) < 0)
-                RET_GATHER(ret, log_debug_errno(errno, "Failed to set VT_AUTO mode, ignoring: %m"));
+        अगर (ioctl(fd, VT_SETMODE, &mode) < 0)
+                RET_GATHER(ret, log_debug_errno(त्रुटि_सं, "Failed to set VT_AUTO mode, ignoring: %m"));
 
         r = fchmod_and_chown(fd, TTY_MODE, 0, GID_INVALID);
-        if (r < 0)
+        अगर (r < 0)
                 RET_GATHER(ret, log_debug_errno(r, "Failed to chmod()/chown() VT, ignoring: %m"));
 
-        return ret;
+        वापस ret;
 }
 
-int vt_release(int fd, bool restore) {
-        assert(fd >= 0);
+पूर्णांक vt_release(पूर्णांक fd, bool restore) {
+        निश्चित(fd >= 0);
 
         /* This function releases the VT by acknowledging the VT-switch signal
          * sent by the kernel and optionally reset the VT in text and auto
          * VT-switching modes. */
 
-        if (!isatty_safe(fd))
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to release the VT for an fd that does not refer to a terminal.");
+        अगर (!isatty_safe(fd))
+                वापस log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to release the VT for an fd that does not refer to a terminal.");
 
-        if (ioctl(fd, VT_RELDISP, 1) < 0)
-                return -errno;
+        अगर (ioctl(fd, VT_RELDISP, 1) < 0)
+                वापस -त्रुटि_सं;
 
-        if (restore)
-                return vt_restore(fd);
+        अगर (restore)
+                वापस vt_restore(fd);
 
-        return 0;
+        वापस 0;
 }
 
-void get_log_colors(int priority, const char **on, const char **off, const char **highlight) {
+व्योम get_log_colors(पूर्णांक priority, स्थिर अक्षर **on, स्थिर अक्षर **off, स्थिर अक्षर **highlight) {
         /* Note that this will initialize output variables only when there's something to output.
          * The caller must pre-initialize to "" or NULL as appropriate. */
 
-        if (priority <= LOG_ERR) {
-                if (on)
+        अगर (priority <= LOG_ERR) {
+                अगर (on)
                         *on = ansi_highlight_red();
-                if (off)
+                अगर (off)
                         *off = ansi_normal();
-                if (highlight)
+                अगर (highlight)
                         *highlight = ansi_highlight();
 
-        } else if (priority <= LOG_WARNING) {
-                if (on)
+        } अन्यथा अगर (priority <= LOG_WARNING) {
+                अगर (on)
                         *on = ansi_highlight_yellow();
-                if (off)
+                अगर (off)
                         *off = ansi_normal();
-                if (highlight)
+                अगर (highlight)
                         *highlight = ansi_highlight();
 
-        } else if (priority <= LOG_NOTICE) {
-                if (on)
+        } अन्यथा अगर (priority <= LOG_NOTICE) {
+                अगर (on)
                         *on = ansi_highlight();
-                if (off)
+                अगर (off)
                         *off = ansi_normal();
-                if (highlight)
+                अगर (highlight)
                         *highlight = ansi_highlight_red();
 
-        } else if (priority >= LOG_DEBUG) {
-                if (on)
+        } अन्यथा अगर (priority >= LOG_DEBUG) {
+                अगर (on)
                         *on = ansi_grey();
-                if (off)
+                अगर (off)
                         *off = ansi_normal();
-                if (highlight)
+                अगर (highlight)
                         *highlight = ansi_highlight_red();
         }
 }
 
-int terminal_set_cursor_position(int fd, unsigned row, unsigned column) {
-        assert(fd >= 0);
+पूर्णांक terminal_set_cursor_position(पूर्णांक fd, अचिन्हित row, अचिन्हित column) {
+        निश्चित(fd >= 0);
 
-        char cursor_position[STRLEN("\x1B[" ";" "H") + DECIMAL_STR_MAX(unsigned) * 2 + 1];
+        अक्षर cursor_position[STRLEN("\x1B[" ";" "H") + DECIMAL_STR_MAX(अचिन्हित) * 2 + 1];
         xsprintf(cursor_position, "\x1B[%u;%uH", row, column);
 
-        return loop_write(fd, cursor_position, SIZE_MAX);
+        वापस loop_write(fd, cursor_position, SIZE_MAX);
 }
 
-static int terminal_verify_same(int input_fd, int output_fd) {
-        int r;
+अटल पूर्णांक terminal_verify_same(पूर्णांक निवेश_fd, पूर्णांक output_fd) {
+        पूर्णांक r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
+        निश्चित(निवेश_fd >= 0);
+        निश्चित(output_fd >= 0);
 
         /* Validates that the specified fds reference the same TTY */
 
-        if (input_fd != output_fd) {
-                struct stat sti;
-                if (fstat(input_fd, &sti) < 0)
-                        return -errno;
+        अगर (निवेश_fd != output_fd) {
+                काष्ठा stat sti;
+                अगर (ख_स्थिति(निवेश_fd, &sti) < 0)
+                        वापस -त्रुटि_सं;
 
                 r = stat_verify_char(&sti); /* TTYs are character devices */
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
-                struct stat sto;
-                if (fstat(output_fd, &sto) < 0)
-                        return -errno;
+                काष्ठा stat sto;
+                अगर (ख_स्थिति(output_fd, &sto) < 0)
+                        वापस -त्रुटि_सं;
 
                 r = stat_verify_char(&sto);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
-                if (sti.st_rdev != sto.st_rdev)
-                        return -ENOLINK;
+                अगर (sti.st_rdev != sto.st_rdev)
+                        वापस -ENOLINK;
         }
 
-        if (!isatty_safe(input_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
-                return -ENOTTY;
+        अगर (!isatty_safe(निवेश_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
+                वापस -ENOTTY;
 
-        return 0;
+        वापस 0;
 }
 
-typedef enum CursorPositionState {
+प्रकार क्रमागत CursorPositionState {
         CURSOR_TEXT,
         CURSOR_ESCAPE,
         CURSOR_ROW,
         CURSOR_COLUMN,
 } CursorPositionState;
 
-typedef struct CursorPositionContext {
+प्रकार काष्ठा CursorPositionContext {
         CursorPositionState state;
-        unsigned row, column;
+        अचिन्हित row, column;
 } CursorPositionContext;
 
-static int scan_cursor_position_response(
+अटल पूर्णांक scan_cursor_position_response(
                 CursorPositionContext *context,
-                const char *buf,
-                size_t size,
-                size_t *ret_processed) {
+                स्थिर अक्षर *buf,
+                माप_प्रकार आकार,
+                माप_प्रकार *ret_processed) {
 
-        assert(context);
-        assert(buf);
-        assert(ret_processed);
+        निश्चित(context);
+        निश्चित(buf);
+        निश्चित(ret_processed);
 
-        for (size_t i = 0; i < size; i++) {
-                char c = buf[i];
+        क्रम (माप_प्रकार i = 0; i < आकार; i++) {
+                अक्षर c = buf[i];
 
-                switch (context->state) {
+                चयन (context->state) {
 
-                case CURSOR_TEXT:
+                हाल CURSOR_TEXT:
                         context->state = c == '\x1B' ? CURSOR_ESCAPE : CURSOR_TEXT;
-                        break;
+                        अवरोध;
 
-                case CURSOR_ESCAPE:
+                हाल CURSOR_ESCAPE:
                         context->state = c == '[' ? CURSOR_ROW : CURSOR_TEXT;
-                        break;
+                        अवरोध;
 
-                case CURSOR_ROW:
-                        if (c == ';')
+                हाल CURSOR_ROW:
+                        अगर (c == ';')
                                 context->state = context->row > 0 ? CURSOR_COLUMN : CURSOR_TEXT;
-                        else {
-                                int d = undecchar(c);
+                        अन्यथा {
+                                पूर्णांक d = undecchar(c);
 
                                 /* We read a decimal character, let's suffix it to the number we so far read,
                                  * but let's do an overflow check first. */
-                                if (d < 0 || context->row > (UINT_MAX-d)/10)
+                                अगर (d < 0 || context->row > (अच_पूर्णांक_उच्च-d)/10)
                                         context->state = CURSOR_TEXT;
-                                else
+                                अन्यथा
                                         context->row = context->row * 10 + d;
                         }
-                        break;
+                        अवरोध;
 
-                case CURSOR_COLUMN:
-                        if (c == 'R') {
-                                if (context->column > 0) {
+                हाल CURSOR_COLUMN:
+                        अगर (c == 'R') {
+                                अगर (context->column > 0) {
                                         *ret_processed = i + 1;
-                                        return 1; /* success! */
+                                        वापस 1; /* success! */
                                 }
 
                                 context->state = CURSOR_TEXT;
-                        } else {
-                                int d = undecchar(c);
+                        } अन्यथा {
+                                पूर्णांक d = undecchar(c);
 
                                 /* As above, add the decimal character to our column number */
-                                if (d < 0 || context->column > (UINT_MAX-d)/10)
+                                अगर (d < 0 || context->column > (अच_पूर्णांक_उच्च-d)/10)
                                         context->state = CURSOR_TEXT;
-                                else
+                                अन्यथा
                                         context->column = context->column * 10 + d;
                         }
 
-                        break;
+                        अवरोध;
                 }
 
                 /* Reset any positions we might have picked up */
-                if (IN_SET(context->state, CURSOR_TEXT, CURSOR_ESCAPE))
+                अगर (IN_SET(context->state, CURSOR_TEXT, CURSOR_ESCAPE))
                         context->row = context->column = 0;
         }
 
-        *ret_processed = size;
-        return 0; /* all good, but not enough data yet */
+        *ret_processed = आकार;
+        वापस 0; /* all good, but not enough data yet */
 }
 
-int terminal_get_cursor_position(
-                int input_fd,
-                int output_fd,
-                unsigned *ret_row,
-                unsigned *ret_column) {
+पूर्णांक terminal_get_cursor_position(
+                पूर्णांक निवेश_fd,
+                पूर्णांक output_fd,
+                अचिन्हित *ret_row,
+                अचिन्हित *ret_column) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
-        int r;
+        _cleanup_close_ पूर्णांक nonblock_निवेश_fd = -EBADF;
+        पूर्णांक r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
+        निश्चित(निवेश_fd >= 0);
+        निश्चित(output_fd >= 0);
 
-        if (getenv_terminal_is_dumb())
-                return -EOPNOTSUPP;
+        अगर (getenv_terminal_is_dumb())
+                वापस -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
-        if (r < 0)
-                return log_debug_errno(r, "Called with distinct input/output fds: %m");
+        r = terminal_verify_same(निवेश_fd, output_fd);
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Failure to reset the terminal is ignored here and in similar cases below.
          * We already have our result; if cleanup fails it doesn't change the validity of the result. */
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(input_fd, old_termios);
+        काष्ठा termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(निवेश_fd, old_termios);
 
-        if (tcgetattr(input_fd, &old_termios) < 0)
-                return log_debug_errno(errno, "Failed to get terminal settings: %m");
+        अगर (tcgetattr(निवेश_fd, &old_termios) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Failed to get terminal settings: %m");
 
-        struct termios new_termios = old_termios;
+        काष्ठा termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(input_fd, TCSANOW, &new_termios) < 0)
-                return log_debug_errno(errno, "Failed to set new terminal settings: %m");
+        अगर (tcsetattr(निवेश_fd, TCSANOW, &new_termios) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Failed to set new terminal settings: %m");
 
         /* Request cursor position (DSR/CPR) */
         r = loop_write(output_fd, "\x1B[6n", SIZE_MAX);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read() should someone
          * else process the POLLIN. */
 
-        nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        nonblock_निवेश_fd = r = fd_reopen(निवेश_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        अगर (r < 0)
+                वापस r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
-        size_t buf_full = 0;
+        अक्षर buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
+        माप_प्रकार buf_full = 0;
         CursorPositionContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        क्रम (bool first = true;; first = false) {
+                अगर (buf_full == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        अगर (n >= end)
+                                वापस -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_निवेश_fd, POLLIN, usec_sub_unsigned(end, n));
+                        अगर (r < 0)
+                                वापस r;
+                        अगर (r == 0)
+                                वापस -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
+                        ssize_t l = पढ़ो(nonblock_निवेश_fd, buf, first ? माप(buf) : 1);
+                        अगर (l < 0) {
+                                अगर (त्रुटि_सं == EAGAIN)
+                                        जारी;
 
-                                return -errno;
+                                वापस -त्रुटि_सं;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
+                        निश्चित((माप_प्रकार) l <= माप(buf));
                         buf_full = l;
                 }
 
-                size_t processed;
+                माप_प्रकार processed;
                 r = scan_cursor_position_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
-                assert(processed <= buf_full);
+                निश्चित(processed <= buf_full);
                 buf_full -= processed;
-                memmove(buf, buf + processed, buf_full);
+                स_हटाओ(buf, buf + processed, buf_full);
 
-                if (r > 0) {
+                अगर (r > 0) {
                         /* Superficial validity check */
-                        if (context.row >= 32766 || context.column >= 32766)
-                                return -ENODATA;
+                        अगर (context.row >= 32766 || context.column >= 32766)
+                                वापस -ENODATA;
 
-                        if (ret_row)
+                        अगर (ret_row)
                                 *ret_row = context.row;
-                        if (ret_column)
+                        अगर (ret_column)
                                 *ret_column = context.column;
 
-                        return 0;
+                        वापस 0;
                 }
         }
 }
 
-int terminal_reset_defensive(int fd, TerminalResetFlags flags) {
-        int r = 0;
+पूर्णांक terminal_reset_defensive(पूर्णांक fd, TerminalResetFlags flags) {
+        पूर्णांक r = 0;
 
-        assert(fd >= 0);
-        assert(!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ|TERMINAL_RESET_FORCE_ANSI_SEQ));
+        निश्चित(fd >= 0);
+        निश्चित(!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ|TERMINAL_RESET_FORCE_ANSI_SEQ));
 
         /* Resets the terminal comprehensively, i.e. via both ioctl()s and via ANSI sequences, but do so only
          * if $TERM is unset or set to "dumb" */
 
-        if (!isatty_safe(fd))
-                return -ENOTTY;
+        अगर (!isatty_safe(fd))
+                वापस -ENOTTY;
 
         RET_GATHER(r, terminal_reset_ioctl(fd, FLAGS_SET(flags, TERMINAL_RESET_SWITCH_TO_TEXT)));
 
-        if (!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ) &&
+        अगर (!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ) &&
             (FLAGS_SET(flags, TERMINAL_RESET_FORCE_ANSI_SEQ) || !getenv_terminal_is_dumb()))
                 RET_GATHER(r, terminal_reset_ansi_seq(fd));
 
-        return r;
+        वापस r;
 }
 
-int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags) {
-        assert(fd >= 0);
+पूर्णांक terminal_reset_defensive_locked(पूर्णांक fd, TerminalResetFlags flags) {
+        निश्चित(fd >= 0);
 
-        _cleanup_close_ int lock_fd = lock_dev_console();
-        if (lock_fd < 0)
+        _cleanup_close_ पूर्णांक lock_fd = lock_dev_console();
+        अगर (lock_fd < 0)
                 log_debug_errno(lock_fd, "Failed to acquire lock for /dev/console, ignoring: %m");
 
-        return terminal_reset_defensive(fd, flags);
+        वापस terminal_reset_defensive(fd, flags);
 }
 
-void termios_disable_echo(struct termios *termios) {
-        assert(termios);
+व्योम termios_disable_echo(काष्ठा termios *termios) {
+        निश्चित(termios);
 
         termios->c_lflag &= ~(ICANON|ECHO);
         termios->c_cc[VMIN] = 1;
         termios->c_cc[VTIME] = 0;
 }
 
-static bool termios_is_null(const struct termios *t) {
-        if (!t)
-                return true;
+अटल bool termios_is_null(स्थिर काष्ठा termios *t) {
+        अगर (!t)
+                वापस true;
 
-        return t->c_iflag == UINT_MAX &&
-               t->c_oflag == UINT_MAX &&
-               t->c_cflag == UINT_MAX &&
-               t->c_lflag == UINT_MAX;
+        वापस t->c_iflag == अच_पूर्णांक_उच्च &&
+               t->c_oflag == अच_पूर्णांक_उच्च &&
+               t->c_cflag == अच_पूर्णांक_उच्च &&
+               t->c_lflag == अच_पूर्णांक_उच्च;
 }
 
-void termios_reset(const TermiosResetContext *c) {
-        assert(c);
+व्योम termios_reset(स्थिर TermiosResetContext *c) {
+        निश्चित(c);
 
         PROTECT_ERRNO;
 
-        if (c->fd && *c->fd >= 0 && !termios_is_null(c->termios))
-                (void) tcsetattr(*c->fd, TCSANOW, c->termios);
+        अगर (c->fd && *c->fd >= 0 && !termios_is_null(c->termios))
+                (व्योम) tcsetattr(*c->fd, TCSANOW, c->termios);
 }
 
-typedef enum BackgroundColorState {
+प्रकार क्रमागत BackgroundColorState {
         BACKGROUND_TEXT,
         BACKGROUND_ESCAPE,
         BACKGROUND_BRACKET,
@@ -2178,225 +2178,225 @@ typedef enum BackgroundColorState {
         BACKGROUND_STRING_TERMINATOR,
 } BackgroundColorState;
 
-typedef struct BackgroundColorContext {
+प्रकार काष्ठा BackgroundColorContext {
         BackgroundColorState state;
         uint32_t red, green, blue;
-        unsigned red_bits, green_bits, blue_bits;
+        अचिन्हित red_bits, green_bits, blue_bits;
 } BackgroundColorContext;
 
-static int scan_background_color_response(
+अटल पूर्णांक scan_background_color_response(
                 BackgroundColorContext *context,
-                const char *buf,
-                size_t size,
-                size_t *ret_processed) {
+                स्थिर अक्षर *buf,
+                माप_प्रकार आकार,
+                माप_प्रकार *ret_processed) {
 
-        assert(context);
-        assert(buf);
-        assert(ret_processed);
+        निश्चित(context);
+        निश्चित(buf);
+        निश्चित(ret_processed);
 
-        for (size_t i = 0; i < size; i++) {
-                char c = buf[i];
+        क्रम (माप_प्रकार i = 0; i < आकार; i++) {
+                अक्षर c = buf[i];
 
-                switch (context->state) {
+                चयन (context->state) {
 
-                case BACKGROUND_TEXT:
+                हाल BACKGROUND_TEXT:
                         context->state = c == '\x1B' ? BACKGROUND_ESCAPE : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_ESCAPE:
+                हाल BACKGROUND_ESCAPE:
                         context->state = c == ']' ? BACKGROUND_BRACKET : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_BRACKET:
+                हाल BACKGROUND_BRACKET:
                         context->state = c == '1' ? BACKGROUND_FIRST_ONE : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_FIRST_ONE:
+                हाल BACKGROUND_FIRST_ONE:
                         context->state = c == '1' ? BACKGROUND_SECOND_ONE : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_SECOND_ONE:
+                हाल BACKGROUND_SECOND_ONE:
                         context->state = c == ';' ? BACKGROUND_SEMICOLON : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_SEMICOLON:
+                हाल BACKGROUND_SEMICOLON:
                         context->state = c == 'r' ? BACKGROUND_R : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_R:
+                हाल BACKGROUND_R:
                         context->state = c == 'g' ? BACKGROUND_G : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_G:
+                हाल BACKGROUND_G:
                         context->state = c == 'b' ? BACKGROUND_B : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_B:
+                हाल BACKGROUND_B:
                         context->state = c == ':' ? BACKGROUND_RED : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_RED:
-                        if (c == '/')
+                हाल BACKGROUND_RED:
+                        अगर (c == '/')
                                 context->state = context->red_bits > 0 ? BACKGROUND_GREEN : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->red_bits >= sizeof(context->red)*8)
+                        अन्यथा {
+                                पूर्णांक d = unhexchar(c);
+                                अगर (d < 0 || context->red_bits >= माप(context->red)*8)
                                         context->state = BACKGROUND_TEXT;
-                                else {
+                                अन्यथा {
                                         context->red = (context->red << 4) | d;
                                         context->red_bits += 4;
                                 }
                         }
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_GREEN:
-                        if (c == '/')
+                हाल BACKGROUND_GREEN:
+                        अगर (c == '/')
                                 context->state = context->green_bits > 0 ? BACKGROUND_BLUE : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->green_bits >= sizeof(context->green)*8)
+                        अन्यथा {
+                                पूर्णांक d = unhexchar(c);
+                                अगर (d < 0 || context->green_bits >= माप(context->green)*8)
                                         context->state = BACKGROUND_TEXT;
-                                else {
+                                अन्यथा {
                                         context->green = (context->green << 4) | d;
                                         context->green_bits += 4;
                                 }
                         }
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_BLUE:
-                        if (c == '\x07') {
-                                if (context->blue_bits > 0) {
+                हाल BACKGROUND_BLUE:
+                        अगर (c == '\x07') {
+                                अगर (context->blue_bits > 0) {
                                         *ret_processed = i + 1;
-                                        return 1; /* success! */
+                                        वापस 1; /* success! */
                                 }
 
                                 context->state = BACKGROUND_TEXT;
-                        } else if (c == '\x1b')
+                        } अन्यथा अगर (c == '\x1b')
                                 context->state = context->blue_bits > 0 ? BACKGROUND_STRING_TERMINATOR : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->blue_bits >= sizeof(context->blue)*8)
+                        अन्यथा {
+                                पूर्णांक d = unhexchar(c);
+                                अगर (d < 0 || context->blue_bits >= माप(context->blue)*8)
                                         context->state = BACKGROUND_TEXT;
-                                else {
+                                अन्यथा {
                                         context->blue = (context->blue << 4) | d;
                                         context->blue_bits += 4;
                                 }
                         }
-                        break;
+                        अवरोध;
 
-                case BACKGROUND_STRING_TERMINATOR:
-                        if (c == '\\') {
+                हाल BACKGROUND_STRING_TERMINATOR:
+                        अगर (c == '\\') {
                                 *ret_processed = i + 1;
-                                return 1; /* success! */
+                                वापस 1; /* success! */
                         }
 
                         context->state = c == ']' ? BACKGROUND_ESCAPE : BACKGROUND_TEXT;
-                        break;
+                        अवरोध;
 
                 }
 
                 /* Reset any colors we might have picked up */
-                if (IN_SET(context->state, BACKGROUND_TEXT, BACKGROUND_ESCAPE)) {
+                अगर (IN_SET(context->state, BACKGROUND_TEXT, BACKGROUND_ESCAPE)) {
                         /* reset color */
                         context->red = context->green = context->blue = 0;
                         context->red_bits = context->green_bits = context->blue_bits = 0;
                 }
         }
 
-        *ret_processed = size;
-        return 0; /* all good, but not enough data yet */
+        *ret_processed = आकार;
+        वापस 0; /* all good, but not enough data yet */
 }
 
-int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue) {
-        int r;
+पूर्णांक get_default_background_color(द्विगुन *ret_red, द्विगुन *ret_green, द्विगुन *ret_blue) {
+        पूर्णांक r;
 
-        assert(ret_red);
-        assert(ret_green);
-        assert(ret_blue);
+        निश्चित(ret_red);
+        निश्चित(ret_green);
+        निश्चित(ret_blue);
 
-        if (!colors_enabled())
-                return -EOPNOTSUPP;
+        अगर (!colors_enabled())
+                वापस -EOPNOTSUPP;
 
         r = terminal_verify_same(STDIN_FILENO, STDOUT_FILENO);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (streq_ptr(getenv("TERM"), "linux")) {
+        अगर (streq_ptr(दो_पर्या("TERM"), "linux")) {
                 /* Linux console is black */
                 *ret_red = *ret_green = *ret_blue = 0.0;
-                return 0;
+                वापस 0;
         }
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        _cleanup_close_ पूर्णांक nonblock_निवेश_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        अगर (r < 0)
+                वापस r;
 
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
+        काष्ठा termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(nonblock_निवेश_fd, old_termios);
 
-        if (tcgetattr(nonblock_input_fd, &old_termios) < 0)
-                return -errno;
+        अगर (tcgetattr(nonblock_निवेश_fd, &old_termios) < 0)
+                वापस -त्रुटि_सं;
 
-        struct termios new_termios = old_termios;
+        काष्ठा termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
-                return -errno;
+        अगर (tcsetattr(nonblock_निवेश_fd, TCSANOW, &new_termios) < 0)
+                वापस -त्रुटि_सं;
 
         r = loop_write(STDOUT_FILENO, ANSI_OSC "11;?" ANSI_ST, SIZE_MAX);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(ANSI_OSC "11;rgb:0/0/0" ANSI_ST)]; /* shortest possible reply */
-        size_t buf_full = 0;
+        अक्षर buf[STRLEN(ANSI_OSC "11;rgb:0/0/0" ANSI_ST)]; /* shortest possible reply */
+        माप_प्रकार buf_full = 0;
         BackgroundColorContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        क्रम (bool first = true;; first = false) {
+                अगर (buf_full == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        अगर (n >= end)
+                                वापस -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_निवेश_fd, POLLIN, usec_sub_unsigned(end, n));
+                        अगर (r < 0)
+                                वापस r;
+                        अगर (r == 0)
+                                वापस -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
-                                return -errno;
+                        ssize_t l = पढ़ो(nonblock_निवेश_fd, buf, first ? माप(buf) : 1);
+                        अगर (l < 0) {
+                                अगर (त्रुटि_सं == EAGAIN)
+                                        जारी;
+                                वापस -त्रुटि_सं;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
+                        निश्चित((माप_प्रकार) l <= माप(buf));
                         buf_full = l;
                 }
 
-                size_t processed;
+                माप_प्रकार processed;
                 r = scan_background_color_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
-                assert(processed <= buf_full);
+                निश्चित(processed <= buf_full);
                 buf_full -= processed;
-                memmove(buf, buf + processed, buf_full);
+                स_हटाओ(buf, buf + processed, buf_full);
 
-                if (r > 0) {
-                        assert(context.red_bits > 0);
-                        *ret_red = (double) context.red / ((UINT64_C(1) << context.red_bits) - 1);
-                        assert(context.green_bits > 0);
-                        *ret_green = (double) context.green / ((UINT64_C(1) << context.green_bits) - 1);
-                        assert(context.blue_bits > 0);
-                        *ret_blue = (double) context.blue / ((UINT64_C(1) << context.blue_bits) - 1);
-                        return 0;
+                अगर (r > 0) {
+                        निश्चित(context.red_bits > 0);
+                        *ret_red = (द्विगुन) context.red / ((UINT64_C(1) << context.red_bits) - 1);
+                        निश्चित(context.green_bits > 0);
+                        *ret_green = (द्विगुन) context.green / ((UINT64_C(1) << context.green_bits) - 1);
+                        निश्चित(context.blue_bits > 0);
+                        *ret_blue = (द्विगुन) context.blue / ((UINT64_C(1) << context.blue_bits) - 1);
+                        वापस 0;
                 }
         }
 }
@@ -2407,16 +2407,16 @@ int get_default_background_color(double *ret_red, double *ret_green, double *ret
  * of whether the response is received.
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
-static int terminal_query_size_by_dsr(
-                int nonblock_input_fd,
-                int output_fd,
-                unsigned *ret_rows,
-                unsigned *ret_columns) {
+अटल पूर्णांक terminal_query_आकार_by_dsr(
+                पूर्णांक nonblock_निवेश_fd,
+                पूर्णांक output_fd,
+                अचिन्हित *ret_rows,
+                अचिन्हित *ret_columns) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(nonblock_input_fd >= 0);
-        assert(output_fd >= 0);
+        निश्चित(nonblock_निवेश_fd >= 0);
+        निश्चित(output_fd >= 0);
 
         /* Use DECSC/DECRC to save/restore cursor instead of querying position via DSR. This way the cursor
          * is always restored — even on timeout — and we only need one DSR response instead of two. */
@@ -2427,522 +2427,522 @@ static int terminal_query_size_by_dsr(
                             "\x1B" "8",             /* DECRC: restore cursor position */
                             SIZE_MAX,
                             CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
-        size_t buf_full = 0;
+        अक्षर buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
+        माप_प्रकार buf_full = 0;
         CursorPositionContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        क्रम (bool first = true;; first = false) {
+                अगर (buf_full == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        अगर (n >= end)
+                                वापस -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_निवेश_fd, POLLIN, usec_sub_unsigned(end, n));
+                        अगर (r < 0)
+                                वापस r;
+                        अगर (r == 0)
+                                वापस -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
+                        ssize_t l = पढ़ो(nonblock_निवेश_fd, buf, first ? माप(buf) : 1);
+                        अगर (l < 0) {
+                                अगर (त्रुटि_सं == EAGAIN)
+                                        जारी;
 
-                                return -errno;
+                                वापस -त्रुटि_सं;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
+                        निश्चित((माप_प्रकार) l <= माप(buf));
                         buf_full = l;
                 }
 
-                size_t processed;
+                माप_प्रकार processed;
                 r = scan_cursor_position_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
 
-                assert(processed <= buf_full);
+                निश्चित(processed <= buf_full);
                 buf_full -= processed;
-                memmove(buf, buf + processed, buf_full);
+                स_हटाओ(buf, buf + processed, buf_full);
 
-                if (r > 0) {
+                अगर (r > 0) {
                         /* Superficial validity checks (no particular reason to check for < 4, it's
                          * just a way to look for unreasonably small values) */
-                        if (context.row < 4 || context.column < 4 || context.row >= 32766 || context.column >= 32766)
-                                return -ENODATA;
+                        अगर (context.row < 4 || context.column < 4 || context.row >= 32766 || context.column >= 32766)
+                                वापस -ENODATA;
 
-                        if (ret_rows)
+                        अगर (ret_rows)
                                 *ret_rows = context.row;
-                        if (ret_columns)
+                        अगर (ret_columns)
                                 *ret_columns = context.column;
 
-                        return 0;
+                        वापस 0;
                 }
         }
 }
 
 /* Common setup for ANSI terminal queries: validate the fds, open a non-blocking input fd, and configure
  * termios with echo and canonical mode disabled. Caller must restore termios and close the fd when done. */
-static int terminal_prepare_query(
-                int input_fd,
-                int output_fd,
-                int *ret_nonblock_fd,
-                struct termios *ret_saved_termios) {
+अटल पूर्णांक terminal_prepare_query(
+                पूर्णांक निवेश_fd,
+                पूर्णांक output_fd,
+                पूर्णांक *ret_nonblock_fd,
+                काष्ठा termios *ret_saved_termios) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
-        assert(ret_nonblock_fd);
-        assert(ret_saved_termios);
+        निश्चित(निवेश_fd >= 0);
+        निश्चित(output_fd >= 0);
+        निश्चित(ret_nonblock_fd);
+        निश्चित(ret_saved_termios);
 
         /* Use getenv_terminal_is_dumb() instead of terminal_is_dumb() here since we operate on an
          * explicitly passed fd, not on stdio. terminal_is_dumb() additionally checks on_tty() which
          * tests whether *stderr* is a tty — that's irrelevant when we're querying a directly opened
          * terminal such as /dev/console. */
-        if (getenv_terminal_is_dumb())
-                return -EOPNOTSUPP;
+        अगर (getenv_terminal_is_dumb())
+                वापस -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
-        if (r < 0)
-                return log_debug_errno(r, "Called with distinct input/output fds: %m");
+        r = terminal_verify_same(निवेश_fd, output_fd);
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        _cleanup_close_ पूर्णांक nonblock_निवेश_fd = r = fd_reopen(निवेश_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        अगर (r < 0)
+                वापस r;
 
-        if (tcgetattr(nonblock_input_fd, ret_saved_termios) < 0)
-                return log_debug_errno(errno, "Failed to get terminal settings: %m");
+        अगर (tcgetattr(nonblock_निवेश_fd, ret_saved_termios) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Failed to get terminal settings: %m");
 
-        struct termios new_termios = *ret_saved_termios;
+        काष्ठा termios new_termios = *ret_saved_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
-                return log_debug_errno(errno, "Failed to set new terminal settings: %m");
+        अगर (tcsetattr(nonblock_निवेश_fd, TCSANOW, &new_termios) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Failed to set new terminal settings: %m");
 
-        *ret_nonblock_fd = TAKE_FD(nonblock_input_fd);
-        return 0;
+        *ret_nonblock_fd = TAKE_FD(nonblock_निवेश_fd);
+        वापस 0;
 }
 
 /*
  * See https://terminalguide.namepad.de/seq/csi_st-18/,
  * https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Functions-using-CSI-_-ordered-by-the-final-character_s_.
  */
-#define CSI18_Q  "\x1B[18t"               /* Report the size of the text area in characters */
-#define CSI18_Rp "\x1B[8;"                /* Reply prefix */
-#define CSI18_R0 CSI18_Rp "1;1t"          /* Shortest reply */
-#define CSI18_R1 CSI18_Rp "32766;32766t"  /* Longest reply */
+#घोषणा CSI18_Q  "\x1B[18t"               /* Report the size of the text area in characters */
+#घोषणा CSI18_Rp "\x1B[8;"                /* Reply prefix */
+#घोषणा CSI18_R0 CSI18_Rp "1;1t"          /* Shortest reply */
+#घोषणा CSI18_R1 CSI18_Rp "32766;32766t"  /* Longest reply */
 
-static int scan_text_area_size_response(
-                const char *buf,
-                size_t size,
-                unsigned *ret_rows,
-                unsigned *ret_columns) {
+अटल पूर्णांक scan_text_area_आकार_response(
+                स्थिर अक्षर *buf,
+                माप_प्रकार आकार,
+                अचिन्हित *ret_rows,
+                अचिन्हित *ret_columns) {
 
-        assert(buf);
-        assert(ret_rows);
-        assert(ret_columns);
+        निश्चित(buf);
+        निश्चित(ret_rows);
+        निश्चित(ret_columns);
 
         /* Check if we have enough space for the shortest possible answer. */
-        if (size < STRLEN(CSI18_R0))
-                return -EAGAIN;
+        अगर (आकार < STRLEN(CSI18_R0))
+                वापस -EAGAIN;
 
         /* Check if the terminating sequence is present */
-        if (buf[size - 1] != 't')
-                return -EAGAIN;
+        अगर (buf[आकार - 1] != 't')
+                वापस -EAGAIN;
 
-        unsigned short rows, columns;
-        if (sscanf(buf, CSI18_Rp "%hu;%hut", &rows, &columns) != 2)
-                return -EINVAL;
+        अचिन्हित लघु rows, columns;
+        अगर (माला_पूछो(buf, CSI18_Rp "%hu;%hut", &rows, &columns) != 2)
+                वापस -EINVAL;
 
         *ret_rows = rows;
         *ret_columns = columns;
-        return 0;
+        वापस 0;
 }
 
 /* Determine terminal dimensions by means of an ANSI CSI 18 sequence.
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
-static int terminal_query_size_by_csi18(
-                int nonblock_input_fd,
-                int output_fd,
-                unsigned *ret_rows,
-                unsigned *ret_columns) {
+अटल पूर्णांक terminal_query_आकार_by_csi18(
+                पूर्णांक nonblock_निवेश_fd,
+                पूर्णांक output_fd,
+                अचिन्हित *ret_rows,
+                अचिन्हित *ret_columns) {
 
-        int r;
+        पूर्णांक r;
 
-        assert(nonblock_input_fd >= 0);
-        assert(output_fd >= 0);
+        निश्चित(nonblock_निवेश_fd >= 0);
+        निश्चित(output_fd >= 0);
 
         r = loop_write_full(output_fd, CSI18_Q, SIZE_MAX, CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(CSI18_R1)];
-        size_t bytes = 0;
+        अक्षर buf[STRLEN(CSI18_R1)];
+        माप_प्रकार bytes = 0;
 
-        for (;;) {
+        क्रम (;;) {
                 usec_t n = now(CLOCK_MONOTONIC);
-                if (n >= end)
-                        return -EOPNOTSUPP;
+                अगर (n >= end)
+                        वापस -EOPNOTSUPP;
 
-                r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EOPNOTSUPP;
+                r = fd_wait_for_event(nonblock_निवेश_fd, POLLIN, usec_sub_unsigned(end, n));
+                अगर (r < 0)
+                        वापस r;
+                अगर (r == 0)
+                        वापस -EOPNOTSUPP;
 
                 /* On the first read, read multiple characters, i.e. the shortest valid reply. Afterwards
                  * read byte by byte, since we don't want to read too much and drop characters from the input
                  * queue. */
-                ssize_t l = read(nonblock_input_fd, buf + bytes, bytes == 0 ? STRLEN(CSI18_R0) : 1);
-                if (l < 0) {
-                        if (errno == EAGAIN)
-                                continue;
-                        return -errno;
+                ssize_t l = पढ़ो(nonblock_निवेश_fd, buf + bytes, bytes == 0 ? STRLEN(CSI18_R0) : 1);
+                अगर (l < 0) {
+                        अगर (त्रुटि_सं == EAGAIN)
+                                जारी;
+                        वापस -त्रुटि_सं;
                 }
 
-                assert((size_t) l <= sizeof(buf) - bytes);
+                निश्चित((माप_प्रकार) l <= माप(buf) - bytes);
                 bytes += l;
 
-                r = scan_text_area_size_response(buf, bytes, ret_rows, ret_columns);
-                if (r != -EAGAIN)
-                        return r;
+                r = scan_text_area_आकार_response(buf, bytes, ret_rows, ret_columns);
+                अगर (r != -EAGAIN)
+                        वापस r;
 
-                if (bytes == sizeof(buf))
-                        return -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
+                अगर (bytes == माप(buf))
+                        वापस -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
                                              * answer with a terminator in the allotted space. Something is
                                              * wrong, possibly some unrelated bytes got injected into the
                                              * answer. */
         }
 }
 
-int terminal_get_size(
-                int input_fd,
-                int output_fd,
-                unsigned *ret_rows,
-                unsigned *ret_columns,
+पूर्णांक terminal_get_आकार(
+                पूर्णांक निवेश_fd,
+                पूर्णांक output_fd,
+                अचिन्हित *ret_rows,
+                अचिन्हित *ret_columns,
                 bool try_dsr,
                 bool try_csi18) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
-        _cleanup_(nonblock_resetp) int nonblock_reset = -EBADF;
-        int r;
+        _cleanup_close_ पूर्णांक nonblock_निवेश_fd = -EBADF;
+        काष्ठा termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(nonblock_निवेश_fd, old_termios);
+        _cleanup_(nonblock_resetp) पूर्णांक nonblock_reset = -EBADF;
+        पूर्णांक r;
 
-        assert(try_dsr || try_csi18);
+        निश्चित(try_dsr || try_csi18);
 
-        r = terminal_prepare_query(input_fd, output_fd, &nonblock_input_fd, &old_termios);
-        if (r < 0)
-                return r;
+        r = terminal_prepare_query(निवेश_fd, output_fd, &nonblock_निवेश_fd, &old_termios);
+        अगर (r < 0)
+                वापस r;
 
         /* Put the output fd in non-blocking mode with a write timeout, to avoid blocking indefinitely on
          * write if the terminal is not consuming data (e.g. serial console with flow control). */
         r = fd_nonblock(output_fd, true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
-        if (r > 0)
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
+        अगर (r > 0)
                 nonblock_reset = output_fd;
 
         /* Flush any stale input that might confuse the response parsers. */
-        (void) tcflush(nonblock_input_fd, TCIFLUSH);
+        (व्योम) tcflush(nonblock_निवेश_fd, TCIFLUSH);
 
-        if (try_csi18) {
-                r = terminal_query_size_by_csi18(nonblock_input_fd, output_fd, ret_rows, ret_columns);
-                if (r >= 0)
-                        return r;
-
-                /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
-
-                if (!IN_SET(r, -EOPNOTSUPP, -EINVAL))
-                        return r;
-        }
-
-        if (try_dsr) {
-                r = terminal_query_size_by_dsr(nonblock_input_fd, output_fd, ret_rows, ret_columns);
-                if (r >= 0)
-                        return r;
+        अगर (try_csi18) {
+                r = terminal_query_आकार_by_csi18(nonblock_निवेश_fd, output_fd, ret_rows, ret_columns);
+                अगर (r >= 0)
+                        वापस r;
 
                 /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
+                (व्योम) tcflush(nonblock_निवेश_fd, TCIFLUSH);
+
+                अगर (!IN_SET(r, -EOPNOTSUPP, -EINVAL))
+                        वापस r;
         }
 
-        return r;
+        अगर (try_dsr) {
+                r = terminal_query_आकार_by_dsr(nonblock_निवेश_fd, output_fd, ret_rows, ret_columns);
+                अगर (r >= 0)
+                        वापस r;
+
+                /* Query failed. Flush any outstanding input. */
+                (व्योम) tcflush(nonblock_निवेश_fd, TCIFLUSH);
+        }
+
+        वापस r;
 }
 
-static int fd_is_vc(int fd) {
-        _cleanup_free_ char *name = NULL;
-        int r;
+अटल पूर्णांक fd_is_vc(पूर्णांक fd) {
+        _cleanup_free_ अक्षर *name = शून्य;
+        पूर्णांक r;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
         r = getttyname_harder(fd, &name);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return tty_is_vc_resolve(name);
+        वापस tty_is_vc_resolve(name);
 }
 
-int terminal_fix_size(int input_fd, int output_fd) {
-        unsigned rows, columns;
-        int r;
+पूर्णांक terminal_fix_आकार(पूर्णांक निवेश_fd, पूर्णांक output_fd) {
+        अचिन्हित rows, columns;
+        पूर्णांक r;
 
         /* Don't ask a virtual console at all. There is no intermediary here that could be wrong about the
          * dimensions: the kernel renders the screen itself, so its winsize is authoritative. */
-        r = fd_is_vc(input_fd);
-        if (r < 0)
+        r = fd_is_vc(निवेश_fd);
+        अगर (r < 0)
                 log_debug_errno(r, "Failed to determine whether terminal is a virtual console, assuming it is not: %m");
-        else if (r > 0) {
+        अन्यथा अगर (r > 0) {
                 log_debug("Not querying dimensions of a virtual console, kernel dimensions are authoritative.");
-                return 0;
+                वापस 0;
         }
 
-        struct winsize ws = {};
-        if (ioctl(output_fd, TIOCGWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "Failed to query terminal dimensions, ignoring: %m");
+        काष्ठा winsize ws = {};
+        अगर (ioctl(output_fd, TIOCGWINSZ, &ws) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Failed to query terminal dimensions, ignoring: %m");
 
-        r = terminal_get_size(input_fd, output_fd, &rows, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to acquire terminal dimensions via ANSI sequences, not adjusting terminal dimensions: %m");
+        r = terminal_get_आकार(निवेश_fd, output_fd, &rows, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to acquire terminal dimensions via ANSI sequences, not adjusting terminal dimensions: %m");
 
-        if (ws.ws_row == rows && ws.ws_col == columns) {
+        अगर (ws.ws_row == rows && ws.ws_col == columns) {
                 log_debug("Terminal dimensions reported via ANSI sequences match currently set terminal dimensions, not changing.");
-                return 0;
+                वापस 0;
         }
 
         ws.ws_col = columns;
         ws.ws_row = rows;
 
-        if (ioctl(output_fd, TIOCSWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "Failed to update terminal dimensions, ignoring: %m");
+        अगर (ioctl(output_fd, TIOCSWINSZ, &ws) < 0)
+                वापस log_debug_errno(त्रुटि_सं, "Failed to update terminal dimensions, ignoring: %m");
 
         log_debug("Fixed terminal dimensions to %ux%u based on ANSI sequence information.", columns, rows);
-        return 1;
+        वापस 1;
 }
 
-#define MAX_TERMINFO_LENGTH 64
+#घोषणा MAX_TERMINFO_लंबाई 64
 /* python -c 'print("".join(hex(ord(i))[2:] for i in "name").upper())' */
-#define DCS_TERMINFO_Q ANSI_DCS "+q" "6E616D65" ANSI_ST
+#घोषणा DCS_TERMINFO_Q ANSI_DCS "+q" "6E616D65" ANSI_ST
 /* The answer is either 0+r… (invalid) or 1+r… (OK). */
-#define DCS_TERMINFO_R0 ANSI_DCS "0+r" ANSI_ST
-#define DCS_TERMINFO_R1 ANSI_DCS "1+r" "6E616D65" "=" /* This is followed by Pt ST. */
+#घोषणा DCS_TERMINFO_R0 ANSI_DCS "0+r" ANSI_ST
+#घोषणा DCS_TERMINFO_R1 ANSI_DCS "1+r" "6E616D65" "=" /* This is followed by Pt ST. */
 assert_cc(STRLEN(DCS_TERMINFO_R0) <= STRLEN(DCS_TERMINFO_R1 ANSI_ST));
 
-static int scan_terminfo_response(
-                const char *buf,
-                size_t size,
-                char **ret_name) {
-        int r;
+अटल पूर्णांक scan_terminfo_response(
+                स्थिर अक्षर *buf,
+                माप_प्रकार आकार,
+                अक्षर **ret_name) {
+        पूर्णांक r;
 
-        assert(buf);
-        assert(ret_name);
+        निश्चित(buf);
+        निश्चित(ret_name);
 
         /* Check if we have enough space for the shortest possible answer. */
-        if (size < STRLEN(DCS_TERMINFO_R0))
-                return -EAGAIN;
+        अगर (आकार < STRLEN(DCS_TERMINFO_R0))
+                वापस -EAGAIN;
 
         /* Check if the terminating sequence is present */
-        if (memcmp(buf + size - STRLEN(ANSI_ST), ANSI_ST, STRLEN(ANSI_ST)) != 0)
-                return -EAGAIN;
+        अगर (स_भेद(buf + आकार - STRLEN(ANSI_ST), ANSI_ST, STRLEN(ANSI_ST)) != 0)
+                वापस -EAGAIN;
 
-        if (size <= STRLEN(DCS_TERMINFO_R1 ANSI_ST))
-                return -EINVAL;  /* The answer is invalid or empty */
+        अगर (आकार <= STRLEN(DCS_TERMINFO_R1 ANSI_ST))
+                वापस -EINVAL;  /* The answer is invalid or empty */
 
-        if (memcmp(buf, DCS_TERMINFO_R1, STRLEN(DCS_TERMINFO_R1)) != 0)
-                return -EINVAL;  /* The answer is not valid */
+        अगर (स_भेद(buf, DCS_TERMINFO_R1, STRLEN(DCS_TERMINFO_R1)) != 0)
+                वापस -EINVAL;  /* The answer is not valid */
 
-        _cleanup_free_ void *dec = NULL;
-        size_t dec_size;
-        r = unhexmem_full(buf + STRLEN(DCS_TERMINFO_R1), size - STRLEN(DCS_TERMINFO_R1 ANSI_ST),
+        _cleanup_free_ व्योम *dec = शून्य;
+        माप_प्रकार dec_आकार;
+        r = unhexmem_full(buf + STRLEN(DCS_TERMINFO_R1), आकार - STRLEN(DCS_TERMINFO_R1 ANSI_ST),
                           /* secure= */ false,
-                          &dec, &dec_size);
-        if (r < 0)
-                return r;
+                          &dec, &dec_आकार);
+        अगर (r < 0)
+                वापस r;
 
-        assert(((const char *) dec)[dec_size] == '\0'); /* unhexmem appends NUL for our convenience */
-        if (memchr(dec, '\0', dec_size) || string_has_cc(dec, NULL) || !filename_is_valid(dec))
-                return -EUCLEAN;
+        निश्चित(((स्थिर अक्षर *) dec)[dec_आकार] == '\0'); /* unhexmem appends NUL for our convenience */
+        अगर (स_प्रथम(dec, '\0', dec_आकार) || string_has_cc(dec, शून्य) || !filename_is_valid(dec))
+                वापस -EUCLEAN;
 
         *ret_name = TAKE_PTR(dec);
-        return 0;
+        वापस 0;
 }
 
-int terminal_get_terminfo_by_dcs(int fd, char **ret_name) {
-        int r;
+पूर्णांक terminal_get_terminfo_by_dcs(पूर्णांक fd, अक्षर **ret_name) {
+        पूर्णांक r;
 
-        assert(fd >= 0);
-        assert(ret_name);
+        निश्चित(fd >= 0);
+        निश्चित(ret_name);
 
         /* Note: fd must be in non-blocking read-write mode! */
 
-        struct termios old_termios = TERMIOS_NULL;
+        काष्ठा termios old_termios = TERMIOS_NULL;
         CLEANUP_TERMIOS_RESET(fd, old_termios);
 
-        if (tcgetattr(fd, &old_termios) < 0)
-                return -errno;
+        अगर (tcgetattr(fd, &old_termios) < 0)
+                वापस -त्रुटि_सं;
 
-        struct termios new_termios = old_termios;
+        काष्ठा termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(fd, TCSANOW, &new_termios) < 0)
-                return -errno;
+        अगर (tcsetattr(fd, TCSANOW, &new_termios) < 0)
+                वापस -त्रुटि_सं;
 
         r = loop_write(fd, DCS_TERMINFO_Q, SIZE_MAX);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(DCS_TERMINFO_R1) + MAX_TERMINFO_LENGTH + STRLEN(ANSI_ST)];
-        size_t bytes = 0;
+        अक्षर buf[STRLEN(DCS_TERMINFO_R1) + MAX_TERMINFO_लंबाई + STRLEN(ANSI_ST)];
+        माप_प्रकार bytes = 0;
 
-        for (;;) {
+        क्रम (;;) {
                 usec_t n = now(CLOCK_MONOTONIC);
-                if (n >= end)
-                        return -EOPNOTSUPP;
+                अगर (n >= end)
+                        वापस -EOPNOTSUPP;
 
                 r = fd_wait_for_event(fd, POLLIN, usec_sub_unsigned(end, n));
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EOPNOTSUPP;
+                अगर (r < 0)
+                        वापस r;
+                अगर (r == 0)
+                        वापस -EOPNOTSUPP;
 
                 /* On the first read, read multiple characters, i.e. the shortest valid reply. Afterwards
                  * read byte by byte, since we don't want to read too much and drop characters from the input
                  * queue. */
-                ssize_t l = read(fd, buf + bytes, bytes == 0 ? STRLEN(DCS_TERMINFO_R0) : 1);
-                if (l < 0) {
-                        if (errno == EAGAIN)
-                                continue;
-                        return -errno;
+                ssize_t l = पढ़ो(fd, buf + bytes, bytes == 0 ? STRLEN(DCS_TERMINFO_R0) : 1);
+                अगर (l < 0) {
+                        अगर (त्रुटि_सं == EAGAIN)
+                                जारी;
+                        वापस -त्रुटि_सं;
                 }
 
-                assert((size_t) l <= sizeof(buf) - bytes);
+                निश्चित((माप_प्रकार) l <= माप(buf) - bytes);
                 bytes += l;
 
                 r = scan_terminfo_response(buf, bytes, ret_name);
-                if (r != -EAGAIN)
-                        return r;
+                अगर (r != -EAGAIN)
+                        वापस r;
 
-                if (bytes == sizeof(buf))
-                        return -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
+                अगर (bytes == माप(buf))
+                        वापस -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
                                              * answer with a terminator in the allotted space. Something is
                                              * wrong, possibly some unrelated bytes got injected into the
                                              * answer. */
         }
 }
 
-int have_terminfo_file(const char *name) {
+पूर्णांक have_terminfo_file(स्थिर अक्षर *name) {
         /* This is a heuristic check if we have the file, using the directory layout used on
          * current Linux systems. Checks for other layouts can be added later if appropriate. */
-        int r;
+        पूर्णांक r;
 
-        assert(filename_is_valid(name));
+        निश्चित(filename_is_valid(name));
 
-        _cleanup_free_ char *p = path_join("/usr/share/terminfo", CHAR_TO_STR(name[0]), name);
-        if (!p)
-                return log_oom_debug();
+        _cleanup_free_ अक्षर *p = path_join("/usr/share/terminfo", CHAR_TO_STR(name[0]), name);
+        अगर (!p)
+                वापस log_oom_debug();
 
         r = RET_NERRNO(access(p, F_OK));
-        if (r == -ENOENT)
-                return false;
-        if (r < 0)
-                return r;
-        return true;
+        अगर (r == -ENOENT)
+                वापस false;
+        अगर (r < 0)
+                वापस r;
+        वापस true;
 }
 
-int query_term_for_tty(const char *tty, char **ret_term) {
-        _cleanup_free_ char *dcs_term = NULL;
-        int r;
+पूर्णांक query_term_for_tty(स्थिर अक्षर *tty, अक्षर **ret_term) {
+        _cleanup_free_ अक्षर *dcs_term = शून्य;
+        पूर्णांक r;
 
-        assert(tty);
-        assert(ret_term);
+        निश्चित(tty);
+        निश्चित(ret_term);
 
-        if (tty_is_vc_resolve(tty))
-                return strdup_to(ret_term, "linux");
+        अगर (tty_is_vc_resolve(tty))
+                वापस strdup_to(ret_term, "linux");
 
         /* Try to query the terminal implementation that we're on. This will not work in all
          * cases, which is fine, since this is intended to be used as a fallback. */
 
-        _cleanup_close_ int tty_fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (tty_fd < 0)
-                return log_debug_errno(tty_fd, "Failed to open %s to query terminfo: %m", tty);
+        _cleanup_close_ पूर्णांक tty_fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+        अगर (tty_fd < 0)
+                वापस log_debug_errno(tty_fd, "Failed to open %s to query terminfo: %m", tty);
 
         r = terminal_get_terminfo_by_dcs(tty_fd, &dcs_term);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to query %s for terminfo: %m", tty);
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to query %s for terminfo: %m", tty);
 
         r = have_terminfo_file(dcs_term);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to look for terminfo %s: %m", dcs_term);
-        if (r == 0)
-                return log_info_errno(SYNTHETIC_ERRNO(ENODATA),
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to look for terminfo %s: %m", dcs_term);
+        अगर (r == 0)
+                वापस log_info_errno(SYNTHETIC_ERRNO(ENODATA),
                                       "Terminfo %s not found for %s.", dcs_term, tty);
 
         *ret_term = TAKE_PTR(dcs_term);
-        return 0;
+        वापस 0;
 }
 
-int terminal_is_pty_fd(int fd) {
-        int r;
+पूर्णांक terminal_is_pty_fd(पूर्णांक fd) {
+        पूर्णांक r;
 
-        assert(fd >= 0);
+        निश्चित(fd >= 0);
 
         /* Returns true if we are looking at a pty, i.e. if it's backed by the /dev/pts/ file system */
 
-        if (!isatty_safe(fd))
-                return false;
+        अगर (!isatty_safe(fd))
+                वापस false;
 
-        r = is_fs_type_at(fd, NULL, DEVPTS_SUPER_MAGIC);
-        if (r != 0)
-                return r;
+        r = is_fs_type_at(fd, शून्य, DEVPTS_SUPER_MAGIC);
+        अगर (r != 0)
+                वापस r;
 
         /* The ptmx device is weird, it exists twice, once inside and once outside devpts. To detect the
          * latter case, let's fire off an ioctl() that only works on ptmx devices. */
 
-        int v;
-        if (ioctl(fd, TIOCGPKT, &v) < 0) {
-                if (ERRNO_IS_NOT_SUPPORTED(errno))
-                        return false;
+        पूर्णांक v;
+        अगर (ioctl(fd, TIOCGPKT, &v) < 0) {
+                अगर (ERRNO_IS_NOT_SUPPORTED(त्रुटि_सं))
+                        वापस false;
 
-                return -errno;
+                वापस -त्रुटि_सं;
         }
 
-        return true;
+        वापस true;
 }
 
-int pty_open_peer(int fd, int mode) {
-        assert(fd >= 0);
+पूर्णांक pty_open_peer(पूर्णांक fd, पूर्णांक mode) {
+        निश्चित(fd >= 0);
 
         /* Opens the peer PTY using the new race-free TIOCGPTPEER ioctl() (kernel 4.13).
          *
          * This is safe to be called on TTYs from other namespaces. */
 
-        assert((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
+        निश्चित((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
 
         /* This replicates the EIO retry logic of open_terminal() in a modified way. */
-        for (unsigned c = 0;; c++) {
-                int peer_fd = ioctl(fd, TIOCGPTPEER, mode);
-                if (peer_fd >= 0)
-                        return peer_fd;
+        क्रम (अचिन्हित c = 0;; c++) {
+                पूर्णांक peer_fd = ioctl(fd, TIOCGPTPEER, mode);
+                अगर (peer_fd >= 0)
+                        वापस peer_fd;
 
-                if (errno != EIO)
-                        return -errno;
+                अगर (त्रुटि_सं != EIO)
+                        वापस -त्रुटि_सं;
 
                 /* Max 1s in total */
-                if (c >= 20)
-                        return -EIO;
+                अगर (c >= 20)
+                        वापस -EIO;
 
-                (void) usleep_safe(50 * USEC_PER_MSEC);
+                (व्योम) usleep_safe(50 * USEC_PER_MSEC);
         }
 }

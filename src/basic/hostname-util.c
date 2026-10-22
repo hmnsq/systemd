@@ -1,55 +1,55 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#समावेश <stdlib.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "hashmap.h"
-#include "hostname-util.h"
-#include "log.h"
-#include "os-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "user-util.h"
+#समावेश "alloc-util.h"
+#समावेश "env-file.h"
+#समावेश "hashmap.h"
+#समावेश "hostname-util.h"
+#समावेश "log.h"
+#समावेश "os-util.h"
+#समावेश "string-util.h"
+#समावेश "strv.h"
+#समावेश "user-util.h"
 
-char* get_default_hostname_raw(void) {
-        int r;
+अक्षर* get_default_hostname_raw(व्योम) {
+        पूर्णांक r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
-        const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        स्थिर अक्षर *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
+        अगर (e) {
+                अगर (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        वापस strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
-        _cleanup_free_ char *f = NULL;
-        r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        _cleanup_free_ अक्षर *f = शून्य;
+        r = parse_os_release(शून्य, "DEFAULT_HOSTNAME", &f);
+        अगर (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        अन्यथा अगर (f) {
+                अगर (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        वापस TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        वापस strdup(FALLBACK_HOSTNAME);
 }
 
-bool valid_ldh_char(char c) {
+bool valid_ldh_char(अक्षर c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        वापस ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
-        unsigned n_dots = 0;
-        const char *p;
+bool hostname_is_valid(स्थिर अक्षर *s, ValidHostnameFlags flags) {
+        अचिन्हित n_dots = 0;
+        स्थिर अक्षर *p;
         bool dot, hyphen;
 
         /* Check if s looks like a valid hostname or FQDN. This does not do full DNS validation, but only
@@ -60,95 +60,95 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        अगर (isempty(s))
+                वापस false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        अगर (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                वापस FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        क्रम (p = s, dot = hyphen = true; *p; p++)
+                अगर (*p == '.') {
+                        अगर (dot || hyphen)
+                                वापस false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } अन्यथा अगर (*p == '-') {
+                        अगर (dot)
+                                वापस false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
+                } अन्यथा {
+                        अगर (!valid_ldh_char(*p) &&
                             (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
                             (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                                वापस false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        अगर (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                वापस false;
+        अगर (hyphen)
+                वापस false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        अगर (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                वापस false;
 
-        return true;
+        वापस true;
 }
 
-char* hostname_cleanup(char *s) {
-        char *p, *d;
+अक्षर* hostname_cleanup(अक्षर *s) {
+        अक्षर *p, *d;
         bool dot, hyphen;
 
-        assert(s);
+        निश्चित(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                continue;
+        क्रम (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                अगर (*p == '.') {
+                        अगर (dot || hyphen)
+                                जारी;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                continue;
+                } अन्यथा अगर (*p == '-') {
+                        अगर (dot)
+                                जारी;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } अन्यथा अगर (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        जबतक (d > s && IN_SET(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        वापस s;
 }
 
-bool is_localhost(const char *hostname) {
-        assert(hostname);
+bool is_localhost(स्थिर अक्षर *hostname) {
+        निश्चित(hostname);
 
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        वापस STRCASE_IN_SET(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -160,164 +160,164 @@ bool is_localhost(const char *hostname) {
                 endswith_no_case(hostname, ".localhost.localdomain.");
 }
 
-const char* etc_hostname(void) {
-        static const char *cached = NULL;
+स्थिर अक्षर* etc_hostname(व्योम) {
+        अटल स्थिर अक्षर *cached = शून्य;
 
-        if (!cached)
+        अगर (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        वापस cached;
 }
 
-const char* etc_machine_info(void) {
-        static const char *cached = NULL;
+स्थिर अक्षर* etc_machine_info(व्योम) {
+        अटल स्थिर अक्षर *cached = शून्य;
 
-        if (!cached)
+        अगर (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        वापस cached;
 }
 
-int get_pretty_hostname(char **ret) {
-        _cleanup_free_ char *n = NULL;
-        int r;
+पूर्णांक get_pretty_hostname(अक्षर **ret) {
+        _cleanup_free_ अक्षर *n = शून्य;
+        पूर्णांक r;
 
-        assert(ret);
+        निश्चित(ret);
 
-        r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        r = parse_env_file(शून्य, etc_machine_info(), "PRETTY_HOSTNAME", &n);
+        अगर (r < 0)
+                वापस r;
 
-        if (isempty(n))
-                return -ENXIO;
+        अगर (isempty(n))
+                वापस -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        वापस 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
+पूर्णांक split_user_at_host(स्थिर अक्षर *s, अक्षर **ret_user, अक्षर **ret_host) {
+        _cleanup_free_ अक्षर *u = शून्य, *h = शून्य;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
          * each of the two return parameters if that part was left empty. */
 
-        assert(s);
+        निश्चित(s);
 
-        const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        स्थिर अक्षर *rhs = म_अक्षर(s, '@');
+        अगर (rhs) {
+                अगर (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        अगर (!u)
+                                वापस -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                अगर (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        अगर (!h)
+                                वापस -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } अन्यथा {
+                अगर (isempty(s))
+                        वापस -EINVAL;
 
-                if (ret_host) {
+                अगर (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        अगर (!h)
+                                वापस -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        अगर (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        अगर (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        वापस !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+पूर्णांक machine_spec_valid(स्थिर अक्षर *s) {
+        _cleanup_free_ अक्षर *u = शून्य, *h = शून्य;
+        पूर्णांक r;
 
-        assert(s);
+        निश्चित(s);
 
         r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        अगर (r == -EINVAL)
+                वापस false;
+        अगर (r < 0)
+                वापस r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        अगर (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                वापस false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        अगर (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                वापस false;
 
-        return true;
+        वापस true;
 }
 
-bool machine_tag_is_valid(const char *s) {
-        size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+bool machine_tag_is_valid(स्थिर अक्षर *s) {
+        माप_प्रकार n = strlen_ptr(s);
+        अगर (n <= 0 || n >= 256)
+                वापस false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        अगर (म_अक्षर("-.=", s[0]))
+                वापस false;
 
         /* We allow parameterization of tags, with a "=" as separator */
-        const char *eq = strchr(s, '=');
-        if (eq) {
-                assert(eq > s);
+        स्थिर अक्षर *eq = म_अक्षर(s, '=');
+        अगर (eq) {
+                निश्चित(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                अगर (म_अक्षर("-.", eq[-1]))
+                        वापस false;
+        } अन्यथा {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                अगर (म_अक्षर("-.", s[n-1]))
+                        वापस false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        वापस in_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+पूर्णांक machine_tag_list_is_valid(अक्षर **l) {
+        पूर्णांक r;
 
-        r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
-        switch (r) {
-        case -EINVAL:
-        case -E2BIG:
-                return false;
-        case 0:
-                return true;
-        default:
-                return r;
+        r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ शून्य);
+        चयन (r) {
+        हाल -EINVAL:
+        हाल -E2BIG:
+                वापस false;
+        हाल 0:
+                वापस true;
+        शेष:
+                वापस r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
-        assert(ret);
+पूर्णांक machine_tags_from_string(स्थिर अक्षर *s, bool graceful, अक्षर ***ret) {
+        निश्चित(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
-                *ret = NULL;
-                return 0;
+        अगर (isempty(s)) {
+                *ret = शून्य;
+                वापस 0;
         }
 
-        _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ अक्षर **l = strv_split(s, ":");
+        अगर (!l)
+                वापस -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        वापस machine_tags_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+पूर्णांक machine_tags_from_strv(अक्षर **l, bool graceful, अक्षर ***ret) {
+        पूर्णांक r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -328,51 +328,51 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
         /* Maps the key of each tag, i.e. everything up to and including the first '=', or the whole tag if
          * it has no '=', to the tag itself (borrowed from 'l'). A bare tag and an assignment of the same
          * name hence get distinct keys and may coexist. */
-        _cleanup_hashmap_free_ Hashmap *h = NULL;
+        _cleanup_hashmap_free_ Hashmap *h = शून्य;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
-                                continue;
+                अगर (!machine_tag_is_valid(*i)) {
+                        अगर (graceful)
+                                जारी;
 
-                        return -EINVAL;
+                        वापस -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                अगर (hashmap_आकार_2(h) >= MACHINE_TAGS_MAX)
+                        वापस -E2BIG;
 
-                const char *eq = strchrnul(*i, '=');
-                _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                स्थिर अक्षर *eq = strchrnul(*i, '=');
+                _cleanup_free_ अक्षर *k = strndup(*i, (eq - *i) + (*eq == '='));
+                अगर (!k)
+                        वापस -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
-                                continue;
-                        if (!graceful)
-                                return -EINVAL;
+                अगर (r == -EEXIST) {
+                        अगर (streq(hashmap_get(h, k), *i))
+                                जारी;
+                        अगर (!graceful)
+                                वापस -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } अन्यथा अगर (r < 0)
+                        वापस r;
+                अन्यथा अगर (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
-                _cleanup_strv_free_ char **cleaned = NULL;
-                size_t n = 0;
-                char *v;
+        अगर (ret) {
+                _cleanup_strv_free_ अक्षर **cleaned = शून्य;
+                माप_प्रकार n = 0;
+                अक्षर *v;
                 HASHMAP_FOREACH(v, h) {
-                        r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        r = strv_extend_with_आकार(&cleaned, &n, v);
+                        अगर (r < 0)
+                                वापस r;
                 }
 
                 strv_sort(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        वापस 0;
 }

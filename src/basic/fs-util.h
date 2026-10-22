@@ -1,117 +1,117 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include "forward.h"
-#include "lock-util.h"
+#समावेश "forward.h"
+#समावेश "lock-util.h"
 
 /* The following macros add 1 when converting things, since 0 is a valid mode, while the pointer
  * NULL is special */
-static inline mode_t PTR_TO_MODE(void *p) {
-        return p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
+अटल अंतरभूत mode_t PTR_TO_MODE(व्योम *p) {
+        वापस p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
 }
-static inline void* MODE_TO_PTR(mode_t m) {
-        return m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
-}
-
-int rmdir_parents(const char *path, const char *stop);
-
-int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-
-int readlinkat_malloc(int fd, const char *p, char **ret);
-static inline int readlink_malloc(const char *p, char **ret) {
-        return readlinkat_malloc(AT_FDCWD, p, ret);
-}
-int readlink_value(const char *p, char **ret);
-int readlink_and_make_absolute(const char *p, char **ret);
-
-int chmod_and_chown_at(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int chmod_and_chown(const char *path, mode_t mode, uid_t uid, gid_t gid) {
-        return chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
-}
-int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int fchmod_and_chown(int fd, mode_t mode, uid_t uid, gid_t gid) {
-        return fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
+अटल अंतरभूत व्योम* MODE_TO_PTR(mode_t m) {
+        वापस m == MODE_INVALID ? शून्य : (व्योम *) ((uintptr_t) m + 1);
 }
 
-int fchmod_umask(int fd, mode_t mode);
-int fchmod_opath(int fd, mode_t m);
+पूर्णांक rmdir_parents(स्थिर अक्षर *path, स्थिर अक्षर *stop);
 
-int futimens_opath(int fd, const struct timespec ts[2]);
+पूर्णांक rename_noreplace(पूर्णांक olddirfd, स्थिर अक्षर *oldpath, पूर्णांक newdirfd, स्थिर अक्षर *newpath);
 
-int fd_warn_permissions(const char *path, int fd);
-int stat_warn_permissions(const char *path, const struct stat *st);
+पूर्णांक readlinkat_malloc(पूर्णांक fd, स्थिर अक्षर *p, अक्षर **ret);
+अटल अंतरभूत पूर्णांक readlink_malloc(स्थिर अक्षर *p, अक्षर **ret) {
+        वापस readlinkat_malloc(AT_FDCWD, p, ret);
+}
+पूर्णांक readlink_मूल्य(स्थिर अक्षर *p, अक्षर **ret);
+पूर्णांक readlink_and_make_absolute(स्थिर अक्षर *p, अक्षर **ret);
 
-int access_nofollow(const char *path, int mode);
-int access_fd(int fd, int mode);
-
-int touch_fd(int fd, usec_t stamp);
-int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
-int touch(const char *path);
-
-int symlinkat_idempotent(const char *target, int atfd, const char *linkpath, bool make_relative);
-static inline int symlink_idempotent(const char *target, const char *linkpath, bool make_relative) {
-        return symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+पूर्णांक chmod_and_chown_at(पूर्णांक dir_fd, स्थिर अक्षर *path, mode_t mode, uid_t uid, gid_t gid);
+अटल अंतरभूत पूर्णांक chmod_and_chown(स्थिर अक्षर *path, mode_t mode, uid_t uid, gid_t gid) {
+        वापस chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
+}
+पूर्णांक fchmod_and_chown_with_fallback(पूर्णांक fd, स्थिर अक्षर *path, mode_t mode, uid_t uid, gid_t gid);
+अटल अंतरभूत पूर्णांक fchmod_and_chown(पूर्णांक fd, mode_t mode, uid_t uid, gid_t gid) {
+        वापस fchmod_and_chown_with_fallback(fd, शून्य, mode, uid, gid); /* no fallback */
 }
 
-typedef enum SymlinkFlags {
+पूर्णांक fchmod_umask(पूर्णांक fd, mode_t mode);
+पूर्णांक fchmod_opath(पूर्णांक fd, mode_t m);
+
+पूर्णांक futimens_opath(पूर्णांक fd, स्थिर काष्ठा timespec ts[2]);
+
+पूर्णांक fd_warn_permissions(स्थिर अक्षर *path, पूर्णांक fd);
+पूर्णांक stat_warn_permissions(स्थिर अक्षर *path, स्थिर काष्ठा stat *st);
+
+पूर्णांक access_nofollow(स्थिर अक्षर *path, पूर्णांक mode);
+पूर्णांक access_fd(पूर्णांक fd, पूर्णांक mode);
+
+पूर्णांक touch_fd(पूर्णांक fd, usec_t stamp);
+पूर्णांक touch_file(स्थिर अक्षर *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
+पूर्णांक touch(स्थिर अक्षर *path);
+
+पूर्णांक symlinkat_idempotent(स्थिर अक्षर *target, पूर्णांक atfd, स्थिर अक्षर *linkpath, bool make_relative);
+अटल अंतरभूत पूर्णांक symlink_idempotent(स्थिर अक्षर *target, स्थिर अक्षर *linkpath, bool make_relative) {
+        वापस symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+}
+
+प्रकार क्रमागत SymlinkFlags {
         SYMLINK_MAKE_RELATIVE = 1 << 0,
         SYMLINK_LABEL         = 1 << 1,
 } SymlinkFlags;
 
-int symlinkat_atomic_full_label(const char *target, int atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context);
-static inline int symlinkat_atomic_full(const char *target, int atfd, const char *linkpath, SymlinkFlags flags) {
-        return symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
+पूर्णांक symlinkat_atomic_full_label(स्थिर अक्षर *target, पूर्णांक atfd, स्थिर अक्षर *linkpath, SymlinkFlags flags, LabelContext *label_context);
+अटल अंतरभूत पूर्णांक symlinkat_atomic_full(स्थिर अक्षर *target, पूर्णांक atfd, स्थिर अक्षर *linkpath, SymlinkFlags flags) {
+        वापस symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ शून्य);
 }
-static inline int symlink_atomic(const char *target, const char *linkpath) {
-        return symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
-}
-
-int mknodat_atomic(int atfd, const char *path, mode_t mode, dev_t dev);
-static inline int mknod_atomic(const char *path, mode_t mode, dev_t dev) {
-        return mknodat_atomic(AT_FDCWD, path, mode, dev);
+अटल अंतरभूत पूर्णांक symlink_atomic(स्थिर अक्षर *target, स्थिर अक्षर *linkpath) {
+        वापस symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
 }
 
-int mkfifoat_atomic(int dir_fd, const char *path, mode_t mode);
-static inline int mkfifo_atomic(const char *path, mode_t mode) {
-        return mkfifoat_atomic(AT_FDCWD, path, mode);
+पूर्णांक mknodat_atomic(पूर्णांक atfd, स्थिर अक्षर *path, mode_t mode, dev_t dev);
+अटल अंतरभूत पूर्णांक mknod_atomic(स्थिर अक्षर *path, mode_t mode, dev_t dev) {
+        वापस mknodat_atomic(AT_FDCWD, path, mode, dev);
 }
 
-int get_files_in_directory(const char *path, char ***list);
+पूर्णांक mkfifoat_atomic(पूर्णांक dir_fd, स्थिर अक्षर *path, mode_t mode);
+अटल अंतरभूत पूर्णांक mkfifo_atomic(स्थिर अक्षर *path, mode_t mode) {
+        वापस mkfifoat_atomic(AT_FDCWD, path, mode);
+}
 
-int tmp_dir(const char **ret);
-int var_tmp_dir(const char **ret);
+पूर्णांक get_files_in_directory(स्थिर अक्षर *path, अक्षर ***list);
 
-int unlink_or_warn(const char *filename);
+पूर्णांक tmp_dir(स्थिर अक्षर **ret);
+पूर्णांक var_tmp_dir(स्थिर अक्षर **ret);
+
+पूर्णांक unlink_or_warn(स्थिर अक्षर *filename);
 
 /* Useful for usage with _cleanup_(), removes a directory and frees the pointer */
-char *rmdir_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, rmdir_and_free);
+अक्षर *rmdir_and_free(अक्षर *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(अक्षर*, rmdir_and_free);
 
-char* unlink_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, unlink_and_free);
+अक्षर* unlink_and_free(अक्षर *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(अक्षर*, unlink_and_free);
 
-typedef enum UnlinkDeallocateFlags {
+प्रकार क्रमागत UnlinkDeallocateFlags {
         UNLINK_REMOVEDIR = 1 << 0,
         UNLINK_ERASE     = 1 << 1,
 } UnlinkDeallocateFlags;
 
-int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags);
+पूर्णांक unlinkat_deallocate(पूर्णांक fd, स्थिर अक्षर *name, UnlinkDeallocateFlags flags);
 
-int open_parent_at(int dir_fd, const char *path, int flags, mode_t mode);
-static inline int open_parent(const char *path, int flags, mode_t mode) {
-        return open_parent_at(AT_FDCWD, path, flags, mode);
+पूर्णांक open_parent_at(पूर्णांक dir_fd, स्थिर अक्षर *path, पूर्णांक flags, mode_t mode);
+अटल अंतरभूत पूर्णांक open_parent(स्थिर अक्षर *path, पूर्णांक flags, mode_t mode) {
+        वापस open_parent_at(AT_FDCWD, path, flags, mode);
 }
 
-int conservative_renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-static inline int conservative_rename(const char *oldpath, const char *newpath) {
-        return conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
+पूर्णांक conservative_renameat(पूर्णांक olddirfd, स्थिर अक्षर *oldpath, पूर्णांक newdirfd, स्थिर अक्षर *newpath);
+अटल अंतरभूत पूर्णांक conservative_rename(स्थिर अक्षर *oldpath, स्थिर अक्षर *newpath) {
+        वापस conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
 }
 
-int posix_fallocate_loop(int fd, uint64_t offset, uint64_t size);
+पूर्णांक posix_fallocate_loop(पूर्णांक fd, uint64_t offset, uint64_t आकार);
 
-int parse_cifs_service(const char *s, char **ret_host, char **ret_service, char **ret_path);
+पूर्णांक parse_cifs_service(स्थिर अक्षर *s, अक्षर **ret_host, अक्षर **ret_service, अक्षर **ret_path);
 
-typedef enum XOpenFlags {
+प्रकार क्रमागत XOpenFlags {
         XO_LABEL             = 1 << 0, /* When creating: relabel */
         XO_SUBVOLUME         = 1 << 1, /* When creating as directory: make it a subvolume */
         XO_NOCOW             = 1 << 2, /* Enable NOCOW mode after opening */
@@ -122,53 +122,53 @@ typedef enum XOpenFlags {
         XO_AUTO_RW_RO        = 1 << 7, /* Open in O_RDWR mode if possible, O_RDONLY if not */
 } XOpenFlags;
 
-int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int open_mkdir_at_full(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode) {
-        return open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
+पूर्णांक open_mkdir_at_full_label(पूर्णांक dirfd, स्थिर अक्षर *path, पूर्णांक flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+अटल अंतरभूत पूर्णांक open_mkdir_at_full(पूर्णांक dirfd, स्थिर अक्षर *path, पूर्णांक flags, XOpenFlags xopen_flags, mode_t mode) {
+        वापस open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ शून्य);
 }
-static inline int open_mkdir_at(int dirfd, const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(dirfd, path, flags, 0, mode);
+अटल अंतरभूत पूर्णांक open_mkdir_at(पूर्णांक dirfd, स्थिर अक्षर *path, पूर्णांक flags, mode_t mode) {
+        वापस open_mkdir_at_full(dirfd, path, flags, 0, mode);
 }
-static inline int open_mkdir(const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
-}
-
-int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, bool *ret_newly_created);
-
-int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int xopenat_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode) {
-        return xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
-}
-static inline int xopenat(int dir_fd, const char *path, int open_flags) {
-        return xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
+अटल अंतरभूत पूर्णांक open_mkdir(स्थिर अक्षर *path, पूर्णांक flags, mode_t mode) {
+        वापस open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
 }
 
-int xopenat_lock_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation, LabelContext *label_context);
-static inline int xopenat_lock_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation) {
-        return xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+पूर्णांक openat_report_new(पूर्णांक dirfd, स्थिर अक्षर *pathname, पूर्णांक flags, mode_t mode, bool *ret_newly_created);
+
+पूर्णांक xopenat_full_label(पूर्णांक dir_fd, स्थिर अक्षर *path, पूर्णांक open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+अटल अंतरभूत पूर्णांक xopenat_full(पूर्णांक dir_fd, स्थिर अक्षर *path, पूर्णांक open_flags, XOpenFlags xopen_flags, mode_t mode) {
+        वापस xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ शून्य);
 }
-static inline int xopenat_lock(int dir_fd, const char *path, int open_flags, LockType locktype, int operation) {
-        return xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+अटल अंतरभूत पूर्णांक xopenat(पूर्णांक dir_fd, स्थिर अक्षर *path, पूर्णांक open_flags) {
+        वापस xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
 }
 
-int link_fd(int fd, int newdirfd, const char *newpath);
+पूर्णांक xopenat_lock_full_label(पूर्णांक dir_fd, स्थिर अक्षर *path, पूर्णांक open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, पूर्णांक operation, LabelContext *label_context);
+अटल अंतरभूत पूर्णांक xopenat_lock_full(पूर्णांक dir_fd, स्थिर अक्षर *path, पूर्णांक open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, पूर्णांक operation) {
+        वापस xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ शून्य);
+}
+अटल अंतरभूत पूर्णांक xopenat_lock(पूर्णांक dir_fd, स्थिर अक्षर *path, पूर्णांक open_flags, LockType locktype, पूर्णांक operation) {
+        वापस xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+}
 
-int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
+पूर्णांक link_fd(पूर्णांक fd, पूर्णांक newdirfd, स्थिर अक्षर *newpath);
 
-static inline int at_flags_normalize_nofollow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
-                assert(!FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW));
+पूर्णांक linkat_replace(पूर्णांक olddirfd, स्थिर अक्षर *oldpath, पूर्णांक newdirfd, स्थिर अक्षर *newpath);
+
+अटल अंतरभूत पूर्णांक at_flags_normalize_nofollow(पूर्णांक flags) {
+        अगर (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
+                निश्चित(!FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW));
                 flags &= ~AT_SYMLINK_FOLLOW;
-        } else
+        } अन्यथा
                 flags |= AT_SYMLINK_NOFOLLOW;
-        return flags;
+        वापस flags;
 }
 
-static inline int at_flags_normalize_follow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
-                assert(!FLAGS_SET(flags, AT_SYMLINK_FOLLOW));
+अटल अंतरभूत पूर्णांक at_flags_normalize_follow(पूर्णांक flags) {
+        अगर (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
+                निश्चित(!FLAGS_SET(flags, AT_SYMLINK_FOLLOW));
                 flags &= ~AT_SYMLINK_NOFOLLOW;
-        } else
+        } अन्यथा
                 flags |= AT_SYMLINK_FOLLOW;
-        return flags;
+        वापस flags;
 }

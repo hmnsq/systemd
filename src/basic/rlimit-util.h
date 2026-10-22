@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include <sys/resource.h>       /* IWYU pragma: export */
+#समावेश <sys/resource.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#समावेश "forward.h"
 
-#define _RLIMIT_MAX RLIMIT_NLIMITS
+#घोषणा _RLIMIT_MAX RLIMIT_NLIMITS
 
-DECLARE_STRING_TABLE_LOOKUP(rlimit, int);
-int rlimit_from_string_harder(const char *s) _pure_;
-void rlimits_list(const char *prefix);
+DECLARE_STRING_TABLE_LOOKUP(rlimit, पूर्णांक);
+पूर्णांक rlimit_from_string_harder(स्थिर अक्षर *s) _pure_;
+व्योम rlimits_list(स्थिर अक्षर *prefix);
 
-int setrlimit_closest(int resource, const struct rlimit *rlim);
-int setrlimit_closest_all(const struct rlimit * const *rlim, int *which_failed);
+पूर्णांक setrlimit_closest(पूर्णांक resource, स्थिर काष्ठा rlimit *rlim);
+पूर्णांक setrlimit_closest_all(स्थिर काष्ठा rlimit * स्थिर *rlim, पूर्णांक *which_failed);
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret);
-int rlimit_parse(int resource, const char *val, struct rlimit *ret);
+पूर्णांक rlimit_parse_one(पूर्णांक resource, स्थिर अक्षर *val, rlim_t *ret);
+पूर्णांक rlimit_parse(पूर्णांक resource, स्थिर अक्षर *val, काष्ठा rlimit *ret);
 
-int rlimit_format(const struct rlimit *rl, char **ret);
+पूर्णांक rlimit_format(स्थिर काष्ठा rlimit *rl, अक्षर **ret);
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]);
-void rlimit_free_all(struct rlimit **rl);
+पूर्णांक rlimit_copy_all(काष्ठा rlimit* target[अटल _RLIMIT_MAX], काष्ठा rlimit* स्थिर source[अटल _RLIMIT_MAX]);
+व्योम rlimit_free_all(काष्ठा rlimit **rl);
 
-#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+#घोषणा RLIMIT_MAKE_CONST(lim) ((काष्ठा rlimit) { lim, lim })
 
-int rlimit_nofile_bump(int limit);
-int rlimit_nofile_safe(void);
+पूर्णांक rlimit_nofile_bump(पूर्णांक limit);
+पूर्णांक rlimit_nofile_safe(व्योम);
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret);
+पूर्णांक pid_getrlimit(pid_t pid, पूर्णांक resource, काष्ठा rlimit *ret);

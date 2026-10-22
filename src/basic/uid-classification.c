@@ -1,105 +1,105 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#if ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
-#include <threads.h>
+#अगर ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
+#समावेश <threads.h>
 
-#include "chase.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "string-util.h"
-#endif
+#समावेश "chase.h"
+#समावेश "fd-util.h"
+#समावेश "fileio.h"
+#समावेश "log.h"
+#समावेश "string-util.h"
+#पूर्ण_अगर
 
-#include "uid-classification.h"
-#include "user-util.h"
+#समावेश "uid-classification.h"
+#समावेश "user-util.h"
 
-static const UGIDAllocationRange default_ugid_allocation_range = {
+अटल स्थिर UGIDAllocationRange default_ugid_allocation_range = {
         .system_alloc_uid_min = SYSTEM_ALLOC_UID_MIN,
         .system_uid_max = SYSTEM_UID_MAX,
         .system_alloc_gid_min = SYSTEM_ALLOC_GID_MIN,
         .system_gid_max = SYSTEM_GID_MAX,
 };
 
-#if ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
-static int parse_alloc_uid(const char *path, const char *name, const char *t, uid_t *ret_uid) {
+#अगर ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
+अटल पूर्णांक parse_alloc_uid(स्थिर अक्षर *path, स्थिर अक्षर *name, स्थिर अक्षर *t, uid_t *ret_uid) {
         uid_t uid;
-        int r;
+        पूर्णांक r;
 
-        assert(ret_uid);
+        निश्चित(ret_uid);
 
         r = parse_uid(t, &uid);
-        if (r < 0)
-                return log_debug_errno(r, "%s: failed to parse %s %s, ignoring: %m", path, name, t);
-        if (uid == 0)
+        अगर (r < 0)
+                वापस log_debug_errno(r, "%s: failed to parse %s %s, ignoring: %m", path, name, t);
+        अगर (uid == 0)
                 uid = 1;
 
         *ret_uid = uid;
-        return 0;
+        वापस 0;
 }
-#endif
+#पूर्ण_अगर
 
-int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char *root) {
-        assert(ret_defs);
+पूर्णांक read_login_defs(UGIDAllocationRange *ret_defs, स्थिर अक्षर *path, स्थिर अक्षर *मूल) {
+        निश्चित(ret_defs);
 
-#if ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
-        _cleanup_fclose_ FILE *f = NULL;
+#अगर ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
+        _cleanup_fclose_ खाता *f = शून्य;
         UGIDAllocationRange defs;
-        int r;
+        पूर्णांक r;
 
-        if (!path)
+        अगर (!path)
                 path = "/etc/login.defs";
 
-        r = chase_and_fopen_unlocked(path, root, CHASE_PREFIX_ROOT, "re", NULL, &f);
-        if (r == -ENOENT)
-                goto defaults;
-        if (r < 0)
-                return log_debug_errno(r, "Failed to open %s: %m", path);
+        r = chase_and_fopen_unlocked(path, मूल, CHASE_PREFIX_मूल, "re", शून्य, &f);
+        अगर (r == -ENOENT)
+                जाओ defaults;
+        अगर (r < 0)
+                वापस log_debug_errno(r, "Failed to open %s: %m", path);
 
         defs = default_ugid_allocation_range;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                char *t;
+        क्रम (;;) {
+                _cleanup_free_ अक्षर *पंक्ति = शून्य;
+                अक्षर *t;
 
-                r = read_line(f, LINE_MAX, &line);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to read %s: %m", path);
-                if (r == 0)
-                        break;
+                r = read_पंक्ति(f, LINE_MAX, &पंक्ति);
+                अगर (r < 0)
+                        वापस log_debug_errno(r, "Failed to read %s: %m", path);
+                अगर (r == 0)
+                        अवरोध;
 
-                if ((t = first_word(line, "SYS_UID_MIN")))
-                        (void) parse_alloc_uid(path, "SYS_UID_MIN", t, &defs.system_alloc_uid_min);
-                else if ((t = first_word(line, "SYS_UID_MAX")))
-                        (void) parse_alloc_uid(path, "SYS_UID_MAX", t, &defs.system_uid_max);
-                else if ((t = first_word(line, "SYS_GID_MIN")))
-                        (void) parse_alloc_uid(path, "SYS_GID_MIN", t, &defs.system_alloc_gid_min);
-                else if ((t = first_word(line, "SYS_GID_MAX")))
-                        (void) parse_alloc_uid(path, "SYS_GID_MAX", t, &defs.system_gid_max);
+                अगर ((t = first_word(पंक्ति, "SYS_UID_MIN")))
+                        (व्योम) parse_alloc_uid(path, "SYS_UID_MIN", t, &defs.system_alloc_uid_min);
+                अन्यथा अगर ((t = first_word(पंक्ति, "SYS_UID_MAX")))
+                        (व्योम) parse_alloc_uid(path, "SYS_UID_MAX", t, &defs.system_uid_max);
+                अन्यथा अगर ((t = first_word(पंक्ति, "SYS_GID_MIN")))
+                        (व्योम) parse_alloc_uid(path, "SYS_GID_MIN", t, &defs.system_alloc_gid_min);
+                अन्यथा अगर ((t = first_word(पंक्ति, "SYS_GID_MAX")))
+                        (व्योम) parse_alloc_uid(path, "SYS_GID_MAX", t, &defs.system_gid_max);
         }
 
-        if (defs.system_alloc_uid_min > defs.system_uid_max) {
+        अगर (defs.system_alloc_uid_min > defs.system_uid_max) {
                 log_debug("%s: SYS_UID_MIN > SYS_UID_MAX, resetting.", path);
                 defs.system_alloc_uid_min = MIN(defs.system_uid_max - 1, (uid_t) SYSTEM_ALLOC_UID_MIN);
                 /* Look at sys_uid_max to make sure sys_uid_min..sys_uid_max remains a valid range. */
         }
-        if (defs.system_alloc_gid_min > defs.system_gid_max) {
+        अगर (defs.system_alloc_gid_min > defs.system_gid_max) {
                 log_debug("%s: SYS_GID_MIN > SYS_GID_MAX, resetting.", path);
                 defs.system_alloc_gid_min = MIN(defs.system_gid_max - 1, (gid_t) SYSTEM_ALLOC_GID_MIN);
                 /* Look at sys_gid_max to make sure sys_gid_min..sys_gid_max remains a valid range. */
         }
 
         *ret_defs = defs;
-        return 1;
+        वापस 1;
 defaults:
-#endif
+#पूर्ण_अगर
         *ret_defs = default_ugid_allocation_range;
-        return 0;
+        वापस 0;
 }
 
-const UGIDAllocationRange *acquire_ugid_allocation_range(void) {
-#if ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
-        static thread_local UGIDAllocationRange defs;
-        static thread_local int initialized = 0; /* == 0 → not initialized yet
+स्थिर UGIDAllocationRange *acquire_ugid_allocation_range(व्योम) {
+#अगर ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
+        अटल thread_local UGIDAllocationRange defs;
+        अटल thread_local पूर्णांक initialized = 0; /* == 0 → not initialized yet
                                                   * < 0 → failure
                                                   * > 0 → success */
 
@@ -107,34 +107,34 @@ const UGIDAllocationRange *acquire_ugid_allocation_range(void) {
          * we don't crucially depend on the answer. In other words, it's appropriate for journald, but
          * probably not for sysusers. */
 
-        if (initialized == 0)
-                initialized = read_login_defs(&defs, NULL, NULL) < 0 ? -1 : 1;
-        if (initialized < 0)
-                return &default_ugid_allocation_range;
+        अगर (initialized == 0)
+                initialized = read_login_defs(&defs, शून्य, शून्य) < 0 ? -1 : 1;
+        अगर (initialized < 0)
+                वापस &default_ugid_allocation_range;
 
-        return &defs;
+        वापस &defs;
 
-#endif
-        return &default_ugid_allocation_range;
+#पूर्ण_अगर
+        वापस &default_ugid_allocation_range;
 }
 
 bool uid_is_system(uid_t uid) {
-        const UGIDAllocationRange *defs;
+        स्थिर UGIDAllocationRange *defs;
         assert_se(defs = acquire_ugid_allocation_range());
 
-        return uid <= defs->system_uid_max;
+        वापस uid <= defs->system_uid_max;
 }
 
 bool gid_is_system(gid_t gid) {
-        const UGIDAllocationRange *defs;
+        स्थिर UGIDAllocationRange *defs;
         assert_se(defs = acquire_ugid_allocation_range());
 
-        return gid <= defs->system_gid_max;
+        वापस gid <= defs->system_gid_max;
 }
 
 bool uid_for_system_journal(uid_t uid) {
 
         /* Returns true if the specified UID shall get its data stored in the system journal. */
 
-        return uid_is_system(uid) || uid_is_dynamic(uid) || uid_is_greeter(uid) || uid == UID_NOBODY || uid_is_container(uid) || uid_is_foreign(uid);
+        वापस uid_is_system(uid) || uid_is_dynamic(uid) || uid_is_greeter(uid) || uid == UID_NOBODY || uid_is_container(uid) || uid_is_foreign(uid);
 }

@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "static-destruct.h"
+#समावेश "static-destruct.h"
 
-void static_destruct_impl(const StaticDestructor *start, const StaticDestructor *end) {
-        if (!start)
-                return;
+व्योम static_destruct_impl(स्थिर StaticDestructor *start, स्थिर StaticDestructor *end) {
+        अगर (!start)
+                वापस;
 
-        for (const StaticDestructor *d = start; d < end; d++)
-                switch (d->type) {
-                case STATIC_DESTRUCTOR_SIMPLE:
-                        d->simple.destroy(d->simple.data);
-                        break;
+        क्रम (स्थिर StaticDestructor *d = start; d < end; d++)
+                चयन (d->type) {
+                हाल STATIC_DESTRUCTOR_SIMPLE:
+                        d->simple.destroy(d->simple.तथ्य);
+                        अवरोध;
 
-                case STATIC_DESTRUCTOR_ARRAY:
+                हाल STATIC_DESTRUCTOR_ARRAY:
                         array_cleanup(&d->array);
-                        break;
+                        अवरोध;
 
-                default:
+                शेष:
                         assert_not_reached();
                 }
 }

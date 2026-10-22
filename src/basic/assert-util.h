@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#समावेश "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(व्योम) _weak_ _pure_;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+व्योम log_assert_failed_return(स्थिर अक्षर *text, स्थिर अक्षर *file, पूर्णांक पंक्ति, स्थिर अक्षर *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#घोषणा assert_log(व्यंजक)                                                \
+        (_likely_(व्यंजक) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#घोषणा assert_return(व्यंजक, r)                                          \
+        करो {                                                            \
+                अगर (!assert_log(व्यंजक))                                  \
+                        वापस (r);                                     \
+        } जबतक (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
-                        errno = err;                                    \
-                        return (r);                                     \
+#घोषणा assert_return_errno(व्यंजक, r, err)                               \
+        करो {                                                            \
+                अगर (!assert_log(व्यंजक)) {                                \
+                        त्रुटि_सं = err;                                    \
+                        वापस (r);                                     \
                 }                                                       \
-        } while (false)
+        } जबतक (false)

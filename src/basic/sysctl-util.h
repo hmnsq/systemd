@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
 
-#include "forward.h"
-#include "stdio-util.h"
+#समावेश "forward.h"
+#समावेश "stdio-util.h"
 
-char* sysctl_normalize(char *s);
-int sysctl_read(const char *property, char **ret);
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow);
-int sysctl_writef(const char *property, const char *format, ...) _printf_(2, 3);
-static inline int sysctl_write(const char *property, const char *value) {
-        return sysctl_write_full(property, value, NULL);
+अक्षर* sysctl_normalize(अक्षर *s);
+पूर्णांक sysctl_read(स्थिर अक्षर *property, अक्षर **ret);
+पूर्णांक sysctl_write_full(स्थिर अक्षर *property, स्थिर अक्षर *मूल्य, Hashmap **shadow);
+पूर्णांक sysctl_writef(स्थिर अक्षर *property, स्थिर अक्षर *format, ...) _printf_(2, 3);
+अटल अंतरभूत पूर्णांक sysctl_write(स्थिर अक्षर *property, स्थिर अक्षर *मूल्य) {
+        वापस sysctl_write_full(property, मूल्य, शून्य);
 }
-int sysctl_write_verify(const char *property, const char *value);
+पूर्णांक sysctl_write_verify(स्थिर अक्षर *property, स्थिर अक्षर *मूल्य);
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret);
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret);
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret);
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow);
+पूर्णांक sysctl_read_ip_property(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, अक्षर **ret);
+पूर्णांक sysctl_read_ip_property_int(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, पूर्णांक *ret);
+पूर्णांक sysctl_read_ip_property_uint32(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, uint32_t *ret);
+पूर्णांक sysctl_write_ip_property(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, स्थिर अक्षर *मूल्य, Hashmap **shadow);
+पूर्णांक sysctl_write_ip_property_boolean(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, bool मूल्य, Hashmap **shadow);
 
-static inline int sysctl_write_ip_property_tristate(int af, const char *ifname, const char *property, int value, Hashmap **shadow) {
-        if (value < 0)
-                return 0;
+अटल अंतरभूत पूर्णांक sysctl_write_ip_property_tristate(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, पूर्णांक मूल्य, Hashmap **shadow) {
+        अगर (मूल्य < 0)
+                वापस 0;
 
-        return sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
+        वापस sysctl_write_ip_property_boolean(af, ifname, property, मूल्य, shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow);
+पूर्णांक sysctl_write_ip_neighbor_property(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, स्थिर अक्षर *मूल्य, Hashmap **shadow);
+पूर्णांक sysctl_write_ip_neighbor_property_uint32(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, uint32_t मूल्य, Hashmap **shadow);
 
-#define DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
-        static inline int sysctl_write_ip_property_##name(int af, const char *ifname, const char *property, type value, Hashmap **shadow) { \
-                char buf[DECIMAL_STR_MAX(type)];                        \
-                xsprintf(buf, format, value);                           \
-                return sysctl_write_ip_property(af, ifname, property, buf, shadow); \
+#घोषणा DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
+        अटल अंतरभूत पूर्णांक sysctl_write_ip_property_##name(पूर्णांक af, स्थिर अक्षर *ifname, स्थिर अक्षर *property, type मूल्य, Hashmap **shadow) { \
+                अक्षर buf[DECIMAL_STR_MAX(type)];                        \
+                xsprintf(buf, format, मूल्य);                           \
+                वापस sysctl_write_ip_property(af, ifname, property, buf, shadow); \
         }
 
-DEFINE_SYSCTL_WRITE_IP_PROPERTY(int, int, "%i");
+DEFINE_SYSCTL_WRITE_IP_PROPERTY(पूर्णांक, पूर्णांक, "%i");
 DEFINE_SYSCTL_WRITE_IP_PROPERTY(uint32, uint32_t, "%" PRIu32);

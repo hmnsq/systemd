@@ -1,67 +1,67 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/socket.h>
+#समावेश <string.h>
+#समावेश <sys/socket.h>
 
-#include "af-list.h"
-#include "string-util.h"
+#समावेश "af-list.h"
+#समावेश "string-util.h"
 
-static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
+अटल स्थिर काष्ठा af_name* lookup_af(रेजिस्टर स्थिर अक्षर *str, रेजिस्टर GPERF_LEN_TYPE len);
 
-#include "af-from-name.inc"
-#include "af-to-name.inc"
+#समावेश "af-from-name.inc"
+#समावेश "af-to-name.inc"
 
-const char* af_to_name(int id) {
+स्थिर अक्षर* af_to_name(पूर्णांक id) {
 
-        if (id <= 0)
-                return NULL;
+        अगर (id <= 0)
+                वापस शून्य;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        अगर ((माप_प्रकार) id >= ELEMENTSOF(af_names))
+                वापस शून्य;
 
-        return af_names[id];
+        वापस af_names[id];
 }
 
-const char* af_to_name_short(int id) {
-        const char *f;
+स्थिर अक्षर* af_to_name_short(पूर्णांक id) {
+        स्थिर अक्षर *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        अगर (id == AF_UNSPEC)
+                वापस "*";
 
         f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        अगर (!f)
+                वापस "unknown";
 
-        assert(startswith(f, "AF_"));
-        return f + 3;
+        निश्चित(startswith(f, "AF_"));
+        वापस f + 3;
 }
 
-int af_from_name(const char *name) {
-        size_t len = strlen(ASSERT_PTR(name));
+पूर्णांक af_from_name(स्थिर अक्षर *name) {
+        माप_प्रकार len = म_माप(ASSERT_PTR(name));
 
-        const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
-                const char *t = strjoina("AF_", name);
-                sc = lookup_af(t, strlen("AF_") + len);
+        स्थिर काष्ठा af_name *sc = lookup_af(name, len);
+        अगर (!sc && len + म_माप("AF_") <= MAX_WORD_लंबाई) {
+                स्थिर अक्षर *t = strjoina("AF_", name);
+                sc = lookup_af(t, म_माप("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        अगर (!sc)
+                वापस -EINVAL;
 
-        return sc->id;
+        वापस sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+पूर्णांक af_max(व्योम) {
+        वापस ELEMENTSOF(af_names);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+स्थिर अक्षर* af_to_ipv4_ipv6(पूर्णांक id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
-                id == AF_INET6 ? "ipv6" : NULL;
+        वापस id == AF_INET ? "ipv4" :
+                id == AF_INET6 ? "ipv6" : शून्य;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+पूर्णांक af_from_ipv4_ipv6(स्थिर अक्षर *af) {
+        वापस streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

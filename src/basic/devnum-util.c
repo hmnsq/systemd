@@ -1,145 +1,145 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/sysmacros.h>
+#समावेश <string.h>
+#समावेश <sys/stat.h>
+#समावेश <sys/sysmacros.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "devnum-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#समावेश "alloc-util.h"
+#समावेश "chase.h"
+#समावेश "devnum-util.h"
+#समावेश "parse-util.h"
+#समावेश "path-util.h"
+#समावेश "stdio-util.h"
+#समावेश "string-util.h"
 
-int parse_devnum(const char *s, dev_t *ret) {
-        const char *major;
-        unsigned x, y;
-        size_t n;
-        int r;
+पूर्णांक parse_devnum(स्थिर अक्षर *s, dev_t *ret) {
+        स्थिर अक्षर *major;
+        अचिन्हित x, y;
+        माप_प्रकार n;
+        पूर्णांक r;
 
-        assert(s);
-        assert(ret);
+        निश्चित(s);
+        निश्चित(ret);
 
-        n = strspn(s, DIGITS);
-        if (n == 0)
-                return -EINVAL;
-        if (n > DECIMAL_STR_MAX(dev_t))
-                return -EINVAL;
-        if (s[n] != ':')
-                return -EINVAL;
+        n = म_अखोज(s, DIGITS);
+        अगर (n == 0)
+                वापस -EINVAL;
+        अगर (n > DECIMAL_STR_MAX(dev_t))
+                वापस -EINVAL;
+        अगर (s[n] != ':')
+                वापस -EINVAL;
 
         major = strndupa_safe(s, n);
         r = safe_atou(major, &x);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         r = safe_atou(s + n + 1, &y);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (!DEVICE_MAJOR_VALID(x) || !DEVICE_MINOR_VALID(y))
-                return -ERANGE;
+        अगर (!DEVICE_MAJOR_VALID(x) || !DEVICE_MINOR_VALID(y))
+                वापस -दुस्फल;
 
         *ret = makedev(x, y);
-        return 0;
+        वापस 0;
 }
 
-int device_path_make_major_minor(mode_t mode, dev_t devnum, char **ret) {
-        const char *t;
+पूर्णांक device_path_make_major_minor(mode_t mode, dev_t devnum, अक्षर **ret) {
+        स्थिर अक्षर *t;
 
         /* Generates the /dev/{char|block}/MAJOR:MINOR path for a dev_t */
 
-        if (S_ISCHR(mode))
+        अगर (S_ISCHR(mode))
                 t = "char";
-        else if (S_ISBLK(mode))
+        अन्यथा अगर (S_ISBLK(mode))
                 t = "block";
-        else
-                return -ENODEV;
+        अन्यथा
+                वापस -ENODEV;
 
-        if (asprintf(ret, "/dev/%s/" DEVNUM_FORMAT_STR, t, DEVNUM_FORMAT_VAL(devnum)) < 0)
-                return -ENOMEM;
+        अगर (asprintf(ret, "/dev/%s/" DEVNUM_FORMAT_STR, t, DEVNUM_FORMAT_VAL(devnum)) < 0)
+                वापस -ENOMEM;
 
-        return 0;
+        वापस 0;
 }
 
-int device_path_make_inaccessible(mode_t mode, char **ret) {
-        const char *s;
+पूर्णांक device_path_make_inaccessible(mode_t mode, अक्षर **ret) {
+        स्थिर अक्षर *s;
 
-        assert(ret);
+        निश्चित(ret);
 
-        if (S_ISCHR(mode))
+        अगर (S_ISCHR(mode))
                 s = "/run/systemd/inaccessible/chr";
-        else if (S_ISBLK(mode))
+        अन्यथा अगर (S_ISBLK(mode))
                 s = "/run/systemd/inaccessible/blk";
-        else
-                return -ENODEV;
+        अन्यथा
+                वापस -ENODEV;
 
-        return strdup_to(ret, s);
+        वापस strdup_to(ret, s);
 }
 
-int device_path_make_canonical(mode_t mode, dev_t devnum, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+पूर्णांक device_path_make_canonical(mode_t mode, dev_t devnum, अक्षर **ret) {
+        _cleanup_free_ अक्षर *p = शून्य;
+        पूर्णांक r;
 
         /* Finds the canonical path for a device, i.e. resolves the /dev/{char|block}/MAJOR:MINOR path to the end. */
 
-        assert(ret);
+        निश्चित(ret);
 
-        if (devnum_is_zero(devnum))
+        अगर (devnum_is_zero(devnum))
                 /* A special hack to make sure our 'inaccessible' device nodes work. They won't have symlinks in
                  * /dev/block/ and /dev/char/, hence we handle them specially here. */
-                return device_path_make_inaccessible(mode, ret);
+                वापस device_path_make_inaccessible(mode, ret);
 
         r = device_path_make_major_minor(mode, devnum, &p);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        return chase(p, NULL, 0, ret, NULL);
+        वापस chase(p, शून्य, 0, ret, शून्य);
 }
 
-int device_path_parse_major_minor(const char *path, mode_t *ret_mode, dev_t *ret_devnum) {
+पूर्णांक device_path_parse_major_minor(स्थिर अक्षर *path, mode_t *ret_mode, dev_t *ret_devnum) {
         mode_t mode;
         dev_t devnum;
-        int r;
+        पूर्णांक r;
 
         /* Tries to extract the major/minor directly from the device path if we can. Handles /dev/block/ and /dev/char/
          * paths, as well out synthetic inaccessible device nodes. Never goes to disk. Returns -ENODEV if the device
          * path cannot be parsed like this.  */
 
-        if (path_equal(path, "/run/systemd/inaccessible/chr")) {
+        अगर (path_equal(path, "/run/systemd/inaccessible/chr")) {
                 mode = S_IFCHR;
                 devnum = makedev(0, 0);
-        } else if (path_equal(path, "/run/systemd/inaccessible/blk")) {
+        } अन्यथा अगर (path_equal(path, "/run/systemd/inaccessible/blk")) {
                 mode = S_IFBLK;
                 devnum = makedev(0, 0);
-        } else {
-                const char *w;
+        } अन्यथा {
+                स्थिर अक्षर *w;
 
                 w = path_startswith(path, "/dev/block/");
-                if (w)
+                अगर (w)
                         mode = S_IFBLK;
-                else {
+                अन्यथा {
                         w = path_startswith(path, "/dev/char/");
-                        if (!w)
-                                return -ENODEV;
+                        अगर (!w)
+                                वापस -ENODEV;
 
                         mode = S_IFCHR;
                 }
 
                 r = parse_devnum(w, &devnum);
-                if (r < 0)
-                        return r;
+                अगर (r < 0)
+                        वापस r;
         }
 
-        if (ret_mode)
+        अगर (ret_mode)
                 *ret_mode = mode;
-        if (ret_devnum)
+        अगर (ret_devnum)
                 *ret_devnum = devnum;
 
-        return 0;
+        वापस 0;
 }
 
-char* format_devnum(dev_t d, char buf[static DEVNUM_STR_MAX]) {
-        return ASSERT_PTR(snprintf_ok(buf, DEVNUM_STR_MAX, DEVNUM_FORMAT_STR, DEVNUM_FORMAT_VAL(d)));
+अक्षर* format_devnum(dev_t d, अक्षर buf[अटल DEVNUM_STR_MAX]) {
+        वापस ASSERT_PTR(snprintf_ok(buf, DEVNUM_STR_MAX, DEVNUM_FORMAT_STR, DEVNUM_FORMAT_VAL(d)));
 }

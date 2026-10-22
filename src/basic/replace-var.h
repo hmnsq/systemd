@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include "forward.h"
+#समावेश "forward.h"
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata);
+अक्षर* replace_var(स्थिर अक्षर *text, अक्षर *(*lookup)(स्थिर अक्षर *variable, व्योम *userdata), व्योम *userdata);

@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#pragma once
+#आशय once
 
-#include "forward.h"
+#समावेश "forward.h"
 
-#include "../fundamental/sha256.h" /* IWYU pragma: export */
+#समावेश "../fundamental/sha256.h" /* IWYU pragma: export */
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]);
+पूर्णांक sha256_fd(पूर्णांक fd, uint64_t max_आकार, uint8_t ret[अटल SHA256_DIGEST_आकार]);
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]);
+पूर्णांक parse_sha256(स्थिर अक्षर *s, uint8_t ret[अटल SHA256_DIGEST_आकार]);
 
-bool sha256_is_valid(const char *s) _pure_;
+bool sha256_is_valid(स्थिर अक्षर *s) _pure_;
 
-char* sha256_direct_hex(const void *buffer, size_t sz);
+अक्षर* sha256_direct_hex(स्थिर व्योम *बफर, माप_प्रकार sz);
 
 /* The hash of the empty string */
-#define SHA256_EMPTY                                                    \
-        (const uint8_t[SHA256_DIGEST_SIZE]) {                           \
+#घोषणा SHA256_EMPTY                                                    \
+        (स्थिर uint8_t[SHA256_DIGEST_आकार]) {                           \
                 0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14,         \
                 0x9a, 0xfb, 0xf4, 0xc8, 0x99, 0x6f, 0xb9, 0x24,         \
                 0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,         \

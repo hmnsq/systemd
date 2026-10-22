@@ -1,91 +1,91 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
+#समावेश <stdio.h>
+#समावेश <string.h>
+#समावेश <sys/stat.h>
 
-#include "device-nodes.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "utf8.h"
+#समावेश "device-nodes.h"
+#समावेश "path-util.h"
+#समावेश "stat-util.h"
+#समावेश "stdio-util.h"
+#समावेश "string-util.h"
+#समावेश "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+पूर्णांक allow_listed_char_for_devnode(अक्षर c, स्थिर अक्षर *additional) {
+        वापस
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
-                strchr("#+-.:=@_", c) ||
-                (additional && strchr(additional, c));
+                म_अक्षर("#+-.:=@_", c) ||
+                (additional && म_अक्षर(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
-        size_t i, j;
+पूर्णांक encode_devnode_name(स्थिर अक्षर *str, अक्षर *str_enc, माप_प्रकार len) {
+        माप_प्रकार i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        अगर (!str || !str_enc)
+                वापस -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        क्रम (i = 0, j = 0; str[i] != '\0'; i++) {
+                पूर्णांक seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                अगर (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        अगर (len-j < (माप_प्रकार) seqlen)
+                                वापस -EINVAL;
 
-                        memcpy(&str_enc[j], &str[i], seqlen);
+                        स_नकल(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } अन्यथा अगर (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], शून्य)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        अगर (len-j < 5)
+                                वापस -EINVAL;
 
-                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
+                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (अचिन्हित अक्षर) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } अन्यथा {
+                        अगर (len-j < 1)
+                                वापस -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        अगर (len-j < 1)
+                वापस -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        वापस 0;
 }
 
-int devnode_same(const char *a, const char *b) {
-        struct stat sa, sb;
-        int r;
+पूर्णांक devnode_same(स्थिर अक्षर *a, स्थिर अक्षर *b) {
+        काष्ठा stat sa, sb;
+        पूर्णांक r;
 
-        assert(a);
-        assert(b);
+        निश्चित(a);
+        निश्चित(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        अगर (!valid_device_गाँठ_path(a) || !valid_device_गाँठ_path(b))
+                वापस -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        अगर (stat(a, &sa) < 0)
+                वापस -त्रुटि_सं;
+        r = stat_verify_device_गाँठ(&sa);
+        अगर (r < 0)
+                वापस r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        अगर (stat(b, &sb) < 0)
+                वापस -त्रुटि_सं;
+        r = stat_verify_device_गाँठ(&sb);
+        अगर (r < 0)
+                वापस r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        अगर (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                वापस false;
 
-        return sa.st_rdev == sb.st_rdev;
+        वापस sa.st_rdev == sb.st_rdev;
 }

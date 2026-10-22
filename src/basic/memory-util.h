@@ -1,114 +1,114 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include <string.h>
-#include <sys/mman.h> /* IWYU pragma: export */
+#समावेश <string.h>
+#समावेश <sys/mman.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#समावेश "forward.h"
 
-#include "../fundamental/memory-util.h" /* IWYU pragma: export */
+#समावेश "../fundamental/memory-util.h" /* IWYU pragma: export */
 
-size_t page_size(void) _pure_;
-#define PAGE_ALIGN(l)          ALIGN_TO(l, page_size())
-#define PAGE_ALIGN_U64(l)      ALIGN_TO_U64(l, page_size())
-#define PAGE_ALIGN_DOWN(l)     ALIGN_DOWN(l, page_size())
-#define PAGE_ALIGN_DOWN_U64(l) ALIGN_DOWN_U64(l, page_size())
-#define PAGE_OFFSET(l)         ALIGN_OFFSET(l, page_size())
-#define PAGE_OFFSET_U64(l)     ALIGN_OFFSET_U64(l, page_size())
+माप_प्रकार page_आकार(व्योम) _pure_;
+#घोषणा PAGE_ALIGN(l)          ALIGN_TO(l, page_आकार())
+#घोषणा PAGE_ALIGN_U64(l)      ALIGN_TO_U64(l, page_आकार())
+#घोषणा PAGE_ALIGN_DOWN(l)     ALIGN_DOWN(l, page_आकार())
+#घोषणा PAGE_ALIGN_DOWN_U64(l) ALIGN_DOWN_U64(l, page_आकार())
+#घोषणा PAGE_OFFSET(l)         ALIGN_OFFSET(l, page_आकार())
+#घोषणा PAGE_OFFSET_U64(l)     ALIGN_OFFSET_U64(l, page_आकार())
 
 /* Normal memcpy() requires src to be nonnull. We do nothing if n is 0. */
-static inline void* memcpy_safe(void *dst, const void *src, size_t n) {
-        if (n == 0)
-                return dst;
-        assert(src);
-        return memcpy(dst, src, n);
+अटल अंतरभूत व्योम* memcpy_safe(व्योम *dst, स्थिर व्योम *src, माप_प्रकार n) {
+        अगर (n == 0)
+                वापस dst;
+        निश्चित(src);
+        वापस स_नकल(dst, src, n);
 }
 
 /* Normal mempcpy() requires src to be nonnull. We do nothing if n is 0. */
-static inline void* mempcpy_safe(void *dst, const void *src, size_t n) {
-        if (n == 0)
-                return dst;
-        assert(src);
-        return mempcpy(dst, src, n);
+अटल अंतरभूत व्योम* mempcpy_safe(व्योम *dst, स्थिर व्योम *src, माप_प्रकार n) {
+        अगर (n == 0)
+                वापस dst;
+        निश्चित(src);
+        वापस mempcpy(dst, src, n);
 }
 
-#define _mempcpy_typesafe(dst, src, n, sz)                              \
+#घोषणा _mempcpy_typesafe(dst, src, n, sz)                              \
         ({                                                              \
-                size_t sz;                                              \
-                assert_se(MUL_SAFE(&sz, sizeof((dst)[0]), n));          \
+                माप_प्रकार sz;                                              \
+                assert_se(MUL_SAFE(&sz, माप((dst)[0]), n));          \
                 (typeof((dst)[0])*) mempcpy_safe(dst, src, sz);         \
         })
 
-#define mempcpy_typesafe(dst, src, n)                                   \
+#घोषणा mempcpy_typesafe(dst, src, n)                                   \
         _mempcpy_typesafe(dst, src, n, UNIQ_T(sz, UNIQ))
 
 /* Normal memcmp() requires s1 and s2 to be nonnull. We do nothing if n is 0. */
-static inline int memcmp_safe(const void *s1, const void *s2, size_t n) {
-        if (n == 0)
-                return 0;
-        assert(s1);
-        assert(s2);
-        return memcmp(s1, s2, n);
+अटल अंतरभूत पूर्णांक memcmp_safe(स्थिर व्योम *s1, स्थिर व्योम *s2, माप_प्रकार n) {
+        अगर (n == 0)
+                वापस 0;
+        निश्चित(s1);
+        निश्चित(s2);
+        वापस स_भेद(s1, s2, n);
 }
 
 /* Compare s1 (length n1) with s2 (length n2) in lexicographic order. */
-static inline int memcmp_nn(const void *s1, size_t n1, const void *s2, size_t n2) {
-        return memcmp_safe(s1, s2, MIN(n1, n2))
+अटल अंतरभूत पूर्णांक memcmp_nn(स्थिर व्योम *s1, माप_प्रकार n1, स्थिर व्योम *s2, माप_प्रकार n2) {
+        वापस memcmp_safe(s1, s2, MIN(n1, n2))
             ?: CMP(n1, n2);
 }
 
-#define zero(x) (memzero(&(x), sizeof(x)))
+#घोषणा zero(x) (memzero(&(x), माप(x)))
 
-static inline void* mempset(void *s, int c, size_t n) {
-        memset(s, c, n);
-        return (uint8_t*) s + n;
+अटल अंतरभूत व्योम* mempset(व्योम *s, पूर्णांक c, माप_प्रकार n) {
+        स_रखो(s, c, n);
+        वापस (uint8_t*) s + n;
 }
 
 /* Normal memmem() requires haystack to be nonnull, which is annoying for zero-length buffers */
-static inline void* memmem_safe(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen) {
+अटल अंतरभूत व्योम* memmem_safe(स्थिर व्योम *haystack, माप_प्रकार haystacklen, स्थिर व्योम *needle, माप_प्रकार needlelen) {
 
-        if (needlelen <= 0)
-                return (void*) haystack;
+        अगर (needlelen <= 0)
+                वापस (व्योम*) haystack;
 
-        if (haystacklen < needlelen)
-                return NULL;
+        अगर (haystacklen < needlelen)
+                वापस शून्य;
 
-        assert(haystack);
-        assert(needle);
+        निश्चित(haystack);
+        निश्चित(needle);
 
-        return memmem(haystack, haystacklen, needle, needlelen);
+        वापस memmem(haystack, haystacklen, needle, needlelen);
 }
 
-static inline void* mempmem_safe(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen) {
-        const uint8_t *p;
+अटल अंतरभूत व्योम* mempmem_safe(स्थिर व्योम *haystack, माप_प्रकार haystacklen, स्थिर व्योम *needle, माप_प्रकार needlelen) {
+        स्थिर uint8_t *p;
 
         p = memmem_safe(haystack, haystacklen, needle, needlelen);
-        if (!p)
-                return NULL;
+        अगर (!p)
+                वापस शून्य;
 
-        return (uint8_t*) p + needlelen;
+        वापस (uint8_t*) p + needlelen;
 }
 
-void* erase_and_free(void *p);
+व्योम* erase_and_free(व्योम *p);
 
-static inline void erase_and_freep(void *p) {
-        erase_and_free(*(void**) p);
+अटल अंतरभूत व्योम erase_and_freep(व्योम *p) {
+        erase_and_free(*(व्योम**) p);
 }
 
 /* Use with _cleanup_ to erase a single 'char' when leaving scope */
-static inline void erase_char(char *p) {
-        explicit_bzero_safe(p, sizeof(char));
+अटल अंतरभूत व्योम erase_char(अक्षर *p) {
+        explicit_bzero_safe(p, माप(अक्षर));
 }
 
-#define munmap_safe(p, sz) _munmap_safe(UNIQ_T(P, UNIQ), (p), UNIQ_T(SZ, UNIQ), (sz))
-#define _munmap_safe(_p, p, _sz, sz)                                    \
+#घोषणा munmap_safe(p, sz) _munmap_safe(UNIQ_T(P, UNIQ), (p), UNIQ_T(SZ, UNIQ), (sz))
+#घोषणा _munmap_safe(_p, p, _sz, sz)                                    \
         ({                                                              \
                 typeof(p) _p = (p);                                     \
-                if (_p && _p != MAP_FAILED) {                           \
-                        size_t _sz = (sz);                              \
-                        assert(_sz > 0);                                \
-                        assert(_sz != SIZE_MAX); /* catch PAGE_ALIGN() overflows */ \
+                अगर (_p && _p != MAP_FAILED) {                           \
+                        माप_प्रकार _sz = (sz);                              \
+                        निश्चित(_sz > 0);                                \
+                        निश्चित(_sz != SIZE_MAX); /* catch PAGE_ALIGN() overflows */ \
                         assert_se(munmap(_p, _sz) >= 0);                \
                 }                                                       \
-                (typeof(p)) NULL;                                       \
+                (typeof(p)) शून्य;                                       \
         })

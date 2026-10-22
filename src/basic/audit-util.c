@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#समावेश "alloc-util.h"
+#समावेश "audit-util.h"
+#समावेश "fileio.h"
+#समावेश "parse-util.h"
+#समावेश "pidref.h"
+#समावेश "process-util.h"
+#समावेश "stat-util.h"
+#समावेश "user-util.h"
+#समावेश "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+अटल पूर्णांक audit_read_field(स्थिर PidRef *pid, स्थिर अक्षर *field, अक्षर **ret) {
+        पूर्णांक r;
 
-        assert(field);
-        assert(ret);
+        निश्चित(field);
+        निश्चित(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        अगर (!pidref_is_set(pid))
+                वापस -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        अगर (detect_container() > 0)
+                वापस -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        स्थिर अक्षर *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ अक्षर *s = शून्य;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_full_virtual_file(p, &s, /* ret_size= */ शून्य);
+        अगर (r == -ENOENT) {
+                अगर (proc_mounted() == 0)
+                        वापस -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } अन्यथा अगर (r < 0)
+                वापस r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        अगर (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                वापस -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        वापस 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+पूर्णांक audit_session_from_pid(स्थिर PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ अक्षर *s = शून्य;
+        पूर्णांक r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        अगर (!audit_session_is_valid(u))
+                वापस -ENODATA;
 
-        if (ret_id)
+        अगर (ret_id)
                 *ret_id = u;
 
-        return 0;
+        वापस 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+पूर्णांक audit_loginuid_from_pid(स्थिर PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ अक्षर *s = शून्य;
+        पूर्णांक r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        अगर (r < 0)
+                वापस r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        अगर (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                वापस -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        वापस parse_uid(s, ret_uid);
 }

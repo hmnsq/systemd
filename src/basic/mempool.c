@@ -1,56 +1,56 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#समावेश <stdio.h>
+#समावेश <stdlib.h>
 
-#include "format-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "mempool.h"
+#समावेश "format-util.h"
+#समावेश "log.h"
+#समावेश "memory-util.h"
+#समावेश "mempool.h"
 
-struct pool {
-        struct pool *next;
-        size_t n_tiles;
-        size_t n_used;
+काष्ठा pool {
+        काष्ठा pool *अग्र_2;
+        माप_प्रकार n_tiles;
+        माप_प्रकार n_used;
 };
 
-static void* pool_ptr(struct pool *p) {
-        return ((uint8_t*) ASSERT_PTR(p)) + ALIGN(sizeof(struct pool));
+अटल व्योम* pool_ptr(काष्ठा pool *p) {
+        वापस ((uint8_t*) ASSERT_PTR(p)) + ALIGN(माप(काष्ठा pool));
 }
 
-void* mempool_alloc_tile(struct mempool *mp) {
-        size_t i;
+व्योम* mempool_alloc_tile(काष्ठा mempool *mp) {
+        माप_प्रकार i;
 
         /* When a tile is released we add it to the list and simply
          * place the next pointer at its offset 0. */
 
-        assert(mp);
-        assert(mp->tile_size >= sizeof(void*));
-        assert(mp->at_least > 0);
+        निश्चित(mp);
+        निश्चित(mp->tile_आकार >= माप(व्योम*));
+        निश्चित(mp->at_least > 0);
 
-        if (mp->freelist) {
-                void *t;
+        अगर (mp->freelist) {
+                व्योम *t;
 
                 t = mp->freelist;
-                mp->freelist = *(void**) mp->freelist;
-                return t;
+                mp->freelist = *(व्योम**) mp->freelist;
+                वापस t;
         }
 
-        if (_unlikely_(!mp->first_pool) ||
+        अगर (_unlikely_(!mp->first_pool) ||
             _unlikely_(mp->first_pool->n_used >= mp->first_pool->n_tiles)) {
-                size_t size, n;
-                struct pool *p;
+                माप_प्रकार आकार, n;
+                काष्ठा pool *p;
 
                 n = mp->first_pool ? mp->first_pool->n_tiles : 0;
                 n = MAX(mp->at_least, n * 2);
-                size = PAGE_ALIGN(ALIGN(sizeof(struct pool)) + n*mp->tile_size);
-                n = (size - ALIGN(sizeof(struct pool))) / mp->tile_size;
+                आकार = PAGE_ALIGN(ALIGN(माप(काष्ठा pool)) + n*mp->tile_आकार);
+                n = (आकार - ALIGN(माप(काष्ठा pool))) / mp->tile_आकार;
 
-                p = malloc(size);
-                if (!p)
-                        return NULL;
+                p = दो_स्मृति(आकार);
+                अगर (!p)
+                        वापस शून्य;
 
-                p->next = mp->first_pool;
+                p->अग्र_2 = mp->first_pool;
                 p->n_tiles = n;
                 p->n_used = 0;
 
@@ -59,119 +59,119 @@ void* mempool_alloc_tile(struct mempool *mp) {
 
         i = mp->first_pool->n_used++;
 
-        return (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_size;
+        वापस (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_आकार;
 }
 
-void* mempool_alloc0_tile(struct mempool *mp) {
-        void *p;
+व्योम* mempool_alloc0_tile(काष्ठा mempool *mp) {
+        व्योम *p;
 
-        assert(mp);
+        निश्चित(mp);
 
         p = mempool_alloc_tile(mp);
-        if (p)
-                memzero(p, mp->tile_size);
-        return p;
+        अगर (p)
+                memzero(p, mp->tile_आकार);
+        वापस p;
 }
 
-void* mempool_free_tile(struct mempool *mp, void *p) {
-        assert(mp);
+व्योम* mempool_free_tile(काष्ठा mempool *mp, व्योम *p) {
+        निश्चित(mp);
 
-        if (!p)
-                return NULL;
+        अगर (!p)
+                वापस शून्य;
 
-        *(void**) p = mp->freelist;
+        *(व्योम**) p = mp->freelist;
         mp->freelist = p;
 
-        return NULL;
+        वापस शून्य;
 }
 
-static bool pool_contains(struct mempool *mp, struct pool *p, void *ptr) {
-        size_t off;
-        void *a;
+अटल bool pool_contains(काष्ठा mempool *mp, काष्ठा pool *p, व्योम *ptr) {
+        माप_प्रकार off;
+        व्योम *a;
 
-        assert(mp);
-        assert(p);
+        निश्चित(mp);
+        निश्चित(p);
 
-        if (!ptr)
-                return false;
+        अगर (!ptr)
+                वापस false;
 
         a = pool_ptr(p);
-        if ((uint8_t*) ptr < (uint8_t*) a)
-                return false;
+        अगर ((uint8_t*) ptr < (uint8_t*) a)
+                वापस false;
 
         off = (uint8_t*) ptr - (uint8_t*) a;
-        if (off >= mp->tile_size * p->n_tiles)
-                return false;
+        अगर (off >= mp->tile_आकार * p->n_tiles)
+                वापस false;
 
-        assert(off % mp->tile_size == 0);
-        return true;
+        निश्चित(off % mp->tile_आकार == 0);
+        वापस true;
 }
 
-static bool pool_is_unused(struct mempool *mp, struct pool *p) {
-        assert(mp);
-        assert(p);
+अटल bool pool_is_unused(काष्ठा mempool *mp, काष्ठा pool *p) {
+        निश्चित(mp);
+        निश्चित(p);
 
-        if (p->n_used == 0)
-                return true;
+        अगर (p->n_used == 0)
+                वापस true;
 
         /* Check if all tiles in this specific pool are in the freelist. */
-        size_t n = 0;
-        void *i = mp->freelist;
-        while (i) {
-                if (pool_contains(mp, p, i))
+        माप_प्रकार n = 0;
+        व्योम *i = mp->freelist;
+        जबतक (i) {
+                अगर (pool_contains(mp, p, i))
                         n++;
 
-                i = *(void**) i;
+                i = *(व्योम**) i;
         }
 
-        assert(n <= p->n_used);
+        निश्चित(n <= p->n_used);
 
-        return n == p->n_used;
+        वापस n == p->n_used;
 }
 
-static void pool_unlink(struct mempool *mp, struct pool *p) {
-        size_t m = 0;
+अटल व्योम pool_unlink(काष्ठा mempool *mp, काष्ठा pool *p) {
+        माप_प्रकार m = 0;
 
-        assert(mp);
-        assert(p);
+        निश्चित(mp);
+        निश्चित(p);
 
-        if (p->n_used == 0)
-                return;
+        अगर (p->n_used == 0)
+                वापस;
 
-        void **i = &mp->freelist;
-        while (*i) {
-                void *d = *i;
+        व्योम **i = &mp->freelist;
+        जबतक (*i) {
+                व्योम *d = *i;
 
-                if (pool_contains(mp, p, d)) {
-                        *i = *(void**) d;
+                अगर (pool_contains(mp, p, d)) {
+                        *i = *(व्योम**) d;
                         m++;
 
-                        if (m == p->n_used)
-                                break;
-                } else
-                        i = (void**) d;
+                        अगर (m == p->n_used)
+                                अवरोध;
+                } अन्यथा
+                        i = (व्योम**) d;
         }
 }
 
-void mempool_trim(struct mempool *mp) {
-        size_t trimmed = 0, left = 0;
+व्योम mempool_trim(काष्ठा mempool *mp) {
+        माप_प्रकार trimmed = 0, बायाँ = 0;
 
-        assert(mp);
+        निश्चित(mp);
 
-        struct pool **p = &mp->first_pool;
-        while (*p) {
-                struct pool *d = *p;
+        काष्ठा pool **p = &mp->first_pool;
+        जबतक (*p) {
+                काष्ठा pool *d = *p;
 
-                if (pool_is_unused(mp, d)) {
-                        trimmed += d->n_tiles * mp->tile_size;
+                अगर (pool_is_unused(mp, d)) {
+                        trimmed += d->n_tiles * mp->tile_आकार;
                         pool_unlink(mp, d);
-                        *p = d->next;
-                        free(d);
-                } else {
-                        left += d->n_tiles * mp->tile_size;
-                        p = &d->next;
+                        *p = d->अग्र_2;
+                        मुक्त(d);
+                } अन्यथा {
+                        बायाँ += d->n_tiles * mp->tile_आकार;
+                        p = &d->अग्र_2;
                 }
         }
 
-        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(left));
+        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(बायाँ));
 }

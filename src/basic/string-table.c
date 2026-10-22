@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#समावेश <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#समावेश "parse-util.h"
+#समावेश "stdio-util.h"
+#समावेश "string-table.h"
+#समावेश "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+स्थिर अक्षर* string_table_lookup_to_string(स्थिर अक्षर * स्थिर *table, माप_प्रकार len, ssize_t i) {
+        अगर (i < 0 || i >= (ssize_t) len)
+                वापस शून्य;
 
-        assert(table);
+        निश्चित(table);
 
-        return table[i];
+        वापस table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(स्थिर अक्षर * स्थिर *table, माप_प्रकार len, स्थिर अक्षर *कुंजी) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        अगर (!कुंजी)
+                वापस -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        क्रम (माप_प्रकार i = 0; i < len; ++i)
+                अगर (streq_ptr(table[i], कुंजी))
+                        वापस (ssize_t) i;
 
-        return -EINVAL;
+        वापस -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(स्थिर अक्षर * स्थिर *table, माप_प्रकार len, स्थिर अक्षर *कुंजी, ssize_t yes) {
+        अगर (!कुंजी)
+                वापस -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        पूर्णांक b = parse_boolean(कुंजी);
+        अगर (b == 0)
+                वापस 0;
+        अगर (b > 0)
+                वापस yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        वापस string_table_lookup_from_string(table, len, कुंजी);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+पूर्णांक string_table_lookup_to_string_fallback(स्थिर अक्षर * स्थिर *table, माप_प्रकार len, ssize_t i, माप_प्रकार max, अक्षर **ret) {
+        अक्षर *s;
 
-        assert(table);
-        assert(ret);
+        निश्चित(table);
+        निश्चित(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        अगर (i < 0 || i > (ssize_t) max)
+                वापस -दुस्फल;
 
-        if (i < (ssize_t) len && table[i])
+        अगर (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        अन्यथा
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        अगर (!s)
+                वापस -ENOMEM;
 
         *ret = s;
-        return 0;
+        वापस 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(स्थिर अक्षर * स्थिर *table, माप_प्रकार len, स्थिर अक्षर *s, माप_प्रकार max) {
+        अगर (!s)
+                वापस -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        अगर (i >= 0)
+                वापस i;
 
-        unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        अचिन्हित u;
+        अगर (safe_atou(s, &u) < 0)
+                वापस -EINVAL;
+        अगर (u > max)
+                वापस -EINVAL;
 
-        return u;
+        वापस u;
 }

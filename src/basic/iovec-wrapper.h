@@ -1,79 +1,79 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include "forward.h"
+#समावेश "forward.h"
 
-struct iovec_wrapper {
-        struct iovec *iovec;
-        size_t count;
+काष्ठा iovec_wrapper {
+        काष्ठा iovec *iovec;
+        माप_प्रकार गिनती;
 };
 
-void iovw_done_free(struct iovec_wrapper *iovw);
-void iovw_done(struct iovec_wrapper *iovw);
+व्योम iovw_done_free(काष्ठा iovec_wrapper *iovw);
+व्योम iovw_done(काष्ठा iovec_wrapper *iovw);
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free);
+काष्ठा iovec_wrapper* iovw_free(काष्ठा iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(काष्ठा iovec_wrapper*, iovw_free);
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free_free);
+काष्ठा iovec_wrapper* iovw_free_free(काष्ठा iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(काष्ठा iovec_wrapper*, iovw_free_free);
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) _pure_;
-static inline bool iovw_equal(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        return iovw_compare(a, b) == 0;
-}
-
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_put(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_put_full(iovw, false, data, len);
-}
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_put_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_put_iov_full(iovw, false, iov);
-}
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_put_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_put_iovw_full(iovw, false, source);
-}
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_consume(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_consume_full(iovw, false, data, len);
-}
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov);
-static inline int iovw_consume_iov(struct iovec_wrapper *iovw, struct iovec *iov) {
-        return iovw_consume_iov_full(iovw, false, iov);
-}
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len);
-static inline int iovw_extend(struct iovec_wrapper *iovw, const void *data, size_t len) {
-        return iovw_extend_full(iovw, false, data, len);
-}
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_extend_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_extend_iov_full(iovw, false, iov);
-}
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_extend_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_extend_iovw_full(iovw, false, source);
+पूर्णांक iovw_compare(स्थिर काष्ठा iovec_wrapper *a, स्थिर काष्ठा iovec_wrapper *b) _pure_;
+अटल अंतरभूत bool iovw_equal(स्थिर काष्ठा iovec_wrapper *a, स्थिर काष्ठा iovec_wrapper *b) {
+        वापस iovw_compare(a, b) == 0;
 }
 
-static inline bool iovw_isempty(const struct iovec_wrapper *iovw) {
-        return !iovw || iovw->count == 0;
+पूर्णांक iovw_put_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, व्योम *तथ्य, माप_प्रकार len);
+अटल अंतरभूत पूर्णांक iovw_put(काष्ठा iovec_wrapper *iovw, व्योम *तथ्य, माप_प्रकार len) {
+        वापस iovw_put_full(iovw, false, तथ्य, len);
+}
+पूर्णांक iovw_put_iov_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, स्थिर काष्ठा iovec *iov);
+अटल अंतरभूत पूर्णांक iovw_put_iov(काष्ठा iovec_wrapper *iovw, स्थिर काष्ठा iovec *iov) {
+        वापस iovw_put_iov_full(iovw, false, iov);
+}
+पूर्णांक iovw_put_iovw_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, स्थिर काष्ठा iovec_wrapper *source);
+अटल अंतरभूत पूर्णांक iovw_put_iovw(काष्ठा iovec_wrapper *iovw, स्थिर काष्ठा iovec_wrapper *source) {
+        वापस iovw_put_iovw_full(iovw, false, source);
+}
+पूर्णांक iovw_consume_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, व्योम *तथ्य, माप_प्रकार len);
+अटल अंतरभूत पूर्णांक iovw_consume(काष्ठा iovec_wrapper *iovw, व्योम *तथ्य, माप_प्रकार len) {
+        वापस iovw_consume_full(iovw, false, तथ्य, len);
+}
+पूर्णांक iovw_consume_iov_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, काष्ठा iovec *iov);
+अटल अंतरभूत पूर्णांक iovw_consume_iov(काष्ठा iovec_wrapper *iovw, काष्ठा iovec *iov) {
+        वापस iovw_consume_iov_full(iovw, false, iov);
+}
+पूर्णांक iovw_extend_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, स्थिर व्योम *तथ्य, माप_प्रकार len);
+अटल अंतरभूत पूर्णांक iovw_extend(काष्ठा iovec_wrapper *iovw, स्थिर व्योम *तथ्य, माप_प्रकार len) {
+        वापस iovw_extend_full(iovw, false, तथ्य, len);
+}
+पूर्णांक iovw_extend_iov_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, स्थिर काष्ठा iovec *iov);
+अटल अंतरभूत पूर्णांक iovw_extend_iov(काष्ठा iovec_wrapper *iovw, स्थिर काष्ठा iovec *iov) {
+        वापस iovw_extend_iov_full(iovw, false, iov);
+}
+पूर्णांक iovw_extend_iovw_full(काष्ठा iovec_wrapper *iovw, bool accept_zero, स्थिर काष्ठा iovec_wrapper *source);
+अटल अंतरभूत पूर्णांक iovw_extend_iovw(काष्ठा iovec_wrapper *iovw, स्थिर काष्ठा iovec_wrapper *source) {
+        वापस iovw_extend_iovw_full(iovw, false, source);
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value);
-static inline int iovw_put_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, false, field, value);
+अटल अंतरभूत bool iovw_isempty(स्थिर काष्ठा iovec_wrapper *iovw) {
+        वापस !iovw || iovw->गिनती == 0;
 }
-static inline int iovw_replace_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, true, field, value);
-}
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) _printf_(4, 5);
-#define iovw_put_string_fieldf(iovw, ...)     iovw_put_string_fieldf_full(iovw, false, __VA_ARGS__)
-#define iovw_replace_string_fieldf(iovw, ...) iovw_put_string_fieldf_full(iovw, true, __VA_ARGS__)
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value);
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new);
-size_t iovw_size(const struct iovec_wrapper *iovw);
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret);
-char* iovw_to_cstring(const struct iovec_wrapper *iovw);
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret);
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret);
+पूर्णांक iovw_put_string_field_full(काष्ठा iovec_wrapper *iovw, bool replace, स्थिर अक्षर *field, स्थिर अक्षर *मूल्य);
+अटल अंतरभूत पूर्णांक iovw_put_string_field(काष्ठा iovec_wrapper *iovw, स्थिर अक्षर *field, स्थिर अक्षर *मूल्य) {
+        वापस iovw_put_string_field_full(iovw, false, field, मूल्य);
+}
+अटल अंतरभूत पूर्णांक iovw_replace_string_field(काष्ठा iovec_wrapper *iovw, स्थिर अक्षर *field, स्थिर अक्षर *मूल्य) {
+        वापस iovw_put_string_field_full(iovw, true, field, मूल्य);
+}
+पूर्णांक iovw_put_string_fieldf_full(काष्ठा iovec_wrapper *iovw, bool replace, स्थिर अक्षर *field, स्थिर अक्षर *format, ...) _printf_(4, 5);
+#घोषणा iovw_put_string_fieldf(iovw, ...)     iovw_put_string_fieldf_full(iovw, false, __VA_ARGS__)
+#घोषणा iovw_replace_string_fieldf(iovw, ...) iovw_put_string_fieldf_full(iovw, true, __VA_ARGS__)
+पूर्णांक iovw_put_string_field_free(काष्ठा iovec_wrapper *iovw, स्थिर अक्षर *field, अक्षर *मूल्य);
+व्योम iovw_rebase(काष्ठा iovec_wrapper *iovw, व्योम *old, व्योम *new);
+माप_प्रकार iovw_आकार(स्थिर काष्ठा iovec_wrapper *iovw);
+पूर्णांक iovw_concat(स्थिर काष्ठा iovec_wrapper *iovw, काष्ठा iovec *ret);
+अक्षर* iovw_to_cstring(स्थिर काष्ठा iovec_wrapper *iovw);
+
+पूर्णांक iovec_split(स्थिर काष्ठा iovec *iov, माप_प्रकार लंबाई_आकार, काष्ठा iovec_wrapper *ret);
+पूर्णांक iovw_merge(स्थिर काष्ठा iovec_wrapper *iovw, माप_प्रकार लंबाई_आकार, काष्ठा iovec *ret);

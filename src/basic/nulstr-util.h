@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#आशय once
 
-#include <string.h>
+#समावेश <string.h>
 
-#include "forward.h"
+#समावेश "forward.h"
 
-#define NULSTR_FOREACH(i, l)                                    \
-        for (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
+#घोषणा NULSTR_FOREACH(i, l)                                    \
+        क्रम (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = म_अक्षर((i), 0)+1)
 
-#define NULSTR_FOREACH_PAIR(i, j, l)                             \
-        for (typeof(*(l)) *(i) = (l), *(j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
+#घोषणा NULSTR_FOREACH_PAIR(i, j, l)                             \
+        क्रम (typeof(*(l)) *(i) = (l), *(j) = म_अक्षर((i), 0)+1; (i) && *(i); (i) = म_अक्षर((j), 0)+1, (j) = *(i) ? म_अक्षर((i), 0)+1 : (i))
 
-const char* nulstr_get(const char *nulstr, const char *needle);
-static inline bool nulstr_contains(const char *nulstr, const char *needle) {
-        return nulstr_get(nulstr, needle);
+स्थिर अक्षर* nulstr_get(स्थिर अक्षर *nulstr, स्थिर अक्षर *needle);
+अटल अंतरभूत bool nulstr_contains(स्थिर अक्षर *nulstr, स्थिर अक्षर *needle) {
+        वापस nulstr_get(nulstr, needle);
 }
 
-char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls);
-static inline char** strv_parse_nulstr(const char *s, size_t l) {
-        return strv_parse_nulstr_full(s, l, false);
+अक्षर** strv_parse_nulstr_full(स्थिर अक्षर *s, माप_प्रकार l, bool drop_trailing_nuls);
+अटल अंतरभूत अक्षर** strv_parse_nulstr(स्थिर अक्षर *s, माप_प्रकार l) {
+        वापस strv_parse_nulstr_full(s, l, false);
 }
-char** strv_split_nulstr(const char *s);
-static inline int strv_from_nulstr(char ***ret, const char *nulstr) {
-        char **t;
+अक्षर** strv_split_nulstr(स्थिर अक्षर *s);
+अटल अंतरभूत पूर्णांक strv_from_nulstr(अक्षर ***ret, स्थिर अक्षर *nulstr) {
+        अक्षर **t;
 
-        assert(ret);
+        निश्चित(ret);
 
         t = strv_split_nulstr(nulstr);
-        if (!t)
-                return -ENOMEM;
+        अगर (!t)
+                वापस -ENOMEM;
 
         *ret = t;
-        return 0;
+        वापस 0;
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size);
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size);
+पूर्णांक strv_make_nulstr(अक्षर * स्थिर *l, अक्षर **ret, माप_प्रकार *ret_आकार);
+पूर्णांक set_make_nulstr(Set *s, अक्षर **ret, माप_प्रकार *ret_आकार);
