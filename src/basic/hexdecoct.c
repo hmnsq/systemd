@@ -554,7 +554,7 @@ int unbase64char(char c) {
         return -EINVAL;
 }
 
-static void maybe_line_break(char **x, char *start, size_t line_break) {
+static void maybe_लिन्या_break(char **x, char *start, size_t लिन्या_break) {
         size_t n;
 
         assert(x);
@@ -562,19 +562,19 @@ static void maybe_line_break(char **x, char *start, size_t line_break) {
         assert(start);
         assert(*x >= start);
 
-        if (line_break == SIZE_MAX)
+        if (लिन्या_break == SIZE_MAX)
                 return;
 
         n = *x - start;
 
-        if (n % (line_break + 1) == line_break)
+        if (n % (लिन्या_break + 1) == लिन्या_break)
                 *((*x)++) = '\n';
 }
 
 ssize_t base64mem_full(
                 const void *p,
                 size_t l,
-                size_t line_break,
+                size_t लिन्या_break,
                 char **ret) {
 
         const uint8_t *x;
@@ -582,13 +582,13 @@ ssize_t base64mem_full(
         size_t m;
 
         assert(p || l == 0);
-        assert(line_break > 0);
+        assert(लिन्या_break > 0);
         assert(ret);
 
         /* three input bytes makes four output bytes, padding is added so we must round up */
         m = 4 * (l + 2) / 3 + 1;
-        if (line_break != SIZE_MAX)
-                m += m / line_break;
+        if (लिन्या_break != SIZE_MAX)
+                m += m / लिन्या_break;
 
         z = b = malloc(m);
         if (!b)
@@ -596,36 +596,36 @@ ssize_t base64mem_full(
 
         for (x = p; x && x < (const uint8_t*) p + (l / 3) * 3; x += 3) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char(x[0] >> 2);                    /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4);  /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char((x[1] & 15) << 2 | x[2] >> 6); /* 00YYYYZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char(x[2] & 63);                    /* 00ZZZZZZ */
         }
 
         switch (l % 3) {
         case 2:
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char(x[0] >> 2);                   /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4); /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char((x[1] & 15) << 2);            /* 00YYYY00 */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = '=';
                 break;
 
         case 1:
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char(x[0] >> 2);        /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = base64char((x[0] & 3) << 4);  /* 00XX0000 */
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = '=';
-                maybe_line_break(&z, b, line_break);
+                maybe_लिन्या_break(&z, b, लिन्या_break);
                 *(z++) = '=';
                 break;
         }
@@ -648,7 +648,7 @@ static ssize_t base64_append_width(
 
         _cleanup_free_ char *x = NULL;
         char *t, *s;
-        size_t lines;
+        size_t मगा_लिन्या;
         ssize_t len;
 
         assert(prefix);
@@ -661,21 +661,21 @@ static ssize_t base64_append_width(
         if (len == 0)
                 return plen;
 
-        lines = DIV_ROUND_UP(len, width);
+        मगा_लिन्या = DIV_ROUND_UP(len, width);
 
         if (plen >= SSIZE_MAX - 1 - 1 ||
-            lines > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
+            मगा_लिन्या > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
                 return -ENOMEM;
 
-        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * lines);
+        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * मगा_लिन्या);
         if (!t)
                 return -ENOMEM;
 
         s = t + plen;
-        for (size_t line = 0; line < lines; line++) {
+        for (size_t लिन्या = 0; लिन्या < मगा_लिन्या; लिन्या++) {
                 size_t act = MIN(width, (size_t) len);
 
-                if (line > 0)
+                if (लिन्या > 0)
                         sep = '\n';
 
                 if (s > t) {
@@ -684,7 +684,7 @@ static ssize_t base64_append_width(
                                 s = mempset(s, ' ', indent);
                 }
 
-                s = mempcpy(s, x + width * line, act);
+                s = mempcpy(s, x + width * लिन्या, act);
                 len -= act;
         }
         assert(len == 0);

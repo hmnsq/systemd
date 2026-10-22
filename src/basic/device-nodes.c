@@ -69,18 +69,18 @@ int devnode_same(const char *a, const char *b) {
         assert(a);
         assert(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
+        if (!valid_device_बुहोल_path(a) || !valid_device_बुहोल_path(b))
                 return -EINVAL;
 
         if (stat(a, &sa) < 0)
                 return -errno;
-        r = stat_verify_device_node(&sa);
+        r = stat_verify_device_बुहोल(&sa);
         if (r < 0)
                 return r;
 
         if (stat(b, &sb) < 0)
                 return -errno;
-        r = stat_verify_device_node(&sb);
+        r = stat_verify_device_बुहोल(&sb);
         if (r < 0)
                 return r;
 

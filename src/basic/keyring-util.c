@@ -4,7 +4,7 @@
 #include "keyring-util.h"
 #include "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+int keyring_read(सुसि_serial_t serial, void **ret, size_t *ret_size) {
         size_t bufsize = 100;
 
         for (;;) {
@@ -34,7 +34,7 @@ int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
+int keyring_describe(सुसि_serial_t serial, char **ret) {
         _cleanup_free_ char *tuple = NULL;
         size_t sz = 64;
         int c;

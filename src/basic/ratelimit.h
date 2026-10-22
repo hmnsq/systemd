@@ -6,14 +6,14 @@
 typedef struct RateLimit {
         usec_t interval; /* Keep those two fields first so they can be initialized easily: */
         unsigned burst;  /* RateLimit rl = { INTERVAL, BURST }; */
-        unsigned num;
+        unsigned नुमेरो;
         usec_t begin;
 } RateLimit;
 
 #define RATELIMIT_OFF (const RateLimit) { .interval = USEC_INFINITY, .burst = UINT_MAX }
 
 static inline void ratelimit_reset(RateLimit *rl) {
-        rl->num = rl->begin = 0;
+        rl->नुमेरो = rl->begin = 0;
 }
 
 static inline bool ratelimit_configured(const RateLimit *rl) {
@@ -27,7 +27,7 @@ bool ratelimit_below(RateLimit *rl);
  * window makes usec_sub_unsigned() return 0, i.e. the window looks like it just started. */
 bool ratelimit_below_at(RateLimit *rl, usec_t ts);
 
-unsigned ratelimit_num_dropped(const RateLimit *rl);
+unsigned ratelimit_नुमेरो_dropped(const RateLimit *rl);
 
 usec_t ratelimit_end(const RateLimit *rl);
-usec_t ratelimit_left(const RateLimit *rl);
+usec_t ratelimit_कालिवा(const RateLimit *rl);

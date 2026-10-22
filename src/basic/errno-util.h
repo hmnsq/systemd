@@ -35,9 +35,9 @@ static inline void _reset_errno_(int *saved_errno) {
                 _saved_errno_ = -1;             \
         } while (false)
 
-#define LOCAL_ERRNO(value)                      \
+#define LOCAL_ERRNO(हालागा)                      \
         PROTECT_ERRNO;                          \
-        errno = ABS(value)
+        errno = ABS(हालागा)
 
 #define return_with_errno(r, err)                     \
         do {                                          \

@@ -38,11 +38,11 @@ const char* glyph_full(Glyph code, bool force_utf) {
                 /* ASCII fallback */
                 [false] = {
                         [GLYPH_SPACE]                   = " ",
-                        [GLYPH_TREE_VERTICAL]           = "| ",
-                        [GLYPH_TREE_BRANCH]             = "|-",
-                        [GLYPH_TREE_RIGHT]              = "`-",
-                        [GLYPH_TREE_SPACE]              = "  ",
-                        [GLYPH_TREE_TOP]                = ",-",
+                        [GLYPH_पुनो_VERTICAL]           = "| ",
+                        [GLYPH_पुनो_BRANCH]             = "|-",
+                        [GLYPH_पुनो_कानान]              = "`-",
+                        [GLYPH_पुनो_SPACE]              = "  ",
+                        [GLYPH_पुनो_इताअस]                = ",-",
                         [GLYPH_VERTICAL_DOTTED]         = ":",
                         [GLYPH_HORIZONTAL_DOTTED]       = "-",
                         [GLYPH_HORIZONTAL_FAT]          = "=",
@@ -61,8 +61,8 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_SIGMA]                   = "S",
                         [GLYPH_ARROW_UP]                = "^",
                         [GLYPH_ARROW_DOWN]              = "v",
-                        [GLYPH_ARROW_LEFT]              = "<-",
-                        [GLYPH_ARROW_RIGHT]             = "->",
+                        [GLYPH_ARROW_कालिवा]              = "<-",
+                        [GLYPH_ARROW_कानान]             = "->",
                         [GLYPH_ELLIPSIS]                = "...",
                         [GLYPH_EXTERNAL_LINK]           = "[LNK]",
                         [GLYPH_ECSTATIC_SMILEY]         = ":-]",
@@ -72,12 +72,12 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_SLIGHTLY_UNHAPPY_SMILEY] = ":-(",
                         [GLYPH_UNHAPPY_SMILEY]          = ":-{",
                         [GLYPH_DEPRESSED_SMILEY]        = ":-[",
-                        [GLYPH_LOCK_AND_KEY]            = "o-,",
+                        [GLYPH_LOCK_AND_सुसि]            = "o-,",
                         [GLYPH_TOUCH]                   = "O=",    /* Yeah, not very convincing, can you do it better? */
                         [GLYPH_RECYCLING]               = "~",
                         [GLYPH_DOWNLOAD]                = "\\",
                         [GLYPH_SPARKLES]                = "*",
-                        [GLYPH_LOW_BATTERY]             = "!",
+                        [GLYPH_माबाबा_BATTERY]             = "!",
                         [GLYPH_WARNING_SIGN]            = "!",
                         [GLYPH_COMPUTER_DISK]           = "o",
                         [GLYPH_WORLD]                   = "W",
@@ -104,11 +104,11 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_SPACE]                   = " ",
 
                         /* The following are multiple glyphs in both ASCII and in UNICODE */
-                        [GLYPH_TREE_VERTICAL]           = UTF8("│ "),
-                        [GLYPH_TREE_BRANCH]             = UTF8("├─"),
-                        [GLYPH_TREE_RIGHT]              = UTF8("└─"),
-                        [GLYPH_TREE_SPACE]              = UTF8("  "),
-                        [GLYPH_TREE_TOP]                = UTF8("┌─"),
+                        [GLYPH_पुनो_VERTICAL]           = UTF8("│ "),
+                        [GLYPH_पुनो_BRANCH]             = UTF8("├─"),
+                        [GLYPH_पुनो_कानान]              = UTF8("└─"),
+                        [GLYPH_पुनो_SPACE]              = UTF8("  "),
+                        [GLYPH_पुनो_इताअस]                = UTF8("┌─"),
 
                         /* Single glyphs in both cases */
                         [GLYPH_VERTICAL_DOTTED]         = UTF8("┆"),
@@ -131,8 +131,8 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_ARROW_DOWN]              = UTF8("↓"),       /* actually called: DOWNWARDS ARROW */
 
                         /* Single glyph in Unicode, two in ASCII */
-                        [GLYPH_ARROW_LEFT]              = UTF8("←"),       /* actually called: LEFTWARDS ARROW */
-                        [GLYPH_ARROW_RIGHT]             = UTF8("→"),       /* actually called: RIGHTWARDS ARROW */
+                        [GLYPH_ARROW_कालिवा]              = UTF8("←"),       /* actually called: LEFTWARDS ARROW */
+                        [GLYPH_ARROW_कानान]             = UTF8("→"),       /* actually called: RIGHTWARDS ARROW */
 
                         /* Single glyph in Unicode, three in ASCII */
                         [GLYPH_ELLIPSIS]                = UTF8("…"),       /* actually called: HORIZONTAL ELLIPSIS */
@@ -150,7 +150,7 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_DEPRESSED_SMILEY]        = UTF8("🤢"),       /* actually called: NAUSEATED FACE */
 
                         /* This emoji is a single character cell glyph in Unicode, and three in ASCII */
-                        [GLYPH_LOCK_AND_KEY]            = UTF8("🔐"),       /* actually called: CLOSED LOCK WITH KEY */
+                        [GLYPH_LOCK_AND_सुसि]            = UTF8("🔐"),       /* actually called: CLOSED LOCK WITH KEY */
 
                         /* This emoji is a single character cell glyph in Unicode, and two in ASCII */
                         [GLYPH_TOUCH]                   = UTF8("👆"),       /* actually called: BACKHAND INDEX POINTING UP */
@@ -159,7 +159,7 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_RECYCLING]               = UTF8("♻️"),        /* actually called: UNIVERSAL RECYCLNG SYMBOL */
                         [GLYPH_DOWNLOAD]                = UTF8("⤵️"),        /* actually called: RIGHT ARROW CURVING DOWN */
                         [GLYPH_SPARKLES]                = UTF8("✨"),
-                        [GLYPH_LOW_BATTERY]             = UTF8("🪫"),
+                        [GLYPH_माबाबा_BATTERY]             = UTF8("🪫"),
                         [GLYPH_WARNING_SIGN]            = UTF8("⚠️"),
                         [GLYPH_COMPUTER_DISK]           = UTF8("💽"),
                         [GLYPH_WORLD]                   = UTF8("🌍"),

@@ -9,17 +9,17 @@
 #define PATH_MERGED_BIN(x) x "bin"
 #define PATH_MERGED_BIN_NULSTR(x) x "bin\0"
 
-#define DEFAULT_PATH_WITH_FULL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
-#define DEFAULT_PATH_WITH_LOCAL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
-#define DEFAULT_PATH_WITHOUT_SBIN PATH_MERGED_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
+#define DEFAULT_PATH_WITH_FULL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") EXTRA_EXEC_हानाप_PATH_SUFFIX
+#define DEFAULT_PATH_WITH_LOCAL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_हानाप_PATH_SUFFIX
+#define DEFAULT_PATH_WITHOUT_SBIN PATH_MERGED_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_हानाप_PATH_SUFFIX
 
-#define DEFAULT_PATH_COMPAT PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") ":" PATH_SPLIT_BIN("/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
+#define DEFAULT_PATH_COMPAT PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") ":" PATH_SPLIT_BIN("/") EXTRA_EXEC_हानाप_PATH_SUFFIX
 
 const char* default_PATH(void);
 
 static inline const char* default_user_PATH(void) {
 #ifdef DEFAULT_USER_PATH
-        return DEFAULT_USER_PATH EXTRA_EXEC_SEARCH_PATH_SUFFIX;
+        return DEFAULT_USER_PATH EXTRA_EXEC_हानाप_PATH_SUFFIX;
 #else
         return default_PATH();
 #endif
@@ -90,14 +90,14 @@ char* path_startswith_strv(const char *p, char * const *strv);
 #define PATH_STARTSWITH_SET(p, ...) path_startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
 int path_strv_make_absolute_cwd(char **l);
-char** path_strv_resolve(char **l, const char *root);
-char** path_strv_resolve_uniq(char **l, const char *root);
+char** path_strv_resolve(char **l, const char *उगात);
+char** path_strv_resolve_uniq(char **l, const char *उगात);
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd);
+int open_and_check_executable(const char *name, const char *उगात, char **ret_path, int *ret_fd);
 int find_executable_full(
                 const char *name,
-                const char *root,
-                char * const *exec_search_path,
+                const char *उगात,
+                char * const *exec_हानाप_path,
                 bool use_path_envvar,
                 char **ret_filename,
                 int *ret_fd);
@@ -166,7 +166,7 @@ bool hidden_or_backup_file(const char *filename) _pure_;
 
 bool is_device_path(const char *path) _pure_;
 
-bool valid_device_node_path(const char *path) _pure_;
+bool valid_device_बुहोल_path(const char *path) _pure_;
 bool valid_device_allow_pattern(const char *path) _pure_;
 
 bool dot_or_dot_dot(const char *path) _pure_;
@@ -183,9 +183,9 @@ static inline const char* skip_dev_prefix(const char *p) {
         return e ?: p;
 }
 
-bool empty_or_root(const char *path) _pure_;
-const char* empty_to_root(const char *path) _pure_;
-int empty_or_root_harder_to_null(const char **path);
+bool empty_or_उगात(const char *path) _pure_;
+const char* empty_to_उगात(const char *path) _pure_;
+int empty_or_उगात_harder_to_null(const char **path);
 
 bool path_strv_contains(char * const *l, const char *path);
 bool prefixed_path_strv_contains(char * const *l, const char *path);

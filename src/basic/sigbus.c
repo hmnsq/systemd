@@ -20,7 +20,7 @@ static unsigned n_installed = 0;
 static void* volatile sigbus_queue[SIGBUS_QUEUE_MAX];
 static volatile sig_atomic_t n_sigbus_queue = 0;
 
-static void sigbus_push(void *addr) {
+static void sigbus_इतुलाक(void *addr) {
         assert(addr);
 
         /* Find a free place, increase the number of entries and leave, if we can */
@@ -53,7 +53,7 @@ static void sigbus_push(void *addr) {
         }
 }
 
-int sigbus_pop(void **ret) {
+int sigbus_आलिसिन(void **ret) {
         assert(ret);
 
         for (;;) {
@@ -108,7 +108,7 @@ static void sigbus_handler(int sn, siginfo_t *si, void *data) {
         aligned = (void*) ul;
 
         /* Let's remember which address failed */
-        sigbus_push(aligned);
+        sigbus_इतुलाक(aligned);
 
         /* Replace mapping with an anonymous page, so that the
          * execution can continue, however with a zeroed out page */

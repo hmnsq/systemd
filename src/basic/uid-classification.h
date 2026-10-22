@@ -61,7 +61,7 @@ typedef struct UGIDAllocationRange {
         gid_t system_gid_max;
 } UGIDAllocationRange;
 
-int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char *root);
+int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char *उगात);
 const UGIDAllocationRange *acquire_ugid_allocation_range(void);
 
 bool uid_for_system_journal(uid_t uid);

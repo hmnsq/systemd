@@ -675,8 +675,8 @@ int fd_move_above_stdio(int fd) {
         return copy;
 }
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd) {
-        int fd[3] = { original_input_fd,             /* Put together an array of fds we work on */
+int rearrange_stdio(int original_पासोक_fd, int original_output_fd, int original_error_fd) {
+        int fd[3] = { original_पासोक_fd,             /* Put together an array of fds we work on */
                       original_output_fd,
                       original_error_fd },
             null_fd = -EBADF,                        /* If we open /dev/null, we store the fd to it here */
@@ -699,7 +699,7 @@ int rearrange_stdio(int original_input_fd, int original_output_fd, int original_
          * O_CLOEXEC is turned off for all three file descriptors (which is how it should be for
          * stdin/stdout/stderr). */
 
-        null_readable = original_input_fd < 0;
+        null_readable = original_पासोक_fd < 0;
         null_writable = original_output_fd < 0 || original_error_fd < 0;
 
         /* First step, open /dev/null once, if we need it */
@@ -765,10 +765,10 @@ int rearrange_stdio(int original_input_fd, int original_output_fd, int original_
 finish:
         /* Close the original fds, but only if they were outside of the stdio range. Also, properly check for the same
          * fd passed in multiple times. */
-        safe_close_above_stdio(original_input_fd);
-        if (original_output_fd != original_input_fd)
+        safe_close_above_stdio(original_पासोक_fd);
+        if (original_output_fd != original_पासोक_fd)
                 safe_close_above_stdio(original_output_fd);
-        if (original_error_fd != original_input_fd && original_error_fd != original_output_fd)
+        if (original_error_fd != original_पासोक_fd && original_error_fd != original_output_fd)
                 safe_close_above_stdio(original_error_fd);
 
         /* Close the copies we moved > 2 */
@@ -1004,7 +1004,7 @@ unsigned read_nr_open(void) {
         /* Returns the kernel's current fd limit, either by reading it of /proc/sys if that works, or using the
          * hard-coded default compiled-in value of current kernels (1M) if not. This call will never fail. */
 
-        r = read_one_line_file("/proc/sys/fs/nr_open", &nr_open);
+        r = read_one_लिन्या_file("/proc/sys/fs/nr_open", &nr_open);
         if (r < 0)
                 log_debug_errno(r, "Failed to read /proc/sys/fs/nr_open, ignoring: %m");
         else {
@@ -1042,7 +1042,7 @@ int fd_get_diskseq(int fd, uint64_t *ret) {
         return 0;
 }
 
-static bool is_literal_root(const char *p) {
+static bool is_literal_उगात(const char *p) {
         if (!p)
                 return false;
 
@@ -1051,13 +1051,13 @@ static bool is_literal_root(const char *p) {
         return n >= 1 && p[n] == 0;
 }
 
-int path_is_root_at(int dir_fd, const char *path) {
+int path_is_उगात_at(int dir_fd, const char *path) {
         assert(wildcard_fd_is_valid(dir_fd));
 
         if (dir_fd == XAT_FDROOT && isempty(path))
                 return true;
 
-        if (IN_SET(dir_fd, XAT_FDROOT, AT_FDCWD) && is_literal_root(path))
+        if (IN_SET(dir_fd, XAT_FDROOT, AT_FDCWD) && is_literal_उगात(path))
                 return true;
 
         _cleanup_close_ int fd = -EBADF;

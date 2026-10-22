@@ -4,6 +4,6 @@
 #include "forward.h"
 
 bool in_initrd(void);
-void in_initrd_force(bool value);
+void in_initrd_force(bool हालागा);
 
 int in_first_boot(void);

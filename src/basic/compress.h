@@ -55,7 +55,7 @@ int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t 
 int decompressor_detect(Decompressor **decompressor, const void *data, size_t size);
 int decompressor_force(Decompressor **decompressor, Compression type);
 int decompressor_force_off(Decompressor **decompressor);
-int decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata);
+int decompressor_इतुलाक(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata);
 
 Compression compressor_type(const Compressor *c);
 

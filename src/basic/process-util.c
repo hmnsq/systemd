@@ -62,7 +62,7 @@
 #define COMM_MAX_LEN 128
 
 static int get_process_state(pid_t pid) {
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ char *लिन्या = NULL;
         const char *p;
         char state;
         int r;
@@ -75,13 +75,13 @@ static int get_process_state(pid_t pid) {
 
         p = procfs_file_alloca(pid, "stat");
 
-        r = read_one_line_file(p, &line);
+        r = read_one_लिन्या_file(p, &लिन्या);
         if (r == -ENOENT)
                 return -ESRCH;
         if (r < 0)
                 return r;
 
-        p = strrchr(line, ')');
+        p = strrchr(लिन्या, ')');
         if (!p)
                 return -EIO;
 
@@ -114,7 +114,7 @@ int pid_get_comm(pid_t pid, char **ret) {
                 p = procfs_file_alloca(pid, "comm");
 
                 /* Note that process names of kernel threads can be much longer than TASK_COMM_LEN */
-                r = read_one_line_file(p, &comm);
+                r = read_one_लिन्या_file(p, &comm);
                 if (r == -ENOENT)
                         return -ESRCH;
                 if (r < 0)
@@ -248,15 +248,15 @@ int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, ch
 
                 assert(!(flags & PROCESS_CMDLINE_USE_LOCALE));
 
-                _cleanup_strv_free_ char **args = NULL;
+                _cleanup_strv_free_ char **मगा_कातविरान = NULL;
 
                 /* Drop trailing NULs, otherwise strv_parse_nulstr() adds additional empty strings at the end.
                  * See also issue #21186. */
-                args = strv_parse_nulstr_full(t, k, /* drop_trailing_nuls= */ true);
-                if (!args)
+                मगा_कातविरान = strv_parse_nulstr_full(t, k, /* drop_trailing_nuls= */ true);
+                if (!मगा_कातविरान)
                         return -ENOMEM;
 
-                ans = quote_command_line(args, shflags);
+                ans = quote_command_लिन्या(मगा_कातविरान, shflags);
                 if (!ans)
                         return -ENOMEM;
         } else {
@@ -306,7 +306,7 @@ int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlag
 
 int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret) {
         _cleanup_free_ char *t = NULL;
-        char **args;
+        char **मगा_कातविरान;
         size_t k;
         int r;
 
@@ -318,16 +318,16 @@ int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret) {
         if (r < 0)
                 return r;
 
-        args = strv_parse_nulstr_full(t, k, /* drop_trailing_nuls= */ true);
-        if (!args)
+        मगा_कातविरान = strv_parse_nulstr_full(t, k, /* drop_trailing_nuls= */ true);
+        if (!मगा_कातविरान)
                 return -ENOMEM;
 
-        *ret = args;
+        *ret = मगा_कातविरान;
         return 0;
 }
 
 int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret) {
-        _cleanup_strv_free_ char **args = NULL;
+        _cleanup_strv_free_ char **मगा_कातविरान = NULL;
         int r;
 
         if (!pidref_is_set(pid))
@@ -336,7 +336,7 @@ int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char *
         if (pidref_is_remote(pid))
                 return -EREMOTE;
 
-        r = pid_get_cmdline_strv(pid->pid, flags, &args);
+        r = pid_get_cmdline_strv(pid->pid, flags, &मगा_कातविरान);
         if (r < 0)
                 return r;
 
@@ -345,7 +345,7 @@ int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char *
                 return r;
 
         if (ret)
-                *ret = TAKE_PTR(args);
+                *ret = TAKE_PTR(मगा_कातविरान);
 
         return 0;
 }
@@ -359,15 +359,15 @@ int procfs_get_stat_flags(const char *path, unsigned long long *ret) {
         /* Read the 'flags' field (9th field, task->flags) from the given /proc/[pid]/stat or
          * /proc/[pid]/task/[tid]/stat file. */
 
-        _cleanup_free_ char *line = NULL;
-        r = read_one_line_file(path, &line);
+        _cleanup_free_ char *लिन्या = NULL;
+        r = read_one_लिन्या_file(path, &लिन्या);
         if (r == -ENOENT)
                 return -ESRCH;
         if (r < 0)
                 return r;
 
         /* Skip past the comm field */
-        char *q = strrchr(line, ')');
+        char *q = strrchr(लिन्या, ')');
         if (!q)
                 return -EINVAL;
         q++;
@@ -549,7 +549,7 @@ int get_process_cwd(pid_t pid, char **ret) {
         return get_process_link_contents(pid, "cwd", ret);
 }
 
-int get_process_root(pid_t pid, char **ret) {
+int get_process_उगात(pid_t pid, char **ret) {
         assert(pid >= 0);
         return get_process_link_contents(pid, "root", ret);
 }
@@ -602,7 +602,7 @@ int get_process_environ(pid_t pid, char **ret) {
 }
 
 int pid_get_ppid(pid_t pid, pid_t *ret) {
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ char *लिन्या = NULL;
         unsigned long ppid;
         const char *p;
         int r;
@@ -621,7 +621,7 @@ int pid_get_ppid(pid_t pid, pid_t *ret) {
         }
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
+        r = read_one_लिन्या_file(p, &लिन्या);
         if (r == -ENOENT)
                 return -ESRCH;
         if (r < 0)
@@ -630,7 +630,7 @@ int pid_get_ppid(pid_t pid, pid_t *ret) {
         /* Let's skip the pid and comm fields. The latter is enclosed in () but does not escape any () in its
          * value, so let's skip over it manually */
 
-        p = strrchr(line, ')');
+        p = strrchr(लिन्या, ')');
         if (!p)
                 return -EIO;
         p++;
@@ -725,14 +725,14 @@ int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret) {
 }
 
 int pid_get_start_time(pid_t pid, usec_t *ret) {
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ char *लिन्या = NULL;
         const char *p;
         int r;
 
         assert(pid >= 0);
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
+        r = read_one_लिन्या_file(p, &लिन्या);
         if (r == -ENOENT)
                 return -ESRCH;
         if (r < 0)
@@ -741,7 +741,7 @@ int pid_get_start_time(pid_t pid, usec_t *ret) {
         /* Let's skip the pid and comm fields. The latter is enclosed in () but does not escape any () in its
          * value, so let's skip over it manually */
 
-        p = strrchr(line, ')');
+        p = strrchr(लिन्या, ')');
         if (!p)
                 return -EIO;
         p++;
@@ -960,13 +960,13 @@ int getenv_for_pid(pid_t pid, const char *field, char **ret) {
                 return r;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ char *लिन्या = NULL;
                 const char *match;
 
                 if (sum > ENVIRONMENT_BLOCK_MAX) /* Give up searching eventually */
                         return -ENOBUFS;
 
-                r = read_nul_string(f, LONG_LINE_MAX, &line);
+                r = read_nul_string(f, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)  /* EOF */
@@ -974,7 +974,7 @@ int getenv_for_pid(pid_t pid, const char *field, char **ret) {
 
                 sum += r;
 
-                match = startswith(line, field);
+                match = startswith(लिन्या, field);
                 if (match && *match == '=')
                         return strdup_to_full(ret, match + 1);
         }
@@ -1091,7 +1091,7 @@ int pidref_is_alive(const PidRef *pidref) {
         return result;
 }
 
-int pidref_from_same_root_fs(PidRef *a, PidRef *b) {
+int pidref_from_same_उगात_fs(PidRef *a, PidRef *b) {
         _cleanup_(pidref_done) PidRef self = PIDREF_NULL;
         int r;
 
@@ -1315,7 +1315,7 @@ void reset_cached_pid(void) {
 
 pid_t getpid_cached(void) {
         static bool installed = false;
-        pid_t current_value;
+        pid_t current_हालागा;
 
         /* getpid_cached() is much like getpid(), but caches the value in local memory, to avoid having to invoke a
          * system call each time. This restores glibc behaviour from before 2.24, when getpid() was unconditionally
@@ -1328,20 +1328,20 @@ pid_t getpid_cached(void) {
 
         /* The compare-and-exchange below is a locked read-modify-write even when it fails. Almost all calls
          * find the PID cached, hence check for it with a plain load first. */
-        current_value = __atomic_load_n(&cached_pid, __ATOMIC_RELAXED);
-        if (current_value > 0)
-                return current_value;
+        current_हालागा = __atomic_load_n(&cached_pid, __ATOMIC_RELAXED);
+        if (current_हालागा > 0)
+                return current_हालागा;
 
-        current_value = CACHED_PID_UNSET;
+        current_हालागा = CACHED_PID_UNSET;
         (void) __atomic_compare_exchange_n(
                         &cached_pid,
-                        &current_value,
+                        &current_हालागा,
                         CACHED_PID_BUSY,
                         false,
                         __ATOMIC_SEQ_CST,
                         __ATOMIC_SEQ_CST);
 
-        switch (current_value) {
+        switch (current_हालागा) {
 
         case CACHED_PID_UNSET: { /* Not initialized yet, then do so now */
                 pid_t new_pid;
@@ -1370,11 +1370,11 @@ pid_t getpid_cached(void) {
                 return getpid();
 
         default: /* Properly initialized */
-                return current_value;
+                return current_हालागा;
         }
 }
 
-int must_be_root(void) {
+int must_be_उगात(void) {
 
         if (geteuid() == 0)
                 return 0;
@@ -1382,7 +1382,7 @@ int must_be_root(void) {
         return log_error_errno(SYNTHETIC_ERRNO(EPERM), "Need to be root.");
 }
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata) {
+pid_t clone_with_nested_सालानसान(int (*fn)(void *), int flags, void *userdata) {
         size_t ps;
         pid_t pid;
         void *mystack;
@@ -1808,7 +1808,7 @@ int namespace_fork_full(
                 int mntns_fd,
                 int netns_fd,
                 int userns_fd,
-                int root_fd,
+                int उगात_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret) {
 
@@ -1855,7 +1855,7 @@ int namespace_fork_full(
 
                 errno_pipe_fd[0] = safe_close(errno_pipe_fd[0]);
 
-                r = namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, namespace_flags);
+                r = namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, उगात_fd, namespace_flags);
                 if (r < 0) {
                         log_full_errno(prio, r, "Failed to join namespace: %m");
                         report_errno_and_exit(errno_pipe_fd[1], r);
@@ -1923,11 +1923,11 @@ int namespace_fork(
                 int mntns_fd,
                 int netns_fd,
                 int userns_fd,
-                int root_fd,
+                int उगात_fd,
                 PidRef *ret) {
 
         return namespace_fork_full(outer_name, inner_name, /* except_fds= */ NULL, /* n_except_fds= */ 0, flags,
-                                   pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd,
+                                   pidns_fd, mntns_fd, netns_fd, userns_fd, उगात_fd,
                                    /* namespace_flags= */ 0, ret);
 }
 
@@ -1935,13 +1935,13 @@ bool oom_score_adjust_is_valid(int oa) {
         return oa >= OOM_SCORE_ADJ_MIN && oa <= OOM_SCORE_ADJ_MAX;
 }
 
-int set_oom_score_adjust(int value) {
+int set_oom_score_adjust(int हालागा) {
         char t[DECIMAL_STR_MAX(int)];
 
-        if (!oom_score_adjust_is_valid(value))
+        if (!oom_score_adjust_is_valid(हालागा))
                 return -EINVAL;
 
-        xsprintf(t, "%i", value);
+        xsprintf(t, "%i", हालागा);
 
         return write_string_file("/proc/self/oom_score_adj", t,
                                  WRITE_STRING_FILE_VERIFY_ON_FAILURE|WRITE_STRING_FILE_DISABLE_BUFFER);

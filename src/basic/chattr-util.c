@@ -16,7 +16,7 @@
 int chattr_full(
               int dir_fd,
               const char *path,
-              unsigned value,
+              unsigned हालागा,
               unsigned mask,
               unsigned *ret_previous,
               unsigned *ret_final,
@@ -50,7 +50,7 @@ int chattr_full(
         if (ioctl(fd, FS_IOC_GETFLAGS, &old_attr) < 0)
                 return -errno;
 
-        new_attr = (old_attr & ~mask) | (value & mask);
+        new_attr = (old_attr & ~mask) | (हालागा & mask);
         if (new_attr == old_attr) {
                 if (ret_previous)
                         *ret_previous = old_attr;
@@ -96,7 +96,7 @@ int chattr_full(
         BIT_FOREACH(i, mask) {
                 unsigned new_one, mask_one = 1u << i;
 
-                new_one = UPDATE_FLAG(current_attr, mask_one, FLAGS_SET(value, mask_one));
+                new_one = UPDATE_FLAG(current_attr, mask_one, FLAGS_SET(हालागा, mask_one));
                 if (new_one == current_attr)
                         continue;
 

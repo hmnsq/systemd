@@ -80,7 +80,7 @@
 
 /* Fields common to entries of all hashmap/set types */
 struct hashmap_base_entry {
-        const void *key;
+        const void *सुसि;
 };
 
 /* Entry types for specific hashmap/set types
@@ -88,7 +88,7 @@ struct hashmap_base_entry {
 
 struct plain_hashmap_entry {
         struct hashmap_base_entry b;
-        void *value;
+        void *हालागा;
 };
 
 struct ordered_hashmap_entry {
@@ -135,8 +135,8 @@ struct hashmap_debug_info {
         unsigned max_entries;  /* high watermark of n_entries */
 
         /* fields to detect modification while iterating */
-        unsigned put_count;    /* counts puts into the hashmap */
-        unsigned rem_count;    /* counts removals from hashmap */
+        unsigned put_बिलांग;    /* counts puts into the hashmap */
+        unsigned rem_बिलांग;    /* counts removals from hashmap */
         unsigned last_rem_idx; /* remembers last removal index */
 };
 
@@ -154,7 +154,7 @@ enum HashmapType {
 
 struct _packed_ indirect_storage {
         void *storage;                     /* where buckets and DIBs are stored */
-        uint8_t  hash_key[HASH_KEY_SIZE];  /* hash key; changes during resize */
+        uint8_t  hash_सुसि[HASH_सुसि_SIZE];  /* hash key; changes during resize */
 
         unsigned n_entries;                /* number of stored entries */
         unsigned n_buckets;                /* number of buckets */
@@ -186,7 +186,7 @@ assert_cc(DIRECT_BUCKETS(struct set_entry) < (1 << 3));
  * It's no big deal if the key is guessed, because there can be only
  * a handful of directly stored entries in a hashmap. When a hashmap
  * outgrows direct storage, it gets its own key for indirect storage. */
-static uint8_t shared_hash_key[HASH_KEY_SIZE];
+static uint8_t shared_hash_सुसि[HASH_सुसि_SIZE];
 
 /* Fields that all hashmap/set types must have */
 struct HashmapBase {
@@ -234,7 +234,7 @@ typedef struct CacheMem {
 
 struct IteratedCache {
         HashmapBase *hashmap;
-        CacheMem keys, values;
+        CacheMem मगा_सुसि, values;
 };
 
 DEFINE_MEMPOOL(hashmap_pool,         Hashmap,        8);
@@ -335,10 +335,10 @@ static inline void* storage_ptr(HashmapBase *h) {
                                : h->direct.storage;
 }
 
-static inline uint8_t* hash_key(HashmapBase *h) {
+static inline uint8_t* hash_सुसि(HashmapBase *h) {
         assert(h);
-        return h->has_indirect ? h->indirect.hash_key
-                               : shared_hash_key;
+        return h->has_indirect ? h->indirect.hash_सुसि
+                               : shared_hash_सुसि;
 }
 
 static unsigned base_bucket_hash(HashmapBase *h, const void *p) {
@@ -353,11 +353,11 @@ static unsigned base_bucket_hash(HashmapBase *h, const void *p) {
          * which hashes the key in native byte order. Only this function maps keys to buckets, so the
          * difference does not matter. */
         if (h->hash_ops->hash == trivial_hash_func)
-                hash = siphash24_uint64((uintptr_t) p, hash_key(h));
+                hash = siphash24_uint64((uintptr_t) p, hash_सुसि(h));
         else if (h->hash_ops->hash == (hash_func_t) uint64_hash_func)
-                hash = siphash24_uint64(*(const uint64_t*) p, hash_key(h));
+                hash = siphash24_uint64(*(const uint64_t*) p, hash_सुसि(h));
         else {
-                siphash24_init(&state, hash_key(h));
+                siphash24_init(&state, hash_सुसि(h));
                 h->hash_ops->hash(p, &state);
                 hash = siphash24_finalize(&state);
         }
@@ -376,8 +376,8 @@ static void base_set_dirty(HashmapBase *h) {
 }
 #define hashmap_set_dirty(h) base_set_dirty(HASHMAP_BASE(h))
 
-static void get_hash_key(uint8_t hash_key[HASH_KEY_SIZE], bool reuse_is_ok) {
-        static uint8_t current[HASH_KEY_SIZE];
+static void get_hash_सुसि(uint8_t hash_सुसि[HASH_सुसि_SIZE], bool reuse_is_ok) {
+        static uint8_t current[HASH_सुसि_SIZE];
         static bool current_initialized = false;
 
         /* Returns a hash function key to use. In order to keep things
@@ -392,7 +392,7 @@ static void get_hash_key(uint8_t hash_key[HASH_KEY_SIZE], bool reuse_is_ok) {
                 current_initialized = true;
         }
 
-        memcpy(hash_key, current, sizeof(current));
+        memcpy(hash_सुसि, current, sizeof(current));
 }
 
 static inline struct hashmap_base_entry* bucket_at(HashmapBase *h, unsigned idx) {
@@ -462,7 +462,7 @@ static unsigned bucket_calculate_dib(HashmapBase *h, unsigned idx, dib_raw_t raw
          * This returns the correct DIB value by recomputing the hash value in
          * the unlikely case. XXX Hitting this case could be a hint to rehash.
          */
-        initial_bucket = bucket_hash(h, bucket_at(h, idx)->key);
+        initial_bucket = bucket_hash(h, bucket_at(h, idx)->सुसि);
         return bucket_distance(h, idx, initial_bucket);
 }
 
@@ -534,7 +534,7 @@ static unsigned prev_idx(HashmapBase *h, unsigned idx) {
         return idx > 0U ? idx - 1U : n_buckets(h) - 1U;
 }
 
-static inline void* entry_value(HashmapBase *h, struct hashmap_base_entry *e) {
+static inline void* entry_हालागा(HashmapBase *h, struct hashmap_base_entry *e) {
         assert(h);
         assert(e);
 
@@ -542,10 +542,10 @@ static inline void* entry_value(HashmapBase *h, struct hashmap_base_entry *e) {
 
         case HASHMAP_TYPE_PLAIN:
         case HASHMAP_TYPE_ORDERED:
-                return ((struct plain_hashmap_entry*)e)->value;
+                return ((struct plain_hashmap_entry*)e)->हालागा;
 
         case HASHMAP_TYPE_SET:
-                return (void*) e->key;
+                return (void*) e->सुसि;
 
         default:
                 assert_not_reached();
@@ -553,7 +553,7 @@ static inline void* entry_value(HashmapBase *h, struct hashmap_base_entry *e) {
 }
 
 static void base_remove_entry(HashmapBase *h, unsigned idx) {
-        unsigned left, right, prev, dib;
+        unsigned कालिवा, कानान, prev, dib;
         dib_raw_t raw_dib, *dibs;
 
         dibs = dib_raw_ptr(h);
@@ -561,21 +561,21 @@ static void base_remove_entry(HashmapBase *h, unsigned idx) {
 
 #if ENABLE_DEBUG_HASHMAP
         assert(h);
-        h->debug.rem_count++;
+        h->debug.rem_बिलांग++;
         h->debug.last_rem_idx = idx;
 #endif
 
-        left = idx;
+        कालिवा = idx;
         /* Find the stop bucket ("right"). It is either free or has DIB == 0. */
-        for (right = next_idx(h, left); ; right = next_idx(h, right)) {
-                raw_dib = dibs[right];
+        for (कानान = next_idx(h, कालिवा); ; कानान = next_idx(h, कानान)) {
+                raw_dib = dibs[कानान];
                 if (IN_SET(raw_dib, 0, DIB_RAW_FREE))
                         break;
 
                 /* The buckets are not supposed to be all occupied and with DIB > 0.
                  * That would mean we could make everyone better off by shifting them
                  * backward. This scenario is impossible. */
-                assert(left != right);
+                assert(कालिवा != कानान);
         }
 
         if (h->type == HASHMAP_TYPE_ORDERED) {
@@ -594,11 +594,11 @@ static void base_remove_entry(HashmapBase *h, unsigned idx) {
         }
 
         /* Now shift all buckets in the interval (left, right) one step backwards */
-        for (prev = left, left = next_idx(h, left); left != right;
-             prev = left, left = next_idx(h, left)) {
-                dib = bucket_calculate_dib(h, left, dibs[left]);
+        for (prev = कालिवा, कालिवा = next_idx(h, कालिवा); कालिवा != कानान;
+             prev = कालिवा, कालिवा = next_idx(h, कालिवा)) {
+                dib = bucket_calculate_dib(h, कालिवा, dibs[कालिवा]);
                 assert(dib != 0);
-                bucket_move_entry(h, NULL, left, prev);
+                bucket_move_entry(h, NULL, कालिवा, prev);
                 bucket_set_dib(h, prev, dib - 1);
         }
 
@@ -633,11 +633,11 @@ static unsigned hashmap_iterate_in_insertion_order(OrderedHashmap *h, Iterator *
                  * To detect when it happens, we remember the key pointer of the entry we were
                  * going to iterate next. If it does not match, there was a backward shift.
                  */
-                if (e->p.b.key != i->next_key) {
+                if (e->p.b.सुसि != i->next_सुसि) {
                         idx = prev_idx(HASHMAP_BASE(h), idx);
                         e = ordered_bucket_at(h, idx);
                 }
-                assert(e->p.b.key == i->next_key);
+                assert(e->p.b.सुसि == i->next_सुसि);
         }
 
 #if ENABLE_DEBUG_HASHMAP
@@ -648,7 +648,7 @@ static unsigned hashmap_iterate_in_insertion_order(OrderedHashmap *h, Iterator *
                 struct ordered_hashmap_entry *n;
                 i->idx = e->iterate_next;
                 n = ordered_bucket_at(h, i->idx);
-                i->next_key = n->p.b.key;
+                i->next_सुसि = n->p.b.सुसि;
         } else
                 i->idx = IDX_NIL;
 
@@ -690,10 +690,10 @@ static unsigned hashmap_iterate_in_internal_order(HashmapBase *h, Iterator *i) {
                  * To detect when it happens, we remember the key pointer of the entry we were
                  * going to iterate next. If it does not match, there was a backward shift.
                  */
-                if (e->key != i->next_key)
+                if (e->सुसि != i->next_सुसि)
                         e = bucket_at(h, --i->idx);
 
-                assert(e->key == i->next_key);
+                assert(e->सुसि == i->next_सुसि);
         }
 
         idx = i->idx;
@@ -703,7 +703,7 @@ static unsigned hashmap_iterate_in_internal_order(HashmapBase *h, Iterator *i) {
 
         i->idx = skip_free_buckets(h, i->idx + 1);
         if (i->idx != IDX_NIL)
-                i->next_key = bucket_at(h, i->idx)->key;
+                i->next_सुसि = bucket_at(h, i->idx)->सुसि;
         else
                 i->idx = IDX_NIL;
 
@@ -722,17 +722,17 @@ static unsigned hashmap_iterate_entry(HashmapBase *h, Iterator *i) {
 
 #if ENABLE_DEBUG_HASHMAP
         if (i->idx == IDX_FIRST) {
-                i->put_count = h->debug.put_count;
-                i->rem_count = h->debug.rem_count;
+                i->put_बिलांग = h->debug.put_बिलांग;
+                i->rem_बिलांग = h->debug.rem_बिलांग;
         } else {
                 /* While iterating, must not add any new entries */
-                assert(i->put_count == h->debug.put_count);
+                assert(i->put_बिलांग == h->debug.put_बिलांग);
                 /* ... or remove entries other than the current one */
-                assert(i->rem_count == h->debug.rem_count ||
-                       (i->rem_count == h->debug.rem_count - 1 &&
+                assert(i->rem_बिलांग == h->debug.rem_बिलांग ||
+                       (i->rem_बिलांग == h->debug.rem_बिलांग - 1 &&
                         i->prev_idx == h->debug.last_rem_idx));
                 /* Reset our removals counter */
-                i->rem_count = h->debug.rem_count;
+                i->rem_बिलांग = h->debug.rem_बिलांग;
         }
 #endif
 
@@ -740,27 +740,27 @@ static unsigned hashmap_iterate_entry(HashmapBase *h, Iterator *i) {
                                                : hashmap_iterate_in_internal_order(h, i);
 }
 
-bool _hashmap_iterate(HashmapBase *h, Iterator *i, void **value, const void **key) {
+bool _hashmap_iterate(HashmapBase *h, Iterator *i, void **हालागा, const void **सुसि) {
         struct hashmap_base_entry *e;
         void *data;
         unsigned idx;
 
         idx = hashmap_iterate_entry(h, i);
         if (idx == IDX_NIL) {
-                if (value)
-                        *value = NULL;
-                if (key)
-                        *key = NULL;
+                if (हालागा)
+                        *हालागा = NULL;
+                if (सुसि)
+                        *सुसि = NULL;
 
                 return false;
         }
 
         e = bucket_at(h, idx);
-        data = entry_value(h, e);
-        if (value)
-                *value = data;
-        if (key)
-                *key = e->key;
+        data = entry_हालागा(h, e);
+        if (हालागा)
+                *हालागा = data;
+        if (सुसि)
+                *सुसि = e->सुसि;
 
         return true;
 }
@@ -799,8 +799,8 @@ static void reset_direct_storage(HashmapBase *h) {
         memset(p, DIB_RAW_INIT, sizeof(dib_raw_t) * hi->n_direct_buckets);
 }
 
-static void shared_hash_key_initialize(void) {
-        random_bytes(shared_hash_key, sizeof(shared_hash_key));
+static void shared_hash_सुसि_initialize(void) {
+        random_bytes(shared_hash_सुसि, sizeof(shared_hash_सुसि));
 }
 
 static struct HashmapBase* hashmap_base_new(const struct hash_ops *hash_ops, enum HashmapType type) {
@@ -825,7 +825,7 @@ static struct HashmapBase* hashmap_base_new(const struct hash_ops *hash_ops, enu
         reset_direct_storage(h);
 
         static pthread_once_t once = PTHREAD_ONCE_INIT;
-        assert_se(pthread_once(&once, shared_hash_key_initialize) == 0);
+        assert_se(pthread_once(&once, shared_hash_सुसि_initialize) == 0);
 
 #if ENABLE_DEBUG_HASHMAP
         assert_se(pthread_mutex_lock(&hashmap_debug_list_mutex) == 0);
@@ -879,7 +879,7 @@ int set_ensure_allocated(Set **s, const struct hash_ops *hash_ops) {
         return hashmap_base_ensure_allocated((HashmapBase**)s, hash_ops, HASHMAP_TYPE_SET);
 }
 
-int hashmap_ensure_put(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+int hashmap_ensure_put(Hashmap **h, const struct hash_ops *hash_ops, const void *सुसि, void *हालागा) {
         int r;
 
         assert(h);
@@ -888,10 +888,10 @@ int hashmap_ensure_put(Hashmap **h, const struct hash_ops *hash_ops, const void 
         if (r < 0)
                 return r;
 
-        return hashmap_put(*h, key, value);
+        return hashmap_put(*h, सुसि, हालागा);
 }
 
-int ordered_hashmap_ensure_put(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+int ordered_hashmap_ensure_put(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *सुसि, void *हालागा) {
         int r;
 
         assert(h);
@@ -900,10 +900,10 @@ int ordered_hashmap_ensure_put(OrderedHashmap **h, const struct hash_ops *hash_o
         if (r < 0)
                 return r;
 
-        return ordered_hashmap_put(*h, key, value);
+        return ordered_hashmap_put(*h, सुसि, हालागा);
 }
 
-int ordered_hashmap_ensure_replace(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+int ordered_hashmap_ensure_replace(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *सुसि, void *हालागा) {
         int r;
 
         assert(h);
@@ -912,10 +912,10 @@ int ordered_hashmap_ensure_replace(OrderedHashmap **h, const struct hash_ops *ha
         if (r < 0)
                 return r;
 
-        return ordered_hashmap_replace(*h, key, value);
+        return ordered_hashmap_replace(*h, सुसि, हालागा);
 }
 
-int hashmap_ensure_replace(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+int hashmap_ensure_replace(Hashmap **h, const struct hash_ops *hash_ops, const void *सुसि, void *हालागा) {
         int r;
 
         assert(h);
@@ -924,7 +924,7 @@ int hashmap_ensure_replace(Hashmap **h, const struct hash_ops *hash_ops, const v
         if (r < 0)
                 return r;
 
-        return hashmap_replace(*h, key, value);
+        return hashmap_replace(*h, सुसि, हालागा);
 }
 
 static void hashmap_free_no_clear(HashmapBase *h) {
@@ -958,7 +958,7 @@ void _hashmap_clear(HashmapBase *h) {
         if (!h)
                 return;
 
-        if (h->hash_ops->free_key || h->hash_ops->free_value) {
+        if (h->hash_ops->free_सुसि || h->hash_ops->free_हालागा) {
 
                 /* If destructor calls are defined, let's destroy things defensively: let's take the item out of the
                  * hash table, and only then call the destructor functions. If these destructors then try to unregister
@@ -968,13 +968,13 @@ void _hashmap_clear(HashmapBase *h) {
                         void *k = NULL;
                         void *v;
 
-                        v = _hashmap_first_key_and_value(h, true, &k);
+                        v = hashmap_first_सुसि_and_हालागा(h, true, &k);
 
-                        if (h->hash_ops->free_key)
-                                h->hash_ops->free_key(k);
+                        if (h->hash_ops->free_सुसि)
+                                h->hash_ops->free_सुसि(k);
 
-                        if (h->hash_ops->free_value)
-                                h->hash_ops->free_value(v);
+                        if (h->hash_ops->free_हालागा)
+                                h->hash_ops->free_हालागा(v);
                 }
         }
 
@@ -1012,7 +1012,7 @@ static bool hashmap_put_robin_hood(HashmapBase *h, unsigned idx,
 
 #if ENABLE_DEBUG_HASHMAP
         assert(h);
-        h->debug.put_count++;
+        h->debug.put_बिलांग++;
 #endif
 
         dibs = dib_raw_ptr(h);
@@ -1078,7 +1078,7 @@ static int hashmap_base_put_boldly(HashmapBase *h, unsigned idx,
                 if (r < 0)
                         return r;
                 if (r > 0)
-                        idx = bucket_hash(h, new_entry->p.b.key);
+                        idx = bucket_hash(h, new_entry->p.b.सुसि);
         }
         assert(n_entries(h) < n_buckets(h));
 
@@ -1182,7 +1182,7 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
         /* Get a new hash key. If we've just upgraded to indirect storage,
          * allow reusing a previously generated key. It's still a different key
          * from the shared one that we used for direct storage. */
-        get_hash_key(h->indirect.hash_key, !h->has_indirect);
+        get_hash_सुसि(h->indirect.hash_सुसि, !h->has_indirect);
 
         h->has_indirect = true;
         h->indirect.storage = new_storage;
@@ -1218,7 +1218,7 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
                 if (new_dibs[idx] != DIB_RAW_REHASH)
                         continue;
 
-                optimal_idx = bucket_hash(h, bucket_at(h, idx)->key);
+                optimal_idx = bucket_hash(h, bucket_at(h, idx)->सुसि);
 
                 /*
                  * Not much to do if by luck the entry hashes to its current
@@ -1245,7 +1245,7 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
 
                         /* Did the current entry displace another one? */
                         if (rehash_next)
-                                optimal_idx = bucket_hash(h, bucket_at_swap(&swap, IDX_PUT)->p.b.key);
+                                optimal_idx = bucket_hash(h, bucket_at_swap(&swap, IDX_PUT)->p.b.सुसि);
                 } while (rehash_next);
         }
 
@@ -1258,7 +1258,7 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
  * Finds an entry with a matching key
  * Returns: index of the found entry, or IDX_NIL if not found.
  */
-static unsigned base_bucket_scan(HashmapBase *h, unsigned idx, const void *key) {
+static unsigned base_bucket_scan(HashmapBase *h, unsigned idx, const void *सुसि) {
         compare_func_t compare = h->hash_ops->compare;
         struct hashmap_base_entry *e;
         unsigned dib, distance;
@@ -1278,55 +1278,55 @@ static unsigned base_bucket_scan(HashmapBase *h, unsigned idx, const void *key) 
                         e = bucket_at(h, idx);
 
                         /* Most maps compare keys by pointer. Do that here, without the indirect call. */
-                        if (compare == trivial_compare_func ? e->key == key : compare(e->key, key) == 0)
+                        if (compare == trivial_compare_func ? e->सुसि == सुसि : compare(e->सुसि, सुसि) == 0)
                                 return idx;
                 }
 
                 idx = next_idx(h, idx);
         }
 }
-#define bucket_scan(h, idx, key) base_bucket_scan(HASHMAP_BASE(h), idx, key)
+#define bucket_scan(h, idx, सुसि) base_bucket_scan(HASHMAP_BASE(h), idx, सुसि)
 
-int hashmap_put(Hashmap *h, const void *key, void *value) {
+int hashmap_put(Hashmap *h, const void *सुसि, void *हालागा) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
 
         assert(h);
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx != IDX_NIL) {
                 e = plain_bucket_at(h, idx);
-                if (e->value == value)
+                if (e->हालागा == हालागा)
                         return 0;
                 return -EEXIST;
         }
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p;
-        e->b.key = key;
-        e->value = value;
+        e->b.सुसि = सुसि;
+        e->हालागा = हालागा;
         return hashmap_put_boldly(h, hash, &swap, true);
 }
 
-int set_put(Set *s, const void *key) {
+int set_put(Set *s, const void *सुसि) {
         struct swap_entries swap;
         struct hashmap_base_entry *e;
         unsigned hash, idx;
 
         assert(s);
 
-        hash = bucket_hash(s, key);
-        idx = bucket_scan(s, hash, key);
+        hash = bucket_hash(s, सुसि);
+        idx = bucket_scan(s, hash, सुसि);
         if (idx != IDX_NIL)
                 return 0;
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p.b;
-        e->key = key;
+        e->सुसि = सुसि;
         return hashmap_put_boldly(s, hash, &swap, true);
 }
 
-int set_ensure_put(Set **s, const struct hash_ops *hash_ops, const void *key) {
+int set_ensure_put(Set **s, const struct hash_ops *hash_ops, const void *सुसि) {
         int r;
 
         assert(s);
@@ -1335,124 +1335,124 @@ int set_ensure_put(Set **s, const struct hash_ops *hash_ops, const void *key) {
         if (r < 0)
                 return r;
 
-        return set_put(*s, key);
+        return set_put(*s, सुसि);
 }
 
-int set_ensure_consume(Set **s, const struct hash_ops *hash_ops, void *key) {
+int set_ensure_consume(Set **s, const struct hash_ops *hash_ops, void *सुसि) {
         int r;
 
-        r = set_ensure_put(s, hash_ops, key);
+        r = set_ensure_put(s, hash_ops, सुसि);
         if (r <= 0) {
-                if (hash_ops && hash_ops->free_key)
-                        hash_ops->free_key(key);
-                else if (hash_ops && hash_ops->free_value)
+                if (hash_ops && hash_ops->free_सुसि)
+                        hash_ops->free_सुसि(सुसि);
+                else if (hash_ops && hash_ops->free_हालागा)
                         /* Sets store their element in the key slot but may carry a value destructor. */
-                        hash_ops->free_value(key);
+                        hash_ops->free_हालागा(सुसि);
                 else
-                        free(key);
+                        free(सुसि);
         }
 
         return r;
 }
 
-int hashmap_replace(Hashmap *h, const void *key, void *value) {
+int hashmap_replace(Hashmap *h, const void *सुसि, void *हालागा) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
 
         assert(h);
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx != IDX_NIL) {
                 e = plain_bucket_at(h, idx);
 #if ENABLE_DEBUG_HASHMAP
                 /* Although the key is equal, the key pointer may have changed,
                  * and this would break our assumption for iterating. So count
                  * this operation as incompatible with iteration. */
-                if (e->b.key != key) {
-                        h->b.debug.put_count++;
-                        h->b.debug.rem_count++;
+                if (e->b.सुसि != सुसि) {
+                        h->b.debug.put_बिलांग++;
+                        h->b.debug.rem_बिलांग++;
                         h->b.debug.last_rem_idx = idx;
                 }
 #endif
-                e->b.key = key;
-                e->value = value;
+                e->b.सुसि = सुसि;
+                e->हालागा = हालागा;
                 hashmap_set_dirty(h);
 
                 return 0;
         }
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p;
-        e->b.key = key;
-        e->value = value;
+        e->b.सुसि = सुसि;
+        e->हालागा = हालागा;
         return hashmap_put_boldly(h, hash, &swap, true);
 }
 
-int hashmap_update(Hashmap *h, const void *key, void *value) {
+int hashmap_update(Hashmap *h, const void *सुसि, void *हालागा) {
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
 
         assert(h);
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx == IDX_NIL)
                 return -ENOENT;
 
         e = plain_bucket_at(h, idx);
-        e->value = value;
+        e->हालागा = हालागा;
         hashmap_set_dirty(h);
 
         return 0;
 }
 
-void* _hashmap_get(HashmapBase *h, const void *key) {
+void* _hashmap_get(HashmapBase *h, const void *सुसि) {
         struct hashmap_base_entry *e;
         unsigned hash, idx;
 
         if (!h)
                 return NULL;
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx == IDX_NIL)
                 return NULL;
 
         e = bucket_at(h, idx);
-        return entry_value(h, e);
+        return entry_हालागा(h, e);
 }
 
-void* hashmap_get2(Hashmap *h, const void *key, void **ret) {
+void* hashmap_get2(Hashmap *h, const void *सुसि, void **ret) {
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
 
         if (!h)
                 return NULL;
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx == IDX_NIL)
                 return NULL;
 
         e = plain_bucket_at(h, idx);
         if (ret)
-                *ret = (void*) e->b.key;
+                *ret = (void*) e->b.सुसि;
 
-        return e->value;
+        return e->हालागा;
 }
 
-bool _hashmap_contains(HashmapBase *h, const void *key) {
+bool _hashmap_contains(HashmapBase *h, const void *सुसि) {
         unsigned hash;
 
         if (!h)
                 return false;
 
-        hash = bucket_hash(h, key);
-        return bucket_scan(h, hash, key) != IDX_NIL;
+        hash = bucket_hash(h, सुसि);
+        return bucket_scan(h, hash, सुसि) != IDX_NIL;
 }
 
-void* _hashmap_remove(HashmapBase *h, const void *key) {
+void* _hashmap_remove(HashmapBase *h, const void *सुसि) {
         struct hashmap_base_entry *e;
         unsigned hash, idx;
         void *data;
@@ -1460,19 +1460,19 @@ void* _hashmap_remove(HashmapBase *h, const void *key) {
         if (!h)
                 return NULL;
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx == IDX_NIL)
                 return NULL;
 
         e = bucket_at(h, idx);
-        data = entry_value(h, e);
+        data = entry_हालागा(h, e);
         remove_entry(h, idx);
 
         return data;
 }
 
-void* hashmap_remove2(Hashmap *h, const void *key, void **ret) {
+void* hashmap_remove2(Hashmap *h, const void *सुसि, void **ret) {
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
         void *data;
@@ -1483,8 +1483,8 @@ void* hashmap_remove2(Hashmap *h, const void *key, void **ret) {
                 return NULL;
         }
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx == IDX_NIL) {
                 if (ret)
                         *ret = NULL;
@@ -1492,16 +1492,16 @@ void* hashmap_remove2(Hashmap *h, const void *key, void **ret) {
         }
 
         e = plain_bucket_at(h, idx);
-        data = e->value;
+        data = e->हालागा;
         if (ret)
-                *ret = (void*) e->b.key;
+                *ret = (void*) e->b.सुसि;
 
         remove_entry(h, idx);
 
         return data;
 }
 
-int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value) {
+int hashmap_remove_and_put(Hashmap *h, const void *old_सुसि, const void *new_सुसि, void *हालागा) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned old_hash, new_hash, idx;
@@ -1509,26 +1509,26 @@ int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key,
         if (!h)
                 return -ENOENT;
 
-        old_hash = bucket_hash(h, old_key);
-        idx = bucket_scan(h, old_hash, old_key);
+        old_hash = bucket_hash(h, old_सुसि);
+        idx = bucket_scan(h, old_hash, old_सुसि);
         if (idx == IDX_NIL)
                 return -ENOENT;
 
-        new_hash = bucket_hash(h, new_key);
-        if (bucket_scan(h, new_hash, new_key) != IDX_NIL)
+        new_hash = bucket_hash(h, new_सुसि);
+        if (bucket_scan(h, new_hash, new_सुसि) != IDX_NIL)
                 return -EEXIST;
 
         remove_entry(h, idx);
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p;
-        e->b.key = new_key;
-        e->value = value;
+        e->b.सुसि = new_सुसि;
+        e->हालागा = हालागा;
         assert_se(hashmap_put_boldly(h, new_hash, &swap, false) == 1);
 
         return 0;
 }
 
-int set_remove_and_put(Set *s, const void *old_key, const void *new_key) {
+int set_remove_and_put(Set *s, const void *old_सुसि, const void *new_सुसि) {
         struct swap_entries swap;
         struct hashmap_base_entry *e;
         unsigned old_hash, new_hash, idx;
@@ -1536,25 +1536,25 @@ int set_remove_and_put(Set *s, const void *old_key, const void *new_key) {
         if (!s)
                 return -ENOENT;
 
-        old_hash = bucket_hash(s, old_key);
-        idx = bucket_scan(s, old_hash, old_key);
+        old_hash = bucket_hash(s, old_सुसि);
+        idx = bucket_scan(s, old_hash, old_सुसि);
         if (idx == IDX_NIL)
                 return -ENOENT;
 
-        new_hash = bucket_hash(s, new_key);
-        if (bucket_scan(s, new_hash, new_key) != IDX_NIL)
+        new_hash = bucket_hash(s, new_सुसि);
+        if (bucket_scan(s, new_hash, new_सुसि) != IDX_NIL)
                 return -EEXIST;
 
         remove_entry(s, idx);
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p.b;
-        e->key = new_key;
+        e->सुसि = new_सुसि;
         assert_se(hashmap_put_boldly(s, new_hash, &swap, false) == 1);
 
         return 0;
 }
 
-int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value) {
+int hashmap_remove_and_replace(Hashmap *h, const void *old_सुसि, const void *new_सुसि, void *हालागा) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned old_hash, new_hash, idx_old, idx_new;
@@ -1562,53 +1562,53 @@ int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_
         if (!h)
                 return -ENOENT;
 
-        old_hash = bucket_hash(h, old_key);
-        idx_old = bucket_scan(h, old_hash, old_key);
+        old_hash = bucket_hash(h, old_सुसि);
+        idx_old = bucket_scan(h, old_hash, old_सुसि);
         if (idx_old == IDX_NIL)
                 return -ENOENT;
 
-        old_key = bucket_at(HASHMAP_BASE(h), idx_old)->key;
+        old_सुसि = bucket_at(HASHMAP_BASE(h), idx_old)->सुसि;
 
-        new_hash = bucket_hash(h, new_key);
-        idx_new = bucket_scan(h, new_hash, new_key);
+        new_hash = bucket_hash(h, new_सुसि);
+        idx_new = bucket_scan(h, new_hash, new_सुसि);
         if (idx_new != IDX_NIL)
                 if (idx_old != idx_new) {
                         remove_entry(h, idx_new);
                         /* Compensate for a possible backward shift. */
-                        if (old_key != bucket_at(HASHMAP_BASE(h), idx_old)->key)
+                        if (old_सुसि != bucket_at(HASHMAP_BASE(h), idx_old)->सुसि)
                                 idx_old = prev_idx(HASHMAP_BASE(h), idx_old);
-                        assert(old_key == bucket_at(HASHMAP_BASE(h), idx_old)->key);
+                        assert(old_सुसि == bucket_at(HASHMAP_BASE(h), idx_old)->सुसि);
                 }
 
         remove_entry(h, idx_old);
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p;
-        e->b.key = new_key;
-        e->value = value;
+        e->b.सुसि = new_सुसि;
+        e->हालागा = हालागा;
         assert_se(hashmap_put_boldly(h, new_hash, &swap, false) == 1);
 
         return 0;
 }
 
-void* _hashmap_remove_value(HashmapBase *h, const void *key, void *value) {
+void* hashmap_remove_हालागा(HashmapBase *h, const void *सुसि, void *हालागा) {
         struct hashmap_base_entry *e;
         unsigned hash, idx;
 
         if (!h)
                 return NULL;
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx == IDX_NIL)
                 return NULL;
 
         e = bucket_at(h, idx);
-        if (entry_value(h, e) != value)
+        if (entry_हालागा(h, e) != हालागा)
                 return NULL;
 
         remove_entry(h, idx);
 
-        return value;
+        return हालागा;
 }
 
 static unsigned find_first_entry(HashmapBase *h) {
@@ -1620,27 +1620,27 @@ static unsigned find_first_entry(HashmapBase *h) {
         return hashmap_iterate_entry(h, &i);
 }
 
-void* _hashmap_first_key_and_value(HashmapBase *h, bool remove, void **ret_key) {
+void* hashmap_first_सुसि_and_हालागा(HashmapBase *h, bool remove, void **ret_सुसि) {
         struct hashmap_base_entry *e;
-        void *key, *data;
+        void *सुसि, *data;
         unsigned idx;
 
         idx = find_first_entry(h);
         if (idx == IDX_NIL) {
-                if (ret_key)
-                        *ret_key = NULL;
+                if (ret_सुसि)
+                        *ret_सुसि = NULL;
                 return NULL;
         }
 
         e = bucket_at(h, idx);
-        key = (void*) e->key;
-        data = entry_value(h, e);
+        सुसि = (void*) e->सुसि;
+        data = entry_हालागा(h, e);
 
         if (remove)
                 remove_entry(h, idx);
 
-        if (ret_key)
-                *ret_key = key;
+        if (ret_सुसि)
+                *ret_सुसि = सुसि;
 
         return data;
 }
@@ -1669,7 +1669,7 @@ int _hashmap_merge(Hashmap *h, Hashmap *other) {
                 struct plain_hashmap_entry *pe = plain_bucket_at(other, idx);
                 int r;
 
-                r = hashmap_put(h, pe->b.key, pe->value);
+                r = hashmap_put(h, pe->b.सुसि, pe->हालागा);
                 if (r < 0 && r != -EEXIST)
                         return r;
         }
@@ -1687,7 +1687,7 @@ int set_merge(Set *s, Set *other) {
                 struct set_entry *se = set_bucket_at(other, idx);
                 int r;
 
-                r = set_put(s, se->b.key);
+                r = set_put(s, se->b.सुसि);
                 if (r < 0)
                         return r;
         }
@@ -1741,15 +1741,15 @@ int _hashmap_move(HashmapBase *h, HashmapBase *other) {
                 unsigned h_hash;
 
                 e = bucket_at(other, idx);
-                h_hash = bucket_hash(h, e->key);
-                if (bucket_scan(h, h_hash, e->key) != IDX_NIL)
+                h_hash = bucket_hash(h, e->सुसि);
+                if (bucket_scan(h, h_hash, e->सुसि) != IDX_NIL)
                         continue;
 
                 n = &bucket_at_swap(&swap, IDX_PUT)->p.b;
-                n->key = e->key;
+                n->सुसि = e->सुसि;
                 if (h->type != HASHMAP_TYPE_SET)
-                        ((struct plain_hashmap_entry*) n)->value =
-                                ((struct plain_hashmap_entry*) e)->value;
+                        ((struct plain_hashmap_entry*) n)->हालागा =
+                                ((struct plain_hashmap_entry*) e)->हालागा;
                 assert_se(hashmap_put_boldly(h, h_hash, &swap, false) == 1);
 
                 remove_entry(other, idx);
@@ -1758,7 +1758,7 @@ int _hashmap_move(HashmapBase *h, HashmapBase *other) {
         return 0;
 }
 
-int _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key) {
+int _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *सुसि) {
         struct swap_entries swap;
         unsigned h_hash, other_hash, idx;
         struct hashmap_base_entry *e, *n;
@@ -1766,8 +1766,8 @@ int _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key) {
 
         assert(h);
 
-        h_hash = bucket_hash(h, key);
-        if (bucket_scan(h, h_hash, key) != IDX_NIL)
+        h_hash = bucket_hash(h, सुसि);
+        if (bucket_scan(h, h_hash, सुसि) != IDX_NIL)
                 return -EEXIST;
 
         if (!other)
@@ -1775,18 +1775,18 @@ int _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key) {
 
         assert(other->type == h->type);
 
-        other_hash = bucket_hash(other, key);
-        idx = bucket_scan(other, other_hash, key);
+        other_hash = bucket_hash(other, सुसि);
+        idx = bucket_scan(other, other_hash, सुसि);
         if (idx == IDX_NIL)
                 return -ENOENT;
 
         e = bucket_at(other, idx);
 
         n = &bucket_at_swap(&swap, IDX_PUT)->p.b;
-        n->key = e->key;
+        n->सुसि = e->सुसि;
         if (h->type != HASHMAP_TYPE_SET)
-                ((struct plain_hashmap_entry*) n)->value =
-                        ((struct plain_hashmap_entry*) e)->value;
+                ((struct plain_hashmap_entry*) n)->हालागा =
+                        ((struct plain_hashmap_entry*) e)->हालागा;
         r = hashmap_put_boldly(h, h_hash, &swap, true);
         if (r < 0)
                 return r;
@@ -1837,7 +1837,7 @@ char** _hashmap_get_strv(HashmapBase *h) {
 
         n = 0;
         HASHMAP_FOREACH_IDX(idx, h, i)
-                sv[n++] = entry_value(h, bucket_at(h, idx));
+                sv[n++] = entry_हालागा(h, bucket_at(h, idx));
         sv[n] = NULL;
 
         return sv;
@@ -1860,33 +1860,33 @@ char** set_to_strv(Set **s) {
         return v;
 }
 
-void* ordered_hashmap_next(OrderedHashmap *h, const void *key) {
+void* ordered_hashmap_next(OrderedHashmap *h, const void *सुसि) {
         struct ordered_hashmap_entry *e;
         unsigned hash, idx;
 
         if (!h)
                 return NULL;
 
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
+        hash = bucket_hash(h, सुसि);
+        idx = bucket_scan(h, hash, सुसि);
         if (idx == IDX_NIL)
                 return NULL;
 
         e = ordered_bucket_at(h, idx);
         if (e->iterate_next == IDX_NIL)
                 return NULL;
-        return ordered_bucket_at(h, e->iterate_next)->p.value;
+        return ordered_bucket_at(h, e->iterate_next)->p.हालागा;
 }
 
-int set_consume(Set *s, void *value) {
+int set_consume(Set *s, void *हालागा) {
         int r;
 
         assert(s);
-        assert(value);
+        assert(हालागा);
 
-        r = set_put(s, value);
+        r = set_put(s, हालागा);
         if (r <= 0)
-                free(value);
+                free(हालागा);
 
         return r;
 }
@@ -2003,8 +2003,8 @@ static int cachemem_maintain(CacheMem *mem, size_t size) {
         return false;
 }
 
-int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void ***res_values, unsigned *res_n_entries) {
-        bool sync_keys = false, sync_values = false;
+int iterated_cache_get(IteratedCache *cache, const void ***res_मगा_सुसि, const void ***res_मगा_हालागा, unsigned *res_n_entries) {
+        bool sync_मगा_सुसि = false, sync_मगा_हालागा = false;
         size_t size;
         int r;
 
@@ -2013,34 +2013,34 @@ int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void 
 
         size = n_entries(cache->hashmap);
 
-        if (res_keys) {
-                r = cachemem_maintain(&cache->keys, size);
+        if (res_मगा_सुसि) {
+                r = cachemem_maintain(&cache->मगा_सुसि, size);
                 if (r < 0)
                         return r;
 
-                sync_keys = r;
+                sync_मगा_सुसि = r;
         } else
-                cache->keys.active = false;
+                cache->मगा_सुसि.active = false;
 
-        if (res_values) {
+        if (res_मगा_हालागा) {
                 r = cachemem_maintain(&cache->values, size);
                 if (r < 0)
                         return r;
 
-                sync_values = r;
+                sync_मगा_हालागा = r;
         } else
                 cache->values.active = false;
 
         if (cache->hashmap->dirty) {
-                if (cache->keys.active)
-                        sync_keys = true;
+                if (cache->मगा_सुसि.active)
+                        sync_मगा_सुसि = true;
                 if (cache->values.active)
-                        sync_values = true;
+                        sync_मगा_हालागा = true;
 
                 cache->hashmap->dirty = false;
         }
 
-        if (sync_keys || sync_values) {
+        if (sync_मगा_सुसि || sync_मगा_हालागा) {
                 unsigned i, idx;
                 Iterator iter;
 
@@ -2050,18 +2050,18 @@ int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void 
 
                         e = bucket_at(cache->hashmap, idx);
 
-                        if (sync_keys)
-                                cache->keys.ptr[i] = e->key;
-                        if (sync_values)
-                                cache->values.ptr[i] = entry_value(cache->hashmap, e);
+                        if (sync_मगा_सुसि)
+                                cache->मगा_सुसि.ptr[i] = e->सुसि;
+                        if (sync_मगा_हालागा)
+                                cache->values.ptr[i] = entry_हालागा(cache->hashmap, e);
                         i++;
                 }
         }
 
-        if (res_keys)
-                *res_keys = cache->keys.ptr;
-        if (res_values)
-                *res_values = cache->values.ptr;
+        if (res_मगा_सुसि)
+                *res_मगा_सुसि = cache->मगा_सुसि.ptr;
+        if (res_मगा_हालागा)
+                *res_मगा_हालागा = cache->values.ptr;
         if (res_n_entries)
                 *res_n_entries = size;
 
@@ -2070,7 +2070,7 @@ int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void 
 
 IteratedCache* iterated_cache_free(IteratedCache *cache) {
         if (cache) {
-                free(cache->keys.ptr);
+                free(cache->मगा_सुसि.ptr);
                 free(cache->values.ptr);
         }
 
@@ -2080,7 +2080,7 @@ IteratedCache* iterated_cache_free(IteratedCache *cache) {
 int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **ret) {
         _cleanup_free_ char *str = NULL;
         size_t separator_len, len = 0;
-        const char *value;
+        const char *हालागा;
         bool first;
 
         assert(ret);
@@ -2097,8 +2097,8 @@ int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **
 
         first = !wrap_with_separator;
 
-        SET_FOREACH(value, s) {
-                size_t l = strlen_ptr(value);
+        SET_FOREACH(हालागा, s) {
+                size_t l = strlen_ptr(हालागा);
 
                 if (l == 0)
                         continue;
@@ -2111,7 +2111,7 @@ int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **
                         len += separator_len;
                 }
 
-                memcpy(str + len, value, l);
+                memcpy(str + len, हालागा, l);
                 len += l;
                 first = false;
         }
@@ -2194,7 +2194,7 @@ static int hashmap_entry_compare(
         assert(b && *b);
         assert(compare);
 
-        return compare((*a)->key, (*b)->key);
+        return compare((*a)->सुसि, (*b)->सुसि);
 }
 
 static int _hashmap_dump_entries_sorted(
@@ -2235,7 +2235,7 @@ static int _hashmap_dump_entries_sorted(
         return 0;
 }
 
-int _hashmap_dump_keys_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
+int hashmap_dump_मगा_सुसि_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
         _cleanup_free_ void **entries = NULL;
         size_t n;
         int r;
@@ -2248,7 +2248,7 @@ int _hashmap_dump_keys_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
 
         /* Reuse the array. */
         FOREACH_ARRAY(e, entries, n)
-                *e = (void*) (*(struct hashmap_base_entry**) e)->key;
+                *e = (void*) (*(struct hashmap_base_entry**) e)->सुसि;
 
         *ret = TAKE_PTR(entries);
         if (ret_n)
@@ -2269,7 +2269,7 @@ int _hashmap_dump_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
 
         /* Reuse the array. */
         FOREACH_ARRAY(e, entries, n)
-                *e = entry_value(h, *(struct hashmap_base_entry**) e);
+                *e = entry_हालागा(h, *(struct hashmap_base_entry**) e);
 
         *ret = TAKE_PTR(entries);
         if (ret_n)

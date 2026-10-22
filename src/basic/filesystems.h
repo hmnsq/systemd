@@ -26,7 +26,7 @@ typedef enum FilesystemGroups {
 typedef struct FilesystemSet {
         const char *name;
         const char *help;
-        const char *value;
+        const char *हालागा;
 } FilesystemSet;
 
 extern const FilesystemSet filesystem_sets[];

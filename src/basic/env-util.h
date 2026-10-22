@@ -8,7 +8,7 @@
 size_t sc_arg_max(void);
 
 bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
+bool env_हालागा_is_valid(const char *e);
 bool env_assignment_is_valid(const char *e);
 
 typedef enum ReplaceEnvFlags {
@@ -41,8 +41,8 @@ char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
 int strv_env_replace_consume(char ***l, char *p); /* In place ... */
 int strv_env_replace_strdup(char ***l, const char *assignment);
 int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
+int strv_env_assign(char ***l, const char *सुसि, const char *हालागा);
+int strv_env_assignf(char ***l, const char *सुसि, const char *valuef, ...) _printf_(3, 4);
 int _strv_env_assign_many(char ***l, ...) _sentinel_;
 #define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
 
@@ -60,7 +60,7 @@ int secure_getenv_bool(const char *p);
 int secure_getenv_uint64(const char *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+int set_unset_env(const char *name, const char *हालागा, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
 int putenv_dup(const char *assignment, bool override);

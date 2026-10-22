@@ -247,7 +247,7 @@ int stat_verify_char(const struct stat *st) {
         return 0;
 }
 
-int stat_verify_device_node(const struct stat *st) {
+int stat_verify_device_बुहोल(const struct stat *st) {
         assert(st);
 
         if (S_ISDIR(st->st_mode))
@@ -262,9 +262,9 @@ int stat_verify_device_node(const struct stat *st) {
         return 0;
 }
 
-int is_device_node(const char *path) {
+int is_device_बुहोल(const char *path) {
         assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
+        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_बुहोल, false);
 }
 
 int stat_verify_regular_or_block(const struct stat *st) {
@@ -341,7 +341,7 @@ bool stat_is_empty(struct stat *st) {
         return S_ISREG(st->st_mode) && st->st_size <= 0;
 }
 
-int null_or_empty_path_with_root(const char *fn, const char *root) {
+int null_or_empty_path_with_उगात(const char *fn, const char *उगात) {
         _cleanup_free_ char *resolved = NULL;
         _cleanup_close_ int fd = -EBADF;
         struct stat st;
@@ -351,10 +351,10 @@ int null_or_empty_path_with_root(const char *fn, const char *root) {
 
         /* fn includes the root prefix. */
 
-        if (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
+        if (path_equal(path_startswith(fn, उगात ?: "/"), "dev/null"))
                 return true;
 
-        if (empty_or_root(root)) {
+        if (empty_or_उगात(उगात)) {
                 if (stat(fn, &st) < 0)
                         return -errno;
 
@@ -363,11 +363,11 @@ int null_or_empty_path_with_root(const char *fn, const char *root) {
 
         /* An image below a root directory usually has no /dev/null, so a symlink to /dev/null dangles there.
          * CHASE_NONEXISTENT resolves such a symlink without requiring the target to exist. */
-        r = chase(fn, root, CHASE_NONEXISTENT, &resolved, &fd);
+        r = chase(fn, उगात, CHASE_NONEXISTENT, &resolved, &fd);
         if (r < 0)
                 return r;
 
-        if (path_equal(path_startswith(resolved, root), "dev/null"))
+        if (path_equal(path_startswith(resolved, उगात), "dev/null"))
                 return true;
 
         if (r == 0)
@@ -653,14 +653,14 @@ fallback:
         return stat_inode_same(&sta, &stb);
 }
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
+bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_हालागा) {
         assert(s);
         assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
 
-        return F_TYPE_EQUAL(s->f_type, magic_value);
+        return F_TYPE_EQUAL(s->f_type, magic_हालागा);
 }
 
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
+int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_हालागा) {
         int r;
 
         struct statfs s;
@@ -668,7 +668,7 @@ int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
         if (r < 0)
                 return r;
 
-        return is_fs_type(&s, magic_value);
+        return is_fs_type(&s, magic_हालागा);
 }
 
 bool is_temporary_fs(const struct statfs *s) {
@@ -830,7 +830,7 @@ int inode_compare_func(const struct stat *a, const struct stat *b) {
         return CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
+DEFINE_HASH_OPS_WITH_सुसि_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
 
 void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
         assert(q);
@@ -888,7 +888,7 @@ int inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
         return 0;
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
+DEFINE_HASH_OPS_WITH_सुसि_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
 
 const char* inode_type_to_string(mode_t m) {
 

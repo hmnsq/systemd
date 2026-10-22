@@ -6,7 +6,7 @@
 #include "sort-util.h"
 
 /* hey glibc, APIs with callbacks without a user pointer are so useless */
-void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
+void *xbsearch_r(const void *सुसि, const void *base, size_t nmemb, size_t size,
                  comparison_userdata_fn_t compar, void *arg) {
         size_t l, u, idx;
         const void *p;
@@ -19,7 +19,7 @@ void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
         while (l < u) {
                 idx = (l + u) / 2;
                 p = (const uint8_t*) base + idx * size;
-                comparison = compar(key, p, arg);
+                comparison = compar(सुसि, p, arg);
                 if (comparison < 0)
                         u = idx;
                 else if (comparison > 0)
@@ -30,7 +30,7 @@ void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
         return NULL;
 }
 
-void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
+void* bsearch_safe_internal(const void *सुसि, const void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
         /**
         * Normal bsearch requires base to be nonnull. Here were require
         * that only if nmemb > 0.
@@ -40,7 +40,7 @@ void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, siz
                 return NULL;
 
         assert(base);
-        return (void*) bsearch(key, base, nmemb, size, compar);
+        return (void*) bsearch(सुसि, base, nmemb, size, compar);
 }
 
 void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {

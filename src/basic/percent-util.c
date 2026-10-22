@@ -4,11 +4,11 @@
 #include "percent-util.h"
 #include "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
+static int parse_parts_हालागा_whole(const char *p, const char *सिम्बोलो) {
         const char *pc, *n;
         int r, v;
 
-        pc = endswith(p, symbol);
+        pc = endswith(p, सिम्बोलो);
         if (!pc)
                 return -EINVAL;
 
@@ -22,11 +22,11 @@ static int parse_parts_value_whole(const char *p, const char *symbol) {
         return v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
+static int parse_parts_हालागा_with_tenths_place(const char *p, const char *सिम्बोलो) {
         const char *pc, *dot, *n;
         int r, q, v;
 
-        pc = endswith(p, symbol);
+        pc = endswith(p, सिम्बोलो);
         if (!pc)
                 return -EINVAL;
 
@@ -54,11 +54,11 @@ static int parse_parts_value_with_tenths_place(const char *p, const char *symbol
         return v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
+static int parse_parts_हालागा_with_hundredths_place(const char *p, const char *सिम्बोलो) {
         const char *pc, *dot, *n;
         int r, q, v;
 
-        pc = endswith(p, symbol);
+        pc = endswith(p, सिम्बोलो);
         if (!pc)
                 return -EINVAL;
 
@@ -99,7 +99,7 @@ static int parse_parts_value_with_hundredths_place(const char *p, const char *sy
 }
 
 int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+        return parse_parts_हालागा_whole(p, "%");
 }
 
 int parse_percent(const char *p) {
@@ -117,9 +117,9 @@ int parse_permille_unbounded(const char *p) {
 
         pm = endswith(p, "‰");
         if (pm)
-                return parse_parts_value_whole(p, "‰");
+                return parse_parts_हालागा_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        return parse_parts_हालागा_with_tenths_place(p, "%");
 }
 
 int parse_permille(const char *p) {
@@ -137,13 +137,13 @@ int parse_permyriad_unbounded(const char *p) {
 
         pm = endswith(p, "‱");
         if (pm)
-                return parse_parts_value_whole(p, "‱");
+                return parse_parts_हालागा_whole(p, "‱");
 
         pm = endswith(p, "‰");
         if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+                return parse_parts_हालागा_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        return parse_parts_हालागा_with_hundredths_place(p, "%");
 }
 
 int parse_permyriad(const char *p) {

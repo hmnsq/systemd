@@ -192,7 +192,7 @@ int recurse_dir(
                 void *userdata) {
 
         _cleanup_free_ DirectoryEntries *de = NULL;
-        struct statx root_sx;
+        struct statx उगात_sx;
         int r;
 
         assert(dir_fd >= 0);
@@ -211,7 +211,7 @@ int recurse_dir(
 
         if (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
                 if (statx_mask != 0) {
-                        if (statx(dir_fd, "", AT_EMPTY_PATH, statx_mask, &root_sx) < 0)
+                        if (statx(dir_fd, "", AT_EMPTY_PATH, statx_mask, &उगात_sx) < 0)
                                 return -errno;
                 }
 
@@ -220,7 +220,7 @@ int recurse_dir(
                          -EBADF, /* we have no parent fd */
                          dir_fd,
                          NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         statx_mask != 0 ? &उगात_sx : NULL,
                          userdata);
                 if (IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY))
                         return 0;
@@ -423,8 +423,8 @@ int recurse_dir(
                         if (FLAGS_SET(flags, RECURSE_DIR_SAME_MOUNT)) {
                                 bool is_mount;
 
-                                if (sx_valid && FLAGS_SET(sx.stx_attributes_mask, STATX_ATTR_MOUNT_ROOT))
-                                        is_mount = FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_ROOT);
+                                if (sx_valid && FLAGS_SET(sx.stx_attributes_mask, STATX_ATTR_MOUNT_उगात))
+                                        is_mount = FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_उगात);
                                 else {
                                         r = is_mount_point_at(dir_fd, i->d_name, /* flags= */ 0);
                                         if (r < 0)
@@ -531,7 +531,7 @@ int recurse_dir(
                          -EBADF, /* we have no parent fd */
                          dir_fd,
                          NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         statx_mask != 0 ? &उगात_sx : NULL,
                          userdata);
                 if (!IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
                         return r;

@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-#define LONG_LINE_MAX (1U*1024U*1024U)
+#define LONG_लिन्या_MAX (1U*1024U*1024U)
 
 typedef enum {
         WRITE_STRING_FILE_CREATE                     = 1 << 0,
@@ -40,32 +40,32 @@ DIR* take_fdopendir(int *dfd);
 FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc);
 FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode);
 
-int write_string_stream_full(FILE *f, const char *line, WriteStringFileFlags flags, const struct timespec *ts);
-static inline int write_string_stream(FILE *f, const char *line, WriteStringFileFlags flags) {
-        return write_string_stream_full(f, line, flags, NULL);
+int write_string_stream_full(FILE *f, const char *लिन्या, WriteStringFileFlags flags, const struct timespec *ts);
+static inline int write_string_stream(FILE *f, const char *लिन्या, WriteStringFileFlags flags) {
+        return write_string_stream_full(f, लिन्या, flags, NULL);
 }
 
-int write_string_file_full_label(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn, LabelContext *label_context);
-static inline int write_string_file_full(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn) {
-        return write_string_file_full_label(dir_fd, fn, line, flags, ts, label_fn, /* label_context= */ NULL);
+int write_string_file_full_label(int dir_fd, const char *fn, const char *लिन्या, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn, LabelContext *label_context);
+static inline int write_string_file_full(int dir_fd, const char *fn, const char *लिन्या, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn) {
+        return write_string_file_full_label(dir_fd, fn, लिन्या, flags, ts, label_fn, /* label_context= */ NULL);
 }
-static inline int write_string_file_at(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_full(dir_fd, fn, line, flags, NULL, NULL);
+static inline int write_string_file_at(int dir_fd, const char *fn, const char *लिन्या, WriteStringFileFlags flags) {
+        return write_string_file_full(dir_fd, fn, लिन्या, flags, NULL, NULL);
 }
-static inline int write_string_file_fd(int dir_fd, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(dir_fd, NULL, line, flags);
+static inline int write_string_file_fd(int dir_fd, const char *लिन्या, WriteStringFileFlags flags) {
+        return write_string_file_at(dir_fd, NULL, लिन्या, flags);
 }
-static inline int write_string_file(const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(AT_FDCWD, fn, line, flags);
+static inline int write_string_file(const char *fn, const char *लिन्या, WriteStringFileFlags flags) {
+        return write_string_file_at(AT_FDCWD, fn, लिन्या, flags);
 }
 int write_string_filef(const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(3, 4);
 int write_string_filef_at(int dir_fd, const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(4, 5);
 
 int write_base64_file_at(int dir_fd, const char *fn, const struct iovec *data, WriteStringFileFlags flags);
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret);
-static inline int read_one_line_file(const char *filename, char **ret) {
-        return read_one_line_file_at(AT_FDCWD, filename, ret);
+int read_one_लिन्या_file_at(int dir_fd, const char *filename, char **ret);
+static inline int read_one_लिन्या_file(const char *filename, char **ret) {
+        return read_one_लिन्या_file_at(AT_FDCWD, filename, ret);
 }
 int read_boolean_file_at(int dir_fd, const char *filename);
 static inline int read_boolean_file(const char *filename) {
@@ -99,7 +99,7 @@ int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_ext
 
 int script_get_shebang_interpreter(const char *path, char **ret);
 
-int get_proc_field(const char *path, const char *key, char **ret);
+int get_proc_field(const char *path, const char *सुसि, char **ret);
 
 DIR* xopendirat(int dir_fd, const char *path, int flags);
 
@@ -128,12 +128,12 @@ static inline int fopen_unlocked(const char *path, const char *mode, FILE **ret)
 
 int fdopen_independent(int fd, const char *mode, FILE **ret);
 
-int search_and_open(const char *path, int mode, const char *root, char **search, int *ret_fd, char **ret_path);
-static inline int search_and_access(const char *path, int mode, const char *root, char**search, char **ret_path) {
-        return search_and_open(path, mode, root, search, NULL, ret_path);
+int हानाप_and_open(const char *path, int mode, const char *उगात, char **हानाप, int *ret_fd, char **ret_path);
+static inline int हानाप_and_access(const char *path, int mode, const char *उगात, char**हानाप, char **ret_path) {
+        return हानाप_and_open(path, mode, उगात, हानाप, NULL, ret_path);
 }
-int search_and_fopen(const char *path, const char *mode, const char *root, const char **search, FILE **ret_file, char **ret_path);
-int search_and_fopen_nulstr(const char *path, const char *mode, const char *root, const char *search, FILE **ret_file, char **ret_path);
+int हानाप_and_fopen(const char *path, const char *mode, const char *उगात, const char **हानाप, FILE **ret_file, char **ret_path);
+int हानाप_and_fopen_nulstr(const char *path, const char *mode, const char *उगात, const char *हानाप, FILE **ret_file, char **ret_path);
 
 int fflush_and_check(FILE *f);
 int fflush_sync_and_check(FILE *f);
@@ -144,21 +144,21 @@ int read_timestamp_file(const char *fn, usec_t *ret);
 int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space);
 int fputs_with_newline(FILE *f, const char *s);
 
-typedef enum ReadLineFlags {
-        READ_LINE_ONLY_NUL  = 1 << 0,
-        READ_LINE_IS_A_TTY  = 1 << 1,
-        READ_LINE_NOT_A_TTY = 1 << 2,
-} ReadLineFlags;
+typedef enum Read_लिन्या_Flags {
+        READ_लिन्या_ONLY_NUL  = 1 << 0,
+        READ_लिन्या_IS_A_TTY  = 1 << 1,
+        READ_लिन्या_NOT_A_TTY = 1 << 2,
+} Read_लिन्या_Flags;
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret);
-static inline int read_line(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, 0, ret);
+int read_लिन्या_full(FILE *f, size_t limit, Read_लिन्या_Flags flags, char **ret);
+static inline int read_लिन्या(FILE *f, size_t limit, char **ret) {
+        return read_लिन्या_full(f, limit, 0, ret);
 }
 static inline int read_nul_string(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, READ_LINE_ONLY_NUL, ret);
+        return read_लिन्या_full(f, limit, READ_लिन्या_ONLY_NUL, ret);
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret);
+int read_stripped_लिन्या(FILE *f, size_t limit, char **ret);
 
 static inline bool file_offset_beyond_memory_size(off_t x) {
         if (x < 0) /* off_t is signed, filter that out */
@@ -168,7 +168,7 @@ static inline bool file_offset_beyond_memory_size(off_t x) {
 
 int safe_fgetc(FILE *f, char *ret);
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line);
+int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned लिन्या);
 
 int fopen_mode_to_flags(const char *mode);
 

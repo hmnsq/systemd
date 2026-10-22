@@ -80,9 +80,9 @@ bool _log_message_dummy = false; /* Always false */
 
 /* An assert to use in logging functions that does not call recursively
  * into our logging functions (since that might lead to a loop). */
-#define assert_raw(expr)                                                \
+#define assert_raw(पाहायाग)                                                \
         do {                                                            \
-                if (_unlikely_(!(expr))) {                              \
+                if (_unlikely_(!(पाहायाग))) {                              \
                         fputs(#expr "\n", stderr);                      \
                         abort();                                        \
                 }                                                       \
@@ -414,7 +414,7 @@ static int write_to_console(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *buffer) {
 
@@ -468,7 +468,7 @@ static int write_to_console(
                         loff = ansi_normal();
                 }
 
-                (void) snprintf(location, sizeof location, "%s%s:%i%s: ", lon, file, line, loff);
+                (void) snprintf(location, sizeof location, "%s%s:%i%s: ", lon, file, लिन्या, loff);
                 iovec[n++] = IOVEC_MAKE_STRING(location);
         }
 
@@ -514,7 +514,7 @@ static int write_to_syslog(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *buffer) {
 
@@ -580,7 +580,7 @@ static int write_to_kmsg(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *buffer) {
 
@@ -603,7 +603,7 @@ static int write_to_kmsg(
                 return 0;
 
         if (ratelimit_kmsg && !ratelimit_below(&ratelimit)) {
-                if (ratelimit_num_dropped(&ratelimit) > 1)
+                if (ratelimit_नुमेरो_dropped(&ratelimit) > 1)
                         return 0;
 
                 buffer = "Too many messages being logged to kmsg, ignoring";
@@ -633,12 +633,12 @@ static int log_do_header(
                 size_t size,
                 int level,
                 int error,
-                const char *file, int line, const char *func,
+                const char *file, int लिन्या, const char *func,
                 const char *object_field, const char *object,
                 const char *extra_field, const char *extra) {
         int r;
 
-        error = IS_SYNTHETIC_ERRNO(error) ? 0 : ERRNO_VALUE(error);
+        error = IS_SYNTHETIC_ERRNO(error) ? 0 : ERRNO_हालागा(error);
 
         r = snprintf(header, size,
                      "PRIORITY=%i\n"
@@ -657,9 +657,9 @@ static int log_do_header(
                      isempty(file) ? "" : "CODE_FILE=",
                      isempty(file) ? "" : file,
                      isempty(file) ? "" : "\n",
-                     line ? "CODE_LINE=" : "",
-                     line ? 1 : 0, line, /* %.0d means no output too, special case for 0 */
-                     line ? "\n" : "",
+                     लिन्या ? "CODE_LINE=" : "",
+                     लिन्या ? 1 : 0, लिन्या, /* %.0d means no output too, special case for 0 */
+                     लिन्या ? "\n" : "",
                      isempty(func) ? "" : "CODE_FUNC=",
                      isempty(func) ? "" : func,
                      isempty(func) ? "" : "\n",
@@ -691,20 +691,20 @@ static void log_do_context(struct iovec *iovec, size_t iovec_len, size_t *n) {
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
 
-                for (size_t i = 0; i < c->n_input_iovec; i++) {
+                for (size_t i = 0; i < c->n_पासोक_iovec; i++) {
                         if (*n + 2 >= iovec_len)
                                 return;
 
-                        iovec[(*n)++] = c->input_iovec[i];
+                        iovec[(*n)++] = c->पासोक_iovec[i];
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
 
-                if (c->key && c->value) {
+                if (c->सुसि && c->हालागा) {
                         if (*n + 3 >= iovec_len)
                                 return;
 
-                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->key);
-                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->value);
+                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->सुसि);
+                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->हालागा);
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
         }
@@ -714,7 +714,7 @@ static int write_to_journal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -732,14 +732,14 @@ static int write_to_journal(
         if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_JOURNAL])
                 return 0;
 
-        if (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
+        if (!MUL_SAFE(&iovec_len, log_context_नुमेरो_fields_2(), 3) ||
             !ADD_SAFE(&iovec_len, iovec_len, 6))
                 iovec_len = IOVEC_MAX;
         else
                 iovec_len = MIN(iovec_len, IOVEC_MAX);
         iovec = newa(struct iovec, iovec_len);
 
-        log_do_header(header, sizeof(header), level, error, file, line, func, object_field, object, extra_field, extra);
+        log_do_header(header, sizeof(header), level, error, file, लिन्या, func, object_field, object, extra_field, extra);
 
         iovec[n++] = IOVEC_MAKE_STRING(header);
         iovec[n++] = IOVEC_MAKE_STRING("MESSAGE=");
@@ -767,7 +767,7 @@ int log_dispatch_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -778,7 +778,7 @@ int log_dispatch_internal(
         assert_raw(buffer);
 
         if (log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
 
         /* Patch in LOG_DAEMON facility if necessary */
         if (LOG_FAC(level) == 0)
@@ -803,7 +803,7 @@ int log_dispatch_internal(
                                        LOG_TARGET_JOURNAL_OR_KMSG,
                                        LOG_TARGET_JOURNAL)) {
 
-                        k = write_to_journal(level, error, file, line, func, object_field, object, extra_field, extra, buffer);
+                        k = write_to_journal(level, error, file, लिन्या, func, object_field, object, extra_field, extra, buffer);
                         if (k < 0 && k != -EAGAIN)
                                 log_close_journal();
                 }
@@ -811,7 +811,7 @@ int log_dispatch_internal(
                 if (IN_SET(log_target, LOG_TARGET_SYSLOG_OR_KMSG,
                                        LOG_TARGET_SYSLOG)) {
 
-                        k = write_to_syslog(level, error, file, line, func, buffer);
+                        k = write_to_syslog(level, error, file, लिन्या, func, buffer);
                         if (k < 0 && k != -EAGAIN)
                                 log_close_syslog();
                 }
@@ -825,7 +825,7 @@ int log_dispatch_internal(
                         if (k < 0)
                                 log_open_kmsg();
 
-                        k = write_to_kmsg(level, error, file, line, func, buffer);
+                        k = write_to_kmsg(level, error, file, लिन्या, func, buffer);
                         if (k < 0) {
                                 log_close_kmsg();
                                 (void) log_open_console();
@@ -833,7 +833,7 @@ int log_dispatch_internal(
                 }
 
                 if (k <= 0)
-                        (void) write_to_console(level, error, file, line, func, buffer);
+                        (void) write_to_console(level, error, file, लिन्या, func, buffer);
 
                 buffer = e;
         } while (buffer);
@@ -841,14 +841,14 @@ int log_dispatch_internal(
         if (open_when_needed)
                 log_close();
 
-        return -ERRNO_VALUE(error);
+        return -ERRNO_हालागा(error);
 }
 
 int log_dump_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 char *buffer) {
 
@@ -857,37 +857,37 @@ int log_dump_internal(
         /* This modifies the buffer... */
 
         if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        return log_dispatch_internal(level, error, file, लिन्या, func, NULL, NULL, NULL, NULL, buffer);
 }
 
 int log_internalv(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format,
                 va_list ap) {
 
         if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
 
         /* Make sure that %m maps to the specified error (or "Success"). */
         char buffer[LINE_MAX];
-        LOCAL_ERRNO(ERRNO_VALUE(error));
+        LOCAL_ERRNO(ERRNO_हालागा(error));
 
         (void) vsnprintf(buffer, sizeof buffer, format, ap);
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        return log_dispatch_internal(level, error, file, लिन्या, func, NULL, NULL, NULL, NULL, buffer);
 }
 
 int log_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format, ...) {
 
@@ -895,7 +895,7 @@ int log_internal(
         int r;
 
         va_start(ap, format);
-        r = log_internalv(level, error, file, line, func, format, ap);
+        r = log_internalv(level, error, file, लिन्या, func, format, ap);
         va_end(ap);
 
         return r;
@@ -905,7 +905,7 @@ int log_object_internalv(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -917,17 +917,17 @@ int log_object_internalv(
         char *buffer, *b;
 
         if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
 
         /* Make sure that %m maps to the specified error (or "Success"). */
-        LOCAL_ERRNO(ERRNO_VALUE(error));
+        LOCAL_ERRNO(ERRNO_हालागा(error));
 
         LOG_SET_PREFIX(object);
 
         b = buffer = newa(char, LINE_MAX);
         (void) vsnprintf(b, LINE_MAX, format, ap);
 
-        return log_dispatch_internal(level, error, file, line, func,
+        return log_dispatch_internal(level, error, file, लिन्या, func,
                                      object_field, object, extra_field, extra, buffer);
 }
 
@@ -935,7 +935,7 @@ int log_object_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -947,14 +947,14 @@ int log_object_internal(
         int r;
 
         va_start(ap, format);
-        r = log_object_internalv(level, error, file, line, func, object_field, object, extra_field, extra, format, ap);
+        r = log_object_internalv(level, error, file, लिन्या, func, object_field, object, extra_field, extra, format, ap);
         va_end(ap);
 
         return r;
 }
 
-int log_oom_internal(int level, const char *file, int line, const char *func) {
-        return log_internal(level, ENOMEM, file, line, func, "Out of memory.");
+int log_oom_internal(int level, const char *file, int लिन्या, const char *func) {
+        return log_internal(level, ENOMEM, file, लिन्या, func, "Out of memory.");
 }
 
 int log_format_iovec(
@@ -978,7 +978,7 @@ int log_format_iovec(
                  * since vasprintf() leaves it afterwards at
                  * an undefined location */
 
-                errno = ERRNO_VALUE(error);
+                errno = ERRNO_हालागा(error);
 
                 va_copy(aq, ap);
                 r = vasprintf(&m, format, aq);
@@ -1003,7 +1003,7 @@ int log_struct_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format, ...) {
 
@@ -1014,7 +1014,7 @@ int log_struct_internal(
 
         if (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
 
         if (LOG_FAC(level) == 0)
                 level |= log_facility;
@@ -1034,7 +1034,7 @@ int log_struct_internal(
                         int r;
                         bool fallback = false;
 
-                        if (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
+                        if (!MUL_SAFE(&iovec_len, log_context_नुमेरो_fields_2(), 3) ||
                             !ADD_SAFE(&iovec_len, iovec_len, 17))
                                 iovec_len = IOVEC_MAX;
                         else
@@ -1043,7 +1043,7 @@ int log_struct_internal(
 
                         /* If the journal is available do structured logging.
                          * Do not report the errno if it is synthetic. */
-                        log_do_header(header, sizeof(header), level, error, file, line, func, NULL, NULL, NULL, NULL);
+                        log_do_header(header, sizeof(header), level, error, file, लिन्या, func, NULL, NULL, NULL, NULL);
                         iovec[n++] = IOVEC_MAKE_STRING(header);
 
                         va_start(ap, format);
@@ -1072,7 +1072,7 @@ int log_struct_internal(
                                 if (open_when_needed)
                                         log_close();
 
-                                return -ERRNO_VALUE(error);
+                                return -ERRNO_हालागा(error);
                         }
                 }
         }
@@ -1083,7 +1083,7 @@ int log_struct_internal(
         while (format) {
                 va_list aq;
 
-                errno = ERRNO_VALUE(error);
+                errno = ERRNO_हालागा(error);
 
                 va_copy(aq, ap);
                 DISABLE_WARNING_FORMAT_NONLITERAL;
@@ -1106,26 +1106,26 @@ int log_struct_internal(
                 if (open_when_needed)
                         log_close();
 
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
         }
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buf + 8);
+        return log_dispatch_internal(level, error, file, लिन्या, func, NULL, NULL, NULL, NULL, buf + 8);
 }
 
 int log_struct_iovec_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
-                const struct iovec input_iovec[],
-                size_t n_input_iovec) {
+                const struct iovec पासोक_iovec[],
+                size_t n_पासोक_iovec) {
 
         PROTECT_ERRNO;
 
         if (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
 
         if (LOG_FAC(level) == 0)
                 level |= log_facility;
@@ -1137,22 +1137,22 @@ int log_struct_iovec_internal(
 
                 char header[LINE_MAX];
                 struct iovec *iovec;
-                size_t n = 0, iovec_len, n_context_iovec, n_input_iovec_expanded;
+                size_t n = 0, iovec_len, n_context_iovec, n_पासोक_iovec_expanded;
 
-                if (!MUL_SAFE(&n_input_iovec_expanded, n_input_iovec, 2) ||
-                    !MUL_SAFE(&n_context_iovec, log_context_num_fields(), 3) ||
-                    !ADD_SAFE(&iovec_len, 1, n_input_iovec_expanded) ||
+                if (!MUL_SAFE(&n_पासोक_iovec_expanded, n_पासोक_iovec, 2) ||
+                    !MUL_SAFE(&n_context_iovec, log_context_नुमेरो_fields_2(), 3) ||
+                    !ADD_SAFE(&iovec_len, 1, n_पासोक_iovec_expanded) ||
                     !ADD_SAFE(&iovec_len, iovec_len, n_context_iovec))
                         iovec_len = IOVEC_MAX;
                 else
                         iovec_len = MIN(iovec_len, IOVEC_MAX);
                 iovec = newa(struct iovec, iovec_len);
 
-                log_do_header(header, sizeof(header), level, error, file, line, func, NULL, NULL, NULL, NULL);
+                log_do_header(header, sizeof(header), level, error, file, लिन्या, func, NULL, NULL, NULL, NULL);
 
                 iovec[n++] = IOVEC_MAKE_STRING(header);
-                for (size_t i = 0; i < n_input_iovec && n + 2 <= iovec_len; i++) {
-                        iovec[n++] = input_iovec[i];
+                for (size_t i = 0; i < n_पासोक_iovec && n + 2 <= iovec_len; i++) {
+                        iovec[n++] = पासोक_iovec[i];
                         iovec[n++] = IOVEC_MAKE_STRING("\n");
                 }
 
@@ -1164,21 +1164,21 @@ int log_struct_iovec_internal(
                 };
 
                 if (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) >= 0)
-                        return -ERRNO_VALUE(error);
+                        return -ERRNO_हालागा(error);
         }
 
-        for (size_t i = 0; i < n_input_iovec; i++)
-                if (memory_startswith(input_iovec[i].iov_base, input_iovec[i].iov_len, "MESSAGE=")) {
+        for (size_t i = 0; i < n_पासोक_iovec; i++)
+                if (memory_startswith(पासोक_iovec[i].iov_base, पासोक_iovec[i].iov_len, "MESSAGE=")) {
                         char *m;
 
-                        m = strndupa_safe((char*) input_iovec[i].iov_base + STRLEN("MESSAGE="),
-                                          input_iovec[i].iov_len - STRLEN("MESSAGE="));
+                        m = strndupa_safe((char*) पासोक_iovec[i].iov_base + STRLEN("MESSAGE="),
+                                          पासोक_iovec[i].iov_len - STRLEN("MESSAGE="));
 
-                        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, m);
+                        return log_dispatch_internal(level, error, file, लिन्या, func, NULL, NULL, NULL, NULL, m);
                 }
 
         /* Couldn't find MESSAGE=. */
-        return -ERRNO_VALUE(error);
+        return -ERRNO_हालागा(error);
 }
 
 int log_set_target_from_string(const char *e) {
@@ -1277,7 +1277,7 @@ static int log_set_ratelimit_kmsg_from_string(const char *e) {
         return 0;
 }
 
-static int parse_proc_cmdline_item(const char *key, const char *value, void *data) {
+static int parse_proc_cmdline_item(const char *सुसि, const char *हालागा, void *data) {
 
         /*
          * The systemd.log_xyz= settings are parsed by all tools, and
@@ -1288,49 +1288,49 @@ static int parse_proc_cmdline_item(const char *key, const char *value, void *dat
          * level.
          */
 
-        if (streq(key, "debug") && !value)
+        if (streq(सुसि, "debug") && !हालागा)
                 log_set_max_level(LOG_DEBUG);
 
-        else if (proc_cmdline_key_streq(key, "systemd.log_target")) {
+        else if (proc_cmdline_सुसि_streq(सुसि, "systemd.log_target")) {
 
-                if (proc_cmdline_value_missing(key, value))
+                if (proc_cmdline_हालागा_missing(सुसि, हालागा))
                         return 0;
 
-                if (log_set_target_from_string(value) < 0)
-                        log_warning("Failed to parse log target '%s', ignoring.", value);
+                if (log_set_target_from_string(हालागा) < 0)
+                        log_warning("Failed to parse log target '%s', ignoring.", हालागा);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_level")) {
+        } else if (proc_cmdline_सुसि_streq(सुसि, "systemd.log_level")) {
 
-                if (proc_cmdline_value_missing(key, value))
+                if (proc_cmdline_हालागा_missing(सुसि, हालागा))
                         return 0;
 
-                if (log_set_max_level_from_string(value) < 0)
-                        log_warning("Failed to parse log level setting '%s', ignoring.", value);
+                if (log_set_max_level_from_string(हालागा) < 0)
+                        log_warning("Failed to parse log level setting '%s', ignoring.", हालागा);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_color")) {
+        } else if (proc_cmdline_सुसि_streq(सुसि, "systemd.log_color")) {
 
-                if (log_show_color_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log color setting '%s', ignoring.", value);
+                if (log_show_color_from_string(हालागा ?: "1") < 0)
+                        log_warning("Failed to parse log color setting '%s', ignoring.", हालागा);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_location")) {
+        } else if (proc_cmdline_सुसि_streq(सुसि, "systemd.log_location")) {
 
-                if (log_show_location_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log location setting '%s', ignoring.", value);
+                if (log_show_location_from_string(हालागा ?: "1") < 0)
+                        log_warning("Failed to parse log location setting '%s', ignoring.", हालागा);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_tid")) {
+        } else if (proc_cmdline_सुसि_streq(सुसि, "systemd.log_tid")) {
 
-                if (log_show_tid_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log tid setting '%s', ignoring.", value);
+                if (log_show_tid_from_string(हालागा ?: "1") < 0)
+                        log_warning("Failed to parse log tid setting '%s', ignoring.", हालागा);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_time")) {
+        } else if (proc_cmdline_सुसि_streq(सुसि, "systemd.log_time")) {
 
-                if (log_show_time_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log time setting '%s', ignoring.", value);
+                if (log_show_time_from_string(हालागा ?: "1") < 0)
+                        log_warning("Failed to parse log time setting '%s', ignoring.", हालागा);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_ratelimit_kmsg")) {
+        } else if (proc_cmdline_सुसि_streq(सुसि, "systemd.log_ratelimit_kmsg")) {
 
-                if (log_set_ratelimit_kmsg_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log ratelimit kmsg boolean '%s', ignoring.", value);
+                if (log_set_ratelimit_kmsg_from_string(हालागा ?: "1") < 0)
+                        log_warning("Failed to parse log ratelimit kmsg boolean '%s', ignoring.", हालागा);
         }
 
         return 0;
@@ -1584,10 +1584,10 @@ int log_syntax_internal(
                 const char *unit,
                 int level,
                 const char *config_file,
-                unsigned config_line,
+                unsigned config_लिन्या,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format, ...) {
 
@@ -1598,13 +1598,13 @@ int log_syntax_internal(
 
         if (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                return -ERRNO_हालागा(error);
 
         char buffer[LINE_MAX];
         va_list ap;
         const char *unit_fmt = NULL;
 
-        errno = ERRNO_VALUE(error);
+        errno = ERRNO_हालागा(error);
 
         va_start(ap, format);
         (void) vsnprintf(buffer, sizeof buffer, format, ap);
@@ -1614,22 +1614,22 @@ int log_syntax_internal(
                 unit_fmt = getpid_cached() == 1 ? "UNIT=%s" : "USER_UNIT=%s";
 
         if (config_file) {
-                if (config_line > 0)
+                if (config_लिन्या > 0)
                         return log_struct_internal(
                                         level,
                                         error,
-                                        file, line, func,
+                                        file, लिन्या, func,
                                         LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                         LOG_ITEM("CONFIG_FILE=%s", config_file),
-                                        LOG_ITEM("CONFIG_LINE=%u", config_line),
-                                        LOG_MESSAGE("%s:%u: %s", config_file, config_line, buffer),
+                                        LOG_ITEM("CONFIG_LINE=%u", config_लिन्या),
+                                        LOG_MESSAGE("%s:%u: %s", config_file, config_लिन्या, buffer),
                                         unit_fmt, unit,
                                         NULL);
                 else
                         return log_struct_internal(
                                         level,
                                         error,
-                                        file, line, func,
+                                        file, लिन्या, func,
                                         LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                         LOG_ITEM("CONFIG_FILE=%s", config_file),
                                         LOG_MESSAGE("%s: %s", config_file, buffer),
@@ -1639,7 +1639,7 @@ int log_syntax_internal(
                 return log_struct_internal(
                                 level,
                                 error,
-                                file, line, func,
+                                file, लिन्या, func,
                                 LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                 LOG_MESSAGE("%s: %s", unit, buffer),
                                 unit_fmt, unit,
@@ -1648,7 +1648,7 @@ int log_syntax_internal(
                 return log_struct_internal(
                                 level,
                                 error,
-                                file, line, func,
+                                file, लिन्या, func,
                                 LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                 LOG_MESSAGE("%s", buffer),
                                 NULL);
@@ -1658,9 +1658,9 @@ int log_syntax_invalid_utf8_internal(
                 const char *unit,
                 int level,
                 const char *config_file,
-                unsigned config_line,
+                unsigned config_लिन्या,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *rvalue) {
 
@@ -1670,19 +1670,19 @@ int log_syntax_invalid_utf8_internal(
         if (rvalue)
                 p = utf8_escape_invalid(rvalue);
 
-        return log_syntax_internal(unit, level, config_file, config_line,
-                                   SYNTHETIC_ERRNO(EINVAL), file, line, func,
+        return log_syntax_internal(unit, level, config_file, config_लिन्या,
+                                   SYNTHETIC_ERRNO(EINVAL), file, लिन्या, func,
                                    "String is not UTF-8 clean, ignoring assignment: %s", strna(p));
 }
 
 int log_syntax_parse_error_internal(
                 const char *unit,
                 const char *config_file,
-                unsigned config_line,
+                unsigned config_लिन्या,
                 int error,
                 bool critical,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *lvalue,
                 const char *rvalue) {
@@ -1691,8 +1691,8 @@ int log_syntax_parse_error_internal(
         _cleanup_free_ char *escaped = NULL;
 
         /* OOM is always handled as critical. */
-        if (ERRNO_VALUE(error) == ENOMEM)
-                return log_oom_internal(LOG_ERR, file, line, func);
+        if (ERRNO_हालागा(error) == ENOMEM)
+                return log_oom_internal(LOG_ERR, file, लिन्या, func);
 
         if (rvalue && !utf8_is_valid(rvalue)) {
                 escaped = utf8_escape_invalid(rvalue);
@@ -1702,15 +1702,15 @@ int log_syntax_parse_error_internal(
                         rvalue = " (escaped)";
         }
 
-        log_syntax_internal(unit, critical ? LOG_ERR : LOG_WARNING, config_file, config_line, error,
-                            file, line, func,
+        log_syntax_internal(unit, critical ? LOG_ERR : LOG_WARNING, config_file, config_लिन्या, error,
+                            file, लिन्या, func,
                             "Failed to parse %s=%s%s%s%s%s",
                             strna(lvalue), strempty(escaped), strempty(rvalue),
                             critical ? "" : ", ignoring",
                             error == 0 ? "." : ": ",
                             error == 0 ? "" : STRERROR(error));
 
-        return critical ? -ERRNO_VALUE(error) : 0;
+        return critical ? -ERRNO_हालागा(error) : 0;
 }
 
 void log_set_upgrade_syslog_to_journal(bool b) {

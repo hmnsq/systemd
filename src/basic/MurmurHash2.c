@@ -37,7 +37,7 @@ _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
+uint32_t MurmurHash2 ( const void * सुसि, int len, uint32_t seed )
 {
   // 'm' and 'r' are mixing constants generated offline.
   // They're not really 'magic', they just happen to work well.
@@ -51,7 +51,7 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
 
   // Mix 4 bytes at a time into the hash
 
-  const unsigned char * data = (const unsigned char *)key;
+  const unsigned char * data = (const unsigned char *)सुसि;
 
   while (len >= 4)
   {

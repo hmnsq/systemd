@@ -99,7 +99,7 @@ int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_
         return ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+void ordered_set_इलिम्बाग(FILE *f, const char *field, OrderedSet *s) {
         bool space = false;
         char *p;
 

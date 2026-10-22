@@ -49,8 +49,8 @@ static inline int parse_gid(const char *s, gid_t *ret_gid) {
 char* getlogname_malloc(void);
 char* getusername_malloc(void);
 
-const char* default_root_shell_at(int rfd);
-const char* default_root_shell(const char *root);
+const char* default_उगात_shell_at(int rfd);
+const char* default_उगात_shell(const char *उगात);
 
 bool is_nologin_shell(const char *shell) _pure_;
 bool shell_is_placeholder(const char *shell) _pure_;
@@ -88,7 +88,7 @@ static inline int reset_uid_gid(void) {
         return fully_set_uid_gid(0, 0, NULL, 0);
 }
 
-int take_etc_passwd_lock(const char *root);
+int take_etc_passwd_lock(const char *उगात);
 
 #define UID_INVALID ((uid_t) -1)
 #define GID_INVALID ((gid_t) -1)
@@ -110,8 +110,8 @@ int take_etc_passwd_lock(const char *root);
  * our usual logic of assigning a 16-bit UID range to each container, so that the upper 16-bit of a 32-bit UID
  * value indicate kind of a "container ID" and the lower 16-bit map directly to the intended user you can read
  * this specific UID as the "nobody" user of the container with ID 0x7FFF, which is kinda nice. */
-#define UID_MAPPED_ROOT ((uid_t) (INT32_MAX-1))
-#define GID_MAPPED_ROOT ((gid_t) (INT32_MAX-1))
+#define UID_MAPPED_उगात ((uid_t) (INT32_MAX-1))
+#define GID_MAPPED_उगात ((gid_t) (INT32_MAX-1))
 
 #define ETC_PASSWD_LOCK_FILENAME ".pwd.lock"
 #define ETC_PASSWD_LOCK_PATH "/etc/" ETC_PASSWD_LOCK_FILENAME
@@ -153,7 +153,7 @@ int putsgent_sane(const struct sgrp *sg, FILE *stream);
 
 int is_this_me(const char *username);
 
-const char* get_home_root(void);
+const char* get_home_उगात(void);
 
 static inline bool hashed_password_is_locked_or_invalid(const char *password) {
         return password && password[0] != '$';

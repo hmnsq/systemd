@@ -30,7 +30,7 @@
 int efi_get_variable(
                 const char *variable,
                 uint32_t *ret_attribute,
-                void **ret_value,
+                void **ret_हालागा,
                 size_t *ret_size) {
 
         int r;
@@ -80,7 +80,7 @@ int efi_get_variable(
                 if ((uint64_t) st.st_size > sizeof(attr) + 4 * U64_MB)
                         return log_debug_errno(SYNTHETIC_ERRNO(E2BIG), "EFI variable '%s' is ridiculously large, refusing.", p);
 
-                if (!ret_attribute && !ret_value) {
+                if (!ret_attribute && !ret_हालागा) {
                         /* No need to read anything, return the reported size. */
                         n = st.st_size;
                         break;
@@ -144,19 +144,19 @@ int efi_get_variable(
         if ((size_t) n < sizeof(attr))
                 return log_debug_errno(SYNTHETIC_ERRNO(EIO),
                                        "Read %zi bytes from EFI variable %s, expected >= %zu", n, p, sizeof(attr));
-        size_t value_size = n - sizeof(attr);
+        size_t हालागा_size = n - sizeof(attr);
 
         if (ret_attribute)
                 *ret_attribute = attr;
 
-        if (ret_value) {
+        if (ret_हालागा) {
                 assert(buf);
                 /* Always NUL-terminate (3 bytes, to properly protect UTF-16, even if truncated in
                  * the middle of a character) */
-                buf[value_size] = 0;
-                buf[value_size + 1] = 0;
-                buf[value_size + 2] = 0;
-                *ret_value = TAKE_PTR(buf);
+                buf[हालागा_size] = 0;
+                buf[हालागा_size + 1] = 0;
+                buf[हालागा_size + 2] = 0;
+                *ret_हालागा = TAKE_PTR(buf);
         }
 
         if (DEBUG_LOGGING) {
@@ -170,7 +170,7 @@ int efi_get_variable(
          * with a smaller value. */
 
         if (ret_size)
-                *ret_size = value_size;
+                *ret_size = हालागा_size;
 
         return 0;
 }
@@ -211,23 +211,23 @@ int efi_get_variable_path(const char *variable, char **ret) {
         return r;
 }
 
-static int efi_verify_variable(const char *variable, uint32_t attr, const void *value, size_t size) {
+static int efi_verify_variable(const char *variable, uint32_t attr, const void *हालागा, size_t size) {
         _cleanup_free_ void *buf = NULL;
         size_t n;
         uint32_t a;
         int r;
 
         assert(variable);
-        assert(value || size == 0);
+        assert(हालागा || size == 0);
 
         r = efi_get_variable(variable, &a, &buf, &n);
         if (r < 0)
                 return r;
 
-        return a == attr && memcmp_nn(buf, n, value, size) == 0;
+        return a == attr && memcmp_nn(buf, n, हालागा, size) == 0;
 }
 
-int efi_set_variable(const char *variable, const void *value, size_t size) {
+int efi_set_variable(const char *variable, const void *हालागा, size_t size) {
         static const uint32_t attr = EFI_VARIABLE_NON_VOLATILE|EFI_VARIABLE_BOOTSERVICE_ACCESS|EFI_VARIABLE_RUNTIME_ACCESS;
 
         _cleanup_free_ struct var {
@@ -240,10 +240,10 @@ int efi_set_variable(const char *variable, const void *value, size_t size) {
         int r;
 
         assert(variable);
-        assert(value || size == 0);
+        assert(हालागा || size == 0);
 
         /* size 0 means removal, empty variable would not be enough for that */
-        if (size > 0 && efi_verify_variable(variable, attr, value, size) > 0) {
+        if (size > 0 && efi_verify_variable(variable, attr, हालागा, size) > 0) {
                 log_debug("Variable '%s' is already in wanted state, skipping write.", variable);
                 return 0;
         }
@@ -287,7 +287,7 @@ int efi_set_variable(const char *variable, const void *value, size_t size) {
         }
 
         buf->attr = attr;
-        memcpy(buf->buf, value, size);
+        memcpy(buf->buf, हालागा, size);
 
         r = loop_write(fd, buf, sizeof(uint32_t) + size);
         if (r < 0)
@@ -316,10 +316,10 @@ finish:
         return r;
 }
 
-int efi_set_variable_string(const char *variable, const char *value) {
+int efi_set_variable_string(const char *variable, const char *हालागा) {
         _cleanup_free_ char16_t *u16 = NULL;
 
-        u16 = utf8_to_utf16(value, SIZE_MAX);
+        u16 = utf8_to_utf16(हालागा, SIZE_MAX);
         if (!u16)
                 return -ENOMEM;
 

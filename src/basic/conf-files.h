@@ -15,7 +15,7 @@ typedef enum ConfFilesFlags {
         CONF_FILES_FILTER_MASKED            = CONF_FILES_FILTER_MASKED_BY_SYMLINK | CONF_FILES_FILTER_MASKED_BY_EMPTY,
         CONF_FILES_TRUNCATE_SUFFIX          = 1 << 6, /* truncate specified suffix from return filename or path */
         CONF_FILES_WARN                     = 1 << 7, /* warn on some errors */
-        CONF_FILES_DONT_PREFIX_ROOT         = 1 << 8, /* don't prefix the specified root path to the resulting paths */
+        CONF_FILES_DONT_PREFIX_उगात         = 1 << 8, /* don't prefix the specified root path to the resulting paths */
 } ConfFilesFlags;
 
 typedef struct ConfFile {
@@ -31,25 +31,25 @@ ConfFile* conf_file_free(ConfFile *c);
 DEFINE_TRIVIAL_CLEANUP_FUNC(ConfFile*, conf_file_free);
 void conf_file_free_array(ConfFile **array, size_t n);
 
-int conf_file_new_at(const char *path, const char *root, int rfd, ConfFilesFlags flags, ConfFile **ret);
-int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, ConfFile **ret);
+int conf_file_new_at(const char *path, const char *उगात, int rfd, ConfFilesFlags flags, ConfFile **ret);
+int conf_file_new(const char *path, const char *उगात, ConfFilesFlags flags, ConfFile **ret);
 
-int conf_files_list(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dir);
+int conf_files_list(char ***ret, const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dir);
 int conf_files_list_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dir);
-int conf_files_list_strv(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char* const* dirs);
+int conf_files_list_strv(char ***ret, const char *suffix, const char *उगात, ConfFilesFlags flags, const char* const* dirs);
 int conf_files_list_strv_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char * const *dirs);
-int conf_files_list_nulstr(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs);
+int conf_files_list_nulstr(char ***ret, const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dirs);
 int conf_files_list_nulstr_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs);
 
-int conf_files_list_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files);
+int conf_files_list_full(const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files);
 int conf_files_list_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_strv_full(const char *suffix, const char *root, ConfFilesFlags flags, const char * const *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+int conf_files_list_strv_full(const char *suffix, const char *उगात, ConfFilesFlags flags, const char * const *dirs, ConfFile ***ret_files, size_t *ret_n_files);
 int conf_files_list_strv_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char * const *dirs, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_nulstr_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+int conf_files_list_nulstr_full(const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files);
 int conf_files_list_nulstr_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files);
 
 int conf_files_list_with_replacement(
-                const char *root,
+                const char *उगात,
                 char **config_dirs,
                 const char *replacement,
                 char ***ret_files,
@@ -57,23 +57,23 @@ int conf_files_list_with_replacement(
 int conf_files_list_dropins(
                 char ***ret,
                 const char *dropin_dirname,
-                const char *root,
-                int root_fd,
+                const char *उगात,
+                int उगात_fd,
                 ConfFilesFlags flags,
                 const char * const *dirs);
 
-typedef int parse_line_t(
+typedef int parse_लिन्या_t(
                 const char *fname,
-                unsigned line,
+                unsigned लिन्या,
                 const char *buffer,
                 bool *invalid_config,
                 void *userdata);
 
 int conf_file_read(
-                const char *root,
+                const char *उगात,
                 const char **config_dirs,
                 const char *fn,
-                parse_line_t parse_line,
+                parse_लिन्या_t parse_लिन्या,
                 void *userdata,
                 bool ignore_enoent,
                 bool *invalid_config);

@@ -12,13 +12,13 @@ void iovw_done(struct iovec_wrapper *iovw) {
         assert(iovw);
 
         iovw->iovec = mfree(iovw->iovec);
-        iovw->count = 0;
+        iovw->बिलांग = 0;
 }
 
 void iovw_done_free(struct iovec_wrapper *iovw) {
         assert(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
+        FOREACH_ARRAY(i, iovw->iovec, iovw->बिलांग)
                 iovec_done(i);
 
         iovw_done(iovw);
@@ -53,13 +53,13 @@ int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
          * Two wrappers with identical concatenated content but different element boundaries
          * (e.g., ["fo","o"] vs ["f","oo"]) will not compare as equal. */
 
-        for (size_t i = 0, n = MIN(a->count, b->count); i < n; i++) {
+        for (size_t i = 0, n = MIN(a->बिलांग, b->बिलांग); i < n; i++) {
                 r = iovec_memcmp(a->iovec + i, b->iovec + i);
                 if (r != 0)
                         return r;
         }
 
-        return CMP(a->count, b->count);
+        return CMP(a->बिलांग, b->बिलांग);
 }
 
 int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
@@ -69,13 +69,13 @@ int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size
         if (len == 0 && !accept_zero)
                 return 0;
 
-        if (iovw->count >= IOV_MAX)
+        if (iovw->बिलांग >= IOV_MAX)
                 return -E2BIG;
 
-        if (!GREEDY_REALLOC(iovw->iovec, iovw->count + 1))
+        if (!GREEDY_REALLOC(iovw->iovec, iovw->बिलांग + 1))
                 return -ENOMEM;
 
-        iovw->iovec[iovw->count++] = IOVEC_MAKE(data, len);
+        iovw->iovec[iovw->बिलांग++] = IOVEC_MAKE(data, len);
         return 1;
 }
 
@@ -100,22 +100,22 @@ int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struc
         if (iovw == source)
                 return -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
+        if (iovw->बिलांग > SIZE_MAX - source->बिलांग)
                 return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
+        if (iovw->बिलांग + source->बिलांग > IOV_MAX)
                 return -E2BIG;
 
         if (accept_zero) {
-                if (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->count, source->iovec, source->count))
+                if (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->बिलांग, source->iovec, source->बिलांग))
                         return -ENOMEM;
 
                 return 0;
         }
 
         /* When accept_zero is false, we need to filter zero length iovec in source. */
-        size_t original_count = iovw->count;
+        size_t original_बिलांग = iovw->बिलांग;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
+        FOREACH_ARRAY(iovec, source->iovec, source->बिलांग) {
                 r = iovw_put_iov_full(iovw, accept_zero, iovec);
                 if (r < 0)
                         goto rollback;
@@ -124,7 +124,7 @@ int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struc
         return 0;
 
 rollback:
-        iovw->count = original_count;
+        iovw->बिलांग = original_बिलांग;
         return r;
 }
 
@@ -195,14 +195,14 @@ int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const st
         if (iovw == source)
                 return -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
+        if (iovw->बिलांग > SIZE_MAX - source->बिलांग)
                 return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
+        if (iovw->बिलांग + source->बिलांग > IOV_MAX)
                 return -E2BIG;
 
-        size_t original_count = iovw->count;
+        size_t original_बिलांग = iovw->बिलांग;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
+        FOREACH_ARRAY(iovec, source->iovec, source->बिलांग) {
                 r = iovw_extend_iov_full(iovw, accept_zero, iovec);
                 if (r < 0)
                         goto rollback;
@@ -211,25 +211,25 @@ int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const st
         return 0;
 
 rollback:
-        for (size_t i = original_count; i < iovw->count; i++)
+        for (size_t i = original_बिलांग; i < iovw->बिलांग; i++)
                 iovec_done(iovw->iovec + i);
 
-        iovw->count = original_count;
+        iovw->बिलांग = original_बिलांग;
         return r;
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value) {
+int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *हालागा) {
         _cleanup_free_ char *x = NULL;
         int r;
 
         assert(iovw);
 
-        x = strjoin(field, value);
+        x = strjoin(field, हालागा);
         if (!x)
                 return -ENOMEM;
 
         if (replace)
-                FOREACH_ARRAY(iovec, iovw->iovec, iovw->count)
+                FOREACH_ARRAY(iovec, iovw->iovec, iovw->बिलांग)
                         if (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
                                 iovec->iov_len = strlen(x);
                                 return free_and_replace(iovec->iov_base, x);
@@ -243,31 +243,31 @@ int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const c
 }
 
 int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) {
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         va_list ap;
         int r;
 
         assert(format);
 
         va_start(ap, format);
-        r = vasprintf(&value, format, ap);
+        r = vasprintf(&हालागा, format, ap);
         va_end(ap);
         if (r < 0)
                 return -ENOMEM;
 
-        return iovw_put_string_field_full(iovw, replace, field, value);
+        return iovw_put_string_field_full(iovw, replace, field, हालागा);
 }
 
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value) {
-        _cleanup_free_ _unused_ char *free_ptr = value;
+int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *हालागा) {
+        _cleanup_free_ _unused_ char *free_ptr = हालागा;
 
-        return iovw_put_string_field(iovw, field, value);
+        return iovw_put_string_field(iovw, field, हालागा);
 }
 
 void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new) {
         assert(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count) {
+        FOREACH_ARRAY(i, iovw->iovec, iovw->बिलांग) {
                 assert(i->iov_base >= old);
                 i->iov_base = (uint8_t*) i->iov_base - (uint8_t*) old + (uint8_t*) new;
         }
@@ -277,7 +277,7 @@ size_t iovw_size(const struct iovec_wrapper *iovw) {
         if (iovw_isempty(iovw))
                 return 0;
 
-        return iovec_total_size(iovw->iovec, iovw->count);
+        return iovec_total_size(iovw->iovec, iovw->बिलांग);
 }
 
 int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
@@ -296,7 +296,7 @@ int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
                 return -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
+        FOREACH_ARRAY(i, iovw->iovec, iovw->बिलांग)
                 p = mempcpy_safe(p, i->iov_base, i->iov_len);
 
         *p = 0;
@@ -387,10 +387,10 @@ int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iove
         if (sz == SIZE_MAX)
                 return -E2BIG;
 
-        if (size_multiply_overflow(length_size, iovw->count))
+        if (size_multiply_overflow(length_size, iovw->बिलांग))
                 return -E2BIG;
 
-        sz = size_add(sz, iovw->count * length_size);
+        sz = size_add(sz, iovw->बिलांग * length_size);
         if (sz == SIZE_MAX)
                 return -E2BIG;
 
@@ -399,7 +399,7 @@ int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iove
                 return -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(iov, iovw->iovec, iovw->count) {
+        FOREACH_ARRAY(iov, iovw->iovec, iovw->बिलांग) {
                 if (iov->iov_len == 0)
                         continue;
 

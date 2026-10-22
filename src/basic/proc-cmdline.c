@@ -20,7 +20,7 @@ typedef enum ArgType {
         optional_argument,
 } ArgType;
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
+int proc_cmdline_filter_pid1_मगा_कातविरान(char **argv, char ***ret) {
         const struct {
                 const char *name;
                 ArgType has_arg;
@@ -153,7 +153,7 @@ int proc_cmdline(char **ret) {
         return read_full_file("/proc/cmdline", ret, /* ret_size= */  NULL);
 }
 
-static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
+static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_मगा_कातविरान) {
         int r;
 
         assert(ret);
@@ -164,16 +164,16 @@ static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
                 return strv_split_full(ret, e, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
 
         if (detect_container() > 0) {
-                _cleanup_strv_free_ char **args = NULL;
+                _cleanup_strv_free_ char **मगा_कातविरान = NULL;
 
-                r = pid_get_cmdline_strv(1, /* flags= */ 0, &args);
+                r = pid_get_cmdline_strv(1, /* flags= */ 0, &मगा_कातविरान);
                 if (r < 0)
                         return r;
 
-                if (filter_pid1_args)
-                        return proc_cmdline_filter_pid1_args(args, ret);
+                if (filter_pid1_मगा_कातविरान)
+                        return proc_cmdline_filter_pid1_मगा_कातविरान(मगा_कातविरान, ret);
 
-                *ret = TAKE_PTR(args);
+                *ret = TAKE_PTR(मगा_कातविरान);
                 return 0;
 
         } else {
@@ -211,23 +211,23 @@ static char *mangle_word(const char *word, ProcCmdlineFlags flags) {
 
 #define mangle_word(word, flags) const_generic(word, mangle_word(word, flags))
 
-static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
+static int proc_cmdline_parse_strv(char **मगा_कातविरान, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
         int r;
 
         assert(parse_item);
 
-        STRV_FOREACH(word, args) {
-                char *key, *value;
+        STRV_FOREACH(word, मगा_कातविरान) {
+                char *सुसि, *हालागा;
 
-                key = mangle_word(*word, flags);
-                if (!key)
+                सुसि = mangle_word(*word, flags);
+                if (!सुसि)
                         continue;
 
-                value = strchr(key, '=');
-                if (value)
-                        *(value++) = '\0';
+                हालागा = strchr(सुसि, '=');
+                if (हालागा)
+                        *(हालागा++) = '\0';
 
-                r = parse_item(key, value, data);
+                r = parse_item(सुसि, हालागा, data);
                 if (r < 0)
                         return r;
         }
@@ -236,20 +236,20 @@ static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item,
 }
 
 int proc_cmdline_parse(proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        _cleanup_strv_free_ char **args = NULL;
+        _cleanup_strv_free_ char **मगा_कातविरान = NULL;
         int r;
 
         assert(parse_item);
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_parse(), let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        assert(!(flags & (PROC_CMDLINE_हालागा_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
+        r = proc_cmdline_strv_internal(&मगा_कातविरान, /* filter_pid1_args= */ true);
         if (r < 0)
                 return r;
 
-        return proc_cmdline_parse_strv(args, parse_item, data, flags);
+        return proc_cmdline_parse_strv(मगा_कातविरान, parse_item, data, flags);
 }
 
 static bool relaxed_equal_char(char a, char b) {
@@ -258,7 +258,7 @@ static bool relaxed_equal_char(char a, char b) {
                 (a == '-' && b == '_');
 }
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
+char* proc_cmdline_सुसि_startswith(const char *s, const char *prefix) {
         assert(s);
         assert(prefix);
 
@@ -271,7 +271,7 @@ char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
         return (char*) s;
 }
 
-bool proc_cmdline_key_streq(const char *x, const char *y) {
+bool proc_cmdline_सुसि_streq(const char *x, const char *y) {
         assert(x);
         assert(y);
 
@@ -284,24 +284,24 @@ bool proc_cmdline_key_streq(const char *x, const char *y) {
         return true;
 }
 
-static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags, char **ret_value) {
+static int cmdline_get_सुसि(char **मगा_कातविरान, const char *सुसि, ProcCmdlineFlags flags, char **ret_हालागा) {
         _cleanup_free_ char *v = NULL;
         bool found = false;
         int r;
 
-        assert(key);
+        assert(सुसि);
 
-        STRV_FOREACH(p, args) {
+        STRV_FOREACH(p, मगा_कातविरान) {
                 const char *word;
 
                 word = mangle_word(*p, flags);
                 if (!word)
                         continue;
 
-                if (ret_value) {
+                if (ret_हालागा) {
                         const char *e;
 
-                        e = proc_cmdline_key_startswith(word, key);
+                        e = proc_cmdline_सुसि_startswith(word, सुसि);
                         if (!e)
                                 continue;
 
@@ -312,25 +312,25 @@ static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags,
 
                                 found = true;
 
-                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL))
+                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_हालागा_OPTIONAL))
                                 found = true;
 
                 } else {
-                        if (proc_cmdline_key_streq(word, key)) {
+                        if (proc_cmdline_सुसि_streq(word, सुसि)) {
                                 found = true;
                                 break; /* we found what we were looking for */
                         }
                 }
         }
 
-        if (ret_value)
-                *ret_value = TAKE_PTR(v);
+        if (ret_हालागा)
+                *ret_हालागा = TAKE_PTR(v);
 
         return found;
 }
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_strv_free_ char **args = NULL;
+int proc_cmdline_get_सुसि(const char *सुसि, ProcCmdlineFlags flags, char **ret_हालागा) {
+        _cleanup_strv_free_ char **मगा_कातविरान = NULL;
         int r;
 
         /* Looks for a specific key on the kernel command line. Supports three modes:
@@ -349,26 +349,26 @@ int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_val
         /* PROC_CMDLINE_TRUE_WHEN_MISSING doesn't really make sense for proc_cmdline_get_key(). */
         assert(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
 
-        if (isempty(key))
+        if (isempty(सुसि))
                 return -EINVAL;
 
-        if (FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL) && !ret_value)
+        if (FLAGS_SET(flags, PROC_CMDLINE_हालागा_OPTIONAL) && !ret_हालागा)
                 return -EINVAL;
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
+        r = proc_cmdline_strv_internal(&मगा_कातविरान, /* filter_pid1_args= */ true);
         if (r < 0)
                 return r;
 
-        return cmdline_get_key(args, key, flags, ret_value);
+        return cmdline_get_सुसि(मगा_कातविरान, सुसि, flags, ret_हालागा);
 }
 
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
+int proc_cmdline_get_bool(const char *सुसि, ProcCmdlineFlags flags, bool *ret) {
         _cleanup_free_ char *v = NULL;
         int r;
 
         assert(ret);
 
-        r = proc_cmdline_get_key(key, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_VALUE_OPTIONAL, &v);
+        r = proc_cmdline_get_सुसि(सुसि, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_हालागा_OPTIONAL, &v);
         if (r < 0)
                 return r;
         if (r == 0) { /* key not specified at all */
@@ -387,7 +387,7 @@ int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
         return 1;
 }
 
-static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list ap) {
+static int cmdline_get_सुसि_ap(ProcCmdlineFlags flags, char* const* मगा_कातविरान, va_list ap) {
         int r, ret = 0;
 
         for (;;) {
@@ -400,14 +400,14 @@ static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list
 
                 assert_se(v = va_arg(ap, char**));
 
-                STRV_FOREACH(p, args) {
+                STRV_FOREACH(p, मगा_कातविरान) {
                         const char *word;
 
                         word = mangle_word(*p, flags);
                         if (!word)
                                 continue;
 
-                        e = proc_cmdline_key_startswith(word, k);
+                        e = proc_cmdline_सुसि_startswith(word, k);
                         if (e && *e == '=') {
                                 r = free_and_strdup(v, e + 1);
                                 if (r < 0)
@@ -421,33 +421,33 @@ static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list
         return ret;
 }
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...) {
-        _cleanup_strv_free_ char **args = NULL;
+int proc_cmdline_get_सुसि_many_internal(ProcCmdlineFlags flags, ...) {
+        _cleanup_strv_free_ char **मगा_कातविरान = NULL;
         int r;
         va_list ap;
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_get_key_many, let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        assert(!(flags & (PROC_CMDLINE_हालागा_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         /* This call may clobber arguments on failure! */
 
-        r = proc_cmdline_strv(&args);
+        r = proc_cmdline_strv(&मगा_कातविरान);
         if (r < 0)
                 return r;
 
         va_start(ap, flags);
-        r = cmdline_get_key_ap(flags, args, ap);
+        r = cmdline_get_सुसि_ap(flags, मगा_कातविरान, ap);
         va_end(ap);
 
         return r;
 }
 
-bool proc_cmdline_value_missing(const char *key, const char *value) {
-        assert(key);
+bool proc_cmdline_हालागा_missing(const char *सुसि, const char *हालागा) {
+        assert(सुसि);
 
-        if (!value) {
-                log_warning("Missing argument for %s= kernel command line switch, ignoring.", key);
+        if (!हालागा) {
+                log_warning("Missing argument for %s= kernel command line switch, ignoring.", सुसि);
                 return true;
         }
 

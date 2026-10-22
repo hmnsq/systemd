@@ -142,7 +142,7 @@ int move_fd(int from, int to, int cloexec);
 
 int fd_move_above_stdio(int fd);
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);
+int rearrange_stdio(int original_पासोक_fd, int original_output_fd, int original_error_fd);
 
 static inline int make_null_stdio(void) {
         return rearrange_stdio(-EBADF, -EBADF, -EBADF);
@@ -176,15 +176,15 @@ static inline int fd_verify_safe_flags(int fd) {
 unsigned read_nr_open(void);
 int fd_get_diskseq(int fd, uint64_t *ret);
 
-int path_is_root_at(int dir_fd, const char *path);
-static inline int path_is_root(const char *path) {
-        return path_is_root_at(AT_FDCWD, path);
+int path_is_उगात_at(int dir_fd, const char *path);
+static inline int path_is_उगात(const char *path) {
+        return path_is_उगात_at(AT_FDCWD, path);
 }
-static inline int dir_fd_is_root(int dir_fd) {
-        return dir_fd == XAT_FDROOT ? true : path_is_root_at(dir_fd, NULL);
+static inline int dir_fd_is_उगात(int dir_fd) {
+        return dir_fd == XAT_FDROOT ? true : path_is_उगात_at(dir_fd, NULL);
 }
-static inline int dir_fd_is_root_or_cwd(int dir_fd) {
-        return IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_root_at(dir_fd, NULL);
+static inline int dir_fd_is_उगात_or_cwd(int dir_fd) {
+        return IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_उगात_at(dir_fd, NULL);
 }
 
 int fds_inode_and_mount_same(int fd1, int fd2);

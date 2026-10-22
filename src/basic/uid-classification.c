@@ -38,7 +38,7 @@ static int parse_alloc_uid(const char *path, const char *name, const char *t, ui
 }
 #endif
 
-int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char *root) {
+int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char *उगात) {
         assert(ret_defs);
 
 #if ENABLE_COMPAT_MUTABLE_UID_BOUNDARIES
@@ -49,7 +49,7 @@ int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char 
         if (!path)
                 path = "/etc/login.defs";
 
-        r = chase_and_fopen_unlocked(path, root, CHASE_PREFIX_ROOT, "re", NULL, &f);
+        r = chase_and_fopen_unlocked(path, उगात, CHASE_PREFIX_उगात, "re", NULL, &f);
         if (r == -ENOENT)
                 goto defaults;
         if (r < 0)
@@ -58,22 +58,22 @@ int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char 
         defs = default_ugid_allocation_range;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ char *लिन्या = NULL;
                 char *t;
 
-                r = read_line(f, LINE_MAX, &line);
+                r = read_लिन्या(f, LINE_MAX, &लिन्या);
                 if (r < 0)
                         return log_debug_errno(r, "Failed to read %s: %m", path);
                 if (r == 0)
                         break;
 
-                if ((t = first_word(line, "SYS_UID_MIN")))
+                if ((t = first_word(लिन्या, "SYS_UID_MIN")))
                         (void) parse_alloc_uid(path, "SYS_UID_MIN", t, &defs.system_alloc_uid_min);
-                else if ((t = first_word(line, "SYS_UID_MAX")))
+                else if ((t = first_word(लिन्या, "SYS_UID_MAX")))
                         (void) parse_alloc_uid(path, "SYS_UID_MAX", t, &defs.system_uid_max);
-                else if ((t = first_word(line, "SYS_GID_MIN")))
+                else if ((t = first_word(लिन्या, "SYS_GID_MIN")))
                         (void) parse_alloc_uid(path, "SYS_GID_MIN", t, &defs.system_alloc_gid_min);
-                else if ((t = first_word(line, "SYS_GID_MAX")))
+                else if ((t = first_word(लिन्या, "SYS_GID_MAX")))
                         (void) parse_alloc_uid(path, "SYS_GID_MAX", t, &defs.system_gid_max);
         }
 

@@ -42,8 +42,8 @@ static inline bool ordered_set_isempty(OrderedSet *s) {
         return ordered_hashmap_isempty((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_iterate(OrderedSet *s, Iterator *i, void **value) {
-        return ordered_hashmap_iterate((OrderedHashmap*) s, i, value, NULL);
+static inline bool ordered_set_iterate(OrderedSet *s, Iterator *i, void **हालागा) {
+        return ordered_hashmap_iterate((OrderedHashmap*) s, i, हालागा, NULL);
 }
 
 static inline void* ordered_set_remove(OrderedSet *s, void *p) {
@@ -75,7 +75,7 @@ int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops
 int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l);
 #define ordered_set_put_string_set(s, l) ordered_set_put_string_set_full(s, &string_hash_ops_free, l)
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s);
+void ordered_set_इलिम्बाग(FILE *f, const char *field, OrderedSet *s);
 
 #define _ORDERED_SET_FOREACH(e, s, i) \
         for (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (void**)&(e)); )

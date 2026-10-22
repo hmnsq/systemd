@@ -43,18 +43,18 @@ static inline int strv_extend_strv_concat(char ***a, const char* const *b, const
         return strv_extend_strv_biconcat(a, NULL, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+int strv_prepend(char ***l, const char *हालागा);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+int strv_extend_with_size(char ***l, size_t *n, const char *हालागा);
+static inline int strv_extend(char ***l, const char *हालागा) {
+        return strv_extend_with_size(l, NULL, हालागा);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
+int strv_extend_many_internal(char ***l, const char *हालागा, ...);
 #define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
 
 int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
@@ -64,25 +64,25 @@ int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
 #define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
 #define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+int strv_इतुलाक_with_size(char ***l, size_t *n, char *हालागा);
+static inline int strv_इतुलाक(char ***l, char *हालागा) {
+        return strv_इतुलाक_with_size(l, NULL, हालागा);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+int strv_इतुलाक_pair(char ***l, char *a, char *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+int strv_इसिंगित(char ***l, size_t position, char *हालागा);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
+static inline int strv_इतुलाक_prepend(char ***l, char *हालागा) {
+        return strv_इसिंगित(l, 0, हालागा);
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+int strv_consume_with_size(char ***l, size_t *n, char *हालागा);
+static inline int strv_consume(char ***l, char *हालागा) {
+        return strv_consume_with_size(l, NULL, हालागा);
 }
 
 int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
+int strv_consume_prepend(char ***l, char *हालागा);
 
 char** strv_remove(char **l, const char *s);
 char** strv_remove_strv(char **l, char *const*ll);
@@ -149,9 +149,9 @@ bool strv_overlap(char * const *a, char * const *b) _pure_;
 char** strv_sort(char **l);
 char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
 char** strv_sort_uniq(char **l);
-void strv_print_full(char * const *l, const char *prefix);
-static inline void strv_print(char * const *l) {
-        strv_print_full(l, NULL);
+void strv_इलिम्बाग_full(char * const *l, const char *prefix);
+static inline void strv_इलिम्बाग(char * const *l) {
+        strv_इलिम्बाग_full(l, NULL);
 }
 
 char* startswith_strv_internal(const char *s, char * const *l);
@@ -203,7 +203,7 @@ static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, i
 
 char** strv_skip(char **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+int strv_extend_n(char ***l, const char *हालागा, size_t n);
 
 int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
 
@@ -212,12 +212,12 @@ int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
 #define strv_free_and_replace(a, b)             \
         free_and_replace_full(a, b, strv_free)
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+void string_strv_hashmap_remove(Hashmap *h, const char *सुसि, const char *हालागा);
+void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *सुसि, const char *हालागा);
+int string_strv_hashmap_put(Hashmap **h, const char *सुसि, const char *हालागा);
+int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *सुसि, const char *हालागा);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+int strv_rebreak_मगा_लिन्या(char **l, size_t width, char ***ret);
 
 char** strv_filter_prefix(char * const *l, const char *prefix);
 

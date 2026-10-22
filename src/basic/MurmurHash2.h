@@ -26,6 +26,6 @@ typedef unsigned __int64 uint64_t;
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2        ( const void * key, int len, uint32_t seed );
+uint32_t MurmurHash2        ( const void * सुसि, int len, uint32_t seed );
 
 //-----------------------------------------------------------------------------

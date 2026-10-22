@@ -44,12 +44,12 @@ char* sysctl_normalize(char *s) {
         return s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
+static int shadow_update(Hashmap **shadow, const char *property, const char *हालागा) {
         _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
         int r;
 
         assert(property);
-        assert(value);
+        assert(हालागा);
 
         if (!shadow)
                 return 0;
@@ -58,7 +58,7 @@ static int shadow_update(Hashmap **shadow, const char *property, const char *val
         if (!k)
                 return -ENOMEM;
 
-        v = strdup(value);
+        v = strdup(हालागा);
         if (!v)
                 return -ENOMEM;
 
@@ -77,12 +77,12 @@ static int shadow_update(Hashmap **shadow, const char *property, const char *val
         return 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
+int sysctl_write_full(const char *property, const char *हालागा, Hashmap **shadow) {
         char *p;
         int r;
 
         assert(property);
-        assert(value);
+        assert(हालागा);
 
         p = strjoina("/proc/sys/", property);
 
@@ -90,13 +90,13 @@ int sysctl_write_full(const char *property, const char *value, Hashmap **shadow)
         if (!path_is_normalized(p))
                 return -EINVAL;
 
-        log_debug("Setting '%s' to '%s'", p, value);
+        log_debug("Setting '%s' to '%s'", p, हालागा);
 
-        r = shadow_update(shadow, p, value);
+        r = shadow_update(shadow, p, हालागा);
         if (r < 0)
                 return r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        return write_string_file(p, हालागा, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
 int sysctl_writef(const char *property, const char *format, ...) {
@@ -114,11 +114,11 @@ int sysctl_writef(const char *property, const char *format, ...) {
         return sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
+int sysctl_write_verify(const char *property, const char *हालागा) {
         int r;
 
         assert(property);
-        assert(value);
+        assert(हालागा);
 
         /* Some sysctl settings accept invalid values on write, but refuses on read. E.g. coredump pattern,
          * be1e0283021ec73c2eb92839db9a471a068709d9 (v6.17) and 7d7c1fb85cba5627bbe741fb7539c709435e3848
@@ -128,15 +128,15 @@ int sysctl_write_verify(const char *property, const char *value) {
 
         _cleanup_free_ char *original = NULL;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
+        if (r >= 0 && streq(original, हालागा))
                 return 0; /* Already set. */
 
-        r = sysctl_write(property, value);
+        r = sysctl_write(property, हालागा);
         if (r >= 0) {
                 _cleanup_free_ char *current = NULL;
                 r = sysctl_read(property, &current);
                 if (r >= 0) {
-                        if (streq(current, value))
+                        if (streq(current, हालागा))
                                 return 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
@@ -158,11 +158,11 @@ static const char* af_to_sysctl_dir(int af) {
         return af_to_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
+int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *हालागा, Hashmap **shadow) {
         const char *p;
 
         assert(property);
-        assert(value);
+        assert(हालागा);
 
         if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
                 return -EAFNOSUPPORT;
@@ -175,18 +175,18 @@ int sysctl_write_ip_property(int af, const char *ifname, const char *property, c
         } else
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        return sysctl_write_full(p, हालागा, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool हालागा, Hashmap **shadow) {
+        return sysctl_write_ip_property(af, ifname, property, one_zero(हालागा), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
+int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *हालागा, Hashmap **shadow) {
         const char *p;
 
         assert(property);
-        assert(value);
+        assert(हालागा);
         assert(ifname);
 
         if (!IN_SET(af, AF_INET, AF_INET6))
@@ -199,12 +199,12 @@ int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *pr
         } else
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        return sysctl_write_full(p, हालागा, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
+int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t हालागा, Hashmap **shadow) {
         char buf[DECIMAL_STR_MAX(uint32_t)];
-        xsprintf(buf, "%u", value);
+        xsprintf(buf, "%u", हालागा);
         return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 

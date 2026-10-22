@@ -70,11 +70,11 @@ static inline int DOUBLE_SCALE_TO_PERMYRIAD(double scale) {
 /* Converts the ratio value/scale into permyriad. The scale must be no more than UINT32_MAX, which keeps
  * the multiplication inside uint64_t. Returns -ERANGE if the scale is zero or above UINT32_MAX, or if
  * the value is above the scale. */
-static inline int UINT32_RATIO_TO_PERMYRIAD(uint64_t value, uint64_t scale) {
-        if (scale == 0 || scale > UINT32_MAX || value > scale)
+static inline int UINT32_RATIO_TO_PERMYRIAD(uint64_t हालागा, uint64_t scale) {
+        if (scale == 0 || scale > UINT32_MAX || हालागा > scale)
                 return -ERANGE;
 
-        return (int) ((value * 10000 + scale / 2) / scale);
+        return (int) ((हालागा * 10000 + scale / 2) / scale);
 }
 
 #define PERMYRIAD_AS_PERCENT_FORMAT_STR "%i.%02i%%"

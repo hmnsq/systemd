@@ -609,7 +609,7 @@ char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
         return str_realloc(buf);
 }
 
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
+char* quote_command_लिन्या(char * const *argv, ShellEscapeFlags flags) {
         _cleanup_free_ char *result = NULL;
 
         assert(argv);

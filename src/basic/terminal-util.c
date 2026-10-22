@@ -48,7 +48,7 @@
 #define CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC (333 * USEC_PER_MSEC)
 
 static volatile unsigned cached_columns = 0;
-static volatile unsigned cached_lines = 0;
+static volatile unsigned cached_मगा_लिन्या = 0;
 
 static volatile int cached_on_tty = -1;
 static volatile int cached_on_dev_null = -1;
@@ -97,7 +97,7 @@ int chvt(int vt) {
 }
 
 int read_one_char(FILE *f, char *ret, usec_t t, bool echo, bool *need_nl) {
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ char *लिन्या = NULL;
         struct termios old_termios;
         int r, fd;
 
@@ -155,19 +155,19 @@ int read_one_char(FILE *f, char *ret, usec_t t, bool echo, bool *need_nl) {
 
         /* If this is not a terminal, then read a full line instead */
 
-        r = read_line(f, 16, &line); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
+        r = read_लिन्या(f, 16, &लिन्या); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
         if (r < 0)
                 return r;
         if (r == 0)
                 return -EIO;
 
-        if (strlen(line) != 1)
+        if (strlen(लिन्या) != 1)
                 return -EBADMSG;
 
         if (need_nl)
                 *need_nl = false;
 
-        *ret = line[0];
+        *ret = लिन्या[0];
         return 0;
 }
 
@@ -335,23 +335,23 @@ int ask_string_full(
         /* Do interactive logic only if stdin + stdout are connected to the same place. And yes, we could use
          * STDIN_FILENO and STDOUT_FILENO here, but let's be overly correct for once, after all libc allows
          * swapping out stdin/stdout. */
-        int fd_input = fileno(stdin);
+        int fd_पासोक = fileno(stdin);
         int fd_output = fileno(stdout);
         struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(fd_input, old_termios);
+        CLEANUP_TERMIOS_RESET(fd_पासोक, old_termios);
 
-        if (fd_input < 0 || fd_output < 0 || same_fd(fd_input, fd_output) <= 0)
+        if (fd_पासोक < 0 || fd_output < 0 || same_fd(fd_पासोक, fd_output) <= 0)
                 goto fallback;
 
         /* Try to disable echo, which also tells us if this even is a terminal */
-        if (tcgetattr(fd_input, &old_termios) < 0) {
+        if (tcgetattr(fd_पासोक, &old_termios) < 0) {
                 old_termios = TERMIOS_NULL;
                 goto fallback;
         }
 
         struct termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
-        if (tcsetattr(fd_input, TCSANOW, &new_termios) < 0)
+        if (tcsetattr(fd_पासोक, TCSANOW, &new_termios) < 0)
                 return -errno;
 
         for (;;) {
@@ -479,7 +479,7 @@ int ask_string_full(
 fallback:
         /* A simple fallback without TTY magic */
         string = mfree(string);
-        r = read_line(stdin, LONG_LINE_MAX, &string);
+        r = read_लिन्या(stdin, LONG_लिन्या_MAX, &string);
         if (r < 0)
                 return r;
         if (r == 0)
@@ -489,7 +489,7 @@ fallback:
         return 0;
 }
 
-bool any_key_to_proceed(void) {
+bool any_सुसि_to_proceed(void) {
 
         /* Insert a new line here as well as to when the user inputs, as this is also used during the boot up
          * sequence when status messages may be interleaved with the current program output. This ensures
@@ -502,13 +502,13 @@ bool any_key_to_proceed(void) {
         fputc('\n', stdout);
         fflush(stdout);
 
-        char key = 0;
-        (void) read_one_char(stdin, &key, USEC_INFINITY, /* echo= */ false, /* need_nl= */ NULL);
+        char सुसि = 0;
+        (void) read_one_char(stdin, &सुसि, USEC_INFINITY, /* echo= */ false, /* need_nl= */ NULL);
 
         fputc('\n', stdout);
         fflush(stdout);
 
-        return key != 'q';
+        return सुसि != 'q';
 }
 
 static size_t widest_list_element(char *const*l) {
@@ -562,12 +562,12 @@ int show_menu(char **x,
         size_t n = strv_length(x);
         size_t per_column = DIV_ROUND_UP(n, n_columns);
 
-        size_t break_lines = lines();
-        if (break_lines > 2)
-                break_lines--;
+        size_t break_मगा_लिन्या = मगा_लिन्या();
+        if (break_मगा_लिन्या > 2)
+                break_मगा_लिन्या--;
 
         /* The first page gets two extra lines, since we want to show a title */
-        size_t break_modulo = break_lines;
+        size_t break_modulo = break_मगा_लिन्या;
         if (break_modulo > 3)
                 break_modulo -= 3;
 
@@ -605,8 +605,8 @@ int show_menu(char **x,
                 putchar('\n');
 
                 /* on the first screen we reserve 2 extra lines for the title */
-                if (i % break_lines == break_modulo)
-                        if (!any_key_to_proceed())
+                if (i % break_मगा_लिन्या == break_modulo)
+                        if (!any_सुसि_to_proceed())
                                 return 0;
         }
 
@@ -735,9 +735,9 @@ int acquire_terminal(
                 assert(wd >= 0);
 
                 for (;;) {
-                        usec_t left;
+                        usec_t कालिवा;
                         if (timeout == USEC_INFINITY)
-                                left = USEC_INFINITY;
+                                कालिवा = USEC_INFINITY;
                         else {
                                 assert(ts != USEC_INFINITY);
 
@@ -745,7 +745,7 @@ int acquire_terminal(
                                 if (n >= timeout)
                                         return -ETIMEDOUT;
 
-                                left = timeout - n;
+                                कालिवा = timeout - n;
                         }
 
                         r = ppoll_usec_full(
@@ -754,7 +754,7 @@ int acquire_terminal(
                                                 .events = POLLIN,
                                         },
                                         /* n_fds= */ 1,
-                                        left,
+                                        कालिवा,
                                         &poll_ss);
                         if (r < 0)
                                 return r;
@@ -1143,7 +1143,7 @@ int resolve_dev_console(char **ret) {
                 return -ENOMEDIUM;
 
         _cleanup_free_ char *active = NULL;
-        r = read_one_line_file("/sys/class/tty/console/active", &active);
+        r = read_one_लिन्या_file("/sys/class/tty/console/active", &active);
         if (r < 0)
                 return r;
         if (r == 0)
@@ -1160,7 +1160,7 @@ int resolve_dev_console(char **ret) {
                 active = mfree(active);
 
                 /* Get the active VC (e.g. tty1) */
-                r = read_one_line_file("/sys/class/tty/tty0/active", &active);
+                r = read_one_लिन्या_file("/sys/class/tty/tty0/active", &active);
                 if (r < 0)
                         return r;
                 if (r == 0)
@@ -1180,7 +1180,7 @@ int resolve_dev_console(char **ret) {
 
 int get_kernel_consoles(char ***ret) {
         _cleanup_strv_free_ char **l = NULL;
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ char *लिन्या = NULL;
         int r;
 
         assert(ret);
@@ -1190,11 +1190,11 @@ int get_kernel_consoles(char ***ret) {
         if (path_is_read_only_fs("/sys") > 0)
                 goto fallback;
 
-        r = read_one_line_file("/sys/class/tty/console/active", &line);
+        r = read_one_लिन्या_file("/sys/class/tty/console/active", &लिन्या);
         if (r < 0)
                 return r;
 
-        for (const char *p = line;;) {
+        for (const char *p = लिन्या;;) {
                 _cleanup_free_ char *tty = NULL, *path = NULL;
 
                 r = extract_first_word(&p, &tty, NULL, 0);
@@ -1205,7 +1205,7 @@ int get_kernel_consoles(char ***ret) {
 
                 if (streq(tty, "tty0")) {
                         tty = mfree(tty);
-                        r = read_one_line_file("/sys/class/tty/tty0/active", &tty);
+                        r = read_one_लिन्या_file("/sys/class/tty/tty0/active", &tty);
                         if (r < 0)
                                 return r;
                         if (r == 0) {
@@ -1308,7 +1308,7 @@ unsigned columns(void) {
         return cached_columns;
 }
 
-int fd_lines(int fd) {
+int fd_मगा_लिन्या(int fd) {
         struct winsize ws = {};
 
         if (fd < 0)
@@ -1323,12 +1323,12 @@ int fd_lines(int fd) {
         return ws.ws_row;
 }
 
-unsigned lines(void) {
+unsigned मगा_लिन्या(void) {
         const char *e;
         int l;
 
-        if (cached_lines > 0)
-                return cached_lines;
+        if (cached_मगा_लिन्या > 0)
+                return cached_मगा_लिन्या;
 
         l = 0;
         e = getenv("LINES");
@@ -1336,13 +1336,13 @@ unsigned lines(void) {
                 (void) safe_atoi(e, &l);
 
         if (l <= 0 || l > USHRT_MAX) {
-                l = fd_lines(STDOUT_FILENO);
+                l = fd_मगा_लिन्या(STDOUT_FILENO);
                 if (l <= 0)
                         l = 24;
         }
 
-        cached_lines = l;
-        return cached_lines;
+        cached_मगा_लिन्या = l;
+        return cached_मगा_लिन्या;
 }
 
 int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols) {
@@ -1408,7 +1408,7 @@ int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_col
         if (!colskey)
                 return -ENOMEM;
 
-        r = proc_cmdline_get_key_many(/* flags= */ 0,
+        r = proc_cmdline_get_सुसि_many(/* flags= */ 0,
                                       rowskey, &rowsvalue,
                                       colskey, &colsvalue);
         if (r < 0)
@@ -1435,14 +1435,14 @@ int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_col
 }
 
 /* intended to be used as a SIGWINCH sighandler */
-void columns_lines_cache_reset(int signum) {
+void columns_मगा_लिन्या_cache_reset(int signum) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_मगा_लिन्या = 0;
 }
 
 void reset_terminal_feature_caches(void) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_मगा_लिन्या = 0;
 
         cached_on_tty = -1;
         cached_on_dev_null = -1;
@@ -1501,7 +1501,7 @@ int getttyname_harder(int fd, char **ret) {
 }
 
 int get_ctty_devnr(pid_t pid, dev_t *ret) {
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ char *लिन्या = NULL;
         unsigned long ttynr;
         const char *p;
         int r;
@@ -1509,11 +1509,11 @@ int get_ctty_devnr(pid_t pid, dev_t *ret) {
         assert(pid >= 0);
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
+        r = read_one_लिन्या_file(p, &लिन्या);
         if (r < 0)
                 return r;
 
-        p = strrchr(line, ')');
+        p = strrchr(लिन्या, ')');
         if (!p)
                 return -EIO;
 
@@ -1787,7 +1787,7 @@ bool dev_console_colors_enabled(void) {
                 return false;
 
         if (getenv_for_pid(1, "TERM", &s) <= 0)
-                (void) proc_cmdline_get_key("TERM", 0, &s);
+                (void) proc_cmdline_get_सुसि("TERM", 0, &s);
 
         return !streq_ptr(s, "dumb");
 }
@@ -1888,17 +1888,17 @@ int terminal_set_cursor_position(int fd, unsigned row, unsigned column) {
         return loop_write(fd, cursor_position, SIZE_MAX);
 }
 
-static int terminal_verify_same(int input_fd, int output_fd) {
+static int terminal_verify_same(int पासोक_fd, int output_fd) {
         int r;
 
-        assert(input_fd >= 0);
+        assert(पासोक_fd >= 0);
         assert(output_fd >= 0);
 
         /* Validates that the specified fds reference the same TTY */
 
-        if (input_fd != output_fd) {
+        if (पासोक_fd != output_fd) {
                 struct stat sti;
-                if (fstat(input_fd, &sti) < 0)
+                if (fstat(पासोक_fd, &sti) < 0)
                         return -errno;
 
                 r = stat_verify_char(&sti); /* TTYs are character devices */
@@ -1917,7 +1917,7 @@ static int terminal_verify_same(int input_fd, int output_fd) {
                         return -ENOLINK;
         }
 
-        if (!isatty_safe(input_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
+        if (!isatty_safe(पासोक_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
                 return -ENOTTY;
 
         return 0;
@@ -2004,36 +2004,36 @@ static int scan_cursor_position_response(
 }
 
 int terminal_get_cursor_position(
-                int input_fd,
+                int पासोक_fd,
                 int output_fd,
                 unsigned *ret_row,
                 unsigned *ret_column) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
+        _cleanup_close_ int nonblock_पासोक_fd = -EBADF;
         int r;
 
-        assert(input_fd >= 0);
+        assert(पासोक_fd >= 0);
         assert(output_fd >= 0);
 
         if (getenv_terminal_is_dumb())
                 return -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
+        r = terminal_verify_same(पासोक_fd, output_fd);
         if (r < 0)
                 return log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Failure to reset the terminal is ignored here and in similar cases below.
          * We already have our result; if cleanup fails it doesn't change the validity of the result. */
         struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(input_fd, old_termios);
+        CLEANUP_TERMIOS_RESET(पासोक_fd, old_termios);
 
-        if (tcgetattr(input_fd, &old_termios) < 0)
+        if (tcgetattr(पासोक_fd, &old_termios) < 0)
                 return log_debug_errno(errno, "Failed to get terminal settings: %m");
 
         struct termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(input_fd, TCSANOW, &new_termios) < 0)
+        if (tcsetattr(पासोक_fd, TCSANOW, &new_termios) < 0)
                 return log_debug_errno(errno, "Failed to set new terminal settings: %m");
 
         /* Request cursor position (DSR/CPR) */
@@ -2044,7 +2044,7 @@ int terminal_get_cursor_position(
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read() should someone
          * else process the POLLIN. */
 
-        nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        nonblock_पासोक_fd = r = fd_reopen(पासोक_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
         if (r < 0)
                 return r;
 
@@ -2059,7 +2059,7 @@ int terminal_get_cursor_position(
                         if (n >= end)
                                 return -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
+                        r = fd_wait_for_event(nonblock_पासोक_fd, POLLIN, usec_sub_unsigned(end, n));
                         if (r < 0)
                                 return r;
                         if (r == 0)
@@ -2068,7 +2068,7 @@ int terminal_get_cursor_position(
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
+                        ssize_t l = read(nonblock_पासोक_fd, buf, first ? sizeof(buf) : 1);
                         if (l < 0) {
                                 if (errno == EAGAIN)
                                         continue;
@@ -2329,20 +2329,20 @@ int get_default_background_color(double *ret_red, double *ret_green, double *ret
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        _cleanup_close_ int nonblock_पासोक_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
         if (r < 0)
                 return r;
 
         struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
+        CLEANUP_TERMIOS_RESET(nonblock_पासोक_fd, old_termios);
 
-        if (tcgetattr(nonblock_input_fd, &old_termios) < 0)
+        if (tcgetattr(nonblock_पासोक_fd, &old_termios) < 0)
                 return -errno;
 
         struct termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
+        if (tcsetattr(nonblock_पासोक_fd, TCSANOW, &new_termios) < 0)
                 return -errno;
 
         r = loop_write(STDOUT_FILENO, ANSI_OSC "11;?" ANSI_ST, SIZE_MAX);
@@ -2360,7 +2360,7 @@ int get_default_background_color(double *ret_red, double *ret_green, double *ret
                         if (n >= end)
                                 return -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
+                        r = fd_wait_for_event(nonblock_पासोक_fd, POLLIN, usec_sub_unsigned(end, n));
                         if (r < 0)
                                 return r;
                         if (r == 0)
@@ -2369,7 +2369,7 @@ int get_default_background_color(double *ret_red, double *ret_green, double *ret
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
+                        ssize_t l = read(nonblock_पासोक_fd, buf, first ? sizeof(buf) : 1);
                         if (l < 0) {
                                 if (errno == EAGAIN)
                                         continue;
@@ -2408,14 +2408,14 @@ int get_default_background_color(double *ret_red, double *ret_green, double *ret
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
 static int terminal_query_size_by_dsr(
-                int nonblock_input_fd,
+                int nonblock_पासोक_fd,
                 int output_fd,
                 unsigned *ret_rows,
                 unsigned *ret_columns) {
 
         int r;
 
-        assert(nonblock_input_fd >= 0);
+        assert(nonblock_पासोक_fd >= 0);
         assert(output_fd >= 0);
 
         /* Use DECSC/DECRC to save/restore cursor instead of querying position via DSR. This way the cursor
@@ -2441,7 +2441,7 @@ static int terminal_query_size_by_dsr(
                         if (n >= end)
                                 return -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
+                        r = fd_wait_for_event(nonblock_पासोक_fd, POLLIN, usec_sub_unsigned(end, n));
                         if (r < 0)
                                 return r;
                         if (r == 0)
@@ -2450,7 +2450,7 @@ static int terminal_query_size_by_dsr(
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
+                        ssize_t l = read(nonblock_पासोक_fd, buf, first ? sizeof(buf) : 1);
                         if (l < 0) {
                                 if (errno == EAGAIN)
                                         continue;
@@ -2490,14 +2490,14 @@ static int terminal_query_size_by_dsr(
 /* Common setup for ANSI terminal queries: validate the fds, open a non-blocking input fd, and configure
  * termios with echo and canonical mode disabled. Caller must restore termios and close the fd when done. */
 static int terminal_prepare_query(
-                int input_fd,
+                int पासोक_fd,
                 int output_fd,
                 int *ret_nonblock_fd,
                 struct termios *ret_saved_termios) {
 
         int r;
 
-        assert(input_fd >= 0);
+        assert(पासोक_fd >= 0);
         assert(output_fd >= 0);
         assert(ret_nonblock_fd);
         assert(ret_saved_termios);
@@ -2509,26 +2509,26 @@ static int terminal_prepare_query(
         if (getenv_terminal_is_dumb())
                 return -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
+        r = terminal_verify_same(पासोक_fd, output_fd);
         if (r < 0)
                 return log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        _cleanup_close_ int nonblock_पासोक_fd = r = fd_reopen(पासोक_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
         if (r < 0)
                 return r;
 
-        if (tcgetattr(nonblock_input_fd, ret_saved_termios) < 0)
+        if (tcgetattr(nonblock_पासोक_fd, ret_saved_termios) < 0)
                 return log_debug_errno(errno, "Failed to get terminal settings: %m");
 
         struct termios new_termios = *ret_saved_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
+        if (tcsetattr(nonblock_पासोक_fd, TCSANOW, &new_termios) < 0)
                 return log_debug_errno(errno, "Failed to set new terminal settings: %m");
 
-        *ret_nonblock_fd = TAKE_FD(nonblock_input_fd);
+        *ret_nonblock_fd = TAKE_FD(nonblock_पासोक_fd);
         return 0;
 }
 
@@ -2572,14 +2572,14 @@ static int scan_text_area_size_response(
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
 static int terminal_query_size_by_csi18(
-                int nonblock_input_fd,
+                int nonblock_पासोक_fd,
                 int output_fd,
                 unsigned *ret_rows,
                 unsigned *ret_columns) {
 
         int r;
 
-        assert(nonblock_input_fd >= 0);
+        assert(nonblock_पासोक_fd >= 0);
         assert(output_fd >= 0);
 
         r = loop_write_full(output_fd, CSI18_Q, SIZE_MAX, CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
@@ -2595,7 +2595,7 @@ static int terminal_query_size_by_csi18(
                 if (n >= end)
                         return -EOPNOTSUPP;
 
-                r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
+                r = fd_wait_for_event(nonblock_पासोक_fd, POLLIN, usec_sub_unsigned(end, n));
                 if (r < 0)
                         return r;
                 if (r == 0)
@@ -2604,7 +2604,7 @@ static int terminal_query_size_by_csi18(
                 /* On the first read, read multiple characters, i.e. the shortest valid reply. Afterwards
                  * read byte by byte, since we don't want to read too much and drop characters from the input
                  * queue. */
-                ssize_t l = read(nonblock_input_fd, buf + bytes, bytes == 0 ? STRLEN(CSI18_R0) : 1);
+                ssize_t l = read(nonblock_पासोक_fd, buf + bytes, bytes == 0 ? STRLEN(CSI18_R0) : 1);
                 if (l < 0) {
                         if (errno == EAGAIN)
                                 continue;
@@ -2627,22 +2627,22 @@ static int terminal_query_size_by_csi18(
 }
 
 int terminal_get_size(
-                int input_fd,
+                int पासोक_fd,
                 int output_fd,
                 unsigned *ret_rows,
                 unsigned *ret_columns,
                 bool try_dsr,
                 bool try_csi18) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
+        _cleanup_close_ int nonblock_पासोक_fd = -EBADF;
         struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
+        CLEANUP_TERMIOS_RESET(nonblock_पासोक_fd, old_termios);
         _cleanup_(nonblock_resetp) int nonblock_reset = -EBADF;
         int r;
 
         assert(try_dsr || try_csi18);
 
-        r = terminal_prepare_query(input_fd, output_fd, &nonblock_input_fd, &old_termios);
+        r = terminal_prepare_query(पासोक_fd, output_fd, &nonblock_पासोक_fd, &old_termios);
         if (r < 0)
                 return r;
 
@@ -2655,27 +2655,27 @@ int terminal_get_size(
                 nonblock_reset = output_fd;
 
         /* Flush any stale input that might confuse the response parsers. */
-        (void) tcflush(nonblock_input_fd, TCIFLUSH);
+        (void) tcflush(nonblock_पासोक_fd, TCIFLUSH);
 
         if (try_csi18) {
-                r = terminal_query_size_by_csi18(nonblock_input_fd, output_fd, ret_rows, ret_columns);
+                r = terminal_query_size_by_csi18(nonblock_पासोक_fd, output_fd, ret_rows, ret_columns);
                 if (r >= 0)
                         return r;
 
                 /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
+                (void) tcflush(nonblock_पासोक_fd, TCIFLUSH);
 
                 if (!IN_SET(r, -EOPNOTSUPP, -EINVAL))
                         return r;
         }
 
         if (try_dsr) {
-                r = terminal_query_size_by_dsr(nonblock_input_fd, output_fd, ret_rows, ret_columns);
+                r = terminal_query_size_by_dsr(nonblock_पासोक_fd, output_fd, ret_rows, ret_columns);
                 if (r >= 0)
                         return r;
 
                 /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
+                (void) tcflush(nonblock_पासोक_fd, TCIFLUSH);
         }
 
         return r;
@@ -2694,13 +2694,13 @@ static int fd_is_vc(int fd) {
         return tty_is_vc_resolve(name);
 }
 
-int terminal_fix_size(int input_fd, int output_fd) {
+int terminal_fix_size(int पासोक_fd, int output_fd) {
         unsigned rows, columns;
         int r;
 
         /* Don't ask a virtual console at all. There is no intermediary here that could be wrong about the
          * dimensions: the kernel renders the screen itself, so its winsize is authoritative. */
-        r = fd_is_vc(input_fd);
+        r = fd_is_vc(पासोक_fd);
         if (r < 0)
                 log_debug_errno(r, "Failed to determine whether terminal is a virtual console, assuming it is not: %m");
         else if (r > 0) {
@@ -2712,7 +2712,7 @@ int terminal_fix_size(int input_fd, int output_fd) {
         if (ioctl(output_fd, TIOCGWINSZ, &ws) < 0)
                 return log_debug_errno(errno, "Failed to query terminal dimensions, ignoring: %m");
 
-        r = terminal_get_size(input_fd, output_fd, &rows, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
+        r = terminal_get_size(पासोक_fd, output_fd, &rows, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
         if (r < 0)
                 return log_debug_errno(r, "Failed to acquire terminal dimensions via ANSI sequences, not adjusting terminal dimensions: %m");
 

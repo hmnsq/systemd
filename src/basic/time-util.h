@@ -136,7 +136,7 @@ struct timeval* timeval_store(struct timeval *tv, usec_t u);
 #define TIMEVAL_STORE(u) timeval_store(&(struct timeval) {}, (u))
 
 char* format_timestamp_style(char *buf, size_t l, usec_t t, TimestampStyle style) _warn_unused_result_;
-char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t clock, bool implicit_left) _warn_unused_result_;
+char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t clock, bool implicit_कालिवा) _warn_unused_result_;
 char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) _warn_unused_result_;
 
 /* Returns the abbreviated English weekday name for wd in Mon=0 … Sun=6 order

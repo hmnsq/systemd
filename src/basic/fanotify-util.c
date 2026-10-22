@@ -13,7 +13,7 @@ bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotif
         assert(i);
         assert(ret);
 
-        if (i->left < sizeof(struct fanotify_event_metadata))
+        if (i->कालिवा < sizeof(struct fanotify_event_metadata))
                 return false;
 
         /* Read event_len without going through struct fanotify_event_metadata: the struct requires 64-bit
@@ -22,7 +22,7 @@ bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotif
         uint32_t event_len = unaligned_read_ne32(i->ptr);
 
         if (event_len < sizeof(struct fanotify_event_metadata) ||
-            event_len > i->left ||
+            event_len > i->कालिवा ||
             event_len > sizeof(i->aligned.raw))
                 return false;
 
@@ -31,7 +31,7 @@ bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotif
         memcpy(&i->aligned, i->ptr, event_len);
 
         i->ptr += event_len;
-        i->left -= event_len;
+        i->कालिवा -= event_len;
 
         *ret = &i->aligned.em;
         return true;

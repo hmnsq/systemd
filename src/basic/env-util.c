@@ -58,7 +58,7 @@ bool env_name_is_valid(const char *e) {
         return env_name_is_valid_n(e, SIZE_MAX);
 }
 
-bool env_value_is_valid(const char *e) {
+bool env_हालागा_is_valid(const char *e) {
         if (!e)
                 return false;
 
@@ -90,7 +90,7 @@ bool env_assignment_is_valid(const char *e) {
         if (!env_name_is_valid_n(e, eq - e))
                 return false;
 
-        if (!env_value_is_valid(eq + 1))
+        if (!env_हालागा_is_valid(eq + 1))
                 return false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
@@ -448,49 +448,49 @@ int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
         return strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
+int strv_env_assign(char ***l, const char *सुसि, const char *हालागा) {
         assert(l);
 
-        if (!env_name_is_valid(key))
+        if (!env_name_is_valid(सुसि))
                 return -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
-                strv_env_unset(*l, key);
+        if (!हालागा) {
+                strv_env_unset(*l, सुसि);
                 return 0;
         }
 
-        char *p = strjoin(key, "=", value);
+        char *p = strjoin(सुसि, "=", हालागा);
         if (!p)
                 return -ENOMEM;
 
         return strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
+int strv_env_assignf(char ***l, const char *सुसि, const char *valuef, ...) {
         int r;
 
         assert(l);
-        assert(key);
+        assert(सुसि);
 
-        if (!env_name_is_valid(key))
+        if (!env_name_is_valid(सुसि))
                 return -EINVAL;
 
         if (!valuef) {
-                strv_env_unset(*l, key);
+                strv_env_unset(*l, सुसि);
                 return 0;
         }
 
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         va_list ap;
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&हालागा, valuef, ap);
         va_end(ap);
         if (r < 0)
                 return -ENOMEM;
 
-        char *p = strjoin(key, "=", value);
+        char *p = strjoin(सुसि, "=", हालागा);
         if (!p)
                 return -ENOMEM;
 
@@ -505,24 +505,24 @@ int _strv_env_assign_many(char ***l, ...) {
 
         va_start(ap, l);
         for (;;) {
-                const char *key, *value;
+                const char *सुसि, *हालागा;
 
-                key = va_arg(ap, const char *);
-                if (!key)
+                सुसि = va_arg(ap, const char *);
+                if (!सुसि)
                         break;
 
-                if (!env_name_is_valid(key)) {
+                if (!env_name_is_valid(सुसि)) {
                         va_end(ap);
                         return -EINVAL;
                 }
 
-                value = va_arg(ap, const char *);
-                if (!value) {
-                        strv_env_unset(*l, key);
+                हालागा = va_arg(ap, const char *);
+                if (!हालागा) {
+                        strv_env_unset(*l, सुसि);
                         continue;
                 }
 
-                char *p = strjoin(key, "=", value);
+                char *p = strjoin(सुसि, "=", हालागा);
                 if (!p) {
                         va_end(ap);
                         return -ENOMEM;
@@ -570,9 +570,9 @@ char* strv_env_pairs_get(char **l, const char *name) {
 
         assert(name);
 
-        STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
-                        result = *value;
+        STRV_FOREACH_PAIR(सुसि, हालागा, l)
+                if (streq(*सुसि, name))
+                        result = *हालागा;
 
         return result;
 }
@@ -589,10 +589,10 @@ int strv_env_get_merged(char **l, char ***ret) {
          * input  : { "NAME", "value", "FOO", "var" }
          * output : { "NAME=value", "FOO=var" } */
 
-        STRV_FOREACH_PAIR(key, value, l) {
+        STRV_FOREACH_PAIR(सुसि, हालागा, l) {
                 char *s;
 
-                s = strjoin(*key, "=", *value);
+                s = strjoin(*सुसि, "=", *हालागा);
                 if (!s)
                         return -ENOMEM;
 
@@ -701,12 +701,12 @@ int replace_env_full(
                 VARIABLE,
                 VARIABLE_RAW,
                 TEST,
-                DEFAULT_VALUE,
-                ALTERNATE_VALUE,
+                DEFAULT_हालागा,
+                ALTERNATE_हालागा,
         } state = WORD;
 
         _cleanup_strv_free_ char **unset_variables = NULL, **bad_variables = NULL;
-        const char *e, *word = format, *test_value = NULL; /* test_value is initialized to appease gcc */
+        const char *e, *word = format, *test_हालागा = NULL; /* test_value is initialized to appease gcc */
         _cleanup_free_ char *s = NULL;
         char ***pu, ***pb;
         size_t i, len = 0; /* len is initialized to appease gcc */
@@ -781,19 +781,19 @@ int replace_env_full(
 
                 case TEST:
                         if (*e == '-')
-                                state = DEFAULT_VALUE;
+                                state = DEFAULT_हालागा;
                         else if (*e == '+')
-                                state = ALTERNATE_VALUE;
+                                state = ALTERNATE_हालागा;
                         else {
                                 state = WORD;
                                 break;
                         }
 
-                        test_value = e+1;
+                        test_हालागा = e+1;
                         break;
 
-                case DEFAULT_VALUE: /* fall through */
-                case ALTERNATE_VALUE:
+                case DEFAULT_हालागा: /* fall through */
+                case ALTERNATE_हालागा:
                         assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
                         if (*e == '{') {
@@ -814,14 +814,14 @@ int replace_env_full(
                                 if (r < 0)
                                         return r;
 
-                                if (t && state == ALTERNATE_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
+                                if (t && state == ALTERNATE_हालागा) {
+                                        r = replace_env_full(test_हालागा, e-test_हालागा, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
                                         if (r < 0)
                                                 return r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
+                                } else if (!t && state == DEFAULT_हालागा) {
+                                        r = replace_env_full(test_हालागा, e-test_हालागा, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
                                         if (r < 0)
                                                 return r;
 
@@ -1022,11 +1022,11 @@ int secure_getenv_uint64(const char *p, uint64_t *ret) {
         return safe_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
+int set_unset_env(const char *name, const char *हालागा, bool overwrite) {
         assert(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        if (हालागा)
+                return RET_NERRNO(setenv(name, हालागा, overwrite));
 
         return RET_NERRNO(unsetenv(name));
 }
@@ -1148,7 +1148,7 @@ int getenv_steal_erase(const char *name, char **ret) {
 }
 
 int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         va_list ap;
         int r;
 
@@ -1158,7 +1158,7 @@ int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
                 return RET_NERRNO(unsetenv(name));
 
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&हालागा, valuef, ap);
         va_end(ap);
 
         if (r < 0)
@@ -1166,8 +1166,8 @@ int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
+        if (streq_ptr(getenv(name), हालागा))
                 return 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        return RET_NERRNO(setenv(name, हालागा, overwrite));
 }

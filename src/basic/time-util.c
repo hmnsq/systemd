@@ -463,7 +463,7 @@ char* format_timestamp_style(
         return buf;
 }
 
-char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t clock, bool implicit_left) {
+char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t clock, bool implicit_कालिवा) {
         const char *s;
         usec_t n, d;
 
@@ -478,7 +478,7 @@ char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t cl
                 s = " ago";
         } else {
                 d = t - n;
-                s = implicit_left ? "" : " left";
+                s = implicit_कालिवा ? "" : " left";
         }
 
         if (d >= USEC_PER_YEAR) {
@@ -1477,19 +1477,19 @@ static int get_timezones_from_zone1970_tab(char ***ret) {
                 return -errno;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL, *cc = NULL, *co = NULL, *tz = NULL;
+                _cleanup_free_ char *लिन्या = NULL, *cc = NULL, *co = NULL, *tz = NULL;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
+                r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)
                         break;
 
-                const char *p = line;
+                const char *p = लिन्या;
 
                 /* Line format is:
                  * 'country codes' 'coordinates' 'timezone' 'comments' */
-                r = extract_many_words(&p, NULL, 0, &cc, &co, &tz);
+                r = extract_many_मगा_सालिता(&p, NULL, 0, &cc, &co, &tz);
                 if (r < 0)
                         continue;
 
@@ -1522,15 +1522,15 @@ static int get_timezones_from_tzdata_zi(char ***ret) {
                 return -errno;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL, *type = NULL, *f1 = NULL, *f2 = NULL;
+                _cleanup_free_ char *लिन्या = NULL, *type = NULL, *f1 = NULL, *f2 = NULL;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
+                r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)
                         break;
 
-                const char *p = line;
+                const char *p = लिन्या;
 
                 /* The only lines we care about are Zone and Link lines.
                  * Zone line format is:
@@ -1538,7 +1538,7 @@ static int get_timezones_from_tzdata_zi(char ***ret) {
                  * Link line format is:
                  * 'Link' 'target' 'alias'
                  * See 'man zic' for more detail. */
-                r = extract_many_words(&p, NULL, 0, &type, &f1, &f2);
+                r = extract_many_मगा_सालिता(&p, NULL, 0, &type, &f1, &f2);
                 if (r < 0)
                         continue;
 

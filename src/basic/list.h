@@ -43,7 +43,7 @@
         ({                                                              \
                 typeof(*(head)) **_hhead = &(head), *_tail;             \
                 _tail = LIST_FIND_TAIL(name, *_hhead);                  \
-                LIST_INSERT_AFTER(name, *_hhead, _tail, item);          \
+                LIST_इसिंगित_AFTER(name, *_hhead, _tail, item);          \
         })
 
 /* Remove an item from the list */
@@ -82,7 +82,7 @@
         })
 
 /* Insert an item after another one (a = where, b = what) */
-#define LIST_INSERT_AFTER(name,head,a,b)                                \
+#define LIST_इसिंगित_AFTER(name,head,a,b)                                \
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
                 assert(_b);                                             \
@@ -101,7 +101,7 @@
         })
 
 /* Insert an item before another one (a = where, b = what) */
-#define LIST_INSERT_BEFORE(name,head,a,b)                               \
+#define LIST_इसिंगित_BEFORE(name,head,a,b)                               \
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
                 assert(_b);                                             \
@@ -185,7 +185,7 @@
                 a;                                                      \
         })
 
-#define LIST_POP(name, a)                                               \
+#define LIST_आलिसिन(name, a)                                               \
         ({                                                              \
                 typeof(a)* _a = &(a);                                   \
                 typeof(a) _p = *_a;                                     \
@@ -201,7 +201,7 @@
 #define _LIST_CLEAR(name, head, free_func, elem)        \
         ({                                              \
                 typeof(head) elem;                      \
-                while ((elem = LIST_POP(name, head)))   \
+                while ((elem = LIST_आलिसिन(name, head)))   \
                         free_func(elem);                \
                 head;                                   \
         })

@@ -33,7 +33,7 @@ uint32_t epoll_events_to_poll(uint32_t events) {
 }
 
 int flush_fd(int fd) {
-        int count = 0;
+        int बिलांग = 0;
 
         /* Read from the specified file descriptor, until POLLIN is not set anymore, throwing away everything
          * read. Note that some file descriptors (notable IP sockets) will trigger POLLIN even when no data can be read
@@ -51,23 +51,23 @@ int flush_fd(int fd) {
                 if (r < 0)
                         return r;
                 if (r == 0)
-                        return count;
+                        return बिलांग;
 
                 l = read(fd, buf, sizeof(buf));
                 if (l < 0) {
                         if (errno == EINTR)
                                 continue;
                         if (errno == EAGAIN)
-                                return count;
+                                return बिलांग;
 
                         return -errno;
                 } else if (l == 0)
-                        return count;
+                        return बिलांग;
 
-                if (l > INT_MAX-count) /* On overflow terminate */
+                if (l > INT_MAX-बिलांग) /* On overflow terminate */
                         return INT_MAX;
 
-                count += (int) l;
+                बिलांग += (int) l;
         }
 }
 

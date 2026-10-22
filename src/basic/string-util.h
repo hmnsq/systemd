@@ -263,10 +263,10 @@ static inline void* memory_startswith_no_case(const void *p, size_t sz, const ch
 char* str_realloc(char *p);
 char* string_erase(char *x);
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret);
-int string_extract_line(const char *s, size_t i, char **ret);
+int string_truncate_मगा_लिन्या(const char *s, size_t n_मगा_लिन्या, char **ret);
+int string_extract_लिन्या(const char *s, size_t i, char **ret);
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
+int string_contains_word_strv(const char *string, const char *separators, char * const *मगा_सालिता, const char **ret_word);
 static inline int string_contains_word(const char *string, const char *separators, const char *word) {
         return string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
 }
@@ -304,17 +304,17 @@ char* strdupcspn(const char *a, const char *reject);
                 (char*) memdupa_suffix0(_t, strnlen(_t, n));            \
         })
 
-char* find_line_startswith_internal(const char *haystack, const char *needle);
-#define find_line_startswith(haystack, needle) \
-        const_generic(haystack, find_line_startswith_internal(haystack, needle))
+char* find_लिन्या_startswith_internal(const char *haystack, const char *needle);
+#define find_लिन्या_startswith(haystack, needle) \
+        const_generic(haystack, find_लिन्या_startswith_internal(haystack, needle))
 
-char* find_line_internal(const char *haystack, const char *needle);
-#define find_line(haystack, needle) \
-        const_generic(haystack, find_line_internal(haystack, needle))
+char* find_लिन्या_internal(const char *haystack, const char *needle);
+#define find_लिन्या(haystack, needle) \
+        const_generic(haystack, find_लिन्या_internal(haystack, needle))
 
-char* find_line_after_internal(const char *haystack, const char *needle);
-#define find_line_after(haystack, needle) \
-        const_generic(haystack, find_line_after_internal(haystack, needle))
+char* find_लिन्या_after_internal(const char *haystack, const char *needle);
+#define find_लिन्या_after(haystack, needle) \
+        const_generic(haystack, find_लिन्या_after_internal(haystack, needle))
 
 typedef enum VersionFlags {
         VERSION_ALLOW_EMPTY      = 1 << 0,

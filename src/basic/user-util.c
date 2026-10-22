@@ -178,7 +178,7 @@ bool shell_is_placeholder(const char *shell) {
         return isempty(shell) || is_nologin_shell(shell);
 }
 
-const char* default_root_shell_at(int rfd) {
+const char* default_उगात_shell_at(int rfd) {
         /* We want to use the preferred shell, i.e. DEFAULT_USER_SHELL, which usually
          * will be /bin/bash. Fall back to /bin/sh if DEFAULT_USER_SHELL is not found,
          * or any access errors. */
@@ -194,14 +194,14 @@ const char* default_root_shell_at(int rfd) {
         return "/bin/sh";
 }
 
-const char* default_root_shell(const char *root) {
+const char* default_उगात_shell(const char *उगात) {
         _cleanup_close_ int rfd = -EBADF;
 
-        rfd = open(empty_to_root(root), O_CLOEXEC | O_DIRECTORY | O_PATH);
+        rfd = open(empty_to_उगात(उगात), O_CLOEXEC | O_DIRECTORY | O_PATH);
         if (rfd < 0)
                 return "/bin/sh";
 
-        return default_root_shell_at(rfd);
+        return default_उगात_shell_at(rfd);
 }
 
 static int return_user_creds(
@@ -263,7 +263,7 @@ static int synthesize_user_creds(
         if (STR_IN_SET(username, "root", "0"))
                 return return_user_creds("root", 0, 0,
                                          "/root",
-                                         ret_shell ? default_root_shell(NULL) : NULL,
+                                         ret_shell ? default_उगात_shell(NULL) : NULL,
                                          ret_username,
                                          ret_uid, ret_gid,
                                          ret_home,
@@ -355,7 +355,7 @@ int get_user_creds(
 
         /* Note: we don't insist on normalized paths, since there are setups that have /./ in the path */
         const char *h =
-                (FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) && empty_or_root(pw->pw_dir)) ||
+                (FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) && empty_or_उगात(pw->pw_dir)) ||
                 (FLAGS_SET(flags, USER_CREDS_CLEAN) && (!path_is_valid(pw->pw_dir) || !path_is_absolute(pw->pw_dir)))
                 ? NULL : pw->pw_dir;
 
@@ -645,7 +645,7 @@ int get_shell(char **ret) {
         /* Hardcode shell for root and nobody to avoid NSS */
         u = getuid();
         if (u == 0) {
-                e = default_root_shell(NULL);
+                e = default_उगात_shell(NULL);
                 goto found;
         }
         if (u == UID_NOBODY && synthesize_nobody()) {
@@ -688,7 +688,7 @@ int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], si
         return 0;
 }
 
-int take_etc_passwd_lock(const char *root) {
+int take_etc_passwd_lock(const char *उगात) {
         int r;
 
         /* This is roughly the same as lckpwdf(), but not as awful. We don't want to use alarm() and signals,
@@ -698,7 +698,7 @@ int take_etc_passwd_lock(const char *root) {
          * given that they are redundant: they invoke lckpwdf() first and keep it during everything they do.
          * The per-database locks are awfully racy, and thus we just won't do them. */
 
-        _cleanup_free_ char *path = path_join(root, ETC_PASSWD_LOCK_PATH);
+        _cleanup_free_ char *path = path_join(उगात, ETC_PASSWD_LOCK_PATH);
         if (!path)
                 return log_oom_debug();
 
@@ -940,7 +940,7 @@ int maybe_setgroups(size_t size, const gid_t *list) {
                 }
 
                 _cleanup_free_ char *setgroups_content = NULL;
-                r = read_one_line_file("/proc/self/setgroups", &setgroups_content);
+                r = read_one_लिन्या_file("/proc/self/setgroups", &setgroups_content);
                 if (r < 0 && r != -ENOENT)
                         return r;
                 if (r > 0 && streq(setgroups_content, "deny")) {
@@ -1081,7 +1081,7 @@ int is_this_me(const char *username) {
         return uid == getuid();
 }
 
-const char* get_home_root(void) {
+const char* get_home_उगात(void) {
         /* For debug purposes allow overriding where we look for home dirs */
         const char *e = secure_getenv("SYSTEMD_HOME_ROOT");
         if (e && path_is_absolute(e) && path_is_normalized(e))

@@ -43,7 +43,7 @@ static int extract_subvolume_name(const char *path, char **ret) {
 }
 
 int btrfs_subvol_make(int dir_fd, const char *path) {
-        struct btrfs_ioctl_vol_args args = {};
+        struct btrfs_ioctl_vol_args मगा_कातविरान = {};
         _cleanup_free_ char *subvolume = NULL, *parent = NULL;
         _cleanup_close_ int fd = -EBADF;
         int r;
@@ -63,9 +63,9 @@ int btrfs_subvol_make(int dir_fd, const char *path) {
         if (fd < 0)
                 return fd;
 
-        strncpy(args.name, subvolume, sizeof(args.name)-1);
+        strncpy(मगा_कातविरान.name, subvolume, sizeof(मगा_कातविरान.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &मगा_कातविरान));
 }
 
 int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode) {

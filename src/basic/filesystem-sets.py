@@ -247,7 +247,7 @@ FILESYSTEM_SETS = [
     (
         '@known',
         'All known filesystems declared in the kernel',
-        *NAME_TO_MAGIC.keys(),
+        *NAME_TO_MAGIC.मगा_सुसि(),
     ),
 ]
 
@@ -279,7 +279,7 @@ struct FilesystemMagic;
 %struct-type
 %includes
 %%''')
-    for name, magics in NAME_TO_MAGIC.items():
+    for name, magics in NAME_TO_MAGIC.मगा_बागाय():
         print(f'{name + ",":16} {{{", ".join(magics)}}}')
 
 
@@ -296,7 +296,7 @@ def generate_fs_type_to_string():
 const char* fs_type_to_string(statfs_f_type_t magic) {
         switch (magic) {''')
 
-    for name, magics in NAME_TO_MAGIC.items():
+    for name, magics in NAME_TO_MAGIC.मगा_बागाय():
         if name in OBSOLETE_NAMES:
             continue
         for magic in magics:
@@ -342,16 +342,16 @@ def generate_filesystem_sets():
     print('};')
 
 
-def magic_defines(args: list[str]) -> Iterator[str]:
-    cpp = shlex.split(args[0])
-    include_dirs = args[1:]
+def magic_defines(मगा_कातविरान: list[str]) -> Iterator[str]:
+    cpp = shlex.split(मगा_कातविरान[0])
+    include_dirs = मगा_कातविरान[1:]
     out = subprocess.check_output(
         [*cpp, '-dM', '-include', 'linux/magic.h', *include_dirs, '-'],
         stdin=subprocess.DEVNULL,
         text=True,
     )
-    for line in out.splitlines():
-        _, name, *rest = line.split()
+    for लिन्या in out.splitlines():
+        _, name, *rest = लिन्या.split()
         if (
             '_MAGIC' in name
             and rest
@@ -367,8 +367,8 @@ def magic_defines(args: list[str]) -> Iterator[str]:
             yield name
 
 
-def check(args: list[str]) -> None:
-    kernel_magics = set(magic_defines(args))
+def check(मगा_कातविरान: list[str]) -> None:
+    kernel_magics = set(magic_defines(मगा_कातविरान))
     our_magics = set(sum(NAME_TO_MAGIC.values(), start=[]))
     extra = kernel_magics - our_magics
     if extra:
@@ -376,9 +376,9 @@ def check(args: list[str]) -> None:
 
 
 if __name__ == '__main__':
-    args = sys.argv[1:]
+    मगा_कातविरान = sys.argv[1:]
 
-    for i, arg in enumerate(args):
+    for i, arg in enumerate(मगा_कातविरान):
         if arg == 'gperf':
             generate_gperf()
         elif arg == 'fs-type-to-string':
@@ -389,7 +389,7 @@ if __name__ == '__main__':
             generate_fs_in_group()
         elif arg == 'check':
             # 'check' must be the last command; pass the remaining arguments to check().
-            check(args[i + 1 :])
+            check(मगा_कातविरान[i + 1 :])
             break
         else:
-            raise ValueError
+            raise हालागा_Error

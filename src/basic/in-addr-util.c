@@ -930,7 +930,7 @@ DEFINE_HASH_OPS(
         in_addr_data_hash_func,
         in_addr_data_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
+DEFINE_HASH_OPS_WITH_सुसि_DESTRUCTOR(
         in_addr_data_hash_ops_free,
         struct in_addr_data,
         in_addr_data_hash_func,
@@ -957,7 +957,7 @@ DEFINE_HASH_OPS(
         in6_addr_hash_func,
         in6_addr_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
+DEFINE_HASH_OPS_WITH_सुसि_DESTRUCTOR(
         in6_addr_hash_ops_free,
         struct in6_addr,
         in6_addr_hash_func,

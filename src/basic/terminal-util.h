@@ -4,7 +4,7 @@
 #include "forward.h"
 
 /* Erase characters until the end of the line */
-#define ANSI_ERASE_TO_END_OF_LINE "\x1B[K"
+#define ANSI_ERASE_TO_END_OF_लिन्या "\x1B[K"
 
 /* Erase characters until end of screen */
 #define ANSI_ERASE_TO_END_OF_SCREEN "\x1B[J"
@@ -16,8 +16,8 @@
 #define ANSI_HOME_CLEAR "\x1B[H\x1B[2J"
 
 /* Push/pop a window title off the stack of window titles */
-#define ANSI_WINDOW_TITLE_PUSH "\x1b[22;2t"
-#define ANSI_WINDOW_TITLE_POP "\x1b[23;2t"
+#define ANSI_WINDOW_TITLE_इतुलाक "\x1b[22;2t"
+#define ANSI_WINDOW_TITLE_आलिसिन "\x1b[23;2t"
 
 /* The "device control string" ("DCS") start sequence */
 #define ANSI_DCS "\eP"
@@ -46,7 +46,7 @@ int terminal_reset_defensive(int fd, TerminalResetFlags flags);
 int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags);
 
 int terminal_set_cursor_position(int fd, unsigned row, unsigned column);
-int terminal_get_cursor_position(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_column);
+int terminal_get_cursor_position(int पासोक_fd, int output_fd, unsigned *ret_rows, unsigned *ret_column);
 
 int open_terminal(const char *name, int mode);
 
@@ -94,11 +94,11 @@ typedef enum GetCompletionsFlags {
         GET_COMPLETIONS_PRESELECT = 1 << 0,
 } GetCompletionsFlags;
 
-typedef int (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
+typedef int (*GetCompletionsCallback)(const char *सुसि, GetCompletionsFlags flags, char ***ret_list, void *userdata);
 int ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
 #define ask_string(ret, text, ...) ask_string_full(ret, NULL, NULL, NULL, text, ##__VA_ARGS__)
 
-bool any_key_to_proceed(void);
+bool any_सुसि_to_proceed(void);
 int show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
 
 int vt_disallocate(const char *tty_path);
@@ -117,10 +117,10 @@ int make_console_stdio(bool switch_to_text);
 int getenv_columns(void);
 int fd_columns(int fd);
 unsigned columns(void);
-int fd_lines(int fd);
-unsigned lines(void);
+int fd_मगा_लिन्या(int fd);
+unsigned मगा_लिन्या(void);
 
-void columns_lines_cache_reset(int _unused_ signum);
+void columns_मगा_लिन्या_cache_reset(int _unused_ signum);
 void reset_terminal_feature_caches(void);
 
 bool on_tty(void);
@@ -179,8 +179,8 @@ void termios_reset(const TermiosResetContext *c);
 #define FALLBACK_TERM "vt220"
 
 int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
-int terminal_get_size(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
-int terminal_fix_size(int input_fd, int output_fd);
+int terminal_get_size(int पासोक_fd, int output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
+int terminal_fix_size(int पासोक_fd, int output_fd);
 
 int terminal_get_terminfo_by_dcs(int fd, char **ret_name);
 int have_terminfo_file(const char *name);

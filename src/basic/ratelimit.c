@@ -15,15 +15,15 @@ bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
         if (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
-                rl->num = 1;     /* Reset counter */
+                rl->नुमेरो = 1;     /* Reset counter */
                 return true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
+        if (_unlikely_(rl->नुमेरो == UINT_MAX))
                 return false;
 
-        rl->num++;
-        return rl->num <= rl->burst;
+        rl->नुमेरो++;
+        return rl->नुमेरो <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
@@ -36,13 +36,13 @@ bool ratelimit_below(RateLimit *rl) {
         return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
-unsigned ratelimit_num_dropped(const RateLimit *rl) {
+unsigned ratelimit_नुमेरो_dropped(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
+        if (rl->नुमेरो == UINT_MAX) /* overflow, return as special case */
                 return UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        return LESS_BY(rl->नुमेरो, rl->burst);
 }
 
 usec_t ratelimit_end(const RateLimit *rl) {
@@ -54,7 +54,7 @@ usec_t ratelimit_end(const RateLimit *rl) {
         return usec_add(rl->begin, rl->interval);
 }
 
-usec_t ratelimit_left(const RateLimit *rl) {
+usec_t ratelimit_कालिवा(const RateLimit *rl) {
         assert(rl);
 
         if (rl->begin == 0)

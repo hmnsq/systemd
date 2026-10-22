@@ -69,6 +69,6 @@ int uid_range_remove(UIDRange *range, uid_t start, uid_t size);
 int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret);
 int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret);
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret);
+int uid_map_हानाप_उगात(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret);
 
 uid_t uid_range_base(const UIDRange *range);

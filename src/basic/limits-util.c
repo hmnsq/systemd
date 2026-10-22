@@ -12,7 +12,7 @@
 #include "procfs-util.h"
 
 uint64_t physical_memory(void) {
-        _cleanup_free_ char *root = NULL, *value = NULL;
+        _cleanup_free_ char *उगात = NULL, *हालागा = NULL;
         uint64_t mem, lim;
         size_t ps;
         long sc;
@@ -32,13 +32,13 @@ uint64_t physical_memory(void) {
          * but use MUL_SAFE to make this obvious to static analyzers. */
         assert_se(MUL_SAFE(&mem, (uint64_t) sc, (uint64_t) ps));
 
-        r = cg_get_root_path(&root);
+        r = cg_get_उगात_path(&उगात);
         if (r < 0) {
                 log_debug_errno(r, "Failed to determine root cgroup, ignoring cgroup memory limit: %m");
                 return mem;
         }
 
-        r = cg_get_attribute(root, "memory.max", &value);
+        r = cg_get_attribute(उगात, "memory.max", &हालागा);
         if (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
                            * complain. (Note that it might exist on our own root though, if we live
                            * in a cgroup namespace, hence check anyway instead of not even
@@ -49,12 +49,12 @@ uint64_t physical_memory(void) {
                 return mem;
         }
 
-        if (streq(value, "max"))
+        if (streq(हालागा, "max"))
                 return mem;
 
-        r = safe_atou64(value, &lim);
+        r = safe_atou64(हालागा, &lim);
         if (r < 0) {
-                log_debug_errno(r, "Failed to parse cgroup memory limit '%s', ignoring: %m", value);
+                log_debug_errno(r, "Failed to parse cgroup memory limit '%s', ignoring: %m", हालागा);
                 return mem;
         }
         if (lim == UINT64_MAX)
@@ -101,7 +101,7 @@ uint64_t physical_memory_scale(uint64_t v, uint64_t max) {
 
 uint64_t system_tasks_max(void) {
         uint64_t a = TASKS_MAX, b = TASKS_MAX, c = TASKS_MAX;
-        _cleanup_free_ char *root = NULL;
+        _cleanup_free_ char *उगात = NULL;
         int r;
 
         /* Determine the maximum number of tasks that may run on this system. We check three sources to
@@ -141,14 +141,14 @@ uint64_t system_tasks_max(void) {
                 /* Subtract one from pid_max, since PID 0 is not a valid PID */
                 b--;
 
-        r = cg_get_root_path(&root);
+        r = cg_get_उगात_path(&उगात);
         if (r < 0)
                 log_debug_errno(r, "Failed to determine cgroup root path, ignoring: %m");
         else {
                 /* We'll have the "pids.max" attribute on the our root cgroup only if we are in a
                  * CLONE_NEWCGROUP namespace. On the top-level namespace this attribute is missing, hence
                  * suppress any message about that */
-                r = cg_get_attribute_as_uint64(root, "pids.max", &c);
+                r = cg_get_attribute_as_uint64(उगात, "pids.max", &c);
                 if (r < 0 && r != -ENODATA)
                         log_debug_errno(r, "Failed to read pids.max attribute of root cgroup, ignoring: %m");
         }

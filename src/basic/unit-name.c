@@ -30,7 +30,7 @@
         VALID_CHARS_WITH_AT                     \
         "[]!-*?"
 
-#define LONG_UNIT_NAME_HASH_KEY SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
+#define LONG_UNIT_NAME_HASH_सुसि SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
 #define UNIT_NAME_HASH_LENGTH_CHARS 16
 
 bool unit_name_is_valid(const char *n, UnitNameFlags flags) {
@@ -393,7 +393,7 @@ int unit_name_path_escape(const char *f, char **ret) {
         if (r < 0)
                 return r;
 
-        if (empty_or_root(p))
+        if (empty_or_उगात(p))
                 s = strdup("-");
         else {
                 if (!path_is_normalized(p))
@@ -560,7 +560,7 @@ int unit_name_hash_long(const char *name, char **ret) {
         if (unit_type_from_string(suffix+1) < 0)
                 return -EINVAL;
 
-        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_KEY.bytes));
+        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_सुसि.bytes));
 
         hash = hexmem(&h, sizeof(h));
         if (!hash)
@@ -829,7 +829,7 @@ int slice_build_parent_slice(const char *slice, char **ret) {
         if (!slice_name_is_valid(slice))
                 return -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE)) {
+        if (streq(slice, SPECIAL_उगात_SLICE)) {
                 *ret = NULL;
                 return 0;
         }
@@ -840,7 +840,7 @@ int slice_build_parent_slice(const char *slice, char **ret) {
 
         char *dash = strrchr(s, '-');
         if (!dash)
-                return strdup_to_full(ret, SPECIAL_ROOT_SLICE);
+                return strdup_to_full(ret, SPECIAL_उगात_SLICE);
 
         /* We know that s ended with .slice before truncation, so we have enough space. */
         strcpy(dash, ".slice");
@@ -862,7 +862,7 @@ int slice_build_subslice(const char *slice, const char *name, char **ret) {
         if (!unit_prefix_is_valid(name))
                 return -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE))
+        if (streq(slice, SPECIAL_उगात_SLICE))
                 subslice = strjoin(name, ".slice");
         else {
                 const char *e;
@@ -887,7 +887,7 @@ bool slice_name_is_valid(const char *name) {
         if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
                 return false;
 
-        if (streq(name, SPECIAL_ROOT_SLICE))
+        if (streq(name, SPECIAL_उगात_SLICE))
                 return true;
 
         e = endswith(name, ".slice");

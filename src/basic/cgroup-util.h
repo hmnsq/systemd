@@ -159,17 +159,17 @@ int cg_is_delegated_fd(int fd);
 
 int cg_has_coredump_receive(const char *path);
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value);
+int cg_set_attribute(const char *path, const char *attribute, const char *हालागा);
 int cg_get_attribute(const char *path, const char *attribute, char **ret);
 int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
 int cg_get_attribute_as_bool(const char *path, const char *attribute);
 
-int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
+int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *मगा_सुसि, char **values);
+int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *सुसि, uint64_t *ret);
 
 int cg_get_owner(const char *path, uid_t *ret_uid);
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
+int cg_set_xattr(const char *path, const char *name, const void *हालागा, size_t size, int flags);
 int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
 /* Returns negative on error, and 0 or 1 on success for the bool value */
 int cg_get_xattr_bool(const char *path, const char *name);
@@ -177,7 +177,7 @@ int cg_remove_xattr(const char *path, const char *name);
 
 int cg_is_empty(const char *path);
 
-int cg_get_root_path(char **path);
+int cg_get_उगात_path(char **path);
 
 int cg_path_get_session(const char *path, char **ret_session);
 int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
@@ -194,9 +194,9 @@ int cg_path_get_machine_name(const char *path, char **ret_machine);
 int cg_path_get_slice(const char *path, char **ret_slice);
 int cg_path_get_user_slice(const char *path, char **ret_slice);
 
-int cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
-int cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
+int cg_shift_path(const char *cgroup, const char *cached_उगात, const char **ret_shifted);
+int cg_pid_get_path_shifted(pid_t pid, const char *cached_उगात, char **ret_cgroup);
+int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_उगात, char **ret_cgroup);
 
 int cg_pid_get_session(pid_t pid, char **ret_session);
 int cg_pidref_get_session(const PidRef *pidref, char **ret);
@@ -231,7 +231,7 @@ char* cg_unescape(const char *p) _pure_;
 int cg_slice_to_path(const char *unit, char **ret);
 
 int cg_mask_supported(CGroupMask *ret);
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
+int cg_mask_supported_subtree(const char *उगात, CGroupMask *ret);
 int cg_mask_from_string(const char *s, CGroupMask *ret);
 int cg_mask_to_string(CGroupMask mask, char **ret);
 

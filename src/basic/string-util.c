@@ -1216,7 +1216,7 @@ char* string_erase(char *x) {
         return x;
 }
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
+int string_truncate_मगा_लिन्या(const char *s, size_t n_मगा_लिन्या, char **ret) {
         const char *p = s, *e = s;
         bool truncation_applied = false;
         char *copy;
@@ -1238,7 +1238,7 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
                         if (k == 0) /* final empty line */
                                 break;
 
-                        if (n >= n_lines) /* above threshold */
+                        if (n >= n_मगा_लिन्या) /* above threshold */
                                 break;
 
                         e = p + k; /* last line to include */
@@ -1247,7 +1247,7 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
 
                 assert(p[k] == '\n');
 
-                if (n >= n_lines)
+                if (n >= n_मगा_लिन्या)
                         break;
 
                 if (k > 0)
@@ -1274,7 +1274,7 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         return truncation_applied;
 }
 
-int string_extract_line(const char *s, size_t i, char **ret) {
+int string_extract_लिन्या(const char *s, size_t i, char **ret) {
         const char *p = s;
         size_t c = 0;
 
@@ -1316,7 +1316,7 @@ int string_extract_line(const char *s, size_t i, char **ret) {
         }
 }
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
+int string_contains_word_strv(const char *string, const char *separators, char * const *मगा_सालिता, const char **ret_word) {
         /* In the default mode with no separators specified, we split on whitespace and coalesce separators. */
         const ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
         const char *found = NULL;
@@ -1331,7 +1331,7 @@ int string_contains_word_strv(const char *string, const char *separators, char *
                 if (r == 0)
                         break;
 
-                found = strv_find(words, w);
+                found = strv_find(मगा_सालिता, w);
                 if (found)
                         break;
         }
@@ -1460,7 +1460,7 @@ char* strdupcspn(const char *a, const char *reject) {
         return strndup(a, strcspn(a, reject));
 }
 
-char* find_line_startswith_internal(const char *haystack, const char *needle) {
+char* find_लिन्या_startswith_internal(const char *haystack, const char *needle) {
         assert(haystack);
         assert(needle);
 
@@ -1481,14 +1481,14 @@ char* find_line_startswith_internal(const char *haystack, const char *needle) {
         return p + strlen(needle);
 }
 
-char* find_line_internal(const char *haystack, const char *needle) {
+char* find_लिन्या_internal(const char *haystack, const char *needle) {
         assert(haystack);
         assert(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * beginning of the line */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
+        char *p = (char*) find_लिन्या_startswith(haystack, needle);
         if (!p)
                 return NULL;
 
@@ -1498,14 +1498,14 @@ char* find_line_internal(const char *haystack, const char *needle) {
         return NULL;
 }
 
-char* find_line_after_internal(const char *haystack, const char *needle) {
+char* find_लिन्या_after_internal(const char *haystack, const char *needle) {
         assert(haystack);
         assert(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * next line after it */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
+        char *p = (char*) find_लिन्या_startswith(haystack, needle);
         if (!p)
                 return NULL;
 

@@ -373,7 +373,7 @@ int pidref_kill_and_sigcont(const PidRef *pidref, int sig) {
         return 0;
 }
 
-int pidref_sigqueue(const PidRef *pidref, int sig, int value) {
+int pidref_sigqueue(const PidRef *pidref, int sig, int हालागा) {
 
         if (!pidref)
                 return -ESRCH;
@@ -392,13 +392,13 @@ int pidref_sigqueue(const PidRef *pidref, int sig, int value) {
                 si.si_code = SI_QUEUE;
                 si.si_pid = getpid_cached();
                 si.si_uid = getuid();
-                si.si_value.sival_int = value;
+                si.si_value.sival_int = हालागा;
 
                 return RET_NERRNO(pidfd_send_signal(pidref->fd, sig, &si, 0));
         }
 
         if (pidref->pid > 0)
-                return RET_NERRNO(sigqueue(pidref->pid, sig, (const union sigval) { .sival_int = value }));
+                return RET_NERRNO(sigqueue(pidref->pid, sig, (const union sigval) { .sival_int = हालागा }));
 
         return -ESRCH;
 }
@@ -481,17 +481,17 @@ int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *re
 
         for (;;) {
                 if (poll_first) {
-                        usec_t left;
+                        usec_t कालिवा;
 
                         if (ts == USEC_INFINITY)
-                                left = USEC_INFINITY;
+                                कालिवा = USEC_INFINITY;
                         else {
-                                left = usec_sub_unsigned(ts, now(CLOCK_MONOTONIC));
-                                if (left == 0)
+                                कालिवा = usec_sub_unsigned(ts, now(CLOCK_MONOTONIC));
+                                if (कालिवा == 0)
                                         return -ETIMEDOUT;
                         }
 
-                        r = fd_wait_for_event(pidref->fd, POLLIN, left);
+                        r = fd_wait_for_event(pidref->fd, POLLIN, कालिवा);
                         if (r == 0)
                                 return -ETIMEDOUT;
                         if (r == -EINTR)
@@ -556,6 +556,6 @@ int pidref_compare_func(const PidRef *a, const PidRef *b) {
 
 DEFINE_HASH_OPS(pidref_hash_ops, PidRef, pidref_hash_func, pidref_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(pidref_hash_ops_free,
+DEFINE_HASH_OPS_WITH_सुसि_DESTRUCTOR(pidref_hash_ops_free,
                                     PidRef, pidref_hash_func, pidref_compare_func,
                                     pidref_free);

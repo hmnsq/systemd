@@ -33,32 +33,32 @@ struct strbuf* strbuf_new(void) {
 
         *str = (struct strbuf) {
                 .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+                .उगात = new0(struct strbuf_बुहोल, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_बिलांग = 1,
         };
-        if (!str->buf || !str->root)
+        if (!str->buf || !str->उगात)
                 return NULL;
 
         return TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+static struct strbuf_बुहोल* strbuf_बुहोल_cleanup(struct strbuf_बुहोल *बुहोल) {
+        assert(बुहोल);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(child, बुहोल->children, बुहोल->children_बिलांग)
+                strbuf_बुहोल_cleanup(child->child);
 
-        free(node->children);
-        return mfree(node);
+        free(बुहोल->children);
+        return mfree(बुहोल);
 }
 
 /* clean up trie data, leave only the string buffer */
 void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
+        if (!str || !str->उगात)
                 return;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->उगात = strbuf_बुहोल_cleanup(str->उगात);
 }
 
 /* clean up everything */
@@ -78,29 +78,29 @@ static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct
         return CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+static void bubbleinsert(struct strbuf_बुहोल *बुहोल,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         struct strbuf_बुहोल *बुहोल_child) {
 
         struct strbuf_child_entry new = {
                 .c = c,
-                .child = node_child,
+                .child = बुहोल_child,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        int कालिवा = 0, कानान = ASSERT_PTR(बुहोल)->children_बिलांग;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
+        while (कानान > कालिवा) {
+                int गित्ना = (कानान + कालिवा) / 2 ;
+                if (strbuf_children_cmp(&बुहोल->children[गित्ना], &new) <= 0)
+                        कालिवा = गित्ना + 1;
                 else
-                        right = middle;
+                        कानान = गित्ना;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(बुहोल->children + कालिवा + 1, बुहोल->children + कालिवा,
+                sizeof(struct strbuf_child_entry) * (बुहोल->children_बिलांग - कालिवा));
+        बुहोल->children[कालिवा] = new;
 
-        node->children_count++;
+        बुहोल->children_बिलांग++;
 }
 
 /* add string, return the index/offset into the buffer */
@@ -114,36 +114,36 @@ ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
         if (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (!str->root)
+        if (!str->उगात)
                 return -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
+        str->in_बिलांग++;
         if (len == 0) {
-                str->dedup_count++;
+                str->dedup_बिलांग++;
                 return 0;
         }
         str->in_len += len;
 
-        struct strbuf_node *node = str->root;
+        struct strbuf_बुहोल *बुहोल = str->उगात;
         for (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = बुहोल->हालागा_off + बुहोल->हालागा_len - len;
+                if (depth == len || (बुहोल->हालागा_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
+                        str->dedup_बिलांग++;
                         return off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
+                struct strbuf_child_entry *child, हानाप = { .c = c };
+                child = typesafe_bsearch(&हानाप, बुहोल->children, बुहोल->children_बिलांग, strbuf_children_cmp);
                 if (!child)
                         break;
-                node = child->child;
+                बुहोल = child->child;
         }
 
         /* add new string */
@@ -155,23 +155,23 @@ ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ struct strbuf_बुहोल *बुहोल_child = NULL;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
+        बुहोल_child = new(struct strbuf_बुहोल, 1);
+        if (!बुहोल_child)
                 return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        *बुहोल_child = (struct strbuf_बुहोल) {
+                .हालागा_off = off,
+                .हालागा_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
+        if (!GREEDY_REALLOC(बुहोल->children, बुहोल->children_बिलांग + 1))
                 return -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_बिलांग++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(बुहोल, c, TAKE_PTR(बुहोल_child));
 
         return off;
 }

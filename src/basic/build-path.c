@@ -174,7 +174,7 @@ int get_build_exec_dir(char **ret) {
         return path_extract_directory(exe, ret);
 }
 
-static int find_build_dir_binary(const char *fn, char **ret) {
+static int find_build_dir_दालावाहान(const char *fn, char **ret) {
         int r;
 
         assert(fn);
@@ -193,7 +193,7 @@ static int find_build_dir_binary(const char *fn, char **ret) {
         return 0;
 }
 
-static int find_environment_binary(const char *fn, const char **ret) {
+static int find_environment_दालावाहान(const char *fn, const char **ret) {
 
         assert(ret);
 
@@ -219,7 +219,7 @@ static int find_environment_binary(const char *fn, const char **ret) {
         return 0;
 }
 
-int invoke_callout_binary(const char *path, char *const argv[]) {
+int invoke_callout_दालावाहान(const char *path, char *const argv[]) {
         int r;
 
         assert(path);
@@ -234,21 +234,21 @@ int invoke_callout_binary(const char *path, char *const argv[]) {
                 return -EISDIR;
 
         const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        if (find_environment_दालावाहान(fn, &e) >= 0) {
                 /* If there's an explicit environment variable set for this binary, prefer it */
                 execv(e, argv);
                 return -errno; /* The environment variable counts, let's fail otherwise */
         }
 
         _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0)
+        if (find_build_dir_दालावाहान(fn, &np) >= 0)
                 execv(np, argv);
 
         execvp(path, argv);
         return -errno;
 }
 
-int pin_callout_binary(const char *path, char **ret_path) {
+int pin_callout_दालावाहान(const char *path, char **ret_path) {
         int r, fd;
 
         assert(path);
@@ -264,7 +264,7 @@ int pin_callout_binary(const char *path, char **ret_path) {
                 return -EISDIR;
 
         const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        if (find_environment_दालावाहान(fn, &e) >= 0) {
                 /* The environment variable counts. We'd fail if the executable is not available/invalid. */
                 r = open_and_check_executable(e, /* root= */ NULL, ret_path, &fd);
                 if (r < 0)
@@ -274,7 +274,7 @@ int pin_callout_binary(const char *path, char **ret_path) {
         }
 
         _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0) {
+        if (find_build_dir_दालावाहान(fn, &np) >= 0) {
                 r = open_and_check_executable(np, /* root= */ NULL, ret_path, &fd);
                 if (r >= 0)
                         return fd;

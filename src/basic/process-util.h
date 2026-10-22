@@ -23,8 +23,8 @@
                 (const char*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+static inline int procfs_file_get_field(pid_t pid, const char *name, const char *सुसि, char **ret) {
+        return get_proc_field(procfs_file_alloca(pid, name), सुसि, ret);
 }
 
 typedef enum ProcessCmdlineFlags {
@@ -45,7 +45,7 @@ int pid_get_uid(pid_t pid, uid_t *ret);
 int pidref_get_uid(const PidRef *pid, uid_t *ret);
 int get_process_gid(pid_t pid, gid_t *ret);
 int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
+int get_process_उगात(pid_t pid, char **ret);
 int get_process_environ(pid_t pid, char **ret);
 int pid_get_ppid(pid_t pid, pid_t *ret);
 int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
@@ -85,7 +85,7 @@ int pid_is_unwaited(pid_t pid);
 int pidref_is_unwaited(PidRef *pidref);
 int pid_is_my_child(pid_t pid);
 int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+int pidref_from_same_उगात_fs(PidRef *a, PidRef *b);
 
 bool is_main_thread(void);
 
@@ -142,9 +142,9 @@ static inline bool pid_is_automatic(pid_t p) {
 pid_t getpid_cached(void);
 void reset_cached_pid(void);
 
-int must_be_root(void);
+int must_be_उगात(void);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_सालानसान(int (*fn)(void *), int flags, void *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
@@ -200,7 +200,7 @@ int namespace_fork_full(
                 int mntns_fd,
                 int netns_fd,
                 int userns_fd,
-                int root_fd,
+                int उगात_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
@@ -212,11 +212,11 @@ int namespace_fork(
                 int mntns_fd,
                 int netns_fd,
                 int userns_fd,
-                int root_fd,
+                int उगात_fd,
                 PidRef *ret);
 
 bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
+int set_oom_score_adjust(int हालागा);
 int get_oom_score_adjust(int *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */

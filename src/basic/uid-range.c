@@ -591,7 +591,7 @@ bool uid_range_equal(const UIDRange *a, const UIDRange *b) {
         return true;
 }
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret) {
+int uid_map_हानाप_उगात(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret) {
         int r;
 
         assert(pid_is_valid(pid));

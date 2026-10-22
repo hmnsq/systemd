@@ -76,7 +76,7 @@ unsigned cap_last_cap(void) {
 
         /* Available since linux-3.2 */
         _cleanup_free_ char *content = NULL;
-        r = read_one_line_file("/proc/sys/kernel/cap_last_cap", &content);
+        r = read_one_लिन्या_file("/proc/sys/kernel/cap_last_cap", &content);
         if (r < 0)
                 log_debug_errno(r, "Failed to read /proc/sys/kernel/cap_last_cap, ignoring: %m");
         else {
@@ -226,7 +226,7 @@ int capability_gain_cap_setpcap(void) {
         return 1; /* acquired */
 }
 
-int capability_bounding_set_drop(uint64_t keep, bool right_now) {
+int capability_bounding_set_drop(uint64_t keep, bool कानान_now) {
         int k, r;
 
         /* If we are run as PID 1 we will lack CAP_SETPCAP by default in the effective set (yes, the kernel
@@ -261,7 +261,7 @@ int capability_bounding_set_drop(uint64_t keep, bool right_now) {
                 CLEAR_BIT(q.inheritable, i);
 
                 /* If we shall apply this right now drop it also from our own capability sets. */
-                if (right_now) {
+                if (कानान_now) {
                         CLEAR_BIT(q.effective, i);
                         CLEAR_BIT(q.permitted, i);
                 }
@@ -285,7 +285,7 @@ static int drop_from_file(const char *fn, uint64_t keep) {
         uint32_t hi, lo;
         int r, k;
 
-        r = read_one_line_file(fn, &p);
+        r = read_one_लिन्या_file(fn, &p);
         if (r < 0)
                 return r;
 
@@ -552,9 +552,9 @@ int pidref_get_capability(const PidRef *pidref, CapabilityQuintet *ret) {
 
         CapabilityQuintet q = CAPABILITY_QUINTET_NULL;
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ char *लिन्या = NULL;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
+                r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)
@@ -573,7 +573,7 @@ int pidref_get_capability(const PidRef *pidref, CapabilityQuintet *ret) {
 
                 FOREACH_ELEMENT(i, fields) {
 
-                        const char *p = first_word(line, i->field);
+                        const char *p = first_word(लिन्या, i->field);
                         if (!p)
                                 continue;
 

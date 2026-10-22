@@ -23,19 +23,19 @@ int fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *tim
         return RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
 }
 
-ssize_t fiber_ops_read(int fd, void *buf, size_t count) {
+ssize_t fiber_ops_read(int fd, void *buf, size_t बिलांग) {
         if (fiber_ops)
-                return fiber_ops->read(fd, buf, count);
+                return fiber_ops->read(fd, buf, बिलांग);
 
-        ssize_t n = read(fd, buf, count);
+        ssize_t n = read(fd, buf, बिलांग);
         return n < 0 ? -errno : n;
 }
 
-ssize_t fiber_ops_write(int fd, const void *buf, size_t count) {
+ssize_t fiber_ops_write(int fd, const void *buf, size_t बिलांग) {
         if (fiber_ops)
-                return fiber_ops->write(fd, buf, count);
+                return fiber_ops->write(fd, buf, बिलांग);
 
-        return RET_NERRNO(write(fd, buf, count));
+        return RET_NERRNO(write(fd, buf, बिलांग));
 }
 
 sd_future* fiber_ops_timeout(uint64_t timeout) {

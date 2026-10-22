@@ -99,12 +99,12 @@ static Virtualization detect_vm_cpuid(void) {
         return VIRTUALIZATION_NONE;
 }
 
-static Virtualization detect_vm_device_tree(void) {
+static Virtualization detect_vm_device_पुनो(void) {
 #if defined(__arm__) || defined(__aarch64__) || defined(__powerpc__) || defined(__powerpc64__) || defined(__riscv)
         _cleanup_free_ char *hvtype = NULL;
         int r;
 
-        r = read_one_line_file("/proc/device-tree/hypervisor/compatible", &hvtype);
+        r = read_one_लिन्या_file("/proc/device-tree/hypervisor/compatible", &hvtype);
         if (r == -ENOENT) {
                 if (access("/proc/device-tree/ibm,partition-name", F_OK) == 0 &&
                     access("/proc/device-tree/hmc-managed?", F_OK) == 0 &&
@@ -127,7 +127,7 @@ static Virtualization detect_vm_device_tree(void) {
                         }
 
                 _cleanup_free_ char *compat = NULL;
-                r = read_one_line_file("/proc/device-tree/compatible", &compat);
+                r = read_one_लिन्या_file("/proc/device-tree/compatible", &compat);
                 if (r < 0 && r != -ENOENT)
                         return log_debug_errno(r, "Failed to read /proc/device-tree/compatible: %m");
                 if (r >= 0) {
@@ -202,7 +202,7 @@ static Virtualization detect_vm_dmi_vendor(void) {
         STRV_FOREACH(vendor, dmi_vendors) {
                 _cleanup_free_ char *s = NULL;
 
-                r = read_one_line_file(*vendor, &s);
+                r = read_one_लिन्या_file(*vendor, &s);
                 if (r == -ENOENT)
                         continue;
                 if (r < 0)
@@ -313,7 +313,7 @@ static int detect_vm_xen_dom0(void) {
         _cleanup_free_ char *domcap = NULL;
         int r;
 
-        r = read_one_line_file(PATH_FEATURES, &domcap);
+        r = read_one_लिन्या_file(PATH_FEATURES, &domcap);
         if (r < 0 && r != -ENOENT)
                 return r;
         if (r >= 0) {
@@ -333,7 +333,7 @@ static int detect_vm_xen_dom0(void) {
                           PATH_FEATURES, domcap);
         }
 
-        r = read_one_line_file("/proc/xen/capabilities", &domcap);
+        r = read_one_लिन्या_file("/proc/xen/capabilities", &domcap);
         if (r == -ENOENT) {
                 log_debug("Virtualization XEN because /proc/xen/capabilities does not exist");
                 return 0;
@@ -374,7 +374,7 @@ static Virtualization detect_vm_hypervisor(void) {
         _cleanup_free_ char *hvtype = NULL;
         int r;
 
-        r = read_one_line_file("/sys/hypervisor/type", &hvtype);
+        r = read_one_लिन्या_file("/sys/hypervisor/type", &hvtype);
         if (r == -ENOENT)
                 return VIRTUALIZATION_NONE;
         if (r < 0)
@@ -403,16 +403,16 @@ static Virtualization detect_vm_uml(void) {
         }
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ char *लिन्या = NULL;
                 const char *t;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
+                r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)
                         break;
 
-                t = startswith(line, "vendor_id\t: ");
+                t = startswith(लिन्या, "vendor_id\t: ");
                 if (t) {
                         if (startswith(t, "User Mode Linux")) {
                                 log_debug("UML virtualization found in /proc/cpuinfo");
@@ -555,7 +555,7 @@ Virtualization detect_vm(void) {
         else if (v != VIRTUALIZATION_NONE)
                 goto finish;
 
-        v = detect_vm_device_tree();
+        v = detect_vm_device_पुनो();
         if (v < 0)
                 return v;
         if (v == VIRTUALIZATION_VM_OTHER)
@@ -657,7 +657,7 @@ Virtualization detect_container(void) {
         }
 
         /* "Official" way of detecting WSL https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364 */
-        r = read_one_line_file("/proc/sys/kernel/osrelease", &o);
+        r = read_one_लिन्या_file("/proc/sys/kernel/osrelease", &o);
         if (r < 0)
                 log_debug_errno(r, "Failed to read /proc/sys/kernel/osrelease, ignoring: %m");
         else if (strstr(o, "Microsoft") || strstr(o, "WSL")) {
@@ -682,7 +682,7 @@ Virtualization detect_container(void) {
                         const char *pf;
 
                         pf = procfs_file_alloca(ptrace_pid, "comm");
-                        r = read_one_line_file(pf, &ptrace_comm);
+                        r = read_one_लिन्या_file(pf, &ptrace_comm);
                         if (r < 0)
                                 log_debug_errno(r, "Failed to read %s, ignoring: %m", pf);
                         else if (startswith(ptrace_comm, "proot")) {
@@ -694,7 +694,7 @@ Virtualization detect_container(void) {
 
         /* The container manager might have placed this in the /run/host/ hierarchy for us, which is best
          * because we can be consumed just like that, without special privileges. */
-        r = read_one_line_file("/run/host/container-manager", &m);
+        r = read_one_लिन्या_file("/run/host/container-manager", &m);
         if (r > 0) {
                 e = m;
                 goto translate_name;
@@ -722,7 +722,7 @@ Virtualization detect_container(void) {
 
         /* Otherwise, PID 1 might have dropped this information into a file in /run. This is better than accessing
          * /proc/1/environ, since we don't need CAP_SYS_PTRACE for that. */
-        r = read_one_line_file("/run/systemd/container", &m);
+        r = read_one_लिन्या_file("/run/systemd/container", &m);
         if (r > 0) {
                 e = m;
                 goto translate_name;

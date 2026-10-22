@@ -27,9 +27,9 @@ typedef enum LogTarget{
 #define LOG_NULL (LOG_EMERG - 1)
 assert_cc(LOG_NULL == -1);
 
-#define SYNTHETIC_ERRNO(num)                (ABS(num) | (1 << 30))
+#define SYNTHETIC_ERRNO(नुमेरो)                (ABS(नुमेरो) | (1 << 30))
 #define IS_SYNTHETIC_ERRNO(val)             (((val) >> 30) == 1)
-#define ERRNO_VALUE(val)                    (ABS(val) & ~(1 << 30))
+#define ERRNO_हालागा(val)                    (ABS(val) & ~(1 << 30))
 
 /* The callback function to be invoked when syntax warnings are seen
  * in the unit files. */
@@ -88,7 +88,7 @@ int log_dispatch_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -100,7 +100,7 @@ int log_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format, ...) _printf_(6,7);
 
@@ -108,7 +108,7 @@ int log_internalv(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format,
                 va_list ap) _printf_(6,0);
@@ -117,7 +117,7 @@ int log_object_internalv(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -130,7 +130,7 @@ int log_object_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -142,14 +142,14 @@ int log_struct_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format, ...) _sentinel_;
 
 int log_oom_internal(
                 int level,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func);
 
 int log_format_iovec(
@@ -165,17 +165,17 @@ int log_struct_iovec_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
-                const struct iovec *input_iovec,
-                size_t n_input_iovec);
+                const struct iovec *पासोक_iovec,
+                size_t n_पासोक_iovec);
 
 /* This modifies the buffer passed! */
 int log_dump_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 char *buffer);
 
@@ -188,7 +188,7 @@ int log_dump_internal(
                 int _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_internal(_level, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        : -ERRNO_हालागा(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 
@@ -255,7 +255,7 @@ int log_emergency_level(void);
                 else if (LOG_PRI(level) != LOG_DEBUG)                    \
                         _err = log_debug_errno(_err, __VA_ARGS__);       \
                 else                                                     \
-                        _err = -ERRNO_VALUE(_err);                       \
+                        _err = -ERRNO_हालागा(_err);                       \
                 _err;                                                    \
         })
 
@@ -264,7 +264,7 @@ int log_emergency_level(void);
 #  define log_trace_errno(...)    log_debug_errno(__VA_ARGS__)
 #else
 #  define log_trace(...)          do {} while (0)
-#  define log_trace_errno(e, ...) (-ERRNO_VALUE(e))
+#  define log_trace_errno(e, ...) (-ERRNO_हालागा(e))
 #endif
 
 /* Structured logging */
@@ -336,10 +336,10 @@ int log_syntax_internal(
                 const char *unit,
                 int level,
                 const char *config_file,
-                unsigned config_line,
+                unsigned config_लिन्या,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *format, ...) _printf_(9, 10);
 
@@ -347,45 +347,45 @@ int log_syntax_invalid_utf8_internal(
                 const char *unit,
                 int level,
                 const char *config_file,
-                unsigned config_line,
+                unsigned config_लिन्या,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *rvalue);
 
 int log_syntax_parse_error_internal(
                 const char *unit,
                 const char *config_file,
-                unsigned config_line,
+                unsigned config_लिन्या,
                 int error,
                 bool critical, /* When true, propagate the passed error, otherwise this always returns 0. */
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 const char *lvalue,
                 const char *rvalue);
 
-#define log_syntax(unit, level, config_file, config_line, error, ...)   \
+#define log_syntax(unit, level, config_file, config_लिन्या, error, ...)   \
         ({                                                              \
                 int _level = (level), _e = (error);                     \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_internal(unit, _level, config_file, config_line, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        ? log_syntax_internal(unit, _level, config_file, config_लिन्या, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
+                        : -ERRNO_हालागा(_e);                             \
         })
 
-#define log_syntax_invalid_utf8(unit, level, config_file, config_line, rvalue) \
+#define log_syntax_invalid_utf8(unit, level, config_file, config_लिन्या, rvalue) \
         ({                                                              \
                 int _level = (level);                                   \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_line, PROJECT_FILE, __LINE__, __func__, rvalue) \
+                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_लिन्या, PROJECT_FILE, __LINE__, __func__, rvalue) \
                         : -EINVAL;                                      \
         })
 
-#define log_syntax_parse_error_full(unit, config_file, config_line, error, critical, lvalue, rvalue) \
-        log_syntax_parse_error_internal(unit, config_file, config_line, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
+#define log_syntax_parse_error_full(unit, config_file, config_लिन्या, error, critical, lvalue, rvalue) \
+        log_syntax_parse_error_internal(unit, config_file, config_लिन्या, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
 
-#define log_syntax_parse_error(unit, config_file, config_line, error, lvalue, rvalue) \
-        log_syntax_parse_error_full(unit, config_file, config_line, error, /* critical= */ false, lvalue, rvalue)
+#define log_syntax_parse_error(unit, config_file, config_लिन्या, error, lvalue, rvalue) \
+        log_syntax_parse_error_full(unit, config_file, config_लिन्या, error, /* critical= */ false, lvalue, rvalue)
 
 #define DEBUG_LOGGING _unlikely_(log_get_max_level() >= LOG_DEBUG)
 

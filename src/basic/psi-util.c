@@ -15,7 +15,7 @@
 #include "strv.h"
 
 int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ char *लिन्या = NULL;
         _cleanup_fclose_ FILE *f = NULL;
         unsigned field_filled = 0;
         ResourcePressure rp = {};
@@ -37,7 +37,7 @@ int read_resource_pressure(const char *path, PressureType type, ResourcePressure
                 _cleanup_free_ char *l = NULL;
                 char *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
+                r = read_लिन्या(f, LONG_लिन्या_MAX, &l);
                 if (r < 0)
                         return r;
                 if (r == 0)
@@ -45,13 +45,13 @@ int read_resource_pressure(const char *path, PressureType type, ResourcePressure
 
                 w = first_word(l, t);
                 if (w) {
-                        line = TAKE_PTR(l);
+                        लिन्या = TAKE_PTR(l);
                         cline = w;
                         break;
                 }
         }
 
-        if (!line)
+        if (!लिन्या)
                 return -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */

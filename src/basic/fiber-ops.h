@@ -10,8 +10,8 @@ typedef struct sd_future sd_future;
  * implementations in fiber-ops.c. */
 typedef struct FiberOps {
         int (*ppoll)(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask);
-        ssize_t (*read)(int fd, void *buf, size_t count);
-        ssize_t (*write)(int fd, const void *buf, size_t count);
+        ssize_t (*read)(int fd, void *buf, size_t बिलांग);
+        ssize_t (*write)(int fd, const void *buf, size_t बिलांग);
         sd_future* (*timeout)(uint64_t timeout);
         sd_future* (*timeout_unref)(sd_future *timer);
 } FiberOps;
@@ -20,8 +20,8 @@ bool fiber_ops_is_set(void);
 void fiber_ops_set(const FiberOps *fiber_ops);
 
 int fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask);
-ssize_t fiber_ops_read(int fd, void *buf, size_t count);
-ssize_t fiber_ops_write(int fd, const void *buf, size_t count);
+ssize_t fiber_ops_read(int fd, void *buf, size_t बिलांग);
+ssize_t fiber_ops_write(int fd, const void *buf, size_t बिलांग);
 
 /* Mirror of SD_FIBER_TIMEOUT() for code under src/basic that doesn't include sd-future.h: dispatches
  * through FiberOps so the actual sd_fiber_timeout() implementation lives in libsystemd. */

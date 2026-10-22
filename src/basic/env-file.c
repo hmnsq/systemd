@@ -17,39 +17,39 @@
 #include "tmpfile-util.h"
 #include "utf8.h"
 
-typedef int (*push_env_func_t)(
+typedef int (*इतुलाक_env_func_t)(
                 const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
+                unsigned लिन्या,
+                const char *सुसि,
+                char *हालागा,
                 void *userdata);
 
 static int parse_env_file_internal(
                 FILE *f,
                 const char *fname,
-                push_env_func_t push,
+                इतुलाक_env_func_t इतुलाक,
                 void *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
+        size_t n_सुसि = 0, n_हालागा = 0, last_हालागा_whitespace = SIZE_MAX, last_सुसि_whitespace = SIZE_MAX;
+        _cleanup_free_ char *contents = NULL, *सुसि = NULL, *हालागा = NULL;
+        unsigned लिन्या = 1;
         int r;
 
         enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+                PRE_सुसि,
+                सुसि_2,
+                PRE_हालागा,
+                हालागा_2,
+                हालागा_ESCAPE,
+                SINGLE_QUOTE_हालागा,
+                DOUBLE_QUOTE_हालागा,
+                DOUBLE_QUOTE_हालागा_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_सुसि;
 
         assert(f || fname);
-        assert(push);
+        assert(इतुलाक);
 
         if (f)
                 r = read_full_stream(f, &contents, NULL);
@@ -63,176 +63,176 @@ static int parse_env_file_internal(
 
                 switch (state) {
 
-                case PRE_KEY:
+                case PRE_सुसि:
                         if (strchr(COMMENTS, c))
                                 state = COMMENT;
                         else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                                state = सुसि_2;
+                                last_सुसि_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
+                                if (!GREEDY_REALLOC(सुसि, n_सुसि+2))
                                         return -ENOMEM;
 
-                                key[n_key++] = c;
+                                सुसि[n_सुसि++] = c;
                         }
                         break;
 
-                case KEY:
+                case सुसि_2:
                         if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
+                                state = PRE_सुसि;
+                                लिन्या++;
+                                n_सुसि = 0;
                         } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
+                                state = PRE_हालागा;
+                                last_हालागा_whitespace = SIZE_MAX;
                         } else {
                                 if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                                        last_सुसि_whitespace = SIZE_MAX;
+                                else if (last_सुसि_whitespace == SIZE_MAX)
+                                         last_सुसि_whitespace = n_सुसि;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
+                                if (!GREEDY_REALLOC(सुसि, n_सुसि+2))
                                         return -ENOMEM;
 
-                                key[n_key++] = c;
+                                सुसि[n_सुसि++] = c;
                         }
 
                         break;
 
-                case PRE_VALUE:
+                case PRE_हालागा:
                         if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                                state = PRE_सुसि;
+                                लिन्या++;
+                                सुसि[n_सुसि] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                if (हालागा)
+                                        हालागा[n_हालागा] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                if (last_सुसि_whitespace != SIZE_MAX)
+                                        सुसि[last_सुसि_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
+                                r = इतुलाक(fname, लिन्या, सुसि, हालागा, userdata);
                                 if (r < 0)
                                         return r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_सुसि = 0;
+                                हालागा = NULL;
+                                n_हालागा = 0;
 
                         } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
+                                state = SINGLE_QUOTE_हालागा;
                         else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
+                                state = DOUBLE_QUOTE_हालागा;
                         else if (c == '\\')
-                                state = VALUE_ESCAPE;
+                                state = हालागा_ESCAPE;
                         else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                                state = हालागा_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
+                                if (!GREEDY_REALLOC(हालागा, n_हालागा+2))
                                         return -ENOMEM;
 
-                                value[n_value++] = c;
+                                हालागा[n_हालागा++] = c;
                         }
 
                         break;
 
-                case VALUE:
+                case हालागा_2:
                         if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                                state = PRE_सुसि;
+                                लिन्या++;
 
-                                key[n_key] = 0;
+                                सुसि[n_सुसि] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                if (हालागा)
+                                        हालागा[n_हालागा] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                if (last_हालागा_whitespace != SIZE_MAX)
+                                        हालागा[last_हालागा_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                if (last_सुसि_whitespace != SIZE_MAX)
+                                        सुसि[last_सुसि_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
+                                r = इतुलाक(fname, लिन्या, सुसि, हालागा, userdata);
                                 if (r < 0)
                                         return r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_सुसि = 0;
+                                हालागा = NULL;
+                                n_हालागा = 0;
 
                         } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
+                                state = हालागा_ESCAPE;
+                                last_हालागा_whitespace = SIZE_MAX;
                         } else {
                                 if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                                        last_हालागा_whitespace = SIZE_MAX;
+                                else if (last_हालागा_whitespace == SIZE_MAX)
+                                        last_हालागा_whitespace = n_हालागा;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
+                                if (!GREEDY_REALLOC(हालागा, n_हालागा+2))
                                         return -ENOMEM;
 
-                                value[n_value++] = c;
+                                हालागा[n_हालागा++] = c;
                         }
 
                         break;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                case हालागा_ESCAPE:
+                        state = हालागा_2;
 
                         if (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
+                                if (!GREEDY_REALLOC(हालागा, n_हालागा+2))
                                         return -ENOMEM;
 
-                                value[n_value++] = c;
+                                हालागा[n_हालागा++] = c;
                         }
                         break;
 
-                case SINGLE_QUOTE_VALUE:
+                case SINGLE_QUOTE_हालागा:
                         if (c == '\'')
-                                state = PRE_VALUE;
+                                state = PRE_हालागा;
                         else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
+                                if (!GREEDY_REALLOC(हालागा, n_हालागा+2))
                                         return -ENOMEM;
 
-                                value[n_value++] = c;
+                                हालागा[n_हालागा++] = c;
                         }
 
                         break;
 
-                case DOUBLE_QUOTE_VALUE:
+                case DOUBLE_QUOTE_हालागा:
                         if (c == '"')
-                                state = PRE_VALUE;
+                                state = PRE_हालागा;
                         else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
+                                state = DOUBLE_QUOTE_हालागा_ESCAPE;
                         else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
+                                if (!GREEDY_REALLOC(हालागा, n_हालागा+2))
                                         return -ENOMEM;
 
-                                value[n_value++] = c;
+                                हालागा[n_हालागा++] = c;
                         }
 
                         break;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                case DOUBLE_QUOTE_हालागा_ESCAPE:
+                        state = DOUBLE_QUOTE_हालागा;
 
                         if (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
+                                if (!GREEDY_REALLOC(हालागा, n_हालागा+2))
                                         return -ENOMEM;
-                                value[n_value++] = c;
+                                हालागा[n_हालागा++] = c;
                         } else if (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
+                                if (!GREEDY_REALLOC(हालागा, n_हालागा+3))
                                         return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                हालागा[n_हालागा++] = '\\';
+                                हालागा[n_हालागा++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
@@ -242,8 +242,8 @@ static int parse_env_file_internal(
                         if (c == '\\')
                                 state = COMMENT_ESCAPE;
                         else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                                state = PRE_सुसि;
+                                लिन्या++;
                         }
                         break;
 
@@ -251,8 +251,8 @@ static int parse_env_file_internal(
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
                         if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                                state = PRE_सुसि;
+                                लिन्या++;
                         } else
                                 state = COMMENT;
                         break;
@@ -260,75 +260,75 @@ static int parse_env_file_internal(
         }
 
         if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+                   PRE_हालागा,
+                   हालागा_2,
+                   हालागा_ESCAPE,
+                   SINGLE_QUOTE_हालागा,
+                   DOUBLE_QUOTE_हालागा,
+                   DOUBLE_QUOTE_हालागा_ESCAPE)) {
 
-                key[n_key] = 0;
+                सुसि[n_सुसि] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                if (हालागा)
+                        हालागा[n_हालागा] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                if (state == हालागा_2)
+                        if (last_हालागा_whitespace != SIZE_MAX)
+                                हालागा[last_हालागा_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                if (last_सुसि_whitespace != SIZE_MAX)
+                        सुसि[last_सुसि_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
+                r = इतुलाक(fname, लिन्या, सुसि, हालागा, userdata);
                 if (r < 0)
                         return r;
 
-                value = NULL;
+                हालागा = NULL;
         }
 
         return 0;
 }
 
 static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+                const char *filename, unsigned लिन्या,
+                const char *सुसि, char *हालागा) {
 
-        assert(key);
+        assert(सुसि);
 
-        if (!utf8_is_valid(key)) {
+        if (!utf8_is_valid(सुसि)) {
                 _cleanup_free_ char *p = NULL;
 
-                p = utf8_escape_invalid(key);
+                p = utf8_escape_invalid(सुसि);
                 return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), लिन्या, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
+        if (हालागा && !utf8_is_valid(हालागा)) {
                 _cleanup_free_ char *p = NULL;
 
-                p = utf8_escape_invalid(value);
+                p = utf8_escape_invalid(हालागा);
                 return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), लिन्या, सुसि, p);
         }
 
         return 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static int parse_env_file_इतुलाक(
+                const char *filename, unsigned लिन्या,
+                const char *सुसि, char *हालागा,
                 void *userdata) {
 
         const char *k;
         va_list aq, *ap = userdata;
         int r;
 
-        assert(key);
+        assert(सुसि);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
+        r = check_utf8ness_and_warn(filename, लिन्या, सुसि, हालागा);
         if (r < 0)
                 return r;
 
@@ -339,16 +339,16 @@ static int parse_env_file_push(
 
                 v = va_arg(aq, char **);
 
-                if (streq(key, k)) {
+                if (streq(सुसि, k)) {
                         va_end(aq);
-                        free_and_replace(*v, value);
+                        free_and_replace(*v, हालागा);
 
                         return 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        free(हालागा);
 
         return 0;
 }
@@ -364,7 +364,7 @@ int parse_env_filev(
         assert(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_इतुलाक, &aq);
         va_end(aq);
         return r;
 }
@@ -381,7 +381,7 @@ int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
                 return r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_इतुलाक, &aq);
         va_end(aq);
         return r;
 }
@@ -454,22 +454,22 @@ int parse_env_data_sentinel(
         return r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static int load_env_file_इतुलाक(
+                const char *filename, unsigned लिन्या,
+                const char *सुसि, char *हालागा,
                 void *userdata) {
 
         char ***m = userdata;
         char *p;
         int r;
 
-        assert(key);
+        assert(सुसि);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
+        r = check_utf8ness_and_warn(filename, लिन्या, सुसि, हालागा);
         if (r < 0)
                 return r;
 
-        p = strjoin(key, "=", value);
+        p = strjoin(सुसि, "=", हालागा);
         if (!p)
                 return -ENOMEM;
 
@@ -477,7 +477,7 @@ static int load_env_file_push(
         if (r < 0)
                 return r;
 
-        free(value);
+        free(हालागा);
         return 0;
 }
 
@@ -488,7 +488,7 @@ int load_env_file(FILE *f, const char *fname, char ***ret) {
         assert(f || fname);
         assert(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
+        r = parse_env_file_internal(f, fname, load_env_file_इतुलाक, &m);
         if (r < 0)
                 return r;
 
@@ -496,35 +496,35 @@ int load_env_file(FILE *f, const char *fname, char ***ret) {
         return 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static int load_env_file_इतुलाक_pairs(
+                const char *filename, unsigned लिन्या,
+                const char *सुसि, char *हालागा,
                 void *userdata) {
 
         char ***m = ASSERT_PTR(userdata);
         int r;
 
-        assert(key);
+        assert(सुसि);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
+        r = check_utf8ness_and_warn(filename, लिन्या, सुसि, हालागा);
         if (r < 0)
                 return r;
 
         /* Check if the key is present */
         for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
+                if (streq(t[0], सुसि)) {
+                        if (हालागा)
+                                return free_and_replace(t[1], हालागा);
                         else
                                 return free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
+        r = strv_extend(m, सुसि);
         if (r < 0)
                 return r;
 
-        if (value)
-                return strv_push(m, value);
+        if (हालागा)
+                return strv_इतुलाक(m, हालागा);
         else
                 return strv_extend(m, "");
 }
@@ -536,7 +536,7 @@ int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
         assert(f || fname);
         assert(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
+        r = parse_env_file_internal(f, fname, load_env_file_इतुलाक_pairs, &m);
         if (r < 0)
                 return r;
 
@@ -557,40 +557,40 @@ int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
         return load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static int merge_env_file_इतुलाक(
+                const char *filename, unsigned लिन्या,
+                const char *सुसि, char *हालागा,
                 void *userdata) {
 
         char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
+        char *expanded_हालागा;
         int r;
 
-        assert(key);
+        assert(सुसि);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
+        if (!हालागा) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), लिन्या, सुसि);
                 return 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
+        if (!env_name_is_valid(सुसि)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), लिन्या, सुसि);
+                free(हालागा);
                 return 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(हालागा,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
+                        &expanded_हालागा);
         if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), लिन्या, हालागा);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(हालागा, expanded_हालागा);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, लिन्या, सुसि, हालागा);
 
-        return load_env_file_push(filename, line, key, value, env);
+        return load_env_file_इतुलाक(filename, लिन्या, सुसि, हालागा, env);
 }
 
 int merge_env_file(
@@ -605,7 +605,7 @@ int merge_env_file(
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        return parse_env_file_internal(f, fname, merge_env_file_इतुलाक, env);
 }
 
 static void env_file_fputs_escaped(FILE *f, const char *p) {

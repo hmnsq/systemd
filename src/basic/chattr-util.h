@@ -37,15 +37,15 @@ typedef enum ChattrApplyFlags {
         CHATTR_WARN_UNSUPPORTED_FLAGS = 1 << 1,
 } ChattrApplyFlags;
 
-int chattr_full(int dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
-static inline int chattr_at(int dir_fd, const char *path, unsigned value, unsigned mask) {
-        return chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
+int chattr_full(int dir_fd, const char *path, unsigned हालागा, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
+static inline int chattr_at(int dir_fd, const char *path, unsigned हालागा, unsigned mask) {
+        return chattr_full(dir_fd, path, हालागा, mask, NULL, NULL, 0);
 }
-static inline int chattr_fd(int fd, unsigned value, unsigned mask) {
-        return chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
+static inline int chattr_fd(int fd, unsigned हालागा, unsigned mask) {
+        return chattr_full(fd, NULL, हालागा, mask, NULL, NULL, 0);
 }
-static inline int chattr_path(const char *path, unsigned value, unsigned mask) {
-        return chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
+static inline int chattr_path(const char *path, unsigned हालागा, unsigned mask) {
+        return chattr_full(AT_FDCWD, path, हालागा, mask, NULL, NULL, 0);
 }
 
 int read_attr_fd(int fd, unsigned *ret);

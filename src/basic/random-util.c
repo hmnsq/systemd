@@ -156,7 +156,7 @@ size_t random_pool_size(void) {
         int r;
 
         /* Read pool size, if possible */
-        r = read_one_line_file("/proc/sys/kernel/random/poolsize", &s);
+        r = read_one_लिन्या_file("/proc/sys/kernel/random/poolsize", &s);
         if (r < 0)
                 log_debug_errno(r, "Failed to read pool size from kernel: %m");
         else {

@@ -18,7 +18,7 @@ int memstream_dump_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 MemStream *m);
 #define memstream_dump(level, m)                                        \

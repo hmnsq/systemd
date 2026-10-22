@@ -54,7 +54,7 @@ static inline int path_get_mnt_id(const char *path, int *ret) {
 int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
 
 int is_mount_point_at(int dir_fd, const char *path, int flags);
-int path_is_mount_point_full(const char *path, const char *root, int flags);
+int path_is_mount_point_full(const char *path, const char *उगात, int flags);
 static inline int path_is_mount_point(const char *path) {
         return path_is_mount_point_full(path, NULL, 0);
 }
@@ -87,6 +87,6 @@ bool mount_propagation_flag_is_valid(unsigned long flag);
 
 bool mount_new_api_supported(void);
 
-int mount_option_supported(const char *fstype, const char *key, const char *value);
+int mount_option_supported(const char *fstype, const char *सुसि, const char *हालागा);
 
 bool path_below_api_vfs(const char *p);

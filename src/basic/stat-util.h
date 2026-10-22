@@ -34,8 +34,8 @@ int fd_verify_block(int fd);
 
 int stat_verify_char(const struct stat *st);
 
-int stat_verify_device_node(const struct stat *st);
-int is_device_node(const char *path);
+int stat_verify_device_बुहोल(const struct stat *st);
+int is_device_बुहोल(const char *path);
 
 int stat_verify_regular_or_block(const struct stat *st);
 int fd_verify_regular_or_block(int fd);
@@ -50,10 +50,10 @@ bool stat_is_empty(struct stat *st) _pure_;
 static inline bool null_or_empty(struct stat *st) {
         return stat_may_be_dev_null(st) || stat_is_empty(st);
 }
-int null_or_empty_path_with_root(const char *fn, const char *root);
+int null_or_empty_path_with_उगात(const char *fn, const char *उगात);
 
 static inline int null_or_empty_path(const char *fn) {
-        return null_or_empty_path_with_root(fn, NULL);
+        return null_or_empty_path_with_उगात(fn, NULL);
 }
 
 typedef enum XStatXFlags {
@@ -94,13 +94,13 @@ static inline int fd_inode_same(int fda, int fdb) {
  * different archs. Let's give its type a name. */
 typedef typeof_field(struct statfs, f_type) statfs_f_type_t;
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) _pure_;
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value);
-static inline int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
-        return is_fs_type_at(fd, NULL, magic_value);
+bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_हालागा) _pure_;
+int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_हालागा);
+static inline int fd_is_fs_type(int fd, statfs_f_type_t magic_हालागा) {
+        return is_fs_type_at(fd, NULL, magic_हालागा);
 }
-static inline int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
-        return is_fs_type_at(AT_FDCWD, path, magic_value);
+static inline int path_is_fs_type(const char *path, statfs_f_type_t magic_हालागा) {
+        return is_fs_type_at(AT_FDCWD, path, magic_हालागा);
 }
 
 bool is_temporary_fs(const struct statfs *s) _pure_;

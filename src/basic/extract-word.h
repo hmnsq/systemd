@@ -18,8 +18,8 @@ typedef enum ExtractFlags {
 } ExtractFlags;
 
 int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags);
-int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned line, const char *rvalue);
+int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned लिन्या, const char *rvalue);
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
-#define extract_many_words(p, separators, flags, ...) \
-        extract_many_words_internal(p, separators, flags, ##__VA_ARGS__, NULL)
+int extract_many_मगा_सालिता_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
+#define extract_many_मगा_सालिता(p, separators, flags, ...) \
+        extract_many_मगा_सालिता_internal(p, separators, flags, ##__VA_ARGS__, NULL)

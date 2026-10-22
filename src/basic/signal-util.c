@@ -395,7 +395,7 @@ int autoreaping_enabled(void) {
         return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+int आलिसिन_pending_signal_internal(int sig, ...) {
         sigset_t ss;
         va_list ap;
         int r;

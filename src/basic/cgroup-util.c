@@ -392,7 +392,7 @@ int cg_kill_recursive(
                 if (r == 0)
                         break;
 
-                p = path_join(empty_to_root(path), fn);
+                p = path_join(empty_to_उगात(path), fn);
                 if (!p)
                         return -ENOMEM;
 
@@ -458,19 +458,19 @@ int cg_get_path(const char *path, const char *suffix, char **ret) {
         return 0;
 }
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags) {
+int cg_set_xattr(const char *path, const char *name, const void *हालागा, size_t size, int flags) {
         _cleanup_free_ char *fs = NULL;
         int r;
 
         assert(path);
         assert(name);
-        assert(value || size <= 0);
+        assert(हालागा || size <= 0);
 
         r = cg_get_path(path, /* suffix= */ NULL, &fs);
         if (r < 0)
                 return r;
 
-        return RET_NERRNO(setxattr(fs, name, value, size, flags));
+        return RET_NERRNO(setxattr(fs, name, हालागा, size, flags));
 }
 
 int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size) {
@@ -531,16 +531,16 @@ int cg_pid_get_path(pid_t pid, char **ret_path) {
                 return r;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ char *लिन्या = NULL;
                 char *e;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
+                r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)
                         return -ENODATA;
 
-                e = startswith(line, "0:");
+                e = startswith(लिन्या, "0:");
                 if (!e)
                         continue;
 
@@ -604,7 +604,7 @@ int cg_is_empty(const char *path) {
         assert(path);
 
         /* The root cgroup is always populated */
-        if (empty_or_root(path))
+        if (empty_or_उगात(path))
                 return false;
 
         r = cg_get_keyed_attribute(path, "cgroup.events", STRV_MAKE("populated"), &t);
@@ -678,7 +678,7 @@ finalize:
         return 0;
 }
 
-int cg_get_root_path(char **ret_path) {
+int cg_get_उगात_path(char **ret_path) {
         char *p, *e;
         int r;
 
@@ -696,29 +696,29 @@ int cg_get_root_path(char **ret_path) {
         return 0;
 }
 
-int cg_shift_path(const char *cgroup, const char *root, const char **ret_shifted) {
+int cg_shift_path(const char *cgroup, const char *उगात, const char **ret_shifted) {
         int r;
 
         assert(cgroup);
         assert(ret_shifted);
 
         _cleanup_free_ char *rt = NULL;
-        if (!root) {
+        if (!उगात) {
                 /* If the root was specified let's use that, otherwise
                  * let's determine it from PID 1 */
 
-                r = cg_get_root_path(&rt);
+                r = cg_get_उगात_path(&rt);
                 if (r < 0)
                         return r;
 
-                root = rt;
+                उगात = rt;
         }
 
-        *ret_shifted = path_startswith_full(cgroup, root, PATH_STARTSWITH_RETURN_LEADING_SLASH|PATH_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
+        *ret_shifted = path_startswith_full(cgroup, उगात, PATH_STARTSWITH_RETURN_LEADING_SLASH|PATH_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
         return 0;
 }
 
-int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
+int cg_pid_get_path_shifted(pid_t pid, const char *उगात, char **ret_cgroup) {
         _cleanup_free_ char *raw = NULL;
         const char *c;
         int r;
@@ -730,7 +730,7 @@ int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
         if (r < 0)
                 return r;
 
-        r = cg_shift_path(raw, root, &c);
+        r = cg_shift_path(raw, उगात, &c);
         if (r < 0)
                 return r;
 
@@ -742,7 +742,7 @@ int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
         return strdup_to(ret_cgroup, c);
 }
 
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *root, char **ret_cgroup) {
+int cg_pidref_get_path_shifted(const PidRef *pidref, const char *उगात, char **ret_cgroup) {
         _cleanup_free_ char *raw = NULL;
         const char *c;
         int r;
@@ -753,7 +753,7 @@ int cg_pidref_get_path_shifted(const PidRef *pidref, const char *root, char **re
         if (r < 0)
                 return r;
 
-        r = cg_shift_path(raw, root, &c);
+        r = cg_shift_path(raw, उगात, &c);
         if (r < 0)
                 return r;
 
@@ -1216,7 +1216,7 @@ int cg_path_get_slice(const char *p, char **ret_slice) {
                 return cg_path_decode_unit(e, ret_slice);
 
         if (ret_slice)
-                return strdup_to(ret_slice, SPECIAL_ROOT_SLICE);
+                return strdup_to(ret_slice, SPECIAL_उगात_SLICE);
 
         return 0;
 }
@@ -1338,7 +1338,7 @@ int cg_slice_to_path(const char *unit, char **ret) {
         assert(unit);
         assert(ret);
 
-        if (streq(unit, SPECIAL_ROOT_SLICE))
+        if (streq(unit, SPECIAL_उगात_SLICE))
                 return strdup_to(ret, "");
 
         if (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
@@ -1422,7 +1422,7 @@ int cg_is_threaded(const char *path) {
         return strv_contains(v, "threaded") || strv_contains(v, "invalid");
 }
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value) {
+int cg_set_attribute(const char *path, const char *attribute, const char *हालागा) {
         _cleanup_free_ char *p = NULL;
         int r;
 
@@ -1437,7 +1437,7 @@ int cg_set_attribute(const char *path, const char *attribute, const char *value)
          * enabled. Let's always open cgroupv2 attribute files in nonblocking mode to immediately take
          * advantage of this and any other asynchronous resource reclaim that's added to the cgroupv2 API in
          * the future. */
-        return write_string_file(p, value, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
+        return write_string_file(p, हालागा, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
 }
 
 int cg_get_attribute(const char *path, const char *attribute, char **ret) {
@@ -1450,28 +1450,28 @@ int cg_get_attribute(const char *path, const char *attribute, char **ret) {
         if (r < 0)
                 return r;
 
-        return read_one_line_file(p, ret);
+        return read_one_लिन्या_file(p, ret);
 }
 
 int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         uint64_t v;
         int r;
 
         assert(ret);
 
-        r = cg_get_attribute(path, attribute, &value);
+        r = cg_get_attribute(path, attribute, &हालागा);
         if (r == -ENOENT)
                 return -ENODATA;
         if (r < 0)
                 return r;
 
-        if (streq(value, "max")) {
+        if (streq(हालागा, "max")) {
                 *ret = CGROUP_LIMIT_MAX;
                 return 0;
         }
 
-        r = safe_atou64(value, &v);
+        r = safe_atou64(हालागा, &v);
         if (r < 0)
                 return r;
 
@@ -1480,16 +1480,16 @@ int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t
 }
 
 int cg_get_attribute_as_bool(const char *path, const char *attribute) {
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         int r;
 
-        r = cg_get_attribute(path, attribute, &value);
+        r = cg_get_attribute(path, attribute, &हालागा);
         if (r == -ENOENT)
                 return -ENODATA;
         if (r < 0)
                 return r;
 
-        return parse_boolean(value);
+        return parse_boolean(हालागा);
 }
 
 int cg_get_owner(const char *path, uid_t *ret_uid) {
@@ -1517,7 +1517,7 @@ int cg_get_owner(const char *path, uid_t *ret_uid) {
 int cg_get_keyed_attribute(
                 const char *path,
                 const char *attribute,
-                char * const *keys,
+                char * const *मगा_सुसि,
                 char **values) {
 
         _cleanup_free_ char *filename = NULL, *contents = NULL;
@@ -1541,10 +1541,10 @@ int cg_get_keyed_attribute(
         if (r < 0)
                 return r;
 
-        n = strv_length(keys);
+        n = strv_length(मगा_सुसि);
         if (n == 0) /* No keys to retrieve? That's easy, we are done then */
                 return 0;
-        assert(strv_is_uniq(keys));
+        assert(strv_is_uniq(मगा_सुसि));
 
         /* Let's build this up in a temporary array for now in order not to clobber the return parameter on failure */
         char **v = newa0(char*, n);
@@ -1555,7 +1555,7 @@ int cg_get_keyed_attribute(
                 size_t i;
 
                 for (i = 0; i < n; i++) {
-                        w = first_word(p, keys[i]);
+                        w = first_word(p, मगा_सुसि[i]);
                         if (w)
                                 break;
                 }
@@ -1598,20 +1598,20 @@ fail:
         return r;
 }
 
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret) {
+int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *सुसि, uint64_t *ret) {
         _cleanup_free_ char *val = NULL;
         int r;
 
-        assert(key);
+        assert(सुसि);
         assert(ret);
 
-        r = cg_get_keyed_attribute(path, attribute, STRV_MAKE(key), &val);
+        r = cg_get_keyed_attribute(path, attribute, STRV_MAKE(सुसि), &val);
         if (r < 0)
                 return r;
 
         r = safe_atou64(val, ret);
         if (r < 0)
-                return log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, key, attribute);
+                return log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, सुसि, attribute);
 
         return 0;
 }
@@ -1686,7 +1686,7 @@ int cg_mask_from_string(const char *s, CGroupMask *ret) {
         return 0;
 }
 
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
+int cg_mask_supported_subtree(const char *उगात, CGroupMask *ret) {
         CGroupMask mask;
         int r;
 
@@ -1698,11 +1698,11 @@ int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
 
         /* We can read the supported and accessible controllers from the top-level cgroup attribute */
         _cleanup_free_ char *controllers = NULL, *path = NULL;
-        r = cg_get_path(root, "cgroup.controllers", &path);
+        r = cg_get_path(उगात, "cgroup.controllers", &path);
         if (r < 0)
                 return r;
 
-        r = read_one_line_file(path, &controllers);
+        r = read_one_लिन्या_file(path, &controllers);
         if (r < 0)
                 return r;
 
@@ -1718,14 +1718,14 @@ int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
 }
 
 int cg_mask_supported(CGroupMask *ret) {
-        _cleanup_free_ char *root = NULL;
+        _cleanup_free_ char *उगात = NULL;
         int r;
 
-        r = cg_get_root_path(&root);
+        r = cg_get_उगात_path(&उगात);
         if (r < 0)
                 return r;
 
-        return cg_mask_supported_subtree(root, ret);
+        return cg_mask_supported_subtree(उगात, ret);
 }
 
 int cg_is_delegated(const char *path) {

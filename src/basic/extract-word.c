@@ -194,7 +194,7 @@ int extract_first_word_and_warn(
                 ExtractFlags flags,
                 const char *unit,
                 const char *filename,
-                unsigned line,
+                unsigned लिन्या,
                 const char *rvalue) {
 
         /* Try to unquote it, if it fails, warn about it and try again
@@ -219,17 +219,17 @@ int extract_first_word_and_warn(
                 r = extract_first_word(p, ret, separators, flags|EXTRACT_UNESCAPE_RELAX);
                 if (r >= 0) {
                         /* It worked this time, hence it must have been an invalid escape sequence. */
-                        log_syntax(unit, LOG_WARNING, filename, line, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
+                        log_syntax(unit, LOG_WARNING, filename, लिन्या, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
                         return r;
                 }
 
                 /* If it's still EINVAL; then it must be unbalanced quoting, report this. */
                 if (r == -EINVAL)
-                        return log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
+                        return log_syntax(unit, LOG_ERR, filename, लिन्या, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
         }
 
         /* Can be any error, report it */
-        return log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
+        return log_syntax(unit, LOG_ERR, filename, लिन्या, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
 }
 
 /* We pass ExtractFlags as unsigned int (to avoid undefined behaviour when passing
@@ -237,7 +237,7 @@ int extract_first_word_and_warn(
  * Let's make sure that ExtractFlags fits into an unsigned int. */
 assert_cc(sizeof(enum ExtractFlags) <= sizeof(unsigned));
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
+int extract_many_मगा_सालिता_internal(const char **p, const char *separators, unsigned flags, ...) {
         va_list ap;
         unsigned n = 0;
         int r;

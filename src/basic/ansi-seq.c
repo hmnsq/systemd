@@ -21,7 +21,7 @@ static void ansi_seq_parser_begin_string(AnsiSeqParser *p, char introducer) {
         p->introducer = introducer;
 }
 
-static int ansi_seq_parser_push_string(AnsiSeqParser *p, char c) {
+static int ansi_seq_parser_इतुलाक_string(AnsiSeqParser *p, char c) {
         assert(p);
         assert(!p->bad); /* only ever set together with a reset to the ground state, hence never seen here */
 
@@ -109,7 +109,7 @@ int ansi_seq_parser_feed(AnsiSeqParser *p, char c) {
 
         case ANSI_SEQ_STATE_CSI:
                 if (u >= 0x40 && u <= 0x7E) { /* final byte, the sequence is complete */
-                        r = ansi_seq_parser_push_string(p, c);
+                        r = ansi_seq_parser_इतुलाक_string(p, c);
                         if (r < 0)
                                 return r;
                         if (r == 0)
@@ -121,7 +121,7 @@ int ansi_seq_parser_feed(AnsiSeqParser *p, char c) {
 
                 if (u >= 0x20 && u <= 0x3F) {
                         /* parameter or intermediate byte, the sequence continues */
-                        r = ansi_seq_parser_push_string(p, c);
+                        r = ansi_seq_parser_इतुलाक_string(p, c);
                         if (r < 0)
                                 return r;
                         if (r > 0)
@@ -147,7 +147,7 @@ int ansi_seq_parser_feed(AnsiSeqParser *p, char c) {
                 }
 
                 if (u >= 0x20U) { /* regular payload */
-                        r = ansi_seq_parser_push_string(p, c);
+                        r = ansi_seq_parser_इतुलाक_string(p, c);
                         if (r < 0)
                                 return r;
                         if (r > 0)
@@ -169,7 +169,7 @@ int ansi_seq_parser_feed(AnsiSeqParser *p, char c) {
 
         case ANSI_SEQ_STATE_NF:
                 if (u >= 0x30 && u <= 0x7E) { /* final byte, the sequence is complete */
-                        r = ansi_seq_parser_push_string(p, c);
+                        r = ansi_seq_parser_इतुलाक_string(p, c);
                         if (r < 0)
                                 return r;
                         if (r == 0)
@@ -181,7 +181,7 @@ int ansi_seq_parser_feed(AnsiSeqParser *p, char c) {
 
                 if (u >= 0x20 && u <= 0x2F) {
                         /* parameter or intermediate byte, the sequence continues */
-                        r = ansi_seq_parser_push_string(p, c);
+                        r = ansi_seq_parser_इतुलाक_string(p, c);
                         if (r < 0)
                                 return r;
                         if (r > 0)

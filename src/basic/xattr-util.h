@@ -33,7 +33,7 @@ int xsetxattr_full(
                 const char *path,
                 int at_flags,
                 const char *name,
-                const char *value,
+                const char *हालागा,
                 size_t size,
                 int xattr_flags);
 static inline int xsetxattr(
@@ -41,8 +41,8 @@ static inline int xsetxattr(
                 const char *path,
                 int at_flags,
                 const char *name,
-                const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+                const char *हालागा) {
+        return xsetxattr_full(fd, path, at_flags, name, हालागा, SIZE_MAX, 0);
 }
 
 int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);

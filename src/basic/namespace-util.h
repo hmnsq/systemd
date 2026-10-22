@@ -21,7 +21,7 @@ extern const struct namespace_info {
         const char *proc_path;
         unsigned long clone_flag;
         unsigned long pidfd_get_ns_ioctl_cmd;
-        ino_t root_inode;
+        ino_t उगात_inode;
 } namespace_info[_NAMESPACE_TYPE_MAX + 1];
 
 NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag);
@@ -37,20 +37,20 @@ int pidref_namespace_open(
                 int *ret_mntns_fd,
                 int *ret_netns_fd,
                 int *ret_userns_fd,
-                int *ret_root_fd);
+                int *ret_उगात_fd);
 int namespace_open(
                 pid_t pid,
                 int *ret_pidns_fd,
                 int *ret_mntns_fd,
                 int *ret_netns_fd,
                 int *ret_userns_fd,
-                int *ret_root_fd);
+                int *ret_उगात_fd);
 
 typedef enum NamespaceEnterFlags {
         /* If root is not mapped in the user namespace, keep our UID/GID instead of failing. The caller must
          * ensure that retaining its original identity is appropriate in that case. Entering still fails
          * with -ENODATA if the namespace has no mappings at all yet, since root might still get mapped. */
-        NAMESPACE_ENTER_KEEP_UID_GID_IF_ROOT_UNMAPPED = 1 << 0,
+        NAMESPACE_ENTER_KEEP_UID_GID_IF_उगात_UNMAPPED = 1 << 0,
 } NamespaceEnterFlags;
 
 /* If a user namespace is entered we become root in it, and fail if that's not possible. */
@@ -59,16 +59,16 @@ int namespace_enter_full(
                 int mntns_fd,
                 int netns_fd,
                 int userns_fd,
-                int root_fd,
+                int उगात_fd,
                 NamespaceEnterFlags flags);
 
-static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
+static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int उगात_fd) {
+        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, उगात_fd, /* flags= */ 0);
 }
 
 int fd_is_namespace(int fd, NamespaceType type);
 int is_our_namespace(int fd, NamespaceType type);
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
+int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int उगात_fd);
 
 int network_namespace_is_init(int socket_fd);
 int namespace_is_init(NamespaceType type);
@@ -101,12 +101,12 @@ int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_r
 
 int userns_acquire_empty(void);
 int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
-int userns_acquire_self_root(void);
+int userns_acquire_self_उगात(void);
 int userns_enter_and_pin(int userns_fd, PidRef *ret);
 bool userns_supported(void);
 
 int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid);
-int userns_has_root_mapping(int userns_fd);
+int userns_has_उगात_mapping(int userns_fd);
 
 int namespace_open_by_id(uint64_t ns_id);
 

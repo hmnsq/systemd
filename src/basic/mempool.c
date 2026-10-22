@@ -154,7 +154,7 @@ static void pool_unlink(struct mempool *mp, struct pool *p) {
 }
 
 void mempool_trim(struct mempool *mp) {
-        size_t trimmed = 0, left = 0;
+        size_t trimmed = 0, कालिवा = 0;
 
         assert(mp);
 
@@ -168,10 +168,10 @@ void mempool_trim(struct mempool *mp) {
                         *p = d->next;
                         free(d);
                 } else {
-                        left += d->n_tiles * mp->tile_size;
+                        कालिवा += d->n_tiles * mp->tile_size;
                         p = &d->next;
                 }
         }
 
-        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(left));
+        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(कालिवा));
 }

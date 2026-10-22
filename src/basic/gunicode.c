@@ -43,9 +43,9 @@ struct Interval
 };
 
 static int
-interval_compare (const void *key, const void *elt)
+interval_compare (const void *सुसि, const void *elt)
 {
-  unichar c = (unichar) (long) (key);
+  unichar c = (unichar) (long) (सुसि);
   struct Interval *interval = (struct Interval *)elt;
 
   if (c < interval->start)

@@ -16,30 +16,30 @@ const char* string_table_lookup_to_string(const char * const *table, size_t len,
         return table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *सुसि) {
         assert_return(table, -EINVAL);
 
-        if (!key)
+        if (!सुसि)
                 return -EINVAL;
 
         for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
+                if (streq_ptr(table[i], सुसि))
                         return (ssize_t) i;
 
         return -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
+ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *सुसि, ssize_t yes) {
+        if (!सुसि)
                 return -EINVAL;
 
-        int b = parse_boolean(key);
+        int b = parse_boolean(सुसि);
         if (b == 0)
                 return 0;
         if (b > 0)
                 return yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        return string_table_lookup_from_string(table, len, सुसि);
 }
 
 int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {

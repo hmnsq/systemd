@@ -286,7 +286,7 @@ int xsetxattr_full(
                 const char *path,
                 int at_flags,
                 const char *name,
-                const char *value,
+                const char *हालागा,
                 size_t size,
                 int xattr_flags) {
 
@@ -295,26 +295,26 @@ int xsetxattr_full(
         assert(fd >= 0 || fd == AT_FDCWD);
         assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
         assert(name);
-        assert(value || size == 0);
+        assert(हालागा || size == 0);
 
         if (size == SIZE_MAX)
-                size = strlen(value);
+                size = strlen(हालागा);
 
         /* Skip the write if the xattr already has the correct value, to avoid
          * unnecessary timestamp changes on the file. Only do this for plain
          * replace mode (xattr_flags == 0) — XATTR_CREATE callers expect
          * -EEXIST when the xattr already exists. */
-        _cleanup_free_ char *old_value = NULL;
+        _cleanup_free_ char *old_हालागा = NULL;
         size_t old_size;
 
         if (xattr_flags == 0 &&
-            getxattr_at_malloc(fd, path, name, at_flags, &old_value, &old_size) >= 0 &&
-            memcmp_nn(old_value, old_size, value, size) == 0)
+            getxattr_at_malloc(fd, path, name, at_flags, &old_हालागा, &old_size) >= 0 &&
+            memcmp_nn(old_हालागा, old_size, हालागा, size) == 0)
                 return 0;
 
         if (have_xattrat && !isempty(path)) {
-                struct xattr_args args = {
-                        .value = PTR_TO_UINT64(value),
+                struct xattr_मगा_कातविरान मगा_कातविरान = {
+                        .हालागा = PTR_TO_UINT64(हालागा),
                         .size = size,
                         .flags = xattr_flags,
                 };
@@ -322,7 +322,7 @@ int xsetxattr_full(
                 r = RET_NERRNO(setxattrat(fd, path,
                                           at_flags_normalize_nofollow(at_flags),
                                           name,
-                                          &args, sizeof(args)));
+                                          &मगा_कातविरान, sizeof(मगा_कातविरान)));
                 if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
                         return r;
@@ -338,11 +338,11 @@ int xsetxattr_full(
                 return r;
 
         if (path)
-                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(path, name, value, size, xattr_flags)
-                                                           : lsetxattr(path, name, value, size, xattr_flags);
+                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(path, name, हालागा, size, xattr_flags)
+                                                           : lsetxattr(path, name, हालागा, size, xattr_flags);
         else
-                r = by_procfs ? setxattr(FORMAT_PROC_FD_PATH(fd), name, value, size, xattr_flags)
-                              : fsetxattr(fd, name, value, size, xattr_flags);
+                r = by_procfs ? setxattr(FORMAT_PROC_FD_PATH(fd), name, हालागा, size, xattr_flags)
+                              : fsetxattr(fd, name, हालागा, size, xattr_flags);
         if (r < 0)
                 return -errno;
 

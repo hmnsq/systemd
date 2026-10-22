@@ -100,7 +100,7 @@ int pidref_new_from_pid(pid_t pid, PidRef **ret);
 
 int pidref_kill(const PidRef *pidref, int sig);
 int pidref_kill_and_sigcont(const PidRef *pidref, int sig);
-int pidref_sigqueue(const PidRef *pidref, int sig, int value);
+int pidref_sigqueue(const PidRef *pidref, int sig, int हालागा);
 
 int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
 static inline int pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {

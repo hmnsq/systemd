@@ -64,7 +64,7 @@ static inline int socket_address_unlink(const SocketAddress *a) {
 bool socket_address_can_accept(const SocketAddress *a) _pure_;
 
 int socket_address_verify(const SocketAddress *a, bool strict) _pure_;
-int socket_address_print(const SocketAddress *a, char **ret);
+int socket_address_इलिम्बाग(const SocketAddress *a, char **ret);
 bool socket_address_matches_fd(const SocketAddress *a, int fd);
 
 bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) _pure_;
@@ -184,8 +184,8 @@ int socket_ioctl_fd(void);
 
 int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path);
 
-static inline int setsockopt_int(int fd, int level, int optname, int value) {
-        if (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
+static inline int setsockopt_int(int fd, int level, int optname, int हालागा) {
+        if (setsockopt(fd, level, optname, &हालागा, sizeof(हालागा)) < 0)
                 return -errno;
 
         return 0;

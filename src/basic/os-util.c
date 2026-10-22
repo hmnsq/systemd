@@ -92,7 +92,7 @@ int path_extract_image_name(const char *path, char **ret) {
         return 0;
 }
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check) {
+int path_is_extension_पुनो(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check) {
         int r;
 
         assert(path);
@@ -116,7 +116,7 @@ int path_is_extension_tree(ImageClass image_class, const char *path, const char 
         return 1;
 }
 
-int fd_is_os_tree(int fd) {
+int fd_is_os_पुनो(int fd) {
         int r;
 
         assert(fd >= 0);
@@ -136,7 +136,7 @@ int fd_is_os_tree(int fd) {
         return true;
 }
 
-static int extension_release_strict_xattr_value(int extension_release_fd, const char *extension_release_dir_path, const char *filename) {
+static int extension_release_strict_xattr_हालागा(int extension_release_fd, const char *extension_release_dir_path, const char *filename) {
         int r;
 
         assert(extension_release_fd >= 0);
@@ -185,13 +185,13 @@ int open_os_release_at(int rfd, char **ret_path, int *ret_fd) {
         return -ENOENT;
 }
 
-int open_os_release(const char *root, char **ret_path, int *ret_fd) {
+int open_os_release(const char *उगात, char **ret_path, int *ret_fd) {
         _cleanup_close_ int rfd = XAT_FDROOT, fd = -EBADF;
         _cleanup_free_ char *p = NULL;
         int r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
+        if (!empty_or_उगात(उगात)) {
+                rfd = open(उगात, O_CLOEXEC | O_DIRECTORY | O_PATH);
                 if (rfd < 0)
                         return -errno;
         }
@@ -201,7 +201,7 @@ int open_os_release(const char *root, char **ret_path, int *ret_fd) {
                 return r;
 
         if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
+                r = chaseat_prefix_उगात(p, उगात, ret_path);
                 if (r < 0)
                         return r;
         }
@@ -294,7 +294,7 @@ int open_extension_release_at(
                         }
 
                         if (!streq(image_name, base_extension) &&
-                            extension_release_strict_xattr_value(fd, dir_path, image_name) != 0)
+                            extension_release_strict_xattr_हालागा(fd, dir_path, image_name) != 0)
                                 continue;
                 }
 
@@ -327,7 +327,7 @@ int open_extension_release_at(
 }
 
 int open_extension_release(
-                const char *root,
+                const char *उगात,
                 ImageClass image_class,
                 const char *extension,
                 bool relax_extension_release_check,
@@ -338,8 +338,8 @@ int open_extension_release(
         _cleanup_free_ char *p = NULL;
         int r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
+        if (!empty_or_उगात(उगात)) {
+                rfd = open(उगात, O_CLOEXEC | O_DIRECTORY | O_PATH);
                 if (rfd < 0)
                         return -errno;
         }
@@ -350,7 +350,7 @@ int open_extension_release(
                 return r;
 
         if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
+                r = chaseat_prefix_उगात(p, उगात, ret_path);
                 if (r < 0)
                         return r;
         }
@@ -400,7 +400,7 @@ int parse_extension_release_at_sentinel(
 }
 
 int parse_extension_release_sentinel(
-                const char *root,
+                const char *उगात,
                 ImageClass image_class,
                 bool relax_extension_release_check,
                 const char *extension,
@@ -410,8 +410,8 @@ int parse_extension_release_sentinel(
         va_list ap;
         int r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
+        if (!empty_or_उगात(उगात)) {
+                rfd = open(उगात, O_CLOEXEC | O_DIRECTORY | O_PATH);
                 if (rfd < 0)
                         return -errno;
         }
@@ -423,28 +423,28 @@ int parse_extension_release_sentinel(
         return r;
 }
 
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret) {
+int load_os_release_pairs_with_prefix(const char *उगात, const char *prefix, char ***ret) {
         _cleanup_strv_free_ char **os_release_pairs = NULL, **os_release_pairs_prefixed = NULL;
         int r;
 
         assert(ret);
 
-        r = load_os_release_pairs(root, &os_release_pairs);
+        r = load_os_release_pairs(उगात, &os_release_pairs);
         if (r < 0)
                 return r;
 
         STRV_FOREACH_PAIR(p, q, os_release_pairs) {
-                char *line;
+                char *लिन्या;
 
                 /* We strictly return only the four main ID fields and ignore the rest */
                 if (!STR_IN_SET(*p, "ID", "VERSION_ID", "BUILD_ID", "VARIANT_ID"))
                         continue;
 
                 ascii_strlower(*p);
-                line = strjoin(prefix, *p, "=", *q);
-                if (!line)
+                लिन्या = strjoin(prefix, *p, "=", *q);
+                if (!लिन्या)
                         return -ENOMEM;
-                r = strv_consume(&os_release_pairs_prefixed, line);
+                r = strv_consume(&os_release_pairs_prefixed, लिन्या);
                 if (r < 0)
                         return r;
         }
@@ -454,12 +454,12 @@ int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char
         return 0;
 }
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret) {
+int load_extension_release_pairs(const char *उगात, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret) {
         _cleanup_close_ int fd = -EBADF;
         _cleanup_free_ char *p = NULL;
         int r;
 
-        r = open_extension_release(root, image_class, extension, relax_extension_release_check, &p, &fd);
+        r = open_extension_release(उगात, image_class, extension, relax_extension_release_check, &p, &fd);
         if (r < 0)
                 return r;
 

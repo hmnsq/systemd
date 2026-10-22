@@ -49,7 +49,7 @@ unsigned cap_last_cap(void);
 int have_effective_cap(unsigned cap);
 int have_inheritable_cap(unsigned cap);
 int capability_gain_cap_setpcap(void);
-int capability_bounding_set_drop(uint64_t keep, bool right_now);
+int capability_bounding_set_drop(uint64_t keep, bool कानान_now);
 int capability_bounding_set_drop_usermode(uint64_t keep);
 
 int capability_ambient_set_apply(uint64_t set, bool also_inherit);

@@ -35,8 +35,8 @@ bool in_initrd(void) {
         return saved_in_initrd;
 }
 
-void in_initrd_force(bool value) {
-        saved_in_initrd = value;
+void in_initrd_force(bool हालागा) {
+        saved_in_initrd = हालागा;
 }
 
 int in_first_boot(void) {

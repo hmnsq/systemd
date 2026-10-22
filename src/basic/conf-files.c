@@ -40,26 +40,26 @@ static int conf_files_log_level(ConfFilesFlags flags) {
 }
 
 static int prepare_dirs(
-                const char *root,
+                const char *उगात,
                 ConfFilesFlags flags,
                 char * const *dirs,
-                char **ret_root,
+                char **ret_उगात,
                 int *ret_rfd,
                 char ***ret_dirs) {
 
-        _cleanup_free_ char *root_abs = NULL;
+        _cleanup_free_ char *उगात_abs = NULL;
         _cleanup_strv_free_ char **dirs_abs = NULL;
         int r;
 
-        assert(ret_root);
+        assert(ret_उगात);
         assert(ret_rfd);
         assert(ret_dirs || strv_isempty(dirs));
 
         int log_level = conf_files_log_level(flags);
 
-        r = empty_or_root_harder_to_null(&root);
+        r = empty_or_उगात_harder_to_null(&उगात);
         if (r < 0)
-                return log_full_errno(log_level, r, "Failed to determine if '%s' points to the root directory: %m", strempty(root));
+                return log_full_errno(log_level, r, "Failed to determine if '%s' points to the root directory: %m", strempty(उगात));
 
         if (ret_dirs) {
                 dirs_abs = strv_copy(dirs);
@@ -68,18 +68,18 @@ static int prepare_dirs(
         }
 
         _cleanup_close_ int rfd = XAT_FDROOT;
-        if (root) {
+        if (उगात) {
                 /* When a non-trivial root is specified, we will prefix the result later. Hence, it is not
                  * necessary to modify each config directories here. but needs to normalize the root directory. */
-                r = path_make_absolute_cwd(root, &root_abs);
+                r = path_make_absolute_cwd(उगात, &उगात_abs);
                 if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to make '%s' absolute: %m", root);
+                        return log_full_errno(log_level, r, "Failed to make '%s' absolute: %m", उगात);
 
-                path_simplify(root_abs);
+                path_simplify(उगात_abs);
 
-                rfd = open(root, O_CLOEXEC|O_DIRECTORY|O_PATH);
+                rfd = open(उगात, O_CLOEXEC|O_DIRECTORY|O_PATH);
                 if (rfd < 0)
-                        return log_full_errno(log_level, errno, "Failed to open '%s': %m", root_abs);
+                        return log_full_errno(log_level, errno, "Failed to open '%s': %m", उगात_abs);
 
         } else if (ret_dirs) {
                 /* When an empty root or "/" is specified, we will open "/" below, hence we need to make
@@ -89,36 +89,36 @@ static int prepare_dirs(
                         return log_full_errno(log_level, r, "Failed to make directories absolute: %m");
         }
 
-        *ret_root = TAKE_PTR(root_abs);
+        *ret_उगात = TAKE_PTR(उगात_abs);
         *ret_rfd = TAKE_FD(rfd);
         if (ret_dirs)
                 *ret_dirs = TAKE_PTR(dirs_abs);
         return 0;
 }
 
-static int conf_file_prefix_root(ConfFile *c, const char *root, ConfFilesFlags flags) {
+static int conf_file_prefix_उगात(ConfFile *c, const char *उगात, ConfFilesFlags flags) {
         char *p;
         int r;
 
         assert(c);
 
-        if (FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_ROOT))
+        if (FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_उगात))
                 return 0;
 
         int log_level = conf_files_log_level(flags);
 
-        r = chaseat_prefix_root(c->result, root, &p);
+        r = chaseat_prefix_उगात(c->result, उगात, &p);
         if (r < 0)
-                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, root);
+                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, उगात);
         free_and_replace(c->result, p);
 
-        r = chaseat_prefix_root(c->resolved_path, root, &p);
+        r = chaseat_prefix_उगात(c->resolved_path, उगात, &p);
         if (r < 0)
-                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->resolved_path, root);
+                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->resolved_path, उगात);
         free_and_replace(c->resolved_path, p);
 
         /* Do not use chaseat_prefix_root(), as it is for the result of chaseat(), but the path is not chased. */
-        p = path_join(empty_to_root(root), skip_leading_slash(c->original_path));
+        p = path_join(empty_to_उगात(उगात), skip_leading_slash(c->original_path));
         if (!p)
                 return log_oom_full(log_level);
 
@@ -142,7 +142,7 @@ static ChaseFlags conf_files_chase_flags(ConfFilesFlags flags) {
 }
 
 static int conf_file_chase_and_verify(
-                const char *root,          /* for logging, can be NULL */
+                const char *उगात,          /* for logging, can be NULL */
                 int rfd,
                 const char *original_path, /* for logging */
                 const char *path,
@@ -165,12 +165,12 @@ static int conf_file_chase_and_verify(
 
         int log_level = conf_files_log_level(flags);
 
-        root = empty_to_root(root);
+        उगात = empty_to_उगात(उगात);
 
         r = chaseat(rfd, rfd, path, conf_files_chase_flags(flags), &resolved_path, &fd);
         if (r < 0)
                 return log_full_errno(log_level, r, "Failed to chase '%s%s': %m",
-                                      root, skip_leading_slash(original_path));
+                                      उगात, skip_leading_slash(original_path));
         if (r == 0) {
                 if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK)) {
                         /* If the path points to /dev/null in a image or so, then the device node may not exist. */
@@ -184,20 +184,20 @@ static int conf_file_chase_and_verify(
 
                                 return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                                        "File '%s%s' is a mask (symlink to /dev/null).",
-                                                       root, skip_leading_slash(original_path));
+                                                       उगात, skip_leading_slash(original_path));
                         }
                 }
 
                 if (conf_files_need_stat(flags))
                         /* If we need to have stat, skip the entry. */
                         return log_full_errno(log_level, SYNTHETIC_ERRNO(ENOENT), "Failed to chase '%s%s': %m",
-                                              root, skip_leading_slash(original_path));
+                                              उगात, skip_leading_slash(original_path));
         }
 
         /* Even if we do not need stat, let's take stat now. The caller may use the info later. */
         if (fd >= 0 && fstat(fd, &st) < 0)
                 return log_full_errno(log_level, errno, "Failed to stat '%s%s': %m",
-                                      root, skip_leading_slash(original_path));
+                                      उगात, skip_leading_slash(original_path));
 
         /* Is this a masking entry? */
         if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK) && stat_may_be_dev_null(&st)) {
@@ -210,7 +210,7 @@ static int conf_file_chase_and_verify(
 
                 return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                        "File '%s%s' is a mask (symlink to /dev/null).",
-                                       root, skip_leading_slash(original_path));
+                                       उगात, skip_leading_slash(original_path));
         }
 
         if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_EMPTY) && stat_is_empty(&st)) {
@@ -223,21 +223,21 @@ static int conf_file_chase_and_verify(
 
                 return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                        "File '%s%s' is a mask (an empty file).",
-                                       root, skip_leading_slash(original_path));
+                                       उगात, skip_leading_slash(original_path));
         }
 
         if (FLAGS_SET(flags, CONF_FILES_REGULAR|CONF_FILES_DIRECTORY)) {
                 if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
                         return log_debug_errno(SYNTHETIC_ERRNO(EBADFD),
                                                "File '%s%s' is neither a regular file or directory.",
-                                               root, skip_leading_slash(original_path));
+                                               उगात, skip_leading_slash(original_path));
         } else {
                 /* Is this node a regular file? */
                 if (FLAGS_SET(flags, CONF_FILES_REGULAR)) {
                         r = stat_verify_regular(&st);
                         if (r < 0)
                                 return log_debug_errno(r, "File '%s%s' is not a regular file: %m",
-                                                       root, skip_leading_slash(original_path));
+                                                       उगात, skip_leading_slash(original_path));
                 }
 
                 /* Is this node a directory? */
@@ -245,7 +245,7 @@ static int conf_file_chase_and_verify(
                         r = stat_verify_directory(&st);
                         if (r < 0)
                                 return log_debug_errno(r, "File '%s%s' is not a directory: %m",
-                                                       root, skip_leading_slash(original_path));
+                                                       उगात, skip_leading_slash(original_path));
                 }
         }
 
@@ -256,7 +256,7 @@ static int conf_file_chase_and_verify(
         if (FLAGS_SET(flags, CONF_FILES_EXECUTABLE) && (st.st_mode & 0111) == 0)
                 return log_debug_errno(SYNTHETIC_ERRNO(ENOEXEC),
                                        "File '%s%s' is not marked executable.",
-                                       root, skip_leading_slash(original_path));
+                                       उगात, skip_leading_slash(original_path));
 
         if (ret_path)
                 *ret_path = TAKE_PTR(resolved_path);
@@ -270,7 +270,7 @@ static int conf_file_chase_and_verify(
 
 int conf_file_new_at(
                 const char *path,
-                const char *root,
+                const char *उगात,
                 int rfd,
                 ConfFilesFlags flags,
                 ConfFile **ret) {
@@ -282,10 +282,10 @@ int conf_file_new_at(
 
         int log_level = conf_files_log_level(flags);
 
-        _cleanup_free_ char *_root = NULL;
-        if (DEBUG_LOGGING && !root) {
-                (void) fd_get_path(rfd, &_root);
-                root = _root;
+        _cleanup_free_ char *उगात_2 = NULL;
+        if (DEBUG_LOGGING && !उगात) {
+                (void) fd_get_path(rfd, &उगात_2);
+                उगात = उगात_2;
         }
 
         _cleanup_(conf_file_freep) ConfFile *c = new(ConfFile, 1);
@@ -313,7 +313,7 @@ int conf_file_new_at(
                             CHASE_MUST_BE_DIRECTORY | conf_files_chase_flags(flags),
                             &resolved_dirpath, /* ret_fd= */ NULL);
                 if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to chase '%s%s': %m", empty_to_root(root), skip_leading_slash(dirpath));
+                        return log_full_errno(log_level, r, "Failed to chase '%s%s': %m", empty_to_उगात(उगात), skip_leading_slash(dirpath));
         }
 
         c->result = path_join(resolved_dirpath, c->filename);
@@ -321,7 +321,7 @@ int conf_file_new_at(
                 return log_oom_full(log_level);
 
         r = conf_file_chase_and_verify(
-                        root,
+                        उगात,
                         rfd,
                         c->original_path,
                         c->result,
@@ -338,20 +338,20 @@ int conf_file_new_at(
         return 0;
 }
 
-int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, ConfFile **ret) {
+int conf_file_new(const char *path, const char *उगात, ConfFilesFlags flags, ConfFile **ret) {
         int r;
 
         assert(path);
         assert(ret);
 
-        _cleanup_free_ char *root_abs = NULL;
+        _cleanup_free_ char *उगात_abs = NULL;
         _cleanup_close_ int rfd = -EBADF;
-        r = prepare_dirs(root, flags, /* dirs= */ NULL, &root_abs, &rfd, /* ret_dirs= */ NULL);
+        r = prepare_dirs(उगात, flags, /* dirs= */ NULL, &उगात_abs, &rfd, /* ret_dirs= */ NULL);
         if (r < 0)
                 return r;
 
         _cleanup_free_ char *path_abs = NULL;
-        if (!root_abs) {
+        if (!उगात_abs) {
                 r = path_make_absolute_cwd(path, &path_abs);
                 if (r < 0)
                         return log_full_errno(conf_files_log_level(flags), r, "Failed to make '%s' absolute: %m", path);
@@ -360,11 +360,11 @@ int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, Conf
         }
 
         _cleanup_(conf_file_freep) ConfFile *c = NULL;
-        r = conf_file_new_at(path, root_abs, rfd, flags, &c);
+        r = conf_file_new_at(path, उगात_abs, rfd, flags, &c);
         if (r < 0)
                 return r;
 
-        r = conf_file_prefix_root(c, root_abs, flags);
+        r = conf_file_prefix_उगात(c, उगात_abs, flags);
         if (r < 0)
                 return r;
 
@@ -372,7 +372,7 @@ int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, Conf
         return 0;
 }
 
-DEFINE_PRIVATE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
+DEFINE_PRIVATE_HASH_OPS_WITH_हालागा_DESTRUCTOR(
                 conf_file_hash_ops,
                 char, string_hash_func, string_compare_func,
                 ConfFile, conf_file_free);
@@ -381,7 +381,7 @@ static int files_add(
                 DIR *dir,
                 const char *original_dirpath,
                 const char *resolved_dirpath,
-                const char *root, /* for logging, can be NULL */
+                const char *उगात, /* for logging, can be NULL */
                 int rfd,
                 Hashmap **files,
                 Set **masked,
@@ -399,10 +399,10 @@ static int files_add(
 
         int log_level = conf_files_log_level(flags);
 
-        root = empty_to_root(root);
+        उगात = empty_to_उगात(उगात);
 
         FOREACH_DIRENT(de, dir, return log_full_errno(log_level, errno, "Failed to read directory '%s%s': %m",
-                                                      root, skip_leading_slash(original_dirpath))) {
+                                                      उगात, skip_leading_slash(original_dirpath))) {
 
                 _cleanup_free_ char *original_path = path_join(original_dirpath, de->d_name);
                 if (!original_path)
@@ -410,19 +410,19 @@ static int files_add(
 
                 /* Does this match the suffix? */
                 if (suffix && !endswith(de->d_name, suffix)) {
-                        log_debug("Skipping file '%s%s', suffix is not '%s'.", root, skip_leading_slash(original_path), suffix);
+                        log_debug("Skipping file '%s%s', suffix is not '%s'.", उगात, skip_leading_slash(original_path), suffix);
                         continue;
                 }
 
                 /* Has this file already been found in an earlier directory? */
                 if (hashmap_contains(*files, de->d_name)) {
-                        log_debug("Skipping overridden file '%s%s'.", root, skip_leading_slash(original_path));
+                        log_debug("Skipping overridden file '%s%s'.", उगात, skip_leading_slash(original_path));
                         continue;
                 }
 
                 /* Has this been masked in an earlier directory? */
                 if ((flags & CONF_FILES_FILTER_MASKED) != 0 && set_contains(*masked, de->d_name)) {
-                        log_debug("File '%s%s' is masked by previous entry.", root, skip_leading_slash(original_path));
+                        log_debug("File '%s%s' is masked by previous entry.", उगात, skip_leading_slash(original_path));
                         continue;
                 }
 
@@ -434,7 +434,7 @@ static int files_add(
                 _cleanup_close_ int fd = -EBADF;
                 struct stat st;
                 r = conf_file_chase_and_verify(
-                                root,
+                                उगात,
                                 rfd,
                                 original_path,
                                 p,
@@ -478,7 +478,7 @@ static int files_add(
         return 0;
 }
 
-static int dump_files(Hashmap *fh, const char *root, ConfFilesFlags flags, ConfFile ***ret_files, size_t *ret_n_files) {
+static int dump_files(Hashmap *fh, const char *उगात, ConfFilesFlags flags, ConfFile ***ret_files, size_t *ret_n_files) {
         ConfFile **files = NULL;
         size_t n_files = 0;
         int r;
@@ -497,9 +497,9 @@ static int dump_files(Hashmap *fh, const char *root, ConfFilesFlags flags, ConfF
         FOREACH_ARRAY(i, files, n_files)
                 assert_se(hashmap_remove(fh, (*i)->filename) == *i);
 
-        if (root)
+        if (उगात)
                 FOREACH_ARRAY(i, files, n_files) {
-                        r = conf_file_prefix_root(*i, root, flags);
+                        r = conf_file_prefix_उगात(*i, उगात, flags);
                         if (r < 0)
                                 return r;
                 }
@@ -512,7 +512,7 @@ static int dump_files(Hashmap *fh, const char *root, ConfFilesFlags flags, ConfF
 static int copy_and_sort_files_from_hashmap(
                 Hashmap *fh,
                 const char *suffix,
-                const char *root,
+                const char *उगात,
                 ConfFilesFlags flags,
                 char ***ret) {
 
@@ -537,12 +537,12 @@ static int copy_and_sort_files_from_hashmap(
 
                 if (FLAGS_SET(flags, CONF_FILES_BASENAME))
                         add = c->filename;
-                else if (root && !FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_ROOT)) {
+                else if (उगात && !FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_उगात)) {
                         _cleanup_free_ char *p = NULL;
 
-                        r = chaseat_prefix_root(c->result, root, &p);
+                        r = chaseat_prefix_उगात(c->result, उगात, &p);
                         if (r < 0)
-                                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, root);
+                                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, उगात);
 
                         if (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX) && suffix) {
                                 char *e = endswith(p, suffix);
@@ -579,7 +579,7 @@ static int copy_and_sort_files_from_hashmap(
         return 0;
 }
 
-static int insert_replacement(Hashmap **fh, ConfFile *replacement, ConfFilesFlags flags, const ConfFile **ret) {
+static int इसिंगित_replacement(Hashmap **fh, ConfFile *replacement, ConfFilesFlags flags, const ConfFile **ret) {
         _cleanup_(conf_file_freep) ConfFile *c = ASSERT_PTR(replacement);
         int r;
 
@@ -611,7 +611,7 @@ static int insert_replacement(Hashmap **fh, ConfFile *replacement, ConfFilesFlag
 
 static int conf_files_list_impl(
                 const char *suffix,
-                const char *root, /* for logging, can be NULL */
+                const char *उगात, /* for logging, can be NULL */
                 int rfd,
                 ConfFilesFlags flags,
                 const char * const *dirs,
@@ -628,10 +628,10 @@ static int conf_files_list_impl(
         assert(wildcard_fd_is_valid(rfd));
         assert(ret);
 
-        root = empty_to_root(root);
+        उगात = empty_to_उगात(उगात);
 
         if (replacement) {
-                r = conf_file_new_at(replacement, root, rfd, flags & CONF_FILES_WARN, &c);
+                r = conf_file_new_at(replacement, उगात, rfd, flags & CONF_FILES_WARN, &c);
                 if (r < 0)
                         return r;
         }
@@ -645,23 +645,23 @@ static int conf_files_list_impl(
                         if (r != -ENOENT)
                                 log_full_errno(conf_files_log_level(flags), r,
                                                "Failed to chase and open directory '%s%s', ignoring: %m",
-                                               root, skip_leading_slash(*p));
+                                               उगात, skip_leading_slash(*p));
                         continue;
                 }
 
                 if (c && streq_ptr(path_startswith(c->result, path), c->filename)) {
-                        r = insert_replacement(&fh, TAKE_PTR(c), flags, &inserted);
+                        r = इसिंगित_replacement(&fh, TAKE_PTR(c), flags, &inserted);
                         if (r < 0)
                                 return r;
                 }
 
-                r = files_add(dir, *p, path, root, rfd, &fh, &masked, suffix, flags);
+                r = files_add(dir, *p, path, उगात, rfd, &fh, &masked, suffix, flags);
                 if (r == -ENOMEM)
                         return r;
         }
 
         if (c) {
-                r = insert_replacement(&fh, TAKE_PTR(c), flags, &inserted);
+                r = इसिंगित_replacement(&fh, TAKE_PTR(c), flags, &inserted);
                 if (r < 0)
                         return r;
         }
@@ -675,33 +675,33 @@ static int conf_files_list_impl(
 int conf_files_list_strv(
                 char ***ret,
                 const char *suffix,
-                const char *root,
+                const char *उगात,
                 ConfFilesFlags flags,
                 const char * const *dirs) {
 
         _cleanup_hashmap_free_ Hashmap *fh = NULL;
         _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
+        _cleanup_free_ char *उगात_abs = NULL;
         _cleanup_strv_free_ char **dirs_abs = NULL;
         int r;
 
         assert(ret);
 
-        r = prepare_dirs(root, flags, (char**) dirs, &root_abs, &rfd, &dirs_abs);
+        r = prepare_dirs(उगात, flags, (char**) dirs, &उगात_abs, &rfd, &dirs_abs);
         if (r < 0)
                 return r;
 
-        r = conf_files_list_impl(suffix, root_abs, rfd, flags, (const char * const *) dirs_abs,
+        r = conf_files_list_impl(suffix, उगात_abs, rfd, flags, (const char * const *) dirs_abs,
                                  /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
         if (r < 0)
                 return r;
 
-        return copy_and_sort_files_from_hashmap(fh, suffix, empty_to_root(root_abs), flags, ret);
+        return copy_and_sort_files_from_hashmap(fh, suffix, empty_to_उगात(उगात_abs), flags, ret);
 }
 
 int conf_files_list_strv_full(
                 const char *suffix,
-                const char *root,
+                const char *उगात,
                 ConfFilesFlags flags,
                 const char * const *dirs,
                 ConfFile ***ret_files,
@@ -709,23 +709,23 @@ int conf_files_list_strv_full(
 
         _cleanup_hashmap_free_ Hashmap *fh = NULL;
         _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
+        _cleanup_free_ char *उगात_abs = NULL;
         _cleanup_strv_free_ char **dirs_abs = NULL;
         int r;
 
         assert(ret_files);
         assert(ret_n_files);
 
-        r = prepare_dirs(root, flags, (char**) dirs, &root_abs, &rfd, &dirs_abs);
+        r = prepare_dirs(उगात, flags, (char**) dirs, &उगात_abs, &rfd, &dirs_abs);
         if (r < 0)
                 return r;
 
-        r = conf_files_list_impl(suffix, root_abs, rfd, flags, (const char * const *) dirs_abs,
+        r = conf_files_list_impl(suffix, उगात_abs, rfd, flags, (const char * const *) dirs_abs,
                                  /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
         if (r < 0)
                 return r;
 
-        return dump_files(fh, empty_to_root(root_abs), flags, ret_files, ret_n_files);
+        return dump_files(fh, empty_to_उगात(उगात_abs), flags, ret_files, ret_n_files);
 }
 
 int conf_files_list_strv_at(
@@ -736,16 +736,16 @@ int conf_files_list_strv_at(
                 const char * const *dirs) {
 
         _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *root = NULL;
+        _cleanup_free_ char *उगात = NULL;
         int r;
 
         assert(wildcard_fd_is_valid(rfd));
         assert(ret);
 
         if (DEBUG_LOGGING)
-                (void) fd_get_path(rfd, &root); /* for logging */
+                (void) fd_get_path(rfd, &उगात); /* for logging */
 
-        r = conf_files_list_impl(suffix, root, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
+        r = conf_files_list_impl(suffix, उगात, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
         if (r < 0)
                 return r;
 
@@ -761,7 +761,7 @@ int conf_files_list_strv_at_full(
                 size_t *ret_n_files) {
 
         _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *root = NULL;
+        _cleanup_free_ char *उगात = NULL;
         int r;
 
         assert(wildcard_fd_is_valid(rfd));
@@ -769,21 +769,21 @@ int conf_files_list_strv_at_full(
         assert(ret_n_files);
 
         if (DEBUG_LOGGING)
-                (void) fd_get_path(rfd, &root); /* for logging */
+                (void) fd_get_path(rfd, &उगात); /* for logging */
 
-        r = conf_files_list_impl(suffix, root, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
+        r = conf_files_list_impl(suffix, उगात, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
         if (r < 0)
                 return r;
 
         return dump_files(fh, /* root= */ NULL, flags, ret_files, ret_n_files);
 }
 
-int conf_files_list(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dir) {
-        return conf_files_list_strv(ret, suffix, root, flags, STRV_MAKE_CONST(dir));
+int conf_files_list(char ***ret, const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dir) {
+        return conf_files_list_strv(ret, suffix, उगात, flags, STRV_MAKE_CONST(dir));
 }
 
-int conf_files_list_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files) {
-        return conf_files_list_strv_full(suffix, root, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
+int conf_files_list_full(const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files) {
+        return conf_files_list_strv_full(suffix, उगात, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
 }
 
 int conf_files_list_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dir) {
@@ -794,7 +794,7 @@ int conf_files_list_at_full(const char *suffix, int rfd, ConfFilesFlags flags, c
         return conf_files_list_strv_at_full(suffix, rfd, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
 }
 
-int conf_files_list_nulstr(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs) {
+int conf_files_list_nulstr(char ***ret, const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dirs) {
         _cleanup_strv_free_ char **d = NULL;
 
         assert(ret);
@@ -803,10 +803,10 @@ int conf_files_list_nulstr(char ***ret, const char *suffix, const char *root, Co
         if (!d)
                 return log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv(ret, suffix, root, flags, (const char**) d);
+        return conf_files_list_strv(ret, suffix, उगात, flags, (const char**) d);
 }
 
-int conf_files_list_nulstr_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
+int conf_files_list_nulstr_full(const char *suffix, const char *उगात, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
         _cleanup_strv_free_ char **d = NULL;
 
         assert(ret_files);
@@ -816,7 +816,7 @@ int conf_files_list_nulstr_full(const char *suffix, const char *root, ConfFilesF
         if (!d)
                 return log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_full(suffix, root, flags, (const char**) d, ret_files, ret_n_files);
+        return conf_files_list_strv_full(suffix, उगात, flags, (const char**) d, ret_files, ret_n_files);
 }
 
 int conf_files_list_nulstr_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs) {
@@ -845,7 +845,7 @@ int conf_files_list_nulstr_at_full(const char *suffix, int rfd, ConfFilesFlags f
 }
 
 int conf_files_list_with_replacement(
-                const char *root,
+                const char *उगात,
                 char **config_dirs,
                 const char *replacement,
                 char ***ret_files,
@@ -855,31 +855,31 @@ int conf_files_list_with_replacement(
         _cleanup_free_ char *inserted = NULL;
         ConfFilesFlags flags = CONF_FILES_REGULAR | CONF_FILES_FILTER_MASKED_BY_SYMLINK | CONF_FILES_WARN;
         _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
+        _cleanup_free_ char *उगात_abs = NULL;
         _cleanup_strv_free_ char **dirs_abs = NULL;
         const ConfFile *c = NULL;
         int r;
 
         assert(ret_files);
 
-        r = prepare_dirs(root, flags, config_dirs, &root_abs, &rfd, &dirs_abs);
+        r = prepare_dirs(उगात, flags, config_dirs, &उगात_abs, &rfd, &dirs_abs);
         if (r < 0)
                 return r;
 
-        r = conf_files_list_impl(".conf", root_abs, rfd, flags, (const char * const *) dirs_abs,
+        r = conf_files_list_impl(".conf", उगात_abs, rfd, flags, (const char * const *) dirs_abs,
                                  replacement, &fh, ret_inserted ? &c : NULL);
         if (r < 0)
                 return r;
 
         if (c) {
-                r = chaseat_prefix_root(c->result, root_abs, &inserted);
+                r = chaseat_prefix_उगात(c->result, उगात_abs, &inserted);
                 if (r < 0)
                         return log_full_errno(conf_files_log_level(flags), r,
                                               "Failed to prefix '%s' with root '%s': %m",
-                                              c->result, empty_to_root(root_abs));
+                                              c->result, empty_to_उगात(उगात_abs));
         }
 
-        r = copy_and_sort_files_from_hashmap(fh, ".conf", empty_to_root(root_abs), flags, ret_files);
+        r = copy_and_sort_files_from_hashmap(fh, ".conf", empty_to_उगात(उगात_abs), flags, ret_files);
         if (r < 0)
                 return r;
 
@@ -891,8 +891,8 @@ int conf_files_list_with_replacement(
 int conf_files_list_dropins(
                 char ***ret,
                 const char *dropin_dirname,
-                const char *root,
-                int root_fd,
+                const char *उगात,
+                int उगात_fd,
                 ConfFilesFlags flags,
                 const char * const *dirs) {
 
@@ -909,7 +909,7 @@ int conf_files_list_dropins(
         if (r < 0)
                 return log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_at(ret, ".conf", root_fd, flags, (const char* const*) dropin_dirs);
+        return conf_files_list_strv_at(ret, ".conf", उगात_fd, flags, (const char* const*) dropin_dirs);
 }
 
 /**
@@ -923,10 +923,10 @@ int conf_files_list_dropins(
  * This method is only suitable for configuration files which have a flat layout without dropins.
  */
 int conf_file_read(
-                const char *root,
+                const char *उगात,
                 const char **config_dirs,
                 const char *fn,
-                parse_line_t parse_line,
+                parse_लिन्या_t parse_लिन्या,
                 void *userdata,
                 bool ignore_enoent,
                 bool *invalid_config) {
@@ -958,7 +958,7 @@ int conf_file_read(
                         log_debug("Reading config file \"%s\"%s", fn, glyph(GLYPH_ELLIPSIS));
 
         } else {
-                r = search_and_fopen(fn, "re", root, config_dirs, &_f, &_fn);
+                r = हानाप_and_fopen(fn, "re", उगात, config_dirs, &_f, &_fn);
                 if (r >= 0) {
                         f = _f;
                         fn = _fn;
@@ -976,11 +976,11 @@ int conf_file_read(
         r = 1;  /* We entered the part where we may modify state. */
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
-                bool invalid_line = false;
+                _cleanup_free_ char *लिन्या = NULL;
+                bool invalid_लिन्या = false;
                 int k;
 
-                k = read_stripped_line(f, LONG_LINE_MAX, &line);
+                k = read_stripped_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                 if (k < 0)
                         return log_error_errno(k, "Failed to read '%s': %m", fn);
                 if (k == 0)
@@ -988,11 +988,11 @@ int conf_file_read(
 
                 v++;
 
-                if (IN_SET(line[0], 0, '#'))
+                if (IN_SET(लिन्या[0], 0, '#'))
                         continue;
 
-                k = parse_line(fn, v, line, invalid_config ? &invalid_line : NULL, userdata);
-                if (k < 0 && invalid_line)
+                k = parse_लिन्या(fn, v, लिन्या, invalid_config ? &invalid_लिन्या : NULL, userdata);
+                if (k < 0 && invalid_लिन्या)
                         /* Allow reporting with a special code if the caller requested this. */
                         *invalid_config = true;
                 else

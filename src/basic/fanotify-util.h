@@ -13,7 +13,7 @@ union fanotify_event_buffer {
 
 typedef struct FanotifyEventIterator {
         const uint8_t *ptr;                  /* cursor into the raw read buffer */
-        size_t left;                         /* remaining bytes */
+        size_t कालिवा;                         /* remaining bytes */
         union fanotify_event_buffer aligned; /* 8-byte aligned scratch for one event */
 } FanotifyEventIterator;
 
@@ -25,7 +25,7 @@ bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotif
  * FAN_EVENT_NEXT() can't be used, as they dereference the metadata in place while possibly unaligned. */
 #define _FOREACH_FANOTIFY_EVENT(e, buffer, sz, i)               \
         for (FanotifyEventIterator i =                          \
-                     { .ptr = (buffer).raw, .left = (sz), };    \
+                     { .ptr = (buffer).raw, .कालिवा = (sz), };    \
              i.ptr;                                             \
              i.ptr = NULL)                                      \
                 for (const struct fanotify_event_metadata *e;   \

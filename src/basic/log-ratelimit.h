@@ -10,23 +10,23 @@ typedef struct LogRateLimit {
         RateLimit ratelimit;
 } LogRateLimit;
 
-#define log_ratelimit_internal(_level, _error, _ratelimit, _file, _line, _func, _format, ...)        \
+#define log_ratelimit_internal(_level, _error, _ratelimit, _file, लिन्या_2, _func, _format, ...)        \
 ({                                                                              \
         int _log_ratelimit_error = (_error);                                    \
         int _log_ratelimit_level = (_level);                                    \
         static LogRateLimit _log_ratelimit = {                                  \
                 .ratelimit = (_ratelimit),                                      \
         };                                                                      \
-        unsigned _num_dropped_errors = ratelimit_num_dropped(&_log_ratelimit.ratelimit); \
+        unsigned नुमेरो_dropped_errors = ratelimit_नुमेरो_dropped(&_log_ratelimit.ratelimit); \
         if (_log_ratelimit_error != _log_ratelimit.error || _log_ratelimit_level != _log_ratelimit.level) { \
                 ratelimit_reset(&_log_ratelimit.ratelimit);                     \
                 _log_ratelimit.error = _log_ratelimit_error;                    \
                 _log_ratelimit.level = _log_ratelimit_level;                    \
         }                                                                       \
         if (log_get_max_level() == LOG_DEBUG || ratelimit_below(&_log_ratelimit.ratelimit)) \
-                _log_ratelimit_error = _num_dropped_errors > 0                  \
-                ? log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, _line, _func, _format " (Dropped %u similar message(s))", ##__VA_ARGS__, _num_dropped_errors) \
-                : log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, _line, _func, _format, ##__VA_ARGS__); \
+                _log_ratelimit_error = नुमेरो_dropped_errors > 0                  \
+                ? log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, लिन्या_2, _func, _format " (Dropped %u similar message(s))", ##__VA_ARGS__, नुमेरो_dropped_errors) \
+                : log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, लिन्या_2, _func, _format, ##__VA_ARGS__); \
         _log_ratelimit_error;                                                   \
 })
 
@@ -35,7 +35,7 @@ typedef struct LogRateLimit {
                 int _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_ratelimit_internal(_level, _e, _ratelimit, PROJECT_FILE, __LINE__, __func__, format, ##__VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        : -ERRNO_हालागा(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 

@@ -15,29 +15,29 @@
 #include "time-util.h"
 
 int procfs_get_pid_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         int r;
 
         assert(ret);
 
-        r = read_one_line_file("/proc/sys/kernel/pid_max", &value);
+        r = read_one_लिन्या_file("/proc/sys/kernel/pid_max", &हालागा);
         if (r < 0)
                 return r;
 
-        return safe_atou64(value, ret);
+        return safe_atou64(हालागा, ret);
 }
 
 int procfs_get_threads_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         int r;
 
         assert(ret);
 
-        r = read_one_line_file("/proc/sys/kernel/threads-max", &value);
+        r = read_one_लिन्या_file("/proc/sys/kernel/threads-max", &हालागा);
         if (r < 0)
                 return r;
 
-        return safe_atou64(value, ret);
+        return safe_atou64(हालागा, ret);
 }
 
 int procfs_tasks_set_limit(uint64_t limit) {
@@ -90,20 +90,20 @@ int procfs_tasks_set_limit(uint64_t limit) {
 }
 
 int procfs_tasks_get_current(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ char *हालागा = NULL;
         const char *p, *nr;
         size_t n;
         int r;
 
         assert(ret);
 
-        r = read_one_line_file("/proc/loadavg", &value);
+        r = read_one_लिन्या_file("/proc/loadavg", &हालागा);
         if (r < 0)
                 return r;
 
         /* Look for the second part of the fourth field, which is separated by a slash from the first part. None of the
          * earlier fields use a slash, hence let's use this to find the right spot. */
-        p = strchr(value, '/');
+        p = strchr(हालागा, '/');
         if (!p)
                 return -EINVAL;
 
@@ -157,16 +157,16 @@ int procfs_cpu_get_usage(nsec_t *ret) {
 }
 
 int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
-        _cleanup_free_ char *first_line = NULL;
+        _cleanup_free_ char *first_लिन्या = NULL;
         int r;
 
         assert(ret);
 
-        r = read_one_line_file("/proc/stat", &first_line);
+        r = read_one_लिन्या_file("/proc/stat", &first_लिन्या);
         if (r < 0)
                 return r;
 
-        const char *p = first_word(first_line, "cpu");
+        const char *p = first_word(first_लिन्या, "cpu");
         if (!p)
                 return -EINVAL;
 
@@ -193,7 +193,7 @@ int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
         return 0;
 }
 
-int convert_meminfo_value_to_uint64_bytes(const char *s, uint64_t *ret) {
+int convert_meminfo_हालागा_to_uint64_bytes(const char *s, uint64_t *ret) {
         _cleanup_free_ char *w = NULL;
         uint64_t v;
         int r;
@@ -234,28 +234,28 @@ int procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used) {
                 return -errno;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ char *लिन्या = NULL;
                 uint64_t *v;
                 char *p;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
+                r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)
                         return -EINVAL; /* EOF: Couldn't find one or both fields? */
 
-                p = first_word(line, "MemTotal:");
+                p = first_word(लिन्या, "MemTotal:");
                 if (p)
                         v = &mem_total;
                 else {
-                        p = first_word(line, "MemAvailable:");
+                        p = first_word(लिन्या, "MemAvailable:");
                         if (p)
                                 v = &mem_available;
                         else
                                 continue;
                 }
 
-                r = convert_meminfo_value_to_uint64_bytes(p, v);
+                r = convert_meminfo_हालागा_to_uint64_bytes(p, v);
                 if (r < 0)
                         return r;
 

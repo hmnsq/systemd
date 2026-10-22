@@ -58,7 +58,7 @@ int memstream_dump_internal(
                 int level,
                 int error,
                 const char *file,
-                int line,
+                int लिन्या,
                 const char *func,
                 MemStream *m) {
 
@@ -71,5 +71,5 @@ int memstream_dump_internal(
         if (r < 0)
                 return log_full_errno(level, r, "Failed to flush memstream: %m");
 
-        return log_dump_internal(level, error, file, line, func, buf);
+        return log_dump_internal(level, error, file, लिन्या, func, buf);
 }

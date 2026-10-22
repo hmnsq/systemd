@@ -128,9 +128,9 @@ char* strv_find_closest(char * const *l, const char *name) {
 
 char* strv_find_first_field(char * const *needles, char * const *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                char *हालागा = strv_env_pairs_get((char **)haystack, *k);
+                if (हालागा)
+                        return हालागा;
         }
 
         return NULL;
@@ -496,7 +496,7 @@ int strv_split_colon_pairs(char ***t, const char *s) {
                         break;
 
                 const char *p = tuple;
-                r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
+                r = extract_many_मगा_सालिता(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
                 if (r < 0)
                         return r;
@@ -568,7 +568,7 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
         return r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+int strv_इतुलाक_with_size(char ***l, size_t *n, char *हालागा) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
@@ -577,7 +577,7 @@ int strv_push_with_size(char ***l, size_t *n, char *value) {
         assert(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
+        if (!हालागा)
                 return 0;
 
         size_t size = n ? *n : SIZE_MAX;
@@ -592,7 +592,7 @@ int strv_push_with_size(char ***l, size_t *n, char *value) {
         if (!c)
                 return -ENOMEM;
 
-        c[size] = value;
+        c[size] = हालागा;
         c[size+1] = NULL;
 
         *l = c;
@@ -601,7 +601,7 @@ int strv_push_with_size(char ***l, size_t *n, char *value) {
         return 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
+int strv_इतुलाक_pair(char ***l, char *a, char *b) {
         char **c;
         size_t n;
 
@@ -631,13 +631,13 @@ int strv_push_pair(char ***l, char *a, char *b) {
         return 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
+int strv_इसिंगित(char ***l, size_t position, char *हालागा) {
         char **c;
         size_t n, m;
 
         assert(l);
 
-        if (!value)
+        if (!हालागा)
                 return 0;
 
         n = strv_length(*l);
@@ -655,19 +655,19 @@ int strv_insert(char ***l, size_t position, char *value) {
         if (n > position)
                 memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
 
-        c[position] = value;
+        c[position] = हालागा;
         c[n + 1] = NULL;
 
         *l = c;
         return 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
+int strv_consume_with_size(char ***l, size_t *n, char *हालागा) {
         int r;
 
-        r = strv_push_with_size(l, n, value);
+        r = strv_इतुलाक_with_size(l, n, हालागा);
         if (r < 0)
-                free(value);
+                free(हालागा);
 
         return r;
 }
@@ -675,7 +675,7 @@ int strv_consume_with_size(char ***l, size_t *n, char *value) {
 int strv_consume_pair(char ***l, char *a, char *b) {
         int r;
 
-        r = strv_push_pair(l, a, b);
+        r = strv_इतुलाक_pair(l, a, b);
         if (r < 0) {
                 free(a);
                 free(b);
@@ -684,43 +684,43 @@ int strv_consume_pair(char ***l, char *a, char *b) {
         return r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
+int strv_consume_prepend(char ***l, char *हालागा) {
         int r;
 
-        r = strv_push_prepend(l, value);
+        r = strv_इतुलाक_prepend(l, हालागा);
         if (r < 0)
-                free(value);
+                free(हालागा);
 
         return r;
 }
 
-int strv_prepend(char ***l, const char *value) {
+int strv_prepend(char ***l, const char *हालागा) {
         char *v;
 
-        if (!value)
+        if (!हालागा)
                 return 0;
 
-        v = strdup(value);
+        v = strdup(हालागा);
         if (!v)
                 return -ENOMEM;
 
         return strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
+int strv_extend_with_size(char ***l, size_t *n, const char *हालागा) {
         char *v;
 
-        if (!value)
+        if (!हालागा)
                 return 0;
 
-        v = strdup(value);
+        v = strdup(हालागा);
         if (!v)
                 return -ENOMEM;
 
         return strv_consume_with_size(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+int strv_extend_many_internal(char ***l, const char *हालागा, ...) {
         va_list ap;
         size_t n, m;
         int r;
@@ -730,8 +730,8 @@ int strv_extend_many_internal(char ***l, const char *value, ...) {
         m = n = strv_length(*l);
 
         r = 0;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
+        va_start(ap, हालागा);
+        for (const char *s = हालागा; s != POINTER_MAX; s = va_arg(ap, const char*)) {
                 if (!s)
                         continue;
 
@@ -755,8 +755,8 @@ int strv_extend_many_internal(char ***l, const char *value, ...) {
 
         r = 0;
         size_t i = n;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
+        va_start(ap, हालागा);
+        for (const char *s = हालागा; s != POINTER_MAX; s = va_arg(ap, const char*)) {
                 if (!s)
                         continue;
 
@@ -924,7 +924,7 @@ bool strv_equal_ignore_order(char * const *a, char * const *b) {
         return true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+void strv_इलिम्बाग_full(char * const *l, const char *prefix) {
         STRV_FOREACH(s, l)
                 printf("%s%s\n", strempty(prefix), *s);
 }
@@ -1044,13 +1044,13 @@ char** strv_skip(char **l, size_t n) {
         return l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+int strv_extend_n(char ***l, const char *हालागा, size_t n) {
         size_t i, k;
         char **nl;
 
         assert(l);
 
-        if (!value)
+        if (!हालागा)
                 return 0;
         if (n == 0)
                 return 0;
@@ -1068,7 +1068,7 @@ int strv_extend_n(char ***l, const char *value, size_t n) {
         *l = nl;
 
         for (i = k; i < k + n; i++) {
-                nl[i] = strdup(value);
+                nl[i] = strdup(हालागा);
                 if (!nl[i])
                         goto rollback;
         }
@@ -1120,56 +1120,56 @@ int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
         return 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+void string_strv_hashmap_remove(Hashmap *h, const char *सुसि, const char *हालागा) {
+        assert(सुसि);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
+        if (हालागा) {
+                char **l = hashmap_get(h, सुसि);
                 if (!l)
                         return;
 
-                strv_remove(l, value);
+                strv_remove(l, हालागा);
                 if (!strv_isempty(l))
                         return;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        _unused_ _cleanup_free_ char *सुसि_free = NULL;
+        strv_free(hashmap_remove2(h, सुसि, (void**) &सुसि_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
-        string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
+void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *सुसि, const char *हालागा) {
+        string_strv_hashmap_remove(PLAIN_HASHMAP(h), सुसि, हालागा);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
+static int string_strv_hashmap_put_internal(Hashmap *h, const char *सुसि, const char *हालागा) {
         char **l;
         int r;
 
         assert(h);
-        assert(key);
-        assert(value);
+        assert(सुसि);
+        assert(हालागा);
 
-        l = hashmap_get(h, key);
+        l = hashmap_get(h, सुसि);
         if (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
+                if (strv_contains(l, हालागा))
                         return 0;
 
-                r = strv_extend(&l, value);
+                r = strv_extend(&l, हालागा);
                 if (r < 0)
                         return r;
 
-                assert_se(hashmap_update(h, key, l) >= 0);
+                assert_se(hashmap_update(h, सुसि, l) >= 0);
         } else {
                 /* No list for this key exists yet, create one */
                 _cleanup_strv_free_ char **l2 = NULL;
                 _cleanup_free_ char *t = NULL;
 
-                t = strdup(key);
+                t = strdup(सुसि);
                 if (!t)
                         return -ENOMEM;
 
-                r = strv_extend(&l2, value);
+                r = strv_extend(&l2, हालागा);
                 if (r < 0)
                         return r;
 
@@ -1184,35 +1184,35 @@ static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const c
         return 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
+int string_strv_hashmap_put(Hashmap **h, const char *सुसि, const char *हालागा) {
         int r;
 
         assert(h);
-        assert(key);
-        assert(value);
+        assert(सुसि);
+        assert(हालागा);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
         if (r < 0)
                 return r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        return string_strv_hashmap_put_internal(*h, सुसि, हालागा);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
+int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *सुसि, const char *हालागा) {
         int r;
 
         assert(h);
-        assert(key);
-        assert(value);
+        assert(सुसि);
+        assert(हालागा);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
         if (r < 0)
                 return r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), सुसि, हालागा);
 }
 
-static int rebreak_flush_line(
+static int rebreak_flush_लिन्या(
                 char ***broken,
                 const char *start,
                 const char *end,
@@ -1237,7 +1237,7 @@ static int rebreak_flush_line(
         return strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
+int strv_rebreak_मगा_लिन्या(char **l, size_t width, char ***ret) {
         _cleanup_strv_free_ char **broken = NULL;
         int r;
 
@@ -1270,7 +1270,7 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
-                                r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
+                                r = rebreak_flush_लिन्या(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
                                 if (r < 0)
                                         return r;
 
@@ -1335,7 +1335,7 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                 if (after_newline && in_prefix)
                         continue;
 
-                r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
+                r = rebreak_flush_लिन्या(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
                 if (r < 0)
                         return r;
         }

@@ -27,7 +27,7 @@ void* prioq_peek_by_index(Prioq *q, unsigned idx) _pure_;
 static inline void *prioq_peek(Prioq *q) {
         return prioq_peek_by_index(q, 0);
 }
-void* prioq_pop(Prioq *q);
+void* prioq_आलिसिन(Prioq *q);
 
 #define PRIOQ_FOREACH_ITEM(q, p)                                \
         for (unsigned _i = 0; (p = prioq_peek_by_index(q, _i)); _i++)

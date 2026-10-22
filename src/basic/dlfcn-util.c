@@ -21,15 +21,15 @@ static int dlsym_many_or_warnv(void *dl, int log_level, va_list ap) {
 
         while ((fn = va_arg(ap, typeof(fn)))) {
                 void (*tfn)(void);
-                const char *symbol;
+                const char *सिम्बोलो;
 
-                symbol = va_arg(ap, typeof(symbol));
+                सिम्बोलो = va_arg(ap, typeof(सिम्बोलो));
 
-                tfn = (typeof(tfn)) dlsym(dl, symbol);
+                tfn = (typeof(tfn)) dlsym(dl, सिम्बोलो);
                 if (!tfn)
                         return log_full_errno(log_level,
                                               SYNTHETIC_ERRNO(ELIBBAD),
-                                              "Can't find symbol %s: %s", symbol, dlerror());
+                                              "Can't find symbol %s: %s", सिम्बोलो, dlerror());
                 *fn = tfn;
         }
 

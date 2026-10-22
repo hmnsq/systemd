@@ -149,7 +149,7 @@ int readlinkat_malloc(int fd, const char *p, char **ret) {
         }
 }
 
-int readlink_value(const char *p, char **ret) {
+int readlink_हालागा(const char *p, char **ret) {
         _cleanup_free_ char *link = NULL, *name = NULL;
         int r;
 
@@ -767,7 +767,7 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
                 return 0;
 
         if (FLAGS_SET(flags, UNLINK_ERASE) && st.st_size > 0 && st.st_nlink == 0) {
-                uint64_t left = st.st_size;
+                uint64_t कालिवा = st.st_size;
                 char buffer[64 * 1024];
 
                 /* If erasing is requested, let's overwrite the file with random data once before deleting
@@ -780,17 +780,17 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
 
                 random_bytes(buffer, sizeof(buffer));
 
-                while (left > 0) {
+                while (कालिवा > 0) {
                         ssize_t n;
 
-                        n = write(truncate_fd, buffer, MIN(sizeof(buffer), left));
+                        n = write(truncate_fd, buffer, MIN(sizeof(buffer), कालिवा));
                         if (n < 0) {
                                 log_debug_errno(errno, "Failed to erase data in file '%s', ignoring.", name);
                                 break;
                         }
 
-                        assert(left >= (size_t) n);
-                        left -= n;
+                        assert(कालिवा >= (size_t) n);
+                        कालिवा -= n;
                 }
 
                 /* Let's refresh metadata */
@@ -1139,13 +1139,13 @@ static int openat_with_automount(int dir_fd, const char *path, int open_flags, m
          * mount namespace anyway. open_tree() only ever returns O_PATH fds, so this helper is for O_PATH
          * acquisition only. */
 
-        static bool can_open_tree = true;
+        static bool can_open_पुनो = true;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(path);
         assert(FLAGS_SET(open_flags, O_PATH));
 
-        if (can_open_tree) {
+        if (can_open_पुनो) {
                 int fd = RET_NERRNO(open_tree(dir_fd, path,
                                               OPEN_TREE_CLOEXEC |
                                               (FLAGS_SET(open_flags, O_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0)));
@@ -1165,7 +1165,7 @@ static int openat_with_automount(int dir_fd, const char *path, int open_flags, m
                 if (fd != -EPERM && !ERRNO_IS_NEG_NOT_SUPPORTED(fd))
                         return fd;
 
-                can_open_tree = false;
+                can_open_पुनो = false;
         }
 
         return RET_NERRNO(openat(dir_fd, path, open_flags, mode));

@@ -68,8 +68,8 @@ int signal_is_blocked(int sig);
 
 int autoreaping_enabled(void);
 
-int pop_pending_signal_internal(int sig, ...);
-#define pop_pending_signal(...) pop_pending_signal_internal(__VA_ARGS__, -1)
+int आलिसिन_pending_signal_internal(int sig, ...);
+#define आलिसिन_pending_signal(...) आलिसिन_pending_signal_internal(__VA_ARGS__, -1)
 
 void propagate_signal(int sig, siginfo_t *siginfo);
 

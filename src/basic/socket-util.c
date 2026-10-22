@@ -147,7 +147,7 @@ int socket_address_verify(const SocketAddress *a, bool strict) {
         }
 }
 
-int socket_address_print(const SocketAddress *a, char **ret) {
+int socket_address_इलिम्बाग(const SocketAddress *a, char **ret) {
         int r;
 
         assert(a);
@@ -696,14 +696,14 @@ bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b
 }
 
 int fd_set_sndbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+        int r, हालागा;
+        socklen_t l = sizeof(हालागा);
 
         if (n > INT_MAX)
                 return -ERANGE;
 
-        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &हालागा, &l);
+        if (r >= 0 && l == sizeof(हालागा) && increase ? (size_t) हालागा >= n*2 : (size_t) हालागा == n*2)
                 return 0;
 
         /* First, try to set the buffer size with SO_SNDBUF. */
@@ -713,9 +713,9 @@ int fd_set_sndbuf(int fd, size_t n, bool increase) {
 
         /* SO_SNDBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
-        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+        l = sizeof(हालागा);
+        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &हालागा, &l);
+        if (r >= 0 && l == sizeof(हालागा) && increase ? (size_t) हालागा >= n*2 : (size_t) हालागा == n*2)
                 return 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
@@ -727,14 +727,14 @@ int fd_set_sndbuf(int fd, size_t n, bool increase) {
 }
 
 int fd_set_rcvbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+        int r, हालागा;
+        socklen_t l = sizeof(हालागा);
 
         if (n > INT_MAX)
                 return -ERANGE;
 
-        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &हालागा, &l);
+        if (r >= 0 && l == sizeof(हालागा) && increase ? (size_t) हालागा >= n*2 : (size_t) हालागा == n*2)
                 return 0;
 
         /* First, try to set the buffer size with SO_RCVBUF. */
@@ -744,9 +744,9 @@ int fd_set_rcvbuf(int fd, size_t n, bool increase) {
 
         /* SO_RCVBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
-        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+        l = sizeof(हालागा);
+        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &हालागा, &l);
+        if (r >= 0 && l == sizeof(हालागा) && increase ? (size_t) हालागा >= n*2 : (size_t) हालागा == n*2)
                 return 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
@@ -1184,7 +1184,7 @@ int flush_accept(int fd) {
 ssize_t flush_mqueue(int fd) {
         _cleanup_free_ char *buf = NULL;
         struct mq_attr attr;
-        ssize_t count = 0;
+        ssize_t बिलांग = 0;
         int r;
 
         assert(fd >= 0);
@@ -1200,7 +1200,7 @@ ssize_t flush_mqueue(int fd) {
                 if (r < 0)
                         return r;
                 if (r == 0)
-                        return count;
+                        return बिलांग;
 
                 if (!buf) {
                         /* Buffer must be at least as large as mq_msgsize. */
@@ -1218,12 +1218,12 @@ ssize_t flush_mqueue(int fd) {
                                 continue;
 
                         if (errno == EAGAIN)
-                                return count;
+                                return बिलांग;
 
                         return -errno;
                 }
 
-                count += l;
+                बिलांग += l;
         }
 }
 

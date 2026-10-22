@@ -88,7 +88,7 @@ static DLSYM_PROTOTYPE(LZ4_compress_HC) = NULL;
 static DLSYM_PROTOTYPE(LZ4_compress_default) = NULL;
 static DLSYM_PROTOTYPE(LZ4_decompress_safe) = NULL;
 static DLSYM_PROTOTYPE(LZ4_decompress_safe_partial) = NULL;
-static DLSYM_PROTOTYPE(LZ4_versionNumber) = NULL;
+static DLSYM_PROTOTYPE(LZ4_version_नुमेरो) = NULL;
 
 static const LZ4F_preferences_t lz4_preferences = {
         .frameInfo.blockSizeID = 5,
@@ -348,7 +348,7 @@ int dlopen_lz4(int log_level) {
                         DLSYM_ARG(LZ4_compress_HC),
                         DLSYM_ARG(LZ4_decompress_safe),
                         DLSYM_ARG(LZ4_decompress_safe_partial),
-                        DLSYM_ARG(LZ4_versionNumber));
+                        DLSYM_ARG(LZ4_version_नुमेरो));
 #else
         return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "lz4 support is not compiled in.");
@@ -892,7 +892,7 @@ static int decompress_blob_zstd(
         if (!dctx)
                 return -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_inBuffer पासोक = {
                 .src = src,
                 .size = src_size,
         };
@@ -905,7 +905,7 @@ static int decompress_blob_zstd(
         };
 
         for (;;) {
-                size_t k = sym_ZSTD_decompressStream(dctx, &output, &input);
+                size_t k = sym_ZSTD_decompressStream(dctx, &output, &पासोक);
                 if (sym_ZSTD_isError(k))
                         return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
 
@@ -920,7 +920,7 @@ static int decompress_blob_zstd(
                  * the frame can finish exactly as the output buffer fills, and growing then would call
                  * the decoder again on already-exhausted input, which it'd misread as a truncated next
                  * frame. */
-                if (k == 0 && input.pos >= input.size)
+                if (k == 0 && पासोक.pos >= पासोक.size)
                         break;
 
                 /* Otherwise there is still work to do: either decoded data buffered inside the decoder
@@ -943,7 +943,7 @@ static int decompress_blob_zstd(
                 /* The output buffer still has room but the decoder stopped. If input is exhausted the
                  * decoder wanted more (k != 0, since k == 0 + no input broke above), i.e. the stream was
                  * truncated mid-frame. Otherwise input remains (a concatenated frame) and we loop. */
-                if (input.pos >= input.size)
+                if (पासोक.pos >= पासोक.size)
                         return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
         }
 
@@ -1294,7 +1294,7 @@ static int decompress_startswith_lz4(
         if (r < 0 || (size_t) r < prefix_len + 1) {
                 size_t size;
 
-                if (sym_LZ4_versionNumber() >= 10803)
+                if (sym_LZ4_version_नुमेरो() >= 10803)
                         /* We trust that the newer lz4 decompresses the number of bytes we
                          * requested if available in the compressed string. */
                         return 0;
@@ -1359,7 +1359,7 @@ static int decompress_startswith_zstd(
         if (!(greedy_realloc(buffer, MAX(sym_ZSTD_DStreamOutSize(), prefix_len + 1), 1)))
                 return -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_inBuffer पासोक = {
                 .src = src,
                 .size = src_size,
         };
@@ -1369,7 +1369,7 @@ static int decompress_startswith_zstd(
         };
         size_t k;
 
-        k = sym_ZSTD_decompressStream(dctx, &output, &input);
+        k = sym_ZSTD_decompressStream(dctx, &output, &पासोक);
         if (sym_ZSTD_isError(k))
                 return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
         if (output.pos < prefix_len + 1) {
@@ -1572,7 +1572,7 @@ int compress_stream(
 
         _cleanup_(compressor_freep) Compressor *c = NULL;
         _cleanup_free_ void *buf = NULL;
-        _cleanup_free_ uint8_t *input = NULL;
+        _cleanup_free_ uint8_t *पासोक = NULL;
         size_t buf_size = 0, buf_alloc = 0;
         uint64_t total_in = 0, total_out = 0;
         int r;
@@ -1584,8 +1584,8 @@ int compress_stream(
         if (r < 0)
                 return r;
 
-        input = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-        if (!input)
+        पासोक = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
+        if (!पासोक)
                 return -ENOMEM;
 
         for (;;) {
@@ -1595,7 +1595,7 @@ int compress_stream(
                 if (max_bytes != UINT64_MAX && (uint64_t) m > max_bytes)
                         m = (size_t) max_bytes;
 
-                n = read(fdf, input, m);
+                n = read(fdf, पासोक, m);
                 if (n < 0)
                         return -errno;
 
@@ -1619,7 +1619,7 @@ int compress_stream(
                         max_bytes -= n;
                 }
 
-                r = compressor_start(c, input, n, &buf, &buf_size, &buf_alloc);
+                r = compressor_start(c, पासोक, n, &buf, &buf_size, &buf_alloc);
                 if (r < 0)
                         return r;
 
@@ -1891,12 +1891,12 @@ static int decompress_blob_to_fd_impl(
                 .sparse = should_sparse(fdt) > 0,
         };
 
-        r = decompressor_push(c, src, src_size, decompress_stream_write_callback, &userdata);
+        r = decompressor_इतुलाक(c, src, src_size, decompress_stream_write_callback, &userdata);
         if (r < 0)
                 return r;
 
         /* Finalize */
-        r = decompressor_push(c, /* data= */ NULL, /* size= */ 0, decompress_stream_write_callback, &userdata);
+        r = decompressor_इतुलाक(c, /* data= */ NULL, /* size= */ 0, decompress_stream_write_callback, &userdata);
         if (r < 0)
                 return r;
 
@@ -1999,7 +1999,7 @@ int decompress_stream_full(
 
                 total_in += n;
 
-                r = decompressor_push(c, buf, n, decompress_stream_write_callback, &userdata);
+                r = decompressor_इतुलाक(c, buf, n, decompress_stream_write_callback, &userdata);
                 if (r < 0)
                         return r;
 
@@ -2151,7 +2151,7 @@ int decompressor_force_off(Decompressor **decompressor) {
         return decompressor_force(decompressor, COMPRESSION_NONE);
 }
 
-int decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata) {
+int decompressor_इतुलाक(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata) {
         int r;
 
         assert(c);
@@ -2292,7 +2292,7 @@ int decompressor_push(Decompressor *c, const void *data, size_t size, Decompress
 
 #if HAVE_ZSTD
         case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
+                ZSTD_inBuffer पासोक = {
                         .src =  (void*) data,
                         .size = size,
                 };
@@ -2305,11 +2305,11 @@ int decompressor_push(Decompressor *c, const void *data, size_t size, Decompress
                                 .size = COMPRESS_PIPE_BUFFER_SIZE,
                         };
 
-                        size_t res = sym_ZSTD_decompressStream(c->d_zstd, &output, &input);
+                        size_t res = sym_ZSTD_decompressStream(c->d_zstd, &output, &पासोक);
                         if (sym_ZSTD_isError(res))
                                 return -EBADMSG;
 
-                        if (input.pos > input.size ||
+                        if (पासोक.pos > पासोक.size ||
                             output.pos > output.size)
                                 return -EIO;
 
@@ -2319,7 +2319,7 @@ int decompressor_push(Decompressor *c, const void *data, size_t size, Decompress
                                         return r;
                         }
 
-                        if (input.pos == input.size) {
+                        if (पासोक.pos == पासोक.size) {
                                 if (res == 0) {
                                         /* The current stream has finished. */
                                         c->finished = true;
@@ -2670,12 +2670,12 @@ int compressor_start(
 
 #if HAVE_ZSTD
         case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
+                ZSTD_inBuffer पासोक = {
                         .src = data,
                         .size = size,
                 };
 
-                while (input.pos < input.size) {
+                while (पासोक.pos < पासोक.size) {
                         r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
                         if (r < 0)
                                 return r;
@@ -2685,7 +2685,7 @@ int compressor_start(
                                 .size = *buffer_allocated - *buffer_size,
                         };
 
-                        size_t res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_continue);
+                        size_t res = sym_ZSTD_compressStream2(c->c_zstd, &output, &पासोक, ZSTD_e_continue);
                         if (sym_ZSTD_isError(res))
                                 return -EIO;
 
@@ -2834,7 +2834,7 @@ int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t 
 
 #if HAVE_ZSTD
         case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {};
+                ZSTD_inBuffer पासोक = {};
                 size_t res;
 
                 do {
@@ -2847,7 +2847,7 @@ int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t 
                                 .size = *buffer_allocated - *buffer_size,
                         };
 
-                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_end);
+                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &पासोक, ZSTD_e_end);
                         if (sym_ZSTD_isError(res))
                                 return -EIO;
 

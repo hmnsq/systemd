@@ -259,12 +259,12 @@ int is_mount_point_at(int dir_fd, const char *path, int flags) {
                         /* xstatx_flags = */ 0,
                         STATX_TYPE|STATX_INO,
                         /* optional_mask = */ 0,
-                        STATX_ATTR_MOUNT_ROOT,
+                        STATX_ATTR_MOUNT_उगात,
                         &sx);
         if (r < 0)
                 return r;
 
-        if (FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_ROOT))
+        if (FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_उगात))
                 return true;
 
         /* When running on chroot environment, the root may not be a mount point, but we unconditionally
@@ -283,17 +283,17 @@ int is_mount_point_at(int dir_fd, const char *path, int flags) {
 }
 
 /* flags can be AT_SYMLINK_FOLLOW or 0 */
-int path_is_mount_point_full(const char *path, const char *root, int flags) {
+int path_is_mount_point_full(const char *path, const char *उगात, int flags) {
         _cleanup_close_ int dir_fd = -EBADF;
         int r;
 
         assert(path);
         assert((flags & ~AT_SYMLINK_FOLLOW) == 0);
 
-        if (empty_or_root(root))
+        if (empty_or_उगात(उगात))
                 return is_mount_point_at(AT_FDCWD, path, flags);
 
-        r = chase(path, root,
+        r = chase(path, उगात,
                   FLAGS_SET(flags, AT_SYMLINK_FOLLOW) ? 0 : CHASE_NOFOLLOW,
                   /* ret_path= */ NULL, &dir_fd);
         if (r < 0)
@@ -348,7 +348,7 @@ bool fstype_is_network(const char *fstype) {
         if (x)
                 fstype = x;
 
-        if (nulstr_contains(filesystem_sets[FILESYSTEM_SET_NETWORK].value, fstype))
+        if (nulstr_contains(filesystem_sets[FILESYSTEM_SET_NETWORK].हालागा, fstype))
                 return true;
 
         /* Filesystems not present in the internal database */
@@ -405,7 +405,7 @@ bool fstype_is_api_vfs(const char *fstype) {
                          filesystem_sets + FILESYSTEM_SET_AUXILIARY_API,
                          filesystem_sets + FILESYSTEM_SET_PRIVILEGED_API,
                          filesystem_sets + FILESYSTEM_SET_TEMPORARY)
-                if (nulstr_contains(fs->value, fstype))
+                if (nulstr_contains(fs->हालागा, fstype))
                     return true;
 
         /* Filesystems not present in the internal database */
@@ -536,22 +536,22 @@ int dev_is_devtmpfs(void) {
                 return r;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ char *लिन्या = NULL;
                 int mid;
 
-                r = read_line(proc_self_mountinfo, LONG_LINE_MAX, &line);
+                r = read_लिन्या(proc_self_mountinfo, LONG_लिन्या_MAX, &लिन्या);
                 if (r < 0)
                         return r;
                 if (r == 0)
                         break;
 
-                if (sscanf(line, "%i", &mid) != 1)
+                if (sscanf(लिन्या, "%i", &mid) != 1)
                         continue;
 
                 if (mid != mount_id)
                         continue;
 
-                e = strstrafter(line, " - ");
+                e = strstrafter(लिन्या, " - ");
                 if (!e)
                         continue;
 
@@ -667,7 +667,7 @@ bool mount_new_api_supported(void) {
         return (cache = true);
 }
 
-int mount_option_supported(const char *fstype, const char *key, const char *value) {
+int mount_option_supported(const char *fstype, const char *सुसि, const char *हालागा) {
         _cleanup_close_ int fd = -EBADF;
         int r;
 
@@ -675,7 +675,7 @@ int mount_option_supported(const char *fstype, const char *key, const char *valu
          * it does not. Return -EAGAIN if we can't determine it. And any other error otherwise. */
 
         assert(fstype);
-        assert(key);
+        assert(सुसि);
 
         fd = fsopen(fstype, FSOPEN_CLOEXEC);
         if (fd < 0) {
@@ -703,16 +703,16 @@ int mount_option_supported(const char *fstype, const char *key, const char *valu
         } else
                 return log_debug_errno(SYNTHETIC_ERRNO(EAGAIN), "FSCONFIG_SET_FD worked unexpectedly for '%s', whoa!", fstype);
 
-        if (value)
-                r = fsconfig(fd, FSCONFIG_SET_STRING, key, value, 0);
+        if (हालागा)
+                r = fsconfig(fd, FSCONFIG_SET_STRING, सुसि, हालागा, 0);
         else
-                r = fsconfig(fd, FSCONFIG_SET_FLAG, key, NULL, 0);
+                r = fsconfig(fd, FSCONFIG_SET_FLAG, सुसि, NULL, 0);
         if (r < 0) {
                 if (errno == EINVAL)
                         return false; /* EINVAL means option not supported. */
 
                 return log_debug_errno(errno, "Failed to set '%s%s%s' on '%s' superblock context: %m",
-                                       key, value ? "=" : "", strempty(value), fstype);
+                                       सुसि, हालागा ? "=" : "", strempty(हालागा), fstype);
         }
 
         return true; /* works! */

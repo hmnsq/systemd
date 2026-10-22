@@ -6,26 +6,26 @@
 struct strbuf {
         char *buf;
         size_t len;
-        struct strbuf_node *root;
+        struct strbuf_बुहोल *उगात;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_बिलांग;
+        size_t in_बिलांग;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_बिलांग;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+struct strbuf_बुहोल {
+        size_t हालागा_off;
+        size_t हालागा_len;
 
         struct strbuf_child_entry *children;
-        uint8_t children_count;
+        uint8_t children_बिलांग;
 };
 
 struct strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        struct strbuf_बुहोल *child;
 };
 
 struct strbuf* strbuf_new(void);

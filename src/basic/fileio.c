@@ -121,7 +121,7 @@ FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
 
 int write_string_stream_full(
                 FILE *f,
-                const char *line,
+                const char *लिन्या,
                 WriteStringFileFlags flags,
                 const struct timespec *ts) {
 
@@ -129,7 +129,7 @@ int write_string_stream_full(
         int r, fd = -EBADF;
 
         assert(f);
-        assert(line);
+        assert(लिन्या);
 
         if (ferror(f))
                 return -EIO;
@@ -156,9 +156,9 @@ int write_string_stream_full(
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
-                    streq_skip_trailing_chars(line, t, NEWLINE)) {
-                        log_debug("No change in value '%s', suppressing write", line);
+                if (read_virtual_file_fd(fd, strlen(लिन्या)+1, &t, NULL) > 0 &&
+                    streq_skip_trailing_chars(लिन्या, t, NEWLINE)) {
+                        log_debug("No change in value '%s', suppressing write", लिन्या);
                         return 0;
                 }
 
@@ -166,17 +166,17 @@ int write_string_stream_full(
                         return -errno;
         }
 
-        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
+        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(लिन्या, "\n");
 
         if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
-                line = strjoina(line, "\n");
+                लिन्या = strjoina(लिन्या, "\n");
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
+        if (fputs(लिन्या, f) == EOF)
                 return -errno;
 
         if (needs_nl)
@@ -217,7 +217,7 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
 static int write_string_file_atomic_at(
                 int dir_fd,
                 const char *fn,
-                const char *line,
+                const char *लिन्या,
                 WriteStringFileFlags flags,
                 const struct timespec *ts,
                 LabelContext *label_context) {
@@ -227,7 +227,7 @@ static int write_string_file_atomic_at(
         int r;
 
         assert(fn);
-        assert(line);
+        assert(लिन्या);
 
         /* Note that we'd really like to use O_TMPFILE here, but can't really, since we want replacement
          * semantics here, and O_TMPFILE can't offer that. i.e. rename() replaces but linkat() doesn't. */
@@ -253,7 +253,7 @@ static int write_string_file_atomic_at(
         if (k < 0)
                 return k;
 
-        r = write_string_stream_full(f, line, flags, ts);
+        r = write_string_stream_full(f, लिन्या, flags, ts);
         if (r < 0)
                 return r;
 
@@ -280,7 +280,7 @@ static int write_string_file_atomic_at(
 int write_string_file_full_label(
                 int dir_fd,
                 const char *fn,
-                const char *line,
+                const char *लिन्या,
                 WriteStringFileFlags flags,
                 const struct timespec *ts,
                 const char *label_fn,
@@ -292,7 +292,7 @@ int write_string_file_full_label(
         int r;
 
         assert(dir_fd == AT_FDCWD || dir_fd >= 0);
-        assert(line);
+        assert(लिन्या);
 
         /* We don't know how to verify whether the file contents was already on-disk. */
         assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
@@ -309,7 +309,7 @@ int write_string_file_full_label(
                 assert(fn);
                 assert(flags & WRITE_STRING_FILE_CREATE);
 
-                r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
+                r = write_string_file_atomic_at(dir_fd, fn, लिन्या, flags, ts, label_context);
                 if (r < 0)
                         goto fail;
 
@@ -359,7 +359,7 @@ int write_string_file_full_label(
         if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
                 setvbuf(f, NULL, _IONBF, 0);
 
-        r = write_string_stream_full(f, line, flags, ts);
+        r = write_string_stream_full(f, लिन्या, flags, ts);
         if (r < 0)
                 goto fail;
 
@@ -377,7 +377,7 @@ fail:
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+        if (verify_file_at(dir_fd, fn, लिन्या, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
                 return 0;
 
         return r;
@@ -438,7 +438,7 @@ int write_base64_file_at(
         return write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
+int read_one_लिन्या_file_at(int dir_fd, const char *filename, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
         int r;
 
@@ -450,7 +450,7 @@ int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
         if (r < 0)
                 return r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        return read_लिन्या(f, LONG_लिन्या_MAX, ret);
 }
 
 int read_boolean_file_at(int dir_fd, const char *filename) {
@@ -460,7 +460,7 @@ int read_boolean_file_at(int dir_fd, const char *filename) {
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
 
-        r = read_one_line_file_at(dir_fd, filename, &s);
+        r = read_one_लिन्या_file_at(dir_fd, filename, &s);
         if (r < 0)
                 return r;
 
@@ -914,13 +914,13 @@ int script_get_shebang_interpreter(const char *path, char **ret) {
         if (c != '!')
                 return -EMEDIUMTYPE;
 
-        _cleanup_free_ char *line = NULL;
-        r = read_line(f, LONG_LINE_MAX, &line);
+        _cleanup_free_ char *लिन्या = NULL;
+        r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
         if (r < 0)
                 return r;
 
         _cleanup_free_ char *p = NULL;
-        const char *s = line;
+        const char *s = लिन्या;
 
         r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
         if (r < 0)
@@ -933,7 +933,7 @@ int script_get_shebang_interpreter(const char *path, char **ret) {
         return 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
+int get_proc_field(const char *path, const char *सुसि, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
         int r;
 
@@ -943,7 +943,7 @@ int get_proc_field(const char *path, const char *key, char **ret) {
          * (i.e. for /proc/meminfo line "MemTotal: 1024 kB" -> return "1024"). */
 
         assert(path);
-        assert(key);
+        assert(सुसि);
 
         r = fopen_unlocked(path, "re", &f);
         if (r == -ENOENT && proc_mounted() == 0)
@@ -952,15 +952,15 @@ int get_proc_field(const char *path, const char *key, char **ret) {
                 return r;
 
         for (;;) {
-                 _cleanup_free_ char *line = NULL;
+                 _cleanup_free_ char *लिन्या = NULL;
 
-                 r = read_line(f, LONG_LINE_MAX, &line);
+                 r = read_लिन्या(f, LONG_लिन्या_MAX, &लिन्या);
                  if (r < 0)
                          return r;
                  if (r == 0)
                          return -ENODATA;
 
-                 char *l = startswith(line, key);
+                 char *l = startswith(लिन्या, सुसि);
                  if (l && *l == ':') {
                          if (ret) {
                                  char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
@@ -1194,11 +1194,11 @@ int fdopen_independent(int fd, const char *mode, FILE **ret) {
         return 0;
 }
 
-static int search_and_open_internal(
+static int हानाप_and_open_internal(
                 const char *path,
                 int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
-                const char *root,
-                char **search,
+                const char *उगात,
+                char **हानाप,
                 int *ret_fd,
                 char **ret_path) {
 
@@ -1231,14 +1231,14 @@ static int search_and_open_internal(
                 return 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
+        if (!path_strv_resolve_uniq(हानाप, उगात))
                 return -ENOMEM;
 
-        STRV_FOREACH(i, search) {
+        STRV_FOREACH(i, हानाप) {
                 _cleanup_close_ int fd = -EBADF;
                 _cleanup_free_ char *p = NULL;
 
-                p = path_join(root, *i, path);
+                p = path_join(उगात, *i, path);
                 if (!p)
                         return -ENOMEM;
 
@@ -1263,11 +1263,11 @@ static int search_and_open_internal(
         return -ENOENT;
 }
 
-int search_and_open(
+int हानाप_and_open(
                 const char *path,
                 int mode,
-                const char *root,
-                char **search,
+                const char *उगात,
+                char **हानाप,
                 int *ret_fd,
                 char **ret_path) {
 
@@ -1275,18 +1275,18 @@ int search_and_open(
 
         assert(path);
 
-        copy = strv_copy(search);
+        copy = strv_copy(हानाप);
         if (!copy)
                 return -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        return हानाप_and_open_internal(path, mode, उगात, copy, ret_fd, ret_path);
 }
 
-static int search_and_fopen_internal(
+static int हानाप_and_fopen_internal(
                 const char *path,
                 const char *mode,
-                const char *root,
-                char **search,
+                const char *उगात,
+                char **हानाप,
                 FILE **ret_file,
                 char **ret_path) {
 
@@ -1297,11 +1297,11 @@ static int search_and_fopen_internal(
         assert(path);
         assert(mode || !ret_file);
 
-        r = search_and_open_internal(
+        r = हानाप_and_open_internal(
                         path,
                         mode ? fopen_mode_to_flags(mode) : 0,
-                        root,
-                        search,
+                        उगात,
+                        हानाप,
                         ret_file ? &fd : NULL,
                         ret_path ? &found_path : NULL);
         if (r < 0)
@@ -1321,11 +1321,11 @@ static int search_and_fopen_internal(
         return 0;
 }
 
-int search_and_fopen(
+int हानाप_and_fopen(
                 const char *path,
                 const char *mode,
-                const char *root,
-                const char **search,
+                const char *उगात,
+                const char **हानाप,
                 FILE **ret_file,
                 char **ret_path) {
 
@@ -1334,18 +1334,18 @@ int search_and_fopen(
         assert(path);
         assert(mode || !ret_file);
 
-        copy = strv_copy((char**) search);
+        copy = strv_copy((char**) हानाप);
         if (!copy)
                 return -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        return हानाप_and_fopen_internal(path, mode, उगात, copy, ret_file, ret_path);
 }
 
-int search_and_fopen_nulstr(
+int हानाप_and_fopen_nulstr(
                 const char *path,
                 const char *mode,
-                const char *root,
-                const char *search,
+                const char *उगात,
+                const char *हानाप,
                 FILE **ret_file,
                 char **ret_path) {
 
@@ -1354,11 +1354,11 @@ int search_and_fopen_nulstr(
         assert(path);
         assert(mode || !ret_file);
 
-        l = strv_split_nulstr(search);
+        l = strv_split_nulstr(हानाप);
         if (!l)
                 return -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        return हानाप_and_fopen_internal(path, mode, उगात, l, ret_file, ret_path);
 }
 
 int fflush_and_check(FILE *f) {
@@ -1416,7 +1416,7 @@ int read_timestamp_file(const char *fn, usec_t *ret) {
 
         assert(ret);
 
-        r = read_one_line_file(fn, &ln);
+        r = read_one_लिन्या_file(fn, &ln);
         if (r < 0)
                 return r;
 
@@ -1482,16 +1482,16 @@ int fputs_with_newline(FILE *f, const char *s) {
 }
 
 /* A bitmask of the EOL markers we know */
-typedef enum EndOfLineMarker {
+typedef enum End_Of_लिन्या_Marker {
         EOL_NONE     = 0,
         EOL_ZERO     = 1 << 0,  /* \0 (aka NUL) */
         EOL_TEN      = 1 << 1,  /* \n (aka NL, aka LF)  */
         EOL_THIRTEEN = 1 << 2,  /* \r (aka CR)  */
-} EndOfLineMarker;
+} End_Of_लिन्या_Marker;
 
-static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
+static End_Of_लिन्या_Marker categorize_eol(char c, Read_लिन्या_Flags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
+        if (!FLAGS_SET(flags, READ_लिन्या_ONLY_NUL)) {
                 if (c == '\n')
                         return EOL_TEN;
                 if (c == '\r')
@@ -1506,9 +1506,9 @@ static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
+int read_लिन्या_full(FILE *f, size_t limit, Read_लिन्या_Flags flags, char **ret) {
         _cleanup_free_ char *buffer = NULL;
-        size_t n = 0, count = 0;
+        size_t n = 0, बिलांग = 0;
         int r;
 
         assert(f);
@@ -1544,17 +1544,17 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
 
         {
                 _unused_ _cleanup_(funlockfilep) FILE *flocked = f;
-                EndOfLineMarker previous_eol = EOL_NONE;
+                End_Of_लिन्या_Marker previous_eol = EOL_NONE;
                 flockfile(f);
 
                 for (;;) {
-                        EndOfLineMarker eol;
+                        End_Of_लिन्या_Marker eol;
                         char c;
 
                         if (n >= limit)
                                 return -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
+                        if (बिलांग >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
                                 return -ENOBUFS;
 
                         r = safe_fgetc(f, &c);
@@ -1581,7 +1581,7 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                                 break;
                         }
 
-                        count++;
+                        बिलांग++;
 
                         if (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
@@ -1590,17 +1590,17 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
+                                if ((flags & (READ_लिन्या_IS_A_TTY|READ_लिन्या_NOT_A_TTY)) == 0) {
                                         int fd;
 
                                         fd = fileno(f);
                                         if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
-                                                flags |= READ_LINE_NOT_A_TTY;
+                                                flags |= READ_लिन्या_NOT_A_TTY;
                                         else
-                                                flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
+                                                flags |= isatty_safe(fd) ? READ_लिन्या_IS_A_TTY : READ_लिन्या_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
+                                if (FLAGS_SET(flags, READ_लिन्या_IS_A_TTY))
                                         break;
                         }
 
@@ -1626,16 +1626,16 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 *ret = TAKE_PTR(buffer);
         }
 
-        return (int) count;
+        return (int) बिलांग;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
+int read_stripped_लिन्या(FILE *f, size_t limit, char **ret) {
         _cleanup_free_ char *s = NULL;
         int r, k;
 
         assert(f);
 
-        r = read_line(f, limit, ret ? &s : NULL);
+        r = read_लिन्या(f, limit, ret ? &s : NULL);
         if (r < 0)
                 return r;
 
@@ -1680,7 +1680,7 @@ int safe_fgetc(FILE *f, char *ret) {
         return 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
+int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned लिन्या) {
         struct stat _st;
 
         if (!filename)
@@ -1696,7 +1696,7 @@ int warn_file_is_world_accessible(const char *filename, struct stat *st, const c
                 return 0;
 
         if (unit)
-                log_syntax(unit, LOG_WARNING, filename, line, 0,
+                log_syntax(unit, LOG_WARNING, filename, लिन्या, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
         else

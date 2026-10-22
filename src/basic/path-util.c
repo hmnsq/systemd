@@ -256,7 +256,7 @@ int path_strv_make_absolute_cwd(char **l) {
         return 0;
 }
 
-char** path_strv_resolve(char **l, const char *root) {
+char** path_strv_resolve(char **l, const char *उगात) {
         unsigned k = 0;
         bool enomem = false;
         int r;
@@ -271,7 +271,7 @@ char** path_strv_resolve(char **l, const char *root) {
                 _cleanup_free_ char *orig = NULL;
                 char *t, *u;
 
-                if (root) {
+                if (उगात) {
                         if (!path_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
                                 free(*s);
@@ -279,7 +279,7 @@ char** path_strv_resolve(char **l, const char *root) {
                         }
 
                         orig = *s;
-                        t = path_join(root, orig);
+                        t = path_join(उगात, orig);
                         if (!t) {
                                 enomem = true;
                                 continue;
@@ -287,9 +287,9 @@ char** path_strv_resolve(char **l, const char *root) {
                 } else
                         t = *s;
 
-                r = chase(t, root, 0, &u, NULL);
+                r = chase(t, उगात, 0, &u, NULL);
                 if (r == -ENOENT) {
-                        if (root) {
+                        if (उगात) {
                                 u = TAKE_PTR(orig);
                                 free(t);
                         } else
@@ -301,11 +301,11 @@ char** path_strv_resolve(char **l, const char *root) {
                                 enomem = true;
 
                         continue;
-                } else if (root) {
+                } else if (उगात) {
                         char *x;
 
                         free(t);
-                        x = path_startswith(u, root);
+                        x = path_startswith(u, उगात);
                         if (x) {
                                 /* restore the slash if it was lost */
                                 if (!startswith(x, "/"))
@@ -337,12 +337,12 @@ char** path_strv_resolve(char **l, const char *root) {
         return l;
 }
 
-char** path_strv_resolve_uniq(char **l, const char *root) {
+char** path_strv_resolve_uniq(char **l, const char *उगात) {
 
         if (strv_isempty(l))
                 return l;
 
-        if (!path_strv_resolve(l, root))
+        if (!path_strv_resolve(l, उगात))
                 return NULL;
 
         return strv_uniq(l);
@@ -656,7 +656,7 @@ char* path_extend_internal(char **x, ...) {
         return nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
+int open_and_check_executable(const char *name, const char *उगात, char **ret_path, int *ret_fd) {
         _cleanup_close_ int fd = -EBADF;
         _cleanup_free_ char *resolved = NULL;
         int r;
@@ -667,9 +667,9 @@ int open_and_check_executable(const char *name, const char *root, char **ret_pat
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        if (उगात) {
                 /* prefix root to name in case full paths are not specified */
-                r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
+                r = chase(name, उगात, CHASE_PREFIX_उगात, &resolved, &fd);
                 if (r < 0)
                         return r;
 
@@ -713,8 +713,8 @@ int open_and_check_executable(const char *name, const char *root, char **ret_pat
 
 int find_executable_full(
                 const char *name,
-                const char *root,
-                char * const *exec_search_path,
+                const char *उगात,
+                char * const *exec_हानाप_path,
                 bool use_path_envvar,
                 char **ret_filename,
                 int *ret_fd) {
@@ -724,10 +724,10 @@ int find_executable_full(
         assert(name);
 
         if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+                return open_and_check_executable(name, उगात, ret_filename, ret_fd);
 
-        if (exec_search_path) {
-                STRV_FOREACH(element, exec_search_path) {
+        if (exec_हानाप_path) {
+                STRV_FOREACH(element, exec_हानाप_path) {
                         _cleanup_free_ char *full_path = NULL;
 
                         if (!path_is_absolute(*element)) {
@@ -739,7 +739,7 @@ int find_executable_full(
                         if (!full_path)
                                 return -ENOMEM;
 
-                        r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
+                        r = open_and_check_executable(full_path, उगात, ret_filename, ret_fd);
                         if (r >= 0)
                                 return 0;
                         if (r != -EACCES)
@@ -775,7 +775,7 @@ int find_executable_full(
                 if (!path_extend(&element, name))
                         return -ENOMEM;
 
-                r = open_and_check_executable(element, root, ret_filename, ret_fd);
+                r = open_and_check_executable(element, उगात, ret_filename, ret_fd);
                 if (r >= 0) /* Found it! */
                         return 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
@@ -1298,7 +1298,7 @@ bool is_device_path(const char *path) {
         return !isempty(p);
 }
 
-bool valid_device_node_path(const char *path) {
+bool valid_device_बुहोल_path(const char *path) {
 
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
@@ -1321,7 +1321,7 @@ bool valid_device_allow_pattern(const char *path) {
         if (STARTSWITH_SET(path, "block-", "char-"))
                 return true;
 
-        return valid_device_node_path(path);
+        return valid_device_बुहोल_path(path);
 }
 
 bool dot_or_dot_dot(const char *path) {
@@ -1351,7 +1351,7 @@ bool path_implies_directory(const char *path) {
         return ENDSWITH_SET(path, "/", "/.", "/..");
 }
 
-bool empty_or_root(const char *path) {
+bool empty_or_उगात(const char *path) {
 
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
@@ -1362,23 +1362,23 @@ bool empty_or_root(const char *path) {
         return path_equal(path, "/");
 }
 
-const char* empty_to_root(const char *path) {
+const char* empty_to_उगात(const char *path) {
         return isempty(path) ? "/" : path;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
+int empty_or_उगात_harder_to_null(const char **path) {
         int r;
 
         assert(path);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
+        if (empty_or_उगात(*path)) {
                 *path = NULL;
                 return 0;
         }
 
-        r = path_is_root(*path);
+        r = path_is_उगात(*path);
         if (r < 0)
                 return r;
         if (r > 0)
