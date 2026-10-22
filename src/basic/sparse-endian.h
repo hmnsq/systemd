@@ -20,72 +20,72 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#pragma once
+#رهنمود once
 
-#include <byteswap.h>
-#include <endian.h>
+#ضمن <byteswap.h>
+#ضمن <endian.h>
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#ifdef __CHECKER__
-#define __sd_bitwise __attribute__((__bitwise__))
-#define __sd_force __attribute__((__force__))
-#else
-#define __sd_bitwise
-#define __sd_force
-#endif
+#اگر_تعریف_شده __CHECKER__
+#تعریف_کن __sd_bitwise __attribute__((__bitwise__))
+#تعریف_کن __sd_force __attribute__((__force__))
+#وإلا
+#تعریف_کن __sd_bitwise
+#تعریف_کن __sd_force
+#پایان_اگر
 
-typedef uint16_t __sd_bitwise le16_t;
-typedef uint16_t __sd_bitwise be16_t;
-typedef uint32_t __sd_bitwise le32_t;
-typedef uint32_t __sd_bitwise be32_t;
-typedef uint64_t __sd_bitwise le64_t;
-typedef uint64_t __sd_bitwise be64_t;
+تعريفنوع uint16_t __sd_bitwise le16_t;
+تعريفنوع uint16_t __sd_bitwise be16_t;
+تعريفنوع uint32_t __sd_bitwise le32_t;
+تعريفنوع uint32_t __sd_bitwise be32_t;
+تعريفنوع uint64_t __sd_bitwise le64_t;
+تعريفنوع uint64_t __sd_bitwise be64_t;
 
-#undef htobe16
-#undef htole16
-#undef be16toh
-#undef le16toh
-#undef htobe32
-#undef htole32
-#undef be32toh
-#undef le32toh
-#undef htobe64
-#undef htole64
-#undef be64toh
-#undef le64toh
+#لغو_تعریف htobe16
+#لغو_تعریف htole16
+#لغو_تعریف be16toh
+#لغو_تعریف le16toh
+#لغو_تعریف htobe32
+#لغو_تعریف htole32
+#لغو_تعریف be32toh
+#لغو_تعریف le32toh
+#لغو_تعریف htobe64
+#لغو_تعریف htole64
+#لغو_تعریف be64toh
+#لغو_تعریف le64toh
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#define bswap_16_on_le(x) bswap_16(x)
-#define bswap_32_on_le(x) bswap_32(x)
-#define bswap_64_on_le(x) bswap_64(x)
-#define bswap_16_on_be(x) (x)
-#define bswap_32_on_be(x) (x)
-#define bswap_64_on_be(x) (x)
-#elif __BYTE_ORDER == __BIG_ENDIAN
-#define bswap_16_on_le(x) (x)
-#define bswap_32_on_le(x) (x)
-#define bswap_64_on_le(x) (x)
-#define bswap_16_on_be(x) bswap_16(x)
-#define bswap_32_on_be(x) bswap_32(x)
-#define bswap_64_on_be(x) bswap_64(x)
-#endif
+#إذا __BYTE_ORDER == __LITTLE_ENDIAN
+#تعریف_کن bswap_16_on_le(x) bswap_16(x)
+#تعریف_کن bswap_32_on_le(x) bswap_32(x)
+#تعریف_کن bswap_64_on_le(x) bswap_64(x)
+#تعریف_کن bswap_16_on_be(x) (x)
+#تعریف_کن bswap_32_on_be(x) (x)
+#تعریف_کن bswap_64_on_be(x) (x)
+#وإلاإذا __BYTE_ORDER == __BIG_ENDIAN
+#تعریف_کن bswap_16_on_le(x) (x)
+#تعریف_کن bswap_32_on_le(x) (x)
+#تعریف_کن bswap_64_on_le(x) (x)
+#تعریف_کن bswap_16_on_be(x) bswap_16(x)
+#تعریف_کن bswap_32_on_be(x) bswap_32(x)
+#تعریف_کن bswap_64_on_be(x) bswap_64(x)
+#پایان_اگر
 
-static inline le16_t htole16(uint16_t value) { return (le16_t __sd_force) bswap_16_on_be(value); }
-static inline le32_t htole32(uint32_t value) { return (le32_t __sd_force) bswap_32_on_be(value); }
-static inline le64_t htole64(uint64_t value) { return (le64_t __sd_force) bswap_64_on_be(value); }
+ساكن مضمن le16_t htole16(uint16_t مقدار) { أرجع (le16_t __sd_force) bswap_16_on_be(مقدار); }
+ساكن مضمن le32_t htole32(uint32_t مقدار) { أرجع (le32_t __sd_force) bswap_32_on_be(مقدار); }
+ساكن مضمن le64_t htole64(uint64_t مقدار) { أرجع (le64_t __sd_force) bswap_64_on_be(مقدار); }
 
-static inline be16_t htobe16(uint16_t value) { return (be16_t __sd_force) bswap_16_on_le(value); }
-static inline be32_t htobe32(uint32_t value) { return (be32_t __sd_force) bswap_32_on_le(value); }
-static inline be64_t htobe64(uint64_t value) { return (be64_t __sd_force) bswap_64_on_le(value); }
+ساكن مضمن be16_t htobe16(uint16_t مقدار) { أرجع (be16_t __sd_force) bswap_16_on_le(مقدار); }
+ساكن مضمن be32_t htobe32(uint32_t مقدار) { أرجع (be32_t __sd_force) bswap_32_on_le(مقدار); }
+ساكن مضمن be64_t htobe64(uint64_t مقدار) { أرجع (be64_t __sd_force) bswap_64_on_le(مقدار); }
 
-static inline uint16_t le16toh(le16_t value) { return bswap_16_on_be((uint16_t __sd_force)value); }
-static inline uint32_t le32toh(le32_t value) { return bswap_32_on_be((uint32_t __sd_force)value); }
-static inline uint64_t le64toh(le64_t value) { return bswap_64_on_be((uint64_t __sd_force)value); }
+ساكن مضمن uint16_t le16toh(le16_t مقدار) { أرجع bswap_16_on_be((uint16_t __sd_force)مقدار); }
+ساكن مضمن uint32_t le32toh(le32_t مقدار) { أرجع bswap_32_on_be((uint32_t __sd_force)مقدار); }
+ساكن مضمن uint64_t le64toh(le64_t مقدار) { أرجع bswap_64_on_be((uint64_t __sd_force)مقدار); }
 
-static inline uint16_t be16toh(be16_t value) { return bswap_16_on_le((uint16_t __sd_force)value); }
-static inline uint32_t be32toh(be32_t value) { return bswap_32_on_le((uint32_t __sd_force)value); }
-static inline uint64_t be64toh(be64_t value) { return bswap_64_on_le((uint64_t __sd_force)value); }
+ساكن مضمن uint16_t be16toh(be16_t مقدار) { أرجع bswap_16_on_le((uint16_t __sd_force)مقدار); }
+ساكن مضمن uint32_t be32toh(be32_t مقدار) { أرجع bswap_32_on_le((uint32_t __sd_force)مقدار); }
+ساكن مضمن uint64_t be64toh(be64_t مقدار) { أرجع bswap_64_on_le((uint64_t __sd_force)مقدار); }
 
-#undef __sd_bitwise
-#undef __sd_force
+#لغو_تعریف __sd_bitwise
+#لغو_تعریف __sd_force

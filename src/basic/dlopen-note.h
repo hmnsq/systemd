@@ -1,28 +1,28 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#include "sd-dlopen.h"
+#ضمن "sd-dlopen.h"
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* Prevent dlopen helper functions (e.g., dlopen_libfoo()) from being inlined or cloned by the compiler/LTO.
  * This ensures that their specific symbols remain intact in the final executable, allowing the developer
  * test utility to verify that the functions corresponding to the dlopen ELF notes are actually invoked.
  * This is restricted to BUILD_MODE_DEVELOPER to avoid degrading production performance. */
-#if BUILD_MODE_DEVELOPER
+#إذا BUILD_نما_DEVELOPER
 #  define _dlopen_loader_ _noclone_ _noinline_
-#else
+#وإلا
 #  define _dlopen_loader_
-#endif
+#پایان_اگر
 
 /* Avoid invalid priority. */
-#define _DLOPEN_CHECK_PRIORITY_required    1
-#define _DLOPEN_CHECK_PRIORITY_recommended 1
-#define _DLOPEN_CHECK_PRIORITY_suggested   1
+#تعریف_کن DLOPEN_CHECK_اولویت_required    1
+#تعریف_کن DLOPEN_CHECK_اولویت_recommended 1
+#تعریف_کن DLOPEN_CHECK_اولویت_suggested   1
 
 /* Unlike SD_ELF_NOTE_DLOPEN_ANCHORED(), this takes feature and priority without quotation. */
-#define ELF_NOTE_DLOPEN_ANCHORED(feature, description, priority, ...)   \
-        assert_cc(_DLOPEN_CHECK_PRIORITY_##priority);                   \
+#تعریف_کن ELF_NOTE_DLOPEN_ANCHORED(feature, description, priority, ...)   \
+        assert_cc(DLOPEN_CHECK_اولویت##priority);                   \
         SD_ELF_NOTE_DLOPEN_ANCHORED(                                    \
                         feature##_##priority,                           \
                         STRINGIFY(feature),                             \
@@ -30,74 +30,74 @@
                         STRINGIFY(priority),                            \
                         __VA_ARGS__)
 
-#if HAVE_BZIP2
+#إذا HAVE_BZIP2
 #  define LIBBZ2_NOTE(priority)                                         \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         bzip2,                                          \
                         "Support bzip2 compression and decompression",  \
                         priority,                                       \
                         "libbz2.so.1")
-#else
+#وإلا
 #  define LIBBZ2_NOTE(priority)
-#endif
+#پایان_اگر
 
-#if HAVE_LZ4
+#إذا HAVE_LZ4
 #  define LIBLZ4_NOTE(priority)                                         \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         lz4,                                            \
                         "Support lz4 compression in journal and coredump files", \
                         priority,                                       \
                         "liblz4.so.1")
-#else
+#وإلا
 #  define LIBLZ4_NOTE(priority)
-#endif
+#پایان_اگر
 
-#if HAVE_XZ
+#إذا HAVE_XZ
 #  define LIBLZMA_NOTE(priority)                                        \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         lzma,                                           \
                         "Support lzma compression in journal and coredump files", \
                         priority,                                       \
                         "liblzma.so.5")
-#else
+#وإلا
 #  define LIBLZMA_NOTE(priority)
-#endif
+#پایان_اگر
 
-#if HAVE_ZLIB
+#إذا HAVE_ZLIB
 #  define LIBZ_NOTE(priority)                                           \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         zlib,                                           \
                         "Support gzip compression and decompression",   \
                         priority,                                       \
                         "libz.so.1")
-#else
+#وإلا
 #  define LIBZ_NOTE(priority)
-#endif
+#پایان_اگر
 
-#if HAVE_ZSTD
+#إذا HAVE_ZSTD
 #  define LIBZSTD_NOTE(priority)                                        \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         zstd,                                           \
                         "Support zstd compression in journal and coredump files", \
                         priority,                                       \
                         "libzstd.so.1")
-#else
+#وإلا
 #  define LIBZSTD_NOTE(priority)
-#endif
+#پایان_اگر
 
-#define COMPRESS_NOTE(priority)                         \
+#تعریف_کن COMPRESS_NOTE(priority)                         \
         LIBBZ2_NOTE(priority);                          \
         LIBLZ4_NOTE(priority);                          \
         LIBLZMA_NOTE(priority);                         \
         LIBZ_NOTE(priority);                            \
         LIBZSTD_NOTE(priority)
 
-#define COMPRESS_DEFAULT_NOTE                           \
+#تعریف_کن COMPRESS_DEFAULT_NOTE                           \
         COMPRESS_JOURNAL_NOTE;                          \
         LIBBZ2_NOTE(suggested);                         \
         LIBZ_NOTE(suggested)
 
-#define COMPRESS_JOURNAL_NOTE                           \
-        LIBLZ4_NOTE(COMPRESSION_PRIORITY_LZ4);          \
-        LIBLZMA_NOTE(COMPRESSION_PRIORITY_XZ);          \
-        LIBZSTD_NOTE(COMPRESSION_PRIORITY_ZSTD)
+#تعریف_کن COMPRESS_JOURNAL_NOTE                           \
+        LIBLZ4_NOTE(COMPRESSION_اولویت_LZ4);          \
+        LIBLZMA_NOTE(COMPRESSION_اولویت_XZ);          \
+        LIBZSTD_NOTE(COMPRESSION_اولویت_ZSTD)

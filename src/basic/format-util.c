@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "format-util.h"
+#ضمن "format-util.h"
 
-char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
-        typedef struct {
-                const char *suffix;
-                uint64_t factor;
-        } suffix_table;
-        static const suffix_table table_iec[] = {
+حرف* format_بایتها_پر(حرف *buf, size_t l, uint64_t t, Format_بایتها_Flag flag) {
+        تعريفنوع بنية {
+                ثابت حرف *suffix;
+                uint64_t ضریب;
+        } suffix_جدول;
+        ساكن ثابت suffix_جدول جدول_iec[] = {
                 { "E", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "P", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "T", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "G", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "M", UINT64_C(1024)*UINT64_C(1024) },
                 { "K", UINT64_C(1024) },
-        }, table_si[] = {
+        }, جدول_si[] = {
                 { "E", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
                 { "P", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
                 { "T", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
@@ -22,43 +22,43 @@ char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
                 { "M", UINT64_C(1000)*UINT64_C(1000) },
                 { "K", UINT64_C(1000) },
         };
-        const suffix_table *table;
+        ثابت suffix_جدول *جدول;
         size_t n;
 
-        assert(buf);
-        assert_cc(ELEMENTSOF(table_iec) == ELEMENTSOF(table_si));
+        أكد(buf);
+        assert_cc(ELEMENTSOF(جدول_iec) == ELEMENTSOF(جدول_si));
 
-        if (t == UINT64_MAX)
-                return NULL;
+        إذا (t == UINT64_MAX)
+                أرجع عدم;
 
-        table = flag & FORMAT_BYTES_USE_IEC ? table_iec : table_si;
-        n = ELEMENTSOF(table_iec);
+        جدول = flag & FORMAT_بایتها_USE_IEC ? جدول_iec : جدول_si;
+        n = ELEMENTSOF(جدول_iec);
 
-        for (size_t i = 0; i < n; i++)
-                if (t >= table[i].factor) {
+        لكل (size_t i = 0; i < n; i++)
+                إذا (t >= جدول[i].ضریب) {
                         uint64_t remainder = i != n - 1 ?
-                                (t / table[i + 1].factor * 10 / table[n - 1].factor) % 10 :
-                                (t * 10 / table[i].factor) % 10;
+                                (t / جدول[i + 1].ضریب * 10 / جدول[n - 1].ضریب) % 10 :
+                                (t * 10 / جدول[i].ضریب) % 10;
 
-                        if (FLAGS_SET(flag, FORMAT_BYTES_ALWAYS_POINT) ||
-                            (FLAGS_SET(flag, FORMAT_BYTES_BELOW_POINT) && remainder > 0))
-                                (void) snprintf(buf, l,
+                        إذا (FLAGS_مجموعه(flag, FORMAT_بایتها_ALWAYS_نقطه) ||
+                            (FLAGS_مجموعه(flag, FORMAT_بایتها_زیر_نقطه) && remainder > 0))
+                                (فراغ) snprintf(buf, l,
                                                 "%" PRIu64 ".%" PRIu64 "%s",
-                                                t / table[i].factor,
+                                                t / جدول[i].ضریب,
                                                 remainder,
-                                                table[i].suffix);
-                        else
-                                (void) snprintf(buf, l,
+                                                جدول[i].suffix);
+                        وإلا
+                                (فراغ) snprintf(buf, l,
                                                 "%" PRIu64 "%s",
-                                                t / table[i].factor,
-                                                table[i].suffix);
+                                                t / جدول[i].ضریب,
+                                                جدول[i].suffix);
 
-                        goto finish;
+                        اذهب پایان;
                 }
 
-        (void) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_BYTES_TRAILING_B ? "B" : "");
+        (فراغ) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_بایتها_TRAILING_B ? "B" : "");
 
-finish:
+پایان:
         buf[l-1] = 0;
-        return buf;
+        أرجع buf;
 }

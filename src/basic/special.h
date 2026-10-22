@@ -1,58 +1,58 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#define SPECIAL_DEFAULT_TARGET "default.target"
-#define SPECIAL_INITRD_TARGET "initrd.target"
+#تعریف_کن SPECIAL_DEFAULT_هدف "default.target"
+#تعریف_کن SPECIAL_INITRD_هدف "initrd.target"
 
 /* Shutdown targets */
-#define SPECIAL_UMOUNT_TARGET "umount.target"
+#تعریف_کن SPECIAL_UMOUNT_هدف "umount.target"
 /* This is not really intended to be started by directly. This is
  * mostly so that other targets (reboot/halt/poweroff) can depend on
  * it to bring all services down that want to be brought down on
  * system shutdown. */
-#define SPECIAL_SHUTDOWN_TARGET "shutdown.target"
-#define SPECIAL_HALT_TARGET "halt.target"
-#define SPECIAL_POWEROFF_TARGET "poweroff.target"
-#define SPECIAL_REBOOT_TARGET "reboot.target"
-#define SPECIAL_SOFT_REBOOT_TARGET "soft-reboot.target"
-#define SPECIAL_KEXEC_TARGET "kexec.target"
-#define SPECIAL_EXIT_TARGET "exit.target"
-#define SPECIAL_SUSPEND_TARGET "suspend.target"
-#define SPECIAL_HIBERNATE_TARGET "hibernate.target"
-#define SPECIAL_HYBRID_SLEEP_TARGET "hybrid-sleep.target"
-#define SPECIAL_SUSPEND_THEN_HIBERNATE_TARGET "suspend-then-hibernate.target"
-#define SPECIAL_FACTORY_RESET_TARGET "factory-reset.target"
+#تعریف_کن SPECIAL_SHUTDOWN_هدف "shutdown.target"
+#تعریف_کن SPECIAL_HALT_هدف "halt.target"
+#تعریف_کن SPECIAL_POWEROFF_هدف "poweroff.target"
+#تعریف_کن SPECIAL_REBOOT_هدف "reboot.target"
+#تعریف_کن SPECIAL_SOFT_REBOOT_هدف "soft-reboot.target"
+#تعریف_کن SPECIAL_KEXEC_هدف "kexec.target"
+#تعریف_کن SPECIAL_EXIT_هدف "exit.target"
+#تعریف_کن SPECIAL_SUSPEND_هدف "suspend.target"
+#تعریف_کن SPECIAL_HIBERNATE_هدف "hibernate.target"
+#تعریف_کن SPECIAL_HYBRID_SLEEP_هدف "hybrid-sleep.target"
+#تعریف_کن SPECIAL_SUSPEND_THEN_HIBERNATE_هدف "suspend-then-hibernate.target"
+#تعریف_کن SPECIAL_FACTORY_RESET_هدف "factory-reset.target"
 
 /* Special boot targets */
-#define SPECIAL_RESCUE_TARGET "rescue.target"
-#define SPECIAL_EMERGENCY_TARGET "emergency.target"
-#define SPECIAL_MULTI_USER_TARGET "multi-user.target"
-#define SPECIAL_GRAPHICAL_TARGET "graphical.target"
+#تعریف_کن SPECIAL_RESCUE_هدف "rescue.target"
+#تعریف_کن SPECIAL_EMERGENCY_هدف "emergency.target"
+#تعریف_کن SPECIAL_MULTI_USER_هدف "multi-user.target"
+#تعریف_کن SPECIAL_GRAPHICAL_هدف "graphical.target"
 
 /* Early boot targets */
-#define SPECIAL_SYSINIT_TARGET "sysinit.target"
-#define SPECIAL_SOCKETS_TARGET "sockets.target"
-#define SPECIAL_TIMERS_TARGET "timers.target"
-#define SPECIAL_PATHS_TARGET "paths.target"
-#define SPECIAL_LOCAL_FS_TARGET "local-fs.target"
-#define SPECIAL_LOCAL_FS_PRE_TARGET "local-fs-pre.target"
-#define SPECIAL_INITRD_FS_TARGET "initrd-fs.target"
-#define SPECIAL_INITRD_ROOT_DEVICE_TARGET "initrd-root-device.target"
-#define SPECIAL_INITRD_ROOT_FS_TARGET "initrd-root-fs.target"
-#define SPECIAL_INITRD_USR_FS_TARGET "initrd-usr-fs.target"
-#define SPECIAL_REMOTE_FS_TARGET "remote-fs.target"       /* LSB's $remote_fs */
-#define SPECIAL_REMOTE_FS_PRE_TARGET "remote-fs-pre.target"
-#define SPECIAL_SWAP_TARGET "swap.target"
-#define SPECIAL_NETWORK_ONLINE_TARGET "network-online.target"
-#define SPECIAL_TIME_SYNC_TARGET "time-sync.target"       /* LSB's $time */
-#define SPECIAL_TIME_SET_TARGET "time-set.target"
-#define SPECIAL_BASIC_TARGET "basic.target"
-#define SPECIAL_TPM2_TARGET "tpm2.target"
+#تعریف_کن SPECIAL_SYSINIT_هدف "sysinit.target"
+#تعریف_کن SPECIAL_SOCKETS_هدف "sockets.target"
+#تعریف_کن SPECIAL_TIMERS_هدف "timers.target"
+#تعریف_کن SPECIAL_PATHS_هدف "paths.target"
+#تعریف_کن SPECIAL_LOCAL_FS_هدف "local-fs.target"
+#تعریف_کن SPECIAL_LOCAL_FS_PRE_هدف "local-fs-pre.target"
+#تعریف_کن SPECIAL_INITRD_FS_هدف "initrd-fs.target"
+#تعریف_کن SPECIAL_INITRD_ریشه_DEVICE_هدف "initrd-root-device.target"
+#تعریف_کن SPECIAL_INITRD_ریشه_FS_هدف "initrd-root-fs.target"
+#تعریف_کن SPECIAL_INITRD_USR_FS_هدف "initrd-usr-fs.target"
+#تعریف_کن SPECIAL_REMOTE_FS_هدف "remote-fs.target"       /* LSB's $remote_fs */
+#تعریف_کن SPECIAL_REMOTE_FS_PRE_هدف "remote-fs-pre.target"
+#تعریف_کن SPECIAL_جابجا_هدف "swap.target"
+#تعریف_کن SPECIAL_شبکه_ONLINE_هدف "network-online.target"
+#تعریف_کن SPECIAL_زمان_SYNC_هدف "time-sync.target"       /* LSB's $time */
+#تعریف_کن SPECIAL_زمان_مجموعه_هدف "time-set.target"
+#تعریف_کن SPECIAL_BASIC_هدف "basic.target"
+#تعریف_کن SPECIAL_TPM2_هدف "tpm2.target"
 
 /* LSB compatibility */
-#define SPECIAL_NETWORK_TARGET "network.target"           /* LSB's $network */
-#define SPECIAL_NSS_LOOKUP_TARGET "nss-lookup.target"     /* LSB's $named */
-#define SPECIAL_RPCBIND_TARGET "rpcbind.target"           /* LSB's $portmap */
+#تعریف_کن SPECIAL_شبکه_هدف "network.target"           /* LSB's $network */
+#تعریف_کن SPECIAL_NSS_LOOKUP_هدف "nss-lookup.target"     /* LSB's $named */
+#تعریف_کن SPECIAL_RPCBIND_هدف "rpcbind.target"           /* LSB's $portmap */
 
 /*
  * Rules regarding adding further high level targets like the above:
@@ -81,52 +81,52 @@
  */
 
 /* Magic early boot services */
-#define SPECIAL_FSCK_SERVICE "systemd-fsck@.service"
-#define SPECIAL_FSCK_ROOT_SERVICE "systemd-fsck-root.service"
-#define SPECIAL_FSCK_USR_SERVICE "systemd-fsck-usr.service"
-#define SPECIAL_QUOTACHECK_SERVICE "systemd-quotacheck@.service"
-#define SPECIAL_QUOTACHECK_ROOT_SERVICE "systemd-quotacheck-root.service"
-#define SPECIAL_QUOTAON_SERVICE "quotaon@.service"
-#define SPECIAL_QUOTAON_ROOT_SERVICE "quotaon-root.service"
-#define SPECIAL_REMOUNT_FS_SERVICE "systemd-remount-fs.service"
-#define SPECIAL_VOLATILE_ROOT_SERVICE "systemd-volatile-root.service"
-#define SPECIAL_UDEVD_SERVICE "systemd-udevd.service"
-#define SPECIAL_GROWFS_SERVICE "systemd-growfs@.service"
-#define SPECIAL_GROWFS_ROOT_SERVICE "systemd-growfs-root.service"
-#define SPECIAL_PCRFS_SERVICE "systemd-pcrfs@.service"
-#define SPECIAL_PCRFS_ROOT_SERVICE "systemd-pcrfs-root.service"
-#define SPECIAL_VALIDATEFS_SERVICE "systemd-validatefs@.service"
-#define SPECIAL_HIBERNATE_RESUME_SERVICE "systemd-hibernate-resume.service"
+#تعریف_کن SPECIAL_FSCK_SERVICE "systemd-fsck@.service"
+#تعریف_کن SPECIAL_FSCK_ریشه_SERVICE "systemd-fsck-root.service"
+#تعریف_کن SPECIAL_FSCK_USR_SERVICE "systemd-fsck-usr.service"
+#تعریف_کن SPECIAL_QUOTACHECK_SERVICE "systemd-quotacheck@.service"
+#تعریف_کن SPECIAL_QUOTACHECK_ریشه_SERVICE "systemd-quotacheck-root.service"
+#تعریف_کن SPECIAL_QUOTAON_SERVICE "quotaon@.service"
+#تعریف_کن SPECIAL_QUOTAON_ریشه_SERVICE "quotaon-root.service"
+#تعریف_کن SPECIAL_REMOUNT_FS_SERVICE "systemd-remount-fs.service"
+#تعریف_کن SPECIAL_VOLATILE_ریشه_SERVICE "systemd-volatile-root.service"
+#تعریف_کن SPECIAL_UDEVD_SERVICE "systemd-udevd.service"
+#تعریف_کن SPECIAL_GROWFS_SERVICE "systemd-growfs@.service"
+#تعریف_کن SPECIAL_GROWFS_ریشه_SERVICE "systemd-growfs-root.service"
+#تعریف_کن SPECIAL_PCRFS_SERVICE "systemd-pcrfs@.service"
+#تعریف_کن SPECIAL_PCRFS_ریشه_SERVICE "systemd-pcrfs-root.service"
+#تعریف_کن SPECIAL_VALIDATEFS_SERVICE "systemd-validatefs@.service"
+#تعریف_کن SPECIAL_HIBERNATE_RESUME_SERVICE "systemd-hibernate-resume.service"
 
 /* Services systemd relies on */
-#define SPECIAL_DBUS_SERVICE "dbus.service"
-#define SPECIAL_DBUS_SOCKET "dbus.socket"
-#define SPECIAL_JOURNALD_SOCKET "systemd-journald.socket"
-#define SPECIAL_JOURNALD_SERVICE "systemd-journald.service"
-#define SPECIAL_PTYBROKERD_SOCKET "systemd-ptybrokerd.socket"
-#define SPECIAL_TMPFILES_SETUP_SERVICE "systemd-tmpfiles-setup.service"
+#تعریف_کن SPECIAL_DBUS_SERVICE "dbus.service"
+#تعریف_کن SPECIAL_DBUS_SOCKET "dbus.socket"
+#تعریف_کن SPECIAL_JOURNALD_SOCKET "systemd-journald.socket"
+#تعریف_کن SPECIAL_JOURNALD_SERVICE "systemd-journald.service"
+#تعریف_کن SPECIAL_PTYBROKERD_SOCKET "systemd-ptybrokerd.socket"
+#تعریف_کن SPECIAL_TMPFILES_راهاندازی_SERVICE "systemd-tmpfiles-setup.service"
 
 /* Magic init signals */
-#define SPECIAL_KBREQUEST_TARGET "kbrequest.target"
-#define SPECIAL_SIGPWR_TARGET "sigpwr.target"
-#define SPECIAL_CTRL_ALT_DEL_TARGET "ctrl-alt-del.target"
+#تعریف_کن SPECIAL_KBREQUEST_هدف "kbrequest.target"
+#تعریف_کن SPECIAL_SIGPWR_هدف "sigpwr.target"
+#تعریف_کن SPECIAL_CTRL_ALT_DEL_هدف "ctrl-alt-del.target"
 
 /* The unit to use as fallback if ctrl-alt-del.target (which is usually an alias) cannot be loaded. */
-#define FALLBACK_CTRL_ALT_DEL_TARGET "reboot.target"
+#تعریف_کن FALLBACK_CTRL_ALT_DEL_هدف "reboot.target"
 
 /* Where we add all our system units, users and machines by default */
-#define SPECIAL_SYSTEM_SLICE "system.slice"
-#define SPECIAL_USER_SLICE "user.slice"
-#define SPECIAL_MACHINE_SLICE "machine.slice"
-#define SPECIAL_ROOT_SLICE "-.slice"
+#تعریف_کن SPECIAL_SYSTEM_برش "system.slice"
+#تعریف_کن SPECIAL_USER_برش "user.slice"
+#تعریف_کن SPECIAL_MACHINE_برش "machine.slice"
+#تعریف_کن SPECIAL_ریشه_برش "-.slice"
 
 /* The scope unit systemd itself lives in. */
-#define SPECIAL_INIT_SCOPE "init.scope"
+#تعریف_کن SPECIAL_INIT_SCOPE "init.scope"
 
 /* The root directory. */
-#define SPECIAL_ROOT_MOUNT "-.mount"
+#تعریف_کن SPECIAL_ریشه_MOUNT "-.mount"
 
 /* Special slices valid for the user instance */
-#define SPECIAL_SESSION_SLICE "session.slice"
-#define SPECIAL_APP_SLICE "app.slice"
-#define SPECIAL_BACKGROUND_SLICE "background.slice"
+#تعریف_کن SPECIAL_SESSION_برش "session.slice"
+#تعریف_کن SPECIAL_APP_برش "app.slice"
+#تعریف_کن SPECIAL_BACKGROUND_برش "background.slice"

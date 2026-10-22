@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <string.h>
 
-#include "errno-list.h"
+#ضمن "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+ساكن ثابت بنية errno_name* lookup_errno(سجل ثابت حرف *str,
+                                             سجل GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#ضمن "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+صحيح errno_from_name(ثابت حرف *name) {
+        ثابت بنية errno_name *sc;
 
-        assert(name);
+        أكد(name);
 
-        sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_errno(name, طول_رشته(name));
+        إذا (!sc)
+                أرجع -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        أكد(sc->id > 0);
+        أرجع sc->id;
 }
 
-#ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+#اگر_تعریف_شده __GLIBC__
+ثابت حرف* errno_name_no_fallback(صحيح id) {
+        إذا (id == 0) /* To stay in line with our implementation below.  */
+                أرجع عدم;
 
-        return strerrorname_np(ABS(id));
+        أرجع strerrorname_np(ABS(id));
 }
-#else
+#وإلا
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+ثابت حرف* errno_name_no_fallback(صحيح id) {
+        إذا (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        إذا ((size_t) id >= ELEMENTSOF(errno_نامها))
+                أرجع عدم;
 
-        return errno_names[id];
+        أرجع errno_نامها[id];
 }
-#endif
+#پایان_اگر
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
-        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+ثابت حرف* errno_name(صحيح id, حرف buf[ساكن ERRNO_NAME_BUF_LEN]) {
+        ثابت حرف *a = errno_name_no_fallback(id);
+        إذا (a)
+                أرجع a;
+        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", قدر_مطلق(id));
+        أرجع buf;
 }

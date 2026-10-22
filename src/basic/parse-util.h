@@ -1,160 +1,160 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef unsigned long loadavg_t;
+تعريفنوع بیعلامت دراز loadavg_t;
 
-int parse_boolean(const char *v) _pure_;
-int parse_tristate_full(const char *v, const char *third, int *ret);
-static inline int parse_tristate(const char *v, int *ret) {
-        return parse_tristate_full(v, NULL, ret);
+صحيح parse_boolean(ثابت حرف *v) خالص;
+صحيح parse_tristate_پر(ثابت حرف *v, ثابت حرف *سوم, صحيح *ret);
+ساكن مضمن صحيح parse_tristate(ثابت حرف *v, صحيح *ret) {
+        أرجع parse_tristate_پر(v, عدم, ret);
 }
-int parse_pid(const char *s, pid_t *ret);
-int parse_mode(const char *s, mode_t *ret);
-int parse_ifindex(const char *s);
-int parse_mtu(int family, const char *s, uint32_t *ret);
+صحيح parse_pid(ثابت حرف *s, pid_t *ret);
+صحيح parse_نما(ثابت حرف *s, mode_t *ret);
+صحيح parse_ifindex(ثابت حرف *s);
+صحيح parse_mtu(صحيح family, ثابت حرف *s, uint32_t *ret);
 
-int parse_size(const char *t, uint64_t base, uint64_t *size);
-int parse_sector_size(const char *t, uint64_t *ret);
-int parse_range(const char *t, unsigned *lower, unsigned *upper);
-int parse_errno(const char *t);
-int parse_fd(const char *t);
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy);
+صحيح parse_اندازه(ثابت حرف *t, uint64_t base, uint64_t *اندازه);
+صحيح parse_sector_اندازه(ثابت حرف *t, uint64_t *ret);
+صحيح parse_range(ثابت حرف *t, بیعلامت *پایینی, بیعلامت *فوقانی);
+صحيح parse_errno(ثابت حرف *t);
+صحيح parse_fd(ثابت حرف *t);
+صحيح parse_user_shell(ثابت حرف *s, حرف **ret_sh, bool *ret_copy);
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current);
+صحيح parse_capability_مجموعه(ثابت حرف *s, uint64_t initial, uint64_t *current);
 
-#define SAFE_ATO_REFUSE_PLUS_MINUS (1U << 30)
-#define SAFE_ATO_REFUSE_LEADING_ZERO (1U << 29)
-#define SAFE_ATO_REFUSE_LEADING_WHITESPACE (1U << 28)
-#define SAFE_ATO_ALL_FLAGS (SAFE_ATO_REFUSE_PLUS_MINUS|SAFE_ATO_REFUSE_LEADING_ZERO|SAFE_ATO_REFUSE_LEADING_WHITESPACE)
-#define SAFE_ATO_MASK_FLAGS(base) ((base) & ~SAFE_ATO_ALL_FLAGS)
+#تعریف_کن امن_ATO_REFUSE_PLUS_MINUS (1U << 30)
+#تعریف_کن امن_ATO_REFUSE_LEADING_ZERO (1U << 29)
+#تعریف_کن امن_ATO_REFUSE_LEADING_WHITESPACE (1U << 28)
+#تعریف_کن امن_ATO_ALL_FLAGS (امن_ATO_REFUSE_PLUS_MINUS|امن_ATO_REFUSE_LEADING_ZERO|امن_ATO_REFUSE_LEADING_WHITESPACE)
+#تعریف_کن امن_ATO_ماسک_FLAGS(base) ((base) & ~امن_ATO_ALL_FLAGS)
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u);
-static inline int safe_atou(const char *s, unsigned *ret_u) {
-        return safe_atou_full(s, 0, ret_u);
-}
-
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret);
-
-int safe_atoi(const char *s, int *ret_i);
-int safe_atolli(const char *s, long long *ret_lli);
-
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret);
-
-static inline int safe_atou8(const char *s, uint8_t *ret) {
-        return safe_atou8_full(s, 0, ret);
+صحيح امن_atou_پر(ثابت حرف *s, بیعلامت base, بیعلامت *ret_u);
+ساكن مضمن صحيح امن_atou(ثابت حرف *s, بیعلامت *ret_u) {
+        أرجع امن_atou_پر(s, 0, ret_u);
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret);
+صحيح امن_atou_bounded(ثابت حرف *s, بیعلامت min, بیعلامت max, بیعلامت *ret);
 
-static inline int safe_atou16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 0, ret);
+صحيح امن_atoi(ثابت حرف *s, صحيح *ret_i);
+صحيح امن_atolli(ثابت حرف *s, دراز دراز *ret_lli);
+
+صحيح امن_atou8_پر(ثابت حرف *s, بیعلامت base, uint8_t *ret);
+
+ساكن مضمن صحيح امن_atou8(ثابت حرف *s, uint8_t *ret) {
+        أرجع امن_atou8_پر(s, 0, ret);
 }
 
-static inline int safe_atoux16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 16, ret);
+صحيح امن_atou16_پر(ثابت حرف *s, بیعلامت base, uint16_t *ret);
+
+ساكن مضمن صحيح امن_atou16(ثابت حرف *s, uint16_t *ret) {
+        أرجع امن_atou16_پر(s, 0, ret);
 }
 
-int safe_atoi16(const char *s, int16_t *ret);
-
-static inline int safe_atou32_full(const char *s, unsigned base, uint32_t *ret_u) {
-        assert_cc(sizeof(uint32_t) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
+ساكن مضمن صحيح امن_atoux16(ثابت حرف *s, uint16_t *ret) {
+        أرجع امن_atou16_پر(s, 16, ret);
 }
 
-static inline int safe_atou32(const char *s, uint32_t *ret_u) {
-        return safe_atou32_full(s, 0, (unsigned*) ret_u);
+صحيح امن_atoi16(ثابت حرف *s, int16_t *ret);
+
+ساكن مضمن صحيح امن_atou32_پر(ثابت حرف *s, بیعلامت base, uint32_t *ret_u) {
+        assert_cc(حجم(uint32_t) == حجم(بیعلامت));
+        أرجع امن_atou_پر(s, base, (بیعلامت*) ret_u);
 }
 
-static inline int safe_atoi32(const char *s, int32_t *ret_i) {
-        assert_cc(sizeof(int32_t) == sizeof(int));
-        return safe_atoi(s, (int*) ret_i);
+ساكن مضمن صحيح امن_atou32(ثابت حرف *s, uint32_t *ret_u) {
+        أرجع امن_atou32_پر(s, 0, (بیعلامت*) ret_u);
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu);
-
-static inline int safe_atollu(const char *s, unsigned long long *ret_llu) {
-        return safe_atollu_full(s, 0, ret_llu);
+ساكن مضمن صحيح امن_atoi32(ثابت حرف *s, int32_t *ret_i) {
+        assert_cc(حجم(int32_t) == حجم(صحيح));
+        أرجع امن_atoi(s, (صحيح*) ret_i);
 }
 
-static inline int safe_atou64_full(const char *s, unsigned base, uint64_t *ret_u) {
-        assert_cc(sizeof(uint64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
+صحيح امن_atollu_پر(ثابت حرف *s, بیعلامت base, بیعلامت دراز دراز *ret_llu);
+
+ساكن مضمن صحيح امن_atollu(ثابت حرف *s, بیعلامت دراز دراز *ret_llu) {
+        أرجع امن_atollu_پر(s, 0, ret_llu);
 }
 
-static inline int safe_atou64(const char *s, uint64_t *ret_u) {
-        return safe_atou64_full(s, 0, ret_u);
+ساكن مضمن صحيح امن_atou64_پر(ثابت حرف *s, بیعلامت base, uint64_t *ret_u) {
+        assert_cc(حجم(uint64_t) == حجم(بیعلامت دراز دراز));
+        أرجع امن_atollu_پر(s, base, (بیعلامت دراز دراز*) ret_u);
 }
 
-static inline int safe_atoi64(const char *s, int64_t *ret_i) {
-        assert_cc(sizeof(int64_t) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_i);
+ساكن مضمن صحيح امن_atou64(ثابت حرف *s, uint64_t *ret_u) {
+        أرجع امن_atou64_پر(s, 0, ret_u);
 }
 
-static inline int safe_atoux64(const char *s, uint64_t *ret) {
-        assert_cc(sizeof(int64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, 16, (unsigned long long*) ret);
+ساكن مضمن صحيح امن_atoi64(ثابت حرف *s, int64_t *ret_i) {
+        assert_cc(حجم(int64_t) == حجم(دراز دراز));
+        أرجع امن_atolli(s, (دراز دراز*) ret_i);
 }
 
-#if LONG_MAX == INT_MAX
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(int));
-        return safe_atoi(s, (int*) ret_u);
-}
-#else
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_u);
-}
-#endif
-
-static inline int safe_atolu(const char *s, unsigned long *ret_u) {
-        return safe_atolu_full(s, 0, ret_u);
+ساكن مضمن صحيح امن_atoux64(ثابت حرف *s, uint64_t *ret) {
+        assert_cc(حجم(int64_t) == حجم(بیعلامت دراز دراز));
+        أرجع امن_atollu_پر(s, 16, (بیعلامت دراز دراز*) ret);
 }
 
-#if SIZE_MAX == UINT_MAX
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned));
-        return safe_atou(s, (unsigned *) ret_u);
+#إذا LONG_MAX == بیشترین_صحیح
+ساكن مضمن صحيح امن_atolu_پر(ثابت حرف *s, بیعلامت base, بیعلامت دراز *ret_u) {
+        assert_cc(حجم(بیعلامت دراز) == حجم(بیعلامت));
+        أرجع امن_atou_پر(s, base, (بیعلامت*) ret_u);
 }
-#else
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned long));
-        return safe_atolu(s, ret_u);
+ساكن مضمن صحيح امن_atoli(ثابت حرف *s, دراز *ret_u) {
+        assert_cc(حجم(دراز) == حجم(صحيح));
+        أرجع امن_atoi(s, (صحيح*) ret_u);
 }
-#endif
+#وإلا
+ساكن مضمن صحيح امن_atolu_پر(ثابت حرف *s, بیعلامت base, بیعلامت دراز *ret_u) {
+        assert_cc(حجم(بیعلامت دراز) == حجم(بیعلامت دراز دراز));
+        أرجع امن_atollu_پر(s, base, (بیعلامت دراز دراز*) ret_u);
+}
+ساكن مضمن صحيح امن_atoli(ثابت حرف *s, دراز *ret_u) {
+        assert_cc(حجم(دراز) == حجم(دراز دراز));
+        أرجع امن_atolli(s, (دراز دراز*) ret_u);
+}
+#پایان_اگر
 
-int safe_atod(const char *s, double *ret_d);
+ساكن مضمن صحيح امن_atolu(ثابت حرف *s, بیعلامت دراز *ret_u) {
+        أرجع امن_atolu_پر(s, 0, ret_u);
+}
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res);
+#إذا SIZE_MAX == UINT_MAX
+ساكن مضمن صحيح امن_atozu(ثابت حرف *s, size_t *ret_u) {
+        assert_cc(حجم(size_t) == حجم(بیعلامت));
+        أرجع امن_atou(s, (بیعلامت *) ret_u);
+}
+#وإلا
+ساكن مضمن صحيح امن_atozu(ثابت حرف *s, size_t *ret_u) {
+        assert_cc(حجم(size_t) == حجم(بیعلامت دراز));
+        أرجع امن_atolu(s, ret_u);
+}
+#پایان_اگر
 
-int parse_nice(const char *s, int *ret);
+صحيح امن_atod(ثابت حرف *s, مزدوج *ret_d);
 
-int parse_ip_port(const char *s, uint16_t *ret);
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero);
+صحيح parse_fractional_part_u(ثابت حرف **p, size_t digits, بیعلامت *res);
 
-int parse_oom_score_adjust(const char *s, int *ret);
+صحيح parse_nice(ثابت حرف *s, صحيح *ret);
+
+صحيح parse_ip_پورت(ثابت حرف *s, uint16_t *ret);
+صحيح parse_ip_پورت_range(ثابت حرف *s, uint16_t *low, uint16_t *high, bool allow_zero);
+
+صحيح parse_oom_score_adjust(ثابت حرف *s, صحيح *ret);
 
 /* Implement floating point using fixed integers, to improve performance when
  * calculating load averages. These macros can be used to extract the integer
  * and decimal parts of a value. */
-#define LOADAVG_PRECISION_BITS  11
-#define LOADAVG_FIXED_POINT_1_0 (1 << LOADAVG_PRECISION_BITS)
-#define LOADAVG_INT_SIDE(x)     ((x) >> LOADAVG_PRECISION_BITS)
-#define LOADAVG_DECIMAL_SIDE(x) LOADAVG_INT_SIDE(((x) & (LOADAVG_FIXED_POINT_1_0 - 1)) * 100)
+#تعریف_کن LOADAVG_PRECISION_بیتها  11
+#تعریف_کن LOADAVG_FIXED_نقطه_1_0 (1 << LOADAVG_PRECISION_بیتها)
+#تعریف_کن LOADAVG_INT_SIDE(x)     ((x) >> LOADAVG_PRECISION_بیتها)
+#تعریف_کن LOADAVG_DECIMAL_SIDE(x) LOADAVG_INT_SIDE(((x) & (LOADAVG_FIXED_نقطه_1_0 - 1)) * 100)
 
 /* Given a Linux load average (e.g. decimal number 34.89 where 34 is passed as i and 89 is passed as f), convert it
  * to a loadavg_t. */
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret);
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret);
+صحيح store_loadavg_fixed_نقطه(بیعلامت دراز i, بیعلامت دراز f, loadavg_t *ret);
+صحيح parse_loadavg_fixed_نقطه(ثابت حرف *s, loadavg_t *ret);
 
-bool nft_identifier_valid(const char *id);
+bool nft_identifier_valid(ثابت حرف *id);

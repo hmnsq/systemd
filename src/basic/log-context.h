@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#include "forward.h"
-#include "list.h"
+#ضمن "forward.h"
+#ضمن "list.h"
 
 /*
  * The log context allows attaching extra metadata to log messages written to the journal via log.h. We keep
@@ -32,96 +32,96 @@
  * message.
  */
 
-typedef struct LogContext {
-        unsigned n_ref;
+تعريفنوع بنية LogContext {
+        بیعلامت n_ref;
         /* Depending on which destructor is used (log_context_free() or log_context_detach()) the memory
          * referenced by this is freed or not */
-        char **fields;
-        struct iovec *input_iovec;
-        size_t n_input_iovec;
-        char *key;
-        char *value;
+        حرف **fields;
+        بنية iovec *درون_داد_iovec;
+        size_t n_درون_داد_iovec;
+        حرف *کلید;
+        حرف *مقدار;
         bool owned;
-        LIST_FIELDS(struct LogContext, ll);
+        LIST_FIELDS(بنية LogContext, ll);
 } LogContext;
 
-bool log_context_enabled(void);
+bool log_context_enabled(فراغ);
 
-LogContext* log_context_new(const char *key, const char *value);
-LogContext* log_context_new_strv(char **fields, bool owned);
-LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned);
+LogContext* log_context_new(ثابت حرف *کلید, ثابت حرف *مقدار);
+LogContext* log_context_new_strv(حرف **fields, bool owned);
+LogContext* log_context_new_iov(بنية iovec *درون_داد_iovec, size_t n_درون_داد_iovec, bool owned);
 
 /* Same as log_context_new(), but frees the given fields strv/iovec on failure. */
-LogContext* log_context_new_strv_consume(char **fields);
-LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec);
+LogContext* log_context_new_strv_consume(حرف **fields);
+LogContext* log_context_new_iov_consume(بنية iovec *درون_داد_iovec, size_t n_درون_داد_iovec);
 
 DECLARE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context);
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(LogContext*, log_context_unref);
 
 /* Returns the head of the log context list. */
-LogContext* log_context_head(void);
+LogContext* log_context_سر(فراغ);
 /* Returns the number of attached log context objects. */
-size_t log_context_num_contexts(void);
+size_t log_context_رقم_contexts(فراغ);
 /* Returns the number of fields in all attached log contexts. */
-size_t log_context_num_fields(void);
+size_t log_context_رقم_fields_2(فراغ);
 
-void log_context_swap(LogContext **log_context, size_t *num_fields);
+فراغ log_context_جابجا(LogContext **log_context, size_t *رقم_fields);
 
-void _reset_log_level(int *saved_log_level);
+فراغ _reset_log_level(صحيح *saved_log_level);
 
-#define _LOG_CONTEXT_SET_LOG_LEVEL(level, l) \
-        _cleanup_(_reset_log_level) _unused_ int l = log_set_max_level(level);
+#تعریف_کن LOG_CONTEXT_مجموعه_LOG_LEVEL(level, l) \
+        _cleanup_(_reset_log_level) استفادهنشده صحيح l = log_مجموعه_max_level(level);
 
-#define LOG_CONTEXT_SET_LOG_LEVEL(level) \
-        _LOG_CONTEXT_SET_LOG_LEVEL(level, UNIQ_T(l, UNIQ))
+#تعریف_کن LOG_CONTEXT_مجموعه_LOG_LEVEL_2(level) \
+        LOG_CONTEXT_مجموعه_LOG_LEVEL(level, UNIQ_T(l, UNIQ))
 
-#define LOG_CONTEXT_PUSH(...) \
-        LOG_CONTEXT_PUSH_STRV(STRV_MAKE(__VA_ARGS__))
+#تعریف_کن LOG_CONTEXT_افزودن(...) \
+        LOG_CONTEXT_افزودن_STRV(STRV_MAKE(__VA_ARGS__))
 
-#define LOG_CONTEXT_PUSHF(...) \
-        LOG_CONTEXT_PUSH(snprintf_ok((char[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
+#تعریف_کن LOG_CONTEXT_PUSHF(...) \
+        LOG_CONTEXT_افزودن(snprintf_ok((حرف[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
 
-#define _LOG_CONTEXT_PUSH_KEY_VALUE(key, value, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new(key, value);
+#تعریف_کن LOG_CONTEXT_افزودن_کلید_مقدار(کلید, مقدار, c) \
+        استفادهنشده _cleanup_(log_context_unrefp) LogContext *c = log_context_new(کلید, مقدار);
 
-#define LOG_CONTEXT_PUSH_KEY_VALUE(key, value) \
-        _LOG_CONTEXT_PUSH_KEY_VALUE(key, value, UNIQ_T(c, UNIQ))
+#تعریف_کن LOG_CONTEXT_افزودن_کلید_مقدار_2(کلید, مقدار) \
+        LOG_CONTEXT_افزودن_کلید_مقدار(کلید, مقدار, UNIQ_T(c, UNIQ))
 
-#define _LOG_CONTEXT_PUSH_STRV(strv, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv(strv, /* owned= */ false);
+#تعریف_کن LOG_CONTEXT_افزودن_STRV_2(strv, c) \
+        استفادهنشده _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv(strv, /* owned= */ false);
 
-#define LOG_CONTEXT_PUSH_STRV(strv) \
-        _LOG_CONTEXT_PUSH_STRV(strv, UNIQ_T(c, UNIQ))
+#تعریف_کن LOG_CONTEXT_افزودن_STRV(strv) \
+        LOG_CONTEXT_افزودن_STRV_2(strv, UNIQ_T(c, UNIQ))
 
-#define _LOG_CONTEXT_PUSH_IOV(input_iovec, n_input_iovec, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov(input_iovec, n_input_iovec, /* owned= */ false);
+#تعریف_کن LOG_CONTEXT_افزودن_IOV(درون_داد_iovec, n_درون_داد_iovec, c) \
+        استفادهنشده _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov(درون_داد_iovec, n_درون_داد_iovec, /* owned= */ false);
 
-#define LOG_CONTEXT_PUSH_IOV(input_iovec, n_input_iovec) \
-        _LOG_CONTEXT_PUSH_IOV(input_iovec, n_input_iovec, UNIQ_T(c, UNIQ))
+#تعریف_کن LOG_CONTEXT_افزودن_IOV_2(درون_داد_iovec, n_درون_داد_iovec) \
+        LOG_CONTEXT_افزودن_IOV(درون_داد_iovec, n_درون_داد_iovec, UNIQ_T(c, UNIQ))
 
 /* LOG_CONTEXT_CONSUME_STR()/LOG_CONTEXT_CONSUME_STRV()/LOG_CONTEXT_CONSUME_IOV() are identical to
 * LOG_CONTEXT_PUSH_STR()/LOG_CONTEXT_PUSH_STRV()/LOG_CONTEXT_PUSH_IOV() except they take ownership of the
 * given str/strv argument.
 */
 
-#define _LOG_CONTEXT_CONSUME_STR(s, c, strv) \
-        _unused_ _cleanup_strv_free_ strv = strv_new(s);                                                \
-        if (!strv)                                                                                      \
-                free(s);                                                                                \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(TAKE_PTR(strv))
+#تعریف_کن _LOG_CONTEXT_CONSUME_STR(s, c, strv) \
+        استفادهنشده _cleanup_strv_free_ strv = strv_new(s);                                                \
+        إذا (!strv)                                                                                      \
+                حرر(s);                                                                                \
+        استفادهنشده _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(TAKE_PTR(strv))
 
-#define LOG_CONTEXT_CONSUME_STR(s) \
+#تعریف_کن LOG_CONTEXT_CONSUME_STR(s) \
         _LOG_CONTEXT_CONSUME_STR(s, UNIQ_T(c, UNIQ), UNIQ_T(sv, UNIQ))
 
-#define _LOG_CONTEXT_CONSUME_STRV(strv, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(strv);
+#تعریف_کن _LOG_CONTEXT_CONSUME_STRV(strv, c) \
+        استفادهنشده _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(strv);
 
-#define LOG_CONTEXT_CONSUME_STRV(strv) \
+#تعریف_کن LOG_CONTEXT_CONSUME_STRV(strv) \
         _LOG_CONTEXT_CONSUME_STRV(strv, UNIQ_T(c, UNIQ))
 
-#define _LOG_CONTEXT_CONSUME_IOV(input_iovec, n_input_iovec, c) \
-        _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov_consume(input_iovec, n_input_iovec);
+#تعریف_کن _LOG_CONTEXT_CONSUME_IOV(درون_داد_iovec, n_درون_داد_iovec, c) \
+        استفادهنشده _cleanup_(log_context_unrefp) LogContext *c = log_context_new_iov_consume(درون_داد_iovec, n_درون_داد_iovec);
 
-#define LOG_CONTEXT_CONSUME_IOV(input_iovec, n_input_iovec) \
-        _LOG_CONTEXT_CONSUME_IOV(input_iovec, n_input_iovec, UNIQ_T(c, UNIQ))
+#تعریف_کن LOG_CONTEXT_CONSUME_IOV(درون_داد_iovec, n_درون_داد_iovec) \
+        _LOG_CONTEXT_CONSUME_IOV(درون_داد_iovec, n_درون_داد_iovec, UNIQ_T(c, UNIQ))

@@ -10,121 +10,121 @@
  * The underlying algorithm used in this implementation is a Heap.
  */
 
-#include "alloc-util.h"
-#include "prioq.h"
+#ضمن "alloc-util.h"
+#ضمن "prioq.h"
 
-struct prioq_item {
-        void *data;
-        unsigned *idx;
+بنية prioq_قلم {
+        فراغ *داده;
+        بیعلامت *idx;
 };
 
-struct Prioq {
+بنية Prioq {
         compare_func_t compare_func;
-        unsigned n_items;
-        struct prioq_item *items;
+        بیعلامت n_اقلام;
+        بنية prioq_قلم *اقلام;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        إذا (!q)
+                أرجع q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        أرجع q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        إذا (!q)
+                أرجع عدم;
 
         /* Invalidate the index fields of any remaining objects */
-        FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
-                        *(item->idx) = PRIOQ_IDX_NULL;
+        FOREACH_ARRAY(قلم, q->اقلام, q->n_اقلام)
+                إذا (قلم->idx)
+                        *(قلم->idx) = PRIOQ_IDX_NULL;
 
-        free(q->items);
-        return mfree(q);
+        حرر(q->اقلام);
+        أرجع mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
-        assert(q);
+صحيح prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+        أكد(q);
 
-        if (*q) {
-                assert((*q)->compare_func == compare_func);
-                return 0;
+        إذا (*q) {
+                أكد((*q)->compare_func == compare_func);
+                أرجع 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        إذا (!*q)
+                أرجع -ENOMEM;
 
-        return 0;
+        أرجع 0;
 }
 
-static void swap(Prioq *q, unsigned j, unsigned k) {
-        assert(q);
-        assert(j < q->n_items);
-        assert(k < q->n_items);
+ساكن فراغ جابجا(Prioq *q, بیعلامت j, بیعلامت k) {
+        أكد(q);
+        أكد(j < q->n_اقلام);
+        أكد(k < q->n_اقلام);
 
-        assert(!q->items[j].idx || *(q->items[j].idx) == j);
-        assert(!q->items[k].idx || *(q->items[k].idx) == k);
+        أكد(!q->اقلام[j].idx || *(q->اقلام[j].idx) == j);
+        أكد(!q->اقلام[k].idx || *(q->اقلام[k].idx) == k);
 
-        SWAP_TWO(q->items[j].data, q->items[k].data);
-        SWAP_TWO(q->items[j].idx, q->items[k].idx);
+        جابجا_TWO(q->اقلام[j].داده, q->اقلام[k].داده);
+        جابجا_TWO(q->اقلام[j].idx, q->اقلام[k].idx);
 
-        if (q->items[j].idx)
-                *q->items[j].idx = j;
+        إذا (q->اقلام[j].idx)
+                *q->اقلام[j].idx = j;
 
-        if (q->items[k].idx)
-                *q->items[k].idx = k;
+        إذا (q->اقلام[k].idx)
+                *q->اقلام[k].idx = k;
 }
 
-static unsigned shuffle_up(Prioq *q, unsigned idx) {
-        assert(q);
-        assert(idx < q->n_items);
+ساكن بیعلامت shuffle_به_بالا(Prioq *q, بیعلامت idx) {
+        أكد(q);
+        أكد(idx < q->n_اقلام);
 
-        while (idx > 0) {
-                unsigned k;
+        طالما (idx > 0) {
+                بیعلامت k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                إذا (q->compare_func(q->اقلام[k].داده, q->اقلام[idx].داده) <= 0)
+                        اكسر;
 
-                swap(q, idx, k);
+                جابجا(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        أرجع idx;
 }
 
-static unsigned shuffle_down(Prioq *q, unsigned idx) {
-        assert(q);
+ساكن بیعلامت shuffle_پایین(Prioq *q, بیعلامت idx) {
+        أكد(q);
 
-        for (;;) {
-                unsigned j, k, s;
+        لكل (;;) {
+                بیعلامت j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                إذا (j >= q->n_اقلام)
+                        اكسر;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                إذا (q->compare_func(q->اقلام[j].داده, q->اقلام[idx].داده) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                وإلا
                         s = idx;
 
-                if (k < q->n_items &&
-                    q->compare_func(q->items[k].data, q->items[s].data) < 0)
+                إذا (k < q->n_اقلام &&
+                    q->compare_func(q->اقلام[k].داده, q->اقلام[s].داده) < 0)
 
                         /* So our right child is smaller than we are, let's
                          * remember this fact */
@@ -132,179 +132,179 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                إذا (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        اكسر;
 
-                swap(q, idx, s);
+                جابجا(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        أرجع idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
-        unsigned k;
+صحيح prioq_put(Prioq *q, فراغ *داده, بیعلامت *idx) {
+        بیعلامت k;
 
-        assert(q);
+        أكد(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        إذا (!GREEDY_REALLOC(q->اقلام, MAX(q->n_اقلام + 1, 16u)))
+                أرجع -ENOMEM;
 
-        k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
-                .data = data,
+        k = q->n_اقلام++;
+        q->اقلام[k] = (بنية prioq_قلم) {
+                .داده = داده,
                 .idx = idx,
         };
 
-        if (idx)
+        إذا (idx)
                 *idx = k;
 
-        shuffle_up(q, k);
+        shuffle_به_بالا(q, k);
 
-        return 0;
+        أرجع 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+صحيح _prioq_ensure_put(Prioq **q, compare_func_t compare_func, فراغ *داده, بیعلامت *idx) {
+        صحيح r;
 
-        assert(q);
+        أكد(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return prioq_put(*q, data, idx);
+        أرجع prioq_put(*q, داده, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+ساكن فراغ remove_قلم(Prioq *q, بنية prioq_قلم *i) {
+        بنية prioq_قلم *l;
 
-        assert(q);
-        assert(i);
+        أكد(q);
+        أكد(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        إذا (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
-        l = q->items + q->n_items - 1;
+        l = q->اقلام + q->n_اقلام - 1;
 
-        if (i == l)
+        إذا (i == l)
                 /* Last entry, let's just remove it */
-                q->n_items--;
-        else {
-                unsigned k;
+                q->n_اقلام--;
+        وإلا {
+                بیعلامت k;
 
                 /* Not last entry, let's replace the last entry with
                  * this one, and reshuffle */
 
-                assert(i >= q->items);
-                k = i - q->items;
+                أكد(i >= q->اقلام);
+                k = i - q->اقلام;
 
-                i->data = l->data;
+                i->داده = l->داده;
                 i->idx = l->idx;
-                if (i->idx)
+                إذا (i->idx)
                         *i->idx = k;
-                q->n_items--;
+                q->n_اقلام--;
 
-                k = shuffle_down(q, k);
-                shuffle_up(q, k);
+                k = shuffle_پایین(q, k);
+                shuffle_به_بالا(q, k);
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+ساكن بنية prioq_قلم* پیدا_کن_قلم(Prioq *q, فراغ *داده, بیعلامت *idx) {
+        بنية prioq_قلم *i;
 
-        assert(q);
+        أكد(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        إذا (q->n_اقلام <= 0)
+                أرجع عدم;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
-                    *idx >= q->n_items)
-                        return NULL;
+        إذا (idx) {
+                إذا (*idx == PRIOQ_IDX_NULL ||
+                    *idx >= q->n_اقلام)
+                        أرجع عدم;
 
-                i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                i = q->اقلام + *idx;
+                إذا (i->داده != داده)
+                        أرجع عدم;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                أرجع i;
+        } وإلا {
+                لكل (i = q->اقلام; i < q->اقلام + q->n_اقلام; i++)
+                        إذا (i->داده == داده)
+                                أرجع i;
+                أرجع عدم;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+صحيح prioq_remove(Prioq *q, فراغ *داده, بیعلامت *idx) {
+        بنية prioq_قلم *i;
 
-        if (!q)
-                return 0;
+        إذا (!q)
+                أرجع 0;
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        i = پیدا_کن_قلم(q, داده, idx);
+        إذا (!i)
+                أرجع 0;
 
-        remove_item(q, i);
-        return 1;
+        remove_قلم(q, i);
+        أرجع 1;
 }
 
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
-        unsigned k;
+فراغ prioq_reshuffle(Prioq *q, فراغ *داده, بیعلامت *idx) {
+        بنية prioq_قلم *i;
+        بیعلامت k;
 
-        assert(q);
+        أكد(q);
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return;
+        i = پیدا_کن_قلم(q, داده, idx);
+        إذا (!i)
+                أرجع;
 
-        assert(i >= q->items);
-        k = i - q->items;
-        k = shuffle_down(q, k);
-        shuffle_up(q, k);
+        أكد(i >= q->اقلام);
+        k = i - q->اقلام;
+        k = shuffle_پایین(q, k);
+        shuffle_به_بالا(q, k);
 }
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+فراغ* prioq_peek_by_شاخص(Prioq *q, بیعلامت idx) {
+        إذا (!q)
+                أرجع عدم;
 
-        if (idx >= q->n_items)
-                return NULL;
+        إذا (idx >= q->n_اقلام)
+                أرجع عدم;
 
-        return q->items[idx].data;
+        أرجع q->اقلام[idx].داده;
 }
 
-void* prioq_pop(Prioq *q) {
-        void *data;
+فراغ* prioq_برداشت(Prioq *q) {
+        فراغ *داده;
 
-        if (!q)
-                return NULL;
+        إذا (!q)
+                أرجع عدم;
 
-        if (q->n_items <= 0)
-                return NULL;
+        إذا (q->n_اقلام <= 0)
+                أرجع عدم;
 
-        data = q->items[0].data;
-        remove_item(q, q->items);
-        return data;
+        داده = q->اقلام[0].داده;
+        remove_قلم(q, q->اقلام);
+        أرجع داده;
 }
 
-unsigned prioq_size(Prioq *q) {
+بیعلامت prioq_اندازه(Prioq *q) {
 
-        if (!q)
-                return 0;
+        إذا (!q)
+                أرجع 0;
 
-        return q->n_items;
+        أرجع q->n_اقلام;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        إذا (!q)
+                أرجع true;
 
-        return q->n_items <= 0;
+        أرجع q->n_اقلام <= 0;
 }

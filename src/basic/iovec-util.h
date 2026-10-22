@@ -1,60 +1,60 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#ضمن <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#ضمن "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+خارجي ثابت بنية iovec iovec_nul_byte; /* Points to a single NUL byte */
+خارجي ثابت بنية iovec iovec_خالی;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+صحيح iovec_alloc(size_t n, بنية iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_مجموع_اندازه(ثابت بنية iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(بنية iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+بنية iovec* iovec_make_string(بنية iovec *iovec, ثابت حرف *s);
 
-#define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+#تعریف_کن IOVEC_MAKE_STRING(s) \
+        *iovec_make_string(&(بنية iovec) {}, s)
 
-#define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+#تعریف_کن CONST_IOVEC_MAKE_STRING(s)              \
+        (ثابت بنية iovec) {                  \
+                .iov_base = (حرف*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
-#define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+#تعریف_کن IOVEC_MAKE_BYTE(c)                                      \
+        (ثابت بنية iovec) {                                  \
+                .iov_base = (حرف*) ((ثابت حرف[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
-#define IOVEC_ALLOCA(n)                              \
+#تعریف_کن IOVEC_ALLOCA(n)                              \
         ({                                           \
                 size_t _n_ = (n);                    \
-                IOVEC_MAKE(alloca_safe(_n_), _n_);   \
+                IOVEC_MAKE(alloca_امن(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+فراغ iovec_erase(بنية iovec *iovec);
+فراغ iovec_انجامشده_erase(بنية iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+حرف* مجموعه_iovec_string_فیلد(بنية iovec *iovec, size_t *n_iovec, ثابت حرف *فیلد, ثابت حرف *مقدار);
+حرف* مجموعه_iovec_string_فیلد_free(بنية iovec *iovec, size_t *n_iovec, ثابت حرف *فیلد, حرف *مقدار);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+فراغ iovec_array_free(بنية iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+صحيح iovec_memcmp(ثابت بنية iovec *a, ثابت بنية iovec *b) خالص;
+ساكن مضمن bool iovec_equal(ثابت بنية iovec *a, ثابت بنية iovec *b) {
+        أرجع iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+بنية iovec* iovec_memdup(ثابت بنية iovec *منبع, بنية iovec *ret);
+صحيح iovec_انجامشده_and_memdup(بنية iovec *iovec, ثابت بنية iovec *منبع);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+بنية iovec* iovec_append(بنية iovec *iovec, ثابت بنية iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+بنية iovec* iovec_consume(بنية iovec *iovec, size_t n);

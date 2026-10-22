@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-bool http_url_is_valid(const char *url) _pure_;
-bool file_url_is_valid(const char *url) _pure_;
-bool documentation_url_is_valid(const char *url) _pure_;
+bool http_url_is_valid(ثابت حرف *url) خالص;
+bool file_url_is_valid(ثابت حرف *url) خالص;
+bool documentation_url_is_valid(ثابت حرف *url) خالص;
 
 /* Our own "provider:[/path/to/socket]/resource" URL scheme, for acquiring resources from local Varlink services */
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource);
-bool provider_url_is_valid(const char *url);
-bool http_header_valid(const char *header) _pure_;
-bool http_etag_is_valid(const char *etag) _pure_;
+صحيح provider_url_parse(ثابت حرف *url, حرف **ret_socket, حرف **ret_resource);
+bool provider_url_is_valid(ثابت حرف *url);
+bool http_سرآیند_valid(ثابت حرف *سرآیند) خالص;
+bool http_etag_is_valid(ثابت حرف *etag) خالص;

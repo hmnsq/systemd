@@ -1,34 +1,34 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#include <sys/inotify.h>        /* IWYU pragma: export */
-#include <syslog.h>
+#ضمن <sys/inotify.h>        /* IWYU pragma: export */
+#ضمن <syslog.h>
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#define INOTIFY_EVENT_MAX (offsetof(struct inotify_event, name) + NAME_MAX + 1)
+#تعریف_کن INOTIFY_EVENT_MAX (offsetof(بنية inotify_event, name) + NAME_MAX + 1)
 
 /* This evaluates arguments multiple times */
-#define FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, log_level)            \
-        for (struct inotify_event *e = NULL;                            \
-             inotify_event_next(&buffer, sz, &e, log_level); )
+#تعریف_کن FOREACH_INOTIFY_EVENT_پر(e, میانگیر, sz, log_level)            \
+        لكل (بنية inotify_event *e = عدم;                            \
+             inotify_event_بعدی(&میانگیر, sz, &e, log_level); )
 
-#define FOREACH_INOTIFY_EVENT(e, buffer, sz)                    \
-        FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, LOG_DEBUG)
+#تعریف_کن FOREACH_INOTIFY_EVENT(e, میانگیر, sz)                    \
+        FOREACH_INOTIFY_EVENT_پر(e, میانگیر, sz, LOG_DEBUG)
 
-#define FOREACH_INOTIFY_EVENT_WARN(e, buffer, sz)               \
-        FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, LOG_WARNING)
+#تعریف_کن FOREACH_INOTIFY_EVENT_WARN(e, میانگیر, sz)               \
+        FOREACH_INOTIFY_EVENT_پر(e, میانگیر, sz, LOG_WARNING)
 
-union inotify_event_buffer {
-        struct inotify_event ev;
+اتحاد inotify_event_میانگیر {
+        بنية inotify_event ev;
         uint8_t raw[INOTIFY_EVENT_MAX];
 };
 
-bool inotify_event_next(
-                union inotify_event_buffer *buffer,
-                size_t size,
-                struct inotify_event **iterator,
-                int log_level);
+bool inotify_event_بعدی(
+                اتحاد inotify_event_میانگیر *میانگیر,
+                size_t اندازه,
+                بنية inotify_event **iterator,
+                صحيح log_level);
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask);
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask);
+صحيح inotify_جمع_کن_watch_fd(صحيح fd, صحيح what, uint32_t ماسک_3);
+صحيح inotify_جمع_کن_watch_and_warn(صحيح fd, ثابت حرف *pathname, uint32_t ماسک_3);

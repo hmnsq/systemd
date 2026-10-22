@@ -1,85 +1,85 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#رهنمود once
 
-#include <signal.h>     /* IWYU pragma: export */
+#ضمن <signal.h>     /* IWYU pragma: export */
 
-#include "forward.h"
+#ضمن "forward.h"
 
-int reset_all_signal_handlers(void);
-int reset_signal_mask(void);
+صحيح reset_all_signal_handlers(فراغ);
+صحيح reset_signal_ماسک(فراغ);
 
-int sigaction_many_internal(const struct sigaction *sa, ...);
+صحيح sigaction_many_داخلی(ثابت بنية sigaction *sa, ...);
 
-#define ignore_signals(...)                                             \
-        sigaction_many_internal(                                        \
+#تعریف_کن ignore_سیگنالها(...)                                             \
+        sigaction_many_داخلی(                                        \
                         &sigaction_ignore,                              \
                         __VA_ARGS__,                                    \
                         -1)
 
-#define default_signals(...)                                            \
-        sigaction_many_internal(                                        \
+#تعریف_کن default_سیگنالها(...)                                            \
+        sigaction_many_داخلی(                                        \
                         &sigaction_default,                             \
                         __VA_ARGS__,                                    \
                         -1)
 
-#define sigaction_many(sa, ...)                                         \
-        sigaction_many_internal(sa, __VA_ARGS__, -1)
+#تعریف_کن sigaction_many(sa, ...)                                         \
+        sigaction_many_داخلی(sa, __VA_ARGS__, -1)
 
-int sigset_add_many_internal(sigset_t *ss, ...);
-#define sigset_add_many(...) sigset_add_many_internal(__VA_ARGS__, -1)
+صحيح sigset_جمع_کن_many_داخلی(sigset_t *ss, ...);
+#تعریف_کن sigset_جمع_کن_many(...) sigset_جمع_کن_many_داخلی(__VA_ARGS__, -1)
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...);
-#define sigprocmask_many(...) sigprocmask_many_internal(__VA_ARGS__, -1)
+صحيح sigprocmask_many_داخلی(صحيح how, sigset_t *ret_old_ماسک, ...);
+#تعریف_کن sigprocmask_many(...) sigprocmask_many_داخلی(__VA_ARGS__, -1)
 
-DECLARE_STRING_TABLE_LOOKUP(signal, int);
-const char* signal_code_to_string(int signo, int code) _const_;
+DECLARE_STRING_جدول_LOOKUP(إشارة, صحيح);
+ثابت حرف* signal_کد_مقصد_string(صحيح signo, صحيح کد) _const_;
 
-void nop_signal_handler(int sig);
+فراغ nop_signal_handler(صحيح sig);
 
-static inline void block_signals_reset(sigset_t **ss) {
-        assert(ss);
+ساكن مضمن فراغ بلوک_سیگنالها_reset(sigset_t **ss) {
+        أكد(ss);
 
-        if (!*ss)
-                return;
+        إذا (!*ss)
+                أرجع;
 
-        assert_log(sigprocmask(SIG_SETMASK, *ss, NULL) >= 0);
+        assert_log(sigprocmask(SIG_SETMASK, *ss, عدم) >= 0);
 }
 
-#define BLOCK_SIGNALS(...)                                              \
+#تعریف_کن بلوک_سیگنالها_2(...)                                              \
         sigset_t _saved_sigset;                                         \
-        _cleanup_(block_signals_reset) _unused_ sigset_t *_saved_sigsetp = \
+        _cleanup_(بلوک_سیگنالها_reset) استفادهنشده sigset_t *_saved_sigsetp = \
                 assert_log(sigprocmask_many(SIG_BLOCK, &_saved_sigset, __VA_ARGS__) >= 0) ? \
-                &_saved_sigset : NULL;
+                &_saved_sigset : عدم;
 
-#define SIGNO_INVALID (-EINVAL)
+#تعریف_کن SIGNO_INVALID (-EINVAL)
 
-static inline bool SIGNAL_VALID(int signo) {
-        return signo > 0 && signo < _NSIG;
+ساكن مضمن bool SIGNAL_VALID(صحيح signo) {
+        أرجع signo > 0 && signo < _NSIG;
 }
 
-static inline const char* signal_to_string_with_check(int n) {
-        if (!SIGNAL_VALID(n))
-                return NULL;
+ساكن مضمن ثابت حرف* signal_مقصد_string_with_check(صحيح n) {
+        إذا (!SIGNAL_VALID(n))
+                أرجع عدم;
 
-        return signal_to_string(n);
+        أرجع signal_مقصد_string(n);
 }
 
-int signal_is_blocked(int sig);
+صحيح signal_is_blocked(صحيح sig);
 
-int autoreaping_enabled(void);
+صحيح autoreaping_enabled(فراغ);
 
-int pop_pending_signal_internal(int sig, ...);
-#define pop_pending_signal(...) pop_pending_signal_internal(__VA_ARGS__, -1)
+صحيح برداشت_pending_signal_داخلی(صحيح sig, ...);
+#تعریف_کن برداشت_pending_signal(...) برداشت_pending_signal_داخلی(__VA_ARGS__, -1)
 
-void propagate_signal(int sig, siginfo_t *siginfo);
+فراغ propagate_signal(صحيح sig, siginfo_t *siginfo);
 
-extern const struct sigaction sigaction_ignore;
-extern const struct sigaction sigaction_default;
-extern const struct sigaction sigaction_nop_nocldstop;
+خارجي ثابت بنية sigaction sigaction_ignore;
+خارجي ثابت بنية sigaction sigaction_default;
+خارجي ثابت بنية sigaction sigaction_nop_nocldstop;
 
-int parse_signo(const char *s, int *ret);
+صحيح parse_signo(ثابت حرف *s, صحيح *ret);
 
-static inline bool si_code_from_process(int si_code) {
+ساكن مضمن bool si_کد_from_process(صحيح si_code) {
         /* Returns true if the .si_code field of siginfo_t or the .ssi_code field of struct signalfd_siginfo
          * indicate that the signal originates from a userspace process, and hence the .si_pid/.ssi_pid field
          * is valid. This check is not obvious, since on one hand SI_USER/SI_QUEUE are supposed to be the
@@ -98,7 +98,7 @@ static inline bool si_code_from_process(int si_code) {
          *
          * From: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html */
 
-        return si_code < 0 || IN_SET(si_code, SI_USER, SI_QUEUE);
+        أرجع si_code < 0 || درون_مجموعه(si_code, SI_USER, SI_QUEUE);
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext);
+فراغ sigterm_process_گروه_handler(صحيح إشارة, siginfo_t *info, فراغ *ucontext);

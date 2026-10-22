@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#ضمن "alloc-util.h"
+#ضمن "replace-var.h"
+#ضمن "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+ساكن صحيح get_variable(ثابت حرف *b, حرف **r) {
         size_t k;
-        char *t;
+        حرف *t;
 
-        assert(b);
-        assert(r);
+        أكد(b);
+        أكد(r);
 
-        if (*b != '@')
-                return 0;
+        إذا (*b != '@')
+                أرجع 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        إذا (k <= 0 || b[k+1] != '@')
+                أرجع 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        إذا (!t)
+                أرجع -ENOMEM;
 
         *r = t;
-        return 1;
+        أرجع 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
+حرف* replace_var(ثابت حرف *متن, حرف *(*lookup)(ثابت حرف *variable, فراغ *userdata), فراغ *userdata) {
+        حرف *r, *t;
+        ثابت حرف *f;
         size_t l;
 
-        assert(text);
-        assert(lookup);
+        أكد(متن);
+        أكد(lookup);
 
-        l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        l = طول_رشته(متن);
+        r = new(حرف, l+1);
+        إذا (!r)
+                أرجع عدم;
 
-        f = text;
+        f = متن;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
+        طالما (*f) {
+                _cleanup_free_ حرف *v = عدم, *n = عدم;
+                حرف *a;
+                صحيح k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                إذا (k < 0)
+                        اذهب oom;
+                إذا (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        استمر;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                إذا (!n)
+                        اذهب oom;
 
-                skip = strlen(v) + 2;
+                skip = طول_رشته(v) + 2;
 
                 d = t - r;
-                nl = l - skip + strlen(n);
+                nl = l - skip + طول_رشته(n);
                 a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                إذا (!a)
+                        اذهب oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        أرجع r;
 
 oom:
-        return mfree(r);
+        أرجع mfree(r);
 }
