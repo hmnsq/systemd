@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <langinfo.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <langinfo.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <sys/mman.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <unistd.h>
 
-#include "dirent-util.h"
-#include "env-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "locale-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "set.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#अन्तर्भाव "dirent-util.h"
+#अन्तर्भाव "env-util.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "locale-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "memory-util.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "set.h"
+#अन्तर्भाव "stat-util.h"
+#अन्तर्भाव "string-table.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "utf8.h"
 
-static char* normalize_locale(const char *name) {
-        const char *e;
+स्थिर वर्ण* normalize_locale(अचर वर्ण *name) {
+        अचर वर्ण *e;
 
         /* Locale names are weird: glibc has some magic rules when looking for the charset name on disk: it
          * lowercases everything, and removes most special chars. This means the official .UTF-8 suffix
@@ -33,39 +33,39 @@ static char* normalize_locale(const char *name) {
          * that for UTF-8 however, since it's kinda the only charset that matters. */
 
         e = endswith(name, ".utf8");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        यदि (e) {
+                _cleanup_free_ वर्ण *prefix = रिक्त;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                यदि (!prefix)
+                        फर्काऊ रिक्त;
 
-                return strjoin(prefix, ".UTF-8");
+                फर्काऊ strjoin(prefix, ".UTF-8");
         }
 
-        e = strstr(name, ".utf8@");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        e = म_माला(name, ".utf8@");
+        यदि (e) {
+                _cleanup_free_ वर्ण *prefix = रिक्त;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                यदि (!prefix)
+                        फर्काऊ रिक्त;
 
-                return strjoin(prefix, ".UTF-8@", e + 6);
+                फर्काऊ strjoin(prefix, ".UTF-8@", e + 6);
         }
 
-        return strdup(name);
+        फर्काऊ strdup(name);
 }
 
 #ifdef __GLIBC__
-static const char* get_locale_dir(void) {
-        return secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
+स्थिर अचर वर्ण* get_locale_dir(शून्य) {
+        फर्काऊ secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
 }
 
-static int add_locales_from_archive(Set *locales) {
+स्थिर पूर्णाङ्क add_locales_from_archive(Set *locales) {
         /* Stolen from glibc... */
 
-        struct locarhead {
+        संरचना locarhead {
                 uint32_t magic;
                 /* Serial number.  */
                 uint32_t serial;
@@ -87,7 +87,7 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t sumhash_size;
         };
 
-        struct namehashent {
+        संरचना namehashent {
                 /* Hash value of the name.  */
                 uint32_t hashval;
                 /* Offset of the name in the string table.  */
@@ -96,321 +96,321 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t locrec_offset;
         };
 
-        int r;
+        पूर्णाङ्क r;
 
-        assert(locales);
+        प्रतिज्ञा(locales);
 
-        _cleanup_free_ char *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
-        if (!locale_archive_file)
-                return -ENOMEM;
+        _cleanup_free_ वर्ण *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
+        यदि (!locale_archive_file)
+                फर्काऊ -ENOMEM;
 
-        _cleanup_close_ int fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return errno == ENOENT ? 0 : -errno;
+        _cleanup_close_ पूर्णाङ्क fd = खोलो(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
+        यदि (fd < 0)
+                फर्काऊ त्रुटि_सं == ENOENT ? 0 : -त्रुटि_सं;
 
-        struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        संरचना stat st;
+        यदि (ख_स्थिति(fd, &st) < 0)
+                फर्काऊ -त्रुटि_सं;
 
         r = stat_verify_regular(&st);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (st.st_size < (off_t) sizeof(struct locarhead))
-                return -EBADMSG;
+        यदि (st.st_size < (off_t) परिमाण(संरचना locarhead))
+                फर्काऊ -EBADMSG;
 
-        if (file_offset_beyond_memory_size(st.st_size))
-                return -EFBIG;
+        यदि (file_offset_beyond_memory_size(st.st_size))
+                फर्काऊ -EFBIG;
 
-        void *p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-        if (p == MAP_FAILED)
-                return -errno;
+        शून्य *p = mmap(रिक्त, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+        यदि (p == MAP_FAILED)
+                फर्काऊ -त्रुटि_सं;
 
-        const struct namehashent *e;
-        const struct locarhead *h = p;
-        if (h->magic != 0xde020109 ||
+        अचर संरचना namehashent *e;
+        अचर संरचना locarhead *h = p;
+        यदि (h->magic != 0xde020109 ||
             h->namehash_offset + h->namehash_size > st.st_size ||
             h->string_offset + h->string_size > st.st_size ||
             h->locrectab_offset + h->locrectab_size > st.st_size ||
             h->sumhash_offset + h->sumhash_size > st.st_size) {
                 r = -EBADMSG;
-                goto finish;
+                गच्छ finish;
         }
 
-        e = (const struct namehashent*) ((const uint8_t*) p + h->namehash_offset);
-        for (size_t i = 0; i < h->namehash_size; i++) {
-                char *z;
+        e = (अचर संरचना namehashent*) ((अचर uint8_t*) p + h->namehash_offset);
+        लागि (माप_प्रकार i = 0; i < h->namehash_size; i++) {
+                वर्ण *z;
 
-                if (e[i].locrec_offset == 0)
-                        continue;
+                यदि (e[i].locrec_offset == 0)
+                        जारी;
 
-                if (!utf8_is_valid((char*) p + e[i].name_offset))
-                        continue;
+                यदि (!utf8_is_valid((वर्ण*) p + e[i].name_offset))
+                        जारी;
 
-                z = normalize_locale((char*) p + e[i].name_offset);
-                if (!z) {
+                z = normalize_locale((वर्ण*) p + e[i].name_offset);
+                यदि (!z) {
                         r = -ENOMEM;
-                        goto finish;
+                        गच्छ finish;
                 }
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        goto finish;
+                यदि (r < 0)
+                        गच्छ finish;
         }
 
         r = 0;
 
 finish:
         munmap_safe(p, st.st_size);
-        return r;
+        फर्काऊ r;
 }
 
-static int add_locales_from_libdir(Set *locales) {
-        _cleanup_closedir_ DIR *dir = NULL;
-        int r;
+स्थिर पूर्णाङ्क add_locales_from_libdir(Set *locales) {
+        _cleanup_closedir_ सूची *dir = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(locales);
+        प्रतिज्ञा(locales);
 
-        dir = opendir(get_locale_dir());
-        if (!dir)
-                return errno == ENOENT ? 0 : -errno;
+        dir = सूची_खोलो(get_locale_dir());
+        यदि (!dir)
+                फर्काऊ त्रुटि_सं == ENOENT ? 0 : -त्रुटि_सं;
 
-        FOREACH_DIRENT(de, dir, return -errno) {
-                char *z;
+        FOREACH_DIRENT(de, dir, फर्काऊ -त्रुटि_सं) {
+                वर्ण *z;
 
-                if (de->d_type != DT_DIR)
-                        continue;
+                यदि (de->d_type != DT_DIR)
+                        जारी;
 
                 z = normalize_locale(de->d_name);
-                if (!z)
-                        return -ENOMEM;
+                यदि (!z)
+                        फर्काऊ -ENOMEM;
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
         }
 
-        return 0;
+        फर्काऊ 0;
 }
 
-#else
+#अन्यथा
 
-static const char* const musl_locale_dirs[] = {
+स्थिर अचर वर्ण* अचर musl_locale_dirs[] = {
         "/etc/musl/locale",
         "/usr/share/musl/locale",
         "/share/musl/locale",
         "/usr/share/i18n/locales/musl", // compat with musl-locales 0.1.0
-        NULL
+        रिक्त
 };
 
-static int add_locales_for_musl(Set *locales) {
-        int r;
+स्थिर पूर्णाङ्क add_locales_for_musl(Set *locales) {
+        पूर्णाङ्क r;
 
-        assert(locales);
+        प्रतिज्ञा(locales);
 
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        अचर वर्ण *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
-                _cleanup_closedir_ DIR *dir = opendir(*d);
-                if (!dir)
-                        continue;
+                _cleanup_closedir_ सूची *dir = सूची_खोलो(*d);
+                यदि (!dir)
+                        जारी;
 
-                FOREACH_DIRENT(de, dir, return -errno) {
-                        if (de->d_type != DT_REG)
-                                continue;
+                FOREACH_DIRENT(de, dir, फर्काऊ -त्रुटि_सं) {
+                        यदि (de->d_type != DT_REG)
+                                जारी;
 
-                        char *z = normalize_locale(de->d_name);
-                        if (!z)
-                                return -ENOMEM;
+                        वर्ण *z = normalize_locale(de->d_name);
+                        यदि (!z)
+                                फर्काऊ -ENOMEM;
 
                         r = set_consume(locales, z);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                फर्काऊ r;
                 }
         }
 
-        return 0;
+        फर्काऊ 0;
 }
 #endif
 
-int get_locales(char ***ret) {
-        _cleanup_set_free_ Set *locales = NULL;
-        int r;
+पूर्णाङ्क get_locales(वर्ण ***ret) {
+        _cleanup_set_free_ Set *locales = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         locales = set_new(&string_hash_ops_free);
-        if (!locales)
-                return -ENOMEM;
+        यदि (!locales)
+                फर्काऊ -ENOMEM;
 
 #ifdef __GLIBC__
         r = add_locales_from_archive(locales);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        यदि (r < 0 && r != -ENOENT)
+                फर्काऊ r;
 
         r = add_locales_from_libdir(locales);
-        if (r < 0)
-                return r;
-#else
+        यदि (r < 0)
+                फर्काऊ r;
+#अन्यथा
         r = add_locales_for_musl(locales);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 #endif
 
-        char *locale;
+        वर्ण *locale;
         SET_FOREACH(locale, locales) {
                 r = locale_is_installed(locale);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        free(set_remove(locales, locale));
+                यदि (r < 0)
+                        फर्काऊ r;
+                यदि (r == 0)
+                        मुक्त(set_remove(locales, locale));
         }
 
-        _cleanup_strv_free_ char **l = set_to_strv(&locales);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ वर्ण **l = set_to_strv(&locales);
+        यदि (!l)
+                फर्काऊ -ENOMEM;
 
         r = getenv_bool("SYSTEMD_LIST_NON_UTF8_LOCALES");
-        if (r <= 0) {
-                if (!IN_SET(r, -ENXIO, 0))
+        यदि (r <= 0) {
+                यदि (!IN_SET(r, -ENXIO, 0))
                         log_debug_errno(r, "Failed to parse $SYSTEMD_LIST_NON_UTF8_LOCALES as boolean, ignoring: %m");
 
                 /* Filter out non-UTF-8 locales, because it's 2019, by default */
-                char **b = l;
+                वर्ण **b = l;
                 STRV_FOREACH(a, l)
-                        if (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
+                        यदि (endswith(*a, "UTF-8") || म_माला(*a, ".UTF-8@"))
                                 *(b++) = *a;
-                        else
-                                free(*a);
+                        अन्यथा
+                                मुक्त(*a);
 
-                *b = NULL;
+                *b = रिक्त;
         }
 
         strv_sort(l);
 
         *ret = TAKE_PTR(l);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-bool locale_is_valid(const char *name) {
+bool locale_is_valid(अचर वर्ण *name) {
 
-        if (isempty(name))
-                return false;
+        यदि (isempty(name))
+                फर्काऊ false;
 
-        if (strlen(name) >= 128)
-                return false;
+        यदि (म_माप(name) >= 128)
+                फर्काऊ false;
 
-        if (!utf8_is_valid(name))
-                return false;
+        यदि (!utf8_is_valid(name))
+                फर्काऊ false;
 
-        if (!filename_is_valid(name))
-                return false;
+        यदि (!filename_is_valid(name))
+                फर्काऊ false;
 
         /* Locales look like: ll_CC.ENC@variant, where ll and CC are alphabetic, ENC is alphanumeric with
          * dashes, and variant seems to be alphabetic.
          * See: https://www.gnu.org/software/gettext/manual/html_node/Locale-Names.html */
-        if (!in_charset(name, ALPHANUMERICAL "_.-@"))
-                return false;
+        यदि (!in_charset(name, ALPHANUMERICAL "_.-@"))
+                फर्काऊ false;
 
-        return true;
+        फर्काऊ true;
 }
 
-int locale_is_installed(const char *name) {
-        if (!locale_is_valid(name))
-                return false;
+पूर्णाङ्क locale_is_installed(अचर वर्ण *name) {
+        यदि (!locale_is_valid(name))
+                फर्काऊ false;
 
-        if (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
-                return true;
+        यदि (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
+                फर्काऊ true;
 
 #ifdef __GLIBC__
         _cleanup_(freelocalep) locale_t loc = newlocale(LC_ALL_MASK, name, (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return errno == ENOMEM ? -ENOMEM : false;
+        यदि (loc == (locale_t) 0)
+                फर्काऊ त्रुटि_सं == ENOMEM ? -ENOMEM : false;
 
-        return true;
-#else
+        फर्काऊ true;
+#अन्यथा
         /* musl also has C.UTF-8 as builtin */
-        if (streq(name, "C.UTF-8"))
-                return true;
+        यदि (streq(name, "C.UTF-8"))
+                फर्काऊ true;
 
         /* musl's newlocale() always succeeds and provides a fake locale object even when the locale does
          * not exist. Hence, we need to explicitly check if the locale file exists. */
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        अचर वर्ण *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
-                _cleanup_free_ char *p = path_join(*d, name);
-                if (!p)
-                        return -ENOMEM;
+                _cleanup_free_ वर्ण *p = path_join(*d, name);
+                यदि (!p)
+                        फर्काऊ -ENOMEM;
 
-                if (access(p, F_OK) >= 0)
-                        return true;
+                यदि (access(p, F_OK) >= 0)
+                        फर्काऊ true;
         }
 
-        return false;
+        फर्काऊ false;
 #endif
 }
 
-static bool is_locale_utf8_impl(void) {
-        const char *set;
-        int r;
+स्थिर bool is_locale_utf8_impl(शून्य) {
+        अचर वर्ण *set;
+        पूर्णाङ्क r;
 
         /* Note that we default to 'true' here, since today UTF8 is pretty much supported everywhere. */
 
         r = secure_getenv_bool("SYSTEMD_UTF8");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        यदि (r >= 0)
+                फर्काऊ r;
+        यदि (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_UTF8, ignoring: %m");
 
         /* This function may be called from libsystemd, and setlocale() is not thread safe. Assuming yes. */
-        if (!is_main_thread())
-                return true;
+        यदि (!is_main_thread())
+                फर्काऊ true;
 
-        if (!setlocale(LC_ALL, ""))
-                return true;
+        यदि (!रखो_क्षेत्र(LC_ALL, ""))
+                फर्काऊ true;
 
         set = nl_langinfo(CODESET);
-        if (!set || streq(set, "UTF-8"))
-                return true;
+        यदि (!set || streq(set, "UTF-8"))
+                फर्काऊ true;
 
-        set = setlocale(LC_CTYPE, NULL);
-        if (!set)
-                return true;
+        set = रखो_क्षेत्र(LC_CTYPE, रिक्त);
+        यदि (!set)
+                फर्काऊ true;
 
         /* Unless LC_CTYPE is explicitly overridden, return true. Because here CTYPE is effectively unset
          * and everything can do to UTF-8 nowadays. */
-        return STR_IN_SET(set, "C", "POSIX") &&
-                !getenv("LC_ALL") &&
-                !getenv("LC_CTYPE") &&
-                !getenv("LANG");
+        फर्काऊ STR_IN_SET(set, "C", "POSIX") &&
+                !दो_पर्या("LC_ALL") &&
+                !दो_पर्या("LC_CTYPE") &&
+                !दो_पर्या("LANG");
 }
 
-bool is_locale_utf8(void) {
-        static int cached = -1;
+bool is_locale_utf8(शून्य) {
+        स्थिर पूर्णाङ्क cached = -1;
 
-        if (cached < 0)
+        यदि (cached < 0)
                 cached = is_locale_utf8_impl();
 
-        return cached;
+        फर्काऊ cached;
 }
 
-void locale_variables_free(char *l[_VARIABLE_LC_MAX]) {
+शून्य locale_variables_free(वर्ण *l[_VARIABLE_LC_MAX]) {
         free_many_charp(l, _VARIABLE_LC_MAX);
 }
 
-void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]) {
-        assert(l);
+शून्य locale_variables_simplify(वर्ण *l[_VARIABLE_LC_MAX]) {
+        प्रतिज्ञा(l);
 
-        for (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
-                if (p == VARIABLE_LANG)
-                        continue;
-                if (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
+        लागि (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
+                यदि (p == VARIABLE_LANG)
+                        जारी;
+                यदि (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
                         l[p] = mfree(l[p]);
         }
 }
 
-static const char * const locale_variable_table[_VARIABLE_LC_MAX] = {
+स्थिर अचर वर्ण * अचर locale_variable_table[_VARIABLE_LC_MAX] = {
         [VARIABLE_LANG]              = "LANG",
         [VARIABLE_LANGUAGE]          = "LANGUAGE",
         [VARIABLE_LC_CTYPE]          = "LC_CTYPE",

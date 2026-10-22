@@ -5,9 +5,9 @@
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
 
-#include <stdlib.h>
+#अन्तर्भाव <stdlib.h>
 
-#include "gunicode.h"
+#अन्तर्भाव "gunicode.h"
 
 #define unichar uint32_t
 
@@ -24,36 +24,36 @@
  *
  * Return value: a pointer to the found character.
  **/
-char *
-utf8_prev_char (const char *p)
+वर्ण *
+utf8_prev_char (अचर वर्ण *p)
 {
-  assert(p);
+  प्रतिज्ञा(p);
 
-  for (;;)
+  लागि (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      यदि ((*p & 0xc0) != 0x80)
+        फर्काऊ (वर्ण *)p;
     }
 }
 
-struct Interval
+संरचना Interval
 {
   unichar start, end;
 };
 
-static int
-interval_compare (const void *key, const void *elt)
+स्थिर पूर्णाङ्क
+interval_compare (अचर शून्य *साँचो, अचर शून्य *elt)
 {
-  unichar c = (unichar) (long) (key);
-  struct Interval *interval = (struct Interval *)elt;
+  unichar c = (unichar) (दीर्घ) (साँचो);
+  संरचना Interval *interval = (संरचना Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  यदि (c < interval->start)
+    फर्काऊ -1;
+  यदि (c > interval->end)
+    फर्काऊ +1;
 
-  return 0;
+  फर्काऊ 0;
 }
 
 /*
@@ -82,7 +82,7 @@ bool
 unichar_iswide (unichar c)
 {
   /* See NOTE earlier for how to update this table. */
-  static const struct Interval wide[] = {
+  स्थिर अचर संरचना Interval wide[] = {
     {0x1100, 0x115F}, {0x2329, 0x232A}, {0x2E80, 0x2E99}, {0x2E9B, 0x2EF3},
     {0x2F00, 0x2FD5}, {0x2FF0, 0x2FFB}, {0x3000, 0x303E}, {0x3041, 0x3096},
     {0x3099, 0x30FF}, {0x3105, 0x312D}, {0x3131, 0x318E}, {0x3190, 0x31BA},
@@ -96,14 +96,14 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  यदि (द्वा_खोज ((शून्य *)(uintptr_t)c, wide, ELEMENTSOF(wide), परिमाण wide[0],
                interval_compare))
-    return true;
+    फर्काऊ true;
 
-  return false;
+  फर्काऊ false;
 }
 
-const char utf8_skip_data[256] = {
+अचर वर्ण utf8_skip_data[256] = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

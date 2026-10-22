@@ -1,37 +1,37 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdatomic.h>
-#include <stdio.h>
-#include <sys/prctl.h> /* IWYU pragma: keep */
-#include <sys/syscall.h>
-#include <unistd.h>
+#अन्तर्भाव <stdatomic.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <sys/prctl.h> /* IWYU pragma: keep */
+#अन्तर्भाव <sys/syscall.h>
+#अन्तर्भाव <unistd.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "bitfield.h"
+#अन्तर्भाव "capability-list.h"
+#अन्तर्भाव "capability-util.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "pidref.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "stat-util.h"
+#अन्तर्भाव "user-util.h"
 
-int capability_get(CapabilityQuintet *ret) {
-        assert(ret);
+पूर्णाङ्क capability_get(CapabilityQuintet *ret) {
+        प्रतिज्ञा(ret);
 
-        struct __user_cap_header_struct hdr = {
+        संरचना __user_cap_header_struct hdr = {
                 .version = _LINUX_CAPABILITY_VERSION_3,
                 .pid = getpid_cached(),
         };
 
         assert_cc(_LINUX_CAPABILITY_U32S_3 == 2);
-        struct __user_cap_data_struct data[_LINUX_CAPABILITY_U32S_3];
-        if (syscall(SYS_capget, &hdr, data) < 0)
-                return -errno;
+        संरचना __user_cap_data_struct data[_LINUX_CAPABILITY_U32S_3];
+        यदि (syscall(SYS_capget, &hdr, data) < 0)
+                फर्काऊ -त्रुटि_सं;
 
         *ret = (CapabilityQuintet) {
                 .effective = (uint64_t) data[0].effective | ((uint64_t) data[1].effective << 32),
@@ -40,18 +40,18 @@ int capability_get(CapabilityQuintet *ret) {
                 .permitted = (uint64_t) data[0].permitted | ((uint64_t) data[1].permitted << 32),
                 .ambient = UINT64_MAX,
         };
-        return 0;
+        फर्काऊ 0;
 }
 
-static int capability_apply(const CapabilityQuintet *q) {
-        assert(q);
+स्थिर पूर्णाङ्क capability_apply(अचर CapabilityQuintet *q) {
+        प्रतिज्ञा(q);
 
-        struct __user_cap_header_struct hdr = {
+        संरचना __user_cap_header_struct hdr = {
                 .version = _LINUX_CAPABILITY_VERSION_3,
                 .pid = getpid_cached(),
         };
 
-        struct __user_cap_data_struct data[_LINUX_CAPABILITY_U32S_3] = {
+        संरचना __user_cap_data_struct data[_LINUX_CAPABILITY_U32S_3] = {
                 {
                         .effective = (uint32_t) (q->effective & UINT32_MAX),
                         .inheritable = (uint32_t) (q->inheritable & UINT32_MAX),
@@ -63,28 +63,28 @@ static int capability_apply(const CapabilityQuintet *q) {
                         .permitted = (uint32_t) (q->permitted >> 32),
                 },
         };
-        return RET_NERRNO(syscall(SYS_capset, &hdr, data));
+        फर्काऊ RET_NERRNO(syscall(SYS_capset, &hdr, data));
 }
 
-unsigned cap_last_cap(void) {
-        static atomic_int saved = INT_MAX;
-        int r, c;
+अचिन्हित cap_last_cap(शून्य) {
+        स्थिर atomic_int saved = पूर्णांक_उच्च;
+        पूर्णाङ्क r, c;
 
         c = saved;
-        if (c != INT_MAX)
-                return c;
+        यदि (c != पूर्णांक_उच्च)
+                फर्काऊ c;
 
         /* Available since linux-3.2 */
-        _cleanup_free_ char *content = NULL;
-        r = read_one_line_file("/proc/sys/kernel/cap_last_cap", &content);
-        if (r < 0)
+        _cleanup_free_ वर्ण *content = रिक्त;
+        r = read_one_पङ्क्ति_file("/proc/sys/kernel/cap_last_cap", &content);
+        यदि (r < 0)
                 log_debug_errno(r, "Failed to read /proc/sys/kernel/cap_last_cap, ignoring: %m");
-        else {
+        अन्यथा {
                 r = safe_atoi(content, &c);
-                if (r < 0)
+                यदि (r < 0)
                         log_debug_errno(r, "Failed to parse /proc/sys/kernel/cap_last_cap, ignoring: %m");
-                else {
-                        if (c > CAP_LIMIT) /* Safety for the future: if one day the kernel learns more than
+                अन्यथा {
+                        यदि (c > CAP_LIMIT) /* Safety for the future: if one day the kernel learns more than
                                             * 64 caps, then we are in trouble (since we, as much userspace
                                             * and kernel space store capability masks in uint64_t types). We
                                             * also want to use UINT64_MAX as marker for "unset". Hence let's
@@ -93,71 +93,71 @@ unsigned cap_last_cap(void) {
                                 c = CAP_LIMIT;
 
                         saved = c;
-                        return c;
+                        फर्काऊ c;
                 }
         }
 
         /* Fall back to syscall-probing for pre linux-3.2, or where /proc/ is not mounted */
-        unsigned long p = (unsigned long) MIN(CAP_LAST_CAP, CAP_LIMIT);
+        अचिन्हित दीर्घ p = (अचिन्हित दीर्घ) MIN(CAP_LAST_CAP, CAP_LIMIT);
 
-        if (prctl_safe(PR_CAPBSET_READ, p, 0, 0, 0) < 0) {
+        यदि (prctl_safe(PR_CAPBSET_READ, p, 0, 0, 0) < 0) {
 
                 /* Hmm, look downwards, until we find one that works */
-                for (p--; p > 0; p--)
-                        if (prctl_safe(PR_CAPBSET_READ, p, 0, 0, 0) >= 0)
-                                break;
+                लागि (p--; p > 0; p--)
+                        यदि (prctl_safe(PR_CAPBSET_READ, p, 0, 0, 0) >= 0)
+                                रोक;
 
-        } else {
+        } अन्यथा {
 
                 /* Hmm, look upwards, until we find one that doesn't work */
-                for (; p < CAP_LIMIT; p++)
-                        if (prctl_safe(PR_CAPBSET_READ, p+1, 0, 0, 0) < 0)
-                                break;
+                लागि (; p < CAP_LIMIT; p++)
+                        यदि (prctl_safe(PR_CAPBSET_READ, p+1, 0, 0, 0) < 0)
+                                रोक;
         }
 
-        c = (int) p;
+        c = (पूर्णाङ्क) p;
         saved = c;
-        return c;
+        फर्काऊ c;
 }
 
-int have_effective_cap(unsigned cap) {
+पूर्णाङ्क have_effective_cap(अचिन्हित cap) {
         CapabilityQuintet q;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(cap <= CAP_LIMIT);
+        प्रतिज्ञा(cap <= CAP_LIMIT);
 
         r = capability_get(&q);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return BIT_SET(q.effective, cap);
+        फर्काऊ BIT_SET(q.effective, cap);
 }
 
-int have_inheritable_cap(unsigned cap) {
+पूर्णाङ्क have_inheritable_cap(अचिन्हित cap) {
         CapabilityQuintet q;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(cap <= CAP_LIMIT);
+        प्रतिज्ञा(cap <= CAP_LIMIT);
 
         r = capability_get(&q);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return BIT_SET(q.inheritable, cap);
+        फर्काऊ BIT_SET(q.inheritable, cap);
 }
 
-int capability_ambient_set_apply(uint64_t set, bool also_inherit) {
-        int r;
+पूर्णाङ्क capability_ambient_set_apply(uint64_t set, bool also_inherit) {
+        पूर्णाङ्क r;
 
         /* Remove capabilities requested in ambient set, but not in the bounding set */
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                if (!BIT_SET(set, i))
-                        continue;
+        लागि (अचिन्हित i = 0; i <= cap_last_cap(); i++) {
+                यदि (!BIT_SET(set, i))
+                        जारी;
 
                 r = prctl_safe(PR_CAPBSET_READ, i, 0, 0, 0);
-                if (r < 0)
-                        return r;
-                if (r != 1) {
+                यदि (r < 0)
+                        फर्काऊ r;
+                यदि (r != 1) {
                         log_debug("Ambient capability %s requested but missing from bounding set, suppressing automatically.",
                                   capability_to_name(i));
                         CLEAR_BIT(set, i);
@@ -166,94 +166,94 @@ int capability_ambient_set_apply(uint64_t set, bool also_inherit) {
 
         /* Add the capabilities to the ambient set (an possibly also the inheritable set) */
 
-        if (also_inherit) {
+        यदि (also_inherit) {
                 CapabilityQuintet q;
 
                 r = capability_get(&q);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
 
                 q.inheritable = set;
 
                 r = capability_apply(&q);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
         }
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++)
-                if (BIT_SET(set, i)) {
+        लागि (अचिन्हित i = 0; i <= cap_last_cap(); i++)
+                यदि (BIT_SET(set, i)) {
                         /* Add the capability to the ambient set. */
                         r = prctl_safe(PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE, i, 0, 0);
-                        if (r < 0)
-                                return r;
-                } else {
+                        यदि (r < 0)
+                                फर्काऊ r;
+                } अन्यथा {
                         /* Drop the capability so we don't inherit capabilities we didn't ask for. */
                         r = prctl_safe(PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET, i, 0, 0);
-                        if (r < 0)
-                                return r;
-                        if (r > 0) {
+                        यदि (r < 0)
+                                फर्काऊ r;
+                        यदि (r > 0) {
                                 r = prctl_safe(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, i, 0, 0);
-                                if (r < 0)
-                                        return r;
+                                यदि (r < 0)
+                                        फर्काऊ r;
                         }
                 }
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int capability_gain_cap_setpcap(void) {
+पूर्णाङ्क capability_gain_cap_setpcap(शून्य) {
         CapabilityQuintet q;
-        int r;
+        पूर्णाङ्क r;
 
         r = capability_get(&q);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (BIT_SET(q.effective, CAP_SETPCAP))
-                return 1; /* We already have capability. */
+        यदि (BIT_SET(q.effective, CAP_SETPCAP))
+                फर्काऊ 1; /* We already have capability. */
 
         SET_BIT(q.effective, CAP_SETPCAP);
 
         r = capability_apply(&q);
-        if (r < 0) {
+        यदि (r < 0) {
                 /* If we didn't manage to acquire the CAP_SETPCAP bit, we continue anyway, after all this
                  * just means we'll fail later, when we actually intend to drop some capabilities or try to
                  * set securebits. */
                 log_debug_errno(r, "Can't acquire effective CAP_SETPCAP bit, ignoring: %m");
-                return 0;
+                फर्काऊ 0;
         }
 
-        return 1; /* acquired */
+        फर्काऊ 1; /* acquired */
 }
 
-int capability_bounding_set_drop(uint64_t keep, bool right_now) {
-        int k, r;
+पूर्णाङ्क capability_bounding_set_drop(uint64_t keep, bool दायाँ_now) {
+        पूर्णाङ्क k, r;
 
         /* If we are run as PID 1 we will lack CAP_SETPCAP by default in the effective set (yes, the kernel
          * drops that when executing init!), so get it back temporarily so that we can call PR_CAPBSET_DROP. */
 
         CapabilityQuintet q;
         r = capability_get(&q);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
         CapabilityQuintet saved = q;
 
         r = capability_gain_cap_setpcap();
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                if (BIT_SET(keep, i))
-                        continue;
+        लागि (अचिन्हित i = 0; i <= cap_last_cap(); i++) {
+                यदि (BIT_SET(keep, i))
+                        जारी;
 
                 /* Drop it from the bounding set */
                 r = prctl_safe(PR_CAPBSET_DROP, i, 0, 0, 0);
-                if (r < 0) {
+                यदि (r < 0) {
                         /* If dropping the capability failed, let's see if we didn't have it in the first
                          * place. If so, continue anyway, as dropping a capability we didn't have in the
                          * first place doesn't really matter anyway. */
-                        if (prctl_safe(PR_CAPBSET_READ, i, 0, 0, 0) != 0)
-                                goto finish;
+                        यदि (prctl_safe(PR_CAPBSET_READ, i, 0, 0, 0) != 0)
+                                गच्छ finish;
                 }
 
                 /* Also drop it from the inheritable set, so that anything we exec() loses the capability for
@@ -261,7 +261,7 @@ int capability_bounding_set_drop(uint64_t keep, bool right_now) {
                 CLEAR_BIT(q.inheritable, i);
 
                 /* If we shall apply this right now drop it also from our own capability sets. */
-                if (right_now) {
+                यदि (दायाँ_now) {
                         CLEAR_BIT(q.effective, i);
                         CLEAR_BIT(q.permitted, i);
                 }
@@ -271,148 +271,148 @@ int capability_bounding_set_drop(uint64_t keep, bool right_now) {
 
 finish:
         k = capability_apply(&q);
-        if (k < 0)
+        यदि (k < 0)
                 /* If there are no actual changes anyway then let's ignore this error. */
-                if (!capability_quintet_equal(&q, &saved))
-                        return k;
+                यदि (!capability_quintet_equal(&q, &saved))
+                        फर्काऊ k;
 
-        return r;
+        फर्काऊ r;
 }
 
-static int drop_from_file(const char *fn, uint64_t keep) {
-        _cleanup_free_ char *p = NULL;
+स्थिर पूर्णाङ्क drop_from_file(अचर वर्ण *fn, uint64_t keep) {
+        _cleanup_free_ वर्ण *p = रिक्त;
         uint64_t current, after;
         uint32_t hi, lo;
-        int r, k;
+        पूर्णाङ्क r, k;
 
-        r = read_one_line_file(fn, &p);
-        if (r < 0)
-                return r;
+        r = read_one_पङ्क्ति_file(fn, &p);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        k = sscanf(p, "%" PRIu32 " %" PRIu32, &lo, &hi);
-        if (k != 2)
-                return -EIO;
+        k = माला_पूछो(p, "%" PRIu32 " %" PRIu32, &lo, &hi);
+        यदि (k != 2)
+                फर्काऊ -EIO;
 
         current = (uint64_t) lo | ((uint64_t) hi << 32);
         after = current & keep;
 
-        if (current == after)
-                return 0;
+        यदि (current == after)
+                फर्काऊ 0;
 
         lo = after & UINT32_MAX;
         hi = (after >> 32) & UINT32_MAX;
 
-        return write_string_filef(fn, 0, "%" PRIu32 " %" PRIu32, lo, hi);
+        फर्काऊ write_string_filef(fn, 0, "%" PRIu32 " %" PRIu32, lo, hi);
 }
 
-int capability_bounding_set_drop_usermode(uint64_t keep) {
-        int r;
+पूर्णाङ्क capability_bounding_set_drop_usermode(uint64_t keep) {
+        पूर्णाङ्क r;
 
         r = drop_from_file("/proc/sys/kernel/usermodehelper/inheritable", keep);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         r = drop_from_file("/proc/sys/kernel/usermodehelper/bset", keep);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return r;
+        फर्काऊ r;
 }
 
-int drop_privileges(uid_t uid, gid_t gid, uint64_t keep_capabilities) {
-        int r;
+पूर्णाङ्क drop_privileges(uid_t uid, gid_t gid, uint64_t keep_capabilities) {
+        पूर्णाङ्क r;
 
         /* Unfortunately we cannot leave privilege dropping to PID 1 here, since we want to run as user but
          * want to keep some capabilities. Since file capabilities have been introduced this cannot be done
          * across exec() anymore, unless our binary has the capability configured in the file system, which
          * we want to avoid. */
 
-        if (setresgid(gid, gid, gid) < 0)
-                return log_error_errno(errno, "Failed to change group ID: %m");
+        यदि (setresgid(gid, gid, gid) < 0)
+                फर्काऊ log_error_errno(त्रुटि_सं, "Failed to change group ID: %m");
 
-        r = maybe_setgroups(/* size= */ 0, /* list= */ NULL);
-        if (r < 0)
-                return log_error_errno(r, "Failed to drop auxiliary groups list: %m");
+        r = maybe_setgroups(/* size= */ 0, /* list= */ रिक्त);
+        यदि (r < 0)
+                फर्काऊ log_error_errno(r, "Failed to drop auxiliary groups list: %m");
 
         /* Ensure we keep the permitted caps across the setresuid(). Note that we do this even if we actually
          * don't want to keep any capabilities, since we want to be able to drop them from the bounding set
          * too, and we can only do that if we have capabilities. */
         r = prctl_safe(PR_SET_KEEPCAPS, 1, 0, 0, 0);
-        if (r < 0)
-                return log_error_errno(r, "Failed to enable keep capabilities flag: %m");
+        यदि (r < 0)
+                फर्काऊ log_error_errno(r, "Failed to enable keep capabilities flag: %m");
 
-        if (setresuid(uid, uid, uid) < 0)
-                return log_error_errno(errno, "Failed to change user ID: %m");
+        यदि (setresuid(uid, uid, uid) < 0)
+                फर्काऊ log_error_errno(त्रुटि_सं, "Failed to change user ID: %m");
 
         r = prctl_safe(PR_SET_KEEPCAPS, 0, 0, 0, 0);
-        if (r < 0)
-                return log_error_errno(r, "Failed to disable keep capabilities flag: %m");
+        यदि (r < 0)
+                फर्काऊ log_error_errno(r, "Failed to disable keep capabilities flag: %m");
 
         /* Drop all caps from the bounding set (as well as the inheritable/permitted/effective sets), except
          * the ones we want to keep */
         r = capability_bounding_set_drop(keep_capabilities, /* right_now= */ true);
-        if (r < 0)
-                return log_error_errno(r, "Failed to drop capabilities: %m");
+        यदि (r < 0)
+                फर्काऊ log_error_errno(r, "Failed to drop capabilities: %m");
 
         /* Now upgrade the permitted caps we still kept to effective caps */
-        if (keep_capabilities != 0) {
+        यदि (keep_capabilities != 0) {
                 CapabilityQuintet q = {
                         .effective = keep_capabilities,
                         .permitted = keep_capabilities,
                 };
 
                 r = capability_apply(&q);
-                if (r < 0)
-                        return log_error_errno(r, "Failed to increase capabilities: %m");
+                यदि (r < 0)
+                        फर्काऊ log_error_errno(r, "Failed to increase capabilities: %m");
         }
 
-        return 0;
+        फर्काऊ 0;
 }
 
-static int change_capability(unsigned cap, bool b) {
+स्थिर पूर्णाङ्क change_capability(अचिन्हित cap, bool b) {
         CapabilityQuintet q;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(cap <= CAP_LIMIT);
+        प्रतिज्ञा(cap <= CAP_LIMIT);
 
         r = capability_get(&q);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (b) {
+        यदि (b) {
                 SET_BIT(q.effective, cap);
                 SET_BIT(q.permitted, cap);
                 SET_BIT(q.inheritable, cap);
-        } else {
+        } अन्यथा {
                 CLEAR_BIT(q.effective, cap);
                 CLEAR_BIT(q.permitted, cap);
                 CLEAR_BIT(q.inheritable, cap);
         }
 
-        return capability_apply(&q);
+        फर्काऊ capability_apply(&q);
 }
 
-int drop_capability(unsigned cap) {
-        return change_capability(cap, false);
+पूर्णाङ्क drop_capability(अचिन्हित cap) {
+        फर्काऊ change_capability(cap, false);
 }
 
-int keep_capability(unsigned cap) {
-        return change_capability(cap, true);
+पूर्णाङ्क keep_capability(अचिन्हित cap) {
+        फर्काऊ change_capability(cap, true);
 }
 
 bool capability_quintet_mangle(CapabilityQuintet *q) {
         uint64_t combined, drop = 0;
 
-        assert(q);
+        प्रतिज्ञा(q);
 
         combined = q->effective | q->bounding | q->inheritable | q->permitted | q->ambient;
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                if (!BIT_SET(combined, i))
-                        continue;
+        लागि (अचिन्हित i = 0; i <= cap_last_cap(); i++) {
+                यदि (!BIT_SET(combined, i))
+                        जारी;
 
-                if (prctl_safe(PR_CAPBSET_READ, i, 0, 0, 0) > 0)
-                        continue;
+                यदि (prctl_safe(PR_CAPBSET_READ, i, 0, 0, 0) > 0)
+                        जारी;
 
                 SET_BIT(drop, i);
 
@@ -425,46 +425,46 @@ bool capability_quintet_mangle(CapabilityQuintet *q) {
         q->permitted &= ~drop;
         q->ambient &= ~drop;
 
-        return drop != 0; /* Let the caller know we changed something */
+        फर्काऊ drop != 0; /* Let the caller know we changed something */
 }
 
-int capability_quintet_enforce(const CapabilityQuintet *q) {
+पूर्णाङ्क capability_quintet_enforce(अचर CapabilityQuintet *q) {
         CapabilityQuintet c;
         bool modified = false;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(q);
+        प्रतिज्ञा(q);
 
-        if (q->ambient != CAP_MASK_UNSET ||
+        यदि (q->ambient != CAP_MASK_UNSET ||
             q->inheritable != CAP_MASK_UNSET ||
             q->permitted != CAP_MASK_UNSET ||
             q->effective != CAP_MASK_UNSET) {
                 r = capability_get(&c);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
         }
 
-        if (q->ambient != CAP_MASK_UNSET) {
+        यदि (q->ambient != CAP_MASK_UNSET) {
                 /* In order to raise the ambient caps set we first need to raise the matching
                  * inheritable + permitted cap */
-                if (!FLAGS_SET(c.permitted, q->ambient) ||
+                यदि (!FLAGS_SET(c.permitted, q->ambient) ||
                     !FLAGS_SET(c.inheritable, q->ambient)) {
 
                         c.permitted |= q->ambient;
                         c.inheritable |= q->ambient;
 
                         r = capability_apply(&c);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                फर्काऊ r;
                 }
 
                 r = capability_ambient_set_apply(q->ambient, /* also_inherit= */ false);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
         }
 
-        if (q->inheritable != CAP_MASK_UNSET || q->permitted != CAP_MASK_UNSET || q->effective != CAP_MASK_UNSET) {
-                if (!FLAGS_SET(c.effective, q->effective) ||
+        यदि (q->inheritable != CAP_MASK_UNSET || q->permitted != CAP_MASK_UNSET || q->effective != CAP_MASK_UNSET) {
+                यदि (!FLAGS_SET(c.effective, q->effective) ||
                     !FLAGS_SET(c.permitted, q->permitted) ||
                     !FLAGS_SET(c.inheritable, q->inheritable)) {
 
@@ -479,7 +479,7 @@ int capability_quintet_enforce(const CapabilityQuintet *q) {
                          *
                          * In order to change the bounding caps, we need to keep CAP_SETPCAP for a bit
                          * longer. Let's add it to our list hence for now. */
-                        if (q->bounding != CAP_MASK_UNSET &&
+                        यदि (q->bounding != CAP_MASK_UNSET &&
                             (!BIT_SET(c.effective, CAP_SETPCAP) || !BIT_SET(c.permitted, CAP_SETPCAP))) {
                                 CapabilityQuintet tmp = c;
 
@@ -489,117 +489,117 @@ int capability_quintet_enforce(const CapabilityQuintet *q) {
                                 modified = true;
 
                                 r = capability_apply(&tmp);
-                        } else
+                        } अन्यथा
                                 r = capability_apply(&c);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                फर्काऊ r;
                 }
         }
 
-        if (q->bounding != CAP_MASK_UNSET) {
+        यदि (q->bounding != CAP_MASK_UNSET) {
                 r = capability_bounding_set_drop(q->bounding, /* right_now= */ false);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
         }
 
         /* If needed, let's now set the caps again, this time in the final version, which differs from what
          * we have already set only in the CAP_SETPCAP bit, which we needed for dropping the bounding
          * bits. This call only undoes bits and doesn't acquire any which means the bounding caps don't
          * matter. */
-        if (modified) {
+        यदि (modified) {
                 r = capability_apply(&c);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
         }
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int capability_get_ambient(uint64_t *ret) {
+पूर्णाङ्क capability_get_ambient(uint64_t *ret) {
         uint64_t a = 0;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
+        लागि (अचिन्हित i = 0; i <= cap_last_cap(); i++) {
                 r = prctl_safe(PR_CAP_AMBIENT, PR_CAP_AMBIENT_IS_SET, i, 0, 0);
-                if (r < 0)
-                        return r;
-                if (r > 0)
+                यदि (r < 0)
+                        फर्काऊ r;
+                यदि (r > 0)
                         SET_BIT(a, i);
         }
 
         *ret = a;
-        return 1;
+        फर्काऊ 1;
 }
 
-int pidref_get_capability(const PidRef *pidref, CapabilityQuintet *ret) {
-        int r;
+पूर्णाङ्क pidref_get_capability(अचर PidRef *pidref, CapabilityQuintet *ret) {
+        पूर्णाङ्क r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        यदि (!pidref_is_set(pidref))
+                फर्काऊ -ESRCH;
+        यदि (pidref_is_remote(pidref))
+                फर्काऊ -EREMOTE;
 
-        const char *path = procfs_file_alloca(pidref->pid, "status");
-        _cleanup_fclose_ FILE *f = fopen(path, "re");
-        if (!f) {
-                if (errno == ENOENT && proc_mounted() == 0)
-                        return -ENOSYS;
+        अचर वर्ण *path = procfs_file_alloca(pidref->pid, "status");
+        _cleanup_fclose_ खाता *f = ख_खोलो(path, "re");
+        यदि (!f) {
+                यदि (त्रुटि_सं == ENOENT && proc_mounted() == 0)
+                        फर्काऊ -ENOSYS;
 
-                return -errno;
+                फर्काऊ -त्रुटि_सं;
         }
 
         CapabilityQuintet q = CAPABILITY_QUINTET_NULL;
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
+        लागि (;;) {
+                _cleanup_free_ वर्ण *पङ्क्ति = रिक्त;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_पङ्क्ति(f, LONG_पङ्क्ति_MAX, &पङ्क्ति);
+                यदि (r < 0)
+                        फर्काऊ r;
+                यदि (r == 0)
+                        रोक;
 
-                static const struct {
-                        const char *field;
-                        size_t offset;
+                स्थिर अचर संरचना {
+                        अचर वर्ण *field;
+                        माप_प्रकार offset;
                 } fields[] = {
-                        { "CapBnd:", offsetof(CapabilityQuintet, bounding)    },
-                        { "CapInh:", offsetof(CapabilityQuintet, inheritable) },
-                        { "CapPrm:", offsetof(CapabilityQuintet, permitted)   },
-                        { "CapEff:", offsetof(CapabilityQuintet, effective)   },
-                        { "CapAmb:", offsetof(CapabilityQuintet, ambient)     },
+                        { "CapBnd:", दुरत्व(CapabilityQuintet, bounding)    },
+                        { "CapInh:", दुरत्व(CapabilityQuintet, inheritable) },
+                        { "CapPrm:", दुरत्व(CapabilityQuintet, permitted)   },
+                        { "CapEff:", दुरत्व(CapabilityQuintet, effective)   },
+                        { "CapAmb:", दुरत्व(CapabilityQuintet, ambient)     },
                 };
 
                 FOREACH_ELEMENT(i, fields) {
 
-                        const char *p = first_word(line, i->field);
-                        if (!p)
-                                continue;
+                        अचर वर्ण *p = first_word(पङ्क्ति, i->field);
+                        यदि (!p)
+                                जारी;
 
                         uint64_t *v = (uint64_t*) ((uint8_t*) &q + i->offset);
 
-                        if (*v != CAP_MASK_UNSET)
-                                return -EBADMSG;
+                        यदि (*v != CAP_MASK_UNSET)
+                                फर्काऊ -EBADMSG;
 
                         r = safe_atoux64(p, v);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                फर्काऊ r;
 
-                        if (*v == CAP_MASK_UNSET)
-                                return -EBADMSG;
+                        यदि (*v == CAP_MASK_UNSET)
+                                फर्काऊ -EBADMSG;
                 }
         }
 
-        if (!capability_quintet_is_fully_set(&q))
-                return -EBADMSG;
+        यदि (!capability_quintet_is_fully_set(&q))
+                फर्काऊ -EBADMSG;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (ret)
+        यदि (ret)
                 *ret = q;
 
-        return 0;
+        फर्काऊ 0;
 }

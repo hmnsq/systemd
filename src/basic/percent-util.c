@@ -1,157 +1,157 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "parse-util.h"
-#include "percent-util.h"
-#include "string-util.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "percent-util.h"
+#अन्तर्भाव "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
-        const char *pc, *n;
-        int r, v;
+स्थिर पूर्णाङ्क parse_parts_मान_whole(अचर वर्ण *p, अचर वर्ण *चिह्न) {
+        अचर वर्ण *pc, *n;
+        पूर्णाङ्क r, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, चिह्न);
+        यदि (!pc)
+                फर्काऊ -EINVAL;
 
         n = strndupa_safe(p, pc - p);
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        यदि (r < 0)
+                फर्काऊ r;
+        यदि (v < 0)
+                फर्काऊ -दुस्फल;
 
-        return v;
+        फर्काऊ v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+स्थिर पूर्णाङ्क parse_parts_मान_with_tenths_place(अचर वर्ण *p, अचर वर्ण *चिह्न) {
+        अचर वर्ण *pc, *dot, *n;
+        पूर्णाङ्क r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, चिह्न);
+        यदि (!pc)
+                फर्काऊ -EINVAL;
 
-        dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        dot = स_प्रथम(p, '.', pc - p);
+        यदि (dot) {
+                यदि (dot + 2 != pc)
+                        फर्काऊ -EINVAL;
+                यदि (dot[1] < '0' || dot[1] > '9')
+                        फर्काऊ -EINVAL;
                 q = dot[1] - '0';
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } अन्यथा {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        यदि (r < 0)
+                फर्काऊ r;
+        यदि (v < 0)
+                फर्काऊ -दुस्फल;
+        यदि (v > (पूर्णांक_उच्च - q) / 10)
+                फर्काऊ -दुस्फल;
 
         v = v * 10 + q;
-        return v;
+        फर्काऊ v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+स्थिर पूर्णाङ्क parse_parts_मान_with_hundredths_place(अचर वर्ण *p, अचर वर्ण *चिह्न) {
+        अचर वर्ण *pc, *dot, *n;
+        पूर्णाङ्क r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, चिह्न);
+        यदि (!pc)
+                फर्काऊ -EINVAL;
 
-        dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        dot = स_प्रथम(p, '.', pc - p);
+        यदि (dot) {
+                यदि (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        यदि (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                फर्काऊ -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } अन्यथा यदि (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        यदि (dot[1] < '0' || dot[1] > '9')
+                                फर्काऊ -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } अन्यथा
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        फर्काऊ -EINVAL;
 
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } अन्यथा {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        यदि (r < 0)
+                फर्काऊ r;
+        यदि (v < 0)
+                फर्काऊ -दुस्फल;
+        यदि (v > (पूर्णांक_उच्च - q) / 100)
+                फर्काऊ -दुस्फल;
 
         v = v * 100 + q;
-        return v;
+        फर्काऊ v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+पूर्णाङ्क parse_percent_unbounded(अचर वर्ण *p) {
+        फर्काऊ parse_parts_मान_whole(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+पूर्णाङ्क parse_percent(अचर वर्ण *p) {
+        पूर्णाङ्क v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        यदि (v > 100)
+                फर्काऊ -दुस्फल;
 
-        return v;
+        फर्काऊ v;
 }
 
-int parse_permille_unbounded(const char *p) {
-        const char *pm;
+पूर्णाङ्क parse_permille_unbounded(अचर वर्ण *p) {
+        अचर वर्ण *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        यदि (pm)
+                फर्काऊ parse_parts_मान_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        फर्काऊ parse_parts_मान_with_tenths_place(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+पूर्णाङ्क parse_permille(अचर वर्ण *p) {
+        पूर्णाङ्क v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        यदि (v > 1000)
+                फर्काऊ -दुस्फल;
 
-        return v;
+        फर्काऊ v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
-        const char *pm;
+पूर्णाङ्क parse_permyriad_unbounded(अचर वर्ण *p) {
+        अचर वर्ण *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        यदि (pm)
+                फर्काऊ parse_parts_मान_whole(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        यदि (pm)
+                फर्काऊ parse_parts_मान_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        फर्काऊ parse_parts_मान_with_hundredths_place(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+पूर्णाङ्क parse_permyriad(अचर वर्ण *p) {
+        पूर्णाङ्क v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        यदि (v > 10000)
+                फर्काऊ -दुस्फल;
 
-        return v;
+        फर्काऊ v;
 }

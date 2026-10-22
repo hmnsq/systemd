@@ -1,72 +1,72 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <printf.h>
-#include <stdio.h>
+#अन्तर्भाव <printf.h>
+#अन्तर्भाव <stdio.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 _printf_(3, 4)
-static inline char* snprintf_ok(char *buf, size_t len, const char *format, ...) {
-        va_list ap;
-        int r;
+स्थिर अन्तःस्थ वर्ण* snprintf_ok(वर्ण *buf, माप_प्रकार len, अचर वर्ण *format, ...) {
+        बहु_सूची ap;
+        पूर्णाङ्क r;
 
-        va_start(ap, format);
+        बहु_शुरू(ap, format);
         r = vsnprintf(buf, len, format, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        return r >= 0 && (size_t) r < len ? buf : NULL;
+        फर्काऊ r >= 0 && (माप_प्रकार) r < len ? buf : रिक्त;
 }
 
 #define xsprintf(buf, fmt, ...) \
         assert_message_se(snprintf_ok(buf, ELEMENTSOF(buf), fmt, ##__VA_ARGS__), "xsprintf: buffer too small")
 
-char* asprintf_safe(const char *restrict fmt, ...) _printf_(1, 2);
+वर्ण* asprintf_safe(अचर वर्ण *restrict fmt, ...) _printf_(1, 2);
 
 #define VA_FORMAT_ADVANCE(format, ap)                                   \
-do {                                                                    \
-        int _argtypes[128];                                             \
-        size_t _i, _k;                                                  \
+गर {                                                                    \
+        पूर्णाङ्क _argtypes[128];                                             \
+        माप_प्रकार _i, _k;                                                  \
         /* See https://github.com/google/sanitizers/issues/992 */       \
-        if (HAS_FEATURE_MEMORY_SANITIZER)                               \
-                memset(_argtypes, 0, sizeof(_argtypes));                \
+        यदि (HAS_FEATURE_MEMORY_SANITIZER)                               \
+                स_रखो(_argtypes, 0, परिमाण(_argtypes));                \
         _k = parse_printf_format((format), ELEMENTSOF(_argtypes), _argtypes); \
-        assert(_k < ELEMENTSOF(_argtypes));                             \
-        for (_i = 0; _i < _k; _i++) {                                   \
-                if (_argtypes[_i] & PA_FLAG_PTR)  {                     \
-                        (void) va_arg(ap, void*);                       \
-                        continue;                                       \
+        प्रतिज्ञा(_k < ELEMENTSOF(_argtypes));                             \
+        लागि (_i = 0; _i < _k; _i++) {                                   \
+                यदि (_argtypes[_i] & PA_FLAG_PTR)  {                     \
+                        (शून्य) बहु_तर्क(ap, शून्य*);                       \
+                        जारी;                                       \
                 }                                                       \
                                                                         \
-                switch (_argtypes[_i]) {                                \
-                case PA_INT:                                            \
-                case PA_INT|PA_FLAG_SHORT:                              \
-                case PA_CHAR:                                           \
-                        (void) va_arg(ap, int);                         \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG:                               \
-                        (void) va_arg(ap, long int);                    \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG_LONG:                          \
-                        (void) va_arg(ap, long long int);               \
-                        break;                                          \
-                case PA_WCHAR:                                          \
-                        (void) va_arg(ap, wchar_t);                     \
-                        break;                                          \
-                case PA_WSTRING:                                        \
-                case PA_STRING:                                         \
-                case PA_POINTER:                                        \
-                        (void) va_arg(ap, void*);                       \
-                        break;                                          \
-                case PA_FLOAT:                                          \
-                case PA_DOUBLE:                                         \
-                        (void) va_arg(ap, double);                      \
-                        break;                                          \
-                case PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
-                        (void) va_arg(ap, long double);                 \
-                        break;                                          \
-                default:                                                \
+                विकल्प (_argtypes[_i]) {                                \
+                पक्ष PA_INT:                                            \
+                पक्ष PA_INT|PA_FLAG_SHORT:                              \
+                पक्ष PA_CHAR:                                           \
+                        (शून्य) बहु_तर्क(ap, पूर्णाङ्क);                         \
+                        रोक;                                          \
+                पक्ष PA_INT|PA_FLAG_LONG:                               \
+                        (शून्य) बहु_तर्क(ap, दीर्घ पूर्णाङ्क);                    \
+                        रोक;                                          \
+                पक्ष PA_INT|PA_FLAG_LONG_LONG:                          \
+                        (शून्य) बहु_तर्क(ap, दीर्घ दीर्घ पूर्णाङ्क);               \
+                        रोक;                                          \
+                पक्ष PA_WCHAR:                                          \
+                        (शून्य) बहु_तर्क(ap, ब_अक्षर_प्रकार);                     \
+                        रोक;                                          \
+                पक्ष PA_WSTRING:                                        \
+                पक्ष PA_STRING:                                         \
+                पक्ष PA_POINTER:                                        \
+                        (शून्य) बहु_तर्क(ap, शून्य*);                       \
+                        रोक;                                          \
+                पक्ष PA_FLOAT:                                          \
+                पक्ष PA_DOUBLE:                                         \
+                        (शून्य) बहु_तर्क(ap, द्विगुण);                      \
+                        रोक;                                          \
+                पक्ष PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
+                        (शून्य) बहु_तर्क(ap, दीर्घ द्विगुण);                 \
+                        रोक;                                          \
+                स्वभाव:                                                \
                         assert_not_reached();                           \
                 }                                                       \
         }                                                               \
-} while (false)
+} जबसम्म (false)

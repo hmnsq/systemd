@@ -1,267 +1,267 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/fs.h>
-#include <linux/magic.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/xattr.h>
-#include <threads.h>
-#include <unistd.h>
+#अन्तर्भाव <linux/fs.h>
+#अन्तर्भाव <linux/magic.h>
+#अन्तर्भाव <signal.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <sys/xattr.h>
+#अन्तर्भाव <threads.h>
+#अन्तर्भाव <unistd.h>
 
-#include "alloc-util.h"
-#include "capsule-util.h"
-#include "cgroup-util.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "login-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "set.h"
-#include "special.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "unaligned.h"
-#include "unit-name.h"
-#include "user-util.h"
-#include "xattr-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "capsule-util.h"
+#अन्तर्भाव "cgroup-util.h"
+#अन्तर्भाव "dirent-util.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "format-util.h"
+#अन्तर्भाव "fs-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "login-util.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "pidref.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "set.h"
+#अन्तर्भाव "special.h"
+#अन्तर्भाव "stat-util.h"
+#अन्तर्भाव "string-table.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "unaligned.h"
+#अन्तर्भाव "unit-name.h"
+#अन्तर्भाव "user-util.h"
+#अन्तर्भाव "xattr-util.h"
 
-int cg_is_available(void) {
-        struct statfs fs;
+पूर्णाङ्क cg_is_available(शून्य) {
+        संरचना statfs fs;
 
-        if (statfs("/sys/fs/cgroup/", &fs) < 0) {
-                if (errno == ENOENT) /* sysfs not mounted? */
-                        return false;
+        यदि (statfs("/sys/fs/cgroup/", &fs) < 0) {
+                यदि (त्रुटि_सं == ENOENT) /* sysfs not mounted? */
+                        फर्काऊ false;
 
-                return log_debug_errno(errno, "Failed to statfs /sys/fs/cgroup/: %m");
+                फर्काऊ log_debug_errno(त्रुटि_सं, "Failed to statfs /sys/fs/cgroup/: %m");
         }
 
-        return is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
+        फर्काऊ is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
 }
 
-int cg_path_open(const char *path) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+पूर्णाङ्क cg_path_open(अचर वर्ण *path) {
+        _cleanup_free_ वर्ण *fs = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_path(path, /* suffix= */ रिक्त, &fs);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return RET_NERRNO(open(fs, O_DIRECTORY|O_CLOEXEC));
+        फर्काऊ RET_NERRNO(खोलो(fs, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id) {
-        _cleanup_close_ int fsfd = -EBADF;
+पूर्णाङ्क cg_cgroupid_open(पूर्णाङ्क cgroupfs_fd, uint64_t id) {
+        _cleanup_close_ पूर्णाङ्क fsfd = -EBADF;
 
-        if (cgroupfs_fd < 0) {
-                fsfd = open("/sys/fs/cgroup", O_CLOEXEC|O_DIRECTORY);
-                if (fsfd < 0)
-                        return -errno;
+        यदि (cgroupfs_fd < 0) {
+                fsfd = खोलो("/sys/fs/cgroup", O_CLOEXEC|O_DIRECTORY);
+                यदि (fsfd < 0)
+                        फर्काऊ -त्रुटि_सं;
 
                 cgroupfs_fd = fsfd;
         }
 
-        union {
-                struct file_handle file_handle;
-                uint8_t space[offsetof(struct file_handle, f_handle) + sizeof(uint64_t)];
+        सङ्घ {
+                संरचना file_handle file_handle;
+                uint8_t space[दुरत्व(संरचना file_handle, f_handle) + परिमाण(uint64_t)];
         } fh = {
-                .file_handle.handle_bytes = sizeof(uint64_t),
+                .file_handle.handle_bytes = परिमाण(uint64_t),
                 .file_handle.handle_type = FILEID_KERNFS,
         };
 
         unaligned_write_ne64(fh.file_handle.f_handle, id);
 
-        return RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
+        फर्काऊ RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret) {
-        _cleanup_close_ int cgfd = -EBADF;
-        int r;
+पूर्णाङ्क cg_path_from_cgroupid(पूर्णाङ्क cgroupfs_fd, uint64_t id, वर्ण **ret) {
+        _cleanup_close_ पूर्णाङ्क cgfd = -EBADF;
+        पूर्णाङ्क r;
 
         cgfd = cg_cgroupid_open(cgroupfs_fd, id);
-        if (cgfd < 0)
-                return cgfd;
+        यदि (cgfd < 0)
+                फर्काऊ cgfd;
 
-        _cleanup_free_ char *path = NULL;
+        _cleanup_free_ वर्ण *path = रिक्त;
         r = fd_get_path(cgfd, &path);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (!path_startswith(path, "/sys/fs/cgroup/"))
-                return -EXDEV; /* recognizable error */
+        यदि (!path_startswith(path, "/sys/fs/cgroup/"))
+                फर्काऊ -EXDEV; /* recognizable error */
 
-        if (ret)
+        यदि (ret)
                 *ret = TAKE_PTR(path);
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_enumerate_processes(const char *path, FILE **ret) {
-        _cleanup_free_ char *fs = NULL;
-        FILE *f;
-        int r;
+पूर्णाङ्क cg_enumerate_processes(अचर वर्ण *path, खाता **ret) {
+        _cleanup_free_ वर्ण *fs = रिक्त;
+        खाता *f;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = cg_get_path(path, "cgroup.procs", &fs);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        f = fopen(fs, "re");
-        if (!f)
-                return -errno;
+        f = ख_खोलो(fs, "re");
+        यदि (!f)
+                फर्काऊ -त्रुटि_सं;
 
         *ret = f;
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
-        unsigned long ul;
+पूर्णाङ्क cg_read_pid(खाता *f, pid_t *ret, CGroupFlags flags) {
+        अचिन्हित दीर्घ ul;
 
         /* Note that the cgroup.procs might contain duplicates! See cgroups.txt for details. */
 
-        assert(f);
-        assert(ret);
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(ret);
 
         /* NB: The kernel returns ENODEV if we tried to read from cgroup.procs of a cgroup that has been
          * removed already. Callers should handle that! */
 
-        for (;;) {
-                errno = 0;
-                if (fscanf(f, "%lu", &ul) != 1) {
+        लागि (;;) {
+                त्रुटि_सं = 0;
+                यदि (ख_पूछो(f, "%lu", &ul) != 1) {
 
-                        if (feof(f)) {
+                        यदि (ख_पूर्ण(f)) {
                                 *ret = 0;
-                                return 0;
+                                फर्काऊ 0;
                         }
 
-                        return errno_or_else(EIO);
+                        फर्काऊ errno_or_else(EIO);
                 }
 
-                if (ul > PID_T_MAX)
-                        return -EIO;
+                यदि (ul > PID_T_MAX)
+                        फर्काऊ -EIO;
 
                 /* In some circumstances (e.g. WSL), cgroups might contain unmappable PIDs from other
                  * contexts. These show up as zeros, and depending on the caller, can either be plain
                  * skipped over, or returned as-is. */
-                if (ul == 0 && !FLAGS_SET(flags, CGROUP_DONT_SKIP_UNMAPPED))
-                        continue;
+                यदि (ul == 0 && !FLAGS_SET(flags, CGROUP_DONT_SKIP_UNMAPPED))
+                        जारी;
 
                 *ret = (pid_t) ul;
-                return 1;
+                फर्काऊ 1;
         }
 }
 
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags) {
-        int r;
+पूर्णाङ्क cg_read_pidref(खाता *f, PidRef *ret, CGroupFlags flags) {
+        पूर्णाङ्क r;
 
-        assert(f);
-        assert(ret);
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(ret);
 
-        for (;;) {
+        लागि (;;) {
                 pid_t pid;
 
                 r = cg_read_pid(f, &pid, flags);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to read pid from cgroup item: %m");
-                if (r == 0) {
+                यदि (r < 0)
+                        फर्काऊ log_debug_errno(r, "Failed to read pid from cgroup item: %m");
+                यदि (r == 0) {
                         *ret = PIDREF_NULL;
-                        return 0;
+                        फर्काऊ 0;
                 }
 
-                if (pid == 0)
-                        return -EREMOTE;
+                यदि (pid == 0)
+                        फर्काऊ -EREMOTE;
 
                 r = pidref_set_pid(ret, pid);
-                if (r >= 0)
-                        return 1;
-                if (r != -ESRCH)
-                        return r;
+                यदि (r >= 0)
+                        फर्काऊ 1;
+                यदि (r != -ESRCH)
+                        फर्काऊ r;
 
                 /* ESRCH → gone by now? just skip over it, read the next */
         }
 }
 
-bool cg_kill_supported(void) {
-        static thread_local int supported = -1;
+bool cg_kill_supported(शून्य) {
+        स्थिर thread_local पूर्णाङ्क supported = -1;
 
-        if (supported >= 0)
-                return supported;
+        यदि (supported >= 0)
+                फर्काऊ supported;
 
-        if (cg_is_available() <= 0)
-                return (supported = false);
+        यदि (cg_is_available() <= 0)
+                फर्काऊ (supported = false);
 
-        if (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
-                return (supported = true);
-        if (errno != ENOENT)
-                log_debug_errno(errno, "Failed to check whether cgroup.kill is available, assuming not: %m");
-        return (supported = false);
+        यदि (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
+                फर्काऊ (supported = true);
+        यदि (त्रुटि_सं != ENOENT)
+                log_debug_errno(त्रुटि_सं, "Failed to check whether cgroup.kill is available, assuming not: %m");
+        फर्काऊ (supported = false);
 }
 
-int cg_enumerate_subgroups(const char *path, DIR **ret) {
-        _cleanup_free_ char *fs = NULL;
-        DIR *d;
-        int r;
+पूर्णाङ्क cg_enumerate_subgroups(अचर वर्ण *path, सूची **ret) {
+        _cleanup_free_ वर्ण *fs = रिक्त;
+        सूची *d;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         /* This is not recursive! */
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_path(path, /* suffix= */ रिक्त, &fs);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        d = opendir(fs);
-        if (!d)
-                return -errno;
+        d = सूची_खोलो(fs);
+        यदि (!d)
+                फर्काऊ -त्रुटि_सं;
 
         *ret = d;
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_read_subgroup(DIR *d, char **ret) {
-        assert(d);
-        assert(ret);
+पूर्णाङ्क cg_read_subgroup(सूची *d, वर्ण **ret) {
+        प्रतिज्ञा(d);
+        प्रतिज्ञा(ret);
 
-        FOREACH_DIRENT_ALL(de, d, return -errno) {
-                if (de->d_type != DT_DIR)
-                        continue;
+        FOREACH_DIRENT_ALL(de, d, फर्काऊ -त्रुटि_सं) {
+                यदि (de->d_type != DT_DIR)
+                        जारी;
 
-                if (dot_or_dot_dot(de->d_name))
-                        continue;
+                यदि (dot_or_dot_dot(de->d_name))
+                        जारी;
 
-                return strdup_to_full(ret, de->d_name);
+                फर्काऊ strdup_to_full(ret, de->d_name);
         }
 
-        *ret = NULL;
-        return 0;
+        *ret = रिक्त;
+        फर्काऊ 0;
 }
 
-int cg_kill(
-                const char *path,
-                int sig,
+पूर्णाङ्क cg_kill(
+                अचर वर्ण *path,
+                पूर्णाङ्क sig,
                 CGroupFlags flags,
                 Set *killed_pids,
                 cg_kill_log_func_t log_kill,
-                void *userdata) {
+                शून्य *userdata) {
 
-        _cleanup_set_free_ Set *allocated_set = NULL;
-        int r, ret = 0;
+        _cleanup_set_free_ Set *allocated_set = रिक्त;
+        पूर्णाङ्क r, ret = 0;
 
-        assert(path);
-        assert(sig >= 0);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(sig >= 0);
 
          /* Don't send SIGCONT twice. Also, SIGKILL always works even when process is suspended, hence
           * don't send SIGCONT on SIGKILL. */
-        if (IN_SET(sig, SIGCONT, SIGKILL))
+        यदि (IN_SET(sig, SIGCONT, SIGKILL))
                 flags &= ~CGROUP_SIGCONT;
 
         /* This goes through the tasks list and kills them all. This is repeated until no further processes
@@ -269,68 +269,68 @@ int cg_kill(
          *
          * When sending SIGKILL, prefer cg_kill_kernel_sigkill(), which is fully atomic. */
 
-        if (!killed_pids) {
-                killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+        यदि (!killed_pids) {
+                killed_pids = allocated_set = set_new(रिक्त);
+                यदि (!killed_pids)
+                        फर्काऊ -ENOMEM;
         }
 
         bool done;
-        do {
-                _cleanup_fclose_ FILE *f = NULL;
-                int ret_log_kill;
+        गर {
+                _cleanup_fclose_ खाता *f = रिक्त;
+                पूर्णाङ्क ret_log_kill;
 
                 done = true;
 
                 r = cg_enumerate_processes(path, &f);
-                if (r == -ENOENT)
-                        break;
-                if (r < 0)
-                        return RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
+                यदि (r == -ENOENT)
+                        रोक;
+                यदि (r < 0)
+                        फर्काऊ RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
 
-                for (;;) {
+                लागि (;;) {
                         _cleanup_(pidref_done) PidRef pidref = PIDREF_NULL;
 
                         r = cg_read_pidref(f, &pidref, flags);
-                        if (r == -ENODEV) {
+                        यदि (r == -ENODEV) {
                                 /* reading from cgroup.pids will result in ENODEV if the cgroup is
                                  * concurrently removed. Just leave in that case, because a removed cgroup
                                  * contains no processes anymore. */
                                 done = true;
-                                break;
+                                रोक;
                         }
-                        if (r < 0)
-                                return RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", path));
-                        if (r == 0)
-                                break;
+                        यदि (r < 0)
+                                फर्काऊ RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", path));
+                        यदि (r == 0)
+                                रोक;
 
-                        if ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
-                                continue;
+                        यदि ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
+                                जारी;
 
-                        if (set_contains(killed_pids, PID_TO_PTR(pidref.pid)))
-                                continue;
+                        यदि (set_contains(killed_pids, PID_TO_PTR(pidref.pid)))
+                                जारी;
 
                         /* Ignore kernel threads to mimic the behavior of cgroup.kill. */
-                        if (pidref_is_kernel_thread(&pidref) > 0) {
+                        यदि (pidref_is_kernel_thread(&pidref) > 0) {
                                 log_debug("Ignoring kernel thread with pid " PID_FMT " in cgroup '%s'", pidref.pid, path);
-                                continue;
+                                जारी;
                         }
 
-                        if (log_kill)
+                        यदि (log_kill)
                                 ret_log_kill = log_kill(&pidref, sig, userdata);
 
                         /* If we haven't killed this process yet, kill it */
                         r = pidref_kill(&pidref, sig);
-                        if (r < 0 && r != -ESRCH)
+                        यदि (r < 0 && r != -ESRCH)
                                 RET_GATHER(ret, log_debug_errno(r, "Failed to kill process with pid " PID_FMT " from cgroup '%s': %m", pidref.pid, path));
-                        if (r >= 0) {
-                                if (flags & CGROUP_SIGCONT)
-                                        (void) pidref_kill(&pidref, SIGCONT);
+                        यदि (r >= 0) {
+                                यदि (flags & CGROUP_SIGCONT)
+                                        (शून्य) pidref_kill(&pidref, SIGCONT);
 
-                                if (ret == 0) {
-                                        if (log_kill)
+                                यदि (ret == 0) {
+                                        यदि (log_kill)
                                                 ret = ret_log_kill;
-                                        else
+                                        अन्यथा
                                                 ret = 1;
                                 }
                         }
@@ -338,316 +338,316 @@ int cg_kill(
                         done = false;
 
                         r = set_put(killed_pids, PID_TO_PTR(pidref.pid));
-                        if (r < 0)
-                                return RET_GATHER(ret, r);
+                        यदि (r < 0)
+                                फर्काऊ RET_GATHER(ret, r);
                 }
 
                 /* To avoid racing against processes which fork quicker than we can kill them, we repeat this
                  * until no new pids need to be killed. */
 
-        } while (!done);
+        } जबसम्म (!done);
 
-        return ret;
+        फर्काऊ ret;
 }
 
-int cg_kill_recursive(
-                const char *path,
-                int sig,
+पूर्णाङ्क cg_kill_recursive(
+                अचर वर्ण *path,
+                पूर्णाङ्क sig,
                 CGroupFlags flags,
                 Set *killed_pids,
                 cg_kill_log_func_t log_kill,
-                void *userdata) {
+                शून्य *userdata) {
 
-        _cleanup_set_free_ Set *allocated_set = NULL;
-        _cleanup_closedir_ DIR *d = NULL;
-        int r, ret;
+        _cleanup_set_free_ Set *allocated_set = रिक्त;
+        _cleanup_closedir_ सूची *d = रिक्त;
+        पूर्णाङ्क r, ret;
 
-        assert(path);
-        assert(sig >= 0);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(sig >= 0);
 
-        if (!killed_pids) {
-                killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+        यदि (!killed_pids) {
+                killed_pids = allocated_set = set_new(रिक्त);
+                यदि (!killed_pids)
+                        फर्काऊ -ENOMEM;
         }
 
         ret = cg_kill(path, sig, flags, killed_pids, log_kill, userdata);
 
         r = cg_enumerate_subgroups(path, &d);
-        if (r < 0) {
-                if (r != -ENOENT)
+        यदि (r < 0) {
+                यदि (r != -ENOENT)
                         RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup '%s' subgroups: %m", path));
 
-                return ret;
+                फर्काऊ ret;
         }
 
-        for (;;) {
-                _cleanup_free_ char *fn = NULL, *p = NULL;
+        लागि (;;) {
+                _cleanup_free_ वर्ण *fn = रिक्त, *p = रिक्त;
 
                 r = cg_read_subgroup(d, &fn);
-                if (r < 0) {
+                यदि (r < 0) {
                         RET_GATHER(ret, log_debug_errno(r, "Failed to read subgroup from cgroup '%s': %m", path));
-                        break;
+                        रोक;
                 }
-                if (r == 0)
-                        break;
+                यदि (r == 0)
+                        रोक;
 
-                p = path_join(empty_to_root(path), fn);
-                if (!p)
-                        return -ENOMEM;
+                p = path_join(empty_to_जरा(path), fn);
+                यदि (!p)
+                        फर्काऊ -ENOMEM;
 
                 r = cg_kill_recursive(p, sig, flags, killed_pids, log_kill, userdata);
-                if (r < 0)
+                यदि (r < 0)
                         log_debug_errno(r, "Failed to recursively kill processes in cgroup '%s': %m", p);
-                if (r != 0 && ret >= 0)
+                यदि (r != 0 && ret >= 0)
                         ret = r;
         }
 
-        return ret;
+        फर्काऊ ret;
 }
 
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed) {
-        _cleanup_free_ char *killfile = NULL;
+पूर्णाङ्क cg_kill_kernel_sigkill(अचर वर्ण *path, uint64_t *ret_n_pids_killed) {
+        _cleanup_free_ वर्ण *killfile = रिक्त;
         uint64_t n_pids = UINT64_MAX;
-        int r;
+        पूर्णाङ्क r;
 
         /* Kills the cgroup at `path` directly by writing to its cgroup.kill file.  This sends SIGKILL to all
          * processes in the cgroup and has the advantage of being completely atomic, unlike cg_kill_items(). */
 
-        assert(path);
+        प्रतिज्ञा(path);
 
-        if (!cg_kill_supported())
-                return -EOPNOTSUPP;
+        यदि (!cg_kill_supported())
+                फर्काऊ -EOPNOTSUPP;
 
         r = cg_get_path(path, "cgroup.kill", &killfile);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (ret_n_pids_killed) {
+        यदि (ret_n_pids_killed) {
                 /* This is not and cannot be atomic so there is a chance the counter might not be accurate
                  * if a process starts/stops between this read and the next write, but this is used for
                  * informational purposes so that's ok. */
                 r = cg_get_attribute_as_uint64(path, "pids.current", &n_pids);
-                if (r < 0)
+                यदि (r < 0)
                         log_debug_errno(r, "Failed to read pids.current from cgroup '%s', ignoring: %m", path);
         }
 
         r = write_string_file(killfile, "1", WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", path);
+        यदि (r < 0)
+                फर्काऊ log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", path);
 
-        if (ret_n_pids_killed)
+        यदि (ret_n_pids_killed)
                 *ret_n_pids_killed = n_pids;
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_get_path(const char *path, const char *suffix, char **ret) {
-        char *t;
+पूर्णाङ्क cg_get_path(अचर वर्ण *path, अचर वर्ण *suffix, वर्ण **ret) {
+        वर्ण *t;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        if (isempty(path))
+        यदि (isempty(path))
                 path = TAKE_PTR(suffix);
 
         t = path_join("/sys/fs/cgroup", path, suffix);
-        if (!t)
-                return -ENOMEM;
+        यदि (!t)
+                फर्काऊ -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+पूर्णाङ्क cg_set_xattr(अचर वर्ण *path, अचर वर्ण *name, अचर शून्य *मान, माप_प्रकार size, पूर्णाङ्क flags) {
+        _cleanup_free_ वर्ण *fs = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(path);
-        assert(name);
-        assert(value || size <= 0);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(name);
+        प्रतिज्ञा(मान || size <= 0);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_path(path, /* suffix= */ रिक्त, &fs);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return RET_NERRNO(setxattr(fs, name, value, size, flags));
+        फर्काऊ RET_NERRNO(setxattr(fs, name, मान, size, flags));
 }
 
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+पूर्णाङ्क cg_get_xattr(अचर वर्ण *path, अचर वर्ण *name, वर्ण **ret, माप_प्रकार *ret_size) {
+        _cleanup_free_ वर्ण *fs = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(path);
-        assert(name);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_path(path, /* suffix= */ रिक्त, &fs);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return lgetxattr_malloc(fs, name, ret, ret_size);
+        फर्काऊ lgetxattr_malloc(fs, name, ret, ret_size);
 }
 
-int cg_get_xattr_bool(const char *path, const char *name) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+पूर्णाङ्क cg_get_xattr_bool(अचर वर्ण *path, अचर वर्ण *name) {
+        _cleanup_free_ वर्ण *fs = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(path);
-        assert(name);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_path(path, /* suffix= */ रिक्त, &fs);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
+        फर्काऊ getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
 }
 
-int cg_remove_xattr(const char *path, const char *name) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+पूर्णाङ्क cg_remove_xattr(अचर वर्ण *path, अचर वर्ण *name) {
+        _cleanup_free_ वर्ण *fs = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(path);
-        assert(name);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_path(path, /* suffix= */ रिक्त, &fs);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return RET_NERRNO(removexattr(fs, name));
+        फर्काऊ RET_NERRNO(removexattr(fs, name));
 }
 
-int cg_pid_get_path(pid_t pid, char **ret_path) {
-        _cleanup_fclose_ FILE *f = NULL;
-        const char *fs;
-        int r;
+पूर्णाङ्क cg_pid_get_path(pid_t pid, वर्ण **ret_path) {
+        _cleanup_fclose_ खाता *f = रिक्त;
+        अचर वर्ण *fs;
+        पूर्णाङ्क r;
 
-        assert(pid >= 0);
-        assert(ret_path);
+        प्रतिज्ञा(pid >= 0);
+        प्रतिज्ञा(ret_path);
 
         fs = procfs_file_alloca(pid, "cgroup");
         r = fopen_unlocked(fs, "re", &f);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        यदि (r == -ENOENT)
+                फर्काऊ -ESRCH;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                char *e;
+        लागि (;;) {
+                _cleanup_free_ वर्ण *पङ्क्ति = रिक्त;
+                वर्ण *e;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -ENODATA;
+                r = read_पङ्क्ति(f, LONG_पङ्क्ति_MAX, &पङ्क्ति);
+                यदि (r < 0)
+                        फर्काऊ r;
+                यदि (r == 0)
+                        फर्काऊ -ENODATA;
 
-                e = startswith(line, "0:");
-                if (!e)
-                        continue;
+                e = startswith(पङ्क्ति, "0:");
+                यदि (!e)
+                        जारी;
 
-                e = strchr(e, ':');
-                if (!e)
-                        continue;
+                e = म_अक्षर(e, ':');
+                यदि (!e)
+                        जारी;
 
-                _cleanup_free_ char *path = strdup(e + 1);
-                if (!path)
-                        return -ENOMEM;
+                _cleanup_free_ वर्ण *path = strdup(e + 1);
+                यदि (!path)
+                        फर्काऊ -ENOMEM;
 
                 /* Refuse cgroup paths from outside our cgroup namespace */
-                if (startswith(path, "/../"))
-                        return -EUNATCH;
+                यदि (startswith(path, "/../"))
+                        फर्काऊ -EUNATCH;
 
                 /* Truncate suffix indicating the process is a zombie */
                 e = endswith(path, " (deleted)");
-                if (e)
+                यदि (e)
                         *e = 0;
 
                 *ret_path = TAKE_PTR(path);
-                return 0;
+                फर्काऊ 0;
         }
 }
 
-int cg_pidref_get_path(const PidRef *pidref, char **ret_path) {
-        _cleanup_free_ char *path = NULL;
-        int r;
+पूर्णाङ्क cg_pidref_get_path(अचर PidRef *pidref, वर्ण **ret_path) {
+        _cleanup_free_ वर्ण *path = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(ret_path);
+        प्रतिज्ञा(ret_path);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        यदि (!pidref_is_set(pidref))
+                फर्काऊ -ESRCH;
+        यदि (pidref_is_remote(pidref))
+                फर्काऊ -EREMOTE;
 
         // XXX: Ideally we'd use pidfd_get_cgroupid() + cg_path_from_cgroupid() here, to extract this
         // bit of information from pidfd directly. However, the latter requires privilege and it's
         // not entirely clear how to handle cgroups from outer namespace.
 
         r = cg_pid_get_path(pidref->pid, &path);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         /* Before we return the path, make sure the procfs entry for this pid still matches the pidref */
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         *ret_path = TAKE_PTR(path);
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_is_empty(const char *path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+पूर्णाङ्क cg_is_empty(अचर वर्ण *path) {
+        _cleanup_free_ वर्ण *t = रिक्त;
+        पूर्णाङ्क r;
 
         /* Check if the cgroup hierarchy under 'path' is empty. On cgroup v2 it's exposed via the "populated"
          * attribute of "cgroup.events". */
 
-        assert(path);
+        प्रतिज्ञा(path);
 
         /* The root cgroup is always populated */
-        if (empty_or_root(path))
-                return false;
+        यदि (empty_or_जरा(path))
+                फर्काऊ false;
 
         r = cg_get_keyed_attribute(path, "cgroup.events", STRV_MAKE("populated"), &t);
-        if (r == -ENOENT)
-                return true;
-        if (r < 0)
-                return r;
+        यदि (r == -ENOENT)
+                फर्काऊ true;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return streq(t, "0");
+        फर्काऊ streq(t, "0");
 }
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path) {
-        _cleanup_free_ char *controller = NULL;
-        const char *path;
-        int r;
+पूर्णाङ्क cg_split_spec(अचर वर्ण *spec, वर्ण **ret_controller, वर्ण **ret_path) {
+        _cleanup_free_ वर्ण *controller = रिक्त;
+        अचर वर्ण *path;
+        पूर्णाङ्क r;
 
-        assert(spec);
+        प्रतिज्ञा(spec);
 
         /* This extracts the path part from the deprecated controller:path spec. The path must be absolute or
          * an empty string. No validation is done for the controller part. */
 
-        if (isempty(spec) || path_is_absolute(spec)) {
+        यदि (isempty(spec) || path_is_absolute(spec)) {
                 /* Assume this does not contain controller. */
                 path = spec;
-                goto finalize;
+                गच्छ finalize;
         }
 
-        const char *e = strchr(spec, ':');
-        if (!e) {
+        अचर वर्ण *e = म_अक्षर(spec, ':');
+        यदि (!e) {
                 /* Controller only. */
-                if (ret_controller) {
+                यदि (ret_controller) {
                         controller = strdup(spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        यदि (!controller)
+                                फर्काऊ -ENOMEM;
                 }
 
-                path = NULL;
-        } else {
+                path = रिक्त;
+        } अन्यथा {
                 /* Both controller and path. */
-                if (ret_controller) {
+                यदि (ret_controller) {
                         controller = strndup(spec, e - spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        यदि (!controller)
+                                फर्काऊ -ENOMEM;
                 }
 
                 path = e + 1;
@@ -656,192 +656,192 @@ int cg_split_spec(const char *spec, char **ret_controller, char **ret_path) {
 finalize:
         path = empty_to_null(path);
 
-        if (path) {
+        यदि (path) {
                 /* Non-empty path must be absolute. */
-                if (!path_is_absolute(path))
-                        return -EINVAL;
+                यदि (!path_is_absolute(path))
+                        फर्काऊ -EINVAL;
 
                 /* Path must not contain dot-dot. */
-                if (!path_is_safe(path))
-                        return -EINVAL;
+                यदि (!path_is_safe(path))
+                        फर्काऊ -EINVAL;
         }
 
-        if (ret_path) {
+        यदि (ret_path) {
                 r = path_simplify_alloc(path, ret_path);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
         }
 
-        if (ret_controller)
+        यदि (ret_controller)
                 *ret_controller = TAKE_PTR(controller);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_get_root_path(char **ret_path) {
-        char *p, *e;
-        int r;
+पूर्णाङ्क cg_get_जरा_path(वर्ण **ret_path) {
+        वर्ण *p, *e;
+        पूर्णाङ्क r;
 
-        assert(ret_path);
+        प्रतिज्ञा(ret_path);
 
         r = cg_pid_get_path(1, &p);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         e = endswith(p, "/" SPECIAL_INIT_SCOPE);
-        if (e)
+        यदि (e)
                 *e = 0;
 
         *ret_path = p;
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_shift_path(const char *cgroup, const char *root, const char **ret_shifted) {
-        int r;
+पूर्णाङ्क cg_shift_path(अचर वर्ण *cgroup, अचर वर्ण *जरा, अचर वर्ण **ret_shifted) {
+        पूर्णाङ्क r;
 
-        assert(cgroup);
-        assert(ret_shifted);
+        प्रतिज्ञा(cgroup);
+        प्रतिज्ञा(ret_shifted);
 
-        _cleanup_free_ char *rt = NULL;
-        if (!root) {
+        _cleanup_free_ वर्ण *rt = रिक्त;
+        यदि (!जरा) {
                 /* If the root was specified let's use that, otherwise
                  * let's determine it from PID 1 */
 
-                r = cg_get_root_path(&rt);
-                if (r < 0)
-                        return r;
+                r = cg_get_जरा_path(&rt);
+                यदि (r < 0)
+                        फर्काऊ r;
 
-                root = rt;
+                जरा = rt;
         }
 
-        *ret_shifted = path_startswith_full(cgroup, root, PATH_STARTSWITH_RETURN_LEADING_SLASH|PATH_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
-        return 0;
+        *ret_shifted = path_startswith_full(cgroup, जरा, PATH_STARTSWITH_RETURN_LEADING_SLASH|PATH_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
+        फर्काऊ 0;
 }
 
-int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
-        _cleanup_free_ char *raw = NULL;
-        const char *c;
-        int r;
+पूर्णाङ्क cg_pid_get_path_shifted(pid_t pid, अचर वर्ण *जरा, वर्ण **ret_cgroup) {
+        _cleanup_free_ वर्ण *raw = रिक्त;
+        अचर वर्ण *c;
+        पूर्णाङ्क r;
 
-        assert(pid >= 0);
-        assert(ret_cgroup);
+        प्रतिज्ञा(pid >= 0);
+        प्रतिज्ञा(ret_cgroup);
 
         r = cg_pid_get_path(pid, &raw);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        r = cg_shift_path(raw, जरा, &c);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (c == raw) {
+        यदि (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                फर्काऊ 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        फर्काऊ strdup_to(ret_cgroup, c);
 }
 
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *root, char **ret_cgroup) {
-        _cleanup_free_ char *raw = NULL;
-        const char *c;
-        int r;
+पूर्णाङ्क cg_pidref_get_path_shifted(अचर PidRef *pidref, अचर वर्ण *जरा, वर्ण **ret_cgroup) {
+        _cleanup_free_ वर्ण *raw = रिक्त;
+        अचर वर्ण *c;
+        पूर्णाङ्क r;
 
-        assert(ret_cgroup);
+        प्रतिज्ञा(ret_cgroup);
 
         r = cg_pidref_get_path(pidref, &raw);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        r = cg_shift_path(raw, जरा, &c);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (c == raw) {
+        यदि (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                फर्काऊ 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        फर्काऊ strdup_to(ret_cgroup, c);
 }
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit) {
-        assert(cgroup);
+पूर्णाङ्क cg_path_decode_unit(अचर वर्ण *cgroup, वर्ण **ret_unit) {
+        प्रतिज्ञा(cgroup);
 
-        size_t n = strcspn(cgroup, "/");
-        if (n < 3)
-                return -ENXIO;
+        माप_प्रकार n = म_खोज(cgroup, "/");
+        यदि (n < 3)
+                फर्काऊ -ENXIO;
 
-        char *c = strndupa_safe(cgroup, n);
+        वर्ण *c = strndupa_safe(cgroup, n);
         c = cg_unescape(c);
 
-        if (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        यदि (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                फर्काऊ -ENXIO;
 
-        if (ret_unit)
-                return strdup_to(ret_unit, c);
+        यदि (ret_unit)
+                फर्काऊ strdup_to(ret_unit, c);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-static bool valid_slice_name(const char *p, size_t n) {
-        assert(p || n == 0);
+स्थिर bool valid_slice_name(अचर वर्ण *p, माप_प्रकार n) {
+        प्रतिज्ञा(p || n == 0);
 
-        if (n < STRLEN("x.slice"))
-                return false;
+        यदि (n < STRLEN("x.slice"))
+                फर्काऊ false;
 
-        char *c = strndupa_safe(p, n);
-        if (!endswith(c, ".slice"))
-                return false;
+        वर्ण *c = strndupa_safe(p, n);
+        यदि (!endswith(c, ".slice"))
+                फर्काऊ false;
 
-        return unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
+        फर्काऊ unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
 }
 
-static const char* skip_slices(const char *p) {
-        assert(p);
+स्थिर अचर वर्ण* skip_slices(अचर वर्ण *p) {
+        प्रतिज्ञा(p);
 
         /* Skips over all slice assignments */
 
-        for (;;) {
-                size_t n;
+        लागि (;;) {
+                माप_प्रकार n;
 
-                p += strspn(p, "/");
+                p += म_अखोज(p, "/");
 
-                n = strcspn(p, "/");
-                if (!valid_slice_name(p, n))
-                        return p;
+                n = म_खोज(p, "/");
+                यदि (!valid_slice_name(p, n))
+                        फर्काऊ p;
 
                 p += n;
         }
 }
 
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
-        int r;
+पूर्णाङ्क cg_path_get_unit_full(अचर वर्ण *path, वर्ण **ret_unit, वर्ण **ret_subgroup) {
+        पूर्णाङ्क r;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
-        const char *e = skip_slices(path);
+        अचर वर्ण *e = skip_slices(path);
 
-        _cleanup_free_ char *unit = NULL;
+        _cleanup_free_ वर्ण *unit = रिक्त;
         r = cg_path_decode_unit(e, &unit);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         /* We skipped over the slices, don't accept any now */
-        if (endswith(unit, ".slice"))
-                return -ENXIO;
+        यदि (endswith(unit, ".slice"))
+                फर्काऊ -ENXIO;
 
-        if (ret_subgroup) {
-                _cleanup_free_ char *subgroup = NULL;
-                e += strcspn(e, "/");
-                e += strspn(e, "/");
+        यदि (ret_subgroup) {
+                _cleanup_free_ वर्ण *subgroup = रिक्त;
+                e += म_खोज(e, "/");
+                e += म_अखोज(e, "/");
 
-                if (isempty(e))
-                        subgroup = NULL;
-                else {
+                यदि (isempty(e))
+                        subgroup = रिक्त;
+                अन्यथा {
                         subgroup = strdup(e);
-                        if (!subgroup)
-                                return -ENOMEM;
+                        यदि (!subgroup)
+                                फर्काऊ -ENOMEM;
                 }
 
                 path_simplify(subgroup);
@@ -849,450 +849,450 @@ int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup
                 *ret_subgroup = TAKE_PTR(subgroup);
         }
 
-        if (ret_unit)
+        यदि (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_path_get_unit_path(const char *path, char **ret) {
-        _cleanup_free_ char *path_copy = NULL;
-        char *unit_name;
+पूर्णाङ्क cg_path_get_unit_path(अचर वर्ण *path, वर्ण **ret) {
+        _cleanup_free_ वर्ण *path_copy = रिक्त;
+        वर्ण *unit_name;
 
-        assert(path);
-        assert(ret);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(ret);
 
         path_copy = strdup(path);
-        if (!path_copy)
-                return -ENOMEM;
+        यदि (!path_copy)
+                फर्काऊ -ENOMEM;
 
-        unit_name = (char*) skip_slices(path_copy);
-        unit_name[strcspn(unit_name, "/")] = 0;
+        unit_name = (वर्ण*) skip_slices(path_copy);
+        unit_name[म_खोज(unit_name, "/")] = 0;
 
-        if (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        यदि (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                फर्काऊ -ENXIO;
 
         *ret = TAKE_PTR(path_copy);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+पूर्णाङ्क cg_pid_get_unit_full(pid_t pid, वर्ण **ret_unit, वर्ण **ret_subgroup) {
+        पूर्णाङ्क r;
 
-        _cleanup_free_ char *cgroup = NULL;
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ वर्ण *cgroup = रिक्त;
+        r = cg_pid_get_path_shifted(pid, रिक्त, &cgroup);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_path_get_unit_full(cgroup, ret_unit, ret_subgroup);
+        फर्काऊ cg_path_get_unit_full(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+पूर्णाङ्क cg_pidref_get_unit_full(अचर PidRef *pidref, वर्ण **ret_unit, वर्ण **ret_subgroup) {
+        पूर्णाङ्क r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        यदि (!pidref_is_set(pidref))
+                फर्काऊ -ESRCH;
+        यदि (pidref_is_remote(pidref))
+                फर्काऊ -EREMOTE;
 
-        _cleanup_free_ char *unit = NULL, *subgroup = NULL;
+        _cleanup_free_ वर्ण *unit = रिक्त, *subgroup = रिक्त;
         r = cg_pid_get_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (ret_unit)
+        यदि (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        यदि (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        फर्काऊ 0;
 }
 
-static const char* skip_session(const char *p) {
-        size_t n;
+स्थिर अचर वर्ण* skip_session(अचर वर्ण *p) {
+        माप_प्रकार n;
 
         /* Skip session-*.scope, but require it to be there. */
 
-        if (isempty(p))
-                return NULL;
+        यदि (isempty(p))
+                फर्काऊ रिक्त;
 
-        p += strspn(p, "/");
+        p += म_अखोज(p, "/");
 
-        n = strcspn(p, "/");
-        if (n < STRLEN("session-x.scope"))
-                return NULL;
+        n = म_खोज(p, "/");
+        यदि (n < STRLEN("session-x.scope"))
+                फर्काऊ रिक्त;
 
-        const char *s = startswith(p, "session-");
-        if (!s)
-                return NULL;
+        अचर वर्ण *s = startswith(p, "session-");
+        यदि (!s)
+                फर्काऊ रिक्त;
 
         /* Note that session scopes never need unescaping, since they cannot conflict with the kernel's
          * own names, hence we don't need to call cg_unescape() here. */
-        char *f = strndupa_safe(s, p + n - s),
+        वर्ण *f = strndupa_safe(s, p + n - s),
              *e = endswith(f, ".scope");
-        if (!e)
-                return NULL;
+        यदि (!e)
+                फर्काऊ रिक्त;
         *e = '\0';
 
-        if (!session_id_valid(f))
-                return NULL;
+        यदि (!session_id_valid(f))
+                फर्काऊ रिक्त;
 
-        return skip_leading_slash(p + n);
+        फर्काऊ skip_leading_slash(p + n);
 }
 
-static const char* skip_user_manager(const char *p) {
-        size_t n;
+स्थिर अचर वर्ण* skip_user_manager(अचर वर्ण *p) {
+        माप_प्रकार n;
 
         /* Skip user@*.service or capsule@*.service, but require either of them to be there. */
 
-        if (isempty(p))
-                return NULL;
+        यदि (isempty(p))
+                फर्काऊ रिक्त;
 
-        p += strspn(p, "/");
+        p += म_अखोज(p, "/");
 
-        n = strcspn(p, "/");
-        if (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
-                return NULL;
+        n = म_खोज(p, "/");
+        यदि (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
+                फर्काऊ रिक्त;
 
         /* Any possible errors from functions called below are converted to NULL return, so our callers won't
          * resolve user/capsule name. */
-        _cleanup_free_ char *unit_name = strndup(p, n);
-        if (!unit_name)
-                return NULL;
+        _cleanup_free_ वर्ण *unit_name = strndup(p, n);
+        यदि (!unit_name)
+                फर्काऊ रिक्त;
 
-        _cleanup_free_ char *i = NULL;
+        _cleanup_free_ वर्ण *i = रिक्त;
         UnitNameFlags type = unit_name_to_instance(unit_name, &i);
 
-        if (type != UNIT_NAME_INSTANCE)
-                return NULL;
+        यदि (type != UNIT_NAME_INSTANCE)
+                फर्काऊ रिक्त;
 
         /* Note that user manager services never need unescaping, since they cannot conflict with the
          * kernel's own names, hence we don't need to call cg_unescape() here.  Prudently check validity of
          * instance names, they should be always valid as we validate them upon unit start. */
-        if (!(startswith(unit_name, "user@") && parse_uid(i, NULL) >= 0) &&
+        यदि (!(startswith(unit_name, "user@") && parse_uid(i, रिक्त) >= 0) &&
             !(startswith(unit_name, "capsule@") && capsule_name_is_valid(i) > 0))
-                return NULL;
+                फर्काऊ रिक्त;
 
-        return skip_leading_slash(p + n);
+        फर्काऊ skip_leading_slash(p + n);
 }
 
-static const char* skip_user_prefix(const char *path) {
-        const char *e, *t;
+स्थिर अचर वर्ण* skip_user_prefix(अचर वर्ण *path) {
+        अचर वर्ण *e, *t;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
         /* Skip slices, if there are any */
         e = skip_slices(path);
 
         /* Skip the user manager, if it's in the path now... */
         t = skip_user_manager(e);
-        if (t)
-                return t;
+        यदि (t)
+                फर्काऊ t;
 
         /* Alternatively skip the user session if it is in the path... */
-        return skip_session(e);
+        फर्काऊ skip_session(e);
 }
 
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
-        const char *t;
+पूर्णाङ्क cg_path_get_user_unit_full(अचर वर्ण *path, वर्ण **ret_unit, वर्ण **ret_subgroup) {
+        अचर वर्ण *t;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
         t = skip_user_prefix(path);
-        if (!t)
-                return -ENXIO;
+        यदि (!t)
+                फर्काऊ -ENXIO;
 
         /* And from here on it looks pretty much the same as for a system unit, hence let's use the same
          * parser. */
-        return cg_path_get_unit_full(t, ret_unit, ret_subgroup);
+        फर्काऊ cg_path_get_unit_full(t, ret_unit, ret_subgroup);
 }
 
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+पूर्णाङ्क cg_pid_get_user_unit_full(pid_t pid, वर्ण **ret_unit, वर्ण **ret_subgroup) {
+        पूर्णाङ्क r;
 
-        _cleanup_free_ char *cgroup = NULL;
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ वर्ण *cgroup = रिक्त;
+        r = cg_pid_get_path_shifted(pid, रिक्त, &cgroup);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_path_get_user_unit_full(cgroup, ret_unit, ret_subgroup);
+        फर्काऊ cg_path_get_user_unit_full(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+पूर्णाङ्क cg_pidref_get_user_unit_full(अचर PidRef *pidref, वर्ण **ret_unit, वर्ण **ret_subgroup) {
+        पूर्णाङ्क r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        यदि (!pidref_is_set(pidref))
+                फर्काऊ -ESRCH;
+        यदि (pidref_is_remote(pidref))
+                फर्काऊ -EREMOTE;
 
-        _cleanup_free_ char *unit = NULL, *subgroup = NULL;
+        _cleanup_free_ वर्ण *unit = रिक्त, *subgroup = रिक्त;
         r = cg_pid_get_user_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (ret_unit)
+        यदि (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        यदि (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_path_get_machine_name(const char *path, char **ret_machine) {
-        _cleanup_free_ char *u = NULL;
-        const char *sl;
-        int r;
+पूर्णाङ्क cg_path_get_machine_name(अचर वर्ण *path, वर्ण **ret_machine) {
+        _cleanup_free_ वर्ण *u = रिक्त;
+        अचर वर्ण *sl;
+        पूर्णाङ्क r;
 
         r = cg_path_get_unit(path, &u);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         sl = strjoina("/run/systemd/machines/unit:", u);
-        return readlink_malloc(sl, ret_machine);
+        फर्काऊ readlink_malloc(sl, ret_machine);
 }
 
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+पूर्णाङ्क cg_pid_get_machine_name(pid_t pid, वर्ण **ret_machine) {
+        _cleanup_free_ वर्ण *cgroup = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_path_shifted(pid, रिक्त, &cgroup);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_path_get_machine_name(cgroup, ret_machine);
+        फर्काऊ cg_path_get_machine_name(cgroup, ret_machine);
 }
 
-int cg_path_get_session(const char *path, char **ret_session) {
-        _cleanup_free_ char *unit = NULL;
-        char *start, *end;
-        int r;
+पूर्णाङ्क cg_path_get_session(अचर वर्ण *path, वर्ण **ret_session) {
+        _cleanup_free_ वर्ण *unit = रिक्त;
+        वर्ण *start, *end;
+        पूर्णाङ्क r;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
         r = cg_path_get_unit(path, &unit);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         start = startswith(unit, "session-");
-        if (!start)
-                return -ENXIO;
+        यदि (!start)
+                फर्काऊ -ENXIO;
         end = endswith(start, ".scope");
-        if (!end)
-                return -ENXIO;
+        यदि (!end)
+                फर्काऊ -ENXIO;
 
         *end = 0;
-        if (!session_id_valid(start))
-                return -ENXIO;
+        यदि (!session_id_valid(start))
+                फर्काऊ -ENXIO;
 
-        if (!ret_session)
-                return 0;
+        यदि (!ret_session)
+                फर्काऊ 0;
 
-        return strdup_to(ret_session, start);
+        फर्काऊ strdup_to(ret_session, start);
 }
 
-int cg_pid_get_session(pid_t pid, char **ret_session) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+पूर्णाङ्क cg_pid_get_session(pid_t pid, वर्ण **ret_session) {
+        _cleanup_free_ वर्ण *cgroup = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_path_shifted(pid, रिक्त, &cgroup);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_path_get_session(cgroup, ret_session);
+        फर्काऊ cg_path_get_session(cgroup, ret_session);
 }
 
-int cg_pidref_get_session(const PidRef *pidref, char **ret) {
-        int r;
+पूर्णाङ्क cg_pidref_get_session(अचर PidRef *pidref, वर्ण **ret) {
+        पूर्णाङ्क r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        यदि (!pidref_is_set(pidref))
+                फर्काऊ -ESRCH;
+        यदि (pidref_is_remote(pidref))
+                फर्काऊ -EREMOTE;
 
-        _cleanup_free_ char *session = NULL;
+        _cleanup_free_ वर्ण *session = रिक्त;
         r = cg_pid_get_session(pidref->pid, &session);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (ret)
+        यदि (ret)
                 *ret = TAKE_PTR(session);
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
-        _cleanup_free_ char *slice = NULL;
-        char *start, *end;
-        int r;
+पूर्णाङ्क cg_path_get_owner_uid(अचर वर्ण *path, uid_t *ret_uid) {
+        _cleanup_free_ वर्ण *slice = रिक्त;
+        वर्ण *start, *end;
+        पूर्णाङ्क r;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
         r = cg_path_get_slice(path, &slice);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         start = startswith(slice, "user-");
-        if (!start)
-                return -ENXIO;
+        यदि (!start)
+                फर्काऊ -ENXIO;
 
         end = endswith(start, ".slice");
-        if (!end)
-                return -ENXIO;
+        यदि (!end)
+                फर्काऊ -ENXIO;
 
         *end = 0;
-        if (parse_uid(start, ret_uid) < 0)
-                return -ENXIO;
+        यदि (parse_uid(start, ret_uid) < 0)
+                फर्काऊ -ENXIO;
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+पूर्णाङ्क cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
+        _cleanup_free_ वर्ण *cgroup = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_path_shifted(pid, रिक्त, &cgroup);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_path_get_owner_uid(cgroup, ret_uid);
+        फर्काऊ cg_path_get_owner_uid(cgroup, ret_uid);
 }
 
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret) {
-        int r;
+पूर्णाङ्क cg_pidref_get_owner_uid(अचर PidRef *pidref, uid_t *ret) {
+        पूर्णाङ्क r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        यदि (!pidref_is_set(pidref))
+                फर्काऊ -ESRCH;
+        यदि (pidref_is_remote(pidref))
+                फर्काऊ -EREMOTE;
 
         uid_t uid;
         r = cg_pid_get_owner_uid(pidref->pid, &uid);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (ret)
+        यदि (ret)
                 *ret = uid;
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_path_get_slice(const char *p, char **ret_slice) {
-        const char *e = NULL;
+पूर्णाङ्क cg_path_get_slice(अचर वर्ण *p, वर्ण **ret_slice) {
+        अचर वर्ण *e = रिक्त;
 
-        assert(p);
+        प्रतिज्ञा(p);
 
         /* Finds the right-most slice unit from the beginning, but stops before we come to
          * the first non-slice unit. */
 
-        for (;;) {
-                const char *s;
-                int n;
+        लागि (;;) {
+                अचर वर्ण *s;
+                पूर्णाङ्क n;
 
                 n = path_find_first_component(&p, /* accept_dot_dot= */ false, &s);
-                if (n < 0)
-                        return n;
-                if (!valid_slice_name(s, n))
-                        break;
+                यदि (n < 0)
+                        फर्काऊ n;
+                यदि (!valid_slice_name(s, n))
+                        रोक;
 
                 e = s;
         }
 
-        if (e)
-                return cg_path_decode_unit(e, ret_slice);
+        यदि (e)
+                फर्काऊ cg_path_decode_unit(e, ret_slice);
 
-        if (ret_slice)
-                return strdup_to(ret_slice, SPECIAL_ROOT_SLICE);
+        यदि (ret_slice)
+                फर्काऊ strdup_to(ret_slice, SPECIAL_जरा_SLICE);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_pid_get_slice(pid_t pid, char **ret_slice) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+पूर्णाङ्क cg_pid_get_slice(pid_t pid, वर्ण **ret_slice) {
+        _cleanup_free_ वर्ण *cgroup = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_path_shifted(pid, रिक्त, &cgroup);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_path_get_slice(cgroup, ret_slice);
+        फर्काऊ cg_path_get_slice(cgroup, ret_slice);
 }
 
-int cg_path_get_user_slice(const char *p, char **ret_slice) {
-        const char *t;
-        assert(p);
+पूर्णाङ्क cg_path_get_user_slice(अचर वर्ण *p, वर्ण **ret_slice) {
+        अचर वर्ण *t;
+        प्रतिज्ञा(p);
 
         t = skip_user_prefix(p);
-        if (!t)
-                return -ENXIO;
+        यदि (!t)
+                फर्काऊ -ENXIO;
 
         /* And now it looks pretty much the same as for a system slice, so let's just use the same parser
          * from here on. */
-        return cg_path_get_slice(t, ret_slice);
+        फर्काऊ cg_path_get_slice(t, ret_slice);
 }
 
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+पूर्णाङ्क cg_pid_get_user_slice(pid_t pid, वर्ण **ret_slice) {
+        _cleanup_free_ वर्ण *cgroup = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_path_shifted(pid, रिक्त, &cgroup);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_path_get_user_slice(cgroup, ret_slice);
+        फर्काऊ cg_path_get_user_slice(cgroup, ret_slice);
 }
 
-bool cg_needs_escape(const char *p) {
+bool cg_needs_escape(अचर वर्ण *p) {
 
         /* Checks if the specified path is a valid cgroup name by our rules, or if it must be escaped. Note
          * that we consider escaped cgroup names invalid here, as they need to be escaped a second time if
          * they shall be used. Also note that various names cannot be made valid by escaping even if we
          * return true here (because too long, or contain the forbidden character "/"). */
 
-        if (!filename_is_valid(p))
-                return true;
+        यदि (!filename_is_valid(p))
+                फर्काऊ true;
 
-        if (IN_SET(p[0], '_', '.'))
-                return true;
+        यदि (IN_SET(p[0], '_', '.'))
+                फर्काऊ true;
 
-        if (STR_IN_SET(p, "notify_on_release", "release_agent", "tasks"))
-                return true;
+        यदि (STR_IN_SET(p, "notify_on_release", "release_agent", "tasks"))
+                फर्काऊ true;
 
-        if (startswith(p, "cgroup."))
-                return true;
+        यदि (startswith(p, "cgroup."))
+                फर्काऊ true;
 
-        for (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
-                const char *q;
+        लागि (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+                अचर वर्ण *q;
 
                 q = startswith(p, cgroup_controller_to_string(c));
-                if (!q)
-                        continue;
+                यदि (!q)
+                        जारी;
 
-                if (q[0] == '.')
-                        return true;
+                यदि (q[0] == '.')
+                        फर्काऊ true;
         }
 
-        return false;
+        फर्काऊ false;
 }
 
-int cg_escape(const char *p, char **ret) {
-        _cleanup_free_ char *n = NULL;
+पूर्णाङ्क cg_escape(अचर वर्ण *p, वर्ण **ret) {
+        _cleanup_free_ वर्ण *n = रिक्त;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         /* This implements very minimal escaping for names to be used as file names in the cgroup tree: any
          * name which might conflict with a kernel name or is prefixed with '_' is prefixed with a '_'. That
@@ -1301,67 +1301,67 @@ int cg_escape(const char *p, char **ret) {
 
         /* The return value of this function (unlike cg_unescape()) needs free()! */
 
-        if (cg_needs_escape(p)) {
+        यदि (cg_needs_escape(p)) {
                 n = strjoin("_", p);
-                if (!n)
-                        return -ENOMEM;
+                यदि (!n)
+                        फर्काऊ -ENOMEM;
 
-                if (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
-                        return -EINVAL;
-        } else {
+                यदि (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
+                        फर्काऊ -EINVAL;
+        } अन्यथा {
                 n = strdup(p);
-                if (!n)
-                        return -ENOMEM;
+                यदि (!n)
+                        फर्काऊ -ENOMEM;
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        फर्काऊ 0;
 }
 
-char* cg_unescape(const char *p) {
-        assert(p);
+वर्ण* cg_unescape(अचर वर्ण *p) {
+        प्रतिज्ञा(p);
 
         /* The return value of this function (unlike cg_escape())
          * doesn't need free()! */
 
-        if (p[0] == '_')
-                return (char*) p+1;
+        यदि (p[0] == '_')
+                फर्काऊ (वर्ण*) p+1;
 
-        return (char*) p;
+        फर्काऊ (वर्ण*) p;
 }
 
-int cg_slice_to_path(const char *unit, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL, *e = NULL;
-        const char *dash;
-        int r;
+पूर्णाङ्क cg_slice_to_path(अचर वर्ण *unit, वर्ण **ret) {
+        _cleanup_free_ वर्ण *p = रिक्त, *s = रिक्त, *e = रिक्त;
+        अचर वर्ण *dash;
+        पूर्णाङ्क r;
 
-        assert(unit);
-        assert(ret);
+        प्रतिज्ञा(unit);
+        प्रतिज्ञा(ret);
 
-        if (streq(unit, SPECIAL_ROOT_SLICE))
-                return strdup_to(ret, "");
+        यदि (streq(unit, SPECIAL_जरा_SLICE))
+                फर्काऊ strdup_to(ret, "");
 
-        if (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        यदि (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
+                फर्काऊ -EINVAL;
 
-        if (!endswith(unit, ".slice"))
-                return -EINVAL;
+        यदि (!endswith(unit, ".slice"))
+                फर्काऊ -EINVAL;
 
         r = unit_name_to_prefix(unit, &p);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        dash = strchr(p, '-');
+        dash = म_अक्षर(p, '-');
 
         /* Don't allow initial dashes */
-        if (dash == p)
-                return -EINVAL;
+        यदि (dash == p)
+                फर्काऊ -EINVAL;
 
-        while (dash) {
-                _cleanup_free_ char *escaped = NULL;
-                char n[dash - p + sizeof(".slice")];
+        जबसम्म (dash) {
+                _cleanup_free_ वर्ण *escaped = रिक्त;
+                वर्ण n[dash - p + परिमाण(".slice")];
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#यदि HAS_FEATURE_MEMORY_SANITIZER
                 /* msan doesn't instrument stpncpy, so it thinks
                  * n is later used uninitialized:
                  * https://github.com/google/sanitizers/issues/926
@@ -1370,162 +1370,162 @@ int cg_slice_to_path(const char *unit, char **ret) {
 #endif
 
                 /* Don't allow trailing or double dashes */
-                if (IN_SET(dash[1], 0, '-'))
-                        return -EINVAL;
+                यदि (IN_SET(dash[1], 0, '-'))
+                        फर्काऊ -EINVAL;
 
-                strcpy(stpncpy(n, p, dash - p), ".slice");
-                if (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
-                        return -EINVAL;
+                म_नकल(stpncpy(n, p, dash - p), ".slice");
+                यदि (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
+                        फर्काऊ -EINVAL;
 
                 r = cg_escape(n, &escaped);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        फर्काऊ r;
 
-                if (!strextend(&s, escaped, "/"))
-                        return -ENOMEM;
+                यदि (!strextend(&s, escaped, "/"))
+                        फर्काऊ -ENOMEM;
 
-                dash = strchr(dash+1, '-');
+                dash = म_अक्षर(dash+1, '-');
         }
 
         r = cg_escape(unit, &e);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (!strextend(&s, e))
-                return -ENOMEM;
+        यदि (!strextend(&s, e))
+                फर्काऊ -ENOMEM;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_is_threaded(const char *path) {
-        _cleanup_free_ char *fs = NULL, *contents = NULL;
-        _cleanup_strv_free_ char **v = NULL;
-        int r;
+पूर्णाङ्क cg_is_threaded(अचर वर्ण *path) {
+        _cleanup_free_ वर्ण *fs = रिक्त, *contents = रिक्त;
+        _cleanup_strv_free_ वर्ण **v = रिक्त;
+        पूर्णाङ्क r;
 
         r = cg_get_path(path, "cgroup.type", &fs);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        r = read_full_virtual_file(fs, &contents, NULL);
-        if (r == -ENOENT)
-                return false; /* Assume no. */
-        if (r < 0)
-                return r;
+        r = read_full_virtual_file(fs, &contents, रिक्त);
+        यदि (r == -ENOENT)
+                फर्काऊ false; /* Assume no. */
+        यदि (r < 0)
+                फर्काऊ r;
 
-        v = strv_split(contents, NULL);
-        if (!v)
-                return -ENOMEM;
+        v = strv_split(contents, रिक्त);
+        यदि (!v)
+                फर्काऊ -ENOMEM;
 
         /* If the cgroup is in the threaded mode, it contains "threaded".
          * If one of the parents or siblings is in the threaded mode, it may contain "invalid". */
-        return strv_contains(v, "threaded") || strv_contains(v, "invalid");
+        फर्काऊ strv_contains(v, "threaded") || strv_contains(v, "invalid");
 }
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+पूर्णाङ्क cg_set_attribute(अचर वर्ण *path, अचर वर्ण *attribute, अचर वर्ण *मान) {
+        _cleanup_free_ वर्ण *p = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(attribute);
+        प्रतिज्ञा(attribute);
 
         r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         /* https://lore.kernel.org/all/20250419183545.1982187-1-shakeel.butt@linux.dev/ adds O_NONBLOCK
          * semantics to memory.max and memory.high to skip synchronous memory reclaim when O_NONBLOCK is
          * enabled. Let's always open cgroupv2 attribute files in nonblocking mode to immediately take
          * advantage of this and any other asynchronous resource reclaim that's added to the cgroupv2 API in
          * the future. */
-        return write_string_file(p, value, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
+        फर्काऊ write_string_file(p, मान, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
 }
 
-int cg_get_attribute(const char *path, const char *attribute, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+पूर्णाङ्क cg_get_attribute(अचर वर्ण *path, अचर वर्ण *attribute, वर्ण **ret) {
+        _cleanup_free_ वर्ण *p = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(attribute);
+        प्रतिज्ञा(attribute);
 
         r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return read_one_line_file(p, ret);
+        फर्काऊ read_one_पङ्क्ति_file(p, ret);
 }
 
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
+पूर्णाङ्क cg_get_attribute_as_uint64(अचर वर्ण *path, अचर वर्ण *attribute, uint64_t *ret) {
+        _cleanup_free_ वर्ण *मान = रिक्त;
         uint64_t v;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        r = cg_get_attribute(path, attribute, &मान);
+        यदि (r == -ENOENT)
+                फर्काऊ -ENODATA;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (streq(value, "max")) {
+        यदि (streq(मान, "max")) {
                 *ret = CGROUP_LIMIT_MAX;
-                return 0;
+                फर्काऊ 0;
         }
 
-        r = safe_atou64(value, &v);
-        if (r < 0)
-                return r;
+        r = safe_atou64(मान, &v);
+        यदि (r < 0)
+                फर्काऊ r;
 
         *ret = v;
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_get_attribute_as_bool(const char *path, const char *attribute) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+पूर्णाङ्क cg_get_attribute_as_bool(अचर वर्ण *path, अचर वर्ण *attribute) {
+        _cleanup_free_ वर्ण *मान = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        r = cg_get_attribute(path, attribute, &मान);
+        यदि (r == -ENOENT)
+                फर्काऊ -ENODATA;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return parse_boolean(value);
+        फर्काऊ parse_boolean(मान);
 }
 
-int cg_get_owner(const char *path, uid_t *ret_uid) {
-        _cleanup_free_ char *f = NULL;
-        struct stat stats;
-        int r;
+पूर्णाङ्क cg_get_owner(अचर वर्ण *path, uid_t *ret_uid) {
+        _cleanup_free_ वर्ण *f = रिक्त;
+        संरचना stat stats;
+        पूर्णाङ्क r;
 
-        assert(ret_uid);
+        प्रतिज्ञा(ret_uid);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &f);
-        if (r < 0)
-                return r;
+        r = cg_get_path(path, /* suffix= */ रिक्त, &f);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        if (stat(f, &stats) < 0)
-                return -errno;
+        यदि (stat(f, &stats) < 0)
+                फर्काऊ -त्रुटि_सं;
 
         r = stat_verify_directory(&stats);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         *ret_uid = stats.st_uid;
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_get_keyed_attribute(
-                const char *path,
-                const char *attribute,
-                char * const *keys,
-                char **values) {
+पूर्णाङ्क cg_get_keyed_attribute(
+                अचर वर्ण *path,
+                अचर वर्ण *attribute,
+                वर्ण * अचर *साँचोहरू,
+                वर्ण **values) {
 
-        _cleanup_free_ char *filename = NULL, *contents = NULL;
-        size_t n;
-        int r;
+        _cleanup_free_ वर्ण *filename = रिक्त, *contents = रिक्त;
+        माप_प्रकार n;
+        पूर्णाङ्क r;
 
-        assert(path);
-        assert(attribute);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(attribute);
 
         /* Reads one or more fields of a cgroup v2 keyed attribute file. The 'keys' parameter should be an strv with
          * all keys to retrieve. The 'values' parameter should be passed as string size with the same number of
@@ -1534,249 +1534,249 @@ int cg_get_keyed_attribute(
          * If the attribute file doesn't exist at all returns ENOENT, if any key is not found returns ENXIO. */
 
         r = cg_get_path(path, attribute, &filename);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
-        r = read_full_file(filename, &contents, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        r = read_full_file(filename, &contents, /* ret_size= */ रिक्त);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        n = strv_length(keys);
-        if (n == 0) /* No keys to retrieve? That's easy, we are done then */
-                return 0;
-        assert(strv_is_uniq(keys));
+        n = strv_length(साँचोहरू);
+        यदि (n == 0) /* No keys to retrieve? That's easy, we are done then */
+                फर्काऊ 0;
+        प्रतिज्ञा(strv_is_uniq(साँचोहरू));
 
         /* Let's build this up in a temporary array for now in order not to clobber the return parameter on failure */
-        char **v = newa0(char*, n);
-        size_t n_done = 0;
+        वर्ण **v = newa0(वर्ण*, n);
+        माप_प्रकार n_done = 0;
 
-        for (const char *p = contents; *p;) {
-                const char *w;
-                size_t i;
+        लागि (अचर वर्ण *p = contents; *p;) {
+                अचर वर्ण *w;
+                माप_प्रकार i;
 
-                for (i = 0; i < n; i++) {
-                        w = first_word(p, keys[i]);
-                        if (w)
-                                break;
+                लागि (i = 0; i < n; i++) {
+                        w = first_word(p, साँचोहरू[i]);
+                        यदि (w)
+                                रोक;
                 }
 
-                if (w) {
-                        if (v[i]) { /* duplicate entry? */
+                यदि (w) {
+                        यदि (v[i]) { /* duplicate entry? */
                                 r = -EBADMSG;
-                                goto fail;
+                                गच्छ fail;
                         }
 
-                        size_t l = strcspn(w, NEWLINE);
+                        माप_प्रकार l = म_खोज(w, NEWLINE);
 
                         v[i] = strndup(w, l);
-                        if (!v[i]) {
+                        यदि (!v[i]) {
                                 r = -ENOMEM;
-                                goto fail;
+                                गच्छ fail;
                         }
 
                         n_done++;
-                        if (n_done >= n)
-                                break;
+                        यदि (n_done >= n)
+                                रोक;
 
                         p = w + l;
-                } else
-                        p += strcspn(p, NEWLINE);
+                } अन्यथा
+                        p += म_खोज(p, NEWLINE);
 
-                p += strspn(p, NEWLINE);
+                p += म_अखोज(p, NEWLINE);
         }
 
-        if (n_done < n) {
+        यदि (n_done < n) {
                 r = -ENXIO;
-                goto fail;
+                गच्छ fail;
         }
 
-        memcpy(values, v, sizeof(char*) * n);
-        return 0;
+        स_नकल(values, v, परिमाण(वर्ण*) * n);
+        फर्काऊ 0;
 
 fail:
         free_many_charp(v, n);
-        return r;
+        फर्काऊ r;
 }
 
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+पूर्णाङ्क cg_get_keyed_attribute_uint64(अचर वर्ण *path, अचर वर्ण *attribute, अचर वर्ण *साँचो, uint64_t *ret) {
+        _cleanup_free_ वर्ण *val = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(key);
-        assert(ret);
+        प्रतिज्ञा(साँचो);
+        प्रतिज्ञा(ret);
 
-        r = cg_get_keyed_attribute(path, attribute, STRV_MAKE(key), &val);
-        if (r < 0)
-                return r;
+        r = cg_get_keyed_attribute(path, attribute, STRV_MAKE(साँचो), &val);
+        यदि (r < 0)
+                फर्काऊ r;
 
         r = safe_atou64(val, ret);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, key, attribute);
+        यदि (r < 0)
+                फर्काऊ log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, साँचो, attribute);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_mask_to_string(CGroupMask mask, char **ret) {
-        _cleanup_free_ char *s = NULL;
+पूर्णाङ्क cg_mask_to_string(CGroupMask mask, वर्ण **ret) {
+        _cleanup_free_ वर्ण *s = रिक्त;
         bool space = false;
         CGroupController c;
-        size_t n = 0;
+        माप_प्रकार n = 0;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        if (mask == 0) {
-                *ret = NULL;
-                return 0;
+        यदि (mask == 0) {
+                *ret = रिक्त;
+                फर्काऊ 0;
         }
 
-        for (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
-                const char *k;
-                size_t l;
+        लागि (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+                अचर वर्ण *k;
+                माप_प्रकार l;
 
-                if (!FLAGS_SET(mask, CGROUP_CONTROLLER_TO_MASK(c)))
-                        continue;
+                यदि (!FLAGS_SET(mask, CGROUP_CONTROLLER_TO_MASK(c)))
+                        जारी;
 
                 k = cgroup_controller_to_string(c);
-                l = strlen(k);
+                l = म_माप(k);
 
-                if (!GREEDY_REALLOC(s, n + space + l + 1))
-                        return -ENOMEM;
+                यदि (!GREEDY_REALLOC(s, n + space + l + 1))
+                        फर्काऊ -ENOMEM;
 
-                if (space)
+                यदि (space)
                         s[n] = ' ';
-                memcpy(s + n + space, k, l);
+                स_नकल(s + n + space, k, l);
                 n += space + l;
 
                 space = true;
         }
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         s[n] = 0;
         *ret = TAKE_PTR(s);
 
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_mask_from_string(const char *s, CGroupMask *ret) {
+पूर्णाङ्क cg_mask_from_string(अचर वर्ण *s, CGroupMask *ret) {
         CGroupMask m = 0;
 
-        assert(ret);
-        assert(s);
+        प्रतिज्ञा(ret);
+        प्रतिज्ञा(s);
 
-        for (;;) {
-                _cleanup_free_ char *n = NULL;
+        लागि (;;) {
+                _cleanup_free_ वर्ण *n = रिक्त;
                 CGroupController v;
-                int r;
+                पूर्णाङ्क r;
 
-                r = extract_first_word(&s, &n, NULL, 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&s, &n, रिक्त, 0);
+                यदि (r < 0)
+                        फर्काऊ r;
+                यदि (r == 0)
+                        रोक;
 
                 v = cgroup_controller_from_string(n);
-                if (v < 0)
-                        continue;
+                यदि (v < 0)
+                        जारी;
 
                 m |= CGROUP_CONTROLLER_TO_MASK(v);
         }
 
         *ret = m;
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
+पूर्णाङ्क cg_mask_supported_subtree(अचर वर्ण *जरा, CGroupMask *ret) {
         CGroupMask mask;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         /* Determines the mask of supported cgroup controllers. Only includes controllers we can make sense of and that
          * are actually accessible. Only covers real controllers, i.e. not the CGROUP_CONTROLLER_BPF_xyz
          * pseudo-controllers. */
 
         /* We can read the supported and accessible controllers from the top-level cgroup attribute */
-        _cleanup_free_ char *controllers = NULL, *path = NULL;
-        r = cg_get_path(root, "cgroup.controllers", &path);
-        if (r < 0)
-                return r;
+        _cleanup_free_ वर्ण *controllers = रिक्त, *path = रिक्त;
+        r = cg_get_path(जरा, "cgroup.controllers", &path);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        r = read_one_line_file(path, &controllers);
-        if (r < 0)
-                return r;
+        r = read_one_पङ्क्ति_file(path, &controllers);
+        यदि (r < 0)
+                फर्काऊ r;
 
         r = cg_mask_from_string(controllers, &mask);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                फर्काऊ r;
 
         /* Mask controllers that are not supported in cgroup v2. */
         mask &= CGROUP_MASK_V2;
 
         *ret = mask;
-        return 0;
+        फर्काऊ 0;
 }
 
-int cg_mask_supported(CGroupMask *ret) {
-        _cleanup_free_ char *root = NULL;
-        int r;
+पूर्णाङ्क cg_mask_supported(CGroupMask *ret) {
+        _cleanup_free_ वर्ण *जरा = रिक्त;
+        पूर्णाङ्क r;
 
-        r = cg_get_root_path(&root);
-        if (r < 0)
-                return r;
+        r = cg_get_जरा_path(&जरा);
+        यदि (r < 0)
+                फर्काऊ r;
 
-        return cg_mask_supported_subtree(root, ret);
+        फर्काऊ cg_mask_supported_subtree(जरा, ret);
 }
 
-int cg_is_delegated(const char *path) {
-        int r;
+पूर्णाङ्क cg_is_delegated(अचर वर्ण *path) {
+        पूर्णाङ्क r;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
         r = cg_get_xattr_bool(path, "trusted.delegate");
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        यदि (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                फर्काऊ r;
 
         /* If the trusted xattr isn't set (preferred), then check the untrusted one. Under the assumption
          * that whoever is trusted enough to own the cgroup, is also trusted enough to decide if it is
          * delegated or not this should be safe. */
         r = cg_get_xattr_bool(path, "user.delegate");
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        फर्काऊ ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_is_delegated_fd(int fd) {
-        int r;
+पूर्णाङ्क cg_is_delegated_fd(पूर्णाङ्क fd) {
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
-        r = getxattr_at_bool(fd, /* path= */ NULL, "trusted.delegate", /* at_flags= */ 0);
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        r = getxattr_at_bool(fd, /* path= */ रिक्त, "trusted.delegate", /* at_flags= */ 0);
+        यदि (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                फर्काऊ r;
 
-        r = getxattr_at_bool(fd, /* path= */ NULL, "user.delegate", /* at_flags= */ 0);
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        r = getxattr_at_bool(fd, /* path= */ रिक्त, "user.delegate", /* at_flags= */ 0);
+        फर्काऊ ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_has_coredump_receive(const char *path) {
-        int r;
+पूर्णाङ्क cg_has_coredump_receive(अचर वर्ण *path) {
+        पूर्णाङ्क r;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
         r = cg_get_xattr_bool(path, "user.coredump_receive");
-        if (ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return false;
+        यदि (ERRNO_IS_NEG_XATTR_ABSENT(r))
+                फर्काऊ false;
 
-        return r;
+        फर्काऊ r;
 }
 
-const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX] = {
+अचर uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX] = {
         [CGROUP_IO_RBPS_MAX]  = CGROUP_LIMIT_MAX,
         [CGROUP_IO_WBPS_MAX]  = CGROUP_LIMIT_MAX,
         [CGROUP_IO_RIOPS_MAX] = CGROUP_LIMIT_MAX,
         [CGROUP_IO_WIOPS_MAX] = CGROUP_LIMIT_MAX,
 };
 
-static const char* const cgroup_io_limit_type_table[_CGROUP_IO_LIMIT_TYPE_MAX] = {
+स्थिर अचर वर्ण* अचर cgroup_io_limit_type_table[_CGROUP_IO_LIMIT_TYPE_MAX] = {
         [CGROUP_IO_RBPS_MAX]  = "IOReadBandwidthMax",
         [CGROUP_IO_WBPS_MAX]  = "IOWriteBandwidthMax",
         [CGROUP_IO_RIOPS_MAX] = "IOReadIOPSMax",
@@ -1785,11 +1785,11 @@ static const char* const cgroup_io_limit_type_table[_CGROUP_IO_LIMIT_TYPE_MAX] =
 
 DEFINE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
 
-void cgroup_io_limits_list(void) {
+शून्य cgroup_io_limits_list(शून्य) {
         DUMP_STRING_TABLE(cgroup_io_limit_type, CGroupIOLimitType, _CGROUP_IO_LIMIT_TYPE_MAX);
 }
 
-static const char *const cgroup_controller_table[_CGROUP_CONTROLLER_MAX] = {
+स्थिर अचर वर्ण *अचर cgroup_controller_table[_CGROUP_CONTROLLER_MAX] = {
         [CGROUP_CONTROLLER_CPU]                             = "cpu",
         [CGROUP_CONTROLLER_CPUACCT]                         = "cpuacct",
         [CGROUP_CONTROLLER_CPUSET]                          = "cpuset",
@@ -1808,14 +1808,14 @@ static const char *const cgroup_controller_table[_CGROUP_CONTROLLER_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
 
-static const char* const managed_oom_mode_table[_MANAGED_OOM_MODE_MAX] = {
+स्थिर अचर वर्ण* अचर managed_oom_mode_table[_MANAGED_OOM_MODE_MAX] = {
         [MANAGED_OOM_AUTO] = "auto",
         [MANAGED_OOM_KILL] = "kill",
 };
 
 DEFINE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
 
-static const char* const managed_oom_preference_table[_MANAGED_OOM_PREFERENCE_MAX] = {
+स्थिर अचर वर्ण* अचर managed_oom_preference_table[_MANAGED_OOM_PREFERENCE_MAX] = {
         [MANAGED_OOM_PREFERENCE_NONE] = "none",
         [MANAGED_OOM_PREFERENCE_AVOID] = "avoid",
         [MANAGED_OOM_PREFERENCE_OMIT] = "omit",

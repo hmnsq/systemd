@@ -1,97 +1,97 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
+#अन्तर्भाव <threads.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "iovec-util.h"
-#include "log.h"
-#include "log-context.h"
-#include "string-util.h"
-#include "strv.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "env-util.h"
+#अन्तर्भाव "iovec-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "log-context.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
 
-static int saved_log_context_enabled = -1;
-static thread_local LIST_HEAD(LogContext, _log_context) = NULL;
-static thread_local size_t _log_context_num_fields = 0;
+स्थिर पूर्णाङ्क saved_log_context_enabled = -1;
+स्थिर thread_local LIST_HEAD(LogContext, _log_context) = रिक्त;
+स्थिर thread_local माप_प्रकार log_context_अङ्क_fields = 0;
 
-bool log_context_enabled(void) {
-        int r;
+bool log_context_enabled(शून्य) {
+        पूर्णाङ्क r;
 
-        if (log_get_max_level() == LOG_DEBUG)
-                return true;
+        यदि (log_get_max_level() == LOG_DEBUG)
+                फर्काऊ true;
 
-        if (saved_log_context_enabled >= 0)
-                return saved_log_context_enabled;
+        यदि (saved_log_context_enabled >= 0)
+                फर्काऊ saved_log_context_enabled;
 
         r = secure_getenv_bool("SYSTEMD_ENABLE_LOG_CONTEXT");
-        if (r < 0 && r != -ENXIO)
+        यदि (r < 0 && r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_ENABLE_LOG_CONTEXT, ignoring: %m");
 
         saved_log_context_enabled = r > 0;
 
-        return saved_log_context_enabled;
+        फर्काऊ saved_log_context_enabled;
 }
 
-static LogContext* log_context_attach(LogContext *c) {
-        assert(c);
+स्थिर LogContext* log_context_attach(LogContext *c) {
+        प्रतिज्ञा(c);
 
-        _log_context_num_fields += strv_length(c->fields);
-        _log_context_num_fields += c->n_input_iovec;
-        _log_context_num_fields += !!c->key;
+        log_context_अङ्क_fields += strv_length(c->fields);
+        log_context_अङ्क_fields += c->n_आगत_iovec;
+        log_context_अङ्क_fields += !!c->साँचो;
 
-        return LIST_PREPEND(ll, _log_context, c);
+        फर्काऊ LIST_PREPEND(ll, _log_context, c);
 }
 
-static LogContext* log_context_detach(LogContext *c) {
-        if (!c)
-                return NULL;
+स्थिर LogContext* log_context_detach(LogContext *c) {
+        यदि (!c)
+                फर्काऊ रिक्त;
 
-        assert(_log_context_num_fields >= strv_length(c->fields) + c->n_input_iovec +!!c->key);
-        _log_context_num_fields -= strv_length(c->fields);
-        _log_context_num_fields -= c->n_input_iovec;
-        _log_context_num_fields -= !!c->key;
+        प्रतिज्ञा(log_context_अङ्क_fields >= strv_length(c->fields) + c->n_आगत_iovec +!!c->साँचो);
+        log_context_अङ्क_fields -= strv_length(c->fields);
+        log_context_अङ्क_fields -= c->n_आगत_iovec;
+        log_context_अङ्क_fields -= !!c->साँचो;
 
         LIST_REMOVE(ll, _log_context, c);
-        return NULL;
+        फर्काऊ रिक्त;
 }
 
-LogContext* log_context_new(const char *key, const char *value) {
-        assert(key);
-        assert(endswith(key, "="));
+LogContext* log_context_new(अचर वर्ण *साँचो, अचर वर्ण *मान) {
+        प्रतिज्ञा(साँचो);
+        प्रतिज्ञा(endswith(साँचो, "="));
 
-        if (!value)
-                return NULL;
+        यदि (!मान)
+                फर्काऊ रिक्त;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->key == key && i->value == value)
-                        return log_context_ref(i);
+                यदि (i->साँचो == साँचो && i->मान == मान)
+                        फर्काऊ log_context_ref(i);
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        यदि (!c)
+                फर्काऊ रिक्त;
 
         *c = (LogContext) {
                 .n_ref = 1,
-                .key = (char *) key,
-                .value = (char *) value,
+                .साँचो = (वर्ण *) साँचो,
+                .मान = (वर्ण *) मान,
         };
 
-        return log_context_attach(c);
+        फर्काऊ log_context_attach(c);
 }
 
-LogContext* log_context_new_strv(char **fields, bool owned) {
-        if (!fields)
-                return NULL;
+LogContext* log_context_new_strv(वर्ण **fields, bool owned) {
+        यदि (!fields)
+                फर्काऊ रिक्त;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->fields == fields) {
-                        assert(!owned);
-                        return log_context_ref(i);
+                यदि (i->fields == fields) {
+                        प्रतिज्ञा(!owned);
+                        फर्काऊ log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        यदि (!c)
+                फर्काऊ रिक्त;
 
         *c = (LogContext) {
                 .n_ref = 1,
@@ -99,94 +99,94 @@ LogContext* log_context_new_strv(char **fields, bool owned) {
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        फर्काऊ log_context_attach(c);
 }
 
-LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned) {
-        if (!input_iovec || n_input_iovec == 0)
-                return NULL;
+LogContext* log_context_new_iov(संरचना iovec *आगत_iovec, माप_प्रकार n_आगत_iovec, bool owned) {
+        यदि (!आगत_iovec || n_आगत_iovec == 0)
+                फर्काऊ रिक्त;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->input_iovec == input_iovec && i->n_input_iovec == n_input_iovec) {
-                        assert(!owned);
-                        return log_context_ref(i);
+                यदि (i->आगत_iovec == आगत_iovec && i->n_आगत_iovec == n_आगत_iovec) {
+                        प्रतिज्ञा(!owned);
+                        फर्काऊ log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        यदि (!c)
+                फर्काऊ रिक्त;
 
         *c = (LogContext) {
                 .n_ref = 1,
-                .input_iovec = input_iovec,
-                .n_input_iovec = n_input_iovec,
+                .आगत_iovec = आगत_iovec,
+                .n_आगत_iovec = n_आगत_iovec,
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        फर्काऊ log_context_attach(c);
 }
 
-static LogContext* log_context_free(LogContext *c) {
-        if (!c)
-                return NULL;
+स्थिर LogContext* log_context_free(LogContext *c) {
+        यदि (!c)
+                फर्काऊ रिक्त;
 
         log_context_detach(c);
 
-        if (c->owned) {
+        यदि (c->owned) {
                 strv_free(c->fields);
-                iovec_array_free(c->input_iovec, c->n_input_iovec);
-                free(c->key);
-                free(c->value);
+                iovec_array_free(c->आगत_iovec, c->n_आगत_iovec);
+                मुक्त(c->साँचो);
+                मुक्त(c->मान);
         }
 
-        return mfree(c);
+        फर्काऊ mfree(c);
 }
 
 DEFINE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context, log_context_free);
 
-LogContext* log_context_new_strv_consume(char **fields) {
+LogContext* log_context_new_strv_consume(वर्ण **fields) {
         LogContext *c = log_context_new_strv(fields, /* owned= */ true);
-        if (!c)
+        यदि (!c)
                 strv_free(fields);
 
-        return c;
+        फर्काऊ c;
 }
 
-LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec) {
-        LogContext *c = log_context_new_iov(input_iovec, n_input_iovec, /* owned= */ true);
-        if (!c)
-                iovec_array_free(input_iovec, n_input_iovec);
+LogContext* log_context_new_iov_consume(संरचना iovec *आगत_iovec, माप_प्रकार n_आगत_iovec) {
+        LogContext *c = log_context_new_iov(आगत_iovec, n_आगत_iovec, /* owned= */ true);
+        यदि (!c)
+                iovec_array_free(आगत_iovec, n_आगत_iovec);
 
-        return c;
+        फर्काऊ c;
 }
 
-LogContext* log_context_head(void) {
-        return _log_context;
+LogContext* log_context_head(शून्य) {
+        फर्काऊ _log_context;
 }
 
-size_t log_context_num_contexts(void) {
-        size_t n = 0;
+माप_प्रकार log_context_अङ्क_contexts(शून्य) {
+        माप_प्रकार n = 0;
 
         LIST_FOREACH(ll, c, _log_context)
                 n++;
 
-        return n;
+        फर्काऊ n;
 }
 
-size_t log_context_num_fields(void) {
-        return _log_context_num_fields;
+माप_प्रकार log_context_अङ्क_fields_2(शून्य) {
+        फर्काऊ log_context_अङ्क_fields;
 }
 
-void log_context_swap(LogContext **log_context, size_t *num_fields) {
-        assert(log_context);
-        assert(num_fields);
+शून्य log_context_swap(LogContext **log_context, माप_प्रकार *अङ्क_fields) {
+        प्रतिज्ञा(log_context);
+        प्रतिज्ञा(अङ्क_fields);
 
         SWAP_TWO(_log_context, *log_context);
-        SWAP_TWO(_log_context_num_fields, *num_fields);
+        SWAP_TWO(log_context_अङ्क_fields, *अङ्क_fields);
 }
 
-void _reset_log_level(int *saved_log_level) {
-        assert(saved_log_level);
+शून्य _reset_log_level(पूर्णाङ्क *saved_log_level) {
+        प्रतिज्ञा(saved_log_level);
 
         log_set_max_level(*saved_log_level);
 }

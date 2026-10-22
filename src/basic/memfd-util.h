@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/mman.h>           /* IWYU pragma: export */
+#अन्तर्भाव <sys/mman.h>           /* IWYU pragma: export */
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode);
+पूर्णाङ्क memfd_create_wrapper(अचर वर्ण *name, अचिन्हित mode);
 
-int memfd_new_full(const char *name, unsigned extra_flags);
-static inline int memfd_new(const char *name) {
-        return memfd_new_full(name, 0);
+पूर्णाङ्क memfd_new_full(अचर वर्ण *name, अचिन्हित extra_flags);
+स्थिर अन्तःस्थ पूर्णाङ्क memfd_new(अचर वर्ण *name) {
+        फर्काऊ memfd_new_full(name, 0);
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
-static inline int memfd_new_and_seal_string(const char *name, const char *s) {
-        return memfd_new_and_seal(name, s, SIZE_MAX);
+पूर्णाङ्क memfd_new_and_seal(अचर वर्ण *name, अचर शून्य *data, माप_प्रकार sz) _nonnull_if_nonzero_(2, 3);
+स्थिर अन्तःस्थ पूर्णाङ्क memfd_new_and_seal_string(अचर वर्ण *name, अचर वर्ण *s) {
+        फर्काऊ memfd_new_and_seal(name, s, SIZE_MAX);
 }
 
-int memfd_set_sealed(int fd);
-int memfd_get_sealed(int fd);
-int memfd_set_sealed_gracefully(int fd);
+पूर्णाङ्क memfd_set_sealed(पूर्णाङ्क fd);
+पूर्णाङ्क memfd_get_sealed(पूर्णाङ्क fd);
+पूर्णाङ्क memfd_set_sealed_gracefully(पूर्णाङ्क fd);
 
-int memfd_get_size(int fd, uint64_t *ret);
-int memfd_set_size(int fd, uint64_t sz);
+पूर्णाङ्क memfd_get_size(पूर्णाङ्क fd, uint64_t *ret);
+पूर्णाङ्क memfd_set_size(पूर्णाङ्क fd, uint64_t sz);

@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <dirent.h>
+#अन्तर्भाव <dirent.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-typedef enum RecurseDirFlags {
+प्रकारनिर्देश गणना RecurseDirFlags {
         /* Interpreted by readdir_all() */
         RECURSE_DIR_SORT              = 1 << 0,  /* sort file directory entries before processing them */
         RECURSE_DIR_IGNORE_DOT        = 1 << 1,  /* ignore all dot files ("." and ".." are always ignored) */
@@ -22,17 +22,17 @@ typedef enum RecurseDirFlags {
         RECURSE_DIR_TOPLEVEL          = 1 << 9,  /* call RECURSE_DIR_ENTER/RECURSE_DIR_LEAVE once for top-level dir, too, with dir_fd=-1 and NULL dirent */
 } RecurseDirFlags;
 
-typedef struct DirectoryEntries {
-        size_t n_entries;
-        struct dirent **entries;
-        size_t buffer_size;
-        struct dirent buffer[];
+प्रकारनिर्देश संरचना DirectoryEntries {
+        माप_प्रकार n_entries;
+        संरचना dirent **entries;
+        माप_प्रकार buffer_size;
+        संरचना dirent buffer[];
 } DirectoryEntries;
 
-int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
-int readdir_all_at(int fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret);
+पूर्णाङ्क readdir_all(पूर्णाङ्क dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
+पूर्णाङ्क readdir_all_at(पूर्णाङ्क fd, अचर वर्ण *path, RecurseDirFlags flags, DirectoryEntries **ret);
 
-typedef enum RecurseDirEvent {
+प्रकारनिर्देश गणना RecurseDirEvent {
         RECURSE_DIR_ENTER,      /* only for dir inodes */
         RECURSE_DIR_LEAVE,      /* only for dir inodes */
         RECURSE_DIR_ENTRY,      /* only for non-dir inodes */
@@ -56,10 +56,10 @@ typedef enum RecurseDirEvent {
 } RecurseDirEvent;
 
 #define RECURSE_DIR_CONTINUE 0
-#define RECURSE_DIR_LEAVE_DIRECTORY INT_MIN
-#define RECURSE_DIR_SKIP_ENTRY (INT_MIN+1)
-#define RECURSE_DIR_UNLINK (INT_MIN+2)
-#define RECURSE_DIR_UNLINK_GRACEFUL (INT_MIN+3)
+#define RECURSE_DIR_LEAVE_DIRECTORY पूर्णांक_न्यून
+#define RECURSE_DIR_SKIP_ENTRY (पूर्णांक_न्यून+1)
+#define RECURSE_DIR_UNLINK (पूर्णांक_न्यून+2)
+#define RECURSE_DIR_UNLINK_GRACEFUL (पूर्णांक_न्यून+3)
 
 /* Make sure that the negative errno range and these two special returns don't overlap */
 assert_cc(RECURSE_DIR_LEAVE_DIRECTORY < -ERRNO_MAX);
@@ -73,14 +73,14 @@ assert_cc(RECURSE_DIR_SKIP_ENTRY < -ERRNO_MAX);
  * others                        → terminate iteration entirely, return the specified value (idea is that
  *                                 < 0 indicates errors and > 0 indicates various forms of success)
  */
-typedef int (*recurse_dir_func_t)(
+प्रकारनिर्देश पूर्णाङ्क (*recurse_dir_func_t)(
                 RecurseDirEvent event,
-                const char *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
-                int dir_fd,              /* fd of the current dir */
-                int inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
-                const struct dirent *de, /* directory entry (always valid) */
-                const struct statx *sx,  /* statx data (only if statx_mask was non-zero) */
-                void *userdata);
+                अचर वर्ण *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
+                पूर्णाङ्क dir_fd,              /* fd of the current dir */
+                पूर्णाङ्क inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
+                अचर संरचना dirent *de, /* directory entry (always valid) */
+                अचर संरचना statx *sx,  /* statx data (only if statx_mask was non-zero) */
+                शून्य *userdata);
 
-int recurse_dir(int dir_fd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
-int recurse_dir_at(int atfd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
+पूर्णाङ्क recurse_dir(पूर्णाङ्क dir_fd, अचर वर्ण *path, अचिन्हित statx_mask, अचिन्हित n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, शून्य *userdata);
+पूर्णाङ्क recurse_dir_at(पूर्णाङ्क atfd, अचर वर्ण *path, अचिन्हित statx_mask, अचिन्हित n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, शून्य *userdata);

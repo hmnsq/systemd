@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#अन्तर्भाव <linux/if_arp.h>
+#अन्तर्भाव <linux/if_infiniband.h>
+#अन्तर्भाव <netinet/in.h>
+#अन्तर्भाव <string.h>
 
-#include "arphrd-util.h"
+#अन्तर्भाव "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+स्थिर अचर संरचना arphrd_name* lookup_arphrd(पञ्जिका अचर वर्ण *str, पञ्जिका GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#अन्तर्भाव "arphrd-from-name.inc"
+#अन्तर्भाव "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+पूर्णाङ्क arphrd_from_name(अचर वर्ण *name) {
+        अचर संरचना arphrd_name *sc;
 
-        assert(name);
+        प्रतिज्ञा(name);
 
-        sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_arphrd(name, म_माप(name));
+        यदि (!sc)
+                फर्काऊ -EINVAL;
 
-        return sc->id;
+        फर्काऊ sc->id;
 }
 
-size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+माप_प्रकार arphrd_to_hw_addr_len(uint16_t arphrd) {
+        विकल्प (arphrd) {
+        पक्ष ARPHRD_ETHER:
+                फर्काऊ ETH_ALEN;
+        पक्ष ARPHRD_INFINIBAND:
+                फर्काऊ INFINIBAND_ALEN;
+        पक्ष ARPHRD_TUNNEL:
+        पक्ष ARPHRD_SIT:
+        पक्ष ARPHRD_IPGRE:
+                फर्काऊ परिमाण(संरचना in_addr);
+        पक्ष ARPHRD_TUNNEL6:
+        पक्ष ARPHRD_IP6GRE:
+                फर्काऊ परिमाण(संरचना in6_addr);
+        स्वभाव:
+                फर्काऊ 0;
         }
 }

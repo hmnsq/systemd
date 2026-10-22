@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-typedef struct Prioq Prioq;
+प्रकारनिर्देश संरचना Prioq Prioq;
 
-#define PRIOQ_IDX_NULL (UINT_MAX)
+#define PRIOQ_IDX_NULL (अच_पूर्णांक_उच्च)
 
 Prioq* prioq_new(compare_func_t compare);
 Prioq* prioq_free(Prioq *q);
 DEFINE_TRIVIAL_CLEANUP_FUNC(Prioq*, prioq_free);
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
+पूर्णाङ्क prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
 
-int prioq_put(Prioq *q, void *data, unsigned *idx);
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx);
+पूर्णाङ्क prioq_put(Prioq *q, शून्य *data, अचिन्हित *idx);
+पूर्णाङ्क _prioq_ensure_put(Prioq **q, compare_func_t compare_func, शून्य *data, अचिन्हित *idx);
 #define prioq_ensure_put(q, compare_func, data, idx)                    \
         ({                                                              \
-                int (*_func_)(const typeof((data)[0])*, const typeof((data)[0])*) = compare_func; \
+                पूर्णाङ्क (*_func_)(अचर typeof((data)[0])*, अचर typeof((data)[0])*) = compare_func; \
                 _prioq_ensure_put(q, (compare_func_t) _func_, data, idx); \
         })
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx);
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx);
+पूर्णाङ्क prioq_remove(Prioq *q, शून्य *data, अचिन्हित *idx);
+शून्य prioq_reshuffle(Prioq *q, शून्य *data, अचिन्हित *idx);
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) _pure_;
-static inline void *prioq_peek(Prioq *q) {
-        return prioq_peek_by_index(q, 0);
+शून्य* prioq_peek_by_index(Prioq *q, अचिन्हित idx) _pure_;
+स्थिर अन्तःस्थ शून्य *prioq_peek(Prioq *q) {
+        फर्काऊ prioq_peek_by_index(q, 0);
 }
-void* prioq_pop(Prioq *q);
+शून्य* prioq_झिक(Prioq *q);
 
 #define PRIOQ_FOREACH_ITEM(q, p)                                \
-        for (unsigned _i = 0; (p = prioq_peek_by_index(q, _i)); _i++)
+        लागि (अचिन्हित _i = 0; (p = prioq_peek_by_index(q, _i)); _i++)
 
-unsigned prioq_size(Prioq *q) _pure_;
+अचिन्हित prioq_size(Prioq *q) _pure_;
 bool prioq_isempty(Prioq *q) _pure_;
