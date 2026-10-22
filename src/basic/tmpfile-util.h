@@ -1,61 +1,61 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_at(AT_FDCWD, path, ret_file, ret_path);
+صحيح fopen_temporary_at(صحيح dir_fd, ثابت حرف *رستہ, FILE **ret_file, حرف **ret_رستہ);
+ساكن مضمن صحيح fopen_temporary(ثابت حرف *رستہ, FILE **ret_file, حرف **ret_رستہ) {
+        أرجع fopen_temporary_at(AT_FDCWD, رستہ, ret_file, ret_رستہ);
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary_child(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_child_at(AT_FDCWD, path, ret_file, ret_path);
+صحيح fopen_temporary_بچہ_at(صحيح dir_fd, ثابت حرف *رستہ, FILE **ret_file, حرف **ret_رستہ);
+ساكن مضمن صحيح fopen_temporary_بچہ(ثابت حرف *رستہ, FILE **ret_file, حرف **ret_رستہ) {
+        أرجع fopen_temporary_بچہ_at(AT_FDCWD, رستہ, ret_file, ret_رستہ);
 }
 
-int mkostemp_safe(char *pattern);
-int fmkostemp_safe(char *pattern, const char *mode, FILE**_f);
+صحيح mkostemp_محفوظ(حرف *نمونہ);
+صحيح fmkostemp_محفوظ(حرف *نمونہ, ثابت حرف *منوال, FILE**_f);
 
-void unlink_tempfilep(char (*p)[]);
+فراغ unlink_tempfilep(حرف (*p)[]);
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret);
-int tempfn_random(const char *p, const char *extra, char **ret);
-int tempfn_random_child(const char *p, const char *extra, char **ret);
+صحيح tempfn_xxxxxx(ثابت حرف *p, ثابت حرف *extra, حرف **ret);
+صحيح tempfn_random(ثابت حرف *p, ثابت حرف *extra, حرف **ret);
+صحيح tempfn_random_بچہ(ثابت حرف *p, ثابت حرف *extra, حرف **ret);
 
-int open_tmpfile_unlinkable(const char *directory, int flags);
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path);
-static inline int open_tmpfile_linkable(const char *target, int flags, char **ret_path) {
-        return open_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path);
+صحيح open_tmpfile_unlinkable(ثابت حرف *directory, صحيح flags);
+صحيح open_tmpfile_linkable_at(صحيح dir_fd, ثابت حرف *نشانہ, صحيح flags, حرف **ret_رستہ);
+ساكن مضمن صحيح open_tmpfile_linkable(ثابت حرف *نشانہ, صحيح flags, حرف **ret_رستہ) {
+        أرجع open_tmpfile_linkable_at(AT_FDCWD, نشانہ, flags, ret_رستہ);
 }
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file);
-static inline int fopen_tmpfile_linkable(const char *target, int flags, char **ret_path, FILE **ret_file) {
-        return fopen_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path, ret_file);
+صحيح fopen_tmpfile_linkable_at(صحيح dir_fd, ثابت حرف *نشانہ, صحيح flags, حرف **ret_رستہ, FILE **ret_file);
+ساكن مضمن صحيح fopen_tmpfile_linkable(ثابت حرف *نشانہ, صحيح flags, حرف **ret_رستہ, FILE **ret_file) {
+        أرجع fopen_tmpfile_linkable_at(AT_FDCWD, نشانہ, flags, ret_رستہ, ret_file);
 }
 
-typedef enum LinkTmpfileFlags {
+تعريفنوع تعداد LinkTmpfileFlags {
         LINK_TMPFILE_REPLACE = 1 << 0,
         LINK_TMPFILE_SYNC    = 1 << 1,
 } LinkTmpfileFlags;
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int link_tmpfile(int fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return link_tmpfile_at(fd, AT_FDCWD, path, target, flags);
+صحيح link_tmpfile_at(صحيح fd, صحيح dir_fd, ثابت حرف *رستہ, ثابت حرف *نشانہ, LinkTmpfileFlags flags);
+ساكن مضمن صحيح link_tmpfile(صحيح fd, ثابت حرف *رستہ, ثابت حرف *نشانہ, LinkTmpfileFlags flags) {
+        أرجع link_tmpfile_at(fd, AT_FDCWD, رستہ, نشانہ, flags);
 }
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int flink_tmpfile(FILE *f, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return flink_tmpfile_at(f, AT_FDCWD, path, target, flags);
+صحيح flink_tmpfile_at(FILE *f, صحيح dir_fd, ثابت حرف *رستہ, ثابت حرف *نشانہ, LinkTmpfileFlags flags);
+ساكن مضمن صحيح flink_tmpfile(FILE *f, ثابت حرف *رستہ, ثابت حرف *نشانہ, LinkTmpfileFlags flags) {
+        أرجع flink_tmpfile_at(f, AT_FDCWD, رستہ, نشانہ, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret);
-int mkdtemp_open(const char *template, int flags, char **ret);
+صحيح mkdtemp_malloc(ثابت حرف *سانچا, حرف **ret);
+صحيح mkdtemp_open(ثابت حرف *سانچا, صحيح flags, حرف **ret);
 
 /* A helper for removing link_tmpfile_at() via _cleanup_() */
-struct cleanup_tmpfile_data {
-        int *dir_fd;
-        char **filename;
+بنية cleanup_tmpfile_انکڑے {
+        صحيح *dir_fd;
+        حرف **filename;
 };
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d);
-#define _CLEANUP_TMPFILE_AT(u, dir_fd, filename)                        \
-        _unused_ _cleanup_(cleanup_tmpfile_data_done) struct cleanup_tmpfile_data UNIQ_T(cta, u) = { &(dir_fd), &(filename) }
-#define CLEANUP_TMPFILE_AT(dir_fd, filename)                            \
+فراغ cleanup_tmpfile_انکڑے_پورا(بنية cleanup_tmpfile_انکڑے *d);
+#تعریف_کرو _CLEANUP_TMPFILE_AT(u, dir_fd, filename)                        \
+        بن_ورتیا _cleanup_(cleanup_tmpfile_انکڑے_پورا) بنية cleanup_tmpfile_انکڑے UNIQ_T(cta, u) = { &(dir_fd), &(filename) }
+#تعریف_کرو CLEANUP_TMPFILE_AT(dir_fd, filename)                            \
         _CLEANUP_TMPFILE_AT(UNIQ, dir_fd, filename)

@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* Returns random bytes suitable for most uses, but may be insecure sometimes. */
-void random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+فراغ random_بائٹاں(فراغ *p, size_t n) _nonnull_if_nonzero_(1, 2);
+صحيح random_بائٹاں_allocate_iovec(size_t n, بنية iovec *ret);
 
 /* Returns secure random bytes after waiting for the RNG to initialize. */
-int crypto_random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+صحيح crypto_random_بائٹاں(فراغ *p, size_t n) _nonnull_if_nonzero_(1, 2);
+صحيح crypto_random_بائٹاں_allocate_iovec(size_t n, بنية iovec *ret);
 
-static inline uint64_t random_u64(void) {
+ساكن مضمن uint64_t random_u64(فراغ) {
         uint64_t u;
-        random_bytes(&u, sizeof(u));
-        return u;
+        random_بائٹاں(&u, حجم(u));
+        أرجع u;
 }
 
-static inline uint32_t random_u32(void) {
+ساكن مضمن uint32_t random_u32(فراغ) {
         uint32_t u;
-        random_bytes(&u, sizeof(u));
-        return u;
+        random_بائٹاں(&u, حجم(u));
+        أرجع u;
 }
 
 /* Some limits on the pool sizes when we deal with the kernel random pool */
-#define RANDOM_POOL_SIZE_MIN 32U
-#define RANDOM_POOL_SIZE_MAX (10U*1024U*1024U)
-#define RANDOM_EFI_SEED_SIZE 32U
+#تعریف_کرو RANDOM_POOL_ناپ_MIN 32U
+#تعریف_کرو RANDOM_POOL_ناپ_MAX (10U*1024U*1024U)
+#تعریف_کرو RANDOM_EFI_بیج_ناپ 32U
 
-size_t random_pool_size(void);
+size_t random_pool_ناپ(فراغ);
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) _nonnull_if_nonzero_(2, 3);
+صحيح random_write_entropy(صحيح fd, ثابت فراغ *بیج, size_t ناپ, bool credit) _nonnull_if_nonzero_(2, 3);
 
 uint64_t random_u64_range(uint64_t max);

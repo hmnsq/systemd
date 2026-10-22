@@ -1,77 +1,77 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#define ENVIRONMENT_ASSIGNMENTS_MAX 16384U
+#تعریف_کرو ENVIRONMENT_ASSIGNMENTS_MAX 16384U
 
-size_t sc_arg_max(void);
+size_t sc_arg_max(فراغ);
 
-bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
-bool env_assignment_is_valid(const char *e);
+bool env_name_is_valid(ثابت حرف *e);
+bool env_قدر_is_valid(ثابت حرف *e);
+bool env_assignment_is_valid(ثابت حرف *e);
 
-typedef enum ReplaceEnvFlags {
+تعريفنوع تعداد ReplaceEnvFlags {
         REPLACE_ENV_USE_ENVIRONMENT = 1 << 0,
         REPLACE_ENV_ALLOW_BRACELESS = 1 << 1,
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+صحيح replace_env_بھریا(ثابت حرف *format, size_t length, حرف **env, ReplaceEnvFlags flags, حرف **ret, حرف ***ret_unset_variables, حرف ***ret_bad_variables);
+ساكن مضمن صحيح replace_env(ثابت حرف *format, حرف **env, ReplaceEnvFlags flags, حرف **ret) {
+        أرجع replace_env_بھریا(format, SIZE_MAX, env, flags, ret, عدم, عدم);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+صحيح replace_env_argv(حرف **argv, حرف **env, حرف ***ret, حرف ***ret_unset_variables, حرف ***ret_bad_variables);
 
-bool strv_env_is_valid(char * const *e);
-bool strv_env_name_is_valid(char * const *l);
-bool strv_env_name_or_assignment_is_valid(char * const *l);
+bool strv_env_is_valid(حرف * ثابت *e);
+bool strv_env_name_is_valid(حرف * ثابت *l);
+bool strv_env_name_or_assignment_is_valid(حرف * ثابت *l);
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata);
-#define strv_env_clean(l) strv_env_clean_with_callback(l, NULL, NULL)
+حرف** strv_env_clean_with_callback(حرف **l, فراغ (*invalid_callback)(ثابت حرف *p, فراغ *userdata), فراغ *userdata);
+#تعریف_کرو strv_env_clean(l) strv_env_clean_with_callback(l, عدم, عدم)
 
-char** _strv_env_merge(char **first, ...);
-#define strv_env_merge(first, ...) _strv_env_merge(first, __VA_ARGS__, POINTER_MAX)
-char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
+حرف** strv_env_ملاؤ(حرف **پہلا, ...);
+#تعریف_کرو strv_env_ملاؤ_2(پہلا, ...) strv_env_ملاؤ(پہلا, __VA_ARGS__, اشارہ_گر_MAX)
+حرف** strv_env_delete(حرف **x, size_t n_lists, ...); /* New copy */
 
-char** strv_env_unset(char **l, const char *p); /* In place ... */
-char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
-#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
-#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
+حرف** strv_env_unset(حرف **l, ثابت حرف *p); /* In place ... */
+حرف** strv_env_unset_many_اندرونی(حرف **l, ...) _sentinel_;
+#تعریف_کرو strv_env_unset_many(l, ...) strv_env_unset_many_اندرونی(l, __VA_ARGS__, عدم)
+صحيح strv_env_replace_consume(حرف ***l, حرف *p); /* In place ... */
+صحيح strv_env_replace_strdup(حرف ***l, ثابت حرف *assignment);
+صحيح strv_env_replace_strdup_passthrough(حرف ***l, ثابت حرف *assignment);
+صحيح strv_env_سونپو(حرف ***l, ثابت حرف *کلید, ثابت حرف *قدر);
+صحيح strv_env_assignf(حرف ***l, ثابت حرف *کلید, ثابت حرف *valuef, ...) _printf_(3, 4);
+صحيح strv_env_سونپو_many(حرف ***l, ...) _sentinel_;
+#تعریف_کرو strv_env_سونپو_many_2(l, ...) strv_env_سونپو_many(l, __VA_ARGS__, عدم)
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
-static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+حرف* strv_env_get_n(حرف * ثابت *l, ثابت حرف *name, size_t k, ReplaceEnvFlags flags);
+ساكن مضمن حرف* strv_env_get(حرف * ثابت *x, ثابت حرف *n) {
+        أرجع strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
-char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+حرف* strv_env_جوڑے_get(حرف **l, ثابت حرف *name) خالص;
+صحيح strv_env_get_merged(حرف **l, حرف ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+صحيح getenv_bool(ثابت حرف *p);
+صحيح secure_getenv_bool(ثابت حرف *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+صحيح secure_getenv_uint64(ثابت حرف *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+صحيح سیٹ_unset_env(ثابت حرف *name, ثابت حرف *قدر, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+صحيح putenv_dup(ثابت حرف *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+صحيح setenv_systemd_exec_pid(bool update_only);
+صحيح setenv_systemd_log_level(فراغ);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+صحيح getenv_رستہ_list(ثابت حرف *name, حرف ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+صحيح getenv_steal_erase(ثابت حرف *name, حرف **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+صحيح setenvf(ثابت حرف *name, bool overwrite, ثابت حرف *valuef, ...) _printf_(3,4);

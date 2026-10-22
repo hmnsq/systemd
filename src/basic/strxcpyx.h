@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated);
-static inline size_t strnpcpy(char **dest, size_t size, const char *src, size_t len) {
-        return strnpcpy_full(dest, size, src, len, NULL);
+size_t strnpcpy_بھریا(حرف **dest, size_t ناپ, ثابت حرف *src, size_t len, bool *ret_truncated);
+ساكن مضمن size_t strnpcpy(حرف **dest, size_t ناپ, ثابت حرف *src, size_t len) {
+        أرجع strnpcpy_بھریا(dest, ناپ, src, len, عدم);
 }
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated);
-static inline size_t strpcpy(char **dest, size_t size, const char *src) {
-        return strpcpy_full(dest, size, src, NULL);
+size_t strpcpy_بھریا(حرف **dest, size_t ناپ, ثابت حرف *src, bool *ret_truncated);
+ساكن مضمن size_t strpcpy(حرف **dest, size_t ناپ, ثابت حرف *src) {
+        أرجع strpcpy_بھریا(dest, ناپ, src, عدم);
 }
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) _printf_(4, 5);
-#define strpcpyf(dest, size, src, ...) \
-        strpcpyf_full((dest), (size), NULL, (src), ##__VA_ARGS__)
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) _sentinel_;
-#define strpcpyl(dest, size, src, ...) \
-        strpcpyl_full((dest), (size), NULL, (src), ##__VA_ARGS__)
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated);
-static inline size_t strnscpy(char *dest, size_t size, const char *src, size_t len) {
-        return strnscpy_full(dest, size, src, len, NULL);
+size_t strpcpyf_بھریا(حرف **dest, size_t ناپ, bool *ret_truncated, ثابت حرف *src, ...) _printf_(4, 5);
+#تعریف_کرو strpcpyf(dest, ناپ, src, ...) \
+        strpcpyf_بھریا((dest), (ناپ), عدم, (src), ##__VA_ARGS__)
+size_t strpcpyl_بھریا(حرف **dest, size_t ناپ, bool *ret_truncated, ثابت حرف *src, ...) _sentinel_;
+#تعریف_کرو strpcpyl(dest, ناپ, src, ...) \
+        strpcpyl_بھریا((dest), (ناپ), عدم, (src), ##__VA_ARGS__)
+size_t strnscpy_بھریا(حرف *dest, size_t ناپ, ثابت حرف *src, size_t len, bool *ret_truncated);
+ساكن مضمن size_t strnscpy(حرف *dest, size_t ناپ, ثابت حرف *src, size_t len) {
+        أرجع strnscpy_بھریا(dest, ناپ, src, len, عدم);
 }
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated);
-static inline size_t strscpy(char *dest, size_t size, const char *src) {
-        return strscpy_full(dest, size, src, NULL);
+size_t strscpy_بھریا(حرف *dest, size_t ناپ, ثابت حرف *src, bool *ret_truncated);
+ساكن مضمن size_t strscpy(حرف *dest, size_t ناپ, ثابت حرف *src) {
+        أرجع strscpy_بھریا(dest, ناپ, src, عدم);
 }
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) _sentinel_;
-#define strscpyl(dest, size, src, ...) \
-        strscpyl_full(dest, size, NULL, src, ##__VA_ARGS__)
+size_t strscpyl_بھریا(حرف *dest, size_t ناپ, bool *ret_truncated, ثابت حرف *src, ...) _sentinel_;
+#تعریف_کرو strscpyl(dest, ناپ, src, ...) \
+        strscpyl_بھریا(dest, ناپ, عدم, src, ##__VA_ARGS__)

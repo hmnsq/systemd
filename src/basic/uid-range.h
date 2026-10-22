@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef struct UIDRangeEntry {
-        uid_t start, nr;
-} UIDRangeEntry;
+تعريفنوع بنية UIDRange_اندراج {
+        uid_t شروع, nr;
+} UIDRange_اندراج;
 
-typedef struct UIDRange {
-        UIDRangeEntry *entries;
+تعريفنوع بنية UIDRange {
+        UIDRange_اندراج *entries;
         size_t n_entries;
 } UIDRange;
 
 UIDRange* uid_range_free(UIDRange *range);
 DEFINE_TRIVIAL_CLEANUP_FUNC(UIDRange*, uid_range_free);
 
-int uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce);
-static inline int uid_range_add(UIDRange **range, uid_t start, uid_t nr) {
-        return uid_range_add_internal(range, start, nr, true);
+صحيح uid_range_جوڑو_اندرونی(UIDRange **range, uid_t شروع, uid_t nr, bool coalesce);
+ساكن مضمن صحيح uid_range_جوڑو(UIDRange **range, uid_t شروع, uid_t nr) {
+        أرجع uid_range_جوڑو_اندرونی(range, شروع, nr, true);
 }
-int uid_range_add_str_full(UIDRange **range, const char *s, bool coalesce);
-static inline int uid_range_add_str(UIDRange **range, const char *s) {
-        return uid_range_add_str_full(range, s, true);
-}
-
-int uid_range_next_lower(const UIDRange *range, uid_t *uid);
-
-bool uid_range_covers(const UIDRange *range, uid_t start, uid_t nr);
-static inline bool uid_range_contains(const UIDRange *range, uid_t uid) {
-        return uid_range_covers(range, uid, 1);
+صحيح uid_range_جوڑو_str_بھریا(UIDRange **range, ثابت حرف *s, bool coalesce);
+ساكن مضمن صحيح uid_range_جوڑو_str(UIDRange **range, ثابت حرف *s) {
+        أرجع uid_range_جوڑو_str_بھریا(range, s, true);
 }
 
-int uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range);
+صحيح uid_range_اگلا_ہیٹھلا(ثابت UIDRange *range, uid_t *uid);
 
-static inline size_t uid_range_entries(const UIDRange *range) {
-        return range ? range->n_entries : 0;
+bool uid_range_covers(ثابت UIDRange *range, uid_t شروع, uid_t nr);
+ساكن مضمن bool uid_range_شامل_اے(ثابت UIDRange *range, uid_t uid) {
+        أرجع uid_range_covers(range, uid, 1);
 }
 
-unsigned uid_range_size(const UIDRange *range) _pure_;
-bool uid_range_is_empty(const UIDRange *range) _pure_;
+صحيح uid_map_read_one(FILE *f, uid_t *ret_ادھار, uid_t *ret_کھسکاؤ, uid_t *ret_range);
 
-bool uid_range_equal(const UIDRange *a, const UIDRange *b);
+ساكن مضمن size_t uid_range_entries(ثابت UIDRange *range) {
+        أرجع range ? range->n_entries : 0;
+}
 
-typedef enum UIDRangeUsernsMode {
+بنانشانی uid_range_ناپ(ثابت UIDRange *range) خالص;
+bool uid_range_is_خالی_تھاواں(ثابت UIDRange *range) خالص;
+
+bool uid_range_equal(ثابت UIDRange *a, ثابت UIDRange *b);
+
+تعريفنوع تعداد UIDRange_Userns_منوال {
         UID_RANGE_USERNS_INSIDE,
         UID_RANGE_USERNS_OUTSIDE,
         GID_RANGE_USERNS_INSIDE,
         GID_RANGE_USERNS_OUTSIDE,
-        _UID_RANGE_USERNS_MODE_MAX,
-        _UID_RANGE_USERNS_MODE_INVALID = -EINVAL,
-} UIDRangeUsernsMode;
+        UID_RANGE_USERNS_منوال_MAX,
+        UID_RANGE_USERNS_منوال_INVALID = -EINVAL,
+} UIDRange_Userns_منوال;
 
-int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns(const char *path, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_full(path, mode, true, ret);
+صحيح uid_range_لدو_userns_بھریا(ثابت حرف *رستہ, UIDRange_Userns_منوال منوال, bool coalesce, UIDRange **ret);
+ساكن مضمن صحيح uid_range_لدو_userns(ثابت حرف *رستہ, UIDRange_Userns_منوال منوال, UIDRange **ret) {
+        أرجع uid_range_لدو_userns_بھریا(رستہ, منوال, true, ret);
 }
-int uid_range_load_userns_by_fd_full(int userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns_by_fd(int userns_fd, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_by_fd_full(userns_fd, mode, true, ret);
+صحيح uid_range_لدو_userns_by_fd_بھریا(صحيح userns_fd, UIDRange_Userns_منوال منوال, bool coalesce, UIDRange **ret);
+ساكن مضمن صحيح uid_range_لدو_userns_by_fd(صحيح userns_fd, UIDRange_Userns_منوال منوال, UIDRange **ret) {
+        أرجع uid_range_لدو_userns_by_fd_بھریا(userns_fd, منوال, true, ret);
 }
 
-bool uid_range_overlaps(const UIDRange *range, uid_t start, uid_t nr);
+bool uid_range_overlaps(ثابت UIDRange *range, uid_t شروع, uid_t nr);
 
-int uid_range_clip(UIDRange *range, uid_t min, uid_t max);
-int uid_range_partition(UIDRange *range, uid_t size);
-int uid_range_copy(const UIDRange *range, UIDRange **ret);
-int uid_range_remove(UIDRange *range, uid_t start, uid_t size);
-int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret);
-int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret);
+صحيح uid_range_clip(UIDRange *range, uid_t min, uid_t max);
+صحيح uid_range_حصے_کرو(UIDRange *range, uid_t ناپ);
+صحيح uid_range_copy(ثابت UIDRange *range, UIDRange **ret);
+صحيح uid_range_remove(UIDRange *range, uid_t شروع, uid_t ناپ);
+صحيح uid_range_translate(ثابت UIDRange *outside, ثابت UIDRange *inside, uid_t uid, uid_t *ret);
+صحيح uid_range_translate_userns_fd(صحيح userns_fd, UIDRange_Userns_منوال منوال, uid_t uid, uid_t *ret);
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret);
+صحيح uid_map_تلاش_جڑ(pid_t pid, UIDRange_Userns_منوال منوال, uid_t *ret);
 
-uid_t uid_range_base(const UIDRange *range);
+uid_t uid_range_ادھار(ثابت UIDRange *range);

@@ -1,51 +1,51 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ضمن <stdlib.h>
 
-#include "ansi-color.h"
-#include "process-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "terminal-util.h"
+#ضمن "ansi-color.h"
+#ضمن "process-util.h"
+#ضمن "string-table.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "terminal-util.h"
 
-static volatile int cached_color_mode = _COLOR_MODE_INVALID;
-static volatile int cached_underline_enabled = -1;
+ساكن متطاير صحيح cached_color_منوال = COLOR_منوال_INVALID;
+ساكن متطاير صحيح cached_underline_enabled = -1;
 
-bool underline_enabled(void) {
+bool underline_enabled(فراغ) {
 
-        if (cached_underline_enabled < 0) {
+        إذا (cached_underline_enabled < 0) {
 
                 /* The Linux console doesn't support underlining, turn it off, but only there. */
 
-                if (colors_enabled())
+                إذا (colors_enabled())
                         cached_underline_enabled = !streq_ptr(getenv("TERM"), "linux");
-                else
+                وإلا
                         cached_underline_enabled = false;
         }
 
-        return cached_underline_enabled;
+        أرجع cached_underline_enabled;
 }
 
-void reset_ansi_feature_caches(void) {
-        cached_color_mode = _COLOR_MODE_INVALID;
+فراغ reset_ansi_feature_caches(فراغ) {
+        cached_color_منوال = COLOR_منوال_INVALID;
         cached_underline_enabled = -1;
 }
 
-ColorMode parse_systemd_colors(void) {
-        const char *e;
+Color_منوال parse_systemd_colors(فراغ) {
+        ثابت حرف *e;
 
         /* Note: do not log in this function, to avoid infinite recursion issues, as the log functions call
          * this when deciding whether to color the output. */
 
         e = getenv("SYSTEMD_COLORS");
-        if (!e)
-                return _COLOR_MODE_INVALID;
+        إذا (!e)
+                أرجع COLOR_منوال_INVALID;
 
-        return color_mode_from_string(e);
+        أرجع color_منوال_from_string(e);
 }
 
-static ColorMode get_color_mode_impl(void) {
+ساكن Color_منوال get_color_منوال_impl(فراغ) {
         /* Note: do not log in this function, to avoid infinite recursion issues, as the log functions call
          * this when deciding whether to color the output. */
 
@@ -54,37 +54,37 @@ static ColorMode get_color_mode_impl(void) {
          * unrestricted color output. */
 
         /* First, we check $SYSTEMD_COLORS, which is the explicit way to change the mode. */
-        ColorMode m = parse_systemd_colors();
-        if (m >= 0 && m < _COLOR_MODE_FIXED_MAX)
-                return m;
+        Color_منوال m = parse_systemd_colors();
+        إذا (m >= 0 && m < COLOR_منوال_FIXED_MAX)
+                أرجع m;
 
         /* If SYSTEMD_COLORS=true was set explicitly, skip the environment checks below — the user
          * explicitly requested colors, so honor it even when stdout is piped or $NO_COLOR is set. */
-        if (m != COLOR_TRUE) {
+        إذا (m != COLOR_TRUE) {
                 /* Check for the presence of $NO_COLOR; value is ignored. */
-                if (getenv("NO_COLOR"))
-                        return COLOR_OFF;
+                إذا (getenv("NO_COLOR"))
+                        أرجع COLOR_OFF;
 
                 /* Turn colors off unless we are on a TTY. And if we are on a TTY we turn it off if $TERM
                  * is set to "dumb". There's one special tweak though: if we are PID 1 then we do not check
                  * whether we are connected to a TTY, because we don't keep /dev/console open continuously
                  * due to fear of SAK, and hence things are a bit weird. */
-                if (getpid_cached() == 1 ? getenv_terminal_is_dumb() : terminal_is_dumb())
-                        return COLOR_OFF;
+                إذا (getpid_cached() == 1 ? getenv_terminal_is_dumb() : terminal_is_dumb())
+                        أرجع COLOR_OFF;
         }
 
         /* We failed to figure out any reason to *disable* colors. Let's see how many colors we shall use. */
-        if (m == COLOR_AUTO_16)
-                return COLOR_16;
-        if (m == COLOR_AUTO_256)
-                return COLOR_256;
-        if (m == COLOR_AUTO_24BIT)
-                return COLOR_24BIT;
+        إذا (m == COLOR_AUTO_16)
+                أرجع COLOR_16;
+        إذا (m == COLOR_AUTO_256)
+                أرجع COLOR_256;
+        إذا (m == COLOR_AUTO_24_ثنائی_ہندسہ)
+                أرجع COLOR_24_ثنائی_ہندسہ;
 
-        if (STRPTR_IN_SET(getenv("COLORTERM"),
+        إذا (STRPTR_وچ_سیٹ(getenv("COLORTERM"),
                           "truecolor",
                           "24bit"))
-                return COLOR_24BIT;
+                أرجع COLOR_24_ثنائی_ہندسہ;
 
         /* Note that the Linux console can only display 16 colors. We still enable 256 color mode
          * even for PID1 output though (which typically goes to the Linux console), since the Linux
@@ -92,30 +92,30 @@ static ColorMode get_color_mode_impl(void) {
          * color in the 16 color palette (since kernel 3.16). Doing 256 colors is nice for people who
          * invoke systemd in a container or via a serial link or such, and use a true 256 color
          * terminal to do so. */
-        return COLOR_256;
+        أرجع COLOR_256;
 }
 
-ColorMode get_color_mode(void) {
-        if (cached_color_mode < 0) {
-                cached_color_mode = get_color_mode_impl();
-                assert(cached_color_mode >= 0 && cached_color_mode < _COLOR_MODE_FIXED_MAX);
+Color_منوال get_color_منوال(فراغ) {
+        إذا (cached_color_منوال < 0) {
+                cached_color_منوال = get_color_منوال_impl();
+                أكد(cached_color_منوال >= 0 && cached_color_منوال < COLOR_منوال_FIXED_MAX);
         }
 
-        return cached_color_mode;
+        أرجع cached_color_منوال;
 }
 
-static const char* const color_mode_table[_COLOR_MODE_MAX] = {
+ساكن ثابت حرف* ثابت color_منوال_جدول[COLOR_منوال_MAX] = {
         [COLOR_OFF]        = "off",
         [COLOR_16]         = "16",
         [COLOR_256]        = "256",
-        [COLOR_24BIT]      = "24bit",
+        [COLOR_24_ثنائی_ہندسہ]      = "24bit",
         [COLOR_AUTO_16]    = "auto-16",
         [COLOR_AUTO_256]   = "auto-256",
-        [COLOR_AUTO_24BIT] = "auto-24bit",
+        [COLOR_AUTO_24_ثنائی_ہندسہ] = "auto-24bit",
         [COLOR_TRUE]       = "true",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(color_mode, ColorMode, COLOR_TRUE);
+DEFINE_STRING_جدول_LOOKUP_WITH_BOOLEAN(color_منوال, Color_منوال, COLOR_TRUE);
 
 /*
  * Check that the string is formatted like an ANSI color code, i.e. that it consists of one or more
@@ -125,19 +125,19 @@ DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(color_mode, ColorMode, COLOR_TRUE);
  * ANSI color codes while rejecting anything that would result in garbled output (such as injecting
  * text or changing the type of escape code).
  */
-bool looks_like_ansi_color_code(const char *str) {
-        assert(str);
+bool looks_like_ansi_color_کوڈ(ثابت حرف *str) {
+        أكد(str);
 
         bool prev_char_was_digit = false;
 
-        for (char c = *str; c != '\0'; c = *(++str)) {
-                if (ascii_isdigit(c))
+        لكل (حرف c = *str; c != '\0'; c = *(++str)) {
+                إذا (ascii_isdigit(c))
                         prev_char_was_digit = true;
-                else if (prev_char_was_digit && c == ';')
+                وإلا إذا (prev_char_was_digit && c == ';')
                         prev_char_was_digit = false;
-                else
-                        return false;
+                وإلا
+                        أرجع false;
         }
 
-        return prev_char_was_digit;
+        أرجع prev_char_was_digit;
 }

@@ -1,98 +1,98 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
-#define LIST_HEAD(t,name)                                               \
+#تعریف_کرو LIST_سر(t,name)                                               \
         t *name
 
 /* The pointers in the linked list's items. Use this in the item structure */
-#define LIST_FIELDS(t,name)                                             \
+#تعریف_کرو LIST_FIELDS(t,name)                                             \
         t *name##_next, *name##_prev
 
 /* Initialize the list's head */
-#define LIST_HEAD_INIT(head)                                            \
-        do {                                                            \
-                (head) = NULL;                                          \
-        } while (false)
+#تعریف_کرو LIST_سر_INIT(سر)                                            \
+        افعل {                                                            \
+                (سر) = عدم;                                          \
+        } طالما (false)
 
 /* Initialize a list item */
-#define LIST_INIT(name,item)                                            \
-        do {                                                            \
-                typeof(*(item)) *_item = (item);                        \
-                assert(_item);                                          \
-                _item->name##_prev = _item->name##_next = NULL;         \
-        } while (false)
+#تعریف_کرو LIST_INIT(name,شے)                                            \
+        افعل {                                                            \
+                typeof(*(شے)) *شے_2 = (شے);                        \
+                أكد(شے_2);                                          \
+                شے_2->name##_prev = شے_2->name##_next = عدم;         \
+        } طالما (false)
 
 /* Prepend an item to the list */
-#define LIST_PREPEND(name,head,item)                                    \
+#تعریف_کرو LIST_PREPEND(name,سر,شے)                                    \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if ((_item->name##_next = *_head))                      \
-                        _item->name##_next->name##_prev = _item;        \
-                _item->name##_prev = NULL;                              \
-                *_head = _item;                                         \
-                _item;                                                  \
+                typeof(*(سر)) **سر_2 = &(سر), *شے_2 = (شے);     \
+                أكد(شے_2);                                          \
+                إذا ((شے_2->name##_next = *سر_2))                      \
+                        شے_2->name##_next->name##_prev = شے_2;        \
+                شے_2->name##_prev = عدم;                              \
+                *سر_2 = شے_2;                                         \
+                شے_2;                                                  \
         })
 
 /* Append an item to the list */
-#define LIST_APPEND(name,head,item)                                     \
+#تعریف_کرو LIST_APPEND(name,سر,شے)                                     \
         ({                                                              \
-                typeof(*(head)) **_hhead = &(head), *_tail;             \
-                _tail = LIST_FIND_TAIL(name, *_hhead);                  \
-                LIST_INSERT_AFTER(name, *_hhead, _tail, item);          \
+                typeof(*(سر)) **_hhead = &(سر), *پوچھ;             \
+                پوچھ = LIST_لبھو_پوچھ(name, *_hhead);                  \
+                LIST_داخل_کرو_AFTER(name, *_hhead, پوچھ, شے);          \
         })
 
 /* Remove an item from the list */
-#define LIST_REMOVE(name,head,item)                                     \
+#تعریف_کرو LIST_REMOVE(name,سر,شے)                                     \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if (_item->name##_next)                                 \
-                        _item->name##_next->name##_prev = _item->name##_prev; \
-                if (_item->name##_prev)                                 \
-                        _item->name##_prev->name##_next = _item->name##_next; \
-                else {                                                  \
-                        assert(*_head == _item);                        \
-                        *_head = _item->name##_next;                    \
+                typeof(*(سر)) **سر_2 = &(سر), *شے_2 = (شے);     \
+                أكد(شے_2);                                          \
+                إذا (شے_2->name##_next)                                 \
+                        شے_2->name##_next->name##_prev = شے_2->name##_prev; \
+                إذا (شے_2->name##_prev)                                 \
+                        شے_2->name##_prev->name##_next = شے_2->name##_next; \
+                وإلا {                                                  \
+                        أكد(*سر_2 == شے_2);                        \
+                        *سر_2 = شے_2->name##_next;                    \
                 }                                                       \
-                _item->name##_next = _item->name##_prev = NULL;         \
-                _item;                                                  \
+                شے_2->name##_next = شے_2->name##_prev = عدم;         \
+                شے_2;                                                  \
         })
 
 /* Find the head of the list */
-#define LIST_FIND_HEAD(name,item)                                       \
+#تعریف_کرو LIST_لبھو_سر(name,شے)                                       \
         ({                                                              \
-                typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_prev)                     \
-                        _item = _item->name##_prev;                     \
-                _item;                                                  \
+                typeof(*(شے)) *شے_2 = (شے);                        \
+                طالما (شے_2 && شے_2->name##_prev)                     \
+                        شے_2 = شے_2->name##_prev;                     \
+                شے_2;                                                  \
         })
 
 /* Find the tail of the list */
-#define LIST_FIND_TAIL(name,item)                                       \
+#تعریف_کرو LIST_لبھو_پوچھ(name,شے)                                       \
         ({                                                              \
-                typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_next)                     \
-                        _item = _item->name##_next;                     \
-                _item;                                                  \
+                typeof(*(شے)) *شے_2 = (شے);                        \
+                طالما (شے_2 && شے_2->name##_next)                     \
+                        شے_2 = شے_2->name##_next;                     \
+                شے_2;                                                  \
         })
 
 /* Insert an item after another one (a = where, b = what) */
-#define LIST_INSERT_AFTER(name,head,a,b)                                \
+#تعریف_کرو LIST_داخل_کرو_AFTER(name,سر,a,b)                                \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if ((_b->name##_next = *_head))                 \
+                typeof(*(سر)) **سر_2 = &(سر), *_a = (a), *_b = (b); \
+                أكد(_b);                                             \
+                إذا (!_a) {                                              \
+                        إذا ((_b->name##_next = *سر_2))                 \
                                 _b->name##_next->name##_prev = _b;      \
-                        _b->name##_prev = NULL;                         \
-                        *_head = _b;                                    \
-                } else {                                                \
-                        if ((_b->name##_next = _a->name##_next))        \
+                        _b->name##_prev = عدم;                         \
+                        *سر_2 = _b;                                    \
+                } وإلا {                                                \
+                        إذا ((_b->name##_next = _a->name##_next))        \
                                 _b->name##_next->name##_prev = _b;      \
                         _b->name##_prev = _a;                           \
                         _a->name##_next = _b;                           \
@@ -101,62 +101,62 @@
         })
 
 /* Insert an item before another one (a = where, b = what) */
-#define LIST_INSERT_BEFORE(name,head,a,b)                               \
+#تعریف_کرو LIST_داخل_کرو_BEFORE(name,سر,a,b)                               \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if (!*_head) {                                  \
-                                _b->name##_next = NULL;                 \
-                                _b->name##_prev = NULL;                 \
-                                *_head = _b;                            \
-                        } else {                                        \
-                                typeof(*(head)) *_tail = (head);        \
-                                while (_tail->name##_next)              \
-                                        _tail = _tail->name##_next;     \
-                                _b->name##_next = NULL;                 \
-                                _b->name##_prev = _tail;                \
-                                _tail->name##_next = _b;                \
+                typeof(*(سر)) **سر_2 = &(سر), *_a = (a), *_b = (b); \
+                أكد(_b);                                             \
+                إذا (!_a) {                                              \
+                        إذا (!*سر_2) {                                  \
+                                _b->name##_next = عدم;                 \
+                                _b->name##_prev = عدم;                 \
+                                *سر_2 = _b;                            \
+                        } وإلا {                                        \
+                                typeof(*(سر)) *پوچھ = (سر);        \
+                                طالما (پوچھ->name##_next)              \
+                                        پوچھ = پوچھ->name##_next;     \
+                                _b->name##_next = عدم;                 \
+                                _b->name##_prev = پوچھ;                \
+                                پوچھ->name##_next = _b;                \
                         }                                               \
-                } else {                                                \
-                        if ((_b->name##_prev = _a->name##_prev))        \
+                } وإلا {                                                \
+                        إذا ((_b->name##_prev = _a->name##_prev))        \
                                 _b->name##_prev->name##_next = _b;      \
-                        else                                            \
-                                *_head = _b;                            \
+                        وإلا                                            \
+                                *سر_2 = _b;                            \
                         _b->name##_next = _a;                           \
                         _a->name##_prev = _b;                           \
                 }                                                       \
                 _b;                                                     \
         })
 
-#define LIST_JUST_US(name, item)                                        \
+#تعریف_کرو LIST_JUST_US(name, شے)                                        \
         ({                                                              \
-                typeof(*(item)) *_item = (item);                        \
-                !(_item)->name##_prev && !(_item)->name##_next;         \
+                typeof(*(شے)) *شے_2 = (شے);                        \
+                !(شے_2)->name##_prev && !(شے_2)->name##_next;         \
         })
 
 /* The type of the iterator 'i' is automatically determined by the type of 'head', and declared in the
  * loop. Hence, do not declare the same variable in the outer scope. Sometimes, we set 'head' through
  * hashmap_get(). In that case, you need to explicitly cast the result. */
-#define LIST_FOREACH_WITH_NEXT(name,i,n,head)                           \
-        for (typeof(*(head)) *n, *i = (head); i && (n = i->name##_next, true); i = n)
+#تعریف_کرو LIST_FOREACH_WITH_اگلا(name,i,n,سر)                           \
+        لكل (typeof(*(سر)) *n, *i = (سر); i && (n = i->name##_next, true); i = n)
 
-#define LIST_FOREACH(name,i,head)                                       \
-        LIST_FOREACH_WITH_NEXT(name, i, UNIQ_T(n, UNIQ), head)
+#تعریف_کرو LIST_FOREACH(name,i,سر)                                       \
+        LIST_FOREACH_WITH_اگلا(name, i, UNIQ_T(n, UNIQ), سر)
 
-#define _LIST_FOREACH_WITH_PREV(name,i,p,start)                         \
-        for (typeof(*(start)) *p, *i = (start); i && (p = i->name##_prev, true); i = p)
+#تعریف_کرو _LIST_FOREACH_WITH_PREV(name,i,p,شروع)                         \
+        لكل (typeof(*(شروع)) *p, *i = (شروع); i && (p = i->name##_prev, true); i = p)
 
-#define LIST_FOREACH_BACKWARDS(name,i,start)                            \
-        _LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), start)
+#تعریف_کرو LIST_FOREACH_BACKWARDS(name,i,شروع)                            \
+        _LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), شروع)
 
 /* Iterate through all the members of the list p is included in, but skip over p */
-#define LIST_FOREACH_OTHERS(name,i,p)                                   \
-        for (typeof(*(p)) *_p = (p), *i = ({                            \
+#تعریف_کرو LIST_FOREACH_OTHERS(name,i,p)                                   \
+        لكل (typeof(*(p)) *_p = (p), *i = ({                            \
                                 typeof(*_p) *_j = _p;                   \
-                                while (_j && _j->name##_prev)           \
+                                طالما (_j && _j->name##_prev)           \
                                         _j = _j->name##_prev;           \
-                                if (_j == _p)                           \
+                                إذا (_j == _p)                           \
                                         _j = _p->name##_next;           \
                                 _j;                                     \
                         });                                             \
@@ -164,44 +164,44 @@
              i = i->name##_next == _p ? _p->name##_next : i->name##_next)
 
 /* Loop starting from p->next until p->prev. p can be adjusted meanwhile. */
-#define LIST_LOOP_BUT_ONE(name,i,head,p)                                \
-        for (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (head); \
+#تعریف_کرو LIST_LOOP_BUT_ONE(name,i,سر,p)                                \
+        لكل (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (سر); \
              i != (p);                                                  \
-             i = i->name##_next ? i->name##_next : (head))
+             i = i->name##_next ? i->name##_next : (سر))
 
 /* Join two lists tail to head: a->b, c->d to a->b->c->d and de-initialise second list */
-#define LIST_JOIN(name,a,b)                                             \
+#تعریف_کرو LIST_JOIN(name,a,b)                                             \
         ({                                                              \
-                assert(b);                                              \
-                if (!(a))                                               \
+                أكد(b);                                              \
+                إذا (!(a))                                               \
                         (a) = (b);                                      \
-                else {                                                  \
-                        typeof(*(a)) *_head = (b), *_tail;              \
-                        _tail = LIST_FIND_TAIL(name, (a));              \
-                        _tail->name##_next = _head;                     \
-                        _head->name##_prev = _tail;                     \
+                وإلا {                                                  \
+                        typeof(*(a)) *سر_2 = (b), *پوچھ;              \
+                        پوچھ = LIST_لبھو_پوچھ(name, (a));              \
+                        پوچھ->name##_next = سر_2;                     \
+                        سر_2->name##_prev = پوچھ;                     \
                 }                                                       \
-                (b) = NULL;                                             \
+                (b) = عدم;                                             \
                 a;                                                      \
         })
 
-#define LIST_POP(name, a)                                               \
+#تعریف_کرو LIST_نکالو(name, a)                                               \
         ({                                                              \
                 typeof(a)* _a = &(a);                                   \
                 typeof(a) _p = *_a;                                     \
-                if (_p)                                                 \
+                إذا (_p)                                                 \
                         LIST_REMOVE(name, *_a, _p);                     \
                 _p;                                                     \
         })
 
-#define LIST_CLEAR(name, head, free_func)       \
-        _LIST_CLEAR(name, head, free_func, UNIQ_T(elem, UNIQ))
+#تعریف_کرو LIST_CLEAR(name, سر, free_func)       \
+        _LIST_CLEAR(name, سر, free_func, UNIQ_T(elem, UNIQ))
 
 /* Clear the list, destroying each element with free_func */
-#define _LIST_CLEAR(name, head, free_func, elem)        \
+#تعریف_کرو _LIST_CLEAR(name, سر, free_func, elem)        \
         ({                                              \
-                typeof(head) elem;                      \
-                while ((elem = LIST_POP(name, head)))   \
+                typeof(سر) elem;                      \
+                طالما ((elem = LIST_نکالو(name, سر)))   \
                         free_func(elem);                \
-                head;                                   \
+                سر;                                   \
         })

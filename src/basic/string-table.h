@@ -1,83 +1,83 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "forward.h"
+#ضمن "forward.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) _const_;
+ثابت حرف* string_جدول_lookup_منزل_string(ثابت حرف * ثابت *جدول, size_t len, ssize_t i) _const_;
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) _pure_;
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) _pure_;
+ssize_t string_جدول_lookup_from_string(ثابت حرف * ثابت *جدول, size_t len, ثابت حرف *کلید) خالص;
+ssize_t string_جدول_lookup_from_string_with_boolean(ثابت حرف * ثابت *جدول, size_t len, ثابت حرف *کلید, ssize_t yes) خالص;
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret);
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max);
+صحيح string_جدول_lookup_منزل_string_fallback(ثابت حرف * ثابت *جدول, size_t len, ssize_t i, size_t max, حرف **ret);
+ssize_t string_جدول_lookup_from_string_fallback(ثابت حرف * ثابت *جدول, size_t len, ثابت حرف *s, size_t max);
 
 /* For basic lookup tables with strictly enumerated entries */
-#define _DEFINE_STRING_TABLE_LOOKUP_TO_STRING(name, type, scope)                                        \
-        scope const char* name##_to_string(type i) {                                                    \
-                return string_table_lookup_to_string(name##_table, ELEMENTSOF(name##_table), i);        \
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_منزل_STRING_2(name, type, scope)                                        \
+        scope ثابت حرف* name##_to_string(type i) {                                                    \
+                أرجع string_جدول_lookup_منزل_string(name##_table, ELEMENTSOF(name##_table), i);        \
         }
 
-#define _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING(name, type, scope) \
-        scope type name##_from_string(const char *s) {             \
-                return (type) string_table_lookup_from_string(name##_table, ELEMENTSOF(name##_table), s); \
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_FROM_STRING(name, type, scope) \
+        scope type name##_from_string(ثابت حرف *s) {             \
+                أرجع (type) string_جدول_lookup_from_string(name##_table, ELEMENTSOF(name##_table), s); \
         }
 
-#define _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes, scope) \
-        scope type name##_from_string(const char *s) {                               \
-                return (type) string_table_lookup_from_string_with_boolean(name##_table, ELEMENTSOF(name##_table), s, yes); \
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes, scope) \
+        scope type name##_from_string(ثابت حرف *s) {                               \
+                أرجع (type) string_جدول_lookup_from_string_with_boolean(name##_table, ELEMENTSOF(name##_table), s, yes); \
         }
 
-#define _DEFINE_STRING_TABLE_LOOKUP_TO_STRING_FALLBACK(name, type, max, scope)                          \
-        scope int name##_to_string_alloc(type i, char **ret) {                                          \
-                return string_table_lookup_to_string_fallback(name##_table, ELEMENTSOF(name##_table), i, max, ret); \
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_منزل_STRING_FALLBACK(name, type, max, scope)                          \
+        scope صحيح name##_to_string_alloc(type i, حرف **ret) {                                          \
+                أرجع string_جدول_lookup_منزل_string_fallback(name##_table, ELEMENTSOF(name##_table), i, max, ret); \
         }
 
-#define _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_FALLBACK(name, type, max, scope) \
-        scope type name##_from_string(const char *s) {                           \
-                return (type) string_table_lookup_from_string_fallback(name##_table, ELEMENTSOF(name##_table), s, max); \
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_FROM_STRING_FALLBACK(name, type, max, scope) \
+        scope type name##_from_string(ثابت حرف *s) {                           \
+                أرجع (type) string_جدول_lookup_from_string_fallback(name##_table, ELEMENTSOF(name##_table), s, max); \
         }
 
-#define _DEFINE_STRING_TABLE_LOOKUP(name, type, scope)                    \
-        _DEFINE_STRING_TABLE_LOOKUP_TO_STRING(name, type, scope)          \
-        _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING(name, type, scope)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_2(name, type, scope)                    \
+        DEFINE_STRING_جدول_LOOKUP_منزل_STRING_2(name, type, scope)          \
+        DEFINE_STRING_جدول_LOOKUP_FROM_STRING(name, type, scope)
 
-#define _DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(name, type, yes, scope)  \
-        _DEFINE_STRING_TABLE_LOOKUP_TO_STRING(name, type, scope)          \
-        _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes, scope)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_WITH_BOOLEAN_2(name, type, yes, scope)  \
+        DEFINE_STRING_جدول_LOOKUP_منزل_STRING_2(name, type, scope)          \
+        DEFINE_STRING_جدول_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes, scope)
 
-#define DEFINE_STRING_TABLE_LOOKUP(name, type) _DEFINE_STRING_TABLE_LOOKUP(name, type,)
-#define DEFINE_STRING_TABLE_LOOKUP_TO_STRING(name, type) _DEFINE_STRING_TABLE_LOOKUP_TO_STRING(name, type,)
-#define DEFINE_STRING_TABLE_LOOKUP_FROM_STRING(name, type) _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING(name, type,)
-#define DEFINE_PRIVATE_STRING_TABLE_LOOKUP(name, type) _DEFINE_STRING_TABLE_LOOKUP(name, type, static)
-#define DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(name, type) _DEFINE_STRING_TABLE_LOOKUP_TO_STRING(name, type, static)
-#define DEFINE_PRIVATE_STRING_TABLE_LOOKUP_FROM_STRING(name, type) _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING(name, type, static)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP(name, type) DEFINE_STRING_جدول_LOOKUP_2(name, type,)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_منزل_STRING(name, type) DEFINE_STRING_جدول_LOOKUP_منزل_STRING_2(name, type,)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_FROM_STRING_2(name, type) DEFINE_STRING_جدول_LOOKUP_FROM_STRING(name, type,)
+#تعریف_کرو DEFINE_نجی_STRING_جدول_LOOKUP(name, type) DEFINE_STRING_جدول_LOOKUP_2(name, type, ساكن)
+#تعریف_کرو DEFINE_نجی_STRING_جدول_LOOKUP_منزل_STRING(name, type) DEFINE_STRING_جدول_LOOKUP_منزل_STRING_2(name, type, ساكن)
+#تعریف_کرو DEFINE_نجی_STRING_جدول_LOOKUP_FROM_STRING(name, type) DEFINE_STRING_جدول_LOOKUP_FROM_STRING(name, type, ساكن)
 
-#define DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(name, type, yes) _DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(name, type, yes,)
-#define DEFINE_PRIVATE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(name, type, yes) _DEFINE_STRING_TABLE_LOOKUP_WITH_BOOLEAN(name, type, yes, static)
-#define DEFINE_PRIVATE_STRING_TABLE_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes) \
-        _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes, static)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_WITH_BOOLEAN(name, type, yes) DEFINE_STRING_جدول_LOOKUP_WITH_BOOLEAN_2(name, type, yes,)
+#تعریف_کرو DEFINE_نجی_STRING_جدول_LOOKUP_WITH_BOOLEAN(name, type, yes) DEFINE_STRING_جدول_LOOKUP_WITH_BOOLEAN_2(name, type, yes, ساكن)
+#تعریف_کرو DEFINE_نجی_STRING_جدول_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes) \
+        DEFINE_STRING_جدول_LOOKUP_FROM_STRING_WITH_BOOLEAN(name, type, yes, ساكن)
 
 /* For string conversions where numbers are also acceptable */
-#define DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(name, type, max)         \
-        _DEFINE_STRING_TABLE_LOOKUP_TO_STRING_FALLBACK(name, type, max,)  \
-        _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_FALLBACK(name, type, max,)
-#define DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_WITH_FALLBACK(name, type, max) _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_FALLBACK(name, type, max,)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_WITH_FALLBACK(name, type, max)         \
+        DEFINE_STRING_جدول_LOOKUP_منزل_STRING_FALLBACK(name, type, max,)  \
+        DEFINE_STRING_جدول_LOOKUP_FROM_STRING_FALLBACK(name, type, max,)
+#تعریف_کرو DEFINE_STRING_جدول_LOOKUP_FROM_STRING_WITH_FALLBACK(name, type, max) DEFINE_STRING_جدول_LOOKUP_FROM_STRING_FALLBACK(name, type, max,)
 
-#define DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING_FALLBACK(name, type, max) \
-        _DEFINE_STRING_TABLE_LOOKUP_TO_STRING_FALLBACK(name, type, max, static)
-#define DEFINE_PRIVATE_STRING_TABLE_LOOKUP_FROM_STRING_FALLBACK(name, type, max) \
-        _DEFINE_STRING_TABLE_LOOKUP_FROM_STRING_FALLBACK(name, type, max, static)
+#تعریف_کرو DEFINE_نجی_STRING_جدول_LOOKUP_منزل_STRING_FALLBACK(name, type, max) \
+        DEFINE_STRING_جدول_LOOKUP_منزل_STRING_FALLBACK(name, type, max, ساكن)
+#تعریف_کرو DEFINE_نجی_STRING_جدول_LOOKUP_FROM_STRING_FALLBACK(name, type, max) \
+        DEFINE_STRING_جدول_LOOKUP_FROM_STRING_FALLBACK(name, type, max, ساكن)
 
-#define DUMP_STRING_TABLE(name, type, max)                              \
+#تعریف_کرو DUMP_STRING_جدول(name, type, max)                              \
         ({                                                              \
                 flockfile(stdout);                                      \
-                for (type _k = 0; _k < (max); _k++) {                   \
-                        const char *_t;                                 \
+                لكل (type _k = 0; _k < (max); _k++) {                   \
+                        ثابت حرف *_t;                                 \
                         _t = name##_to_string(_k);                      \
-                        if (!_t)                                        \
-                                continue;                               \
+                        إذا (!_t)                                        \
+                                استمر;                               \
                         fputs_unlocked(_t, stdout);                     \
                         fputc_unlocked('\n', stdout);                   \
                 }                                                       \

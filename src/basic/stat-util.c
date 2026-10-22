@@ -1,429 +1,429 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/magic.h>
-#include <sys/statvfs.h>
-#include <unistd.h>
+#ضمن <fcntl.h>
+#ضمن <linux/magic.h>
+#ضمن <sys/statvfs.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "chase.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "filesystems.h"
-#include "fs-util.h"
-#include "hash-funcs.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "path-util.h"
-#include "siphash24.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
+#ضمن "alloc-util.h"
+#ضمن "bitfield.h"
+#ضمن "chase.h"
+#ضمن "dirent-util.h"
+#ضمن "errno-util.h"
+#ضمن "fd-util.h"
+#ضمن "filesystems.h"
+#ضمن "fs-util.h"
+#ضمن "hash-funcs.h"
+#ضمن "log.h"
+#ضمن "mountpoint-util.h"
+#ضمن "path-util.h"
+#ضمن "siphash24.h"
+#ضمن "stat-util.h"
+#ضمن "string-util.h"
+#ضمن "time-util.h"
 
-static int verify_stat_at(
-                int fd,
-                const char *path,
+ساكن صحيح verify_stat_at(
+                صحيح fd,
+                ثابت حرف *رستہ,
                 bool follow,
-                int (*verify_func)(const struct stat *st),
+                صحيح (*verify_func)(ثابت بنية stat *st),
                 bool verify) {
 
-        struct stat st;
-        int r;
+        بنية stat st;
+        صحيح r;
 
-        assert(wildcard_fd_is_valid(fd));
-        assert(!isempty(path) || !follow);
-        assert(verify_func);
+        أكد(wildcard_fd_is_valid(fd));
+        أكد(!isempty(رستہ) || !follow);
+        أكد(verify_func);
 
-        _cleanup_free_ char *p = NULL;
-        r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *p = عدم;
+        r = resolve_xat_fdroot(&fd, &رستہ, &p);
+        إذا (r < 0)
+                أرجع r;
 
-        if (fstatat(fd, strempty(path), &st,
-                    (isempty(path) ? AT_EMPTY_PATH : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
-                return -errno;
+        إذا (fstatat(fd, strempty(رستہ), &st,
+                    (isempty(رستہ) ? AT_خالی_تھاواں_رستہ : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
+                أرجع -errno;
 
         r = verify_func(&st);
-        return verify ? r : r >= 0;
+        أرجع verify ? r : r >= 0;
 }
 
-static int mode_verify_regular(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+ساكن صحيح منوال_verify_regular(mode_t منوال) {
+        إذا (S_ISDIR(منوال))
+                أرجع -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        إذا (S_ISLNK(منوال))
+                أرجع -ELOOP;
 
-        if (!S_ISREG(mode))
-                return -EBADFD;
+        إذا (!S_ISREG(منوال))
+                أرجع -EBADFD;
 
-        return 0;
+        أرجع 0;
 }
 
-int stat_verify_regular(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_regular(ثابت بنية stat *st) {
+        أكد(st);
 
         /* Checks whether the specified stat() structure refers to a regular file. If not returns an
          * appropriate error code. */
 
-        return mode_verify_regular(st->st_mode);
+        أرجع منوال_verify_regular(st->st_mode);
 }
 
-int statx_verify_regular(const struct statx *stx) {
-        assert(stx);
+صحيح statx_verify_regular(ثابت بنية statx *stx) {
+        أكد(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        إذا (!FLAGS_سیٹ(stx->stx_نقاب, STATX_TYPE))
+                أرجع -ENODATA;
 
-        return mode_verify_regular(stx->stx_mode);
+        أرجع منوال_verify_regular(stx->stx_منوال);
 }
 
-int verify_regular_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_regular, true);
+صحيح verify_regular_at(صحيح fd, ثابت حرف *رستہ, bool follow) {
+        أرجع verify_stat_at(fd, رستہ, follow, stat_verify_regular, true);
 }
 
-int fd_verify_regular(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+صحيح fd_verify_regular(صحيح fd) {
+        إذا (وچ_سیٹ(fd, AT_FDCWD, XAT_FDROOT))
+                أرجع -EISDIR;
 
-        return verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
+        أرجع verify_regular_at(fd, /* path= */ عدم, /* follow= */ false);
 }
 
-static int mode_verify_directory(mode_t mode) {
-        if (S_ISLNK(mode))
-                return -ELOOP;
+ساكن صحيح منوال_verify_directory(mode_t منوال) {
+        إذا (S_ISLNK(منوال))
+                أرجع -ELOOP;
 
-        if (!S_ISDIR(mode))
-                return -ENOTDIR;
+        إذا (!S_ISDIR(منوال))
+                أرجع -ENOTDIR;
 
-        return 0;
+        أرجع 0;
 }
 
-int stat_verify_directory(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_directory(ثابت بنية stat *st) {
+        أكد(st);
 
-        return mode_verify_directory(st->st_mode);
+        أرجع منوال_verify_directory(st->st_mode);
 }
 
-int statx_verify_directory(const struct statx *stx) {
-        assert(stx);
+صحيح statx_verify_directory(ثابت بنية statx *stx) {
+        أكد(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        إذا (!FLAGS_سیٹ(stx->stx_نقاب, STATX_TYPE))
+                أرجع -ENODATA;
 
-        return mode_verify_directory(stx->stx_mode);
+        أرجع منوال_verify_directory(stx->stx_منوال);
 }
 
-int fd_verify_directory(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return 0;
+صحيح fd_verify_directory(صحيح fd) {
+        إذا (وچ_سیٹ(fd, AT_FDCWD, XAT_FDROOT))
+                أرجع 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_directory, true);
+        أرجع verify_stat_at(fd, عدم, false, stat_verify_directory, true);
 }
 
-int is_dir_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_directory, false);
+صحيح is_dir_at(صحيح fd, ثابت حرف *رستہ, bool follow) {
+        أرجع verify_stat_at(fd, رستہ, follow, stat_verify_directory, false);
 }
 
-int is_dir(const char *path, bool follow) {
-        assert(!isempty(path));
-        return is_dir_at(AT_FDCWD, path, follow);
+صحيح is_dir(ثابت حرف *رستہ, bool follow) {
+        أكد(!isempty(رستہ));
+        أرجع is_dir_at(AT_FDCWD, رستہ, follow);
 }
 
-int stat_verify_symlink(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_symlink(ثابت بنية stat *st) {
+        أكد(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        إذا (S_ISDIR(st->st_mode))
+                أرجع -EISDIR;
 
-        if (!S_ISLNK(st->st_mode))
-                return -ENOLINK;
+        إذا (!S_ISLNK(st->st_mode))
+                أرجع -ENOLINK;
 
-        return 0;
+        أرجع 0;
 }
 
-int fd_verify_symlink(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+صحيح fd_verify_symlink(صحيح fd) {
+        إذا (وچ_سیٹ(fd, AT_FDCWD, XAT_FDROOT))
+                أرجع -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
+        أرجع verify_stat_at(fd, /* path= */ عدم, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
 }
 
-int is_symlink(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
+صحيح is_symlink(ثابت حرف *رستہ) {
+        أكد(!isempty(رستہ));
+        أرجع verify_stat_at(AT_FDCWD, رستہ, false, stat_verify_symlink, false);
 }
 
-static int mode_verify_socket(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+ساكن صحيح منوال_verify_socket(mode_t منوال) {
+        إذا (S_ISDIR(منوال))
+                أرجع -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        إذا (S_ISLNK(منوال))
+                أرجع -ELOOP;
 
-        if (!S_ISSOCK(mode))
-                return -ENOTSOCK;
+        إذا (!S_ISSOCK(منوال))
+                أرجع -ENOTSOCK;
 
-        return 0;
+        أرجع 0;
 }
 
-int stat_verify_socket(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_socket(ثابت بنية stat *st) {
+        أكد(st);
 
-        return mode_verify_socket(st->st_mode);
+        أرجع منوال_verify_socket(st->st_mode);
 }
 
-int statx_verify_socket(const struct statx *stx) {
-        assert(stx);
+صحيح statx_verify_socket(ثابت بنية statx *stx) {
+        أكد(stx);
 
-        return mode_verify_socket(stx->stx_mode);
+        أرجع منوال_verify_socket(stx->stx_منوال);
 }
 
-int fd_verify_socket(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+صحيح fd_verify_socket(صحيح fd) {
+        إذا (وچ_سیٹ(fd, AT_FDCWD, XAT_FDROOT))
+                أرجع -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
+        أرجع verify_stat_at(fd, /* path= */ عدم, /* follow= */ false, stat_verify_socket, /* verify= */ true);
 }
 
-int is_socket(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
+صحيح is_socket(ثابت حرف *رستہ) {
+        أكد(!isempty(رستہ));
+        أرجع verify_stat_at(AT_FDCWD, رستہ, /* follow= */ true, stat_verify_socket, /* verify= */ false);
 }
 
-int stat_verify_linked(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_linked(ثابت بنية stat *st) {
+        أكد(st);
 
-        if (st->st_nlink <= 0)
-                return -EIDRM; /* recognizable error. */
+        إذا (st->st_nlink <= 0)
+                أرجع -EIDRM; /* recognizable error. */
 
-        return 0;
+        أرجع 0;
 }
 
-int fd_verify_linked(int fd) {
+صحيح fd_verify_linked(صحيح fd) {
 
-        if (fd == XAT_FDROOT)
-                return 0;
+        إذا (fd == XAT_FDROOT)
+                أرجع 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_linked, true);
+        أرجع verify_stat_at(fd, عدم, false, stat_verify_linked, true);
 }
 
-int stat_verify_block(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_بلاک(ثابت بنية stat *st) {
+        أكد(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        إذا (S_ISDIR(st->st_mode))
+                أرجع -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        إذا (S_ISLNK(st->st_mode))
+                أرجع -ELOOP;
 
-        if (!S_ISBLK(st->st_mode))
-                return -ENOTBLK;
+        إذا (!S_ISBLK(st->st_mode))
+                أرجع -ENOTBLK;
 
-        return 0;
+        أرجع 0;
 }
 
-int fd_verify_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+صحيح fd_verify_بلاک(صحيح fd) {
+        إذا (وچ_سیٹ(fd, AT_FDCWD, XAT_FDROOT))
+                أرجع -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
+        أرجع verify_stat_at(fd, /* path= */ عدم, /* follow= */ false, stat_verify_بلاک, /* verify= */ true);
 }
 
-int stat_verify_char(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_char(ثابت بنية stat *st) {
+        أكد(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        إذا (S_ISDIR(st->st_mode))
+                أرجع -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        إذا (S_ISLNK(st->st_mode))
+                أرجع -ELOOP;
 
-        if (!S_ISCHR(st->st_mode))
-                return -EBADFD;
+        إذا (!S_ISCHR(st->st_mode))
+                أرجع -EBADFD;
 
-        return 0;
+        أرجع 0;
 }
 
-int stat_verify_device_node(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_device_گرہ(ثابت بنية stat *st) {
+        أكد(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        إذا (S_ISDIR(st->st_mode))
+                أرجع -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        إذا (S_ISLNK(st->st_mode))
+                أرجع -ELOOP;
 
-        if (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
-                return -ENOTTY;
+        إذا (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
+                أرجع -ENOTTY;
 
-        return 0;
+        أرجع 0;
 }
 
-int is_device_node(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
+صحيح is_device_گرہ(ثابت حرف *رستہ) {
+        أكد(!isempty(رستہ));
+        أرجع verify_stat_at(AT_FDCWD, رستہ, false, stat_verify_device_گرہ, false);
 }
 
-int stat_verify_regular_or_block(const struct stat *st) {
-        assert(st);
+صحيح stat_verify_regular_or_بلاک(ثابت بنية stat *st) {
+        أكد(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        إذا (S_ISDIR(st->st_mode))
+                أرجع -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        إذا (S_ISLNK(st->st_mode))
+                أرجع -ELOOP;
 
-        if (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
-                return -EBADFD;
+        إذا (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
+                أرجع -EBADFD;
 
-        return 0;
+        أرجع 0;
 }
 
-int fd_verify_regular_or_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+صحيح fd_verify_regular_or_بلاک(صحيح fd) {
+        إذا (وچ_سیٹ(fd, AT_FDCWD, XAT_FDROOT))
+                أرجع -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
+        أرجع verify_stat_at(fd, /* path= */ عدم, /* follow= */ false, stat_verify_regular_or_بلاک, /* verify= */ true);
 }
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) {
-        _cleanup_close_ int fd = -EBADF;
-        struct dirent *buf;
+صحيح dir_is_خالی_تھاواں_at(صحيح dir_fd, ثابت حرف *رستہ, bool ignore_hidden_or_backup) {
+        _cleanup_close_ صحيح fd = -EBADF;
+        بنية dirent *buf;
         size_t m;
 
-        fd = xopenat(dir_fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        fd = xopenat(dir_fd, رستہ, O_DIRECTORY|O_CLOEXEC);
+        إذا (fd < 0)
+                أرجع fd;
 
         /* Allocate space for at least 3 full dirents, since every dir has at least two entries ("."  +
          * ".."), and only once we have seen if there's a third we know whether the dir is empty or not. If
          * 'ignore_hidden_or_backup' is true we'll allocate a bit more, since we might skip over a bunch of
          * entries that we end up ignoring. */
-        m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_SIZE_MAX;
+        m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_ناپ_MAX;
         buf = alloca(m);
 
-        for (;;) {
-                struct dirent *de;
+        لكل (;;) {
+                بنية dirent *de;
                 ssize_t n;
 
                 n = getdents64(fd, buf, m);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                إذا (n < 0)
+                        أرجع -errno;
+                إذا (n == 0)
+                        اكسر;
 
-                assert((size_t) n <= m);
+                أكد((size_t) n <= m);
                 msan_unpoison(buf, n);
 
-                FOREACH_DIRENT_IN_BUFFER(de, buf, n)
-                        if (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
-                                return 0;
+                FOREACH_DIRENT_وچ_بفر(de, buf, n)
+                        إذا (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
+                                أرجع 0;
         }
 
-        return 1;
+        أرجع 1;
 }
 
-bool stat_may_be_dev_null(struct stat *st) {
-        assert(st);
+bool stat_may_be_dev_null(بنية stat *st) {
+        أكد(st);
 
         /* We don't want to hardcode the major/minor of /dev/null, hence we do a simpler "is this a character
          * device node?" check. */
 
-        return S_ISCHR(st->st_mode);
+        أرجع S_ISCHR(st->st_mode);
 }
 
-bool stat_is_empty(struct stat *st) {
-        assert(st);
+bool stat_is_خالی_تھاواں(بنية stat *st) {
+        أكد(st);
 
-        return S_ISREG(st->st_mode) && st->st_size <= 0;
+        أرجع S_ISREG(st->st_mode) && st->st_size <= 0;
 }
 
-int null_or_empty_path_with_root(const char *fn, const char *root) {
-        _cleanup_free_ char *resolved = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        struct stat st;
-        int r;
+صحيح null_or_خالی_تھاواں_رستہ_with_جڑ(ثابت حرف *fn, ثابت حرف *جڑ) {
+        _cleanup_free_ حرف *resolved = عدم;
+        _cleanup_close_ صحيح fd = -EBADF;
+        بنية stat st;
+        صحيح r;
 
-        assert(fn);
+        أكد(fn);
 
         /* fn includes the root prefix. */
 
-        if (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
-                return true;
+        إذا (رستہ_equal(رستہ_startswith(fn, جڑ ?: "/"), "dev/null"))
+                أرجع true;
 
-        if (empty_or_root(root)) {
-                if (stat(fn, &st) < 0)
-                        return -errno;
+        إذا (خالی_تھاواں_or_جڑ(جڑ)) {
+                إذا (stat(fn, &st) < 0)
+                        أرجع -errno;
 
-                return null_or_empty(&st);
+                أرجع null_or_خالی_تھاواں(&st);
         }
 
         /* An image below a root directory usually has no /dev/null, so a symlink to /dev/null dangles there.
          * CHASE_NONEXISTENT resolves such a symlink without requiring the target to exist. */
-        r = chase(fn, root, CHASE_NONEXISTENT, &resolved, &fd);
-        if (r < 0)
-                return r;
+        r = chase(fn, جڑ, CHASE_NONEXISTENT, &resolved, &fd);
+        إذا (r < 0)
+                أرجع r;
 
-        if (path_equal(path_startswith(resolved, root), "dev/null"))
-                return true;
+        إذا (رستہ_equal(رستہ_startswith(resolved, جڑ), "dev/null"))
+                أرجع true;
 
-        if (r == 0)
-                return -ENOENT;
+        إذا (r == 0)
+                أرجع -ENOENT;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        إذا (fstat(fd, &st) < 0)
+                أرجع -errno;
 
-        return null_or_empty(&st);
+        أرجع null_or_خالی_تھاواں(&st);
 }
 
-static const char* statx_mask_one_to_name(unsigned mask);
-static const char* statx_attribute_to_name(uint64_t attr);
+ساكن ثابت حرف* statx_نقاب_one_منزل_name(بنانشانی نقاب_3);
+ساكن ثابت حرف* statx_attribute_منزل_name(uint64_t attr);
 
-#include "statx-attribute-to-name.inc"
-#include "statx-mask-to-name.inc"
+#ضمن "statx-attribute-to-name.inc"
+#ضمن "statx-mask-to-name.inc"
 
-#define DEFINE_STATX_BITS_TO_STRING(prefix, type, func, format_str)             \
-        static char* prefix##_to_string(type v) {                               \
-                if (v == 0)                                                     \
-                        return strdup("");                                      \
+#تعریف_کرو DEFINE_STATX_بٹ_منزل_STRING(اگیتر, type, func, format_str)             \
+        ساكن حرف* اگیتر##_to_string(type v) {                               \
+                إذا (v == 0)                                                     \
+                        أرجع strdup("");                                      \
                                                                                 \
-                _cleanup_free_ char *s = NULL;                                  \
+                _cleanup_free_ حرف *s = عدم;                                  \
                                                                                 \
-                BIT_FOREACH(i, v) {                                             \
+                ثنائی_ہندسہ_FOREACH(i, v) {                                             \
                         type f = 1 << i;                                        \
                                                                                 \
-                        const char *n = func(f);                                \
-                        if (!n)                                                 \
-                                continue;                                       \
+                        ثابت حرف *n = func(f);                                \
+                        إذا (!n)                                                 \
+                                استمر;                                       \
                                                                                 \
-                        if (!strextend_with_separator(&s, "|", n))              \
-                                return NULL;                                    \
+                        إذا (!strextend_with_separator(&s, "|", n))              \
+                                أرجع عدم;                                    \
                         v &= ~f;                                                \
                 }                                                               \
                                                                                 \
-                if (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
-                        return NULL;                                            \
+                إذا (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
+                        أرجع عدم;                                            \
                                                                                 \
-                return TAKE_PTR(s);                                             \
+                أرجع TAKE_PTR(s);                                             \
         }
 
-DEFINE_STATX_BITS_TO_STRING(statx_mask,       unsigned, statx_mask_one_to_name,  "0x%x");
-DEFINE_STATX_BITS_TO_STRING(statx_attributes, uint64_t, statx_attribute_to_name, "0x%" PRIx64);
+DEFINE_STATX_بٹ_منزل_STRING(statx_نقاب,       بنانشانی, statx_نقاب_one_منزل_name,  "0x%x");
+DEFINE_STATX_بٹ_منزل_STRING(statx_گن, uint64_t, statx_attribute_منزل_name, "0x%" PRIx64);
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+صحيح xstatx_بھریا(صحيح fd,
+                ثابت حرف *رستہ,
+                صحيح statx_flags,
                 XStatXFlags xstatx_flags,
-                unsigned mandatory_mask,
-                unsigned optional_mask,
-                uint64_t mandatory_attributes,
-                struct statx *ret) {
+                بنانشانی mandatory_نقاب,
+                بنانشانی optional_نقاب,
+                uint64_t mandatory_گن,
+                بنية statx *ret) {
 
-        struct statx sx = {}; /* explicitly initialize the struct to make msan silent. */
-        int r;
+        بنية statx sx = {}; /* explicitly initialize the struct to make msan silent. */
+        صحيح r;
 
         /* Wrapper around statx(), with additional bells and whistles:
          *
@@ -436,204 +436,204 @@ int xstatx_full(int fd,
          *    STATX_MNT_ID if not.
          */
 
-        assert(wildcard_fd_is_valid(fd));
-        assert((mandatory_mask & optional_mask) == 0);
-        assert(!FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) || !((mandatory_mask|optional_mask) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
-        assert(ret);
+        أكد(wildcard_fd_is_valid(fd));
+        أكد((mandatory_نقاب & optional_نقاب) == 0);
+        أكد(!FLAGS_سیٹ(xstatx_flags, XSTATX_MNT_ID_بہترین) || !((mandatory_نقاب|optional_نقاب) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
+        أكد(ret);
 
-        _cleanup_free_ char *p = NULL;
-        r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *p = عدم;
+        r = resolve_xat_fdroot(&fd, &رستہ, &p);
+        إذا (r < 0)
+                أرجع r;
 
-        unsigned request_mask = mandatory_mask|optional_mask;
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
-                request_mask |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
+        بنانشانی request_نقاب = mandatory_نقاب|optional_نقاب;
+        إذا (FLAGS_سیٹ(xstatx_flags, XSTATX_MNT_ID_بہترین))
+                request_نقاب |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
 
-        if (statx(fd,
-                  strempty(path),
-                  statx_flags|(isempty(path) ? AT_EMPTY_PATH : 0),
-                  request_mask,
+        إذا (statx(fd,
+                  strempty(رستہ),
+                  statx_flags|(isempty(رستہ) ? AT_خالی_تھاواں_رستہ : 0),
+                  request_نقاب,
                   &sx) < 0)
-                return negative_errno();
+                أرجع negative_errno();
 
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
-            !(sx.stx_mask & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
-                return log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
+        إذا (FLAGS_سیٹ(xstatx_flags, XSTATX_MNT_ID_بہترین) &&
+            !(sx.stx_نقاب & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
+                أرجع log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
 
-        if (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
-                        log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(mask_str));
+        إذا (!FLAGS_سیٹ(sx.stx_نقاب, mandatory_نقاب)) {
+                إذا (DEBUG_LOGGING) {
+                        _cleanup_free_ حرف *نقاب_str = statx_نقاب_منزل_string(mandatory_نقاب & ~sx.stx_نقاب);
+                        log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(نقاب_str));
                 }
 
-                return -EUNATCH;
+                أرجع -EUNATCH;
         }
 
-        if (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
+        إذا (!FLAGS_سیٹ(sx.stx_گن_نقاب, mandatory_گن)) {
+                إذا (DEBUG_LOGGING) {
+                        _cleanup_free_ حرف *attr_str = statx_گن_منزل_string(mandatory_گن & ~sx.stx_گن_نقاب);
                         log_debug("statx() does not support '%s' attribute (running on an old kernel?)", strnull(attr_str));
                 }
 
-                return -EUNATCH;
+                أرجع -EUNATCH;
         }
 
         *ret = sx;
-        return FLAGS_SET(sx.stx_mask, optional_mask);
+        أرجع FLAGS_سیٹ(sx.stx_نقاب, optional_نقاب);
 }
 
-static int xfstatfs(int fd, struct statfs *ret) {
-        assert(ret);
+ساكن صحيح xfstatfs(صحيح fd, بنية statfs *ret) {
+        أكد(ret);
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(statfs(".", ret));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(statfs("/", ret));
+        إذا (fd == AT_FDCWD)
+                أرجع RET_NERRNO(statfs(".", ret));
+        إذا (fd == XAT_FDROOT)
+                أرجع RET_NERRNO(statfs("/", ret));
 
-        assert(fd >= 0);
-        return RET_NERRNO(fstatfs(fd, ret));
+        أكد(fd >= 0);
+        أرجع RET_NERRNO(fstatfs(fd, ret));
 }
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح xstatfsat(صحيح dir_fd, ثابت حرف *رستہ, بنية statfs *ret) {
+        _cleanup_close_ صحيح fd = -EBADF;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        أكد(wildcard_fd_is_valid(dir_fd));
+        أكد(ret);
 
-        if (!isempty(path)) {
-                fd = xopenat(dir_fd, path, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+        إذا (!isempty(رستہ)) {
+                fd = xopenat(dir_fd, رستہ, O_رستہ|O_CLOEXEC);
+                إذا (fd < 0)
+                        أرجع fd;
                 dir_fd = fd;
         }
 
-        return xfstatfs(dir_fd, ret);
+        أرجع xfstatfs(dir_fd, ret);
 }
 
-int fd_is_read_only_fs(int fd) {
-        int r;
+صحيح fd_is_read_only_fs(صحيح fd) {
+        صحيح r;
 
-        struct statfs st;
+        بنية statfs st;
         r = xfstatfs(fd, &st);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (st.f_flags & ST_RDONLY)
-                return true;
+        إذا (st.f_flags & ST_RDONLY)
+                أرجع true;
 
-        if (is_network_fs(&st))
+        إذا (is_جال_fs(&st))
                 /* On NFS, fstatfs() might not reflect whether we can actually write to the remote share.
                  * Let's try again with access(W_OK) which is more reliable, at least sometimes. */
-                return access_fd(fd, W_OK) == -EROFS;
+                أرجع access_fd(fd, W_OK) == -EROFS;
 
-        return false;
+        أرجع false;
 }
 
-int path_is_read_only_fs(const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح رستہ_is_read_only_fs(ثابت حرف *رستہ) {
+        _cleanup_close_ صحيح fd = -EBADF;
 
-        assert(path);
+        أكد(رستہ);
 
-        fd = open(path, O_CLOEXEC | O_PATH);
-        if (fd < 0)
-                return -errno;
+        fd = open(رستہ, O_CLOEXEC | O_رستہ);
+        إذا (fd < 0)
+                أرجع -errno;
 
-        return fd_is_read_only_fs(fd);
+        أرجع fd_is_read_only_fs(fd);
 }
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags) {
-        struct stat sta, stb;
-        int r;
+صحيح inode_same_at(صحيح fda, ثابت حرف *filea, صحيح fdb, ثابت حرف *fileb, صحيح flags) {
+        بنية stat sta, stb;
+        صحيح r;
 
-        assert(fda >= 0 || fda == AT_FDCWD);
-        assert(fdb >= 0 || fdb == AT_FDCWD);
-        assert((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
+        أكد(fda >= 0 || fda == AT_FDCWD);
+        أكد(fdb >= 0 || fdb == AT_FDCWD);
+        أكد((flags & ~(AT_خالی_تھاواں_رستہ|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
 
         /* Refuse an unset filea or fileb early unless AT_EMPTY_PATH is set */
-        if ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
-                return -EINVAL;
+        إذا ((isempty(filea) || isempty(fileb)) && !FLAGS_سیٹ(flags, AT_خالی_تھاواں_رستہ))
+                أرجع -EINVAL;
 
         /* Shortcut: comparing the same fd with itself means we can return true */
-        if (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
-                return true;
+        إذا (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_سیٹ(flags, AT_SYMLINK_NOFOLLOW))
+                أرجع true;
 
-        _cleanup_close_ int pin_a = -EBADF, pin_b = -EBADF;
-        if (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
+        _cleanup_close_ صحيح pin_a = -EBADF, pin_b = -EBADF;
+        إذا (!FLAGS_سیٹ(flags, AT_NO_AUTOMOUNT)) {
                 /* Let's try to use the name_to_handle_at() AT_HANDLE_FID API to identify identical
                  * inodes. We have to issue multiple calls on the same file for that (first, to acquire the
                  * FID, and then to check if .st_dev is actually the same). Hence let's pin the inode in
                  * between via O_PATH, unless we already have an fd for it. */
 
-                if (!isempty(filea)) {
-                        pin_a = openat(fda, filea, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_a < 0)
-                                return -errno;
+                إذا (!isempty(filea)) {
+                        pin_a = openat(fda, filea, O_رستہ|O_CLOEXEC|(FLAGS_سیٹ(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
+                        إذا (pin_a < 0)
+                                أرجع -errno;
 
                         fda = pin_a;
-                        filea = NULL;
-                        flags |= AT_EMPTY_PATH;
+                        filea = عدم;
+                        flags |= AT_خالی_تھاواں_رستہ;
                 }
 
-                if (!isempty(fileb)) {
-                        pin_b = openat(fdb, fileb, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_b < 0)
-                                return -errno;
+                إذا (!isempty(fileb)) {
+                        pin_b = openat(fdb, fileb, O_رستہ|O_CLOEXEC|(FLAGS_سیٹ(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
+                        إذا (pin_b < 0)
+                                أرجع -errno;
 
                         fdb = pin_b;
-                        fileb = NULL;
-                        flags |= AT_EMPTY_PATH;
+                        fileb = عدم;
+                        flags |= AT_خالی_تھاواں_رستہ;
                 }
 
-                int ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
-                _cleanup_free_ struct file_handle *ha = NULL, *hb = NULL;
+                صحيح ntha_flags = at_flags_normalize_follow(flags) & (AT_خالی_تھاواں_رستہ|AT_SYMLINK_FOLLOW);
+                _cleanup_free_ بنية file_handle *ha = عدم, *hb = عدم;
                 uint64_t mntida, mntidb;
-                int _mntida, _mntidb;
+                صحيح _mntida, _mntidb;
 
-                r = name_to_handle_at_try_fid(
+                r = name_منزل_handle_at_try_fid(
                                 fda,
                                 filea,
                                 &ha,
                                 &_mntida,
                                 &mntida,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                إذا (r < 0) {
+                        إذا (is_name_منزل_handle_at_fatal_error(r))
+                                أرجع r;
 
-                        goto fallback;
+                        اذهب fallback;
                 }
                 bool have_unique_mntid = r > 0;
 
-                if (!have_unique_mntid)
+                إذا (!have_unique_mntid)
                         mntida = _mntida;
 
-                r = name_to_handle_at_try_fid(
+                r = name_منزل_handle_at_try_fid(
                                 fdb,
                                 fileb,
                                 &hb,
-                                have_unique_mntid ? NULL : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
-                                have_unique_mntid ? &mntidb : NULL,
+                                have_unique_mntid ? عدم : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
+                                have_unique_mntid ? &mntidb : عدم,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                إذا (r < 0) {
+                        إذا (is_name_منزل_handle_at_fatal_error(r))
+                                أرجع r;
 
-                        goto fallback;
+                        اذهب fallback;
                 }
-                if (r == 0) {
-                        assert(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
+                إذا (r == 0) {
+                        أكد(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
                         mntidb = _mntidb;
                 }
 
                 /* Now compare the two file handles */
-                if (!file_handle_equal(ha, hb))
-                        return false;
+                إذا (!file_handle_equal(ha, hb))
+                        أرجع false;
 
                 /* If the file handles are the same and they come from the same mount ID? Great, then we are
                  * good, they are definitely the same */
-                if (mntida == mntidb)
-                        return true;
+                إذا (mntida == mntidb)
+                        أرجع true;
 
                 /* File handles are the same, they are not on the same mount id. This might either be because
                  * they are on two entirely different file systems, that just happen to have the same FIDs
@@ -644,107 +644,107 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
         }
 
 fallback:
-        if (fstatat(fda, strempty(filea), &sta, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
+        إذا (fstatat(fda, strempty(filea), &sta, flags) < 0)
+                أرجع log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
 
-        if (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
+        إذا (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
+                أرجع log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
 
-        return stat_inode_same(&sta, &stb);
+        أرجع stat_inode_same(&sta, &stb);
 }
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
-        assert(s);
-        assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
+bool is_fs_type(ثابت بنية statfs *s, statfs_f_type_t magic_قدر) {
+        أكد(s);
+        assert_cc(حجم(statfs_f_type_t) >= حجم(s->f_type));
 
-        return F_TYPE_EQUAL(s->f_type, magic_value);
+        أرجع F_TYPE_EQUAL(s->f_type, magic_قدر);
 }
 
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
-        int r;
+صحيح is_fs_type_at(صحيح dir_fd, ثابت حرف *رستہ, statfs_f_type_t magic_قدر) {
+        صحيح r;
 
-        struct statfs s;
-        r = xstatfsat(dir_fd, path, &s);
-        if (r < 0)
-                return r;
+        بنية statfs s;
+        r = xstatfsat(dir_fd, رستہ, &s);
+        إذا (r < 0)
+                أرجع r;
 
-        return is_fs_type(&s, magic_value);
+        أرجع is_fs_type(&s, magic_قدر);
 }
 
-bool is_temporary_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
+bool is_temporary_fs(ثابت بنية statfs *s) {
+        أرجع fs_وچ_گروہ(s, FILESYSTEM_سیٹ_TEMPORARY);
 }
 
-bool is_network_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_NETWORK);
+bool is_جال_fs(ثابت بنية statfs *s) {
+        أرجع fs_وچ_گروہ(s, FILESYSTEM_سیٹ_جال);
 }
 
-int fd_is_temporary_fs(int fd) {
-        int r;
+صحيح fd_is_temporary_fs(صحيح fd) {
+        صحيح r;
 
-        struct statfs s;
+        بنية statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return is_temporary_fs(&s);
+        أرجع is_temporary_fs(&s);
 }
 
-int fd_is_network_fs(int fd) {
-        int r;
+صحيح fd_is_جال_fs(صحيح fd) {
+        صحيح r;
 
-        struct statfs s;
+        بنية statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return is_network_fs(&s);
+        أرجع is_جال_fs(&s);
 }
 
-int path_is_temporary_fs(const char *path) {
-        struct statfs s;
+صحيح رستہ_is_temporary_fs(ثابت حرف *رستہ) {
+        بنية statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        إذا (statfs(رستہ, &s) < 0)
+                أرجع -errno;
 
-        return is_temporary_fs(&s);
+        أرجع is_temporary_fs(&s);
 }
 
-int path_is_network_fs(const char *path) {
-        struct statfs s;
+صحيح رستہ_is_جال_fs(ثابت حرف *رستہ) {
+        بنية statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        إذا (statfs(رستہ, &s) < 0)
+                أرجع -errno;
 
-        return is_network_fs(&s);
+        أرجع is_جال_fs(&s);
 }
 
-int proc_mounted(void) {
+صحيح proc_mounted(فراغ) {
         /* This is typically used in error path. So, it is better to not overwrite the original errno. */
         PROTECT_ERRNO;
-        int r;
+        صحيح r;
 
         /* A quick check of procfs is properly mounted */
 
-        r = path_is_fs_type("/proc/", PROC_SUPER_MAGIC);
-        if (r == -ENOENT) /* not mounted at all */
-                return false;
+        r = رستہ_is_fs_type("/proc/", PROC_SUPER_MAGIC);
+        إذا (r == -ENOENT) /* not mounted at all */
+                أرجع false;
 
-        return r;
+        أرجع r;
 }
 
-bool stat_inode_same(const struct stat *a, const struct stat *b) {
+bool stat_inode_same(ثابت بنية stat *a, ثابت بنية stat *b) {
 
         /* Returns if the specified stat structure references the same (though possibly modified) inode. Does
          * a thorough check, comparing inode nr, backing device and if the inode is still of the same type. */
 
-        return stat_is_set(a) && stat_is_set(b) &&
+        أرجع stat_is_سیٹ(a) && stat_is_سیٹ(b) &&
                 ((a->st_mode ^ b->st_mode) & S_IFMT) == 0 &&  /* same inode type */
                 a->st_dev == b->st_dev &&
                 a->st_ino == b->st_ino;
 }
 
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
+bool stat_inode_unmodified(ثابت بنية stat *a, ثابت بنية stat *b) {
 
         /* Returns if the specified stat structures reference the same, unmodified inode. This check tries to
          * be reasonably careful when detecting changes: we check both inode and mtime, to cater for file
@@ -755,55 +755,55 @@ bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
          * about contents of the file. The purpose here is to detect file contents changes, and nothing
          * else. */
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        return stat_inode_same(a, b) &&
+        أرجع stat_inode_same(a, b) &&
                 a->st_mtim.tv_sec == b->st_mtim.tv_sec &&
                 a->st_mtim.tv_nsec == b->st_mtim.tv_nsec &&
                 (!S_ISREG(a->st_mode) || a->st_size == b->st_size) && /* if regular file, compare file size */
                 (!(S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) || a->st_rdev == b->st_rdev); /* if device node, also compare major/minor, because we can */
 }
 
-bool statx_inode_same(const struct statx *a, const struct statx *b) {
+bool statx_inode_same(ثابت بنية statx *a, ثابت بنية statx *b) {
 
         /* Same as stat_inode_same() but for struct statx */
 
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+        إذا (!statx_is_سیٹ(a) || !statx_is_سیٹ(b))
+                أرجع false;
 
-        assert(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
-        assert(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
+        أكد(FLAGS_سیٹ(a->stx_نقاب, STATX_TYPE|STATX_INO));
+        أكد(FLAGS_سیٹ(b->stx_نقاب, STATX_TYPE|STATX_INO));
 
-        return
-                ((a->stx_mode ^ b->stx_mode) & S_IFMT) == 0 &&
+        أرجع
+                ((a->stx_منوال ^ b->stx_منوال) & S_IFMT) == 0 &&
                 a->stx_dev_major == b->stx_dev_major &&
                 a->stx_dev_minor == b->stx_dev_minor &&
                 a->stx_ino == b->stx_ino;
 }
 
-int statx_mount_same(const struct statx *a, const struct statx *b) {
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+صحيح statx_mount_same(ثابت بنية statx *a, ثابت بنية statx *b) {
+        إذا (!statx_is_سیٹ(a) || !statx_is_سیٹ(b))
+                أرجع false;
 
-        if ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
-            (FLAGS_SET(a->stx_mask, STATX_MNT_ID_UNIQUE) && FLAGS_SET(b->stx_mask, STATX_MNT_ID_UNIQUE)))
-                return a->stx_mnt_id == b->stx_mnt_id;
+        إذا ((FLAGS_سیٹ(a->stx_نقاب, STATX_MNT_ID) && FLAGS_سیٹ(b->stx_نقاب, STATX_MNT_ID)) ||
+            (FLAGS_سیٹ(a->stx_نقاب, STATX_MNT_ID_UNIQUE) && FLAGS_سیٹ(b->stx_نقاب, STATX_MNT_ID_UNIQUE)))
+                أرجع a->stx_mnt_id == b->stx_mnt_id;
 
-        return -ENODATA;
+        أرجع -ENODATA;
 }
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+usec_t statx_timestamp_لدو(ثابت بنية statx_timestamp *ts) {
+        أكد(ts);
+        أرجع timespec_لدو(&(ثابت بنية timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load_nsec(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+nsec_t statx_timestamp_لدو_nsec(ثابت بنية statx_timestamp *ts) {
+        أكد(ts);
+        أرجع timespec_لدو_nsec(&(ثابت بنية timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
 
-void inode_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+فراغ inode_hash_func(ثابت بنية stat *q, بنية siphash *state) {
+        أكد(q);
 
         siphash24_compress_typesafe(q->st_dev, state);
         siphash24_compress_typesafe(q->st_ino, state);
@@ -813,145 +813,145 @@ void inode_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(type, state);
 }
 
-int inode_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+صحيح inode_compare_func(ثابت بنية stat *a, ثابت بنية stat *b) {
+        صحيح r;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
         r = CMP(a->st_dev, b->st_dev);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                أرجع r;
 
         r = CMP(a->st_ino, b->st_ino);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                أرجع r;
 
-        return CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
+        أرجع CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
+DEFINE_HASH_OPS_WITH_کلید_DESTRUCTOR(inode_hash_ops, بنية stat, inode_hash_func, inode_compare_func, حرر);
 
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+فراغ inode_unmodified_hash_func(ثابت بنية stat *q, بنية siphash *state) {
+        أكد(q);
 
         inode_hash_func(q, state);
 
         siphash24_compress_typesafe(q->st_mtim.tv_sec, state);
         siphash24_compress_typesafe(q->st_mtim.tv_nsec, state);
 
-        if (S_ISREG(q->st_mode))
+        إذا (S_ISREG(q->st_mode))
                 siphash24_compress_typesafe(q->st_size, state);
-        else {
+        وإلا {
                 uint64_t invalid = UINT64_MAX;
                 siphash24_compress_typesafe(invalid, state);
         }
 
-        if (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
+        إذا (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
                 siphash24_compress_typesafe(q->st_rdev, state);
-        else {
+        وإلا {
                 dev_t invalid = (dev_t) -1;
                 siphash24_compress_typesafe(invalid, state);
         }
 }
 
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+صحيح inode_unmodified_compare_func(ثابت بنية stat *a, ثابت بنية stat *b) {
+        صحيح r;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
         r = inode_compare_func(a, b);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                أرجع r;
 
         r = CMP(a->st_mtim.tv_sec, b->st_mtim.tv_sec);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                أرجع r;
 
         r = CMP(a->st_mtim.tv_nsec, b->st_mtim.tv_nsec);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                أرجع r;
 
-        if (S_ISREG(a->st_mode)) {
+        إذا (S_ISREG(a->st_mode)) {
                 r = CMP(a->st_size, b->st_size);
-                if (r != 0)
-                        return r;
+                إذا (r != 0)
+                        أرجع r;
         }
 
-        if (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
+        إذا (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
                 r = CMP(a->st_rdev, b->st_rdev);
-                if (r != 0)
-                        return r;
+                إذا (r != 0)
+                        أرجع r;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
+DEFINE_HASH_OPS_WITH_کلید_DESTRUCTOR(inode_unmodified_hash_ops, بنية stat, inode_unmodified_hash_func, inode_unmodified_compare_func, حرر);
 
-const char* inode_type_to_string(mode_t m) {
+ثابت حرف* inode_type_منزل_string(mode_t m) {
 
         /* Returns a short string for the inode type. We use the same name as the underlying macros for each
          * inode type. */
 
-        switch (m & S_IFMT) {
-        case S_IFREG:
-                return "reg";
-        case S_IFDIR:
-                return "dir";
-        case S_IFLNK:
-                return "lnk";
-        case S_IFCHR:
-                return "chr";
-        case S_IFBLK:
-                return "blk";
-        case S_IFIFO:
-                return "fifo";
-        case S_IFSOCK:
-                return "sock";
+        بدل (m & S_IFMT) {
+        حالة S_IFREG:
+                أرجع "reg";
+        حالة S_IFDIR:
+                أرجع "dir";
+        حالة S_IFLNK:
+                أرجع "lnk";
+        حالة S_IFCHR:
+                أرجع "chr";
+        حالة S_IFBLK:
+                أرجع "blk";
+        حالة S_IFIFO:
+                أرجع "fifo";
+        حالة S_IFSOCK:
+                أرجع "sock";
         }
 
         /* Note anonymous inodes in the kernel will have a zero type. Hence fstat() of an eventfd() will
          * return an .st_mode where we'll return NULL here! */
-        return NULL;
+        أرجع عدم;
 }
 
-mode_t inode_type_from_string(const char *s) {
-        if (!s)
-                return MODE_INVALID;
+mode_t inode_type_from_string(ثابت حرف *s) {
+        إذا (!s)
+                أرجع منوال_INVALID;
 
-        if (streq(s, "reg"))
-                return S_IFREG;
-        if (streq(s, "dir"))
-                return S_IFDIR;
-        if (streq(s, "lnk"))
-                return S_IFLNK;
-        if (streq(s, "chr"))
-                return S_IFCHR;
-        if (streq(s, "blk"))
-                return S_IFBLK;
-        if (streq(s, "fifo"))
-                return S_IFIFO;
-        if (streq(s, "sock"))
-                return S_IFSOCK;
+        إذا (streq(s, "reg"))
+                أرجع S_IFREG;
+        إذا (streq(s, "dir"))
+                أرجع S_IFDIR;
+        إذا (streq(s, "lnk"))
+                أرجع S_IFLNK;
+        إذا (streq(s, "chr"))
+                أرجع S_IFCHR;
+        إذا (streq(s, "blk"))
+                أرجع S_IFBLK;
+        إذا (streq(s, "fifo"))
+                أرجع S_IFIFO;
+        إذا (streq(s, "sock"))
+                أرجع S_IFSOCK;
 
-        return MODE_INVALID;
+        أرجع منوال_INVALID;
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret) {
-        assert(fd >= 0);
-        assert(ret);
+صحيح vfs_free_بائٹاں(صحيح fd, uint64_t *ret) {
+        أكد(fd >= 0);
+        أكد(ret);
 
         /* Safely returns the current available disk space (for root, i.e. including any space reserved for
          * root) of the disk referenced by the fd, converted to bytes. */
 
-        struct statvfs sv;
-        if (fstatvfs(fd, &sv) < 0)
-                return -errno;
+        بنية statvfs sv;
+        إذا (fstatvfs(fd, &sv) < 0)
+                أرجع -errno;
 
-        if (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
-                return -ERANGE;
+        إذا (!MUL_محفوظ(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
+                أرجع -ERANGE;
 
-        return 0;
+        أرجع 0;
 }

@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-const char* errno_name_no_fallback(int id) _const_;
-int errno_from_name(const char *name) _pure_;
+ثابت حرف* errno_name_no_fallback(صحيح id) _const_;
+صحيح errno_from_name(ثابت حرف *name) خالص;
 
-static inline bool errno_is_valid(int n) {
-        return n > 0 && n <= ERRNO_MAX;
+ساكن مضمن bool errno_is_valid(صحيح n) {
+        أرجع n > 0 && n <= ERRNO_MAX;
 }
 
-#define ERRNO_NAME_BUF_LEN DECIMAL_STR_MAX(int)
+#تعریف_کرو ERRNO_NAME_BUF_LEN DECIMAL_STR_MAX(صحيح)
 /* Like errno_name, but always returns a string. */
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]);
+ثابت حرف* errno_name(صحيح id, حرف buf[ساكن ERRNO_NAME_BUF_LEN]);
 
 /* A helper to print the errno "name" or number if name is not defined. */
-#define ERRNO_NAME(errnum) errno_name(errnum, (char[ERRNO_NAME_BUF_LEN]){})
+#تعریف_کرو ERRNO_NAME(errnum) errno_name(errnum, (حرف[ERRNO_NAME_BUF_LEN]){})

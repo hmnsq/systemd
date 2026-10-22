@@ -1,52 +1,52 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/if.h>
-#include <linux/if_arp.h>
-#include <linux/if_ether.h>
-#include <linux/if_infiniband.h>
-#include <linux/pkt_sched.h>
-#include <mqueue.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/ip.h>
-#include <poll.h>
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ضمن <fcntl.h>
+#ضمن <linux/if.h>
+#ضمن <linux/if_arp.h>
+#ضمن <linux/if_ether.h>
+#ضمن <linux/if_infiniband.h>
+#ضمن <linux/pkt_sched.h>
+#ضمن <mqueue.h>
+#ضمن <net/if.h>
+#ضمن <netdb.h>
+#ضمن <netinet/ip.h>
+#ضمن <poll.h>
+#ضمن <stdio.h>
+#ضمن <sys/ioctl.h>
+#ضمن <sys/stat.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "format-ifname.h"
-#include "format-util.h"
-#include "in-addr-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "random-util.h"
-#include "socket-util.h"
-#include "sparse-endian.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "sysctl-util.h"
-#include "user-util.h"
-#include "xattr-util.h"
+#ضمن "alloc-util.h"
+#ضمن "errno-util.h"
+#ضمن "escape.h"
+#ضمن "fd-util.h"
+#ضمن "format-ifname.h"
+#ضمن "format-util.h"
+#ضمن "in-addr-util.h"
+#ضمن "io-util.h"
+#ضمن "log.h"
+#ضمن "memory-util.h"
+#ضمن "parse-util.h"
+#ضمن "path-util.h"
+#ضمن "pidref.h"
+#ضمن "process-util.h"
+#ضمن "random-util.h"
+#ضمن "socket-util.h"
+#ضمن "sparse-endian.h"
+#ضمن "string-table.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "sysctl-util.h"
+#ضمن "user-util.h"
+#ضمن "xattr-util.h"
 
-#if ENABLE_IDN
+#إذا ENABLE_IDN
 #  define IDN_FLAGS NI_IDN
-#else
+#وإلا
 #  define IDN_FLAGS 0
-#endif
+#جے_انت
 
-static const char* const socket_address_type_table[] = {
+ساكن ثابت حرف* ثابت socket_پتہ_type_جدول[] = {
         [SOCK_STREAM] =    "Stream",
         [SOCK_DGRAM] =     "Datagram",
         [SOCK_RAW] =       "Raw",
@@ -55,605 +55,605 @@ static const char* const socket_address_type_table[] = {
         [SOCK_DCCP] =      "DatagramCongestionControl",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DEFINE_STRING_جدول_LOOKUP(socket_پتہ_type, صحيح);
 
-int socket_address_verify(const SocketAddress *a, bool strict) {
-        assert(a);
+صحيح socket_پتہ_verify(ثابت Socket_پتہ *a, bool strict) {
+        أكد(a);
 
         /* With 'strict' we enforce additional sanity constraints which are not set by the standard,
          * but should only apply to sockets we create ourselves. */
 
-        switch (socket_address_family(a)) {
+        بدل (socket_پتہ_family(a)) {
 
-        case AF_INET:
-                if (a->size != sizeof(struct sockaddr_in))
-                        return -EINVAL;
+        حالة AF_INET:
+                إذا (a->ناپ != حجم(بنية sockaddr_in))
+                        أرجع -EINVAL;
 
-                if (a->sockaddr.in.sin_port == 0)
-                        return -EINVAL;
+                إذا (a->sockaddr.وچ.sin_port == 0)
+                        أرجع -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                إذا (!وچ_سیٹ(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        أرجع -EINVAL;
 
-                return 0;
+                أرجع 0;
 
-        case AF_INET6:
-                if (a->size != sizeof(struct sockaddr_in6))
-                        return -EINVAL;
+        حالة AF_INET6:
+                إذا (a->ناپ != حجم(بنية sockaddr_in6))
+                        أرجع -EINVAL;
 
-                if (a->sockaddr.in6.sin6_port == 0)
-                        return -EINVAL;
+                إذا (a->sockaddr.in6.sin6_port == 0)
+                        أرجع -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                إذا (!وچ_سیٹ(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        أرجع -EINVAL;
 
-                return 0;
+                أرجع 0;
 
-        case AF_UNIX:
-                if (a->size < offsetof(struct sockaddr_un, sun_path))
-                        return -EINVAL;
-                if (a->size > sizeof(struct sockaddr_un) + !strict)
+        حالة AF_UNIX:
+                إذا (a->ناپ < offsetof(بنية sockaddr_un, sun_path))
+                        أرجع -EINVAL;
+                إذا (a->ناپ > حجم(بنية sockaddr_un) + !strict)
                         /* If !strict, allow one extra byte, since getsockname() on Linux will append
                          * a NUL byte if we have path sockets that are above sun_path's full size. */
-                        return -EINVAL;
+                        أرجع -EINVAL;
 
-                if (a->size > offsetof(struct sockaddr_un, sun_path) &&
+                إذا (a->ناپ > offsetof(بنية sockaddr_un, sun_path) &&
                     a->sockaddr.un.sun_path[0] != 0 &&
                     strict) {
                         /* Only validate file system sockets here, and only in strict mode */
-                        const char *e;
+                        ثابت حرف *e;
 
-                        e = memchr(a->sockaddr.un.sun_path, 0, sizeof(a->sockaddr.un.sun_path));
-                        if (e) {
+                        e = memchr(a->sockaddr.un.sun_path, 0, حجم(a->sockaddr.un.sun_path));
+                        إذا (e) {
                                 /* If there's an embedded NUL byte, make sure the size of the socket address matches it */
-                                if (a->size != offsetof(struct sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
-                                        return -EINVAL;
-                        } else {
+                                إذا (a->ناپ != offsetof(بنية sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
+                                        أرجع -EINVAL;
+                        } وإلا {
                                 /* If there's no embedded NUL byte, then the size needs to match the whole
                                  * structure or the structure with one extra NUL byte suffixed. (Yeah, Linux is awful,
                                  * and considers both equivalent: getsockname() even extends sockaddr_un beyond its
                                  * size if the path is non NUL terminated.) */
-                                if (!IN_SET(a->size, sizeof(a->sockaddr.un.sun_path), sizeof(a->sockaddr.un.sun_path)+1))
-                                        return -EINVAL;
+                                إذا (!وچ_سیٹ(a->ناپ, حجم(a->sockaddr.un.sun_path), حجم(a->sockaddr.un.sun_path)+1))
+                                        أرجع -EINVAL;
                         }
                 }
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
-                        return -EINVAL;
+                إذا (!وچ_سیٹ(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
+                        أرجع -EINVAL;
 
-                return 0;
+                أرجع 0;
 
-        case AF_NETLINK:
+        حالة AF_NETLINK:
 
-                if (a->size != sizeof(struct sockaddr_nl))
-                        return -EINVAL;
+                إذا (a->ناپ != حجم(بنية sockaddr_nl))
+                        أرجع -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
-                        return -EINVAL;
+                إذا (!وچ_سیٹ(a->type, 0, SOCK_RAW, SOCK_DGRAM))
+                        أرجع -EINVAL;
 
-                return 0;
+                أرجع 0;
 
-        case AF_VSOCK:
-                if (a->size != sizeof(struct sockaddr_vm))
-                        return -EINVAL;
+        حالة AF_VSOCK:
+                إذا (a->ناپ != حجم(بنية sockaddr_vm))
+                        أرجع -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                إذا (!وچ_سیٹ(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        أرجع -EINVAL;
 
-                return 0;
+                أرجع 0;
 
-        default:
-                return -EAFNOSUPPORT;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
         }
 }
 
-int socket_address_print(const SocketAddress *a, char **ret) {
-        int r;
+صحيح socket_پتہ_print(ثابت Socket_پتہ *a, حرف **ret) {
+        صحيح r;
 
-        assert(a);
-        assert(ret);
+        أكد(a);
+        أكد(ret);
 
-        r = socket_address_verify(a, false); /* We do non-strict validation, because we want to be
+        r = socket_پتہ_verify(a, false); /* We do non-strict validation, because we want to be
                                               * able to pretty-print any socket the kernel considers
                                               * valid. We still need to do validation to know if we
                                               * can meaningfully print the address. */
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (socket_address_family(a) == AF_NETLINK) {
-                _cleanup_free_ char *sfamily = NULL;
+        إذا (socket_پتہ_family(a) == AF_NETLINK) {
+                _cleanup_free_ حرف *sfamily = عدم;
 
-                r = netlink_family_to_string_alloc(a->protocol, &sfamily);
-                if (r < 0)
-                        return r;
+                r = netlink_family_منزل_string_alloc(a->protocol, &sfamily);
+                إذا (r < 0)
+                        أرجع r;
 
                 r = asprintf(ret, "%s %u", sfamily, a->sockaddr.nl.nl_groups);
-                if (r < 0)
-                        return -ENOMEM;
+                إذا (r < 0)
+                        أرجع -ENOMEM;
 
-                return 0;
+                أرجع 0;
         }
 
-        return sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
+        أرجع sockaddr_pretty(&a->sockaddr.sa, a->ناپ, false, true, ret);
 }
 
-bool socket_address_can_accept(const SocketAddress *a) {
-        assert(a);
+bool socket_پتہ_can_accept(ثابت Socket_پتہ *a) {
+        أكد(a);
 
-        return
-                IN_SET(a->type, SOCK_STREAM, SOCK_SEQPACKET);
+        أرجع
+                وچ_سیٹ(a->type, SOCK_STREAM, SOCK_SEQPACKET);
 }
 
-bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) {
-        assert(a);
-        assert(b);
+bool socket_پتہ_equal(ثابت Socket_پتہ *a, ثابت Socket_پتہ *b) {
+        أكد(a);
+        أكد(b);
 
         /* Invalid addresses are unequal to all */
-        if (socket_address_verify(a, false) < 0 ||
-            socket_address_verify(b, false) < 0)
-                return false;
+        إذا (socket_پتہ_verify(a, false) < 0 ||
+            socket_پتہ_verify(b, false) < 0)
+                أرجع false;
 
-        if (a->type != b->type)
-                return false;
+        إذا (a->type != b->type)
+                أرجع false;
 
-        if (socket_address_family(a) != socket_address_family(b))
-                return false;
+        إذا (socket_پتہ_family(a) != socket_پتہ_family(b))
+                أرجع false;
 
-        switch (socket_address_family(a)) {
+        بدل (socket_پتہ_family(a)) {
 
-        case AF_INET:
-                if (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
-                        return false;
+        حالة AF_INET:
+                إذا (a->sockaddr.وچ.sin_addr.s_addr != b->sockaddr.وچ.sin_addr.s_addr)
+                        أرجع false;
 
-                if (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
-                        return false;
+                إذا (a->sockaddr.وچ.sin_port != b->sockaddr.وچ.sin_port)
+                        أرجع false;
 
-                break;
+                اكسر;
 
-        case AF_INET6:
-                if (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, sizeof(a->sockaddr.in6.sin6_addr)) != 0)
-                        return false;
+        حالة AF_INET6:
+                إذا (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, حجم(a->sockaddr.in6.sin6_addr)) != 0)
+                        أرجع false;
 
-                if (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
-                        return false;
+                إذا (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
+                        أرجع false;
 
-                break;
+                اكسر;
 
-        case AF_UNIX:
-                if (a->size <= offsetof(struct sockaddr_un, sun_path) ||
-                    b->size <= offsetof(struct sockaddr_un, sun_path))
-                        return false;
+        حالة AF_UNIX:
+                إذا (a->ناپ <= offsetof(بنية sockaddr_un, sun_path) ||
+                    b->ناپ <= offsetof(بنية sockaddr_un, sun_path))
+                        أرجع false;
 
-                if ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
-                        return false;
+                إذا ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
+                        أرجع false;
 
-                if (a->sockaddr.un.sun_path[0]) {
-                        if (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
-                                return false;
-                } else {
-                        if (a->size != b->size)
-                                return false;
+                إذا (a->sockaddr.un.sun_path[0]) {
+                        إذا (!رستہ_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
+                                أرجع false;
+                } وإلا {
+                        إذا (a->ناپ != b->ناپ)
+                                أرجع false;
 
-                        if (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
-                                return false;
+                        إذا (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->ناپ) != 0)
+                                أرجع false;
                 }
 
-                break;
+                اكسر;
 
-        case AF_NETLINK:
-                if (a->protocol != b->protocol)
-                        return false;
+        حالة AF_NETLINK:
+                إذا (a->protocol != b->protocol)
+                        أرجع false;
 
-                if (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
-                        return false;
+                إذا (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
+                        أرجع false;
 
-                break;
+                اكسر;
 
-        case AF_VSOCK:
-                if (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
-                        return false;
+        حالة AF_VSOCK:
+                إذا (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
+                        أرجع false;
 
-                if (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
-                        return false;
+                إذا (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
+                        أرجع false;
 
-                break;
+                اكسر;
 
-        default:
+        افتراضي:
                 /* Cannot compare, so we assume the addresses are different */
-                return false;
+                أرجع false;
         }
 
-        return true;
+        أرجع true;
 }
 
-const char* socket_address_get_path(const SocketAddress *a) {
-        assert(a);
+ثابت حرف* socket_پتہ_get_رستہ(ثابت Socket_پتہ *a) {
+        أكد(a);
 
-        if (socket_address_family(a) != AF_UNIX)
-                return NULL;
+        إذا (socket_پتہ_family(a) != AF_UNIX)
+                أرجع عدم;
 
-        if (a->sockaddr.un.sun_path[0] == 0)
-                return NULL;
+        إذا (a->sockaddr.un.sun_path[0] == 0)
+                أرجع عدم;
 
         /* Note that this is only safe because we know that there's an extra NUL byte after the sockaddr_un
          * structure. On Linux AF_UNIX file system socket addresses don't have to be NUL terminated if they take up the
          * full sun_path space. */
-        assert_cc(sizeof(union sockaddr_union) >= sizeof(struct sockaddr_un)+1);
-        return a->sockaddr.un.sun_path;
+        assert_cc(حجم(اتحاد sockaddr_union) >= حجم(بنية sockaddr_un)+1);
+        أرجع a->sockaddr.un.sun_path;
 }
 
-bool socket_ipv6_is_supported(void) {
-        static int cached = -1;
+bool socket_ipv6_is_supported(فراغ) {
+        ساكن صحيح cached = -1;
 
-        if (cached < 0) {
+        إذا (cached < 0) {
 
-                if (access("/proc/net/if_inet6", F_OK) < 0) {
+                إذا (access("/proc/net/if_inet6", F_OK) < 0) {
 
-                        if (errno != ENOENT) {
+                        إذا (errno != ENOENT) {
                                 log_debug_errno(errno, "Unexpected error when checking whether /proc/net/if_inet6 exists: %m");
-                                return false;
+                                أرجع false;
                         }
 
                         cached = false;
-                } else
+                } وإلا
                         cached = true;
         }
 
-        return cached;
+        أرجع cached;
 }
 
-bool socket_ipv6_is_enabled(void) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+bool socket_ipv6_is_enabled(فراغ) {
+        _cleanup_free_ حرف *v = عدم;
+        صحيح r;
 
         /* Much like socket_ipv6_is_supported(), but also checks that the sysctl that disables IPv6 on all
          * interfaces isn't turned on */
 
-        if (!socket_ipv6_is_supported())
-                return false;
+        إذا (!socket_ipv6_is_supported())
+                أرجع false;
 
         r = sysctl_read_ip_property(AF_INET6, "all", "disable_ipv6", &v);
-        if (r < 0) {
+        إذا (r < 0) {
                 log_debug_errno(r, "Unexpected error reading 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                أرجع true;
         }
 
         r = parse_boolean(v);
-        if (r < 0) {
+        إذا (r < 0) {
                 log_debug_errno(r, "Failed to pare 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                أرجع true;
         }
 
-        return !r;
+        أرجع !r;
 }
 
-bool socket_address_matches_fd(const SocketAddress *a, int fd) {
-        SocketAddress b;
+bool socket_پتہ_matches_fd(ثابت Socket_پتہ *a, صحيح fd) {
+        Socket_پتہ b;
         socklen_t solen;
 
-        assert(a);
-        assert(fd >= 0);
+        أكد(a);
+        أكد(fd >= 0);
 
-        b.size = sizeof(b.sockaddr);
-        if (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
-                return false;
+        b.ناپ = حجم(b.sockaddr);
+        إذا (getsockname(fd, &b.sockaddr.sa, &b.ناپ) < 0)
+                أرجع false;
 
-        if (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
-                return false;
+        إذا (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
+                أرجع false;
 
-        solen = sizeof(b.type);
-        if (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
-                return false;
+        solen = حجم(b.type);
+        إذا (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
+                أرجع false;
 
-        if (b.type != a->type)
-                return false;
+        إذا (b.type != a->type)
+                أرجع false;
 
-        if (a->protocol != 0)  {
-                solen = sizeof(b.protocol);
-                if (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
-                        return false;
+        إذا (a->protocol != 0)  {
+                solen = حجم(b.protocol);
+                إذا (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
+                        أرجع false;
 
-                if (b.protocol != a->protocol)
-                        return false;
+                إذا (b.protocol != a->protocol)
+                        أرجع false;
         }
 
-        return socket_address_equal(a, &b);
+        أرجع socket_پتہ_equal(a, &b);
 }
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
-        const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
+صحيح sockaddr_پورٹ(ثابت بنية sockaddr *_sa, بنانشانی *ret_پورٹ) {
+        ثابت اتحاد sockaddr_union *sa = (ثابت اتحاد sockaddr_union*) _sa;
 
         /* Note, this returns the port as 'unsigned' rather than 'uint16_t', as AF_VSOCK knows larger ports */
 
-        assert(sa);
-        assert(ret_port);
+        أكد(sa);
+        أكد(ret_پورٹ);
 
-        switch (sa->sa.sa_family) {
+        بدل (sa->sa.sa_family) {
 
-        case AF_INET:
-                *ret_port = be16toh(sa->in.sin_port);
-                return 0;
+        حالة AF_INET:
+                *ret_پورٹ = be16toh(sa->وچ.sin_port);
+                أرجع 0;
 
-        case AF_INET6:
-                *ret_port = be16toh(sa->in6.sin6_port);
-                return 0;
+        حالة AF_INET6:
+                *ret_پورٹ = be16toh(sa->in6.sin6_port);
+                أرجع 0;
 
-        case AF_VSOCK:
-                *ret_port = sa->vm.svm_port;
-                return 0;
+        حالة AF_VSOCK:
+                *ret_پورٹ = sa->vm.svm_port;
+                أرجع 0;
 
-        default:
-                return -EAFNOSUPPORT;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
         }
 }
 
-const union in_addr_union *sockaddr_in_addr(const struct sockaddr *_sa) {
-        const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
+ثابت اتحاد وچ_addr_union *sockaddr_وچ_addr(ثابت بنية sockaddr *_sa) {
+        ثابت اتحاد sockaddr_union *sa = (ثابت اتحاد sockaddr_union*) _sa;
 
-        if (!sa)
-                return NULL;
+        إذا (!sa)
+                أرجع عدم;
 
-        switch (sa->sa.sa_family) {
+        بدل (sa->sa.sa_family) {
 
-        case AF_INET:
-                return (const union in_addr_union*) &sa->in.sin_addr;
+        حالة AF_INET:
+                أرجع (ثابت اتحاد وچ_addr_union*) &sa->وچ.sin_addr;
 
-        case AF_INET6:
-                return (const union in_addr_union*) &sa->in6.sin6_addr;
+        حالة AF_INET6:
+                أرجع (ثابت اتحاد وچ_addr_union*) &sa->in6.sin6_addr;
 
-        default:
-                return NULL;
+        افتراضي:
+                أرجع عدم;
         }
 }
 
-int sockaddr_set_in_addr(
-                union sockaddr_union *u,
-                int family,
-                const union in_addr_union *a,
+صحيح sockaddr_سیٹ_وچ_addr(
+                اتحاد sockaddr_union *u,
+                صحيح family,
+                ثابت اتحاد وچ_addr_union *a,
                 uint16_t port) {
 
-        assert(u);
-        assert(a);
+        أكد(u);
+        أكد(a);
 
-        switch (family) {
+        بدل (family) {
 
-        case AF_INET:
-                u->in = (struct sockaddr_in) {
+        حالة AF_INET:
+                u->وچ = (بنية sockaddr_in) {
                         .sin_family = AF_INET,
-                        .sin_addr = a->in,
+                        .sin_addr = a->وچ,
                         .sin_port = htobe16(port),
                 };
 
-                return 0;
+                أرجع 0;
 
-        case AF_INET6:
-                u->in6 = (struct sockaddr_in6) {
+        حالة AF_INET6:
+                u->in6 = (بنية sockaddr_in6) {
                         .sin6_family = AF_INET6,
                         .sin6_addr = a->in6,
                         .sin6_port = htobe16(port),
                 };
 
-                return 0;
+                أرجع 0;
 
-        default:
-                return -EAFNOSUPPORT;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
 
         }
 }
 
-int sockaddr_pretty(
-                const struct sockaddr *_sa,
+صحيح sockaddr_pretty(
+                ثابت بنية sockaddr *_sa,
                 socklen_t salen,
                 bool translate_ipv6,
-                bool include_port,
-                char **ret) {
+                bool include_پورٹ,
+                حرف **ret) {
 
-        union sockaddr_union *sa = (union sockaddr_union*) _sa;
-        char *p;
-        int r;
+        اتحاد sockaddr_union *sa = (اتحاد sockaddr_union*) _sa;
+        حرف *p;
+        صحيح r;
 
-        assert(sa);
-        assert(salen >= sizeof(sa->sa.sa_family));
-        assert(ret);
+        أكد(sa);
+        أكد(salen >= حجم(sa->sa.sa_family));
+        أكد(ret);
 
-        switch (sa->sa.sa_family) {
+        بدل (sa->sa.sa_family) {
 
-        case AF_INET: {
+        حالة AF_INET: {
                 uint32_t a;
 
-                a = be32toh(sa->in.sin_addr.s_addr);
+                a = be32toh(sa->وچ.sin_addr.s_addr);
 
-                if (include_port)
+                إذا (include_پورٹ)
                         r = asprintf(&p,
                                      "%u.%u.%u.%u:%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF,
-                                     be16toh(sa->in.sin_port));
-                else
+                                     be16toh(sa->وچ.sin_port));
+                وإلا
                         r = asprintf(&p,
                                      "%u.%u.%u.%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF);
-                if (r < 0)
-                        return -ENOMEM;
-                break;
+                إذا (r < 0)
+                        أرجع -ENOMEM;
+                اكسر;
         }
 
-        case AF_INET6: {
-                static const unsigned char ipv4_prefix[] = {
+        حالة AF_INET6: {
+                ساكن ثابت بنانشانی حرف ipv4_اگیتر[] = {
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF
                 };
 
-                if (translate_ipv6 &&
-                    memcmp(&sa->in6.sin6_addr, ipv4_prefix, sizeof(ipv4_prefix)) == 0) {
-                        const uint8_t *a = sa->in6.sin6_addr.s6_addr+12;
-                        if (include_port)
+                إذا (translate_ipv6 &&
+                    memcmp(&sa->in6.sin6_addr, ipv4_اگیتر, حجم(ipv4_اگیتر)) == 0) {
+                        ثابت uint8_t *a = sa->in6.sin6_addr.s6_addr+12;
+                        إذا (include_پورٹ)
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u:%u",
                                              a[0], a[1], a[2], a[3],
                                              be16toh(sa->in6.sin6_port));
-                        else
+                        وإلا
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u",
                                              a[0], a[1], a[2], a[3]);
-                        if (r < 0)
-                                return -ENOMEM;
-                } else {
-                        const char *a = IN6_ADDR_TO_STRING(&sa->in6.sin6_addr);
+                        إذا (r < 0)
+                                أرجع -ENOMEM;
+                } وإلا {
+                        ثابت حرف *a = IN6_ADDR_منزل_STRING(&sa->in6.sin6_addr);
 
-                        if (include_port) {
-                                if (asprintf(&p,
+                        إذا (include_پورٹ) {
+                                إذا (asprintf(&p,
                                              "[%s]:%u%s%s",
                                              a,
                                              be16toh(sa->in6.sin6_port),
                                              sa->in6.sin6_scope_id != 0 ? "%" : "",
-                                             FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX)) < 0)
-                                        return -ENOMEM;
-                        } else {
-                                if (sa->in6.sin6_scope_id != 0)
-                                        p = strjoin(a, "%", FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX));
-                                else
+                                             FORMAT_IFNAME_بھریا(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX)) < 0)
+                                        أرجع -ENOMEM;
+                        } وإلا {
+                                إذا (sa->in6.sin6_scope_id != 0)
+                                        p = strjoin(a, "%", FORMAT_IFNAME_بھریا(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX));
+                                وإلا
                                         p = strdup(a);
-                                if (!p)
-                                        return -ENOMEM;
+                                إذا (!p)
+                                        أرجع -ENOMEM;
                         }
                 }
 
-                break;
+                اكسر;
         }
 
-        case AF_UNIX:
-                if (salen <= offsetof(struct sockaddr_un, sun_path) ||
-                    (sa->un.sun_path[0] == 0 && salen == offsetof(struct sockaddr_un, sun_path) + 1))
+        حالة AF_UNIX:
+                إذا (salen <= offsetof(بنية sockaddr_un, sun_path) ||
+                    (sa->un.sun_path[0] == 0 && salen == offsetof(بنية sockaddr_un, sun_path) + 1))
                         /* The name must have at least one character (and the leading NUL does not count) */
                         p = strdup("<unnamed>");
-                else {
+                وإلا {
                         /* Note that we calculate the path pointer here through the .un_buffer[] field, in order to
                          * outtrick bounds checking tools such as ubsan, which are too smart for their own good: on
                          * Linux the kernel may return sun_path[] data one byte longer than the declared size of the
                          * field. */
-                        char *path = (char*) sa->un_buffer + offsetof(struct sockaddr_un, sun_path);
-                        size_t path_len = salen - offsetof(struct sockaddr_un, sun_path);
+                        حرف *رستہ = (حرف*) sa->un_بفر + offsetof(بنية sockaddr_un, sun_path);
+                        size_t رستہ_len = salen - offsetof(بنية sockaddr_un, sun_path);
 
-                        if (path[0] == 0) {
+                        إذا (رستہ[0] == 0) {
                                 /* Abstract socket. When parsing address information from, we
                                  * explicitly reject overly long paths and paths with embedded NULs.
                                  * But we might get such a socket from the outside. Let's return
                                  * something meaningful and printable in this case. */
 
-                                _cleanup_free_ char *e = NULL;
+                                _cleanup_free_ حرف *e = عدم;
 
-                                e = cescape_length(path + 1, path_len - 1);
-                                if (!e)
-                                        return -ENOMEM;
+                                e = cescape_لمائی(رستہ + 1, رستہ_len - 1);
+                                إذا (!e)
+                                        أرجع -ENOMEM;
 
                                 p = strjoin("@", e);
-                        } else {
-                                if (path[path_len - 1] == '\0')
+                        } وإلا {
+                                إذا (رستہ[رستہ_len - 1] == '\0')
                                         /* We expect a terminating NUL and don't print it */
-                                        path_len--;
+                                        رستہ_len--;
 
-                                p = cescape_length(path, path_len);
+                                p = cescape_لمائی(رستہ, رستہ_len);
                         }
                 }
-                if (!p)
-                        return -ENOMEM;
+                إذا (!p)
+                        أرجع -ENOMEM;
 
-                break;
+                اكسر;
 
-        case AF_VSOCK:
-                if (include_port) {
-                        if (sa->vm.svm_cid == VMADDR_CID_ANY)
+        حالة AF_VSOCK:
+                إذا (include_پورٹ) {
+                        إذا (sa->vm.svm_cid == VMADDR_CID_ANY)
                                 r = asprintf(&p, "vsock::%u", sa->vm.svm_port);
-                        else
+                        وإلا
                                 r = asprintf(&p, "vsock:%u:%u", sa->vm.svm_cid, sa->vm.svm_port);
-                } else
+                } وإلا
                         r = asprintf(&p, "vsock:%u", sa->vm.svm_cid);
-                if (r < 0)
-                        return -ENOMEM;
-                break;
+                إذا (r < 0)
+                        أرجع -ENOMEM;
+                اكسر;
 
-        default:
-                return -EOPNOTSUPP;
+        افتراضي:
+                أرجع -EOPNOTSUPP;
         }
 
         *ret = p;
-        return 0;
+        أرجع 0;
 }
 
-int getpeername_pretty(int fd, bool include_port, char **ret) {
-        union sockaddr_union sa;
-        socklen_t salen = sizeof(sa);
-        int r;
+صحيح getpeername_pretty(صحيح fd, bool include_پورٹ, حرف **ret) {
+        اتحاد sockaddr_union sa;
+        socklen_t salen = حجم(sa);
+        صحيح r;
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        if (getpeername(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        إذا (getpeername(fd, &sa.sa, &salen) < 0)
+                أرجع -errno;
 
-        if (sa.sa.sa_family == AF_UNIX) {
-                struct ucred ucred = UCRED_INVALID;
+        إذا (sa.sa.sa_family == AF_UNIX) {
+                بنية ucred ucred = UCRED_INVALID;
 
                 /* UNIX connection sockets are anonymous, so let's use
                  * PID/UID as pretty credentials instead */
 
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
-                if (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
-                        return -ENOMEM;
+                إذا (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
+                        أرجع -ENOMEM;
 
-                return 0;
+                أرجع 0;
         }
 
         /* For remote sockets we translate IPv6 addresses back to IPv4
          * if applicable, since that's nicer. */
 
-        return sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
+        أرجع sockaddr_pretty(&sa.sa, salen, true, include_پورٹ, ret);
 }
 
-int getsockname_pretty(int fd, char **ret) {
-        union sockaddr_union sa;
-        socklen_t salen = sizeof(sa);
+صحيح getsockname_pretty(صحيح fd, حرف **ret) {
+        اتحاد sockaddr_union sa;
+        socklen_t salen = حجم(sa);
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        if (getsockname(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        إذا (getsockname(fd, &sa.sa, &salen) < 0)
+                أرجع -errno;
 
         /* For local sockets we do not translate IPv6 addresses back
          * to IPv6 if applicable, since this is usually used for
          * listening sockets where the difference between IPv4 and
          * IPv6 matters. */
 
-        return sockaddr_pretty(&sa.sa, salen, false, true, ret);
+        أرجع sockaddr_pretty(&sa.sa, salen, false, true, ret);
 }
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **ret) {
-        char host[NI_MAXHOST];
-        int r;
+صحيح socknameinfo_pretty(ثابت بنية sockaddr *sa, socklen_t salen, حرف **ret) {
+        حرف host[NI_MAXHOST];
+        صحيح r;
 
-        assert(sa);
-        assert(salen >= sizeof(sa_family_t));
-        assert(ret);
+        أكد(sa);
+        أكد(salen >= حجم(sa_family_t));
+        أكد(ret);
 
-        r = getnameinfo(sa, salen, host, sizeof(host), /* service= */ NULL, /* service_len= */ 0, IDN_FLAGS);
-        if (r != 0) {
-                if (r == EAI_MEMORY)
-                        return log_oom_debug();
-                if (r == EAI_SYSTEM)
+        r = getnameinfo(sa, salen, host, حجم(host), /* service= */ عدم, /* service_len= */ 0, IDN_FLAGS);
+        إذا (r != 0) {
+                إذا (r == EAI_MEMORY)
+                        أرجع log_oom_debug();
+                إذا (r == EAI_SYSTEM)
                         log_debug_errno(errno, "getnameinfo() failed, ignoring: %m");
-                else
+                وإلا
                         log_debug("getnameinfo() failed, ignoring: %s", gai_strerror(r));
 
-                return sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
+                أرجع sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
         }
 
-        return strdup_to(ret, host);
+        أرجع strdup_منزل(ret, host);
 }
 
-static const char* const netlink_family_table[] = {
+ساكن ثابت حرف* ثابت netlink_family_جدول[] = {
         [NETLINK_ROUTE]          = "route",
         [NETLINK_FIREWALL]       = "firewall",
         [NETLINK_INET_DIAG]      = "inet-diag",
@@ -674,384 +674,384 @@ static const char* const netlink_family_table[] = {
         [NETLINK_RDMA]           = "rdma",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int, INT_MAX);
+DEFINE_STRING_جدول_LOOKUP_WITH_FALLBACK(netlink_family, صحيح, ودھ_توں_ودھ_عدد);
 
-bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b) {
-        assert(a);
-        assert(b);
+bool sockaddr_equal(ثابت اتحاد sockaddr_union *a, ثابت اتحاد sockaddr_union *b) {
+        أكد(a);
+        أكد(b);
 
-        if (a->sa.sa_family != b->sa.sa_family)
-                return false;
+        إذا (a->sa.sa_family != b->sa.sa_family)
+                أرجع false;
 
-        if (a->sa.sa_family == AF_INET)
-                return a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
+        إذا (a->sa.sa_family == AF_INET)
+                أرجع a->وچ.sin_addr.s_addr == b->وچ.sin_addr.s_addr;
 
-        if (a->sa.sa_family == AF_INET6)
-                return memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, sizeof(a->in6.sin6_addr)) == 0;
+        إذا (a->sa.sa_family == AF_INET6)
+                أرجع memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, حجم(a->in6.sin6_addr)) == 0;
 
-        if (a->sa.sa_family == AF_VSOCK)
-                return a->vm.svm_cid == b->vm.svm_cid;
+        إذا (a->sa.sa_family == AF_VSOCK)
+                أرجع a->vm.svm_cid == b->vm.svm_cid;
 
-        return false;
+        أرجع false;
 }
 
-int fd_set_sndbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+صحيح fd_سیٹ_sndbuf(صحيح fd, size_t n, bool increase) {
+        صحيح r, قدر;
+        socklen_t l = حجم(قدر);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        إذا (n > ودھ_توں_ودھ_عدد)
+                أرجع -ERANGE;
 
-        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &قدر, &l);
+        إذا (r >= 0 && l == حجم(قدر) && increase ? (size_t) قدر >= n*2 : (size_t) قدر == n*2)
+                أرجع 0;
 
         /* First, try to set the buffer size with SO_SNDBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUF, n);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         /* SO_SNDBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
-        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        l = حجم(قدر);
+        r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &قدر, &l);
+        إذا (r >= 0 && l == حجم(قدر) && increase ? (size_t) قدر >= n*2 : (size_t) قدر == n*2)
+                أرجع 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUFFORCE, n);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return 1;
+        أرجع 1;
 }
 
-int fd_set_rcvbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+صحيح fd_سیٹ_rcvbuf(صحيح fd, size_t n, bool increase) {
+        صحيح r, قدر;
+        socklen_t l = حجم(قدر);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        إذا (n > ودھ_توں_ودھ_عدد)
+                أرجع -ERANGE;
 
-        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &قدر, &l);
+        إذا (r >= 0 && l == حجم(قدر) && increase ? (size_t) قدر >= n*2 : (size_t) قدر == n*2)
+                أرجع 0;
 
         /* First, try to set the buffer size with SO_RCVBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUF, n);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         /* SO_RCVBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
-        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        l = حجم(قدر);
+        r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &قدر, &l);
+        إذا (r >= 0 && l == حجم(قدر) && increase ? (size_t) قدر >= n*2 : (size_t) قدر == n*2)
+                أرجع 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUFFORCE, n);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return 1;
+        أرجع 1;
 }
 
-static const char* const ip_tos_table[] = {
+ساكن ثابت حرف* ثابت ip_tos_جدول[] = {
         [IPTOS_LOWDELAY]    = "low-delay",
         [IPTOS_THROUGHPUT]  = "throughput",
         [IPTOS_RELIABILITY] = "reliability",
         [IPTOS_LOWCOST]     = "low-cost",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int, 0xff);
+DEFINE_STRING_جدول_LOOKUP_WITH_FALLBACK(ip_tos, صحيح, 0xff);
 
-bool ifname_valid_char(char a) {
-        if ((unsigned char) a >= 127U)
-                return false;
+bool ifname_valid_char(حرف a) {
+        إذا ((بنانشانی حرف) a >= 127U)
+                أرجع false;
 
-        if ((unsigned char) a <= 32U)
-                return false;
+        إذا ((بنانشانی حرف) a <= 32U)
+                أرجع false;
 
-        if (IN_SET(a,
+        إذا (وچ_سیٹ(a,
                    ':',  /* colons are used by the legacy "alias" interface logic */
                    '/',  /* slashes cannot work, since we need to use network interfaces in sysfs paths, and in paths slashes are separators */
                    '%')) /* %d is used in the kernel's weird foo%d format string naming feature which we really really don't want to ever run into by accident */
-                return false;
+                أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
+bool ifname_valid_بھریا(ثابت حرف *p, IfnameValidFlags flags) {
         bool numeric = true;
 
         /* Checks whether a network interface name is valid. This is inspired by dev_valid_name() in the kernel sources
          * but slightly stricter, as we only allow non-control, non-space ASCII characters in the interface name. We
          * also don't permit names that only container numbers, to avoid confusion with numeric interface indexes. */
 
-        assert(!(flags & ~_IFNAME_VALID_ALL));
+        أكد(!(flags & ~_IFNAME_VALID_ALL));
 
-        if (isempty(p))
-                return false;
+        إذا (isempty(p))
+                أرجع false;
 
         /* A valid ifindex? If so, it's valid iff IFNAME_VALID_NUMERIC is set */
-        if (parse_ifindex(p) >= 0)
-                return flags & IFNAME_VALID_NUMERIC;
+        إذا (parse_ifindex(p) >= 0)
+                أرجع flags & IFNAME_VALID_NUMERIC;
 
-        if (flags & IFNAME_VALID_ALTERNATIVE) {
-                if (strlen(p) >= ALTIFNAMSIZ)
-                        return false;
-        } else {
-                if (strlen(p) >= IFNAMSIZ)
-                        return false;
+        إذا (flags & IFNAME_VALID_ALTERNATIVE) {
+                إذا (لڑی_لمبائی(p) >= ALTIFNAMSIZ)
+                        أرجع false;
+        } وإلا {
+                إذا (لڑی_لمبائی(p) >= IFNAMSIZ)
+                        أرجع false;
         }
 
-        if (dot_or_dot_dot(p))
-                return false;
+        إذا (dot_or_dot_dot(p))
+                أرجع false;
 
         /* Let's refuse "all" and "default" as interface name, to avoid collisions with the special sysctl
          * directories /proc/sys/net/{ipv4,ipv6}/conf/{all,default} */
-        if (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
-                return false;
+        إذا (!FLAGS_سیٹ(flags, IFNAME_VALID_SPECIAL) && STR_وچ_سیٹ(p, "all", "default"))
+                أرجع false;
 
-        for (const char *t = p; *t; t++) {
-                if (!ifname_valid_char(*t))
-                        return false;
+        لكل (ثابت حرف *t = p; *t; t++) {
+                إذا (!ifname_valid_char(*t))
+                        أرجع false;
 
                 numeric = numeric && ascii_isdigit(*t);
         }
 
         /* It's fully numeric but didn't parse as valid ifindex above? if so, it must be too large or zero or
          * so, let's refuse that. */
-        if (numeric)
-                return false;
+        إذا (numeric)
+                أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-bool address_label_valid(const char *p) {
+bool پتہ_label_valid(ثابت حرف *p) {
 
-        POINTER_MAY_BE_NULL(p);
+        اشارہ_گر_MAY_BE_NULL(p);
 
-        if (isempty(p))
-                return false;
+        إذا (isempty(p))
+                أرجع false;
 
-        if (strlen(p) >= IFNAMSIZ)
-                return false;
+        إذا (لڑی_لمبائی(p) >= IFNAMSIZ)
+                أرجع false;
 
-        while (*p) {
-                if ((uint8_t) *p >= 127U)
-                        return false;
+        طالما (*p) {
+                إذا ((uint8_t) *p >= 127U)
+                        أرجع false;
 
-                if ((uint8_t) *p <= 31U)
-                        return false;
+                إذا ((uint8_t) *p <= 31U)
+                        أرجع false;
                 p++;
         }
 
-        return true;
+        أرجع true;
 }
 
-int getpeercred(int fd, struct ucred *ucred) {
-        socklen_t n = sizeof(struct ucred);
-        struct ucred u;
+صحيح getpeercred(صحيح fd, بنية ucred *ucred) {
+        socklen_t n = حجم(بنية ucred);
+        بنية ucred u;
 
-        assert(fd >= 0);
-        assert(ucred);
+        أكد(fd >= 0);
+        أكد(ucred);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
-                return -errno;
+        إذا (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
+                أرجع -errno;
 
-        if (n != sizeof(struct ucred))
-                return -EIO;
+        إذا (n != حجم(بنية ucred))
+                أرجع -EIO;
 
         /* Check if the data is actually useful and not suppressed due to namespacing issues */
-        if (!pid_is_valid(u.pid))
-                return -ENODATA;
+        إذا (!pid_is_valid(u.pid))
+                أرجع -ENODATA;
 
         /* Note that we don't check UID/GID here, as namespace translation works differently there: instead of
          * receiving in "invalid" user/group we get the overflow UID/GID. */
 
         *ucred = u;
-        return 0;
+        أرجع 0;
 }
 
-int getpeersec(int fd, char **ret) {
-        _cleanup_free_ char *s = NULL;
+صحيح getpeersec(صحيح fd, حرف **ret) {
+        _cleanup_free_ حرف *s = عدم;
         socklen_t n = 64;
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        for (;;) {
-                s = new0(char, n+1);
-                if (!s)
-                        return -ENOMEM;
+        لكل (;;) {
+                s = new0(حرف, n+1);
+                إذا (!s)
+                        أرجع -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
+                إذا (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
                         s[n] = 0;
-                        break;
+                        اكسر;
                 }
 
-                if (errno != ERANGE)
-                        return -errno;
+                إذا (errno != ERANGE)
+                        أرجع -errno;
 
                 s = mfree(s);
         }
 
-        if (isempty(s))
-                return -EOPNOTSUPP;
+        إذا (isempty(s))
+                أرجع -EOPNOTSUPP;
 
         *ret = TAKE_PTR(s);
 
-        return 0;
+        أرجع 0;
 }
 
-int getpeergroups(int fd, gid_t **ret) {
-        socklen_t n = sizeof(gid_t) * 64U;
-        _cleanup_free_ gid_t *d = NULL;
+صحيح getpeergroups(صحيح fd, gid_t **ret) {
+        socklen_t n = حجم(gid_t) * 64U;
+        _cleanup_free_ gid_t *d = عدم;
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max > 0)
-                n = MAX(n, sizeof(gid_t) * (socklen_t) ngroups_max);
+        صحيح ngroups_max = sysconf_ngroups_max();
+        إذا (ngroups_max > 0)
+                n = MAX(n, حجم(gid_t) * (socklen_t) ngroups_max);
 
-        for (;;) {
-                d = malloc(n);
-                if (!d)
-                        return -ENOMEM;
+        لكل (;;) {
+                d = حافظہ_دیو(n);
+                إذا (!d)
+                        أرجع -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
-                        break;
+                إذا (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
+                        اكسر;
 
-                if (errno != ERANGE)
-                        return -errno;
+                إذا (errno != ERANGE)
+                        أرجع -errno;
 
                 d = mfree(d);
         }
 
-        assert_se(n % sizeof(gid_t) == 0);
-        n /= sizeof(gid_t);
+        assert_se(n % حجم(gid_t) == 0);
+        n /= حجم(gid_t);
 
-        if (n > INT_MAX)
-                return -E2BIG;
+        إذا (n > ودھ_توں_ودھ_عدد)
+                أرجع -E2BIG;
 
         *ret = TAKE_PTR(d);
 
-        return (int) n;
+        أرجع (صحيح) n;
 }
 
-int getpeerpidfd(int fd) {
-        socklen_t n = sizeof(int);
-        int pidfd = -EBADF;
+صحيح getpeerpidfd(صحيح fd) {
+        socklen_t n = حجم(صحيح);
+        صحيح pidfd = -EBADF;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
-                return -errno;
+        إذا (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
+                أرجع -errno;
 
-        if (n != sizeof(int))
-                return -EIO;
+        إذا (n != حجم(صحيح))
+                أرجع -EIO;
 
-        return pidfd;
+        أرجع pidfd;
 }
 
-int getpeerpidref(int fd, PidRef *ret) {
-        int r;
+صحيح getpeerpidref(صحيح fd, PidRef *ret) {
+        صحيح r;
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        int pidfd = getpeerpidfd(fd);
-        if (pidfd < 0) {
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
-                        return pidfd;
+        صحيح pidfd = getpeerpidfd(fd);
+        إذا (pidfd < 0) {
+                إذا (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
+                        أرجع pidfd;
 
-                struct ucred ucred;
+                بنية ucred ucred;
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
-                return pidref_set_pid(ret, ucred.pid);
+                أرجع pidref_سیٹ_pid(ret, ucred.pid);
         }
 
-        return pidref_set_pidfd_consume(ret, pidfd);
+        أرجع pidref_سیٹ_pidfd_consume(ret, pidfd);
 }
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
-                const struct iovec *iov, size_t iovlen,
-                const struct sockaddr *sa, socklen_t len,
-                int flags) {
+                صحيح transport_fd,
+                صحيح fd,
+                ثابت بنية iovec *iov, size_t iovlen,
+                ثابت بنية sockaddr *sa, socklen_t len,
+                صحيح flags) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control = {};
-        struct msghdr mh = {
-                .msg_name = (struct sockaddr*) sa,
+        CMSG_بفر_TYPE(CMSG_SPACE(حجم(صحيح))) control = {};
+        بنية msghdr mh = {
+                .msg_name = (بنية sockaddr*) sa,
                 .msg_namelen = len,
-                .msg_iov = (struct iovec *)iov,
+                .msg_iov = (بنية iovec *)iov,
                 .msg_iovlen = iovlen,
         };
         ssize_t k;
 
-        assert(transport_fd >= 0);
+        أكد(transport_fd >= 0);
 
         /*
          * We need either an FD or data to send.
          * If there's nothing, return an error.
          */
-        if (fd < 0 && !iov)
-                return -EINVAL;
+        إذا (fd < 0 && !iov)
+                أرجع -EINVAL;
 
-        if (fd >= 0) {
-                struct cmsghdr *cmsg;
+        إذا (fd >= 0) {
+                بنية cmsghdr *cmsg;
 
                 mh.msg_control = &control;
-                mh.msg_controllen = sizeof(control);
+                mh.msg_controllen = حجم(control);
 
                 cmsg = CMSG_FIRSTHDR(&mh);
                 cmsg->cmsg_level = SOL_SOCKET;
                 cmsg->cmsg_type = SCM_RIGHTS;
-                cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-                memcpy(CMSG_DATA(cmsg), &fd, sizeof(int));
+                cmsg->cmsg_len = CMSG_LEN(حجم(صحيح));
+                حافظہ_نقل(CMSG_DATA(cmsg), &fd, حجم(صحيح));
         }
         k = sendmsg(transport_fd, &mh, MSG_NOSIGNAL | flags);
-        if (k < 0)
-                return (ssize_t) -errno;
+        إذا (k < 0)
+                أرجع (ssize_t) -errno;
 
-        return k;
+        أرجع k;
 }
 
-int send_one_fd_sa(
-                int transport_fd,
-                int fd,
-                const struct sockaddr *sa, socklen_t len,
-                int flags) {
+صحيح send_one_fd_sa(
+                صحيح transport_fd,
+                صحيح fd,
+                ثابت بنية sockaddr *sa, socklen_t len,
+                صحيح flags) {
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        return (int) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
+        أرجع (صحيح) send_one_fd_iov_sa(transport_fd, fd, عدم, 0, sa, len, flags);
 }
 
 ssize_t receive_one_fd_iov(
-                int transport_fd,
-                struct iovec *iov, size_t iovlen,
-                int flags,
-                int *ret_fd) {
+                صحيح transport_fd,
+                بنية iovec *iov, size_t iovlen,
+                صحيح flags,
+                صحيح *ret_fd) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control;
-        struct msghdr mh = {
+        CMSG_بفر_TYPE(CMSG_SPACE(حجم(صحيح))) control;
+        بنية msghdr mh = {
                 .msg_control = &control,
-                .msg_controllen = sizeof(control),
+                .msg_controllen = حجم(control),
                 .msg_iov = iov,
                 .msg_iovlen = iovlen,
         };
-        struct cmsghdr *found;
+        بنية cmsghdr *لبھیا;
         ssize_t k;
 
-        assert(transport_fd >= 0);
-        assert(ret_fd);
+        أكد(transport_fd >= 0);
+        أكد(ret_fd);
 
         /*
          * Receive a single FD via @transport_fd. We don't care for
@@ -1061,44 +1061,44 @@ ssize_t receive_one_fd_iov(
          * combination with send_one_fd().
          */
 
-        k = recvmsg_safe(transport_fd, &mh, MSG_CMSG_CLOEXEC | flags);
-        if (k < 0)
-                return k;
+        k = recvmsg_محفوظ(transport_fd, &mh, MSG_CMSG_CLOEXEC | flags);
+        إذا (k < 0)
+                أرجع k;
 
-        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(sizeof(int)));
-        if (!found) {
+        لبھیا = cmsg_لبھو(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(حجم(صحيح)));
+        إذا (!لبھیا) {
                 cmsg_close_all(&mh);
 
                 /* If didn't receive an FD or any data, return an error. */
-                if (k == 0)
-                        return -EIO;
+                إذا (k == 0)
+                        أرجع -EIO;
         }
 
-        if (found)
-                *ret_fd = *CMSG_TYPED_DATA(found, int);
-        else
+        إذا (لبھیا)
+                *ret_fd = *CMSG_TYPED_انکڑے(لبھیا, صحيح);
+        وإلا
                 *ret_fd = -EBADF;
 
-        return k;
+        أرجع k;
 }
 
-int receive_one_fd(int transport_fd, int flags) {
-        int fd;
+صحيح receive_one_fd(صحيح transport_fd, صحيح flags) {
+        صحيح fd;
         ssize_t k;
 
-        k = receive_one_fd_iov(transport_fd, NULL, 0, flags, &fd);
-        if (k == 0)
-                return fd;
+        k = receive_one_fd_iov(transport_fd, عدم, 0, flags, &fd);
+        إذا (k == 0)
+                أرجع fd;
 
         /* k must be negative, since receive_one_fd_iov() only returns
          * a positive value if data was received through the iov. */
-        assert(k < 0);
-        return (int) k;
+        أكد(k < 0);
+        أرجع (صحيح) k;
 }
 
-ssize_t next_datagram_size_fd(int fd) {
+ssize_t اگلا_datagram_ناپ_fd(صحيح fd) {
         ssize_t l;
-        int k;
+        صحيح k;
 
         /* This is a bit like FIONREAD/SIOCINQ, however a bit more powerful. The difference being: recv(MSG_PEEK) will
          * actually cause the next datagram in the queue to be validated regarding checksums, which FIONREAD doesn't
@@ -1106,17 +1106,17 @@ ssize_t next_datagram_size_fd(int fd) {
          * actually matches what we will read with recvmsg() next, as otherwise we might end up allocating a buffer of
          * the wrong size. */
 
-        l = recv(fd, NULL, 0, MSG_PEEK|MSG_TRUNC);
-        if (l < 0) {
-                if (IN_SET(errno, EOPNOTSUPP, EFAULT))
-                        goto fallback;
+        l = recv(fd, عدم, 0, MSG_PEEK|MSG_TRUNC);
+        إذا (l < 0) {
+                إذا (وچ_سیٹ(errno, EOPNOTSUPP, EFAULT))
+                        اذهب fallback;
 
-                return -errno;
+                أرجع -errno;
         }
-        if (l == 0)
-                goto fallback;
+        إذا (l == 0)
+                اذهب fallback;
 
-        return l;
+        أرجع l;
 
 fallback:
         k = 0;
@@ -1124,192 +1124,192 @@ fallback:
         /* Some sockets (AF_PACKET) do not support null-sized recv() with MSG_TRUNC set, let's fall back to FIONREAD
          * for them. Checksums don't matter for raw sockets anyway, hence this should be fine. */
 
-        if (ioctl(fd, FIONREAD, &k) < 0)
-                return -errno;
+        إذا (ioctl(fd, FIONREAD, &k) < 0)
+                أرجع -errno;
 
-        return (ssize_t) k;
+        أرجع (ssize_t) k;
 }
 
 /* Put a limit on how many times will attempt to call accept4(). We loop
  * only on "transient" errors, but let's make sure we don't loop forever. */
-#define MAX_FLUSH_ITERATIONS 1024
+#تعریف_کرو MAX_FLUSH_ITERATIONS 1024
 
-int flush_accept(int fd) {
+صحيح flush_accept(صحيح fd) {
 
-        int r, b;
-        socklen_t l = sizeof(b);
+        صحيح r, b;
+        socklen_t l = حجم(b);
 
         /* Similar to flush_fd() but flushes all incoming connections by accepting and immediately closing
          * them. */
 
-        if (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
-                return -errno;
+        إذا (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
+                أرجع -errno;
 
-        assert(l == sizeof(b));
-        if (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
+        أكد(l == حجم(b));
+        إذا (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
                  * return EOPNOTSUPP if the fd is not a listening socket, which we should treat as a fatal
                  * error, or in case the incoming TCP connection triggered a network issue, which we want to
                  * treat as a transient error. Thus, let's rule out the first reason for EOPNOTSUPP early, so
                  * we can loop safely on transient errors below. */
-                return -ENOTTY;
+                أرجع -ENOTTY;
 
-        for (unsigned iteration = 0;; iteration++) {
-                int cfd;
+        لكل (بنانشانی iteration = 0;; iteration++) {
+                صحيح cfd;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
-                        continue;
-                if (r <= 0)
-                        return r;
+                إذا (r == -EINTR)
+                        استمر;
+                إذا (r <= 0)
+                        أرجع r;
 
-                if (iteration >= MAX_FLUSH_ITERATIONS)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
+                إذا (iteration >= MAX_FLUSH_ITERATIONS)
+                        أرجع log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
                                                "Failed to flush connections within " STRINGIFY(MAX_FLUSH_ITERATIONS) " iterations.");
 
-                cfd = accept4(fd, NULL, NULL, SOCK_NONBLOCK|SOCK_CLOEXEC);
-                if (cfd < 0) {
-                        if (errno == EAGAIN)
-                                return 0;
+                cfd = accept4(fd, عدم, عدم, SOCK_NONBLOCK|SOCK_CLOEXEC);
+                إذا (cfd < 0) {
+                        إذا (errno == EAGAIN)
+                                أرجع 0;
 
-                        if (ERRNO_IS_ACCEPT_AGAIN(errno))
-                                continue;
+                        إذا (ERRNO_IS_ACCEPT_AGAIN(errno))
+                                استمر;
 
-                        return -errno;
+                        أرجع -errno;
                 }
 
-                safe_close(cfd);
+                محفوظ_close(cfd);
         }
 }
 
-ssize_t flush_mqueue(int fd) {
-        _cleanup_free_ char *buf = NULL;
-        struct mq_attr attr;
-        ssize_t count = 0;
-        int r;
+ssize_t flush_mqueue(صحيح fd) {
+        _cleanup_free_ حرف *buf = عدم;
+        بنية mq_attr attr;
+        ssize_t گنتی = 0;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* Similar to flush_fd() but flushes all messages from a POSIX message queue. */
 
-        for (;;) {
+        لكل (;;) {
                 ssize_t l;
 
                 r = fd_wait_for_event(fd, POLLIN, /* timeout= */ 0);
-                if (r == -EINTR)
-                        continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                إذا (r == -EINTR)
+                        استمر;
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0)
+                        أرجع گنتی;
 
-                if (!buf) {
+                إذا (!buf) {
                         /* Buffer must be at least as large as mq_msgsize. */
-                        if (mq_getattr(fd, &attr) < 0)
-                                return -errno;
+                        إذا (mq_getattr(fd, &attr) < 0)
+                                أرجع -errno;
 
-                        buf = malloc(attr.mq_msgsize);
-                        if (!buf)
-                                return -ENOMEM;
+                        buf = حافظہ_دیو(attr.mq_msgsize);
+                        إذا (!buf)
+                                أرجع -ENOMEM;
                 }
 
-                l = mq_receive(fd, buf, attr.mq_msgsize, /* msg_prio= */ NULL);
-                if (l < 0) {
-                        if (errno == EINTR)
-                                continue;
+                l = mq_receive(fd, buf, attr.mq_msgsize, /* msg_prio= */ عدم);
+                إذا (l < 0) {
+                        إذا (errno == EINTR)
+                                استمر;
 
-                        if (errno == EAGAIN)
-                                return count;
+                        إذا (errno == EAGAIN)
+                                أرجع گنتی;
 
-                        return -errno;
+                        أرجع -errno;
                 }
 
-                count += l;
+                گنتی += l;
         }
 }
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length) {
-        struct cmsghdr *cmsg;
+بنية cmsghdr* cmsg_لبھو(بنية msghdr *mh, صحيح level, صحيح type, socklen_t length) {
+        بنية cmsghdr *cmsg;
 
-        assert(mh);
+        أكد(mh);
 
         CMSG_FOREACH(cmsg, mh)
-                if (cmsg->cmsg_level == level &&
+                إذا (cmsg->cmsg_level == level &&
                     cmsg->cmsg_type == type &&
                     (length == (socklen_t) -1 || length == cmsg->cmsg_len))
-                        return cmsg;
+                        أرجع cmsg;
 
-        return NULL;
+        أرجع عدم;
 }
 
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len) {
-        struct cmsghdr *cmsg;
+فراغ* cmsg_لبھو_and_copy_انکڑے(بنية msghdr *mh, صحيح level, صحيح type, فراغ *buf, size_t buf_len) {
+        بنية cmsghdr *cmsg;
 
-        assert(mh);
-        assert(buf);
-        assert(buf_len > 0);
+        أكد(mh);
+        أكد(buf);
+        أكد(buf_len > 0);
 
         /* This is similar to cmsg_find_data(), but copy the found data to buf. This should be typically used
          * when reading possibly unaligned data such as timestamp, as time_t is 64-bit and size_t is 32-bit on
          * RISCV32. See issue #27241. */
 
-        cmsg = cmsg_find(mh, level, type, CMSG_LEN(buf_len));
-        if (!cmsg)
-                return NULL;
+        cmsg = cmsg_لبھو(mh, level, type, CMSG_LEN(buf_len));
+        إذا (!cmsg)
+                أرجع عدم;
 
-        return memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
+        أرجع memcpy_محفوظ(buf, CMSG_DATA(cmsg), buf_len);
 }
 
-size_t sockaddr_ll_len(const struct sockaddr_ll *sa) {
+size_t sockaddr_ll_len(ثابت بنية sockaddr_ll *sa) {
         /* Certain hardware address types (e.g Infiniband) do not fit into sll_addr
          * (8 bytes) and run over the structure. This function returns the correct size that
          * must be passed to kernel. */
 
-        assert(sa->sll_family == AF_PACKET);
+        أكد(sa->sll_family == AF_PACKET);
 
-        size_t mac_len = sizeof(sa->sll_addr);
+        size_t mac_len = حجم(sa->sll_addr);
 
-        if (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
+        إذا (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
                 mac_len = MAX(mac_len, (size_t) ETH_ALEN);
-        if (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
+        إذا (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
                 mac_len = MAX(mac_len, (size_t) INFINIBAND_ALEN);
 
-        return offsetof(struct sockaddr_ll, sll_addr) + mac_len;
+        أرجع offsetof(بنية sockaddr_ll, sll_addr) + mac_len;
 }
 
-size_t sockaddr_un_len(const struct sockaddr_un *sa) {
+size_t sockaddr_un_len(ثابت بنية sockaddr_un *sa) {
         /* Covers only file system and abstract AF_UNIX socket addresses, but not unnamed socket addresses. */
 
-        assert(sa->sun_family == AF_UNIX);
+        أكد(sa->sun_family == AF_UNIX);
 
-        return offsetof(struct sockaddr_un, sun_path) +
+        أرجع offsetof(بنية sockaddr_un, sun_path) +
                 (sa->sun_path[0] == 0 ?
-                        1 + strnlen(sa->sun_path+1, sizeof(sa->sun_path)-1) :
-                        strnlen(sa->sun_path, sizeof(sa->sun_path))+1);
+                        1 + strnlen(sa->sun_path+1, حجم(sa->sun_path)-1) :
+                        strnlen(sa->sun_path, حجم(sa->sun_path))+1);
 }
 
-size_t sockaddr_len(const union sockaddr_union *sa) {
-        assert(sa);
+size_t sockaddr_len(ثابت اتحاد sockaddr_union *sa) {
+        أكد(sa);
 
-        switch (sa->sa.sa_family) {
-        case AF_INET:
-                return sizeof(struct sockaddr_in);
-        case AF_INET6:
-                return sizeof(struct sockaddr_in6);
-        case AF_UNIX:
-                return sockaddr_un_len(&sa->un);
-        case AF_PACKET:
-                return sockaddr_ll_len(&sa->ll);
-        case AF_NETLINK:
-                return sizeof(struct sockaddr_nl);
-        case AF_VSOCK:
-                return sizeof(struct sockaddr_vm);
-        default:
+        بدل (sa->sa.sa_family) {
+        حالة AF_INET:
+                أرجع حجم(بنية sockaddr_in);
+        حالة AF_INET6:
+                أرجع حجم(بنية sockaddr_in6);
+        حالة AF_UNIX:
+                أرجع sockaddr_un_len(&sa->un);
+        حالة AF_PACKET:
+                أرجع sockaddr_ll_len(&sa->ll);
+        حالة AF_NETLINK:
+                أرجع حجم(بنية sockaddr_nl);
+        حالة AF_VSOCK:
+                أرجع حجم(بنية sockaddr_vm);
+        افتراضي:
                 assert_not_reached();
         }
 }
 
-int socket_ioctl_fd(void) {
-        int fd;
+صحيح socket_ioctl_fd(فراغ) {
+        صحيح fd;
 
         /* Create a socket to invoke the various network interface ioctl()s on. Traditionally only AF_INET was good for
          * that. Since kernel 4.6 AF_NETLINK works for this too. We first try to use AF_INET hence, but if that's not
@@ -1317,148 +1317,148 @@ int socket_ioctl_fd(void) {
          * generic AF_NETLINK. */
 
         fd = socket(AF_INET, SOCK_DGRAM|SOCK_CLOEXEC, 0);
-        if (fd < 0)
+        إذا (fd < 0)
                 fd = socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC, NETLINK_GENERIC);
-        if (fd < 0)
-                return -errno;
+        إذا (fd < 0)
+                أرجع -errno;
 
-        return fd;
+        أرجع fd;
 }
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa) {
-        const char *p, * nul;
+صحيح sockaddr_un_unlink(ثابت بنية sockaddr_un *sa) {
+        ثابت حرف *p, * nul;
 
-        assert(sa);
+        أكد(sa);
 
-        if (sa->sun_family != AF_UNIX)
-                return -EPROTOTYPE;
+        إذا (sa->sun_family != AF_UNIX)
+                أرجع -EPROTOTYPE;
 
-        if (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
-                return 0;
+        إذا (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
+                أرجع 0;
 
         /* The path in .sun_path is not necessarily NUL terminated. Let's fix that. */
-        nul = memchr(sa->sun_path, 0, sizeof(sa->sun_path));
-        if (nul)
+        nul = memchr(sa->sun_path, 0, حجم(sa->sun_path));
+        إذا (nul)
                 p = sa->sun_path;
-        else
-                p = memdupa_suffix0(sa->sun_path, sizeof(sa->sun_path));
+        وإلا
+                p = memdupa_suffix0(sa->sun_path, حجم(sa->sun_path));
 
-        if (unlink(p) < 0)
-                return -errno;
+        إذا (unlink(p) < 0)
+                أرجع -errno;
 
-        return 1;
+        أرجع 1;
 }
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
+صحيح sockaddr_un_سیٹ_رستہ(بنية sockaddr_un *ret, ثابت حرف *رستہ) {
         size_t l;
 
-        assert(ret);
-        assert(path);
+        أكد(ret);
+        أكد(رستہ);
 
         /* Initialize ret->sun_path from the specified argument. This will interpret paths starting with '@' as
          * abstract namespace sockets, and those starting with '/' as regular filesystem sockets. It won't accept
          * anything else (i.e. no relative paths), to avoid ambiguities. Note that this function cannot be used to
          * reference paths in the abstract namespace that include NUL bytes in the name. */
 
-        l = strlen(path);
-        if (l < 2)
-                return -EINVAL;
-        if (!IN_SET(path[0], '/', '@'))
-                return -EINVAL;
+        l = لڑی_لمبائی(رستہ);
+        إذا (l < 2)
+                أرجع -EINVAL;
+        إذا (!وچ_سیٹ(رستہ[0], '/', '@'))
+                أرجع -EINVAL;
 
         /* Don't allow paths larger than the space in sockaddr_un. Note that we are a tiny bit more restrictive than
          * the kernel is: we insist on NUL termination (both for abstract namespace and regular file system socket
          * addresses!), which the kernel doesn't. We do this to reduce chance of incompatibility with other apps that
          * do not expect non-NUL terminated file system path. */
-        if (l+1 > sizeof(ret->sun_path))
-                return path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
+        إذا (l+1 > حجم(ret->sun_path))
+                أرجع رستہ[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
                                                                   * too long to fit into a sockaddr_un, but
                                                                   * is a file system path, and thus might be
                                                                   * connectible via O_PATH indirection. */
 
-        *ret = (struct sockaddr_un) {
+        *ret = (بنية sockaddr_un) {
                 .sun_family = AF_UNIX,
         };
 
-        if (path[0] == '@') {
+        إذا (رستہ[0] == '@') {
                 /* Abstract namespace socket */
-                memcpy(ret->sun_path + 1, path + 1, l); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
+                حافظہ_نقل(ret->sun_path + 1, رستہ + 1, l); /* copy *with* trailing NUL byte */
+                أرجع (صحيح) (offsetof(بنية sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
 
-        } else {
-                assert(path[0] == '/');
+        } وإلا {
+                أكد(رستہ[0] == '/');
 
                 /* File system socket */
-                memcpy(ret->sun_path, path, l + 1); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
+                حافظہ_نقل(ret->sun_path, رستہ, l + 1); /* copy *with* trailing NUL byte */
+                أرجع (صحيح) (offsetof(بنية sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
         }
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret) {
-        int v;
-        socklen_t sl = sizeof(v);
+صحيح getsockopt_int(صحيح fd, صحيح level, صحيح optname, صحيح *ret) {
+        صحيح v;
+        socklen_t sl = حجم(v);
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        if (getsockopt(fd, level, optname, &v, &sl) < 0)
-                return negative_errno();
-        if (sl != sizeof(v))
-                return -EIO;
+        إذا (getsockopt(fd, level, optname, &v, &sl) < 0)
+                أرجع negative_errno();
+        إذا (sl != حجم(v))
+                أرجع -EIO;
 
         *ret = v;
-        return 0;
+        أرجع 0;
 }
 
-int socket_bind_to_ifname(int fd, const char *ifname) {
-        assert(fd >= 0);
+صحيح socket_bind_منزل_ifname(صحيح fd, ثابت حرف *ifname) {
+        أكد(fd >= 0);
 
         /* Call with NULL to drop binding */
 
-        return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
+        أرجع RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
 }
 
-int socket_bind_to_ifindex(int fd, int ifindex) {
-        assert(fd >= 0);
+صحيح socket_bind_منزل_ifindex(صحيح fd, صحيح ifindex) {
+        أكد(fd >= 0);
 
-        if (ifindex <= 0)
+        إذا (ifindex <= 0)
                 /* Drop binding */
-                return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
+                أرجع RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, عدم, 0));
 
-        return setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
+        أرجع setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
 }
 
-int socket_autobind(int fd, char **ret_name) {
-        _cleanup_free_ char *name = NULL;
+صحيح socket_autobind(صحيح fd, حرف **ret_name) {
+        _cleanup_free_ حرف *name = عدم;
         uint64_t random;
-        int r;
+        صحيح r;
 
         /* Generate a random abstract socket name and bind fd to it. This is modeled after the kernel
          * "autobind" feature, but uses 64-bit random number internally. */
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         random = random_u64();
 
-        if (asprintf(&name, "@%" PRIu64, random) < 0)
-                return -ENOMEM;
+        إذا (asprintf(&name, "@%" PRIu64, random) < 0)
+                أرجع -ENOMEM;
 
-        union sockaddr_union sa;
-        assert_cc(DECIMAL_STR_MAX(uint64_t) < sizeof(sa.un.sun_path));
+        اتحاد sockaddr_union sa;
+        assert_cc(DECIMAL_STR_MAX(uint64_t) < حجم(sa.un.sun_path));
 
-        r = sockaddr_un_set_path(&sa.un, name);
-        if (r < 0)
-                return r;
+        r = sockaddr_un_سیٹ_رستہ(&sa.un, name);
+        إذا (r < 0)
+                أرجع r;
 
-        if (bind(fd, &sa.sa, r) < 0)
-                return -errno;
+        إذا (bind(fd, &sa.sa, r) < 0)
+                أرجع -errno;
 
-        if (ret_name)
+        إذا (ret_name)
                 *ret_name = TAKE_PTR(name);
-        return 0;
+        أرجع 0;
 }
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
+ssize_t recvmsg_محفوظ(صحيح sockfd, بنية msghdr *msg, صحيح flags) {
         ssize_t n;
 
         /* A wrapper around recvmsg() that checks for MSG_CTRUNC and MSG_TRUNC, and turns them into an error,
@@ -1466,457 +1466,457 @@ ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
          *
          * Note that unlike our usual coding style this might modify *msg on failure. */
 
-        assert(sockfd >= 0);
-        assert(msg);
+        أكد(sockfd >= 0);
+        أكد(msg);
 
         n = recvmsg(sockfd, msg, flags);
-        if (n < 0)
-                return -errno;
+        إذا (n < 0)
+                أرجع -errno;
 
-        if (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
-            (!FLAGS_SET(flags, MSG_PEEK) && FLAGS_SET(msg->msg_flags, MSG_TRUNC))) {
+        إذا (FLAGS_سیٹ(msg->msg_flags, MSG_CTRUNC) ||
+            (!FLAGS_سیٹ(flags, MSG_PEEK) && FLAGS_سیٹ(msg->msg_flags, MSG_TRUNC))) {
                 cmsg_close_all(msg);
-                return FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
+                أرجع FLAGS_سیٹ(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
         }
 
-        return n;
+        أرجع n;
 }
 
-int socket_get_family(int fd) {
-        int af;
-        socklen_t sl = sizeof(af);
+صحيح socket_get_family(صحيح fd) {
+        صحيح af;
+        socklen_t sl = حجم(af);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
-                return -errno;
+        إذا (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
+                أرجع -errno;
 
-        if (sl != sizeof(af))
-                return -EINVAL;
+        إذا (sl != حجم(af))
+                أرجع -EINVAL;
 
-        return af;
+        أرجع af;
 }
 
-int socket_set_recvpktinfo(int fd, int af, bool b) {
+صحيح socket_سیٹ_recvpktinfo(صحيح fd, صحيح af, bool b) {
 
-        if (af == AF_UNSPEC) {
+        إذا (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                إذا (af < 0)
+                        أرجع af;
         }
 
-        switch (af) {
+        بدل (af) {
 
-        case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
+        حالة AF_INET:
+                أرجع setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
 
-        case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
+        حالة AF_INET6:
+                أرجع setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
 
-        case AF_NETLINK:
-                return setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
+        حالة AF_NETLINK:
+                أرجع setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
 
-        case AF_PACKET:
-                return setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
+        حالة AF_PACKET:
+                أرجع setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
 
-        default:
-                return -EAFNOSUPPORT;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
         }
 }
 
-int socket_set_unicast_if(int fd, int af, int ifi) {
+صحيح socket_سیٹ_unicast_if(صحيح fd, صحيح af, صحيح ifi) {
         be32_t ifindex_be = htobe32(ifi);
 
-        if (af == AF_UNSPEC) {
+        إذا (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                إذا (af < 0)
+                        أرجع af;
         }
 
-        switch (af) {
+        بدل (af) {
 
-        case AF_INET:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+        حالة AF_INET:
+                أرجع RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, حجم(ifindex_be)));
 
-        case AF_INET6:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+        حالة AF_INET6:
+                أرجع RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, حجم(ifindex_be)));
 
-        default:
-                return -EAFNOSUPPORT;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
         }
 }
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val) {
-        if (af == AF_UNSPEC) {
+صحيح socket_سیٹ_option(صحيح fd, صحيح af, صحيح opt_ipv4, صحيح opt_ipv6, صحيح val) {
+        إذا (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                إذا (af < 0)
+                        أرجع af;
         }
 
-        switch (af) {
+        بدل (af) {
 
-        case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
+        حالة AF_INET:
+                أرجع setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
 
-        case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
+        حالة AF_INET6:
+                أرجع setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
 
-        default:
-                return -EAFNOSUPPORT;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
         }
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret) {
-        int mtu, r;
+صحيح socket_get_mtu(صحيح fd, صحيح af, size_t *ret) {
+        صحيح mtu, r;
 
-        assert(ret);
+        أكد(ret);
 
-        if (af == AF_UNSPEC) {
+        إذا (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                إذا (af < 0)
+                        أرجع af;
         }
 
-        switch (af) {
+        بدل (af) {
 
-        case AF_INET:
+        حالة AF_INET:
                 r = getsockopt_int(fd, IPPROTO_IP, IP_MTU, &mtu);
-                break;
+                اكسر;
 
-        case AF_INET6:
+        حالة AF_INET6:
                 r = getsockopt_int(fd, IPPROTO_IPV6, IPV6_MTU, &mtu);
-                break;
+                اكسر;
 
-        default:
-                return -EAFNOSUPPORT;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
         }
 
-        if (r < 0)
-                return r;
-        if (mtu <= 0)
-                return -EINVAL;
+        إذا (r < 0)
+                أرجع r;
+        إذا (mtu <= 0)
+                أرجع -EINVAL;
 
         *ret = (size_t) mtu;
-        return 0;
+        أرجع 0;
 }
 
-static int connect_unix_path_simple(int fd, const char *path) {
-        union sockaddr_union sa = {
+ساكن صحيح connect_unix_رستہ_simple(صحيح fd, ثابت حرف *رستہ) {
+        اتحاد sockaddr_union sa = {
                 .un.sun_family = AF_UNIX,
         };
         size_t l;
 
-        assert(fd >= 0);
-        assert(path);
+        أكد(fd >= 0);
+        أكد(رستہ);
 
-        l = strlen(path);
-        assert(l > 0);
-        assert(l < sizeof(sa.un.sun_path));
+        l = لڑی_لمبائی(رستہ);
+        أكد(l > 0);
+        أكد(l < حجم(sa.un.sun_path));
 
-        memcpy(sa.un.sun_path, path, l + 1);
-        return RET_NERRNO(connect(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + l + 1));
+        حافظہ_نقل(sa.un.sun_path, رستہ, l + 1);
+        أرجع RET_NERRNO(connect(fd, &sa.sa, offsetof(بنية sockaddr_un, sun_path) + l + 1));
 }
 
-static int connect_unix_inode(int fd, int inode_fd) {
-        assert(fd >= 0);
-        assert(inode_fd >= 0);
+ساكن صحيح connect_unix_inode(صحيح fd, صحيح inode_fd) {
+        أكد(fd >= 0);
+        أكد(inode_fd >= 0);
 
-        return connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
+        أرجع connect_unix_رستہ_simple(fd, FORMAT_PROC_FD_رستہ(inode_fd));
 }
 
-int connect_unix_path(int fd, int dir_fd, const char *path) {
-        _cleanup_close_ int inode_fd = -EBADF;
+صحيح connect_unix_رستہ(صحيح fd, صحيح dir_fd, ثابت حرف *رستہ) {
+        _cleanup_close_ صحيح inode_fd = -EBADF;
 
-        assert(fd >= 0);
-        assert(wildcard_fd_is_valid(dir_fd));
+        أكد(fd >= 0);
+        أكد(wildcard_fd_is_valid(dir_fd));
 
         /* Connects to the specified AF_UNIX socket in the file system. Works around the 108 byte size limit
          * in sockaddr_un, by going via O_PATH if needed. This hence works for any kind of path. */
 
-        if (!path) {
-                if (dir_fd < 0)
-                        return -EISDIR;
+        إذا (!رستہ) {
+                إذا (dir_fd < 0)
+                        أرجع -EISDIR;
 
-                return connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
+                أرجع connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
         }
 
         /* Refuse zero length path early, to make sure AF_UNIX stack won't mistake this for an abstract
          * namespace path, since first char is NUL */
-        if (isempty(path))
-                return -EINVAL;
+        إذا (isempty(رستہ))
+                أرجع -EINVAL;
 
         /* Shortcut for the simple case */
-        if (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(struct sockaddr_un, sun_path))
-                return connect_unix_path_simple(fd, path);
+        إذا (dir_fd == AT_FDCWD && لڑی_لمبائی(رستہ) < sizeof_میدان(بنية sockaddr_un, sun_path))
+                أرجع connect_unix_رستہ_simple(fd, رستہ);
 
         /* If dir_fd is specified, then we need to go the indirect O_PATH route, because connectat() does not
          * exist. If the path is too long, we also need to take the indirect route, since we can't fit this
          * into a sockaddr_un directly. */
 
-        if (dir_fd == XAT_FDROOT) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        إذا (dir_fd == XAT_FDROOT) {
+                _cleanup_free_ حرف *j = strjoin("/", رستہ);
+                إذا (!j)
+                        أرجع -ENOMEM;
 
-                inode_fd = open(j, O_PATH|O_CLOEXEC);
-        } else
-                inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC);
-        if (inode_fd < 0)
-                return -errno;
+                inode_fd = open(j, O_رستہ|O_CLOEXEC);
+        } وإلا
+                inode_fd = openat(dir_fd, رستہ, O_رستہ|O_CLOEXEC);
+        إذا (inode_fd < 0)
+                أرجع -errno;
 
-        return connect_unix_inode(fd, inode_fd);
+        أرجع connect_unix_inode(fd, inode_fd);
 }
 
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s) {
-        struct sockaddr_un un;
-        int r;
+صحيح socket_پتہ_parse_unix(Socket_پتہ *ret_پتہ, ثابت حرف *s) {
+        بنية sockaddr_un un;
+        صحيح r;
 
-        assert(ret_address);
-        assert(s);
+        أكد(ret_پتہ);
+        أكد(s);
 
-        if (!IN_SET(*s, '/', '@'))
-                return -EPROTO;
+        إذا (!وچ_سیٹ(*s, '/', '@'))
+                أرجع -EPROTO;
 
-        r = sockaddr_un_set_path(&un, s);
-        if (r < 0)
-                return r;
+        r = sockaddr_un_سیٹ_رستہ(&un, s);
+        إذا (r < 0)
+                أرجع r;
 
-        *ret_address = (SocketAddress) {
+        *ret_پتہ = (Socket_پتہ) {
                 .sockaddr.un = un,
-                .size = r,
+                .ناپ = r,
         };
 
-        return 0;
+        أرجع 0;
 }
 
-int socket_address_equal_unix(const char *a, const char *b) {
-        SocketAddress socket_a, socket_b;
-        int r;
+صحيح socket_پتہ_equal_unix(ثابت حرف *a, ثابت حرف *b) {
+        Socket_پتہ socket_a, socket_b;
+        صحيح r;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        r = socket_address_parse_unix(&socket_a, a);
-        if (r < 0)
-                return r;
+        r = socket_پتہ_parse_unix(&socket_a, a);
+        إذا (r < 0)
+                أرجع r;
 
-        r = socket_address_parse_unix(&socket_b, b);
-        if (r < 0)
-                return r;
+        r = socket_پتہ_parse_unix(&socket_b, b);
+        إذا (r < 0)
+                أرجع r;
 
-        return sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
+        أرجع sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret) {
-        int r;
+صحيح vsock_parse_پورٹ(ثابت حرف *s, بنانشانی *ret) {
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
-        if (!s)
-                return -EINVAL;
+        إذا (!s)
+                أرجع -EINVAL;
 
-        unsigned u;
-        r = safe_atou(s, &u);
-        if (r < 0)
-                return r;
+        بنانشانی u;
+        r = محفوظ_atou(s, &u);
+        إذا (r < 0)
+                أرجع r;
 
         /* Port 0 is apparently valid and not special in AF_VSOCK (unlike on IP). But VMADDR_PORT_ANY
          * (UINT32_MAX) is. Hence refuse that. */
 
-        if (u == VMADDR_PORT_ANY)
-                return -EINVAL;
+        إذا (u == VMADDR_PORT_ANY)
+                أرجع -EINVAL;
 
         *ret = u;
-        return 0;
+        أرجع 0;
 }
 
-int vsock_parse_cid(const char *s, unsigned *ret) {
-        assert(ret);
+صحيح vsock_parse_cid(ثابت حرف *s, بنانشانی *ret) {
+        أكد(ret);
 
-        if (!s)
-                return -EINVAL;
+        إذا (!s)
+                أرجع -EINVAL;
 
         /* Parsed an AF_VSOCK "CID". This is a 32bit entity, and the usual type is "unsigned". We recognize
          * the four special CIDs as strings, and otherwise parse the numeric CIDs. */
 
-        if (streq(s, "hypervisor"))
+        إذا (streq(s, "hypervisor"))
                 *ret = VMADDR_CID_HYPERVISOR;
-        else if (streq(s, "local"))
+        وإلا إذا (streq(s, "local"))
                 *ret = VMADDR_CID_LOCAL;
-        else if (streq(s, "host"))
+        وإلا إذا (streq(s, "host"))
                 *ret = VMADDR_CID_HOST;
-        else if (STR_IN_SET(s, "any", "-1"))
+        وإلا إذا (STR_وچ_سیٹ(s, "any", "-1"))
                 *ret = VMADDR_CID_ANY;
-        else
-                return safe_atou(s, ret);
+        وإلا
+                أرجع محفوظ_atou(s, ret);
 
-        return 0;
+        أرجع 0;
 }
 
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
+صحيح socket_پتہ_parse_vsock(Socket_پتہ *ret_پتہ, ثابت حرف *s) {
         /* AF_VSOCK socket in vsock:cid:port notation */
-        _cleanup_free_ char *n = NULL;
-        const char *e, *cid_start;
-        unsigned port, cid;
-        int type, r;
+        _cleanup_free_ حرف *n = عدم;
+        ثابت حرف *e, *cid_شروع;
+        بنانشانی port, cid;
+        صحيح type, r;
 
-        assert(ret_address);
-        assert(s);
+        أكد(ret_پتہ);
+        أكد(s);
 
-        if ((cid_start = startswith(s, "vsock:")))
+        إذا ((cid_شروع = startswith(s, "vsock:")))
                 type = 0;
-        else if ((cid_start = startswith(s, "vsock-dgram:")))
+        وإلا إذا ((cid_شروع = startswith(s, "vsock-dgram:")))
                 type = SOCK_DGRAM;
-        else if ((cid_start = startswith(s, "vsock-seqpacket:")))
+        وإلا إذا ((cid_شروع = startswith(s, "vsock-seqpacket:")))
                 type = SOCK_SEQPACKET;
-        else if ((cid_start = startswith(s, "vsock-stream:")))
+        وإلا إذا ((cid_شروع = startswith(s, "vsock-stream:")))
                 type = SOCK_STREAM;
-        else
-                return -EPROTO;
+        وإلا
+                أرجع -EPROTO;
 
-        e = strchr(cid_start, ':');
-        if (!e)
-                return -EINVAL;
+        e = strchr(cid_شروع, ':');
+        إذا (!e)
+                أرجع -EINVAL;
 
-        r = vsock_parse_port(e+1, &port);
-        if (r < 0)
-                return r;
+        r = vsock_parse_پورٹ(e+1, &port);
+        إذا (r < 0)
+                أرجع r;
 
-        n = strndup(cid_start, e - cid_start);
-        if (!n)
-                return -ENOMEM;
+        n = strndup(cid_شروع, e - cid_شروع);
+        إذا (!n)
+                أرجع -ENOMEM;
 
-        if (isempty(n))
+        إذا (isempty(n))
                 cid = VMADDR_CID_ANY;
-        else {
+        وإلا {
                 r = vsock_parse_cid(n, &cid);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        *ret_address = (SocketAddress) {
+        *ret_پتہ = (Socket_پتہ) {
                 .sockaddr.vm = {
                         .svm_family = AF_VSOCK,
                         .svm_cid = cid,
                         .svm_port = port,
                 },
                 .type = type,
-                .size = sizeof(struct sockaddr_vm),
+                .ناپ = حجم(بنية sockaddr_vm),
         };
 
-        return 0;
+        أرجع 0;
 }
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups) {
-        _cleanup_free_ uint32_t *groups = NULL;
+صحيح netlink_socket_get_multicast_groups(صحيح fd, size_t *ret_len, uint32_t **ret_groups) {
+        _cleanup_free_ uint32_t *groups = عدم;
         socklen_t len = 0, old_len;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
-                return -errno;
+        إذا (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, عدم, &len) < 0)
+                أرجع -errno;
 
-        if (len == 0)
-                goto finalize;
+        إذا (len == 0)
+                اذهب finalize;
 
         groups = new0(uint32_t, len);
-        if (!groups)
-                return -ENOMEM;
+        إذا (!groups)
+                أرجع -ENOMEM;
 
         old_len = len;
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
-                return -errno;
+        إذا (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
+                أرجع -errno;
 
-        if (old_len != len)
-                return -EIO;
+        إذا (old_len != len)
+                أرجع -EIO;
 
 finalize:
-        if (ret_len)
+        إذا (ret_len)
                 *ret_len = len;
-        if (ret_groups)
+        إذا (ret_groups)
                 *ret_groups = TAKE_PTR(groups);
 
-        return 0;
+        أرجع 0;
 }
 
-int socket_get_cookie(int fd, uint64_t *ret) {
-        assert(fd >= 0);
+صحيح socket_get_cookie(صحيح fd, uint64_t *ret) {
+        أكد(fd >= 0);
 
         uint64_t cookie = 0;
-        socklen_t cookie_len = sizeof(cookie);
-        if (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
-                return -errno;
+        socklen_t cookie_len = حجم(cookie);
+        إذا (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
+                أرجع -errno;
 
-        assert(cookie_len == sizeof(cookie));
-        if (ret)
+        أكد(cookie_len == حجم(cookie));
+        إذا (ret)
                 *ret = cookie;
 
-        return 0;
+        أرجع 0;
 }
 
-void cmsg_close_all(struct msghdr *mh) {
-        assert(mh);
+فراغ cmsg_close_all(بنية msghdr *mh) {
+        أكد(mh);
 
-        struct cmsghdr *cmsg;
+        بنية cmsghdr *cmsg;
         CMSG_FOREACH(cmsg, mh) {
-                if (cmsg->cmsg_level != SOL_SOCKET)
-                        continue;
+                إذا (cmsg->cmsg_level != SOL_SOCKET)
+                        استمر;
 
-                if (cmsg->cmsg_type == SCM_RIGHTS)
-                        close_many(CMSG_TYPED_DATA(cmsg, int),
-                                   (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-                else if (cmsg->cmsg_type == SCM_PIDFD) {
-                        assert(cmsg->cmsg_len == CMSG_LEN(sizeof(int)));
-                        safe_close(*CMSG_TYPED_DATA(cmsg, int));
+                إذا (cmsg->cmsg_type == SCM_RIGHTS)
+                        close_many(CMSG_TYPED_انکڑے(cmsg, صحيح),
+                                   (cmsg->cmsg_len - CMSG_LEN(0)) / حجم(صحيح));
+                وإلا إذا (cmsg->cmsg_type == SCM_PIDFD) {
+                        أكد(cmsg->cmsg_len == CMSG_LEN(حجم(صحيح)));
+                        محفوظ_close(*CMSG_TYPED_انکڑے(cmsg, صحيح));
                 }
         }
 }
 
-int tos_to_priority(uint8_t tos) {
+صحيح tos_منزل_ترجیح(uint8_t tos) {
         /* Map the IP Precedence (top 3 bits of the TOS field) to Linux internal packet priorities
          * (TC_PRIO_*). This exactly mirrors the standard Linux kernel IP precedence-to-priority mapping
          * (rt_tos2priority) to ensure consistent behavior when explicitly setting SO_PRIORITY. */
-        switch (IPTOS_PREC(tos)) {
-        case IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
-        case IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
-                return TC_PRIO_CONTROL;
+        بدل (IPTOS_PREC(tos)) {
+        حالة IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
+        حالة IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
+                أرجع TC_PRIO_CONTROL;
 
-        case IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
-        case IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
-                return TC_PRIO_INTERACTIVE;
+        حالة IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
+        حالة IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
+                أرجع TC_PRIO_INTERACTIVE;
 
-        case IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
-        case IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
-                return TC_PRIO_INTERACTIVE_BULK;
+        حالة IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
+        حالة IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
+                أرجع TC_PRIO_INTERACTIVE_BULK;
 
-        case IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
-                return TC_PRIO_BULK;
+        حالة IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
+                أرجع TC_PRIO_BULK;
 
-        case IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
-        default:
-                return TC_PRIO_BESTEFFORT;
+        حالة IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
+        افتراضي:
+                أرجع TC_PRIO_BESTEFFORT;
         }
 }
 
-int socket_xattr_supported(void) {
-        int r;
+صحيح socket_xattr_supported(فراغ) {
+        صحيح r;
 
         // FIXME: Drop this check once Linux 7.1 becomes our baseline
 
-        static int cached = -1;
-        if (cached >= 0)
-                return cached;
+        ساكن صحيح cached = -1;
+        إذا (cached >= 0)
+                أرجع cached;
 
-        _cleanup_close_ int fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ صحيح fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
+        إذا (fd < 0)
+                أرجع -errno;
 
         /* Old kernels return EPERM. But let's also check for more appropriate error codes, to be friendly to
          * seccomp policies */
-        r = xsetxattr(fd, /* path= */ NULL, AT_EMPTY_PATH, "user.testxxx", "1");
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
-                return (cached = false);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set test xattr on socket: %m");
+        r = xsetxattr(fd, /* path= */ عدم, AT_خالی_تھاواں_رستہ, "user.testxxx", "1");
+        إذا (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
+                أرجع (cached = false);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to set test xattr on socket: %m");
 
-        return (cached = true);
+        أرجع (cached = true);
 }

@@ -1,65 +1,65 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ضمن <fcntl.h>
+#ضمن <stdio.h>
+#ضمن <sys/stat.h>
+#ضمن <unistd.h>
 
-#if HAVE_XZ
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBXZ
+#إذا HAVE_XZ
+#جے_بنا_تعریف SYSTEMD_CFLAGS_MARKER_LIBXZ
 #  error "missing libxz_cflags in meson dependency."
-#endif
-#include <lzma.h>
-#endif
+#جے_انت
+#ضمن <lzma.h>
+#جے_انت
 
-#if HAVE_LZ4
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBLZ4
+#إذا HAVE_LZ4
+#جے_بنا_تعریف SYSTEMD_CFLAGS_MARKER_LIBLZ4
 #  error "missing liblz4_cflags in meson dependency."
-#endif
-#include <lz4.h>
-#include <lz4frame.h>
-#include <lz4hc.h>
-#endif
+#جے_انت
+#ضمن <lz4.h>
+#ضمن <lz4frame.h>
+#ضمن <lz4hc.h>
+#جے_انت
 
-#if HAVE_ZSTD
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBZSTD
+#إذا HAVE_ZSTD
+#جے_بنا_تعریف SYSTEMD_CFLAGS_MARKER_LIBZSTD
 #  error "missing libzstd_cflags in meson dependency."
-#endif
-#include <zstd.h>
-#include <zstd_errors.h>
-#endif
+#جے_انت
+#ضمن <zstd.h>
+#ضمن <zstd_errors.h>
+#جے_انت
 
-#if HAVE_ZLIB
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBZ
+#إذا HAVE_ZLIB
+#جے_بنا_تعریف SYSTEMD_CFLAGS_MARKER_LIBZ
 #  error "missing libz_cflags in meson dependency."
-#endif
-#include <zlib.h>
-#endif
+#جے_انت
+#ضمن <zlib.h>
+#جے_انت
 
-#if HAVE_BZIP2
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBBZIP2
+#إذا HAVE_BZIP2
+#جے_بنا_تعریف SYSTEMD_CFLAGS_MARKER_LIBBZIP2
 #  error "missing libbzip2_cflags in meson dependency."
-#endif
-#include <bzlib.h>
-#endif
+#جے_انت
+#ضمن <bzlib.h>
+#جے_انت
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "compress.h"
-#include "dlfcn-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "string-table.h"
-#include "unaligned.h"
+#ضمن "alloc-util.h"
+#ضمن "bitfield.h"
+#ضمن "compress.h"
+#ضمن "dlfcn-util.h"
+#ضمن "io-util.h"
+#ضمن "log.h"
+#ضمن "string-table.h"
+#ضمن "unaligned.h"
 
-#if HAVE_XZ
-static DLSYM_PROTOTYPE(lzma_auto_decoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_code) = NULL;
-static DLSYM_PROTOTYPE(lzma_easy_encoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_end) = NULL;
-static DLSYM_PROTOTYPE(lzma_stream_buffer_encode) = NULL;
-static DLSYM_PROTOTYPE(lzma_stream_decoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_lzma_preset) = NULL;
+#إذا HAVE_XZ
+ساكن DLSYM_PROTOTYPE(lzma_auto_decoder) = عدم;
+ساكن DLSYM_PROTOTYPE(lzma_کوڈ) = عدم;
+ساكن DLSYM_PROTOTYPE(lzma_easy_encoder) = عدم;
+ساكن DLSYM_PROTOTYPE(lzma_سرا) = عدم;
+ساكن DLSYM_PROTOTYPE(lzma_دھارا_بفر_encode) = عدم;
+ساكن DLSYM_PROTOTYPE(lzma_دھارا_decoder) = عدم;
+ساكن DLSYM_PROTOTYPE(lzma_lzma_preset) = عدم;
 
 /* We can’t just do _cleanup_(sym_lzma_end) because a compiler bug makes
  * this fail with:
@@ -68,136 +68,136 @@ static DLSYM_PROTOTYPE(lzma_lzma_preset) = NULL;
  *   304 |         _cleanup_(sym_lzma_end) lzma_stream s = LZMA_STREAM_INIT;
  *       |         ^~~~~~~~~
  */
-static inline void lzma_end_wrapper(lzma_stream *ls) {
-        sym_lzma_end(ls);
+ساكن مضمن فراغ lzma_سرا_wrapper(lzma_دھارا *ls) {
+        sym_lzma_سرا(ls);
 }
-#endif
+#جے_انت
 
-#if HAVE_LZ4
-static DLSYM_PROTOTYPE(LZ4F_compressBegin) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressBound) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressEnd) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressUpdate) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_createCompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_createDecompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_decompress) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_freeCompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_freeDecompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_isError) = NULL;
-static DLSYM_PROTOTYPE(LZ4_compress_HC) = NULL;
-static DLSYM_PROTOTYPE(LZ4_compress_default) = NULL;
-static DLSYM_PROTOTYPE(LZ4_decompress_safe) = NULL;
-static DLSYM_PROTOTYPE(LZ4_decompress_safe_partial) = NULL;
-static DLSYM_PROTOTYPE(LZ4_versionNumber) = NULL;
+#إذا HAVE_LZ4
+ساكن DLSYM_PROTOTYPE(LZ4F_compressBegin) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_compressBound) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4_F_compress_سرا) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_compressUpdate) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_createCompressionContext) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_createDecompressionContext) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_decompress) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_freeCompressionContext) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_freeDecompressionContext) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4F_isError) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4_compress_HC) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4_compress_default) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4_decompress_محفوظ) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4_decompress_محفوظ_partial) = عدم;
+ساكن DLSYM_PROTOTYPE(LZ4_نسخہ_نمبر) = عدم;
 
-static const LZ4F_preferences_t lz4_preferences = {
-        .frameInfo.blockSizeID = 5,
+ساكن ثابت LZ4F_preferences_t lz4_preferences = {
+        .چوکھٹا_Info.بلاک_ناپ_ID = 5,
 };
-#endif
+#جے_انت
 
-#if HAVE_ZSTD
-static DLSYM_PROTOTYPE(ZSTD_CCtx_setParameter) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_compress) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_compressStream2) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_createCCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_createDCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_CStreamInSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_CStreamOutSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_decompressStream) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_DStreamInSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_DStreamOutSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_freeCCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_freeDCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getErrorCode) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getErrorName) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getFrameContentSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_isError) = NULL;
+#إذا HAVE_ZSTD
+ساكن DLSYM_PROTOTYPE(ZSTD_CCtx_سیٹ_Parameter) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_compress) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_compressStream2) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_createCCtx) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_createDCtx) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_CStream_وچ_ناپ) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_CStream_باہرلا_ناپ) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_decompress_دھارا) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_DStream_وچ_ناپ) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_DStream_باہرلا_ناپ) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_freeCCtx) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_freeDCtx) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_get_Error_کوڈ) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_getErrorName) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_get_چوکھٹا_Content_ناپ) = عدم;
+ساكن DLSYM_PROTOTYPE(ZSTD_isError) = عدم;
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL_RENAME(ZSTD_DCtx*, sym_ZSTD_freeDCtx, ZSTD_freeDCtxp, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_بھریا_RENAME(ZSTD_DCtx*, sym_ZSTD_freeDCtx, ZSTD_freeDCtxp, عدم);
 
-static int zstd_ret_to_errno(size_t ret) {
-        switch (sym_ZSTD_getErrorCode(ret)) {
-        case ZSTD_error_dstSize_tooSmall:
-                return -ENOBUFS;
-        case ZSTD_error_memory_allocation:
-                return -ENOMEM;
-        default:
-                return -EBADMSG;
+ساكن صحيح zstd_ret_منزل_errno(size_t ret) {
+        بدل (sym_ZSTD_get_Error_کوڈ(ret)) {
+        حالة ZSTD_error_dst_ناپ_too_Small:
+                أرجع -ENOBUFS;
+        حالة ZSTD_error_حافظہ_ونڈ:
+                أرجع -ENOMEM;
+        افتراضي:
+                أرجع -EBADMSG;
         }
 }
-#endif
+#جے_انت
 
-#if HAVE_ZLIB
-static DLSYM_PROTOTYPE(deflateInit2_) = NULL;
-static DLSYM_PROTOTYPE(deflate) = NULL;
-static DLSYM_PROTOTYPE(deflateEnd) = NULL;
-static DLSYM_PROTOTYPE(inflateInit2_) = NULL;
-static DLSYM_PROTOTYPE(inflate) = NULL;
-static DLSYM_PROTOTYPE(inflateEnd) = NULL;
-static DLSYM_PROTOTYPE(inflateReset) = NULL;
+#إذا HAVE_ZLIB
+ساكن DLSYM_PROTOTYPE(deflateInit2_) = عدم;
+ساكن DLSYM_PROTOTYPE(deflate) = عدم;
+ساكن DLSYM_PROTOTYPE(deflate_سرا) = عدم;
+ساكن DLSYM_PROTOTYPE(inflateInit2_) = عدم;
+ساكن DLSYM_PROTOTYPE(inflate) = عدم;
+ساكن DLSYM_PROTOTYPE(inflate_سرا) = عدم;
+ساكن DLSYM_PROTOTYPE(inflateReset) = عدم;
 
-static inline void deflateEnd_wrapper(z_stream *s) {
-        sym_deflateEnd(s);
+ساكن مضمن فراغ deflate_سرا_wrapper(z_دھارا *s) {
+        sym_deflate_سرا(s);
 }
 
-static inline void inflateEnd_wrapper(z_stream *s) {
-        sym_inflateEnd(s);
+ساكن مضمن فراغ inflate_سرا_wrapper(z_دھارا *s) {
+        sym_inflate_سرا(s);
 }
-#endif
+#جے_انت
 
-#if HAVE_BZIP2
-static DLSYM_PROTOTYPE(BZ2_bzCompressInit) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzCompress) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzCompressEnd) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompressInit) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompress) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompressEnd) = NULL;
+#إذا HAVE_BZIP2
+ساكن DLSYM_PROTOTYPE(BZ2_bzCompressInit) = عدم;
+ساكن DLSYM_PROTOTYPE(BZ2_bzCompress) = عدم;
+ساكن DLSYM_PROTOTYPE(BZ2_bz_Compress_سرا) = عدم;
+ساكن DLSYM_PROTOTYPE(BZ2_bzDecompressInit) = عدم;
+ساكن DLSYM_PROTOTYPE(BZ2_bzDecompress) = عدم;
+ساكن DLSYM_PROTOTYPE(BZ2_bz_Decompress_سرا) = عدم;
 
-static inline void BZ2_bzCompressEnd_wrapper(bz_stream *s) {
-        sym_BZ2_bzCompressEnd(s);
+ساكن مضمن فراغ BZ2_bz_Compress_سرا_wrapper(bz_دھارا *s) {
+        sym_BZ2_bz_Compress_سرا(s);
 }
 
-static inline void BZ2_bzDecompressEnd_wrapper(bz_stream *s) {
-        sym_BZ2_bzDecompressEnd(s);
+ساكن مضمن فراغ BZ2_bz_Decompress_سرا_wrapper(bz_دھارا *s) {
+        sym_BZ2_bz_Decompress_سرا(s);
 }
-#endif
+#جے_انت
 
 /* Opaque Compressor/Decompressor struct definition */
-struct Compressor {
+بنية Compressor {
         Compression type;
         bool encoding;
-        bool finished;
-        union {
-#if HAVE_XZ
-                lzma_stream xz;
-#endif
-#if HAVE_LZ4
-                struct {
+        bool مکمل;
+        اتحاد {
+#إذا HAVE_XZ
+                lzma_دھارا xz;
+#جے_انت
+#إذا HAVE_LZ4
+                بنية {
                         LZ4F_compressionContext_t c_lz4;
-                        void *lz4_header;        /* stashed frame header from LZ4F_compressBegin */
-                        size_t lz4_header_size;
+                        فراغ *lz4_سرخی;        /* stashed frame header from LZ4F_compressBegin */
+                        size_t lz4_سرخی_ناپ;
                 };
                 LZ4F_decompressionContext_t d_lz4;
-#endif
-#if HAVE_ZSTD
+#جے_انت
+#إذا HAVE_ZSTD
                 ZSTD_CCtx *c_zstd;
                 ZSTD_DCtx *d_zstd;
-#endif
-#if HAVE_ZLIB
-                z_stream gzip;
-#endif
-#if HAVE_BZIP2
-                bz_stream bzip2;
-#endif
+#جے_انت
+#إذا HAVE_ZLIB
+                z_دھارا gzip;
+#جے_انت
+#إذا HAVE_BZIP2
+                bz_دھارا bzip2;
+#جے_انت
         };
 };
 
-#define ALIGN_8(l) ALIGN_TO(l, sizeof(size_t))
+#تعریف_کرو ALIGN_8(l) ALIGN_منزل(l, حجم(size_t))
 
 /* zlib windowBits value for gzip format: MAX_WBITS (15) + 16 to enable gzip header detection/generation */
-#define ZLIB_WBITS_GZIP (15 + 16)
+#تعریف_کرو ZLIB_WBITS_GZIP (15 + 16)
 
-static const char* const compression_table[_COMPRESSION_MAX] = {
+ساكن ثابت حرف* ثابت compression_جدول[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "uncompressed", /* backwards compatibility with importd */
         [COMPRESSION_XZ]    = "xz",
         [COMPRESSION_LZ4]   = "lz4",
@@ -206,7 +206,7 @@ static const char* const compression_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = "bzip2",
 };
 
-static const char* const compression_uppercase_table[_COMPRESSION_MAX] = {
+ساكن ثابت حرف* ثابت compression_uppercase_جدول[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "NONE", /* backwards compatibility with SYSTEMD_JOURNAL_COMPRESS=NONE */
         [COMPRESSION_XZ]    = "XZ",
         [COMPRESSION_LZ4]   = "LZ4",
@@ -215,7 +215,7 @@ static const char* const compression_uppercase_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = "BZIP2",
 };
 
-static const char* const compression_extension_table[_COMPRESSION_MAX] = {
+ساكن ثابت حرف* ثابت compression_extension_جدول[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "",
         [COMPRESSION_XZ]    = ".xz",
         [COMPRESSION_LZ4]   = ".lz4",
@@ -224,54 +224,54 @@ static const char* const compression_extension_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = ".bz2",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(compression, Compression);
-DEFINE_STRING_TABLE_LOOKUP(compression_uppercase, Compression);
-DEFINE_STRING_TABLE_LOOKUP(compression_extension, Compression);
+DEFINE_STRING_جدول_LOOKUP(compression, Compression);
+DEFINE_STRING_جدول_LOOKUP(compression_uppercase, Compression);
+DEFINE_STRING_جدول_LOOKUP(compression_extension, Compression);
 
-Compression compression_from_string_harder(const char *s) {
+Compression compression_from_string_harder(ثابت حرف *s) {
         Compression c;
 
-        assert(s);
+        أكد(s);
 
         c = compression_from_string(s);
-        if (c >= 0)
-                return c;
+        إذا (c >= 0)
+                أرجع c;
 
-        return compression_uppercase_from_string(s);
+        أرجع compression_uppercase_from_string(s);
 }
 
-Compression compression_from_filename(const char *filename) {
+Compression compression_from_filename(ثابت حرف *filename) {
         Compression c;
-        const char *e;
+        ثابت حرف *e;
 
-        assert(filename);
+        أكد(filename);
 
         e = strrchr(filename, '.');
-        if (!e)
-                return COMPRESSION_NONE;
+        إذا (!e)
+                أرجع COMPRESSION_NONE;
 
         c = compression_extension_from_string(e);
-        if (c < 0)
-                return COMPRESSION_NONE;
+        إذا (c < 0)
+                أرجع COMPRESSION_NONE;
 
-        return c;
+        أرجع c;
 }
 
 bool compression_supported_journal(Compression c) {
-        static const unsigned supported =
+        ساكن ثابت بنانشانی supported =
                 (1U << COMPRESSION_NONE) |
                 (1U << COMPRESSION_XZ) * HAVE_XZ |
                 (1U << COMPRESSION_LZ4) * HAVE_LZ4 |
                 (1U << COMPRESSION_ZSTD) * HAVE_ZSTD;
 
-        assert(c >= 0);
-        assert(c < _COMPRESSION_MAX);
+        أكد(c >= 0);
+        أكد(c < _COMPRESSION_MAX);
 
-        return BIT_SET(supported, c);
+        أرجع ثنائی_ہندسہ_سیٹ(supported, c);
 }
 
 bool compression_supported(Compression c) {
-        static const unsigned supported =
+        ساكن ثابت بنانشانی supported =
                 (1U << COMPRESSION_NONE) |
                 (1U << COMPRESSION_XZ) * HAVE_XZ |
                 (1U << COMPRESSION_LZ4) * HAVE_LZ4 |
@@ -279,64 +279,64 @@ bool compression_supported(Compression c) {
                 (1U << COMPRESSION_GZIP) * HAVE_ZLIB |
                 (1U << COMPRESSION_BZIP2) * HAVE_BZIP2;
 
-        assert(c >= 0);
-        assert(c < _COMPRESSION_MAX);
+        أكد(c >= 0);
+        أكد(c < _COMPRESSION_MAX);
 
-        return BIT_SET(supported, c);
+        أرجع ثنائی_ہندسہ_سیٹ(supported, c);
 }
 
-Compression compression_detect_from_magic(const uint8_t data[static COMPRESSION_MAGIC_BYTES_MAX]) {
+Compression compression_detect_from_magic(ثابت uint8_t انکڑے[ساكن COMPRESSION_MAGIC_بائٹاں_MAX]) {
         /* Magic signatures per RFC 1952 (gzip), tukaani.org/xz/xz-file-format.txt (xz),
          * RFC 8878 (zstd), lz4/doc/lz4_Frame_format.md (lz4), and the bzip2 file format.
          * Make sure to update COMPRESSION_MAGIC_BYTES_MAX if needed when adding a new magic. */
-        if (memcmp(data, (const uint8_t[]) { 0x1f, 0x8b }, 2) == 0)
-                return COMPRESSION_GZIP;
-        if (memcmp(data, (const uint8_t[]) { 0xfd, '7', 'z', 'X', 'Z', 0x00 }, 6) == 0)
-                return COMPRESSION_XZ;
-        if (memcmp(data, (const uint8_t[]) { 0x28, 0xb5, 0x2f, 0xfd }, 4) == 0)
-                return COMPRESSION_ZSTD;
-        if (memcmp(data, (const uint8_t[]) { 0x04, 0x22, 0x4d, 0x18 }, 4) == 0)
-                return COMPRESSION_LZ4;
-        if (memcmp(data, (const uint8_t[]) { 'B', 'Z', 'h' }, 3) == 0)
-                return COMPRESSION_BZIP2;
+        إذا (memcmp(انکڑے, (ثابت uint8_t[]) { 0x1f, 0x8b }, 2) == 0)
+                أرجع COMPRESSION_GZIP;
+        إذا (memcmp(انکڑے, (ثابت uint8_t[]) { 0xfd, '7', 'z', 'X', 'Z', 0x00 }, 6) == 0)
+                أرجع COMPRESSION_XZ;
+        إذا (memcmp(انکڑے, (ثابت uint8_t[]) { 0x28, 0xb5, 0x2f, 0xfd }, 4) == 0)
+                أرجع COMPRESSION_ZSTD;
+        إذا (memcmp(انکڑے, (ثابت uint8_t[]) { 0x04, 0x22, 0x4d, 0x18 }, 4) == 0)
+                أرجع COMPRESSION_LZ4;
+        إذا (memcmp(انکڑے, (ثابت uint8_t[]) { 'B', 'Z', 'h' }, 3) == 0)
+                أرجع COMPRESSION_BZIP2;
 
-        return _COMPRESSION_INVALID;
+        أرجع _COMPRESSION_INVALID;
 }
 
-int dlopen_xz(int log_level) {
-#if HAVE_XZ
-        static void *lzma_dl = NULL;
+صحيح dlopen_xz(صحيح log_level) {
+#إذا HAVE_XZ
+        ساكن فراغ *lzma_dl = عدم;
 
         LIBLZMA_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        أرجع dlopen_many_sym_or_warn(
                         &lzma_dl,
                         "liblzma.so.5", log_level,
                         DLSYM_ARG(lzma_auto_decoder),
-                        DLSYM_ARG(lzma_code),
+                        DLSYM_ARG(lzma_کوڈ),
                         DLSYM_ARG(lzma_easy_encoder),
-                        DLSYM_ARG(lzma_end),
-                        DLSYM_ARG(lzma_stream_buffer_encode),
+                        DLSYM_ARG(lzma_سرا),
+                        DLSYM_ARG(lzma_دھارا_بفر_encode),
                         DLSYM_ARG(lzma_lzma_preset),
-                        DLSYM_ARG(lzma_stream_decoder));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+                        DLSYM_ARG(lzma_دھارا_decoder));
+#وإلا
+        أرجع log_بھریا_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "lzma support is not compiled in.");
-#endif
+#جے_انت
 }
 
-int dlopen_lz4(int log_level) {
-#if HAVE_LZ4
-        static void *lz4_dl = NULL;
+صحيح dlopen_lz4(صحيح log_level) {
+#إذا HAVE_LZ4
+        ساكن فراغ *lz4_dl = عدم;
 
         LIBLZ4_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        أرجع dlopen_many_sym_or_warn(
                         &lz4_dl,
                         "liblz4.so.1", log_level,
                         DLSYM_ARG(LZ4F_compressBegin),
                         DLSYM_ARG(LZ4F_compressBound),
-                        DLSYM_ARG(LZ4F_compressEnd),
+                        DLSYM_ARG(LZ4_F_compress_سرا),
                         DLSYM_ARG(LZ4F_compressUpdate),
                         DLSYM_ARG(LZ4F_createCompressionContext),
                         DLSYM_ARG(LZ4F_createDecompressionContext),
@@ -346,522 +346,522 @@ int dlopen_lz4(int log_level) {
                         DLSYM_ARG(LZ4F_isError),
                         DLSYM_ARG(LZ4_compress_default),
                         DLSYM_ARG(LZ4_compress_HC),
-                        DLSYM_ARG(LZ4_decompress_safe),
-                        DLSYM_ARG(LZ4_decompress_safe_partial),
-                        DLSYM_ARG(LZ4_versionNumber));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+                        DLSYM_ARG(LZ4_decompress_محفوظ),
+                        DLSYM_ARG(LZ4_decompress_محفوظ_partial),
+                        DLSYM_ARG(LZ4_نسخہ_نمبر));
+#وإلا
+        أرجع log_بھریا_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "lz4 support is not compiled in.");
-#endif
+#جے_انت
 }
 
-int dlopen_zstd(int log_level) {
-#if HAVE_ZSTD
-        static void *zstd_dl = NULL;
+صحيح dlopen_zstd(صحيح log_level) {
+#إذا HAVE_ZSTD
+        ساكن فراغ *zstd_dl = عدم;
 
         LIBZSTD_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        أرجع dlopen_many_sym_or_warn(
                         &zstd_dl,
                         "libzstd.so.1", log_level,
-                        DLSYM_ARG(ZSTD_getErrorCode),
+                        DLSYM_ARG(ZSTD_get_Error_کوڈ),
                         DLSYM_ARG(ZSTD_compress),
-                        DLSYM_ARG(ZSTD_getFrameContentSize),
-                        DLSYM_ARG(ZSTD_decompressStream),
+                        DLSYM_ARG(ZSTD_get_چوکھٹا_Content_ناپ),
+                        DLSYM_ARG(ZSTD_decompress_دھارا),
                         DLSYM_ARG(ZSTD_getErrorName),
-                        DLSYM_ARG(ZSTD_DStreamOutSize),
-                        DLSYM_ARG(ZSTD_CStreamInSize),
-                        DLSYM_ARG(ZSTD_CStreamOutSize),
-                        DLSYM_ARG(ZSTD_CCtx_setParameter),
+                        DLSYM_ARG(ZSTD_DStream_باہرلا_ناپ),
+                        DLSYM_ARG(ZSTD_CStream_وچ_ناپ),
+                        DLSYM_ARG(ZSTD_CStream_باہرلا_ناپ),
+                        DLSYM_ARG(ZSTD_CCtx_سیٹ_Parameter),
                         DLSYM_ARG(ZSTD_compressStream2),
-                        DLSYM_ARG(ZSTD_DStreamInSize),
+                        DLSYM_ARG(ZSTD_DStream_وچ_ناپ),
                         DLSYM_ARG(ZSTD_freeCCtx),
                         DLSYM_ARG(ZSTD_freeDCtx),
                         DLSYM_ARG(ZSTD_isError),
                         DLSYM_ARG(ZSTD_createDCtx),
                         DLSYM_ARG(ZSTD_createCCtx));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#وإلا
+        أرجع log_بھریا_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "zstd support is not compiled in.");
-#endif
+#جے_انت
 }
 
-int dlopen_zlib(int log_level) {
-#if HAVE_ZLIB
-        static void *zlib_dl = NULL;
+صحيح dlopen_zlib(صحيح log_level) {
+#إذا HAVE_ZLIB
+        ساكن فراغ *zlib_dl = عدم;
 
         LIBZ_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        أرجع dlopen_many_sym_or_warn(
                         &zlib_dl,
                         "libz.so.1", log_level,
                         DLSYM_ARG(deflateInit2_),
                         DLSYM_ARG(deflate),
-                        DLSYM_ARG(deflateEnd),
+                        DLSYM_ARG(deflate_سرا),
                         DLSYM_ARG(inflateInit2_),
                         DLSYM_ARG(inflate),
-                        DLSYM_ARG(inflateEnd),
+                        DLSYM_ARG(inflate_سرا),
                         DLSYM_ARG(inflateReset));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#وإلا
+        أرجع log_بھریا_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "zlib support is not compiled in.");
-#endif
+#جے_انت
 }
 
-int dlopen_bzip2(int log_level) {
-#if HAVE_BZIP2
-        static void *bzip2_dl = NULL;
+صحيح dlopen_bzip2(صحيح log_level) {
+#إذا HAVE_BZIP2
+        ساكن فراغ *bzip2_dl = عدم;
 
         LIBBZ2_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        أرجع dlopen_many_sym_or_warn(
                         &bzip2_dl,
                         "libbz2.so.1", log_level,
                         DLSYM_ARG(BZ2_bzCompressInit),
                         DLSYM_ARG(BZ2_bzCompress),
-                        DLSYM_ARG(BZ2_bzCompressEnd),
+                        DLSYM_ARG(BZ2_bz_Compress_سرا),
                         DLSYM_ARG(BZ2_bzDecompressInit),
                         DLSYM_ARG(BZ2_bzDecompress),
-                        DLSYM_ARG(BZ2_bzDecompressEnd));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+                        DLSYM_ARG(BZ2_bz_Decompress_سرا));
+#وإلا
+        أرجع log_بھریا_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "bzip2 support is not compiled in.");
-#endif
+#جے_انت
 }
 
-int dlopen_compress_journal(Compression c, int log_level) {
-        switch (c) {
-        case COMPRESSION_NONE:
-                return 0;
-        case COMPRESSION_XZ:
-                return dlopen_xz(log_level);
-        case COMPRESSION_LZ4:
-                return dlopen_lz4(log_level);
-        case COMPRESSION_ZSTD:
-                return dlopen_zstd(log_level);
-        default:
-                return -EOPNOTSUPP;
+صحيح dlopen_compress_journal(Compression c, صحيح log_level) {
+        بدل (c) {
+        حالة COMPRESSION_NONE:
+                أرجع 0;
+        حالة COMPRESSION_XZ:
+                أرجع dlopen_xz(log_level);
+        حالة COMPRESSION_LZ4:
+                أرجع dlopen_lz4(log_level);
+        حالة COMPRESSION_ZSTD:
+                أرجع dlopen_zstd(log_level);
+        افتراضي:
+                أرجع -EOPNOTSUPP;
         }
 }
 
-int dlopen_compress(Compression c, int log_level) {
-        switch (c) {
-        case COMPRESSION_GZIP:
-                return dlopen_zlib(log_level);
-        case COMPRESSION_BZIP2:
-                return dlopen_bzip2(log_level);
-        default:
-                return dlopen_compress_journal(c, log_level);
+صحيح dlopen_compress(Compression c, صحيح log_level) {
+        بدل (c) {
+        حالة COMPRESSION_GZIP:
+                أرجع dlopen_zlib(log_level);
+        حالة COMPRESSION_BZIP2:
+                أرجع dlopen_bzip2(log_level);
+        افتراضي:
+                أرجع dlopen_compress_journal(c, log_level);
         }
 }
 
-static int compress_blob_xz(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+ساكن صحيح compress_blob_xz(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ *dst,
+                size_t dst_alloc_ناپ,
+                size_t *dst_ناپ,
+                صحيح level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_alloc_ناپ > 0);
+        أكد(dst_ناپ);
 
-#if HAVE_XZ
+#إذا HAVE_XZ
         lzma_options_lzma opt = {
-                1u << 20u, NULL, 0, LZMA_LC_DEFAULT, LZMA_LP_DEFAULT,
-                LZMA_PB_DEFAULT, LZMA_MODE_FAST, 128, LZMA_MF_HC3, 4
+                1u << 20u, عدم, 0, LZMA_LC_DEFAULT, LZMA_LP_DEFAULT,
+                LZMA_PB_DEFAULT, LZMA_منوال_FAST, 128, LZMA_MF_HC3, 4
         };
         lzma_filter filters[] = {
                 { LZMA_FILTER_LZMA2, &opt },
-                { LZMA_VLI_UNKNOWN, NULL }
+                { LZMA_VLI_UNKNOWN, عدم }
         };
         lzma_ret ret;
-        size_t out_pos = 0;
-        int r;
+        size_t باہرلا_pos = 0;
+        صحيح r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (level >= 0) {
+        إذا (level >= 0) {
                 /* This returns lzma_bool, and true means failure, i.e. the specified level is not supported. */
-                if (sym_lzma_lzma_preset(&opt, (uint32_t) level))
-                        return -EINVAL;
+                إذا (sym_lzma_lzma_preset(&opt, (uint32_t) level))
+                        أرجع -EINVAL;
         }
 
         /* Returns < 0 if we couldn't compress the data or the
          * compressed result is longer than the original */
 
-        if (src_size < 80)
-                return -ENOBUFS;
+        إذا (src_ناپ < 80)
+                أرجع -ENOBUFS;
 
-        ret = sym_lzma_stream_buffer_encode(filters, LZMA_CHECK_NONE, /* allocator= */ NULL,
-                                            src, src_size, dst, &out_pos, dst_alloc_size);
-        if (ret != LZMA_OK)
-                return -ENOBUFS;
+        ret = sym_lzma_دھارا_بفر_encode(filters, LZMA_CHECK_NONE, /* allocator= */ عدم,
+                                            src, src_ناپ, dst, &باہرلا_pos, dst_alloc_ناپ);
+        إذا (ret != LZMA_OK)
+                أرجع -ENOBUFS;
 
-        *dst_size = out_pos;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = باہرلا_pos;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int compress_blob_lz4(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+ساكن صحيح compress_blob_lz4(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ *dst,
+                size_t dst_alloc_ناپ,
+                size_t *dst_ناپ,
+                صحيح level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_alloc_ناپ > 0);
+        أكد(dst_ناپ);
 
-#if HAVE_LZ4
-        int r;
+#إذا HAVE_LZ4
+        صحيح r;
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
         /* Returns < 0 if we couldn't compress the data or the
          * compressed result is longer than the original */
 
-        if (src_size < 9)
-                return -ENOBUFS;
+        إذا (src_ناپ < 9)
+                أرجع -ENOBUFS;
 
-        if (src_size > INT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > INT_MAX)
-                dst_alloc_size = INT_MAX;
+        إذا (src_ناپ > ودھ_توں_ودھ_عدد)
+                أرجع -EFBIG;
+        إذا (dst_alloc_ناپ > ودھ_توں_ودھ_عدد)
+                dst_alloc_ناپ = ودھ_توں_ودھ_عدد;
 
-        if (level <= 0)
-                r = sym_LZ4_compress_default(src, (char*)dst + 8, src_size, (int) dst_alloc_size - 8);
-        else
-                r = sym_LZ4_compress_HC(src, (char*)dst + 8, src_size, (int) dst_alloc_size - 8, level);
-        if (r <= 0)
-                return -ENOBUFS;
+        إذا (level <= 0)
+                r = sym_LZ4_compress_default(src, (حرف*)dst + 8, src_ناپ, (صحيح) dst_alloc_ناپ - 8);
+        وإلا
+                r = sym_LZ4_compress_HC(src, (حرف*)dst + 8, src_ناپ, (صحيح) dst_alloc_ناپ - 8, level);
+        إذا (r <= 0)
+                أرجع -ENOBUFS;
 
-        unaligned_write_le64(dst, src_size);
-        *dst_size = r + 8;
+        unaligned_write_le64(dst, src_ناپ);
+        *dst_ناپ = r + 8;
 
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int compress_blob_zstd(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+ساكن صحيح compress_blob_zstd(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ *dst,
+                size_t dst_alloc_ناپ,
+                size_t *dst_ناپ,
+                صحيح level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_alloc_ناپ > 0);
+        أكد(dst_ناپ);
 
-#if HAVE_ZSTD
+#إذا HAVE_ZSTD
         size_t k;
-        int r;
+        صحيح r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        k = sym_ZSTD_compress(dst, dst_alloc_size, src, src_size, level < 0 ? 0 : level);
-        if (sym_ZSTD_isError(k))
-                return zstd_ret_to_errno(k);
+        k = sym_ZSTD_compress(dst, dst_alloc_ناپ, src, src_ناپ, level < 0 ? 0 : level);
+        إذا (sym_ZSTD_isError(k))
+                أرجع zstd_ret_منزل_errno(k);
 
-        *dst_size = k;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = k;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int compress_blob_gzip(const void *src, uint64_t src_size,
-                       void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+ساكن صحيح compress_blob_gzip(ثابت فراغ *src, uint64_t src_ناپ,
+                       فراغ *dst, size_t dst_alloc_ناپ, size_t *dst_ناپ, صحيح level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_alloc_ناپ > 0);
+        أكد(dst_ناپ);
 
-#if HAVE_ZLIB
-        int r;
+#إذا HAVE_ZLIB
+        صحيح r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > UINT_MAX)
-                dst_alloc_size = UINT_MAX;
+        إذا (src_ناپ > UINT_MAX)
+                أرجع -EFBIG;
+        إذا (dst_alloc_ناپ > UINT_MAX)
+                dst_alloc_ناپ = UINT_MAX;
 
-        _cleanup_(deflateEnd_wrapper) z_stream s = {};
+        _cleanup_(deflate_سرا_wrapper) z_دھارا s = {};
 
         r = sym_deflateInit2_(&s, level < 0 ? Z_DEFAULT_COMPRESSION : level,
                               /* method= */ Z_DEFLATED,
                               /* windowBits= */ ZLIB_WBITS_GZIP,
                               /* memLevel= */ 8,
                               /* strategy= */ Z_DEFAULT_STRATEGY,
-                              ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -ENOMEM;
+                              ZLIB_نسخہ, (صحيح) حجم(s));
+        إذا (r != Z_OK)
+                أرجع -ENOMEM;
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
-        s.next_out = dst;
-        s.avail_out = dst_alloc_size;
+        s.اگلا_وچ = (فراغ*) src;
+        s.avail_وچ = src_ناپ;
+        s.اگلا_باہرلا = dst;
+        s.avail_باہرلا = dst_alloc_ناپ;
 
-        r = sym_deflate(&s, Z_FINISH);
-        if (r != Z_STREAM_END)
-                return -ENOBUFS;
+        r = sym_deflate(&s, Z_انت);
+        إذا (r != Z_دھارا_سرا)
+                أرجع -ENOBUFS;
 
-        *dst_size = dst_alloc_size - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = dst_alloc_ناپ - s.avail_باہرلا;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int compress_blob_bzip2(
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+ساكن صحيح compress_blob_bzip2(
+                ثابت فراغ *src, uint64_t src_ناپ,
+                فراغ *dst, size_t dst_alloc_ناپ, size_t *dst_ناپ, صحيح level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_alloc_ناپ > 0);
+        أكد(dst_ناپ);
 
-#if HAVE_BZIP2
-        int r;
+#إذا HAVE_BZIP2
+        صحيح r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > UINT_MAX)
-                dst_alloc_size = UINT_MAX;
+        إذا (src_ناپ > UINT_MAX)
+                أرجع -EFBIG;
+        إذا (dst_alloc_ناپ > UINT_MAX)
+                dst_alloc_ناپ = UINT_MAX;
 
-        _cleanup_(BZ2_bzCompressEnd_wrapper) bz_stream s = {};
+        _cleanup_(BZ2_bz_Compress_سرا_wrapper) bz_دھارا s = {};
 
         r = sym_BZ2_bzCompressInit(&s, level < 0 ? 9 : level, /* verbosity= */ 0, /* workFactor= */ 0);
-        if (r != BZ_OK)
-                return -ENOMEM;
+        إذا (r != BZ_OK)
+                أرجع -ENOMEM;
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
-        s.next_out = (char*) dst;
-        s.avail_out = dst_alloc_size;
+        s.اگلا_وچ = (حرف*) src;
+        s.avail_وچ = src_ناپ;
+        s.اگلا_باہرلا = (حرف*) dst;
+        s.avail_باہرلا = dst_alloc_ناپ;
 
-        r = sym_BZ2_bzCompress(&s, BZ_FINISH);
+        r = sym_BZ2_bzCompress(&s, BZ_انت);
 
-        if (r != BZ_STREAM_END)
-                return -ENOBUFS;
+        إذا (r != BZ_دھارا_سرا)
+                أرجع -ENOBUFS;
 
-        *dst_size = dst_alloc_size - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = dst_alloc_ناپ - s.avail_باہرلا;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-int compress_blob_journal(
+صحيح compress_blob_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+                ثابت فراغ *src, uint64_t src_ناپ,
+                فراغ *dst, size_t dst_alloc_ناپ, size_t *dst_ناپ, صحيح level) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return compress_blob_xz(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_LZ4:
-                return compress_blob_lz4(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_ZSTD:
-                return compress_blob_zstd(src, src_size, dst, dst_alloc_size, dst_size, level);
-        default:
-                return -EOPNOTSUPP;
+        بدل (compression) {
+        حالة COMPRESSION_XZ:
+                أرجع compress_blob_xz(src, src_ناپ, dst, dst_alloc_ناپ, dst_ناپ, level);
+        حالة COMPRESSION_LZ4:
+                أرجع compress_blob_lz4(src, src_ناپ, dst, dst_alloc_ناپ, dst_ناپ, level);
+        حالة COMPRESSION_ZSTD:
+                أرجع compress_blob_zstd(src, src_ناپ, dst, dst_alloc_ناپ, dst_ناپ, level);
+        افتراضي:
+                أرجع -EOPNOTSUPP;
         }
 }
 
-int compress_blob(
+صحيح compress_blob(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+                ثابت فراغ *src, uint64_t src_ناپ,
+                فراغ *dst, size_t dst_alloc_ناپ, size_t *dst_ناپ, صحيح level) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return compress_blob_gzip(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_BZIP2:
-                return compress_blob_bzip2(src, src_size, dst, dst_alloc_size, dst_size, level);
-        default:
-                return compress_blob_journal(compression, src, src_size, dst, dst_alloc_size, dst_size, level);
+        بدل (compression) {
+        حالة COMPRESSION_GZIP:
+                أرجع compress_blob_gzip(src, src_ناپ, dst, dst_alloc_ناپ, dst_ناپ, level);
+        حالة COMPRESSION_BZIP2:
+                أرجع compress_blob_bzip2(src, src_ناپ, dst, dst_alloc_ناپ, dst_ناپ, level);
+        افتراضي:
+                أرجع compress_blob_journal(compression, src, src_ناپ, dst, dst_alloc_ناپ, dst_ناپ, level);
         }
 }
 
-static int decompress_blob_xz(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+ساكن صحيح decompress_blob_xz(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **dst,
+                size_t *dst_ناپ,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_ناپ);
 
-#if HAVE_XZ
-        int r;
+#إذا HAVE_XZ
+        صحيح r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        _cleanup_(lzma_end_wrapper) lzma_stream s = LZMA_STREAM_INIT;
-        lzma_ret ret = sym_lzma_stream_decoder(&s, UINT64_MAX, /* flags= */ 0);
-        if (ret != LZMA_OK)
-                return -ENOMEM;
+        _cleanup_(lzma_سرا_wrapper) lzma_دھارا s = LZMA_دھارا_INIT;
+        lzma_ret ret = sym_lzma_دھارا_decoder(&s, UINT64_MAX, /* flags= */ 0);
+        إذا (ret != LZMA_OK)
+                أرجع -ENOMEM;
 
-        size_t space = MIN(src_size * 2, dst_max ?: SIZE_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        size_t space = MIN(src_ناپ * 2, dst_max ?: SIZE_MAX);
+        إذا (!greedy_realloc(dst, space, 1))
+                أرجع -ENOMEM;
 
-        s.next_in = src;
-        s.avail_in = src_size;
+        s.اگلا_وچ = src;
+        s.avail_وچ = src_ناپ;
 
-        s.next_out = *dst;
-        s.avail_out = space;
+        s.اگلا_باہرلا = *dst;
+        s.avail_باہرلا = space;
 
-        for (;;) {
-                size_t used;
+        لكل (;;) {
+                size_t ورتیا;
 
-                ret = sym_lzma_code(&s, LZMA_FINISH);
-                if (ret == LZMA_STREAM_END)
-                        break;
-                if (ret != LZMA_OK)
-                        return -ENOMEM;
+                ret = sym_lzma_کوڈ(&s, LZMA_انت);
+                إذا (ret == LZMA_دھارا_سرا)
+                        اكسر;
+                إذا (ret != LZMA_OK)
+                        أرجع -ENOMEM;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                إذا (dst_max > 0 && (space - s.avail_باہرلا) >= dst_max)
+                        اكسر;
+                إذا (dst_max > 0 && space == dst_max)
+                        أرجع -ENOBUFS;
 
-                used = space - s.avail_out;
+                ورتیا = space - s.avail_باہرلا;
                 /* Silence static analyzers, space is bounded by allocation size */
-                assert(space <= SIZE_MAX / 2);
+                أكد(space <= SIZE_MAX / 2);
                 space = MIN(2 * space, dst_max ?: SIZE_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                إذا (!greedy_realloc(dst, space, 1))
+                        أرجع -ENOMEM;
 
-                s.avail_out = space - used;
-                s.next_out = *(uint8_t**)dst + used;
+                s.avail_باہرلا = space - ورتیا;
+                s.اگلا_باہرلا = *(uint8_t**)dst + ورتیا;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = space - s.avail_باہرلا;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_blob_lz4(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+ساكن صحيح decompress_blob_lz4(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **dst,
+                size_t *dst_ناپ,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_ناپ);
 
-#if HAVE_LZ4
-        char* out;
-        int r, size; /* LZ4 uses int for size */
+#إذا HAVE_LZ4
+        حرف* باہرلا;
+        صحيح r, ناپ; /* LZ4 uses int for size */
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size <= 8)
-                return -EBADMSG;
+        إذا (src_ناپ <= 8)
+                أرجع -EBADMSG;
 
-        if (src_size - 8 > INT_MAX)
-                return -EFBIG;
+        إذا (src_ناپ - 8 > ودھ_توں_ودھ_عدد)
+                أرجع -EFBIG;
 
-        size = unaligned_read_le64(src);
-        if (size < 0 || (unsigned) size != unaligned_read_le64(src))
-                return -EFBIG;
-        if (dst_max > 0 && (size_t) size > dst_max)
-                return -ENOBUFS;
-        out = greedy_realloc(dst, size, 1);
-        if (!out)
-                return -ENOMEM;
+        ناپ = unaligned_read_le64(src);
+        إذا (ناپ < 0 || (بنانشانی) ناپ != unaligned_read_le64(src))
+                أرجع -EFBIG;
+        إذا (dst_max > 0 && (size_t) ناپ > dst_max)
+                أرجع -ENOBUFS;
+        باہرلا = greedy_realloc(dst, ناپ, 1);
+        إذا (!باہرلا)
+                أرجع -ENOMEM;
 
-        r = sym_LZ4_decompress_safe((char*)src + 8, out, src_size - 8, size);
-        if (r < 0 || r != size)
-                return -EBADMSG;
+        r = sym_LZ4_decompress_محفوظ((حرف*)src + 8, باہرلا, src_ناپ - 8, ناپ);
+        إذا (r < 0 || r != ناپ)
+                أرجع -EBADMSG;
 
-        *dst_size = size;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = ناپ;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-size_t zstd_dstream_out_size(void) {
-#if HAVE_ZSTD
-        if (dlopen_zstd(LOG_DEBUG) < 0)
-                return 0;
+size_t zstd_dstream_باہرلا_ناپ(فراغ) {
+#إذا HAVE_ZSTD
+        إذا (dlopen_zstd(LOG_DEBUG) < 0)
+                أرجع 0;
 
-        return sym_ZSTD_DStreamOutSize();
-#else
-        return 0;
-#endif
+        أرجع sym_ZSTD_DStream_باہرلا_ناپ();
+#وإلا
+        أرجع 0;
+#جے_انت
 }
 
-static int decompress_blob_zstd(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+ساكن صحيح decompress_blob_zstd(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **dst,
+                size_t *dst_ناپ,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_ناپ);
 
-#if HAVE_ZSTD
-        int r;
+#إذا HAVE_ZSTD
+        صحيح r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         /* ZSTD_getFrameContentSize() returns unsigned long long, which is not necessarily size_t, so
          * keep the value in that type until we've clamped it down to something that fits size_t. */
-        unsigned long long size = sym_ZSTD_getFrameContentSize(src, src_size);
-        if (size == ZSTD_CONTENTSIZE_ERROR)
-                return -EBADMSG;
+        بنانشانی لما لما ناپ = sym_ZSTD_get_چوکھٹا_Content_ناپ(src, src_ناپ);
+        إذا (ناپ == ZSTD_CONTENTSIZE_ERROR)
+                أرجع -EBADMSG;
 
         /* ZSTD_CONTENTSIZE_UNKNOWN is returned when the frame header doesn't record the decompressed
          * size, which is the case e.g. for kernel images compressed with 'zstd'. Per the zstd
@@ -873,1598 +873,1598 @@ static int decompress_blob_zstd(
         size_t cap = dst_max ?: SIZE_MAX;
 
         size_t space;
-        if (size != ZSTD_CONTENTSIZE_UNKNOWN)
+        إذا (ناپ != ZSTD_CONTENTSIZE_UNKNOWN)
                 /* The MIN clamps the (possibly 64-bit) content size to the ceiling, which is <= SIZE_MAX,
                  * so the result always fits size_t. */
-                space = MAX(sym_ZSTD_DStreamOutSize(), (size_t) MIN(size, (unsigned long long) cap));
-        else {
+                space = MAX(sym_ZSTD_DStream_باہرلا_ناپ(), (size_t) MIN(ناپ, (بنانشانی لما لما) cap));
+        وإلا {
                 /* Start from twice the compressed size, guarding the doubling against overflow, then
                  * clamp to the ceiling. */
-                uint64_t twice = src_size <= UINT64_MAX / 2 ? src_size * 2 : UINT64_MAX;
-                space = MAX(sym_ZSTD_DStreamOutSize(), (size_t) MIN(twice, (uint64_t) cap));
+                uint64_t twice = src_ناپ <= UINT64_MAX / 2 ? src_ناپ * 2 : UINT64_MAX;
+                space = MAX(sym_ZSTD_DStream_باہرلا_ناپ(), (size_t) MIN(twice, (uint64_t) cap));
         }
 
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
-        space = MALLOC_SIZEOF_SAFE(*dst);
+        إذا (!greedy_realloc(dst, space, 1))
+                أرجع -ENOMEM;
+        space = MALLOC_SIZEOF_محفوظ(*dst);
 
         _cleanup_(ZSTD_freeDCtxp) ZSTD_DCtx *dctx = sym_ZSTD_createDCtx();
-        if (!dctx)
-                return -ENOMEM;
+        إذا (!dctx)
+                أرجع -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_وچ_بفر داخلہ = {
                 .src = src,
-                .size = src_size,
+                .ناپ = src_ناپ,
         };
-        ZSTD_outBuffer output = {
+        ZSTD_باہرلا_بفر output = {
                 .dst = *dst,
                 /* Never offer the decoder more room than the cap: greedy_realloc() over-allocates, so
                  * without this clamp a single ZSTD_decompressStream() call could write past dst_max
                  * before the output.pos >= cap check below fires. */
-                .size = MIN(space, cap),
+                .ناپ = MIN(space, cap),
         };
 
-        for (;;) {
-                size_t k = sym_ZSTD_decompressStream(dctx, &output, &input);
-                if (sym_ZSTD_isError(k))
-                        return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
+        لكل (;;) {
+                size_t k = sym_ZSTD_decompress_دھارا(dctx, &output, &داخلہ);
+                إذا (sym_ZSTD_isError(k))
+                        أرجع log_debug_errno(zstd_ret_منزل_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
 
                 /* output.size is clamped to MIN(space, cap) here and after every grow, and zstd keeps
                  * output.pos <= output.size, so output.pos never exceeds cap: this fires exactly when the
                  * caller's limit has been filled. */
-                if (output.pos >= cap)
-                        break;
+                إذا (output.pos >= cap)
+                        اكسر;
 
                 /* k == 0 means the current frame was fully decoded and flushed. If no input is left
                  * either, the whole stream is done. This must be checked before the grow branch below:
                  * the frame can finish exactly as the output buffer fills, and growing then would call
                  * the decoder again on already-exhausted input, which it'd misread as a truncated next
                  * frame. */
-                if (k == 0 && input.pos >= input.size)
-                        break;
+                إذا (k == 0 && داخلہ.pos >= داخلہ.ناپ)
+                        اكسر;
 
                 /* Otherwise there is still work to do: either decoded data buffered inside the decoder
                  * that didn't fit (k != 0, e.g. zstd's buffered-flush mode), or another concatenated
                  * frame to decode (k == 0 with input left). If the output buffer is full, grow it and
                  * call again. Guard against the doubling overflowing size_t (only reachable with an
                  * uncapped dst_max once the allocation has already grown past SIZE_MAX/2). */
-                if (output.pos == output.size) {
-                        if (space > SIZE_MAX / 2)
-                                return -E2BIG;
+                إذا (output.pos == output.ناپ) {
+                        إذا (space > SIZE_MAX / 2)
+                                أرجع -E2BIG;
                         space = MIN(2 * space, cap);
-                        if (!greedy_realloc(dst, space, 1))
-                                return -ENOMEM;
-                        space = MALLOC_SIZEOF_SAFE(*dst);
+                        إذا (!greedy_realloc(dst, space, 1))
+                                أرجع -ENOMEM;
+                        space = MALLOC_SIZEOF_محفوظ(*dst);
                         output.dst = *dst;
-                        output.size = MIN(space, cap);
-                        continue;
+                        output.ناپ = MIN(space, cap);
+                        استمر;
                 }
 
                 /* The output buffer still has room but the decoder stopped. If input is exhausted the
                  * decoder wanted more (k != 0, since k == 0 + no input broke above), i.e. the stream was
                  * truncated mid-frame. Otherwise input remains (a concatenated frame) and we loop. */
-                if (input.pos >= input.size)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
+                إذا (داخلہ.pos >= داخلہ.ناپ)
+                        أرجع log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
         }
 
-        *dst_size = output.pos;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = output.pos;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_blob_gzip(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+ساكن صحيح decompress_blob_gzip(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **dst,
+                size_t *dst_ناپ,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_ناپ);
 
-#if HAVE_ZLIB
-        int r;
+#إذا HAVE_ZLIB
+        صحيح r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        إذا (src_ناپ > UINT_MAX)
+                أرجع -EFBIG;
 
-        _cleanup_(inflateEnd_wrapper) z_stream s = {};
+        _cleanup_(inflate_سرا_wrapper) z_دھارا s = {};
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -ENOMEM;
+        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_نسخہ, (صحيح) حجم(s));
+        إذا (r != Z_OK)
+                أرجع -ENOMEM;
 
-        size_t space = MIN3(src_size * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        size_t space = MIN3(src_ناپ * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
+        إذا (!greedy_realloc(dst, space, 1))
+                أرجع -ENOMEM;
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
-        s.next_out = *dst;
-        s.avail_out = space;
+        s.اگلا_وچ = (فراغ*) src;
+        s.avail_وچ = src_ناپ;
+        s.اگلا_باہرلا = *dst;
+        s.avail_باہرلا = space;
 
-        for (;;) {
-                size_t used;
+        لكل (;;) {
+                size_t ورتیا;
 
                 r = sym_inflate(&s, Z_NO_FLUSH);
-                if (r == Z_STREAM_END)
-                        break;
-                if (!IN_SET(r, Z_OK, Z_BUF_ERROR))
-                        return -EBADMSG;
+                إذا (r == Z_دھارا_سرا)
+                        اكسر;
+                إذا (!وچ_سیٹ(r, Z_OK, Z_BUF_ERROR))
+                        أرجع -EBADMSG;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                إذا (dst_max > 0 && (space - s.avail_باہرلا) >= dst_max)
+                        اكسر;
+                إذا (dst_max > 0 && space == dst_max)
+                        أرجع -ENOBUFS;
 
-                used = space - s.avail_out;
+                ورتیا = space - s.avail_باہرلا;
                 space = MIN3(2 * space, dst_max ?: SIZE_MAX, UINT_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                إذا (!greedy_realloc(dst, space, 1))
+                        أرجع -ENOMEM;
 
-                s.avail_out = space - used;
-                s.next_out = *(uint8_t**)dst + used;
+                s.avail_باہرلا = space - ورتیا;
+                s.اگلا_باہرلا = *(uint8_t**)dst + ورتیا;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = space - s.avail_باہرلا;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_blob_bzip2(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+ساكن صحيح decompress_blob_bzip2(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **dst,
+                size_t *dst_ناپ,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(dst);
+        أكد(dst_ناپ);
 
-#if HAVE_BZIP2
-        int r;
+#إذا HAVE_BZIP2
+        صحيح r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        إذا (src_ناپ > UINT_MAX)
+                أرجع -EFBIG;
 
-        _cleanup_(BZ2_bzDecompressEnd_wrapper) bz_stream s = {};
+        _cleanup_(BZ2_bz_Decompress_سرا_wrapper) bz_دھارا s = {};
 
-        if (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                return -EIO;
+        إذا (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                أرجع -EIO;
 
-        size_t space = MIN3(src_size * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        size_t space = MIN3(src_ناپ * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
+        إذا (!greedy_realloc(dst, space, 1))
+                أرجع -ENOMEM;
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
-        s.next_out = (char*) *dst;
-        s.avail_out = space;
+        s.اگلا_وچ = (حرف*) src;
+        s.avail_وچ = src_ناپ;
+        s.اگلا_باہرلا = (حرف*) *dst;
+        s.avail_باہرلا = space;
 
-        for (;;) {
-                size_t used;
+        لكل (;;) {
+                size_t ورتیا;
 
                 r = sym_BZ2_bzDecompress(&s);
-                if (r == BZ_STREAM_END)
-                        break;
-                if (r != BZ_OK)
-                        return -EBADMSG;
+                إذا (r == BZ_دھارا_سرا)
+                        اكسر;
+                إذا (r != BZ_OK)
+                        أرجع -EBADMSG;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                إذا (dst_max > 0 && (space - s.avail_باہرلا) >= dst_max)
+                        اكسر;
+                إذا (dst_max > 0 && space == dst_max)
+                        أرجع -ENOBUFS;
 
-                used = space - s.avail_out;
+                ورتیا = space - s.avail_باہرلا;
                 space = MIN3(2 * space, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                إذا (!greedy_realloc(dst, space, 1))
+                        أرجع -ENOMEM;
 
-                s.avail_out = space - used;
-                s.next_out = (char*) *dst + used;
+                s.avail_باہرلا = space - ورتیا;
+                s.اگلا_باہرلا = (حرف*) *dst + ورتیا;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_ناپ = space - s.avail_باہرلا;
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-int decompress_blob_journal(
+صحيح decompress_blob_journal(
                 Compression compression,
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **dst,
+                size_t *dst_ناپ,
                 size_t dst_max) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return decompress_blob_xz(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_LZ4:
-                return decompress_blob_lz4(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_ZSTD:
-                return decompress_blob_zstd(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        default:
-                return -EPROTONOSUPPORT;
+        بدل (compression) {
+        حالة COMPRESSION_XZ:
+                أرجع decompress_blob_xz(
+                                src, src_ناپ,
+                                dst, dst_ناپ, dst_max);
+        حالة COMPRESSION_LZ4:
+                أرجع decompress_blob_lz4(
+                                src, src_ناپ,
+                                dst, dst_ناپ, dst_max);
+        حالة COMPRESSION_ZSTD:
+                أرجع decompress_blob_zstd(
+                                src, src_ناپ,
+                                dst, dst_ناپ, dst_max);
+        افتراضي:
+                أرجع -EPROTONOSUPPORT;
         }
 }
 
-int decompress_blob(
+صحيح decompress_blob(
                 Compression compression,
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **dst,
+                size_t *dst_ناپ,
                 size_t dst_max) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return decompress_blob_gzip(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_BZIP2:
-                return decompress_blob_bzip2(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        default:
-                return decompress_blob_journal(
+        بدل (compression) {
+        حالة COMPRESSION_GZIP:
+                أرجع decompress_blob_gzip(
+                                src, src_ناپ,
+                                dst, dst_ناپ, dst_max);
+        حالة COMPRESSION_BZIP2:
+                أرجع decompress_blob_bzip2(
+                                src, src_ناپ,
+                                dst, dst_ناپ, dst_max);
+        افتراضي:
+                أرجع decompress_blob_journal(
                                 compression,
-                                src, src_size,
-                                dst, dst_size, dst_max);
+                                src, src_ناپ,
+                                dst, dst_ناپ, dst_max);
         }
 }
 
-int decompress_zlib_raw(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_size,
-                int wbits) {
+صحيح decompress_zlib_raw(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ *dst,
+                size_t dst_ناپ,
+                صحيح wbits) {
 
-#if HAVE_ZLIB
-        int r;
+#إذا HAVE_ZLIB
+        صحيح r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_size > UINT_MAX)
-                return -EFBIG;
+        إذا (src_ناپ > UINT_MAX)
+                أرجع -EFBIG;
+        إذا (dst_ناپ > UINT_MAX)
+                أرجع -EFBIG;
 
-        _cleanup_(inflateEnd_wrapper) z_stream s = {
-                .next_in = (void*) src,
-                .avail_in = src_size,
-                .next_out = dst,
-                .avail_out = dst_size,
+        _cleanup_(inflate_سرا_wrapper) z_دھارا s = {
+                .اگلا_وچ = (فراغ*) src,
+                .avail_وچ = src_ناپ,
+                .اگلا_باہرلا = dst,
+                .avail_باہرلا = dst_ناپ,
         };
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ wbits, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -EIO;
+        r = sym_inflateInit2_(&s, /* windowBits= */ wbits, ZLIB_نسخہ, (صحيح) حجم(s));
+        إذا (r != Z_OK)
+                أرجع -EIO;
 
-        r = sym_inflate(&s, Z_FINISH);
-        size_t produced = (uint8_t*) s.next_out - (uint8_t*) dst;
+        r = sym_inflate(&s, Z_انت);
+        size_t produced = (uint8_t*) s.اگلا_باہرلا - (uint8_t*) dst;
 
-        if (r != Z_STREAM_END || produced != dst_size)
-                return -EBADMSG;
+        إذا (r != Z_دھارا_سرا || produced != dst_ناپ)
+                أرجع -EBADMSG;
 
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        أرجع 0;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_startswith_xz(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+ساكن صحيح decompress_startswith_xz(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **بفر,
+                ثابت فراغ *اگیتر,
+                size_t اگیتر_len,
                 uint8_t extra) {
 
         /* Checks whether the decompressed blob starts with the mentioned prefix. The byte extra needs to
          * follow the prefix */
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(بفر);
+        أكد(اگیتر);
 
-#if HAVE_XZ
-        int r;
+#إذا HAVE_XZ
+        صحيح r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        _cleanup_(lzma_end_wrapper) lzma_stream s = LZMA_STREAM_INIT;
-        lzma_ret ret = sym_lzma_stream_decoder(&s, UINT64_MAX, /* flags= */ 0);
-        if (ret != LZMA_OK)
-                return -EBADMSG;
+        _cleanup_(lzma_سرا_wrapper) lzma_دھارا s = LZMA_دھارا_INIT;
+        lzma_ret ret = sym_lzma_دھارا_decoder(&s, UINT64_MAX, /* flags= */ 0);
+        إذا (ret != LZMA_OK)
+                أرجع -EBADMSG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        إذا (!(greedy_realloc(بفر, ALIGN_8(اگیتر_len + 1), 1)))
+                أرجع -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        size_t allocated = MALLOC_SIZEOF_محفوظ(*بفر);
 
-        s.next_in = src;
-        s.avail_in = src_size;
+        s.اگلا_وچ = src;
+        s.avail_وچ = src_ناپ;
 
-        s.next_out = *buffer;
-        s.avail_out = allocated;
+        s.اگلا_باہرلا = *بفر;
+        s.avail_باہرلا = allocated;
 
-        for (;;) {
-                ret = sym_lzma_code(&s, LZMA_FINISH);
+        لكل (;;) {
+                ret = sym_lzma_کوڈ(&s, LZMA_انت);
 
-                if (!IN_SET(ret, LZMA_OK, LZMA_STREAM_END))
-                        return -EBADMSG;
+                إذا (!وچ_سیٹ(ret, LZMA_OK, LZMA_دھارا_سرا))
+                        أرجع -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                إذا (allocated - s.avail_باہرلا >= اگیتر_len + 1)
+                        أرجع memcmp(*بفر, اگیتر, اگیتر_len) == 0 &&
+                                ((ثابت uint8_t*) *بفر)[اگیتر_len] == extra;
 
-                if (ret == LZMA_STREAM_END)
-                        return 0;
+                إذا (ret == LZMA_دھارا_سرا)
+                        أرجع 0;
 
-                s.avail_out += allocated;
+                s.avail_باہرلا += allocated;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                إذا (!(greedy_realloc(بفر, allocated * 2, 1)))
+                        أرجع -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.next_out = *(uint8_t**)buffer + allocated - s.avail_out;
+                allocated = MALLOC_SIZEOF_محفوظ(*بفر);
+                s.اگلا_باہرلا = *(uint8_t**)بفر + allocated - s.avail_باہرلا;
         }
 
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_startswith_lz4(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+ساكن صحيح decompress_startswith_lz4(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **بفر,
+                ثابت فراغ *اگیتر,
+                size_t اگیتر_len,
                 uint8_t extra) {
 
         /* Checks whether the decompressed blob starts with the mentioned prefix. The byte extra needs to
          * follow the prefix */
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(بفر);
+        أكد(اگیتر);
 
-#if HAVE_LZ4
+#إذا HAVE_LZ4
         size_t allocated;
-        int r;
+        صحيح r;
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size <= 8)
-                return -EBADMSG;
+        إذا (src_ناپ <= 8)
+                أرجع -EBADMSG;
 
-        if (src_size - 8 > INT_MAX)
-                return -EFBIG;
+        إذا (src_ناپ - 8 > ودھ_توں_ودھ_عدد)
+                أرجع -EFBIG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
-        allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        إذا (!(greedy_realloc(بفر, ALIGN_8(اگیتر_len + 1), 1)))
+                أرجع -ENOMEM;
+        allocated = MALLOC_SIZEOF_محفوظ(*بفر);
 
-        r = sym_LZ4_decompress_safe_partial(
-                        (char*)src + 8,
-                        *buffer,
-                        src_size - 8,
-                        prefix_len + 1,
+        r = sym_LZ4_decompress_محفوظ_partial(
+                        (حرف*)src + 8,
+                        *بفر,
+                        src_ناپ - 8,
+                        اگیتر_len + 1,
                         allocated);
 
         /* One lz4 < 1.8.3, we might get "failure" (r < 0), or "success" where just a part of the buffer is
          * decompressed. But if we get a smaller amount of bytes than requested, we don't know whether there
          * isn't enough data to fill the requested size or whether we just got a partial answer.
          */
-        if (r < 0 || (size_t) r < prefix_len + 1) {
-                size_t size;
+        إذا (r < 0 || (size_t) r < اگیتر_len + 1) {
+                size_t ناپ;
 
-                if (sym_LZ4_versionNumber() >= 10803)
+                إذا (sym_LZ4_نسخہ_نمبر() >= 10803)
                         /* We trust that the newer lz4 decompresses the number of bytes we
                          * requested if available in the compressed string. */
-                        return 0;
+                        أرجع 0;
 
-                if (r > 0)
+                إذا (r > 0)
                         /* Compare what we have first, in case of mismatch we can
                          * shortcut the full comparison. */
-                        if (memcmp(*buffer, prefix, r) != 0)
-                                return 0;
+                        إذا (memcmp(*بفر, اگیتر, r) != 0)
+                                أرجع 0;
 
                 /* Before version 1.8.3, lz4 always tries to decode full a "sequence",
                  * so in pathological cases might need to decompress the full field. */
-                r = decompress_blob_lz4(src, src_size, buffer, &size, 0);
-                if (r < 0)
-                        return r;
+                r = decompress_blob_lz4(src, src_ناپ, بفر, &ناپ, 0);
+                إذا (r < 0)
+                        أرجع r;
 
-                if (size < prefix_len + 1)
-                        return 0;
+                إذا (ناپ < اگیتر_len + 1)
+                        أرجع 0;
         }
 
-        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                ((const uint8_t*) *buffer)[prefix_len] == extra;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        أرجع memcmp(*بفر, اگیتر, اگیتر_len) == 0 &&
+                ((ثابت uint8_t*) *بفر)[اگیتر_len] == extra;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_startswith_zstd(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+ساكن صحيح decompress_startswith_zstd(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **بفر,
+                ثابت فراغ *اگیتر,
+                size_t اگیتر_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(بفر);
+        أكد(اگیتر);
 
-#if HAVE_ZSTD
-        int r;
+#إذا HAVE_ZSTD
+        صحيح r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         /* ZSTD_getFrameContentSize() returns unsigned long long, which is not necessarily size_t. */
-        unsigned long long size = sym_ZSTD_getFrameContentSize(src, src_size);
-        if (size == ZSTD_CONTENTSIZE_ERROR)
-                return -EBADMSG;
+        بنانشانی لما لما ناپ = sym_ZSTD_get_چوکھٹا_Content_ناپ(src, src_ناپ);
+        إذا (ناپ == ZSTD_CONTENTSIZE_ERROR)
+                أرجع -EBADMSG;
 
         /* ZSTD_CONTENTSIZE_UNKNOWN means the frame doesn't record the decompressed size, so we can't
          * shortcut here. The single decompression below only needs prefix_len + 1 bytes anyway. */
-        if (size != ZSTD_CONTENTSIZE_UNKNOWN && size < prefix_len + 1)
-                return 0; /* Decompressed text too short to match the prefix and extra */
+        إذا (ناپ != ZSTD_CONTENTSIZE_UNKNOWN && ناپ < اگیتر_len + 1)
+                أرجع 0; /* Decompressed text too short to match the prefix and extra */
 
         _cleanup_(ZSTD_freeDCtxp) ZSTD_DCtx *dctx = sym_ZSTD_createDCtx();
-        if (!dctx)
-                return -ENOMEM;
+        إذا (!dctx)
+                أرجع -ENOMEM;
 
-        if (!(greedy_realloc(buffer, MAX(sym_ZSTD_DStreamOutSize(), prefix_len + 1), 1)))
-                return -ENOMEM;
+        إذا (!(greedy_realloc(بفر, MAX(sym_ZSTD_DStream_باہرلا_ناپ(), اگیتر_len + 1), 1)))
+                أرجع -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_وچ_بفر داخلہ = {
                 .src = src,
-                .size = src_size,
+                .ناپ = src_ناپ,
         };
-        ZSTD_outBuffer output = {
-                .dst = *buffer,
-                .size = MALLOC_SIZEOF_SAFE(*buffer),
+        ZSTD_باہرلا_بفر output = {
+                .dst = *بفر,
+                .ناپ = MALLOC_SIZEOF_محفوظ(*بفر),
         };
         size_t k;
 
-        k = sym_ZSTD_decompressStream(dctx, &output, &input);
-        if (sym_ZSTD_isError(k))
-                return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
-        if (output.pos < prefix_len + 1) {
+        k = sym_ZSTD_decompress_دھارا(dctx, &output, &داخلہ);
+        إذا (sym_ZSTD_isError(k))
+                أرجع log_debug_errno(zstd_ret_منزل_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
+        إذا (output.pos < اگیتر_len + 1) {
                 /* The output buffer is at least prefix_len + 1 bytes, so if it isn't full the decoder
                  * stopped for another reason: either the frame ended (k == 0), in which case the stream
                  * is simply too short to match the prefix, or it's still expecting input (k != 0), which
                  * means the stream was truncated mid-frame. */
-                if (k != 0)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
-                return 0; /* Decompressed text too short to match the prefix and extra */
+                إذا (k != 0)
+                        أرجع log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
+                أرجع 0; /* Decompressed text too short to match the prefix and extra */
         }
 
-        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                ((const uint8_t*) *buffer)[prefix_len] == extra;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        أرجع memcmp(*بفر, اگیتر, اگیتر_len) == 0 &&
+                ((ثابت uint8_t*) *بفر)[اگیتر_len] == extra;
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_startswith_gzip(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+ساكن صحيح decompress_startswith_gzip(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **بفر,
+                ثابت فراغ *اگیتر,
+                size_t اگیتر_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(بفر);
+        أكد(اگیتر);
 
-#if HAVE_ZLIB
-        int r;
+#إذا HAVE_ZLIB
+        صحيح r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        إذا (src_ناپ > UINT_MAX)
+                أرجع -EFBIG;
 
-        _cleanup_(inflateEnd_wrapper) z_stream s = {};
+        _cleanup_(inflate_سرا_wrapper) z_دھارا s = {};
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -EBADMSG;
+        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_نسخہ, (صحيح) حجم(s));
+        إذا (r != Z_OK)
+                أرجع -EBADMSG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        إذا (!(greedy_realloc(بفر, ALIGN_8(اگیتر_len + 1), 1)))
+                أرجع -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        size_t allocated = MALLOC_SIZEOF_محفوظ(*بفر);
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
+        s.اگلا_وچ = (فراغ*) src;
+        s.avail_وچ = src_ناپ;
 
-        s.next_out = *buffer;
-        s.avail_out = MIN(allocated, (size_t) UINT_MAX);
+        s.اگلا_باہرلا = *بفر;
+        s.avail_باہرلا = MIN(allocated, (size_t) UINT_MAX);
 
-        for (;;) {
-                r = sym_inflate(&s, Z_FINISH);
+        لكل (;;) {
+                r = sym_inflate(&s, Z_انت);
 
-                if (!IN_SET(r, Z_OK, Z_STREAM_END, Z_BUF_ERROR))
-                        return -EBADMSG;
+                إذا (!وچ_سیٹ(r, Z_OK, Z_دھارا_سرا, Z_BUF_ERROR))
+                        أرجع -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                إذا (allocated - s.avail_باہرلا >= اگیتر_len + 1)
+                        أرجع memcmp(*بفر, اگیتر, اگیتر_len) == 0 &&
+                                ((ثابت uint8_t*) *بفر)[اگیتر_len] == extra;
 
-                if (r == Z_STREAM_END)
-                        return 0;
+                إذا (r == Z_دھارا_سرا)
+                        أرجع 0;
 
-                if (s.avail_out > 0)
-                        return -EBADMSG; /* truncated */
+                إذا (s.avail_باہرلا > 0)
+                        أرجع -EBADMSG; /* truncated */
 
-                size_t used = allocated - s.avail_out;
+                size_t ورتیا = allocated - s.avail_باہرلا;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                إذا (!(greedy_realloc(بفر, allocated * 2, 1)))
+                        أرجع -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.avail_out = MIN(allocated - used, (size_t) UINT_MAX);
-                s.next_out = *(uint8_t**)buffer + used;
+                allocated = MALLOC_SIZEOF_محفوظ(*بفر);
+                s.avail_باہرلا = MIN(allocated - ورتیا, (size_t) UINT_MAX);
+                s.اگلا_باہرلا = *(uint8_t**)بفر + ورتیا;
         }
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-static int decompress_startswith_bzip2(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+ساكن صحيح decompress_startswith_bzip2(
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                فراغ **بفر,
+                ثابت فراغ *اگیتر,
+                size_t اگیتر_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        أكد(src);
+        أكد(src_ناپ > 0);
+        أكد(بفر);
+        أكد(اگیتر);
 
-#if HAVE_BZIP2
-        int r;
+#إذا HAVE_BZIP2
+        صحيح r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        إذا (src_ناپ > UINT_MAX)
+                أرجع -EFBIG;
 
-        _cleanup_(BZ2_bzDecompressEnd_wrapper) bz_stream s = {};
+        _cleanup_(BZ2_bz_Decompress_سرا_wrapper) bz_دھارا s = {};
 
-        if (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                return -EIO;
+        إذا (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                أرجع -EIO;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        إذا (!(greedy_realloc(بفر, ALIGN_8(اگیتر_len + 1), 1)))
+                أرجع -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        size_t allocated = MALLOC_SIZEOF_محفوظ(*بفر);
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
+        s.اگلا_وچ = (حرف*) src;
+        s.avail_وچ = src_ناپ;
 
-        s.next_out = *buffer;
-        s.avail_out = MIN(allocated, (size_t) UINT_MAX);
+        s.اگلا_باہرلا = *بفر;
+        s.avail_باہرلا = MIN(allocated, (size_t) UINT_MAX);
 
-        for (;;) {
+        لكل (;;) {
                 r = sym_BZ2_bzDecompress(&s);
 
-                if (!IN_SET(r, BZ_OK, BZ_STREAM_END))
-                        return -EBADMSG;
+                إذا (!وچ_سیٹ(r, BZ_OK, BZ_دھارا_سرا))
+                        أرجع -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                إذا (allocated - s.avail_باہرلا >= اگیتر_len + 1)
+                        أرجع memcmp(*بفر, اگیتر, اگیتر_len) == 0 &&
+                                ((ثابت uint8_t*) *بفر)[اگیتر_len] == extra;
 
-                if (r == BZ_STREAM_END)
-                        return 0;
+                إذا (r == BZ_دھارا_سرا)
+                        أرجع 0;
 
-                if (s.avail_out > 0)
-                        return -EBADMSG; /* truncated */
+                إذا (s.avail_باہرلا > 0)
+                        أرجع -EBADMSG; /* truncated */
 
-                size_t used = allocated - s.avail_out;
+                size_t ورتیا = allocated - s.avail_باہرلا;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                إذا (!(greedy_realloc(بفر, allocated * 2, 1)))
+                        أرجع -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.avail_out = MIN(allocated - used, (size_t) UINT_MAX);
-                s.next_out = (char*) *buffer + used;
+                allocated = MALLOC_SIZEOF_محفوظ(*بفر);
+                s.avail_باہرلا = MIN(allocated - ورتیا, (size_t) UINT_MAX);
+                s.اگلا_باہرلا = (حرف*) *بفر + ورتیا;
         }
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#وإلا
+        أرجع -EPROTONOSUPPORT;
+#جے_انت
 }
 
-int decompress_startswith_journal(
+صحيح decompress_startswith_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **buffer,
-                const void *prefix, size_t prefix_len,
+                ثابت فراغ *src, uint64_t src_ناپ,
+                فراغ **بفر,
+                ثابت فراغ *اگیتر, size_t اگیتر_len,
                 uint8_t extra) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return decompress_startswith_xz(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_LZ4:
-                return decompress_startswith_lz4(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_ZSTD:
-                return decompress_startswith_zstd(src, src_size, buffer, prefix, prefix_len, extra);
-        default:
-                return -EOPNOTSUPP;
+        بدل (compression) {
+        حالة COMPRESSION_XZ:
+                أرجع decompress_startswith_xz(src, src_ناپ, بفر, اگیتر, اگیتر_len, extra);
+        حالة COMPRESSION_LZ4:
+                أرجع decompress_startswith_lz4(src, src_ناپ, بفر, اگیتر, اگیتر_len, extra);
+        حالة COMPRESSION_ZSTD:
+                أرجع decompress_startswith_zstd(src, src_ناپ, بفر, اگیتر, اگیتر_len, extra);
+        افتراضي:
+                أرجع -EOPNOTSUPP;
         }
 }
 
-int decompress_startswith(
+صحيح decompress_startswith(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **buffer,
-                const void *prefix, size_t prefix_len,
+                ثابت فراغ *src, uint64_t src_ناپ,
+                فراغ **بفر,
+                ثابت فراغ *اگیتر, size_t اگیتر_len,
                 uint8_t extra) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return decompress_startswith_gzip(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_BZIP2:
-                return decompress_startswith_bzip2(src, src_size, buffer, prefix, prefix_len, extra);
-        default:
-                return decompress_startswith_journal(compression, src, src_size, buffer, prefix, prefix_len, extra);
+        بدل (compression) {
+        حالة COMPRESSION_GZIP:
+                أرجع decompress_startswith_gzip(src, src_ناپ, بفر, اگیتر, اگیتر_len, extra);
+        حالة COMPRESSION_BZIP2:
+                أرجع decompress_startswith_bzip2(src, src_ناپ, بفر, اگیتر, اگیتر_len, extra);
+        افتراضي:
+                أرجع decompress_startswith_journal(compression, src, src_ناپ, بفر, اگیتر, اگیتر_len, extra);
         }
 }
 
-int compress_stream(
+صحيح compress_دھارا(
                 Compression type,
-                int fdf, int fdt,
+                صحيح fdf, صحيح fdt,
                 uint64_t max_bytes,
-                uint64_t *ret_uncompressed_size) {
+                uint64_t *ret_uncompressed_ناپ) {
 
-        _cleanup_(compressor_freep) Compressor *c = NULL;
-        _cleanup_free_ void *buf = NULL;
-        _cleanup_free_ uint8_t *input = NULL;
+        _cleanup_(compressor_freep) Compressor *c = عدم;
+        _cleanup_free_ فراغ *buf = عدم;
+        _cleanup_free_ uint8_t *داخلہ = عدم;
         size_t buf_size = 0, buf_alloc = 0;
-        uint64_t total_in = 0, total_out = 0;
-        int r;
+        uint64_t کل_وچ = 0, کل_باہرلا = 0;
+        صحيح r;
 
-        assert(fdf >= 0);
-        assert(fdt >= 0);
+        أكد(fdf >= 0);
+        أكد(fdt >= 0);
 
         r = compressor_new(&c, type);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        input = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-        if (!input)
-                return -ENOMEM;
+        داخلہ = new(uint8_t, COMPRESS_PIPE_بفر_ناپ);
+        إذا (!داخلہ)
+                أرجع -ENOMEM;
 
-        for (;;) {
-                size_t m = COMPRESS_PIPE_BUFFER_SIZE;
+        لكل (;;) {
+                size_t m = COMPRESS_PIPE_بفر_ناپ;
                 ssize_t n;
 
-                if (max_bytes != UINT64_MAX && (uint64_t) m > max_bytes)
+                إذا (max_bytes != UINT64_MAX && (uint64_t) m > max_bytes)
                         m = (size_t) max_bytes;
 
-                n = read(fdf, input, m);
-                if (n < 0)
-                        return -errno;
+                n = اقرأ(fdf, داخلہ, m);
+                إذا (n < 0)
+                        أرجع -errno;
 
-                if (n == 0) {
-                        r = compressor_finish(c, &buf, &buf_size, &buf_alloc);
-                        if (r < 0)
-                                return r;
+                إذا (n == 0) {
+                        r = compressor_انت(c, &buf, &buf_size, &buf_alloc);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        if (buf_size > 0) {
+                        إذا (buf_size > 0) {
                                 r = loop_write(fdt, buf, buf_size);
-                                if (r < 0)
-                                        return r;
-                                total_out += buf_size;
+                                إذا (r < 0)
+                                        أرجع r;
+                                کل_باہرلا += buf_size;
                         }
-                        break;
+                        اكسر;
                 }
 
-                total_in += n;
-                if (max_bytes != UINT64_MAX) {
-                        assert(max_bytes >= (uint64_t) n);
+                کل_وچ += n;
+                إذا (max_bytes != UINT64_MAX) {
+                        أكد(max_bytes >= (uint64_t) n);
                         max_bytes -= n;
                 }
 
-                r = compressor_start(c, input, n, &buf, &buf_size, &buf_alloc);
-                if (r < 0)
-                        return r;
+                r = compressor_شروع(c, داخلہ, n, &buf, &buf_size, &buf_alloc);
+                إذا (r < 0)
+                        أرجع r;
 
-                if (buf_size > 0) {
+                إذا (buf_size > 0) {
                         r = loop_write(fdt, buf, buf_size);
-                        if (r < 0)
-                                return r;
-                        total_out += buf_size;
+                        إذا (r < 0)
+                                أرجع r;
+                        کل_باہرلا += buf_size;
                 }
         }
 
-        if (ret_uncompressed_size)
-                *ret_uncompressed_size = total_in;
+        إذا (ret_uncompressed_ناپ)
+                *ret_uncompressed_ناپ = کل_وچ;
 
-        if (total_in == 0)
-                log_debug("%s compression finished (no input data)", compression_to_string(type));
-        else
+        إذا (کل_وچ == 0)
+                log_debug("%s compression finished (no input data)", compression_منزل_string(type));
+        وإلا
                 log_debug("%s compression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                          compression_to_string(type), total_in, total_out, (double) total_out / total_in * 100);
+                          compression_منزل_string(type), کل_وچ, کل_باہرلا, (مزدوج) کل_باہرلا / کل_وچ * 100);
 
-        return 0;
+        أرجع 0;
 }
 
-static int should_sparse(int fd) {
-        struct stat st;
+ساكن صحيح should_sparse(صحيح fd) {
+        بنية stat st;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* Determine whether sparse writes should be used for this fd. Sparse writes are only safe on regular
          * files, without O_APPEND (which ignores the lseek position, collapsing any holes we try to create),
          * and only when starting from a position at or beyond the current end of file (otherwise the skipped
          * ranges would overlap pre-existing data instead of being genuinely unwritten). */
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        إذا (fstat(fd, &st) < 0)
+                أرجع -errno;
 
-        if (!S_ISREG(st.st_mode))
-                return false;
+        إذا (!S_ISREG(st.st_mode))
+                أرجع false;
 
-        int flags = fcntl(fd, F_GETFL);
-        if (flags < 0)
-                return -errno;
+        صحيح flags = fcntl(fd, F_GETFL);
+        إذا (flags < 0)
+                أرجع -errno;
 
-        if (FLAGS_SET(flags, O_APPEND))
-                return false;
+        إذا (FLAGS_سیٹ(flags, O_APPEND))
+                أرجع false;
 
         off_t pos = lseek(fd, 0, SEEK_CUR);
-        if (pos < 0)
-                return -errno;
+        إذا (pos < 0)
+                أرجع -errno;
 
-        return pos >= st.st_size;
+        أرجع pos >= st.st_size;
 }
 
 /* After sparse decompression, set the file size to the current position to account for
  * trailing holes that sparse_write() created via lseek but never extended the file size for. */
-static int finalize_sparse(int fd) {
+ساكن صحيح finalize_sparse(صحيح fd) {
         off_t pos;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         pos = lseek(fd, 0, SEEK_CUR);
-        if (pos < 0)
-                return -errno;
+        إذا (pos < 0)
+                أرجع -errno;
 
-        if (ftruncate(fd, pos) < 0)
-                return -errno;
+        إذا (ftruncate(fd, pos) < 0)
+                أرجع -errno;
 
-        return 0;
+        أرجع 0;
 }
 
 /* Common helper for decompress_stream_*() wrappers */
 
-struct decompress_stream_userdata {
-        int fd;
+بنية decompress_دھارا_userdata {
+        صحيح fd;
         uint64_t max_bytes;
-        uint64_t total_out;
+        uint64_t کل_باہرلا;
         uint64_t skip; /* bytes to discard from the very start of the decompressed stream before anything is
                         * actually written */
         bool sparse;
 };
 
-static int decompress_stream_write_callback(const void *data, size_t size, void *userdata) {
-        struct decompress_stream_userdata *u = ASSERT_PTR(userdata);
+ساكن صحيح decompress_دھارا_write_callback(ثابت فراغ *انکڑے, size_t ناپ, فراغ *userdata) {
+        بنية decompress_دھارا_userdata *u = ASSERT_PTR(userdata);
 
         /* Accounting (max_bytes/total_out) happens against the *full* decompressed stream, including the
          * part we're about to skip. */
-        if (u->max_bytes != UINT64_MAX) {
-                if (u->max_bytes < size)
-                        return -EFBIG;
-                u->max_bytes -= size;
+        إذا (u->max_bytes != UINT64_MAX) {
+                إذا (u->max_bytes < ناپ)
+                        أرجع -EFBIG;
+                u->max_bytes -= ناپ;
         }
 
-        u->total_out += size;
+        u->کل_باہرلا += ناپ;
 
-        if (u->skip > 0) {
-                if (u->skip >= size) {
-                        u->skip -= size;
-                        return 0;
+        إذا (u->skip > 0) {
+                إذا (u->skip >= ناپ) {
+                        u->skip -= ناپ;
+                        أرجع 0;
                 }
 
-                data = (const uint8_t*) data + u->skip;
-                size -= u->skip;
+                انکڑے = (ثابت uint8_t*) انکڑے + u->skip;
+                ناپ -= u->skip;
                 u->skip = 0;
         }
 
-        if (size == 0)
-                return 0;
+        إذا (ناپ == 0)
+                أرجع 0;
 
-        if (u->sparse) {
+        إذا (u->sparse) {
                 /* Note: sparse_write() does not retry on EINTR and converts short writes to -EIO.
                  * This is fine here since sparse mode is only used on regular files, where short
                  * writes and EINTR are not expected in practice. */
-                ssize_t k = sparse_write(u->fd, data, size, 64);
-                if (k < 0)
-                        return (int) k;
-                return 0;
+                ssize_t k = sparse_write(u->fd, انکڑے, ناپ, 64);
+                إذا (k < 0)
+                        أرجع (صحيح) k;
+                أرجع 0;
         }
 
-        return loop_write(u->fd, data, size);
+        أرجع loop_write(u->fd, انکڑے, ناپ);
 }
 
-static int decompressor_new(Decompressor **ret, Compression type, DecompressFlags flags) {
-        assert(ret);
+ساكن صحيح decompressor_new(Decompressor **ret, Compression type, DecompressFlags flags) {
+        أكد(ret);
 
         _cleanup_(compressor_freep) Decompressor *c = new0(Decompressor, 1);
-        if (!c)
-                return -ENOMEM;
+        إذا (!c)
+                أرجع -ENOMEM;
 
         c->type = _COMPRESSION_INVALID;
 
-        switch (type) {
-        case COMPRESSION_NONE:
-                break;
+        بدل (type) {
+        حالة COMPRESSION_NONE:
+                اكسر;
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#إذا HAVE_XZ
+        حالة COMPRESSION_XZ: {
                 uint32_t xz_flags = LZMA_TELL_UNSUPPORTED_CHECK |
-                        (FLAGS_SET(flags, DECOMPRESS_REFUSE_CONCATENATED) ? 0 : LZMA_CONCATENATED);
-                lzma_ret xz_ret = FLAGS_SET(flags, DECOMPRESS_LEGACY_LZMA) ?
+                        (FLAGS_سیٹ(flags, DECOMPRESS_REFUSE_CONCATENATED) ? 0 : LZMA_CONCATENATED);
+                lzma_ret xz_ret = FLAGS_سیٹ(flags, DECOMPRESS_LEGACY_LZMA) ?
                         sym_lzma_auto_decoder(&c->xz, UINT64_MAX, xz_flags) :
-                        sym_lzma_stream_decoder(&c->xz, UINT64_MAX, xz_flags);
-                if (xz_ret != LZMA_OK)
-                        return -EIO;
-                break;
+                        sym_lzma_دھارا_decoder(&c->xz, UINT64_MAX, xz_flags);
+                إذا (xz_ret != LZMA_OK)
+                        أرجع -EIO;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                size_t rc = sym_LZ4F_createDecompressionContext(&c->d_lz4, LZ4F_VERSION);
-                if (sym_LZ4F_isError(rc))
-                        return -ENOMEM;
+#إذا HAVE_LZ4
+        حالة COMPRESSION_LZ4: {
+                size_t rc = sym_LZ4F_createDecompressionContext(&c->d_lz4, LZ4_F_نسخہ);
+                إذا (sym_LZ4F_isError(rc))
+                        أرجع -ENOMEM;
 
-                break;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
+#إذا HAVE_ZSTD
+        حالة COMPRESSION_ZSTD:
                 c->d_zstd = sym_ZSTD_createDCtx();
-                if (!c->d_zstd)
-                        return -ENOMEM;
-                break;
-#endif
+                إذا (!c->d_zstd)
+                        أرجع -ENOMEM;
+                اكسر;
+#جے_انت
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (sym_inflateInit2_(&c->gzip, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(c->gzip)) != Z_OK)
-                        return -EIO;
-                break;
-#endif
+#إذا HAVE_ZLIB
+        حالة COMPRESSION_GZIP:
+                إذا (sym_inflateInit2_(&c->gzip, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_نسخہ, (صحيح) حجم(c->gzip)) != Z_OK)
+                        أرجع -EIO;
+                اكسر;
+#جے_انت
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                        return -EIO;
-                break;
-#endif
+#إذا HAVE_BZIP2
+        حالة COMPRESSION_BZIP2:
+                إذا (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                        أرجع -EIO;
+                اكسر;
+#جے_انت
 
-        default:
+        افتراضي:
                 assert_not_reached();
         }
 
         c->type = type;
         c->encoding = false;
         *ret = TAKE_PTR(c);
-        return 0;
+        أرجع 0;
 }
 
-static int decompress_blob_to_fd_impl(
+ساكن صحيح decompress_blob_منزل_fd_impl(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                صحيح fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                size_t *ret_ناپ) {
 
-        int r;
+        صحيح r;
 
-        assert(src);
-        assert(fdt >= 0);
+        أكد(src);
+        أكد(fdt >= 0);
 
-        if (type == COMPRESSION_NONE)
-                return -EOPNOTSUPP;
+        إذا (type == COMPRESSION_NONE)
+                أرجع -EOPNOTSUPP;
 
-        if (src_size == 0)
-                return -EBADMSG;
+        إذا (src_ناپ == 0)
+                أرجع -EBADMSG;
 
         /* LZ4 is special: compress_blob() produces the raw LZ4 block format (with a custom 8-byte size
          * header), while the streaming decompressor infra (decompressor_push()) expects LZ4 Frame format, as
          * produced by compress_stream(). The two are not interchangeable, so route LZ4 blobs through the raw
          * block decoder instead. */
-        if (type == COMPRESSION_LZ4 &&
-            src_size >= COMPRESSION_MAGIC_BYTES_MAX &&
+        إذا (type == COMPRESSION_LZ4 &&
+            src_ناپ >= COMPRESSION_MAGIC_بائٹاں_MAX &&
             compression_detect_from_magic(src) != COMPRESSION_LZ4) {
 
                 /* Hopefully, the data is produced by compress_blob(). In that case, let's use
                  * decompress_blob_lz4() + loop_write(). */
 
-                if (skip > 0) {
+                إذا (skip > 0) {
                         /* Check if the result size is larger than skip. */
 
-                        if (src_size <= sizeof(uint64_t))
-                                return -EBADMSG;
+                        إذا (src_ناپ <= حجم(uint64_t))
+                                أرجع -EBADMSG;
 
                         uint64_t sz = unaligned_read_le64(src);
-                        if (sz < skip)
-                                return -EBADMSG;
+                        إذا (sz < skip)
+                                أرجع -EBADMSG;
                 }
 
                 /* max_bytes == 0 means do not write anything, but decompress_blob_lz4() with
                  * dst_max=0 means no size limit. Let's return earlier when max_bytes == 0. */
-                if (max_bytes == 0)
-                        return -ENOBUFS;
+                إذا (max_bytes == 0)
+                        أرجع -ENOBUFS;
 
-                _cleanup_free_ void *buf = NULL;
-                size_t size = 0;  /* avoid false maybe-uninitialized warning */
-                r = decompress_blob_lz4(src, src_size, &buf, &size,
+                _cleanup_free_ فراغ *buf = عدم;
+                size_t ناپ = 0;  /* avoid false maybe-uninitialized warning */
+                r = decompress_blob_lz4(src, src_ناپ, &buf, &ناپ,
                                         max_bytes >= SIZE_MAX ? 0 : (size_t) max_bytes);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
                 /* Check the result size again for safety. */
-                if (size < skip)
-                        return -EBADMSG;
+                إذا (ناپ < skip)
+                        أرجع -EBADMSG;
 
-                r = loop_write(fdt, (uint8_t*) buf + skip, size - skip);
-                if (r < 0)
-                        return r;
+                r = loop_write(fdt, (uint8_t*) buf + skip, ناپ - skip);
+                إذا (r < 0)
+                        أرجع r;
 
                 log_debug("lz4 decompression finished (%" PRIu64 " -> %zu bytes, %.1f%%)",
-                          src_size, size, (double) size / src_size * 100);
+                          src_ناپ, ناپ, (مزدوج) ناپ / src_ناپ * 100);
 
-                if (ret_size)
-                        *ret_size = size - skip;
-                return 0;
+                إذا (ret_ناپ)
+                        *ret_ناپ = ناپ - skip;
+                أرجع 0;
         }
 
-        _cleanup_(compressor_freep) Decompressor *c = NULL;
+        _cleanup_(compressor_freep) Decompressor *c = عدم;
         r = decompressor_new(&c, type, DECOMPRESS_REFUSE_CONCATENATED);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        struct decompress_stream_userdata userdata = {
+        بنية decompress_دھارا_userdata userdata = {
                 .fd = fdt,
                 .max_bytes = max_bytes,
                 .skip = skip,
                 .sparse = should_sparse(fdt) > 0,
         };
 
-        r = decompressor_push(c, src, src_size, decompress_stream_write_callback, &userdata);
-        if (r < 0)
-                return r;
+        r = decompressor_ڈالو(c, src, src_ناپ, decompress_دھارا_write_callback, &userdata);
+        إذا (r < 0)
+                أرجع r;
 
         /* Finalize */
-        r = decompressor_push(c, /* data= */ NULL, /* size= */ 0, decompress_stream_write_callback, &userdata);
-        if (r < 0)
-                return r;
+        r = decompressor_ڈالو(c, /* data= */ عدم, /* size= */ 0, decompress_دھارا_write_callback, &userdata);
+        إذا (r < 0)
+                أرجع r;
 
-        if (userdata.total_out < skip)
-                return -EBADMSG;
+        إذا (userdata.کل_باہرلا < skip)
+                أرجع -EBADMSG;
 
-        if (userdata.sparse) {
+        إذا (userdata.sparse) {
                 r = finalize_sparse(fdt);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
         log_debug("%s decompression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                  compression_to_string(type), src_size, userdata.total_out,
-                  (double) userdata.total_out / src_size * 100);
+                  compression_منزل_string(type), src_ناپ, userdata.کل_باہرلا,
+                  (مزدوج) userdata.کل_باہرلا / src_ناپ * 100);
 
-        if (ret_size)
-                *ret_size = userdata.total_out - skip;
+        إذا (ret_ناپ)
+                *ret_ناپ = userdata.کل_باہرلا - skip;
 
-        return 0;
+        أرجع 0;
 }
 
-int decompress_blob_to_fd_journal(
+صحيح decompress_blob_منزل_fd_journal(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                صحيح fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                size_t *ret_ناپ) {
 
-        int r;
+        صحيح r;
 
         r = dlopen_compress_journal(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return decompress_blob_to_fd_impl(type, src, src_size, fdt, max_bytes, skip, ret_size);
+        أرجع decompress_blob_منزل_fd_impl(type, src, src_ناپ, fdt, max_bytes, skip, ret_ناپ);
 }
 
-int decompress_blob_to_fd(
+صحيح decompress_blob_منزل_fd(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                ثابت فراغ *src,
+                uint64_t src_ناپ,
+                صحيح fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                size_t *ret_ناپ) {
 
-        int r;
+        صحيح r;
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return decompress_blob_to_fd_impl(type, src, src_size, fdt, max_bytes, skip, ret_size);
+        أرجع decompress_blob_منزل_fd_impl(type, src, src_ناپ, fdt, max_bytes, skip, ret_ناپ);
 }
 
-int decompress_stream_full(
+صحيح decompress_دھارا_بھریا(
                 Compression type,
-                int fdf, int fdt,
+                صحيح fdf, صحيح fdt,
                 uint64_t max_bytes,
                 DecompressFlags flags) {
 
-        _cleanup_(compressor_freep) Decompressor *c = NULL;
-        _cleanup_free_ uint8_t *buf = NULL;
-        uint64_t total_in = 0;
-        int r;
+        _cleanup_(compressor_freep) Decompressor *c = عدم;
+        _cleanup_free_ uint8_t *buf = عدم;
+        uint64_t کل_وچ = 0;
+        صحيح r;
 
-        assert(fdf >= 0);
-        assert(fdt >= 0);
+        أكد(fdf >= 0);
+        أكد(fdt >= 0);
 
-        if (type == COMPRESSION_NONE)
-                return -EOPNOTSUPP;
+        إذا (type == COMPRESSION_NONE)
+                أرجع -EOPNOTSUPP;
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         r = decompressor_new(&c, type, flags);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        struct decompress_stream_userdata userdata = {
+        بنية decompress_دھارا_userdata userdata = {
                 .fd = fdt,
                 .max_bytes = max_bytes,
                 .sparse = should_sparse(fdt) > 0,
         };
 
-        buf = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-        if (!buf)
-                return -ENOMEM;
+        buf = new(uint8_t, COMPRESS_PIPE_بفر_ناپ);
+        إذا (!buf)
+                أرجع -ENOMEM;
 
-        for (;;) {
+        لكل (;;) {
                 ssize_t n;
 
-                n = read(fdf, buf, COMPRESS_PIPE_BUFFER_SIZE);
-                if (n < 0)
-                        return -errno;
+                n = اقرأ(fdf, buf, COMPRESS_PIPE_بفر_ناپ);
+                إذا (n < 0)
+                        أرجع -errno;
 
-                total_in += n;
+                کل_وچ += n;
 
-                r = decompressor_push(c, buf, n, decompress_stream_write_callback, &userdata);
-                if (r < 0)
-                        return r;
+                r = decompressor_ڈالو(c, buf, n, decompress_دھارا_write_callback, &userdata);
+                إذا (r < 0)
+                        أرجع r;
 
-                if (n == 0)
-                        break;
+                إذا (n == 0)
+                        اكسر;
         }
 
-        if (total_in == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "%s decompression failed: no data read",
-                                       compression_to_string(type));
+        إذا (کل_وچ == 0)
+                أرجع log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "%s decompression failed: no data read",
+                                       compression_منزل_string(type));
 
-        if (userdata.sparse) {
+        إذا (userdata.sparse) {
                 r = finalize_sparse(fdt);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
         log_debug("%s decompression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                  compression_to_string(type), total_in, userdata.total_out,
-                  (double) userdata.total_out / total_in * 100);
+                  compression_منزل_string(type), کل_وچ, userdata.کل_باہرلا,
+                  (مزدوج) userdata.کل_باہرلا / کل_وچ * 100);
 
-        return 0;
+        أرجع 0;
 }
 
-int decompress_stream_by_filename(const char *filename, int fdf, int fdt, uint64_t max_bytes) {
+صحيح decompress_دھارا_by_filename(ثابت حرف *filename, صحيح fdf, صحيح fdt, uint64_t max_bytes) {
         Compression c = compression_from_filename(filename);
-        if (c == COMPRESSION_NONE)
-                return -EPROTONOSUPPORT;
+        إذا (c == COMPRESSION_NONE)
+                أرجع -EPROTONOSUPPORT;
 
-        return decompress_stream(c, fdf, fdt, max_bytes);
+        أرجع decompress_دھارا(c, fdf, fdt, max_bytes);
 }
 
 /* Push-based streaming compression/decompression context API */
 
 Compressor* compressor_free(Compressor *c) {
-        if (!c)
-                return NULL;
+        إذا (!c)
+                أرجع عدم;
 
-        switch (c->type) {
+        بدل (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
-                sym_lzma_end(&c->xz);
-                break;
-#endif
+#إذا HAVE_XZ
+        حالة COMPRESSION_XZ:
+                sym_lzma_سرا(&c->xz);
+                اكسر;
+#جے_انت
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4:
-                if (c->encoding) {
+#إذا HAVE_LZ4
+        حالة COMPRESSION_LZ4:
+                إذا (c->encoding) {
                         sym_LZ4F_freeCompressionContext(c->c_lz4);
-                        c->c_lz4 = NULL;
-                        c->lz4_header = mfree(c->lz4_header);
-                } else {
+                        c->c_lz4 = عدم;
+                        c->lz4_سرخی = mfree(c->lz4_سرخی);
+                } وإلا {
                         sym_LZ4F_freeDecompressionContext(c->d_lz4);
-                        c->d_lz4 = NULL;
+                        c->d_lz4 = عدم;
                 }
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
-                if (c->encoding) {
+#إذا HAVE_ZSTD
+        حالة COMPRESSION_ZSTD:
+                إذا (c->encoding) {
                         sym_ZSTD_freeCCtx(c->c_zstd);
-                        c->c_zstd = NULL;
-                } else {
+                        c->c_zstd = عدم;
+                } وإلا {
                         sym_ZSTD_freeDCtx(c->d_zstd);
-                        c->d_zstd = NULL;
+                        c->d_zstd = عدم;
                 }
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (c->encoding)
-                        sym_deflateEnd(&c->gzip);
-                else
-                        sym_inflateEnd(&c->gzip);
-                break;
-#endif
+#إذا HAVE_ZLIB
+        حالة COMPRESSION_GZIP:
+                إذا (c->encoding)
+                        sym_deflate_سرا(&c->gzip);
+                وإلا
+                        sym_inflate_سرا(&c->gzip);
+                اكسر;
+#جے_انت
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (c->encoding)
-                        sym_BZ2_bzCompressEnd(&c->bzip2);
-                else
-                        sym_BZ2_bzDecompressEnd(&c->bzip2);
-                break;
-#endif
+#إذا HAVE_BZIP2
+        حالة COMPRESSION_BZIP2:
+                إذا (c->encoding)
+                        sym_BZ2_bz_Compress_سرا(&c->bzip2);
+                وإلا
+                        sym_BZ2_bz_Decompress_سرا(&c->bzip2);
+                اكسر;
+#جے_انت
 
-        default:
-                break;
+        افتراضي:
+                اكسر;
         }
 
-        return mfree(c);
+        أرجع mfree(c);
 }
 
-Compression compressor_type(const Compressor *c) {
-        return c ? c->type : _COMPRESSION_INVALID;
+Compression compressor_type(ثابت Compressor *c) {
+        أرجع c ? c->type : _COMPRESSION_INVALID;
 }
 
-int decompressor_detect(Decompressor **decompressor, const void *data, size_t size) {
-        int r;
+صحيح decompressor_detect(Decompressor **decompressor, ثابت فراغ *انکڑے, size_t ناپ) {
+        صحيح r;
 
-        assert(decompressor);
+        أكد(decompressor);
 
-        if (*decompressor)
-                return 1;
+        إذا (*decompressor)
+                أرجع 1;
 
-        if (size < COMPRESSION_MAGIC_BYTES_MAX)
-                return 0;
+        إذا (ناپ < COMPRESSION_MAGIC_بائٹاں_MAX)
+                أرجع 0;
 
-        assert(data);
+        أكد(انکڑے);
 
-        Compression type = compression_detect_from_magic(data);
-        if (type == _COMPRESSION_INVALID)
+        Compression type = compression_detect_from_magic(انکڑے);
+        إذا (type == _COMPRESSION_INVALID)
                 type = COMPRESSION_NONE;
 
-        log_debug("Detected compression type: %s", compression_to_string(type));
+        log_debug("Detected compression type: %s", compression_منزل_string(type));
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         r = decompressor_new(decompressor, type, /* flags= */ 0);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return 1;
+        أرجع 1;
 }
 
-int decompressor_force(Decompressor **decompressor, Compression type) {
-        int r;
+صحيح decompressor_force(Decompressor **decompressor, Compression type) {
+        صحيح r;
 
-        assert(decompressor);
-        assert(type >= 0 && type < _COMPRESSION_MAX);
+        أكد(decompressor);
+        أكد(type >= 0 && type < _COMPRESSION_MAX);
 
         /* Like decompressor_detect(), but uses the specified compression algorithm instead of guessing
          * from the magic bytes. Replaces any decompressor already set up. */
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         *decompressor = compressor_free(*decompressor);
-        return decompressor_new(decompressor, type, /* flags= */ 0);
+        أرجع decompressor_new(decompressor, type, /* flags= */ 0);
 }
 
-int decompressor_force_off(Decompressor **decompressor) {
-        return decompressor_force(decompressor, COMPRESSION_NONE);
+صحيح decompressor_force_off(Decompressor **decompressor) {
+        أرجع decompressor_force(decompressor, COMPRESSION_NONE);
 }
 
-int decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata) {
-        int r;
+صحيح decompressor_ڈالو(Decompressor *c, ثابت فراغ *انکڑے, size_t ناپ, DecompressorCallback callback, فراغ *userdata) {
+        صحيح r;
 
-        assert(c);
-        assert(data || size == 0);
-        assert(callback);
+        أكد(c);
+        أكد(انکڑے || ناپ == 0);
+        أكد(callback);
 
         /* This feeds `size` bytes of compressed data into `c`. Passing size == 0 has special meaning: it
          * signals that no further input will be provided, and the function will attempt to finalize the
          * stream, failing with -EBADMSG if the compressed data was truncated or has trailing garbage after
          * the logical end of stream. */
 
-        if (c->encoding)
-                return -EINVAL;
+        إذا (c->encoding)
+                أرجع -EINVAL;
 
-        if (c->finished && size == 0)
+        إذا (c->مکمل && ناپ == 0)
                 /* The previous stream was correctly finished, and it was the last one. */
-                return 0;
+                أرجع 0;
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        _cleanup_free_ uint8_t *buffer = NULL;
-        if (c->type != COMPRESSION_NONE) {
-                buffer = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-                if (!buffer)
-                        return -ENOMEM;
+#إذا HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        _cleanup_free_ uint8_t *بفر = عدم;
+        إذا (c->type != COMPRESSION_NONE) {
+                بفر = new(uint8_t, COMPRESS_PIPE_بفر_ناپ);
+                إذا (!بفر)
+                        أرجع -ENOMEM;
         }
-#endif
+#جے_انت
 
-        switch (c->type) {
+        بدل (c->type) {
 
-        case COMPRESSION_NONE:
-                if (c->finished)
-                        return -EBADMSG;
+        حالة COMPRESSION_NONE:
+                إذا (c->مکمل)
+                        أرجع -EBADMSG;
 
-                if (size == 0) {
-                        c->finished = true;
-                        return 0;
+                إذا (ناپ == 0) {
+                        c->مکمل = true;
+                        أرجع 0;
                 }
 
-                r = callback(data, size, userdata);
-                if (r < 0)
-                        return r;
+                r = callback(انکڑے, ناپ, userdata);
+                إذا (r < 0)
+                        أرجع r;
 
-                return 0;
+                أرجع 0;
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
-                if (c->finished)
-                        return -EBADMSG;
+#إذا HAVE_XZ
+        حالة COMPRESSION_XZ:
+                إذا (c->مکمل)
+                        أرجع -EBADMSG;
 
-                c->xz.next_in = data;
-                c->xz.avail_in = size;
+                c->xz.اگلا_وچ = انکڑے;
+                c->xz.avail_وچ = ناپ;
 
-                for (;;) {
-                        c->xz.next_out = buffer;
-                        c->xz.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
+                لكل (;;) {
+                        c->xz.اگلا_باہرلا = بفر;
+                        c->xz.avail_باہرلا = COMPRESS_PIPE_بفر_ناپ;
 
-                        lzma_ret lzr = sym_lzma_code(&c->xz, size == 0 ? LZMA_FINISH : LZMA_RUN);
-                        if (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
-                                return -EBADMSG;
+                        lzma_ret lzr = sym_lzma_کوڈ(&c->xz, ناپ == 0 ? LZMA_انت : LZMA_لگاتار);
+                        إذا (!وچ_سیٹ(lzr, LZMA_OK, LZMA_دھارا_سرا))
+                                أرجع -EBADMSG;
 
-                        if (c->xz.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        إذا (c->xz.avail_باہرلا > COMPRESS_PIPE_بفر_ناپ)
+                                أرجع -EIO;
 
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->xz.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        size_t produced = COMPRESS_PIPE_بفر_ناپ - c->xz.avail_باہرلا;
+                        إذا (produced > 0) {
+                                r = callback(بفر, produced, userdata);
+                                إذا (r < 0)
+                                        أرجع r;
                         }
 
-                        if (lzr == LZMA_STREAM_END) {
-                                if (c->xz.avail_in > 0)
-                                        return -EBADMSG; /* garbage data at the end */
+                        إذا (lzr == LZMA_دھارا_سرا) {
+                                إذا (c->xz.avail_وچ > 0)
+                                        أرجع -EBADMSG; /* garbage data at the end */
 
-                                c->finished = true;
-                                return 0;
+                                c->مکمل = true;
+                                أرجع 0;
                         }
 
-                        if (c->xz.avail_in == 0 && c->xz.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                        إذا (c->xz.avail_وچ == 0 && c->xz.avail_باہرلا > 0) {
+                                إذا (ناپ == 0)
+                                        أرجع -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                أرجع 0; /* No progress possible with the current input. */
                         }
                 }
-#endif
+#جے_انت
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                const uint8_t *src = data;
-                size_t src_remaining = size;
+#إذا HAVE_LZ4
+        حالة COMPRESSION_LZ4: {
+                ثابت uint8_t *src = انکڑے;
+                size_t src_بچیا = ناپ;
 
-                c->finished = false;
+                c->مکمل = false;
 
-                for (;;) {
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE;
-                        size_t consumed = src_remaining;
+                لكل (;;) {
+                        size_t produced = COMPRESS_PIPE_بفر_ناپ;
+                        size_t consumed = src_بچیا;
 
-                        size_t rc = sym_LZ4F_decompress(c->d_lz4, buffer, &produced, src, &consumed, NULL);
-                        if (sym_LZ4F_isError(rc))
-                                return -EBADMSG;
+                        size_t rc = sym_LZ4F_decompress(c->d_lz4, بفر, &produced, src, &consumed, عدم);
+                        إذا (sym_LZ4F_isError(rc))
+                                أرجع -EBADMSG;
 
-                        if (consumed > src_remaining ||
-                            produced > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        إذا (consumed > src_بچیا ||
+                            produced > COMPRESS_PIPE_بفر_ناپ)
+                                أرجع -EIO;
 
-                        if (consumed > 0) {
-                                assert(src);
+                        إذا (consumed > 0) {
+                                أكد(src);
                                 src += consumed;
-                                src_remaining -= consumed;
+                                src_بچیا -= consumed;
                         }
 
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        إذا (produced > 0) {
+                                r = callback(بفر, produced, userdata);
+                                إذا (r < 0)
+                                        أرجع r;
                         }
 
-                        if (src_remaining == 0) {
-                                if (rc == 0) {
+                        إذا (src_بچیا == 0) {
+                                إذا (rc == 0) {
                                         /* The current stream has finished. */
-                                        c->finished = true;
-                                        return 0;
+                                        c->مکمل = true;
+                                        أرجع 0;
                                 }
 
-                                if (produced == COMPRESS_PIPE_BUFFER_SIZE)
+                                إذا (produced == COMPRESS_PIPE_بفر_ناپ)
                                         /* Remaining data exist in the library buffer. We need to read them. */
-                                        continue;
+                                        استمر;
 
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                                إذا (ناپ == 0)
+                                        أرجع -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                أرجع 0; /* No progress possible with the current input. */
                         }
                 }
         }
-#endif
+#جے_انت
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
-                        .src =  (void*) data,
-                        .size = size,
+#إذا HAVE_ZSTD
+        حالة COMPRESSION_ZSTD: {
+                ZSTD_وچ_بفر داخلہ = {
+                        .src =  (فراغ*) انکڑے,
+                        .ناپ = ناپ,
                 };
 
-                c->finished = false;
+                c->مکمل = false;
 
-                for (;;) {
-                        ZSTD_outBuffer output = {
-                                .dst = buffer,
-                                .size = COMPRESS_PIPE_BUFFER_SIZE,
+                لكل (;;) {
+                        ZSTD_باہرلا_بفر output = {
+                                .dst = بفر,
+                                .ناپ = COMPRESS_PIPE_بفر_ناپ,
                         };
 
-                        size_t res = sym_ZSTD_decompressStream(c->d_zstd, &output, &input);
-                        if (sym_ZSTD_isError(res))
-                                return -EBADMSG;
+                        size_t res = sym_ZSTD_decompress_دھارا(c->d_zstd, &output, &داخلہ);
+                        إذا (sym_ZSTD_isError(res))
+                                أرجع -EBADMSG;
 
-                        if (input.pos > input.size ||
-                            output.pos > output.size)
-                                return -EIO;
+                        إذا (داخلہ.pos > داخلہ.ناپ ||
+                            output.pos > output.ناپ)
+                                أرجع -EIO;
 
-                        if (output.pos > 0) {
+                        إذا (output.pos > 0) {
                                 r = callback(output.dst, output.pos, userdata);
-                                if (r < 0)
-                                        return r;
+                                إذا (r < 0)
+                                        أرجع r;
                         }
 
-                        if (input.pos == input.size) {
-                                if (res == 0) {
+                        إذا (داخلہ.pos == داخلہ.ناپ) {
+                                إذا (res == 0) {
                                         /* The current stream has finished. */
-                                        c->finished = true;
-                                        return 0;
+                                        c->مکمل = true;
+                                        أرجع 0;
                                 }
 
-                                if (output.pos == COMPRESS_PIPE_BUFFER_SIZE)
+                                إذا (output.pos == COMPRESS_PIPE_بفر_ناپ)
                                         /* Remaining data exist in the library buffer. We need to read them. */
-                                        continue;
+                                        استمر;
 
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                                إذا (ناپ == 0)
+                                        أرجع -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                أرجع 0; /* No progress possible with the current input. */
                         }
                 }
         }
-#endif
+#جے_انت
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#إذا HAVE_ZLIB
+        حالة COMPRESSION_GZIP:
+                إذا (ناپ > UINT_MAX)
+                        أرجع -EFBIG;
 
-                c->gzip.next_in = (void*) data;
-                c->gzip.avail_in = size;
+                c->gzip.اگلا_وچ = (فراغ*) انکڑے;
+                c->gzip.avail_وچ = ناپ;
 
-                for (;;) {
-                        if (c->finished) {
-                                if (sym_inflateReset(&c->gzip) != Z_OK)
-                                        return -EIO;
+                لكل (;;) {
+                        إذا (c->مکمل) {
+                                إذا (sym_inflateReset(&c->gzip) != Z_OK)
+                                        أرجع -EIO;
 
-                                c->finished = false;
+                                c->مکمل = false;
                         }
 
-                        c->gzip.next_out = buffer;
-                        c->gzip.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
+                        c->gzip.اگلا_باہرلا = بفر;
+                        c->gzip.avail_باہرلا = COMPRESS_PIPE_بفر_ناپ;
 
                         /* Z_BUF_ERROR is not fatal if all input is used up: it just means no progress was
                          * possible, which happens if the previous iteration filled the output buffer exactly
                          * while also consuming all input. That case is handled by the avail_in check
                          * below. If there's still input left however, Z_BUF_ERROR means we are stuck, hence
                          * refuse it, so that we don't loop forever. */
-                        int zr = sym_inflate(&c->gzip, Z_NO_FLUSH);
-                        if (!IN_SET(zr, Z_OK, Z_STREAM_END) &&
-                            !(zr == Z_BUF_ERROR && c->gzip.avail_in == 0))
-                                return -EBADMSG;
+                        صحيح zr = sym_inflate(&c->gzip, Z_NO_FLUSH);
+                        إذا (!وچ_سیٹ(zr, Z_OK, Z_دھارا_سرا) &&
+                            !(zr == Z_BUF_ERROR && c->gzip.avail_وچ == 0))
+                                أرجع -EBADMSG;
 
-                        if (c->gzip.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        إذا (c->gzip.avail_باہرلا > COMPRESS_PIPE_بفر_ناپ)
+                                أرجع -EIO;
 
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->gzip.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        size_t produced = COMPRESS_PIPE_بفر_ناپ - c->gzip.avail_باہرلا;
+                        إذا (produced > 0) {
+                                r = callback(بفر, produced, userdata);
+                                إذا (r < 0)
+                                        أرجع r;
                         }
 
-                        if (zr == Z_STREAM_END) {
-                                c->finished = true;
+                        إذا (zr == Z_دھارا_سرا) {
+                                c->مکمل = true;
 
-                                if (c->gzip.avail_in > 0)
-                                        continue; /* New stream may be pending. */
+                                إذا (c->gzip.avail_وچ > 0)
+                                        استمر; /* New stream may be pending. */
 
-                                return 0;
+                                أرجع 0;
                         }
 
-                        if (c->gzip.avail_in == 0 && c->gzip.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                        إذا (c->gzip.avail_وچ == 0 && c->gzip.avail_باہرلا > 0) {
+                                إذا (ناپ == 0)
+                                        أرجع -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
-                        }
-                }
-#endif
-
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (size > UINT_MAX)
-                        return -EFBIG;
-
-                c->bzip2.next_in = (char*) data;
-                c->bzip2.avail_in = size;
-
-                for (;;) {
-                        if (c->finished) {
-                                sym_BZ2_bzDecompressEnd(&c->bzip2);
-                                if (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                                        return -EIO;
-
-                                c->finished = false;
-                        }
-
-                        c->bzip2.next_out = (char*) buffer;
-                        c->bzip2.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
-
-                        int bzr = sym_BZ2_bzDecompress(&c->bzip2);
-                        if (!IN_SET(bzr, BZ_OK, BZ_STREAM_END))
-                                return -EBADMSG;
-
-                        if (c->bzip2.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
-
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->bzip2.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
-                        }
-
-                        if (bzr == BZ_STREAM_END) {
-                                c->finished = true;
-
-                                if (c->bzip2.avail_in > 0)
-                                        continue; /* New stream may be pending. */
-
-                                return 0;
-                        }
-
-                        if (c->bzip2.avail_in == 0 && c->bzip2.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
-
-                                return 0; /* No progress possible with the current input. */
+                                أرجع 0; /* No progress possible with the current input. */
                         }
                 }
-#endif
+#جے_انت
 
-        default:
+#إذا HAVE_BZIP2
+        حالة COMPRESSION_BZIP2:
+                إذا (ناپ > UINT_MAX)
+                        أرجع -EFBIG;
+
+                c->bzip2.اگلا_وچ = (حرف*) انکڑے;
+                c->bzip2.avail_وچ = ناپ;
+
+                لكل (;;) {
+                        إذا (c->مکمل) {
+                                sym_BZ2_bz_Decompress_سرا(&c->bzip2);
+                                إذا (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                                        أرجع -EIO;
+
+                                c->مکمل = false;
+                        }
+
+                        c->bzip2.اگلا_باہرلا = (حرف*) بفر;
+                        c->bzip2.avail_باہرلا = COMPRESS_PIPE_بفر_ناپ;
+
+                        صحيح bzr = sym_BZ2_bzDecompress(&c->bzip2);
+                        إذا (!وچ_سیٹ(bzr, BZ_OK, BZ_دھارا_سرا))
+                                أرجع -EBADMSG;
+
+                        إذا (c->bzip2.avail_باہرلا > COMPRESS_PIPE_بفر_ناپ)
+                                أرجع -EIO;
+
+                        size_t produced = COMPRESS_PIPE_بفر_ناپ - c->bzip2.avail_باہرلا;
+                        إذا (produced > 0) {
+                                r = callback(بفر, produced, userdata);
+                                إذا (r < 0)
+                                        أرجع r;
+                        }
+
+                        إذا (bzr == BZ_دھارا_سرا) {
+                                c->مکمل = true;
+
+                                إذا (c->bzip2.avail_وچ > 0)
+                                        استمر; /* New stream may be pending. */
+
+                                أرجع 0;
+                        }
+
+                        إذا (c->bzip2.avail_وچ == 0 && c->bzip2.avail_باہرلا > 0) {
+                                إذا (ناپ == 0)
+                                        أرجع -EBADMSG; /* truncated */
+
+                                أرجع 0; /* No progress possible with the current input. */
+                        }
+                }
+#جے_انت
+
+        افتراضي:
                 assert_not_reached();
         }
 }
 
-int compressor_new(Compressor **ret, Compression type) {
-        int r;
+صحيح compressor_new(Compressor **ret, Compression type) {
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         _cleanup_(compressor_freep) Compressor *c = new0(Compressor, 1);
-        if (!c)
-                return -ENOMEM;
+        إذا (!c)
+                أرجع -ENOMEM;
 
         c->type = _COMPRESSION_INVALID;
         /* Set encoding early so that compressor_freep calls the correct cleanup (compression vs
@@ -2472,444 +2472,444 @@ int compressor_new(Compressor **ret, Compression type) {
          * because _COMPRESSION_INVALID hits the default: break case regardless of the encoding flag. */
         c->encoding = true;
 
-        switch (type) {
+        بدل (type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#إذا HAVE_XZ
+        حالة COMPRESSION_XZ: {
                 lzma_ret xzr = sym_lzma_easy_encoder(&c->xz, LZMA_PRESET_DEFAULT, LZMA_CHECK_CRC64);
-                if (xzr != LZMA_OK)
-                        return -EIO;
+                إذا (xzr != LZMA_OK)
+                        أرجع -EIO;
 
                 c->type = COMPRESSION_XZ;
-                break;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                size_t rc = sym_LZ4F_createCompressionContext(&c->c_lz4, LZ4F_VERSION);
-                if (sym_LZ4F_isError(rc))
-                        return -ENOMEM;
+#إذا HAVE_LZ4
+        حالة COMPRESSION_LZ4: {
+                size_t rc = sym_LZ4F_createCompressionContext(&c->c_lz4, LZ4_F_نسخہ);
+                إذا (sym_LZ4F_isError(rc))
+                        أرجع -ENOMEM;
 
                 c->type = COMPRESSION_LZ4;
 
                 /* Generate the frame header and stash it for the first compressor_start call */
-                size_t header_bound = sym_LZ4F_compressBound(0, &lz4_preferences);
-                c->lz4_header = malloc(header_bound);
-                if (!c->lz4_header)
-                        return -ENOMEM;
+                size_t سرخی_bound = sym_LZ4F_compressBound(0, &lz4_preferences);
+                c->lz4_سرخی = حافظہ_دیو(سرخی_bound);
+                إذا (!c->lz4_سرخی)
+                        أرجع -ENOMEM;
 
-                c->lz4_header_size = sym_LZ4F_compressBegin(c->c_lz4, c->lz4_header, header_bound, &lz4_preferences);
-                if (sym_LZ4F_isError(c->lz4_header_size))
-                        return -EINVAL;
+                c->lz4_سرخی_ناپ = sym_LZ4F_compressBegin(c->c_lz4, c->lz4_سرخی, سرخی_bound, &lz4_preferences);
+                إذا (sym_LZ4F_isError(c->lz4_سرخی_ناپ))
+                        أرجع -EINVAL;
 
-                break;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
+#إذا HAVE_ZSTD
+        حالة COMPRESSION_ZSTD:
                 c->c_zstd = sym_ZSTD_createCCtx();
-                if (!c->c_zstd)
-                        return -ENOMEM;
+                إذا (!c->c_zstd)
+                        أرجع -ENOMEM;
 
                 c->type = COMPRESSION_ZSTD;
 
-                size_t z = sym_ZSTD_CCtx_setParameter(c->c_zstd, ZSTD_c_compressionLevel, ZSTD_CLEVEL_DEFAULT);
-                if (sym_ZSTD_isError(z))
-                        return -EIO;
+                size_t z = sym_ZSTD_CCtx_سیٹ_Parameter(c->c_zstd, ZSTD_c_compressionLevel, ZSTD_CLEVEL_DEFAULT);
+                إذا (sym_ZSTD_isError(z))
+                        أرجع -EIO;
 
-                z = sym_ZSTD_CCtx_setParameter(c->c_zstd, ZSTD_c_checksumFlag, /* enable= */ 1);
-                if (sym_ZSTD_isError(z))
+                z = sym_ZSTD_CCtx_سیٹ_Parameter(c->c_zstd, ZSTD_c_checksumFlag, /* enable= */ 1);
+                إذا (sym_ZSTD_isError(z))
                         log_debug("Failed to enable ZSTD checksum, ignoring: %s", sym_ZSTD_getErrorName(z));
 
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
+#إذا HAVE_ZLIB
+        حالة COMPRESSION_GZIP:
                 r = sym_deflateInit2_(&c->gzip,
                                       Z_DEFAULT_COMPRESSION,
                                       /* method= */ Z_DEFLATED,
                                       /* windowBits= */ ZLIB_WBITS_GZIP,
                                       /* memLevel= */ 8,
                                       /* strategy= */ Z_DEFAULT_STRATEGY,
-                                      ZLIB_VERSION, (int) sizeof(c->gzip));
-                if (r != Z_OK)
-                        return -EIO;
+                                      ZLIB_نسخہ, (صحيح) حجم(c->gzip));
+                إذا (r != Z_OK)
+                        أرجع -EIO;
 
                 c->type = COMPRESSION_GZIP;
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
+#إذا HAVE_BZIP2
+        حالة COMPRESSION_BZIP2:
                 r = sym_BZ2_bzCompressInit(&c->bzip2, /* blockSize100k= */ 9, /* verbosity= */ 0, /* workFactor= */ 0);
-                if (r != BZ_OK)
-                        return -EIO;
+                إذا (r != BZ_OK)
+                        أرجع -EIO;
 
                 c->type = COMPRESSION_BZIP2;
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-        case COMPRESSION_NONE:
+        حالة COMPRESSION_NONE:
                 c->type = COMPRESSION_NONE;
-                break;
+                اكسر;
 
-        default:
-                return -EOPNOTSUPP;
+        افتراضي:
+                أرجع -EOPNOTSUPP;
         }
 
         *ret = TAKE_PTR(c);
-        return 0;
+        أرجع 0;
 }
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-static int enlarge_buffer(void **buffer, size_t *buffer_size, size_t *buffer_allocated, size_t need) {
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+#إذا HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+ساكن صحيح enlarge_بفر(فراغ **بفر, size_t *بفر_ناپ, size_t *بفر_allocated, size_t need) {
+        أكد(بفر);
+        أكد(بفر_ناپ);
+        أكد(بفر_allocated);
 
-        need = MAX3(need, *buffer_size + 1, (size_t) COMPRESS_PIPE_BUFFER_SIZE);
-        if (*buffer_allocated >= need)
-                return 0;
+        need = MAX3(need, *بفر_ناپ + 1, (size_t) COMPRESS_PIPE_بفر_ناپ);
+        إذا (*بفر_allocated >= need)
+                أرجع 0;
 
-        if (!greedy_realloc(buffer, need, 1))
-                return -ENOMEM;
+        إذا (!greedy_realloc(بفر, need, 1))
+                أرجع -ENOMEM;
 
-        *buffer_allocated = MALLOC_SIZEOF_SAFE(*buffer);
-        return 1;
+        *بفر_allocated = MALLOC_SIZEOF_محفوظ(*بفر);
+        أرجع 1;
 }
-#endif
+#جے_انت
 
-int compressor_start(
+صحيح compressor_شروع(
                 Compressor *c,
-                const void *data,
-                size_t size,
-                void **buffer,
-                size_t *buffer_size,
-                size_t *buffer_allocated) {
+                ثابت فراغ *انکڑے,
+                size_t ناپ,
+                فراغ **بفر,
+                size_t *بفر_ناپ,
+                size_t *بفر_allocated) {
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        int r;
-#endif
+#إذا HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        صحيح r;
+#جے_انت
 
-        assert(c);
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+        أكد(c);
+        أكد(بفر);
+        أكد(بفر_ناپ);
+        أكد(بفر_allocated);
 
-        if (!c->encoding)
-                return -EINVAL;
+        إذا (!c->encoding)
+                أرجع -EINVAL;
 
-        if (size == 0)
-                return 0;
+        إذا (ناپ == 0)
+                أرجع 0;
 
-        assert(data);
+        أكد(انکڑے);
 
-        *buffer_size = 0;
+        *بفر_ناپ = 0;
 
-        switch (c->type) {
+        بدل (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
+#إذا HAVE_XZ
+        حالة COMPRESSION_XZ:
 
-                c->xz.next_in = data;
-                c->xz.avail_in = size;
+                c->xz.اگلا_وچ = انکڑے;
+                c->xz.avail_وچ = ناپ;
 
-                while (c->xz.avail_in > 0) {
+                طالما (c->xz.avail_وچ > 0) {
                         lzma_ret lzr;
 
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        c->xz.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->xz.avail_out = *buffer_allocated - *buffer_size;
+                        c->xz.اگلا_باہرلا = (uint8_t*) *بفر + *بفر_ناپ;
+                        c->xz.avail_باہرلا = *بفر_allocated - *بفر_ناپ;
 
-                        lzr = sym_lzma_code(&c->xz, LZMA_RUN);
-                        if (lzr != LZMA_OK)
-                                return -EIO;
+                        lzr = sym_lzma_کوڈ(&c->xz, LZMA_لگاتار);
+                        إذا (lzr != LZMA_OK)
+                                أرجع -EIO;
 
-                        *buffer_size += (*buffer_allocated - *buffer_size) - c->xz.avail_out;
+                        *بفر_ناپ += (*بفر_allocated - *بفر_ناپ) - c->xz.avail_باہرلا;
                 }
 
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
+#إذا HAVE_LZ4
+        حالة COMPRESSION_LZ4: {
                 /* Prepend any stashed frame header from compressor_new */
-                if (c->lz4_header_size > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, c->lz4_header_size);
-                        if (r < 0)
-                                return r;
+                إذا (c->lz4_سرخی_ناپ > 0) {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, c->lz4_سرخی_ناپ);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        memcpy(*buffer, c->lz4_header, c->lz4_header_size);
-                        *buffer_size = c->lz4_header_size;
-                        c->lz4_header = mfree(c->lz4_header);
-                        c->lz4_header_size = 0;
+                        حافظہ_نقل(*بفر, c->lz4_سرخی, c->lz4_سرخی_ناپ);
+                        *بفر_ناپ = c->lz4_سرخی_ناپ;
+                        c->lz4_سرخی = mfree(c->lz4_سرخی);
+                        c->lz4_سرخی_ناپ = 0;
                 }
 
-                size_t bound = sym_LZ4F_compressBound(size, &lz4_preferences);
-                r = enlarge_buffer(buffer, buffer_size, buffer_allocated, *buffer_size + bound);
-                if (r < 0)
-                        return r;
+                size_t bound = sym_LZ4F_compressBound(ناپ, &lz4_preferences);
+                r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, *بفر_ناپ + bound);
+                إذا (r < 0)
+                        أرجع r;
 
                 size_t n = sym_LZ4F_compressUpdate(c->c_lz4,
-                                                   (uint8_t*) *buffer + *buffer_size,
-                                                   *buffer_allocated - *buffer_size,
-                                                   data, size, NULL);
-                if (sym_LZ4F_isError(n))
-                        return -EIO;
+                                                   (uint8_t*) *بفر + *بفر_ناپ,
+                                                   *بفر_allocated - *بفر_ناپ,
+                                                   انکڑے, ناپ, عدم);
+                إذا (sym_LZ4F_isError(n))
+                        أرجع -EIO;
 
-                *buffer_size += n;
-                break;
+                *بفر_ناپ += n;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
-                        .src = data,
-                        .size = size,
+#إذا HAVE_ZSTD
+        حالة COMPRESSION_ZSTD: {
+                ZSTD_وچ_بفر داخلہ = {
+                        .src = انکڑے,
+                        .ناپ = ناپ,
                 };
 
-                while (input.pos < input.size) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                طالما (داخلہ.pos < داخلہ.ناپ) {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        ZSTD_outBuffer output = {
-                                .dst = ((uint8_t *) *buffer + *buffer_size),
-                                .size = *buffer_allocated - *buffer_size,
+                        ZSTD_باہرلا_بفر output = {
+                                .dst = ((uint8_t *) *بفر + *بفر_ناپ),
+                                .ناپ = *بفر_allocated - *بفر_ناپ,
                         };
 
-                        size_t res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_continue);
-                        if (sym_ZSTD_isError(res))
-                                return -EIO;
+                        size_t res = sym_ZSTD_compressStream2(c->c_zstd, &output, &داخلہ, ZSTD_e_continue);
+                        إذا (sym_ZSTD_isError(res))
+                                أرجع -EIO;
 
-                        *buffer_size += output.pos;
+                        *بفر_ناپ += output.pos;
                 }
 
-                break;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#إذا HAVE_ZLIB
+        حالة COMPRESSION_GZIP:
+                إذا (ناپ > UINT_MAX)
+                        أرجع -EFBIG;
 
-                c->gzip.next_in = (void*) data;
-                c->gzip.avail_in = size;
+                c->gzip.اگلا_وچ = (فراغ*) انکڑے;
+                c->gzip.avail_وچ = ناپ;
 
-                while (c->gzip.avail_in > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                طالما (c->gzip.avail_وچ > 0) {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->gzip.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->gzip.avail_out = avail;
+                        size_t avail = MIN(*بفر_allocated - *بفر_ناپ, (size_t) UINT_MAX);
+                        c->gzip.اگلا_باہرلا = (uint8_t*) *بفر + *بفر_ناپ;
+                        c->gzip.avail_باہرلا = avail;
 
                         r = sym_deflate(&c->gzip, Z_NO_FLUSH);
-                        if (r != Z_OK)
-                                return -EIO;
+                        إذا (r != Z_OK)
+                                أرجع -EIO;
 
-                        *buffer_size += avail - c->gzip.avail_out;
+                        *بفر_ناپ += avail - c->gzip.avail_باہرلا;
                 }
 
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#إذا HAVE_BZIP2
+        حالة COMPRESSION_BZIP2:
+                إذا (ناپ > UINT_MAX)
+                        أرجع -EFBIG;
 
-                c->bzip2.next_in = (void*) data;
-                c->bzip2.avail_in = size;
+                c->bzip2.اگلا_وچ = (فراغ*) انکڑے;
+                c->bzip2.avail_وچ = ناپ;
 
-                while (c->bzip2.avail_in > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                طالما (c->bzip2.avail_وچ > 0) {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->bzip2.next_out = (void*) ((uint8_t*) *buffer + *buffer_size);
-                        c->bzip2.avail_out = avail;
+                        size_t avail = MIN(*بفر_allocated - *بفر_ناپ, (size_t) UINT_MAX);
+                        c->bzip2.اگلا_باہرلا = (فراغ*) ((uint8_t*) *بفر + *بفر_ناپ);
+                        c->bzip2.avail_باہرلا = avail;
 
-                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_RUN);
-                        if (r != BZ_RUN_OK)
-                                return -EIO;
+                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_لگاتار);
+                        إذا (r != BZ_لگاتار_OK)
+                                أرجع -EIO;
 
-                        *buffer_size += avail - c->bzip2.avail_out;
+                        *بفر_ناپ += avail - c->bzip2.avail_باہرلا;
                 }
 
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-        case COMPRESSION_NONE:
+        حالة COMPRESSION_NONE:
 
-                if (*buffer_allocated < size) {
-                        void *p;
+                إذا (*بفر_allocated < ناپ) {
+                        فراغ *p;
 
-                        p = realloc(*buffer, size);
-                        if (!p)
-                                return -ENOMEM;
+                        p = realloc(*بفر, ناپ);
+                        إذا (!p)
+                                أرجع -ENOMEM;
 
-                        *buffer = p;
-                        *buffer_allocated = size;
+                        *بفر = p;
+                        *بفر_allocated = ناپ;
                 }
 
-                memcpy(*buffer, data, size);
-                *buffer_size = size;
-                break;
+                حافظہ_نقل(*بفر, انکڑے, ناپ);
+                *بفر_ناپ = ناپ;
+                اكسر;
 
-        default:
-                return -EOPNOTSUPP;
+        افتراضي:
+                أرجع -EOPNOTSUPP;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t *buffer_allocated) {
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        int r;
-#endif
+صحيح compressor_انت(Compressor *c, فراغ **بفر, size_t *بفر_ناپ, size_t *بفر_allocated) {
+#إذا HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        صحيح r;
+#جے_انت
 
-        assert(c);
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+        أكد(c);
+        أكد(بفر);
+        أكد(بفر_ناپ);
+        أكد(بفر_allocated);
 
-        if (!c->encoding)
-                return -EINVAL;
+        إذا (!c->encoding)
+                أرجع -EINVAL;
 
-        *buffer_size = 0;
+        *بفر_ناپ = 0;
 
-        switch (c->type) {
+        بدل (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#إذا HAVE_XZ
+        حالة COMPRESSION_XZ: {
                 lzma_ret lzr;
 
-                c->xz.avail_in = 0;
+                c->xz.avail_وچ = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                افعل {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        c->xz.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->xz.avail_out = *buffer_allocated - *buffer_size;
+                        c->xz.اگلا_باہرلا = (uint8_t*) *بفر + *بفر_ناپ;
+                        c->xz.avail_باہرلا = *بفر_allocated - *بفر_ناپ;
 
-                        lzr = sym_lzma_code(&c->xz, LZMA_FINISH);
-                        if (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
-                                return -EIO;
+                        lzr = sym_lzma_کوڈ(&c->xz, LZMA_انت);
+                        إذا (!وچ_سیٹ(lzr, LZMA_OK, LZMA_دھارا_سرا))
+                                أرجع -EIO;
 
-                        *buffer_size += (*buffer_allocated - *buffer_size) - c->xz.avail_out;
-                } while (lzr != LZMA_STREAM_END);
+                        *بفر_ناپ += (*بفر_allocated - *بفر_ناپ) - c->xz.avail_باہرلا;
+                } طالما (lzr != LZMA_دھارا_سرا);
 
-                break;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
+#إذا HAVE_LZ4
+        حالة COMPRESSION_LZ4: {
                 size_t bound = sym_LZ4F_compressBound(0, &lz4_preferences);
-                r = enlarge_buffer(buffer, buffer_size, buffer_allocated, bound);
-                if (r < 0)
-                        return r;
+                r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, bound);
+                إذا (r < 0)
+                        أرجع r;
 
-                size_t n = sym_LZ4F_compressEnd(c->c_lz4, *buffer, *buffer_allocated, NULL);
-                if (sym_LZ4F_isError(n))
-                        return -EIO;
+                size_t n = sym_LZ4_F_compress_سرا(c->c_lz4, *بفر, *بفر_allocated, عدم);
+                إذا (sym_LZ4F_isError(n))
+                        أرجع -EIO;
 
-                *buffer_size = n;
-                break;
+                *بفر_ناپ = n;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {};
+#إذا HAVE_ZSTD
+        حالة COMPRESSION_ZSTD: {
+                ZSTD_وچ_بفر داخلہ = {};
                 size_t res;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                افعل {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        ZSTD_outBuffer output = {
-                                .dst = ((uint8_t *) *buffer + *buffer_size),
-                                .size = *buffer_allocated - *buffer_size,
+                        ZSTD_باہرلا_بفر output = {
+                                .dst = ((uint8_t *) *بفر + *بفر_ناپ),
+                                .ناپ = *بفر_allocated - *بفر_ناپ,
                         };
 
-                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_end);
-                        if (sym_ZSTD_isError(res))
-                                return -EIO;
+                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &داخلہ, ZSTD_e_سرا);
+                        إذا (sym_ZSTD_isError(res))
+                                أرجع -EIO;
 
-                        *buffer_size += output.pos;
-                } while (res != 0);
+                        *بفر_ناپ += output.pos;
+                } طالما (res != 0);
 
-                break;
+                اكسر;
         }
-#endif
+#جے_انت
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                c->gzip.avail_in = 0;
+#إذا HAVE_ZLIB
+        حالة COMPRESSION_GZIP:
+                c->gzip.avail_وچ = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                افعل {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->gzip.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->gzip.avail_out = avail;
+                        size_t avail = MIN(*بفر_allocated - *بفر_ناپ, (size_t) UINT_MAX);
+                        c->gzip.اگلا_باہرلا = (uint8_t*) *بفر + *بفر_ناپ;
+                        c->gzip.avail_باہرلا = avail;
 
-                        r = sym_deflate(&c->gzip, Z_FINISH);
-                        if (!IN_SET(r, Z_OK, Z_STREAM_END))
-                                return -EIO;
+                        r = sym_deflate(&c->gzip, Z_انت);
+                        إذا (!وچ_سیٹ(r, Z_OK, Z_دھارا_سرا))
+                                أرجع -EIO;
 
-                        *buffer_size += avail - c->gzip.avail_out;
-                } while (r != Z_STREAM_END);
+                        *بفر_ناپ += avail - c->gzip.avail_باہرلا;
+                } طالما (r != Z_دھارا_سرا);
 
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                c->bzip2.avail_in = 0;
+#إذا HAVE_BZIP2
+        حالة COMPRESSION_BZIP2:
+                c->bzip2.avail_وچ = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                افعل {
+                        r = enlarge_بفر(بفر, بفر_ناپ, بفر_allocated, /* need= */ 0);
+                        إذا (r < 0)
+                                أرجع r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->bzip2.next_out = (void*) ((uint8_t*) *buffer + *buffer_size);
-                        c->bzip2.avail_out = avail;
+                        size_t avail = MIN(*بفر_allocated - *بفر_ناپ, (size_t) UINT_MAX);
+                        c->bzip2.اگلا_باہرلا = (فراغ*) ((uint8_t*) *بفر + *بفر_ناپ);
+                        c->bzip2.avail_باہرلا = avail;
 
-                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_FINISH);
-                        if (!IN_SET(r, BZ_FINISH_OK, BZ_STREAM_END))
-                                return -EIO;
+                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_انت);
+                        إذا (!وچ_سیٹ(r, BZ_انت_OK, BZ_دھارا_سرا))
+                                أرجع -EIO;
 
-                        *buffer_size += avail - c->bzip2.avail_out;
-                } while (r != BZ_STREAM_END);
+                        *بفر_ناپ += avail - c->bzip2.avail_باہرلا;
+                } طالما (r != BZ_دھارا_سرا);
 
-                break;
-#endif
+                اكسر;
+#جے_انت
 
-        case COMPRESSION_NONE:
-                break;
+        حالة COMPRESSION_NONE:
+                اكسر;
 
-        default:
-                return -EOPNOTSUPP;
+        افتراضي:
+                أرجع -EOPNOTSUPP;
         }
 
-        return 0;
+        أرجع 0;
 }

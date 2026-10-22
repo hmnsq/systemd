@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#include "../fundamental/confidential-virt.h"   /* IWYU pragma: export */
+#ضمن "../fundamental/confidential-virt.h"   /* IWYU pragma: export */
 
-typedef enum ConfidentialVirtualization {
+تعريفنوع تعداد ConfidentialVirtualization {
         CONFIDENTIAL_VIRTUALIZATION_NONE = 0,
 
         CONFIDENTIAL_VIRTUALIZATION_SEV,
@@ -20,6 +20,6 @@ typedef enum ConfidentialVirtualization {
         _CONFIDENTIAL_VIRTUALIZATION_ERRNO_MAX = -ERRNO_MAX, /* ensure full range of errno fits into this enum */
 } ConfidentialVirtualization;
 
-ConfidentialVirtualization detect_confidential_virtualization(void);
+ConfidentialVirtualization detect_confidential_virtualization(فراغ);
 
-DECLARE_STRING_TABLE_LOOKUP(confidential_virtualization, ConfidentialVirtualization);
+DECLARE_STRING_جدول_LOOKUP(confidential_virtualization, ConfidentialVirtualization);

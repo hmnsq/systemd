@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <sys/resource.h>       /* IWYU pragma: export */
+#ضمن <sys/resource.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#define _RLIMIT_MAX RLIMIT_NLIMITS
+#تعریف_کرو _RLIMIT_MAX RLIMIT_NLIMITS
 
-DECLARE_STRING_TABLE_LOOKUP(rlimit, int);
-int rlimit_from_string_harder(const char *s) _pure_;
-void rlimits_list(const char *prefix);
+DECLARE_STRING_جدول_LOOKUP(rlimit, صحيح);
+صحيح rlimit_from_string_harder(ثابت حرف *s) خالص;
+فراغ rlimits_list(ثابت حرف *اگیتر);
 
-int setrlimit_closest(int resource, const struct rlimit *rlim);
-int setrlimit_closest_all(const struct rlimit * const *rlim, int *which_failed);
+صحيح setrlimit_closest(صحيح resource, ثابت بنية rlimit *rlim);
+صحيح setrlimit_closest_all(ثابت بنية rlimit * ثابت *rlim, صحيح *which_failed);
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret);
-int rlimit_parse(int resource, const char *val, struct rlimit *ret);
+صحيح rlimit_parse_one(صحيح resource, ثابت حرف *val, rlim_t *ret);
+صحيح rlimit_parse(صحيح resource, ثابت حرف *val, بنية rlimit *ret);
 
-int rlimit_format(const struct rlimit *rl, char **ret);
+صحيح rlimit_format(ثابت بنية rlimit *rl, حرف **ret);
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]);
-void rlimit_free_all(struct rlimit **rl);
+صحيح rlimit_copy_all(بنية rlimit* نشانہ[ساكن _RLIMIT_MAX], بنية rlimit* ثابت سروت[ساكن _RLIMIT_MAX]);
+فراغ rlimit_free_all(بنية rlimit **rl);
 
-#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+#تعریف_کرو RLIMIT_MAKE_CONST(lim) ((بنية rlimit) { lim, lim })
 
-int rlimit_nofile_bump(int limit);
-int rlimit_nofile_safe(void);
+صحيح rlimit_nofile_bump(صحيح limit);
+صحيح rlimit_nofile_محفوظ(فراغ);
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret);
+صحيح pid_getrlimit(pid_t pid, صحيح resource, بنية rlimit *ret);

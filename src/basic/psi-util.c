@@ -1,107 +1,107 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <threads.h>
+#ضمن <stdio.h>
+#ضمن <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "psi-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
+#ضمن "alloc-util.h"
+#ضمن "errno-util.h"
+#ضمن "extract-word.h"
+#ضمن "fd-util.h"
+#ضمن "fileio.h"
+#ضمن "parse-util.h"
+#ضمن "psi-util.h"
+#ضمن "string-table.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        unsigned field_filled = 0;
+صحيح read_resource_pressure(ثابت حرف *رستہ, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ حرف *سطر = عدم;
+        _cleanup_fclose_ FILE *f = عدم;
+        بنانشانی میدان_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        ثابت حرف *cline;
+        حرف *لفظ;
+        صحيح r;
 
-        assert(path);
-        assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
-        assert(ret);
+        أكد(رستہ);
+        أكد(وچ_سیٹ(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_بھریا));
+        أكد(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        ثابت حرف *t = ASSERT_PTR(pressure_type_منزل_string(type));
 
-        r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        r = fopen_unlocked(رستہ, "re", &f);
+        إذا (r < 0)
+                أرجع r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        لكل (;;) {
+                _cleanup_free_ حرف *l = عدم;
+                حرف *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_سطر(f, LONG_سطر_MAX, &l);
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0)
+                        اكسر;
 
-                w = first_word(l, t);
-                if (w) {
-                        line = TAKE_PTR(l);
+                w = پہلا_لفظ(l, t);
+                إذا (w) {
+                        سطر = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        اكسر;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        إذا (!سطر)
+                أرجع -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        طالما ((r = کڈھو_پہلا_لفظ(&cline, &لفظ, عدم, 0)) > 0) {
+                _cleanup_free_ حرف *w = لفظ;
+                ثابت حرف *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                إذا ((v = startswith(w, "avg10="))) {
+                        إذا (میدان_filled & (1U << 0))
+                                أرجع -EINVAL;
 
-                        field_filled |= 1U << 0;
-                        r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                        میدان_filled |= 1U << 0;
+                        r = parse_loadavg_fixed_نقطہ(v, &rp.avg10);
+                } وإلا إذا ((v = startswith(w, "avg60="))) {
+                        إذا (میدان_filled & (1U << 1))
+                                أرجع -EINVAL;
 
-                        field_filled |= 1U << 1;
-                        r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                        میدان_filled |= 1U << 1;
+                        r = parse_loadavg_fixed_نقطہ(v, &rp.avg60);
+                } وإلا إذا ((v = startswith(w, "avg300="))) {
+                        إذا (میدان_filled & (1U << 2))
+                                أرجع -EINVAL;
 
-                        field_filled |= 1U << 2;
-                        r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                        میدان_filled |= 1U << 2;
+                        r = parse_loadavg_fixed_نقطہ(v, &rp.avg300);
+                } وإلا إذا ((v = startswith(w, "total="))) {
+                        إذا (میدان_filled & (1U << 3))
+                                أرجع -EINVAL;
 
-                        field_filled |= 1U << 3;
-                        r = safe_atou64(v, &rp.total);
-                } else
-                        continue;
+                        میدان_filled |= 1U << 3;
+                        r = محفوظ_atou64(v, &rp.کل);
+                } وإلا
+                        استمر;
 
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        إذا (میدان_filled != 15U)
+                أرجع -EINVAL;
 
         *ret = rp;
-        return 0;
+        أرجع 0;
 }
 
-const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = {
+ثابت PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_حافظہ] = {
                 .name      = "memory",
                 .env_watch = "MEMORY_PRESSURE_WATCH",
                 .env_write = "MEMORY_PRESSURE_WRITE",
@@ -118,38 +118,38 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = "memory",
+ساكن ثابت حرف* ثابت pressure_resource_جدول[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_حافظہ] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
+DEFINE_STRING_جدول_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+ساكن ثابت حرف* ثابت pressure_type_جدول[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
-        [PRESSURE_TYPE_FULL] = "full",
+        [PRESSURE_TYPE_بھریا] = "full",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
+DEFINE_STRING_جدول_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+صحيح is_pressure_supported(فراغ) {
+        ساكن thread_local صحيح cached = -1;
+        صحيح r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        إذا (cached >= 0)
+                أرجع cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
-                r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                r = read_virtual_file(p, 0, عدم, عدم);
+                إذا (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        أرجع (cached = false);
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        return (cached = true);
+        أرجع (cached = true);
 }

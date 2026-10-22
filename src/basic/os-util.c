@@ -1,249 +1,249 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ضمن <stdlib.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "chase.h"
-#include "dirent-util.h"
-#include "env-file.h"
-#include "errno-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "glyph-util.h"
-#include "log.h"
-#include "os-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "utf8.h"
-#include "xattr-util.h"
+#ضمن "alloc-util.h"
+#ضمن "ansi-color.h"
+#ضمن "chase.h"
+#ضمن "dirent-util.h"
+#ضمن "env-file.h"
+#ضمن "errno-util.h"
+#ضمن "escape.h"
+#ضمن "fd-util.h"
+#ضمن "fs-util.h"
+#ضمن "glyph-util.h"
+#ضمن "log.h"
+#ضمن "os-util.h"
+#ضمن "path-util.h"
+#ضمن "stat-util.h"
+#ضمن "string-table.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "time-util.h"
+#ضمن "utf8.h"
+#ضمن "xattr-util.h"
 
-static const char* const image_class_table[_IMAGE_CLASS_MAX] = {
+ساكن ثابت حرف* ثابت image_class_جدول[_IMAGE_CLASS_MAX] = {
         [IMAGE_MACHINE]  = "machine",
         [IMAGE_PORTABLE] = "portable",
         [IMAGE_SYSEXT]   = "sysext",
         [IMAGE_CONFEXT]  = "confext",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(image_class, ImageClass);
+DEFINE_STRING_جدول_LOOKUP(image_class, ImageClass);
 
 /* Helper struct for naming simplicity and reusability */
-static const struct {
-        const char *release_file_directory;
-        const char *release_file_path_prefix;
+ساكن ثابت بنية {
+        ثابت حرف *release_file_directory;
+        ثابت حرف *release_file_رستہ_اگیتر;
 } image_class_release_info[_IMAGE_CLASS_MAX] = {
         [IMAGE_SYSEXT] = {
                 .release_file_directory = "/usr/lib/extension-release.d/",
-                .release_file_path_prefix = "/usr/lib/extension-release.d/extension-release.",
+                .release_file_رستہ_اگیتر = "/usr/lib/extension-release.d/extension-release.",
         },
         [IMAGE_CONFEXT] = {
                 .release_file_directory = "/etc/extension-release.d/",
-                .release_file_path_prefix = "/etc/extension-release.d/extension-release.",
+                .release_file_رستہ_اگیتر = "/etc/extension-release.d/extension-release.",
         }
 };
 
-bool image_name_is_valid(const char *s) {
-        if (!filename_is_valid(s))
-                return false;
+bool image_name_is_valid(ثابت حرف *s) {
+        إذا (!filename_is_valid(s))
+                أرجع false;
 
-        if (string_has_cc(s, NULL))
-                return false;
+        إذا (string_has_cc(s, عدم))
+                أرجع false;
 
-        if (!utf8_is_valid(s))
-                return false;
+        إذا (!utf8_is_valid(s))
+                أرجع false;
 
         /* Temporary files for atomically creating new files */
-        if (startswith(s, ".#"))
-                return false;
+        إذا (startswith(s, ".#"))
+                أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-int path_extract_image_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+صحيح رستہ_کڈھو_image_name(ثابت حرف *رستہ, حرف **ret) {
+        _cleanup_free_ حرف *fn = عدم;
+        صحيح r;
 
-        assert(path);
-        assert(ret);
+        أكد(رستہ);
+        أكد(ret);
 
         /* Extract last component from path, without any "/" suffixes. */
-        r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r != O_DIRECTORY) {
+        r = رستہ_کڈھو_filename(رستہ, &fn);
+        إذا (r < 0)
+                أرجع r;
+        إذا (r != O_DIRECTORY) {
                 /* Chop off any image suffixes we recognize (unless we already know this must refer to some dir) */
-                char *m = ENDSWITH_SET(fn, ".sysext.raw", ".confext.raw", ".raw");
-                if (m)
+                حرف *m = ENDSWITH_سیٹ(fn, ".sysext.raw", ".confext.raw", ".raw");
+                إذا (m)
                         *m = 0;
         }
 
         /* Truncate the version/counting suffixes */
         fn[strcspn(fn, "_+")] = 0;
 
-        if (!image_name_is_valid(fn))
-                return -EINVAL;
+        إذا (!image_name_is_valid(fn))
+                أرجع -EINVAL;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        أرجع 0;
 }
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check) {
-        int r;
+صحيح رستہ_is_extension_درخت(ImageClass image_class, ثابت حرف *رستہ, ثابت حرف *extension, bool relax_extension_release_check) {
+        صحيح r;
 
-        assert(path);
+        أكد(رستہ);
 
         /* Does the path exist at all? If not, generate an error immediately. This is useful so that a missing root dir
          * always results in -ENOENT, and we can properly distinguish the case where the whole root doesn't exist from
          * the case where just the os-release file is missing. */
-        r = access_nofollow(path, F_OK);
-        if (r < 0)
-                return r;
+        r = access_nofollow(رستہ, F_OK);
+        إذا (r < 0)
+                أرجع r;
 
         /* We use /usr/lib/extension-release.d/extension-release[.NAME] as flag for something being a system extension,
          * /etc/extension-release.d/extension-release[.NAME] as flag for something being a system configuration, and finally,
          * and {/etc|/usr/lib}/os-release as a flag for something being an OS (when not an extension). */
-        r = open_extension_release(path, image_class, extension, relax_extension_release_check, NULL, NULL);
-        if (r == -ENOENT) /* We got nothing */
-                return 0;
-        if (r < 0)
-                return r;
+        r = open_extension_release(رستہ, image_class, extension, relax_extension_release_check, عدم, عدم);
+        إذا (r == -ENOENT) /* We got nothing */
+                أرجع 0;
+        إذا (r < 0)
+                أرجع r;
 
-        return 1;
+        أرجع 1;
 }
 
-int fd_is_os_tree(int fd) {
-        int r;
+صحيح fd_is_os_درخت(صحيح fd) {
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = open_extension_release_at(
                         fd,
                         IMAGE_MACHINE,
-                        /* extension= */ NULL,
+                        /* extension= */ عدم,
                         /* relax_extension_release_check= */ false,
-                        /* ret_path= */ NULL,
-                        /* ret_fd= */ NULL);
-        if (r == -ENOENT)
-                return false;
-        if (r < 0)
-                return r;
+                        /* ret_path= */ عدم,
+                        /* ret_fd= */ عدم);
+        إذا (r == -ENOENT)
+                أرجع false;
+        إذا (r < 0)
+                أرجع r;
 
-        return true;
+        أرجع true;
 }
 
-static int extension_release_strict_xattr_value(int extension_release_fd, const char *extension_release_dir_path, const char *filename) {
-        int r;
+ساكن صحيح extension_release_strict_xattr_قدر(صحيح extension_release_fd, ثابت حرف *extension_release_dir_رستہ, ثابت حرف *filename) {
+        صحيح r;
 
-        assert(extension_release_fd >= 0);
-        assert(extension_release_dir_path);
-        assert(filename);
+        أكد(extension_release_fd >= 0);
+        أكد(extension_release_dir_رستہ);
+        أكد(filename);
 
         /* No xattr or cannot parse it? Then skip this. */
-        r = getxattr_at_bool(extension_release_fd, /* path= */ NULL, "user.extension-release.strict", /* at_flags= */ 0);
-        if (ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return log_debug_errno(r, "%s/%s does not have user.extension-release.strict xattr, ignoring.",
-                                       extension_release_dir_path, filename);
-        if (r < 0)
-                return log_debug_errno(r, "%s/%s: Failed to read 'user.extension-release.strict' extended attribute from file, ignoring: %m",
-                                       extension_release_dir_path, filename);
+        r = getxattr_at_bool(extension_release_fd, /* path= */ عدم, "user.extension-release.strict", /* at_flags= */ 0);
+        إذا (ERRNO_IS_NEG_XATTR_ABSENT(r))
+                أرجع log_debug_errno(r, "%s/%s does not have user.extension-release.strict xattr, ignoring.",
+                                       extension_release_dir_رستہ, filename);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "%s/%s: Failed to read 'user.extension-release.strict' extended attribute from file, ignoring: %m",
+                                       extension_release_dir_رستہ, filename);
 
         /* Explicitly set to request strict matching? Skip it. */
-        if (r > 0) {
+        إذا (r > 0) {
                 log_debug("%s/%s: 'user.extension-release.strict' attribute is true, ignoring file.",
-                          extension_release_dir_path, filename);
-                return true;
+                          extension_release_dir_رستہ, filename);
+                أرجع true;
         }
 
         log_debug("%s/%s: 'user.extension-release.strict' attribute is false%s",
-                  extension_release_dir_path, filename,
+                  extension_release_dir_رستہ, filename,
                   glyph(GLYPH_ELLIPSIS));
 
-        return false;
+        أرجع false;
 }
 
-int open_os_release_at(int rfd, char **ret_path, int *ret_fd) {
-        const char *e;
-        int r;
+صحيح open_os_release_at(صحيح rfd, حرف **ret_رستہ, صحيح *ret_fd) {
+        ثابت حرف *e;
+        صحيح r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        أكد(wildcard_fd_is_valid(rfd));
 
         e = secure_getenv("SYSTEMD_OS_RELEASE");
-        if (e)
-                return chaseat(rfd, rfd, e, /* flags= */ 0, ret_path, ret_fd);
+        إذا (e)
+                أرجع chaseat(rfd, rfd, e, /* flags= */ 0, ret_رستہ, ret_fd);
 
-        FOREACH_STRING(path, "/etc/os-release", "/usr/lib/os-release") {
-                r = chaseat(rfd, rfd, path, /* flags= */ 0, ret_path, ret_fd);
-                if (r != -ENOENT)
-                        return r;
+        FOREACH_STRING(رستہ, "/etc/os-release", "/usr/lib/os-release") {
+                r = chaseat(rfd, rfd, رستہ, /* flags= */ 0, ret_رستہ, ret_fd);
+                إذا (r != -ENOENT)
+                        أرجع r;
         }
 
-        return -ENOENT;
+        أرجع -ENOENT;
 }
 
-int open_os_release(const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int rfd = XAT_FDROOT, fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+صحيح open_os_release(ثابت حرف *جڑ, حرف **ret_رستہ, صحيح *ret_fd) {
+        _cleanup_close_ صحيح rfd = XAT_FDROOT, fd = -EBADF;
+        _cleanup_free_ حرف *p = عدم;
+        صحيح r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        إذا (!خالی_تھاواں_or_جڑ(جڑ)) {
+                rfd = open(جڑ, O_CLOEXEC | O_DIRECTORY | O_رستہ);
+                إذا (rfd < 0)
+                        أرجع -errno;
         }
 
-        r = open_os_release_at(rfd, ret_path ? &p : NULL, ret_fd ? &fd : NULL);
-        if (r < 0)
-                return r;
+        r = open_os_release_at(rfd, ret_رستہ ? &p : عدم, ret_fd ? &fd : عدم);
+        إذا (r < 0)
+                أرجع r;
 
-        if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
-                if (r < 0)
-                        return r;
+        إذا (ret_رستہ) {
+                r = chaseat_اگیتر_جڑ(p, جڑ, ret_رستہ);
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (ret_fd)
+        إذا (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        أرجع 0;
 }
 
-int open_extension_release_at(
-                int rfd,
+صحيح open_extension_release_at(
+                صحيح rfd,
                 ImageClass image_class,
-                const char *extension,
+                ثابت حرف *extension,
                 bool relax_extension_release_check,
-                char **ret_path,
-                int *ret_fd) {
+                حرف **ret_رستہ,
+                صحيح *ret_fd) {
 
-        _cleanup_free_ char *dir_path = NULL, *path_found = NULL;
-        _cleanup_close_ int fd_found = -EBADF;
-        _cleanup_closedir_ DIR *dir = NULL;
-        bool found = false;
-        const char *p;
-        int r;
+        _cleanup_free_ حرف *dir_رستہ = عدم, *رستہ_لبھیا = عدم;
+        _cleanup_close_ صحيح fd_لبھیا = -EBADF;
+        _cleanup_closedir_ DIR *dir = عدم;
+        bool لبھیا = false;
+        ثابت حرف *p;
+        صحيح r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(!extension || (image_class >= 0 && image_class < _IMAGE_CLASS_MAX));
+        أكد(wildcard_fd_is_valid(rfd));
+        أكد(!extension || (image_class >= 0 && image_class < _IMAGE_CLASS_MAX));
 
-        if (!extension)
-                return open_os_release_at(rfd, ret_path, ret_fd);
+        إذا (!extension)
+                أرجع open_os_release_at(rfd, ret_رستہ, ret_fd);
 
-        if (!IN_SET(image_class, IMAGE_SYSEXT, IMAGE_CONFEXT))
-                return -EINVAL;
+        إذا (!وچ_سیٹ(image_class, IMAGE_SYSEXT, IMAGE_CONFEXT))
+                أرجع -EINVAL;
 
-        if (!image_name_is_valid(extension))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The extension name %s is invalid.", extension);
+        إذا (!image_name_is_valid(extension))
+                أرجع log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The extension name %s is invalid.", extension);
 
-        p = strjoina(image_class_release_info[image_class].release_file_path_prefix, extension);
-        r = chaseat(rfd, rfd, p, /* flags= */ 0, ret_path, ret_fd);
-        log_full_errno_zerook(LOG_DEBUG, MIN(r, 0), "Checking for %s: %m", p);
-        if (r != -ENOENT)
-                return r;
+        p = strjoina(image_class_release_info[image_class].release_file_رستہ_اگیتر, extension);
+        r = chaseat(rfd, rfd, p, /* flags= */ 0, ret_رستہ, ret_fd);
+        log_بھریا_errno_zerook(LOG_DEBUG, MIN(r, 0), "Checking for %s: %m", p);
+        إذا (r != -ENOENT)
+                أرجع r;
 
         /* Cannot find the expected extension-release file? The image filename might have been mangled on
          * deployment, so fallback to checking for any file in the extension-release.d directory, and return
@@ -251,311 +251,311 @@ int open_extension_release_at(
          * xattr is checked to ensure the author of the image considers it OK if names do not match. */
 
         p = image_class_release_info[image_class].release_file_directory;
-        r = chase_and_opendirat(rfd, rfd, p, /* chase_flags= */ 0, &dir_path, &dir);
-        if (r < 0)
-                return log_debug_errno(r, "Cannot open %s, ignoring: %m", p);
+        r = chase_and_opendirat(rfd, rfd, p, /* chase_flags= */ 0, &dir_رستہ, &dir);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Cannot open %s, ignoring: %m", p);
 
-        FOREACH_DIRENT(de, dir, return -errno) {
-                _cleanup_close_ int fd = -EBADF;
-                const char *image_name;
+        FOREACH_DIRENT(de, dir, أرجع -errno) {
+                _cleanup_close_ صحيح fd = -EBADF;
+                ثابت حرف *image_name;
 
-                if (!IN_SET(de->d_type, DT_REG, DT_UNKNOWN))
-                        continue;
+                إذا (!وچ_سیٹ(de->d_type, DT_REG, DT_UNKNOWN))
+                        استمر;
 
                 image_name = startswith(de->d_name, "extension-release.");
-                if (!image_name)
-                        continue;
+                إذا (!image_name)
+                        استمر;
 
-                if (!image_name_is_valid(image_name)) {
-                        log_debug("%s/%s is not a valid release file name, ignoring.", dir_path, de->d_name);
-                        continue;
+                إذا (!image_name_is_valid(image_name)) {
+                        log_debug("%s/%s is not a valid release file name, ignoring.", dir_رستہ, de->d_name);
+                        استمر;
                 }
 
                 /* We already chased the directory, and checked that this is a real file, so we shouldn't
                  * fail to open it. */
-                fd = openat(dirfd(dir), de->d_name, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-                if (fd < 0)
-                        return log_debug_errno(errno, "Failed to open release file %s/%s: %m", dir_path, de->d_name);
+                fd = openat(dirfd(dir), de->d_name, O_رستہ|O_CLOEXEC|O_NOFOLLOW);
+                إذا (fd < 0)
+                        أرجع log_debug_errno(errno, "Failed to open release file %s/%s: %m", dir_رستہ, de->d_name);
 
                 /* Really ensure it is a regular file after we open it. */
                 r = fd_verify_regular(fd);
-                if (r < 0) {
-                        log_debug_errno(r, "%s/%s is not a regular file, ignoring: %m", dir_path, de->d_name);
-                        continue;
+                إذا (r < 0) {
+                        log_debug_errno(r, "%s/%s is not a regular file, ignoring: %m", dir_رستہ, de->d_name);
+                        استمر;
                 }
 
-                if (!relax_extension_release_check) {
-                        _cleanup_free_ char *base_extension = NULL;
+                إذا (!relax_extension_release_check) {
+                        _cleanup_free_ حرف *ادھار_extension = عدم;
 
-                        r = path_extract_image_name(extension, &base_extension);
-                        if (r < 0) {
+                        r = رستہ_کڈھو_image_name(extension, &ادھار_extension);
+                        إذا (r < 0) {
                                 log_debug_errno(r, "Failed to extract image name from %s, ignoring: %m", extension);
-                                continue;
+                                استمر;
                         }
 
-                        if (!streq(image_name, base_extension) &&
-                            extension_release_strict_xattr_value(fd, dir_path, image_name) != 0)
-                                continue;
+                        إذا (!streq(image_name, ادھار_extension) &&
+                            extension_release_strict_xattr_قدر(fd, dir_رستہ, image_name) != 0)
+                                استمر;
                 }
 
                 /* We already found what we were looking for, but there's another candidate? We treat this as
                  * an error, as we want to enforce that there are no ambiguities in case we are in the
                  * fallback path. */
-                if (found)
-                        return -ENOTUNIQ;
+                إذا (لبھیا)
+                        أرجع -ENOTUNIQ;
 
-                found = true;
+                لبھیا = true;
 
-                if (ret_fd)
-                        fd_found = TAKE_FD(fd);
+                إذا (ret_fd)
+                        fd_لبھیا = TAKE_FD(fd);
 
-                if (ret_path) {
-                        path_found = path_join(dir_path, de->d_name);
-                        if (!path_found)
-                                return -ENOMEM;
+                إذا (ret_رستہ) {
+                        رستہ_لبھیا = رستہ_join(dir_رستہ, de->d_name);
+                        إذا (!رستہ_لبھیا)
+                                أرجع -ENOMEM;
                 }
         }
-        if (!found)
-                return -ENOENT;
+        إذا (!لبھیا)
+                أرجع -ENOENT;
 
-        if (ret_fd)
-                *ret_fd = TAKE_FD(fd_found);
-        if (ret_path)
-                *ret_path = TAKE_PTR(path_found);
+        إذا (ret_fd)
+                *ret_fd = TAKE_FD(fd_لبھیا);
+        إذا (ret_رستہ)
+                *ret_رستہ = TAKE_PTR(رستہ_لبھیا);
 
-        return 0;
+        أرجع 0;
 }
 
-int open_extension_release(
-                const char *root,
+صحيح open_extension_release(
+                ثابت حرف *جڑ,
                 ImageClass image_class,
-                const char *extension,
+                ثابت حرف *extension,
                 bool relax_extension_release_check,
-                char **ret_path,
-                int *ret_fd) {
+                حرف **ret_رستہ,
+                صحيح *ret_fd) {
 
-        _cleanup_close_ int rfd = XAT_FDROOT, fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_close_ صحيح rfd = XAT_FDROOT, fd = -EBADF;
+        _cleanup_free_ حرف *p = عدم;
+        صحيح r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        إذا (!خالی_تھاواں_or_جڑ(جڑ)) {
+                rfd = open(جڑ, O_CLOEXEC | O_DIRECTORY | O_رستہ);
+                إذا (rfd < 0)
+                        أرجع -errno;
         }
 
         r = open_extension_release_at(rfd, image_class, extension, relax_extension_release_check,
-                                      ret_path ? &p : NULL, ret_fd ? &fd : NULL);
-        if (r < 0)
-                return r;
+                                      ret_رستہ ? &p : عدم, ret_fd ? &fd : عدم);
+        إذا (r < 0)
+                أرجع r;
 
-        if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
-                if (r < 0)
-                        return r;
+        إذا (ret_رستہ) {
+                r = chaseat_اگیتر_جڑ(p, جڑ, ret_رستہ);
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (ret_fd)
+        إذا (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        أرجع 0;
 }
 
-static int parse_extension_release_atv(
-                int rfd,
+ساكن صحيح parse_extension_release_atv(
+                صحيح rfd,
                 ImageClass image_class,
-                const char *extension,
+                ثابت حرف *extension,
                 bool relax_extension_release_check,
                 va_list ap) {
 
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_close_ صحيح fd = -EBADF;
+        _cleanup_free_ حرف *p = عدم;
+        صحيح r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        أكد(wildcard_fd_is_valid(rfd));
 
         r = open_extension_release_at(rfd, image_class, extension, relax_extension_release_check, &p, &fd);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return parse_env_file_fdv(fd, p, ap);
+        أرجع parse_env_file_fdv(fd, p, ap);
 }
 
-int parse_extension_release_at_sentinel(
-                int rfd,
+صحيح parse_extension_release_at_sentinel(
+                صحيح rfd,
                 ImageClass image_class,
                 bool relax_extension_release_check,
-                const char *extension,
+                ثابت حرف *extension,
                 ...) {
 
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        أكد(wildcard_fd_is_valid(rfd));
 
         va_start(ap, extension);
         r = parse_extension_release_atv(rfd, image_class, extension, relax_extension_release_check, ap);
         va_end(ap);
-        return r;
+        أرجع r;
 }
 
-int parse_extension_release_sentinel(
-                const char *root,
+صحيح parse_extension_release_sentinel(
+                ثابت حرف *جڑ,
                 ImageClass image_class,
                 bool relax_extension_release_check,
-                const char *extension,
+                ثابت حرف *extension,
                 ...) {
 
-        _cleanup_close_ int rfd = XAT_FDROOT;
+        _cleanup_close_ صحيح rfd = XAT_FDROOT;
         va_list ap;
-        int r;
+        صحيح r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        إذا (!خالی_تھاواں_or_جڑ(جڑ)) {
+                rfd = open(جڑ, O_CLOEXEC | O_DIRECTORY | O_رستہ);
+                إذا (rfd < 0)
+                        أرجع -errno;
         }
 
         va_start(ap, extension);
         r = parse_extension_release_atv(rfd, image_class, extension, relax_extension_release_check, ap);
         va_end(ap);
 
-        return r;
+        أرجع r;
 }
 
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret) {
-        _cleanup_strv_free_ char **os_release_pairs = NULL, **os_release_pairs_prefixed = NULL;
-        int r;
+صحيح لدو_os_release_جوڑے_with_اگیتر(ثابت حرف *جڑ, ثابت حرف *اگیتر, حرف ***ret) {
+        _cleanup_strv_free_ حرف **os_release_جوڑے = عدم, **os_release_جوڑے_prefixed = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = load_os_release_pairs(root, &os_release_pairs);
-        if (r < 0)
-                return r;
+        r = لدو_os_release_جوڑے(جڑ, &os_release_جوڑے);
+        إذا (r < 0)
+                أرجع r;
 
-        STRV_FOREACH_PAIR(p, q, os_release_pairs) {
-                char *line;
+        STRV_FOREACH_PAIR(p, q, os_release_جوڑے) {
+                حرف *سطر;
 
                 /* We strictly return only the four main ID fields and ignore the rest */
-                if (!STR_IN_SET(*p, "ID", "VERSION_ID", "BUILD_ID", "VARIANT_ID"))
-                        continue;
+                إذا (!STR_وچ_سیٹ(*p, "ID", "VERSION_ID", "BUILD_ID", "VARIANT_ID"))
+                        استمر;
 
                 ascii_strlower(*p);
-                line = strjoin(prefix, *p, "=", *q);
-                if (!line)
-                        return -ENOMEM;
-                r = strv_consume(&os_release_pairs_prefixed, line);
-                if (r < 0)
-                        return r;
+                سطر = strjoin(اگیتر, *p, "=", *q);
+                إذا (!سطر)
+                        أرجع -ENOMEM;
+                r = strv_consume(&os_release_جوڑے_prefixed, سطر);
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        *ret = TAKE_PTR(os_release_pairs_prefixed);
+        *ret = TAKE_PTR(os_release_جوڑے_prefixed);
 
-        return 0;
+        أرجع 0;
 }
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+صحيح لدو_extension_release_جوڑے(ثابت حرف *جڑ, ImageClass image_class, ثابت حرف *extension, bool relax_extension_release_check, حرف ***ret) {
+        _cleanup_close_ صحيح fd = -EBADF;
+        _cleanup_free_ حرف *p = عدم;
+        صحيح r;
 
-        r = open_extension_release(root, image_class, extension, relax_extension_release_check, &p, &fd);
-        if (r < 0)
-                return r;
+        r = open_extension_release(جڑ, image_class, extension, relax_extension_release_check, &p, &fd);
+        إذا (r < 0)
+                أرجع r;
 
-        return load_env_file_pairs_fd(fd, p, ret);
+        أرجع لدو_env_file_جوڑے_fd(fd, p, ret);
 }
 
-int os_release_support_ended(const char *support_end, bool quiet, usec_t *ret_eol) {
-        _cleanup_free_ char *_support_end_alloc = NULL;
-        int r;
+صحيح os_release_support_ended(ثابت حرف *support_سرا, bool quiet, usec_t *ret_eol) {
+        _cleanup_free_ حرف *support_سرا_alloc = عدم;
+        صحيح r;
 
-        if (!support_end) {
+        إذا (!support_سرا) {
                 /* If the caller has the variably handy, they can pass it in. If not, we'll read it
                  * ourselves. */
 
-                r = parse_os_release(NULL,
-                                     "SUPPORT_END", &_support_end_alloc);
-                if (r < 0 && r != -ENOENT)
-                        return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
+                r = parse_os_release(عدم,
+                                     "SUPPORT_END", &support_سرا_alloc);
+                إذا (r < 0 && r != -ENOENT)
+                        أرجع log_بھریا_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
                                               "Failed to read os-release file, ignoring: %m");
 
-                support_end = _support_end_alloc;
+                support_سرا = support_سرا_alloc;
         }
 
-        if (isempty(support_end)) { /* An empty string is a explicit way to say "no EOL exists" */
-                if (ret_eol)
+        إذا (isempty(support_سرا)) { /* An empty string is a explicit way to say "no EOL exists" */
+                إذا (ret_eol)
                         *ret_eol = USEC_INFINITY;
 
-                return false;  /* no end date defined */
+                أرجع false;  /* no end date defined */
         }
 
-        struct tm tm = {};
-        const char *k = strptime(support_end, "%Y-%m-%d", &tm);
-        if (!k || *k)
-                return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, SYNTHETIC_ERRNO(EINVAL),
-                                      "Failed to parse SUPPORT_END= from os-release file, ignoring: %s", support_end);
+        بنية tm tm = {};
+        ثابت حرف *k = strptime(support_سرا, "%Y-%m-%d", &tm);
+        إذا (!k || *k)
+                أرجع log_بھریا_errno(quiet ? LOG_DEBUG : LOG_WARNING, SYNTHETIC_ERRNO(EINVAL),
+                                      "Failed to parse SUPPORT_END= from os-release file, ignoring: %s", support_سرا);
 
         usec_t eol;
         r = mktime_or_timegm_usec(&tm, /* utc= */ true, &eol);
-        if (r < 0)
-                return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
+        إذا (r < 0)
+                أرجع log_بھریا_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
                                       "Failed to convert SUPPORT_END= time from os-release file, ignoring: %m");
 
-        if (ret_eol)
+        إذا (ret_eol)
                 *ret_eol = eol;
 
-        return now(CLOCK_REALTIME) > eol;
+        أرجع now(CLOCK_REALTIME) > eol;
 }
 
-const char* os_release_pretty_name(const char *pretty_name, const char *name) {
+ثابت حرف* os_release_pretty_name(ثابت حرف *pretty_name, ثابت حرف *name) {
         /* Distills a "pretty" name to show from os-release data. First argument is supposed to be the
          * PRETTY_NAME= field, the second one the NAME= field. This function is trivial, of course, and
          * exists mostly to ensure we use the same logic wherever possible. */
 
-        return empty_to_null(pretty_name) ?:
-                empty_to_null(name) ?: "Linux";
+        أرجع خالی_تھاواں_منزل_null(pretty_name) ?:
+                خالی_تھاواں_منزل_null(name) ?: "Linux";
 }
 
-char *unescape_fancy_name(char **fancy_name) {
-        assert(fancy_name);
+حرف *unescape_fancy_name(حرف **fancy_name) {
+        أكد(fancy_name);
 
         /* Checks if the fancy name is valid, unescapes if it is, nullifies it if not */
 
-        _cleanup_free_ char *unescaped_fancy_name = NULL;
+        _cleanup_free_ حرف *unescaped_fancy_name = عدم;
 
-        if (isempty(*fancy_name))
-                goto clear;
+        إذا (isempty(*fancy_name))
+                اذهب clear;
 
         /* We undo one level of C escapes on this */
         ssize_t n = cunescape(*fancy_name, /* flags= */ 0, &unescaped_fancy_name);
-        if (n < 0) {
-                log_debug_errno((int) n, "Failed to unescape FANCY_NAME= string, suppressing: %m");
-                goto clear;
+        إذا (n < 0) {
+                log_debug_errno((صحيح) n, "Failed to unescape FANCY_NAME= string, suppressing: %m");
+                اذهب clear;
         }
 
-        if (!utf8_is_valid(unescaped_fancy_name)) {
+        إذا (!utf8_is_valid(unescaped_fancy_name)) {
                 log_debug("Unescaped FANCY_NAME= string is not valid UTF-8, suppressing.");
-                goto clear;
+                اذهب clear;
         }
 
         free_and_replace(*fancy_name, unescaped_fancy_name);
-        return *fancy_name;
+        أرجع *fancy_name;
 
 clear:
         *fancy_name = mfree(*fancy_name);
-        return NULL;
+        أرجع عدم;
 }
 
-bool use_fancy_name(const char *fancy_name) {
+bool use_fancy_name(ثابت حرف *fancy_name) {
 
         /* Decides whether to show the specified fancy name */
 
-        if (isempty(fancy_name))
-                return false;
+        إذا (isempty(fancy_name))
+                أرجع false;
 
-        if (!colors_enabled())
-                return false;
+        إذا (!colors_enabled())
+                أرجع false;
 
-        return emoji_enabled() || ascii_is_valid(fancy_name);
+        أرجع emoji_enabled() || ascii_is_valid(fancy_name);
 }

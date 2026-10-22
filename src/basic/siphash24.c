@@ -19,52 +19,52 @@
     coding style)
 */
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "iovec-util.h"
-#include "siphash24.h"
-#include "string-util.h"
-#include "unaligned.h"
+#ضمن "iovec-util.h"
+#ضمن "siphash24.h"
+#ضمن "string-util.h"
+#ضمن "unaligned.h"
 
 /* The round is small enough that it is worth inlining at every call site, but large enough that gcc's
  * -O2 inlining budget declines to do so on its own, leaving a call/ret and a reload of the state around
  * six rounds of ~14 ALU ops. clang inlines it either way, and the SipHash reference implementation this
  * file is derived from inlines the round manually, by writing it as a macro. */
-static inline _always_inline_ uint64_t rotate_left(uint64_t x, uint8_t b) {
-        assert(b < 64);
+ساكن مضمن _always_inline_ uint64_t rotate_بایاں(uint64_t x, uint8_t b) {
+        أكد(b < 64);
 
-        return (x << b) | (x >> (64 - b));
+        أرجع (x << b) | (x >> (64 - b));
 }
 
-static inline _always_inline_ void sipround(struct siphash *state) {
-        assert(state);
+ساكن مضمن _always_inline_ فراغ sipround(بنية siphash *state) {
+        أكد(state);
 
         state->v0 += state->v1;
-        state->v1 = rotate_left(state->v1, 13);
+        state->v1 = rotate_بایاں(state->v1, 13);
         state->v1 ^= state->v0;
-        state->v0 = rotate_left(state->v0, 32);
+        state->v0 = rotate_بایاں(state->v0, 32);
         state->v2 += state->v3;
-        state->v3 = rotate_left(state->v3, 16);
+        state->v3 = rotate_بایاں(state->v3, 16);
         state->v3 ^= state->v2;
         state->v0 += state->v3;
-        state->v3 = rotate_left(state->v3, 21);
+        state->v3 = rotate_بایاں(state->v3, 21);
         state->v3 ^= state->v0;
         state->v2 += state->v1;
-        state->v1 = rotate_left(state->v1, 17);
+        state->v1 = rotate_بایاں(state->v1, 17);
         state->v1 ^= state->v2;
-        state->v2 = rotate_left(state->v2, 32);
+        state->v2 = rotate_بایاں(state->v2, 32);
 }
 
-static inline _always_inline_ void siphash24_init_inline(struct siphash *state, const uint8_t k[static 16]) {
+ساكن مضمن _always_inline_ فراغ siphash24_init_inline(بنية siphash *state, ثابت uint8_t k[ساكن 16]) {
         uint64_t k0, k1;
 
-        assert(state);
-        assert(k);
+        أكد(state);
+        أكد(k);
 
         k0 = unaligned_read_le64(k);
         k1 = unaligned_read_le64(k + 8);
 
-        *state = (struct siphash) {
+        *state = (بنية siphash) {
                 /* "somepseudorandomlygeneratedbytes" */
                 .v0 = 0x736f6d6570736575ULL ^ k0,
                 .v1 = 0x646f72616e646f6dULL ^ k1,
@@ -75,43 +75,43 @@ static inline _always_inline_ void siphash24_init_inline(struct siphash *state, 
         };
 }
 
-void siphash24_init(struct siphash *state, const uint8_t k[static 16]) {
+فراغ siphash24_init(بنية siphash *state, ثابت uint8_t k[ساكن 16]) {
         siphash24_init_inline(state, k);
 }
 
 /* The input is read through a byte pointer, which may alias *state. Without restrict, gcc stores the
  * state back to memory after every block. */
-static inline _always_inline_ void siphash24_compress_inline(
-                const void *restrict _in,
+ساكن مضمن _always_inline_ فراغ siphash24_compress_inline(
+                ثابت فراغ *محدود وچ_2,
                 size_t inlen,
-                struct siphash *restrict state) {
+                بنية siphash *محدود state) {
 
-        const uint8_t *in = ASSERT_PTR(_in);
-        const uint8_t *end = in + inlen;
-        size_t left = state->inlen & 7;
+        ثابت uint8_t *وچ = ASSERT_PTR(وچ_2);
+        ثابت uint8_t *سرا = وچ + inlen;
+        size_t بایاں = state->inlen & 7;
         uint64_t m;
 
-        assert(state);
+        أكد(state);
 
         /* Update total length */
         state->inlen += inlen;
 
         /* If padding exists, fill it out */
-        if (left > 0) {
-                for ( ; in < end && left < 8; in ++, left ++)
-                        state->padding |= ((uint64_t) *in) << (left * 8);
+        إذا (بایاں > 0) {
+                لكل ( ; وچ < سرا && بایاں < 8; وچ ++, بایاں ++)
+                        state->padding |= ((uint64_t) *وچ) << (بایاں * 8);
 
-                if (in == end && left < 8)
+                إذا (وچ == سرا && بایاں < 8)
                         /* We did not have enough input to fill out the padding completely */
-                        return;
+                        أرجع;
 
-#if ENABLE_DEBUG_SIPHASH
-                printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
-                printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
-                printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
-                printf("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
-                printf("(%3zu) compress padding %08x %08x\n", state->inlen, (uint32_t) (state->padding >> 32), (uint32_t)state->padding);
-#endif
+#إذا ENABLE_DEBUG_SIPHASH
+                لکھو("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
+                لکھو("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
+                لکھو("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
+                لکھو("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
+                لکھو("(%3zu) compress padding %08x %08x\n", state->inlen, (uint32_t) (state->padding >> 32), (uint32_t)state->padding);
+#جے_انت
 
                 state->v3 ^= state->padding;
                 sipround(state);
@@ -121,95 +121,95 @@ static inline _always_inline_ void siphash24_compress_inline(
                 state->padding = 0;
         }
 
-        end -= (state->inlen % sizeof(uint64_t));
+        سرا -= (state->inlen % حجم(uint64_t));
 
-        for ( ; in < end; in += 8) {
-                m = unaligned_read_le64(in);
-#if ENABLE_DEBUG_SIPHASH
-                printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
-                printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
-                printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
-                printf("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
-                printf("(%3zu) compress %08x %08x\n", state->inlen, (uint32_t) (m >> 32), (uint32_t) m);
-#endif
+        لكل ( ; وچ < سرا; وچ += 8) {
+                m = unaligned_read_le64(وچ);
+#إذا ENABLE_DEBUG_SIPHASH
+                لکھو("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
+                لکھو("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
+                لکھو("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
+                لکھو("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
+                لکھو("(%3zu) compress %08x %08x\n", state->inlen, (uint32_t) (m >> 32), (uint32_t) m);
+#جے_انت
                 state->v3 ^= m;
                 sipround(state);
                 sipround(state);
                 state->v0 ^= m;
         }
 
-        left = state->inlen & 7;
-        switch (left) {
-                case 7:
-                        state->padding |= ((uint64_t) in[6]) << 48;
+        بایاں = state->inlen & 7;
+        بدل (بایاں) {
+                حالة 7:
+                        state->padding |= ((uint64_t) وچ[6]) << 48;
                         _fallthrough_;
-                case 6:
-                        state->padding |= ((uint64_t) in[5]) << 40;
+                حالة 6:
+                        state->padding |= ((uint64_t) وچ[5]) << 40;
                         _fallthrough_;
-                case 5:
-                        state->padding |= ((uint64_t) in[4]) << 32;
+                حالة 5:
+                        state->padding |= ((uint64_t) وچ[4]) << 32;
                         _fallthrough_;
-                case 4:
-                        state->padding |= ((uint64_t) in[3]) << 24;
+                حالة 4:
+                        state->padding |= ((uint64_t) وچ[3]) << 24;
                         _fallthrough_;
-                case 3:
-                        state->padding |= ((uint64_t) in[2]) << 16;
+                حالة 3:
+                        state->padding |= ((uint64_t) وچ[2]) << 16;
                         _fallthrough_;
-                case 2:
-                        state->padding |= ((uint64_t) in[1]) <<  8;
+                حالة 2:
+                        state->padding |= ((uint64_t) وچ[1]) <<  8;
                         _fallthrough_;
-                case 1:
-                        state->padding |= ((uint64_t) in[0]);
+                حالة 1:
+                        state->padding |= ((uint64_t) وچ[0]);
                         _fallthrough_;
-                case 0:
-                        break;
+                حالة 0:
+                        اكسر;
         }
 }
 
-void siphash24_compress(const void *in, size_t inlen, struct siphash *state) {
-        siphash24_compress_inline(in, inlen, state);
+فراغ siphash24_compress(ثابت فراغ *وچ, size_t inlen, بنية siphash *state) {
+        siphash24_compress_inline(وچ, inlen, state);
 }
 
-void siphash24_compress_string(const char *in, struct siphash *state) {
-        siphash24_compress_safe(in, strlen_ptr(in), state);
+فراغ siphash24_compress_string(ثابت حرف *وچ, بنية siphash *state) {
+        siphash24_compress_محفوظ(وچ, strlen_ptr(وچ), state);
 }
 
-void siphash24_compress_iovec(const struct iovec *iov, struct siphash *state) {
-        assert(iovec_is_valid(iov));
-        assert(state);
+فراغ siphash24_compress_iovec(ثابت بنية iovec *iov, بنية siphash *state) {
+        أكد(iovec_is_valid(iov));
+        أكد(state);
 
-        if (!iovec_is_set(iov))
-                return;
+        إذا (!iovec_is_سیٹ(iov))
+                أرجع;
 
         siphash24_compress(iov->iov_base, iov->iov_len, state);
 }
 
-static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash *state) {
+ساكن مضمن _always_inline_ uint64_t siphash24_finalize_inline(بنية siphash *state) {
         uint64_t b;
 
-        assert(state);
+        أكد(state);
 
         b = state->padding | (((uint64_t) state->inlen) << 56);
 
-#if ENABLE_DEBUG_SIPHASH
-        printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
-        printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
-        printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
-        printf("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
-        printf("(%3zu) padding   %08x %08x\n", state->inlen, (uint32_t) (state->padding >> 32), (uint32_t) state->padding);
-#endif
+#إذا ENABLE_DEBUG_SIPHASH
+        لکھو("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
+        لکھو("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
+        لکھو("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
+        لکھو("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
+        لکھو("(%3zu) padding   %08x %08x\n", state->inlen, (uint32_t) (state->padding >> 32), (uint32_t) state->padding);
+#جے_انت
 
         state->v3 ^= b;
         sipround(state);
         sipround(state);
         state->v0 ^= b;
 
-#if ENABLE_DEBUG_SIPHASH
-        printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
-        printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
-        printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
-        printf("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
-#endif
+#إذا ENABLE_DEBUG_SIPHASH
+        لکھو("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
+        لکھو("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
+        لکھو("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
+        لکھو("(%3zu) v3 %08x %08x\n", state->inlen, (uint32_t) (state->v3 >> 32), (uint32_t) state->v3);
+#جے_انت
         state->v2 ^= 0xff;
 
         sipround(state);
@@ -217,41 +217,41 @@ static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash 
         sipround(state);
         sipround(state);
 
-        return state->v0 ^ state->v1 ^ state->v2  ^ state->v3;
+        أرجع state->v0 ^ state->v1 ^ state->v2  ^ state->v3;
 }
 
-uint64_t siphash24_finalize(struct siphash *state) {
-        return siphash24_finalize_inline(state);
+uint64_t siphash24_finalize(بنية siphash *state) {
+        أرجع siphash24_finalize_inline(state);
 }
 
-uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]) {
-        struct siphash state;
+uint64_t siphash24(ثابت فراغ *وچ, size_t inlen, ثابت uint8_t k[ساكن 16]) {
+        بنية siphash state;
 
-        assert(in);
-        assert(k);
+        أكد(وچ);
+        أكد(k);
 
         /* Calls to the exported functions go through the PLT and keep the state in memory. */
         siphash24_init_inline(&state, k);
-        siphash24_compress_inline(in, inlen, &state);
+        siphash24_compress_inline(وچ, inlen, &state);
 
-        return siphash24_finalize_inline(&state);
+        أرجع siphash24_finalize_inline(&state);
 }
 
-uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]) {
+uint64_t siphash24_uint64(uint64_t وچ, ثابت uint8_t k[ساكن 16]) {
         uint64_t b = UINT64_C(8) << 56;
-        struct siphash state;
+        بنية siphash state;
 
-        assert(k);
+        أكد(k);
 
         /* This returns the same value as siphash24() over the 8 byte little-endian encoding of in. It
          * does not buffer partial input like siphash24_compress(), so gcc keeps the state in registers. */
 
         siphash24_init_inline(&state, k);
 
-        state.v3 ^= in;
+        state.v3 ^= وچ;
         sipround(&state);
         sipround(&state);
-        state.v0 ^= in;
+        state.v0 ^= وچ;
 
         state.v3 ^= b;
         sipround(&state);
@@ -264,9 +264,9 @@ uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]) {
         sipround(&state);
         sipround(&state);
 
-        return state.v0 ^ state.v1 ^ state.v2 ^ state.v3;
+        أرجع state.v0 ^ state.v1 ^ state.v2 ^ state.v3;
 }
 
-uint64_t siphash24_string(const char *s, const uint8_t k[static 16]) {
-        return siphash24(s, strlen(s) + 1, k);
+uint64_t siphash24_string(ثابت حرف *s, ثابت uint8_t k[ساكن 16]) {
+        أرجع siphash24(s, لڑی_لمبائی(s) + 1, k);
 }

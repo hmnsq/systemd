@@ -1,69 +1,69 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#ضمن <stdlib.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "syslog-util.h"
-#include "utf8.h"
+#ضمن "alloc-util.h"
+#ضمن "env-util.h"
+#ضمن "errno-util.h"
+#ضمن "extract-word.h"
+#ضمن "format-util.h"
+#ضمن "log.h"
+#ضمن "parse-util.h"
+#ضمن "path-util.h"
+#ضمن "process-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "syslog-util.h"
+#ضمن "utf8.h"
 
 /* We follow bash for the character set. Different shells have different rules. */
-#define VALID_BASH_ENV_NAME_CHARS               \
+#تعریف_کرو VALID_BASH_ENV_NAME_CHARS               \
         ALPHANUMERICAL                          \
         "_"
 
-size_t sc_arg_max(void) {
-        long l = sysconf(_SC_ARG_MAX);
-        assert(l > 0);
-        return (size_t) l;
+size_t sc_arg_max(فراغ) {
+        لما l = sysconf(_SC_ARG_MAX);
+        أكد(l > 0);
+        أرجع (size_t) l;
 }
 
-static bool env_name_is_valid_n(const char *e, size_t n) {
+ساكن bool env_name_is_valid_n(ثابت حرف *e, size_t n) {
 
-        if (n == SIZE_MAX)
+        إذا (n == SIZE_MAX)
                 n = strlen_ptr(e);
 
-        if (n == 0)
-                return false;
+        إذا (n == 0)
+                أرجع false;
 
-        assert(e);
+        أكد(e);
 
-        if (ascii_isdigit(e[0]))
-                return false;
+        إذا (ascii_isdigit(e[0]))
+                أرجع false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the equal sign and trailing NUL this hence leaves ARG_MAX-2 as
          * longest possible variable name. */
-        if (_unlikely_(n > sc_arg_max() - 2))
-                return false;
+        إذا (_unlikely_(n > sc_arg_max() - 2))
+                أرجع false;
 
-        for (const char *p = e; p < e + n; p++)
-                if (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
-                        return false;
+        لكل (ثابت حرف *p = e; p < e + n; p++)
+                إذا (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
+                        أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-bool env_name_is_valid(const char *e) {
-        return env_name_is_valid_n(e, SIZE_MAX);
+bool env_name_is_valid(ثابت حرف *e) {
+        أرجع env_name_is_valid_n(e, SIZE_MAX);
 }
 
-bool env_value_is_valid(const char *e) {
-        if (!e)
-                return false;
+bool env_قدر_is_valid(ثابت حرف *e) {
+        إذا (!e)
+                أرجع false;
 
-        if (!utf8_is_valid(e))
-                return false;
+        إذا (!utf8_is_valid(e))
+                أرجع false;
 
         /* Note that variable *values* may contain control characters, in particular NL, TAB, BS, DEL, ESC…
          * When printing those variables with show-environment, we'll escape them. Make sure to print
@@ -72,83 +72,83 @@ bool env_value_is_valid(const char *e) {
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the shortest possible variable name of length 1, the equal
          * sign and trailing NUL this hence leaves ARG_MAX-3 as longest possible variable value. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 3))
-                return false;
+        إذا (_unlikely_(لڑی_لمبائی(e) > sc_arg_max() - 3))
+                أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-bool env_assignment_is_valid(const char *e) {
-        const char *eq;
+bool env_assignment_is_valid(ثابت حرف *e) {
+        ثابت حرف *eq;
 
-        assert(e);
+        أكد(e);
 
         eq = strchr(e, '=');
-        if (!eq)
-                return false;
+        إذا (!eq)
+                أرجع false;
 
-        if (!env_name_is_valid_n(e, eq - e))
-                return false;
+        إذا (!env_name_is_valid_n(e, eq - e))
+                أرجع false;
 
-        if (!env_value_is_valid(eq + 1))
-                return false;
+        إذا (!env_قدر_is_valid(eq + 1))
+                أرجع false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
          * variable assignments cannot be either, but let's leave room for one trailing NUL byte. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 1))
-                return false;
+        إذا (_unlikely_(لڑی_لمبائی(e) > sc_arg_max() - 1))
+                أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-bool strv_env_is_valid(char * const *e) {
+bool strv_env_is_valid(حرف * ثابت *e) {
         STRV_FOREACH(p, e) {
                 size_t k;
 
-                if (!env_assignment_is_valid(*p))
-                        return false;
+                إذا (!env_assignment_is_valid(*p))
+                        أرجع false;
 
                 /* Check if there are duplicate assignments */
                 k = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, k) && (*q)[k] == '=')
-                                return false;
+                        إذا (strneq(*p, *q, k) && (*q)[k] == '=')
+                                أرجع false;
         }
 
-        return true;
+        أرجع true;
 }
 
-bool strv_env_name_is_valid(char * const *l) {
+bool strv_env_name_is_valid(حرف * ثابت *l) {
         STRV_FOREACH(p, l) {
-                if (!env_name_is_valid(*p))
-                        return false;
+                إذا (!env_name_is_valid(*p))
+                        أرجع false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                إذا (strv_شامل_اے(p + 1, *p))
+                        أرجع false;
         }
 
-        return true;
+        أرجع true;
 }
 
-bool strv_env_name_or_assignment_is_valid(char * const *l) {
+bool strv_env_name_or_assignment_is_valid(حرف * ثابت *l) {
         STRV_FOREACH(p, l) {
-                if (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
-                        return false;
+                إذا (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
+                        أرجع false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                إذا (strv_شامل_اے(p + 1, *p))
+                        أرجع false;
         }
 
-        return true;
+        أرجع true;
 }
 
-static int env_append(char **e, char ***k, char **a) {
-        assert(e);
-        assert(k);
-        assert(*k >= e);
+ساكن صحيح env_append(حرف **e, حرف ***k, حرف **a) {
+        أكد(e);
+        أكد(k);
+        أكد(*k >= e);
 
-        if (!a)
-                return 0;
+        إذا (!a)
+                أرجع 0;
 
         /* Expects the following arguments: 'e' shall point to the beginning of an strv we are going to append to, 'k'
          * to a pointer pointing to the NULL entry at the end of the same array. 'a' shall point to another strv.
@@ -157,83 +157,83 @@ static int env_append(char **e, char ***k, char **a) {
          *
          * This call assumes 'e' has enough pre-allocated space to grow by all of 'a''s items. */
 
-        for (; *a; a++) {
-                char **j, *c;
+        لكل (; *a; a++) {
+                حرف **j, *c;
                 size_t n;
 
                 n = strcspn(*a, "=");
-                if ((*a)[n] == '=')
+                إذا ((*a)[n] == '=')
                         n++;
 
-                for (j = e; j < *k; j++)
-                        if (strneq(*j, *a, n))
-                                break;
+                لكل (j = e; j < *k; j++)
+                        إذا (strneq(*j, *a, n))
+                                اكسر;
 
                 c = strdup(*a);
-                if (!c)
-                        return -ENOMEM;
+                إذا (!c)
+                        أرجع -ENOMEM;
 
-                if (j >= *k) { /* Append to the end? */
+                إذا (j >= *k) { /* Append to the end? */
                         (*k)[0] = c;
-                        (*k)[1] = NULL;
+                        (*k)[1] = عدم;
                         (*k)++;
-                } else
+                } وإلا
                         free_and_replace(*j, c); /* Override existing item */
         }
 
-        return 0;
+        أرجع 0;
 }
 
-char** _strv_env_merge(char **first, ...) {
-        _cleanup_strv_free_ char **merged = NULL;
-        char **k;
+حرف** strv_env_ملاؤ(حرف **پہلا, ...) {
+        _cleanup_strv_free_ حرف **merged = عدم;
+        حرف **k;
         va_list ap;
 
         /* Merges an arbitrary number of environment sets */
 
-        size_t n = strv_length(first);
+        size_t n = strv_لمائی(پہلا);
 
-        va_start(ap, first);
-        for (;;) {
-                char **l;
+        va_start(ap, پہلا);
+        لكل (;;) {
+                حرف **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, حرف**);
+                إذا (l == اشارہ_گر_MAX)
+                        اكسر;
 
-                n += strv_length(l);
+                n += strv_لمائی(l);
         }
         va_end(ap);
 
-        k = merged = new(char*, n + 1);
-        if (!merged)
-                return NULL;
-        merged[0] = NULL;
+        k = merged = new(حرف*, n + 1);
+        إذا (!merged)
+                أرجع عدم;
+        merged[0] = عدم;
 
-        if (env_append(merged, &k, first) < 0)
-                return NULL;
+        إذا (env_append(merged, &k, پہلا) < 0)
+                أرجع عدم;
 
-        va_start(ap, first);
-        for (;;) {
-                char **l;
+        va_start(ap, پہلا);
+        لكل (;;) {
+                حرف **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, حرف**);
+                إذا (l == اشارہ_گر_MAX)
+                        اكسر;
 
-                if (env_append(merged, &k, l) < 0) {
+                إذا (env_append(merged, &k, l) < 0) {
                         va_end(ap);
-                        return NULL;
+                        أرجع عدم;
                 }
         }
         va_end(ap);
 
-        return TAKE_PTR(merged);
+        أرجع TAKE_PTR(merged);
 }
 
-static bool env_match(const char *t, const char *pattern) {
-        assert(t);
-        assert(pattern);
+ساكن bool env_میل(ثابت حرف *t, ثابت حرف *نمونہ) {
+        أكد(t);
+        أكد(نمونہ);
 
         /* pattern a matches string a
          *         a matches a=
@@ -245,138 +245,138 @@ static bool env_match(const char *t, const char *pattern) {
          *         a=b does not match a
          *         a=b does not match a=c */
 
-        if (streq(t, pattern))
-                return true;
+        إذا (streq(t, نمونہ))
+                أرجع true;
 
-        if (!strchr(pattern, '=')) {
-                t = startswith(t, pattern);
+        إذا (!strchr(نمونہ, '=')) {
+                t = startswith(t, نمونہ);
 
-                return t && *t == '=';
+                أرجع t && *t == '=';
         }
 
-        return false;
+        أرجع false;
 }
 
-static bool env_entry_has_name(const char *entry, const char *name) {
-        const char *t;
+ساكن bool env_اندراج_has_name(ثابت حرف *اندراج, ثابت حرف *name) {
+        ثابت حرف *t;
 
-        assert(entry);
-        assert(name);
+        أكد(اندراج);
+        أكد(name);
 
-        t = startswith(entry, name);
-        if (!t)
-                return false;
+        t = startswith(اندراج, name);
+        إذا (!t)
+                أرجع false;
 
-        return *t == '=';
+        أرجع *t == '=';
 }
 
-char** strv_env_delete(char **x, size_t n_lists, ...) {
+حرف** strv_env_delete(حرف **x, size_t n_lists, ...) {
         size_t n, i = 0;
-        _cleanup_strv_free_ char **t = NULL;
+        _cleanup_strv_free_ حرف **t = عدم;
         va_list ap;
 
         /* Deletes every entry from x that is mentioned in the other
          * string lists */
 
-        n = strv_length(x);
+        n = strv_لمائی(x);
 
-        t = new(char*, n+1);
-        if (!t)
-                return NULL;
+        t = new(حرف*, n+1);
+        إذا (!t)
+                أرجع عدم;
 
         STRV_FOREACH(k, x) {
                 va_start(ap, n_lists);
-                for (size_t v = 0; v < n_lists; v++) {
-                        char **l;
+                لكل (size_t v = 0; v < n_lists; v++) {
+                        حرف **l;
 
-                        l = va_arg(ap, char**);
+                        l = va_arg(ap, حرف**);
                         STRV_FOREACH(j, l)
-                                if (env_match(*k, *j))
-                                        goto skip;
+                                إذا (env_میل(*k, *j))
+                                        اذهب skip;
                 }
                 va_end(ap);
 
                 t[i] = strdup(*k);
-                if (!t[i])
-                        return NULL;
+                إذا (!t[i])
+                        أرجع عدم;
 
                 i++;
-                continue;
+                استمر;
 
         skip:
                 va_end(ap);
         }
 
-        t[i] = NULL;
+        t[i] = عدم;
 
-        assert(i <= n);
+        أكد(i <= n);
 
-        return TAKE_PTR(t);
+        أرجع TAKE_PTR(t);
 }
 
-char** strv_env_unset(char **l, const char *p) {
-        assert(p);
+حرف** strv_env_unset(حرف **l, ثابت حرف *p) {
+        أكد(p);
 
-        if (!l)
-                return NULL;
+        إذا (!l)
+                أرجع عدم;
 
         /* Drops every occurrence of the env var setting p in the
          * string list. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                if (env_match(*f, p)) {
-                        free(*f);
-                        continue;
+        حرف **f, **t;
+        لكل (f = t = l; *f; f++) {
+                إذا (env_میل(*f, p)) {
+                        حرر(*f);
+                        استمر;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = عدم;
+        أرجع l;
 }
 
-char** strv_env_unset_many_internal(char **l, ...) {
-        if (!l)
-                return NULL;
+حرف** strv_env_unset_many_اندرونی(حرف **l, ...) {
+        إذا (!l)
+                أرجع عدم;
 
         /* Like strv_env_unset() but applies many at once. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                bool found = false;
-                const char *p;
+        حرف **f, **t;
+        لكل (f = t = l; *f; f++) {
+                bool لبھیا = false;
+                ثابت حرف *p;
                 va_list ap;
 
                 va_start(ap, l);
 
-                while ((p = va_arg(ap, const char*)))
-                        if (env_match(*f, p)) {
-                                found = true;
-                                break;
+                طالما ((p = va_arg(ap, ثابت حرف*)))
+                        إذا (env_میل(*f, p)) {
+                                لبھیا = true;
+                                اكسر;
                         }
 
                 va_end(ap);
 
-                if (found) {
-                        free(*f);
-                        continue;
+                إذا (لبھیا) {
+                        حرر(*f);
+                        استمر;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = عدم;
+        أرجع l;
 }
 
-int strv_env_replace_consume(char ***l, char *p) {
-        const char *t, *name;
-        int r;
+صحيح strv_env_replace_consume(حرف ***l, حرف *p) {
+        ثابت حرف *t, *name;
+        صحيح r;
 
-        assert(l);
-        assert(p);
+        أكد(l);
+        أكد(p);
 
         /* Replace first occurrence of the env var or add a new one in the string list. Drop other
          * occurrences. Edits in-place. Does not copy p and CONSUMES p EVEN ON FAILURE.
@@ -384,790 +384,790 @@ int strv_env_replace_consume(char ***l, char *p) {
          * p must be a valid key=value assignment. */
 
         t = strchr(p, '=');
-        if (!t) {
-                free(p);
-                return -EINVAL;
+        إذا (!t) {
+                حرر(p);
+                أرجع -EINVAL;
         }
 
-        name = strndupa_safe(p, t - p);
+        name = strndupa_محفوظ(p, t - p);
 
         STRV_FOREACH(f, *l)
-                if (env_entry_has_name(*f, name)) {
+                إذا (env_اندراج_has_name(*f, name)) {
                         free_and_replace(*f, p);
                         strv_env_unset(f + 1, *f);
-                        return 0;
+                        أرجع 0;
                 }
 
         /* We didn't find a match, we need to append p or create a new strv */
         r = strv_consume(l, p);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return 1;
+        أرجع 1;
 }
 
-int strv_env_replace_strdup(char ***l, const char *assignment) {
+صحيح strv_env_replace_strdup(حرف ***l, ثابت حرف *assignment) {
         /* Like strv_env_replace_consume(), but copies the argument. */
 
-        assert(l);
-        assert(assignment);
+        أكد(l);
+        أكد(assignment);
 
-        char *p = strdup(assignment);
-        if (!p)
-                return -ENOMEM;
+        حرف *p = strdup(assignment);
+        إذا (!p)
+                أرجع -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        أرجع strv_env_replace_consume(l, p);
 }
 
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
-        char *p;
+صحيح strv_env_replace_strdup_passthrough(حرف ***l, ثابت حرف *assignment) {
+        حرف *p;
 
         /* Like strv_env_replace_strdup(), but pulls the variable from the environment of
          * the calling program, if a variable name without value is specified. */
 
-        assert(l);
-        assert(assignment);
+        أكد(l);
+        أكد(assignment);
 
-        if (strchr(assignment, '=')) {
-                if (!env_assignment_is_valid(assignment))
-                        return -EINVAL;
+        إذا (strchr(assignment, '=')) {
+                إذا (!env_assignment_is_valid(assignment))
+                        أرجع -EINVAL;
 
                 p = strdup(assignment);
-        } else {
-                if (!env_name_is_valid(assignment))
-                        return -EINVAL;
+        } وإلا {
+                إذا (!env_name_is_valid(assignment))
+                        أرجع -EINVAL;
 
                 /* If we can't find the variable in our environment, we will use
                  * the empty string. This way "passthrough" is equivalent to passing
                  * --setenv=FOO=$FOO in the shell. */
                 p = strjoin(assignment, "=", secure_getenv(assignment));
         }
-        if (!p)
-                return -ENOMEM;
+        إذا (!p)
+                أرجع -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        أرجع strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
-        assert(l);
+صحيح strv_env_سونپو(حرف ***l, ثابت حرف *کلید, ثابت حرف *قدر) {
+        أكد(l);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        إذا (!env_name_is_valid(کلید))
+                أرجع -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
-                strv_env_unset(*l, key);
-                return 0;
+        إذا (!قدر) {
+                strv_env_unset(*l, کلید);
+                أرجع 0;
         }
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        حرف *p = strjoin(کلید, "=", قدر);
+        إذا (!p)
+                أرجع -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        أرجع strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
-        int r;
+صحيح strv_env_assignf(حرف ***l, ثابت حرف *کلید, ثابت حرف *valuef, ...) {
+        صحيح r;
 
-        assert(l);
-        assert(key);
+        أكد(l);
+        أكد(کلید);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        إذا (!env_name_is_valid(کلید))
+                أرجع -EINVAL;
 
-        if (!valuef) {
-                strv_env_unset(*l, key);
-                return 0;
+        إذا (!valuef) {
+                strv_env_unset(*l, کلید);
+                أرجع 0;
         }
 
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ حرف *قدر = عدم;
         va_list ap;
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&قدر, valuef, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        إذا (r < 0)
+                أرجع -ENOMEM;
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        حرف *p = strjoin(کلید, "=", قدر);
+        إذا (!p)
+                أرجع -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        أرجع strv_env_replace_consume(l, p);
 }
 
-int _strv_env_assign_many(char ***l, ...) {
+صحيح strv_env_سونپو_many(حرف ***l, ...) {
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(l);
+        أكد(l);
 
         va_start(ap, l);
-        for (;;) {
-                const char *key, *value;
+        لكل (;;) {
+                ثابت حرف *کلید, *قدر;
 
-                key = va_arg(ap, const char *);
-                if (!key)
-                        break;
+                کلید = va_arg(ap, ثابت حرف *);
+                إذا (!کلید)
+                        اكسر;
 
-                if (!env_name_is_valid(key)) {
+                إذا (!env_name_is_valid(کلید)) {
                         va_end(ap);
-                        return -EINVAL;
+                        أرجع -EINVAL;
                 }
 
-                value = va_arg(ap, const char *);
-                if (!value) {
-                        strv_env_unset(*l, key);
-                        continue;
+                قدر = va_arg(ap, ثابت حرف *);
+                إذا (!قدر) {
+                        strv_env_unset(*l, کلید);
+                        استمر;
                 }
 
-                char *p = strjoin(key, "=", value);
-                if (!p) {
+                حرف *p = strjoin(کلید, "=", قدر);
+                إذا (!p) {
                         va_end(ap);
-                        return -ENOMEM;
+                        أرجع -ENOMEM;
                 }
 
                 r = strv_env_replace_consume(l, p);
-                if (r < 0) {
+                إذا (r < 0) {
                         va_end(ap);
-                        return r;
+                        أرجع r;
                 }
         }
         va_end(ap);
 
-        return 0;
+        أرجع 0;
 }
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags) {
-        assert(name);
+حرف* strv_env_get_n(حرف * ثابت *l, ثابت حرف *name, size_t k, ReplaceEnvFlags flags) {
+        أكد(name);
 
-        if (k == SIZE_MAX)
-                k = strlen(name);
-        if (k <= 0)
-                return NULL;
+        إذا (k == SIZE_MAX)
+                k = لڑی_لمبائی(name);
+        إذا (k <= 0)
+                أرجع عدم;
 
         STRV_FOREACH_BACKWARDS(i, l)
-                if (strneq(*i, name, k) && (*i)[k] == '=')
-                        return (char*) *i + k + 1;
+                إذا (strneq(*i, name, k) && (*i)[k] == '=')
+                        أرجع (حرف*) *i + k + 1;
 
-        if (flags & REPLACE_ENV_USE_ENVIRONMENT) {
-                const char *t;
+        إذا (flags & REPLACE_ENV_USE_ENVIRONMENT) {
+                ثابت حرف *t;
 
                 /* Safety check that the name is not overly long, before we do a stack allocation */
-                if (k > sc_arg_max() - 2)
-                        return NULL;
+                إذا (k > sc_arg_max() - 2)
+                        أرجع عدم;
 
-                t = strndupa_safe(name, k);
-                return secure_getenv(t);
+                t = strndupa_محفوظ(name, k);
+                أرجع secure_getenv(t);
         };
 
-        return NULL;
+        أرجع عدم;
 }
 
-char* strv_env_pairs_get(char **l, const char *name) {
-        char *result = NULL;
+حرف* strv_env_جوڑے_get(حرف **l, ثابت حرف *name) {
+        حرف *نتیجہ = عدم;
 
-        assert(name);
+        أكد(name);
 
-        STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
-                        result = *value;
+        STRV_FOREACH_PAIR(کلید, قدر, l)
+                إذا (streq(*کلید, name))
+                        نتیجہ = *قدر;
 
-        return result;
+        أرجع نتیجہ;
 }
 
-int strv_env_get_merged(char **l, char ***ret) {
-        _cleanup_strv_free_ char **v = NULL;
+صحيح strv_env_get_merged(حرف **l, حرف ***ret) {
+        _cleanup_strv_free_ حرف **v = عدم;
         size_t n = 0;
-        int r;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* This converts a strv with pairs of environment variable name + value into a strv of name and
          * value concatenated with a "=" separator. E.g.
          * input  : { "NAME", "value", "FOO", "var" }
          * output : { "NAME=value", "FOO=var" } */
 
-        STRV_FOREACH_PAIR(key, value, l) {
-                char *s;
+        STRV_FOREACH_PAIR(کلید, قدر, l) {
+                حرف *s;
 
-                s = strjoin(*key, "=", *value);
-                if (!s)
-                        return -ENOMEM;
+                s = strjoin(*کلید, "=", *قدر);
+                إذا (!s)
+                        أرجع -ENOMEM;
 
-                r = strv_consume_with_size(&v, &n, s);
-                if (r < 0)
-                        return r;
+                r = strv_consume_with_ناپ(&v, &n, s);
+                إذا (r < 0)
+                        أرجع r;
         }
 
         *ret = TAKE_PTR(v);
-        return 0;
+        أرجع 0;
 }
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata) {
-        int k = 0;
+حرف** strv_env_clean_with_callback(حرف **l, فراغ (*invalid_callback)(ثابت حرف *p, فراغ *userdata), فراغ *userdata) {
+        صحيح k = 0;
 
         STRV_FOREACH(p, l) {
                 size_t n;
                 bool duplicate = false;
 
-                if (!env_assignment_is_valid(*p)) {
-                        if (invalid_callback)
+                إذا (!env_assignment_is_valid(*p)) {
+                        إذا (invalid_callback)
                                 invalid_callback(*p, userdata);
-                        free(*p);
-                        continue;
+                        حرر(*p);
+                        استمر;
                 }
 
                 n = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, n) && (*q)[n] == '=') {
+                        إذا (strneq(*p, *q, n) && (*q)[n] == '=') {
                                 duplicate = true;
-                                break;
+                                اكسر;
                         }
 
-                if (duplicate) {
-                        free(*p);
-                        continue;
+                إذا (duplicate) {
+                        حرر(*p);
+                        استمر;
                 }
 
                 l[k++] = *p;
         }
 
-        if (l)
-                l[k] = NULL;
+        إذا (l)
+                l[k] = عدم;
 
-        return l;
+        أرجع l;
 }
 
-static int strv_extend_with_length(char ***l, const char *s, size_t n) {
-        char *c;
+ساكن صحيح strv_extend_with_لمائی(حرف ***l, ثابت حرف *s, size_t n) {
+        حرف *c;
 
         c = strndup(s, n);
-        if (!c)
-                return -ENOMEM;
+        إذا (!c)
+                أرجع -ENOMEM;
 
-        return strv_consume(l, c);
+        أرجع strv_consume(l, c);
 }
 
-static int strv_env_get_n_validated(
-                char **env,
-                const char *name,
+ساكن صحيح strv_env_get_n_validated(
+                حرف **env,
+                ثابت حرف *name,
                 size_t l,
                 ReplaceEnvFlags flags,
-                char **ret,              /* points into the env block! do not free! */
-                char ***unset_variables, /* updated in place */
-                char ***bad_variables) { /* ditto */
+                حرف **ret,              /* points into the env block! do not free! */
+                حرف ***unset_variables, /* updated in place */
+                حرف ***bad_variables) { /* ditto */
 
-        char *e;
-        int r;
+        حرف *e;
+        صحيح r;
 
-        assert(l == 0 || name);
-        assert(ret);
+        أكد(l == 0 || name);
+        أكد(ret);
 
-        if (env_name_is_valid_n(name, l)) {
+        إذا (env_name_is_valid_n(name, l)) {
                 e = strv_env_get_n(env, name, l, flags);
-                if (!e && unset_variables) {
-                        r = strv_extend_with_length(unset_variables, name, l);
-                        if (r < 0)
-                                return r;
+                إذا (!e && unset_variables) {
+                        r = strv_extend_with_لمائی(unset_variables, name, l);
+                        إذا (r < 0)
+                                أرجع r;
                 }
-        } else {
-                e = NULL; /* Resolve invalid variable names the same way as unset ones */
+        } وإلا {
+                e = عدم; /* Resolve invalid variable names the same way as unset ones */
 
-                if (bad_variables) {
-                        r = strv_extend_with_length(bad_variables, name, l);
-                        if (r < 0)
-                                return r;
+                إذا (bad_variables) {
+                        r = strv_extend_with_لمائی(bad_variables, name, l);
+                        إذا (r < 0)
+                                أرجع r;
                 }
         }
 
         *ret = e;
-        return !!e;
+        أرجع !!e;
 }
 
-int replace_env_full(
-                const char *format,
+صحيح replace_env_بھریا(
+                ثابت حرف *format,
                 size_t length,
-                char **env,
+                حرف **env,
                 ReplaceEnvFlags flags,
-                char **ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+                حرف **ret,
+                حرف ***ret_unset_variables,
+                حرف ***ret_bad_variables) {
 
-        enum {
-                WORD,
+        تعداد {
+                لفظ_2,
                 CURLY,
                 VARIABLE,
                 VARIABLE_RAW,
                 TEST,
-                DEFAULT_VALUE,
-                ALTERNATE_VALUE,
-        } state = WORD;
+                DEFAULT_قدر,
+                ALTERNATE_قدر,
+        } state = لفظ_2;
 
-        _cleanup_strv_free_ char **unset_variables = NULL, **bad_variables = NULL;
-        const char *e, *word = format, *test_value = NULL; /* test_value is initialized to appease gcc */
-        _cleanup_free_ char *s = NULL;
-        char ***pu, ***pb;
+        _cleanup_strv_free_ حرف **unset_variables = عدم, **bad_variables = عدم;
+        ثابت حرف *e, *لفظ = format, *test_قدر = عدم; /* test_value is initialized to appease gcc */
+        _cleanup_free_ حرف *s = عدم;
+        حرف ***pu, ***pb;
         size_t i, len = 0; /* len is initialized to appease gcc */
-        int nest = 0, r;
+        صحيح nest = 0, r;
 
-        assert(format);
+        أكد(format);
 
-        if (length == SIZE_MAX)
-                length = strlen(format);
+        إذا (length == SIZE_MAX)
+                length = لڑی_لمبائی(format);
 
-        pu = ret_unset_variables ? &unset_variables : NULL;
-        pb = ret_bad_variables ? &bad_variables : NULL;
+        pu = ret_unset_variables ? &unset_variables : عدم;
+        pb = ret_bad_variables ? &bad_variables : عدم;
 
-        for (e = format, i = 0; *e && i < length; e++, i++)
-                switch (state) {
+        لكل (e = format, i = 0; *e && i < length; e++, i++)
+                بدل (state) {
 
-                case WORD:
-                        if (*e == '$')
+                حالة لفظ_2:
+                        إذا (*e == '$')
                                 state = CURLY;
-                        break;
+                        اكسر;
 
-                case CURLY:
-                        if (*e == '{') {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                حالة CURLY:
+                        إذا (*e == '{') {
+                                إذا (!strextendn(&s, لفظ, e-لفظ-1))
+                                        أرجع -ENOMEM;
 
-                                word = e-1;
+                                لفظ = e-1;
                                 state = VARIABLE;
                                 nest++;
 
-                        } else if (*e == '$') {
-                                if (!strextendn(&s, word, e-word))
-                                        return -ENOMEM;
+                        } وإلا إذا (*e == '$') {
+                                إذا (!strextendn(&s, لفظ, e-لفظ))
+                                        أرجع -ENOMEM;
 
-                                word = e+1;
-                                state = WORD;
+                                لفظ = e+1;
+                                state = لفظ_2;
 
-                        } else if (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        } وإلا إذا (FLAGS_سیٹ(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                إذا (!strextendn(&s, لفظ, e-لفظ-1))
+                                        أرجع -ENOMEM;
 
-                                word = e-1;
+                                لفظ = e-1;
                                 state = VARIABLE_RAW;
 
-                        } else
-                                state = WORD;
-                        break;
+                        } وإلا
+                                state = لفظ_2;
+                        اكسر;
 
-                case VARIABLE:
-                        if (*e == '}') {
-                                char *t;
+                حالة VARIABLE:
+                        إذا (*e == '}') {
+                                حرف *t;
 
-                                r = strv_env_get_n_validated(env, word+2, e-word-2, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                r = strv_env_get_n_validated(env, لفظ+2, e-لفظ-2, flags, &t, pu, pb);
+                                إذا (r < 0)
+                                        أرجع r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                إذا (!strextend(&s, t))
+                                        أرجع -ENOMEM;
 
-                                word = e+1;
-                                state = WORD;
+                                لفظ = e+1;
+                                state = لفظ_2;
                                 nest--;
-                        } else if (*e == ':') {
-                                if (flags & REPLACE_ENV_ALLOW_EXTENDED) {
-                                        len = e - word - 2;
+                        } وإلا إذا (*e == ':') {
+                                إذا (flags & REPLACE_ENV_ALLOW_EXTENDED) {
+                                        len = e - لفظ - 2;
                                         state = TEST;
-                                } else
+                                } وإلا
                                         /* Treat this as unsupported syntax, i.e. do no replacement */
-                                        state = WORD;
+                                        state = لفظ_2;
                         }
-                        break;
+                        اكسر;
 
-                case TEST:
-                        if (*e == '-')
-                                state = DEFAULT_VALUE;
-                        else if (*e == '+')
-                                state = ALTERNATE_VALUE;
-                        else {
-                                state = WORD;
-                                break;
+                حالة TEST:
+                        إذا (*e == '-')
+                                state = DEFAULT_قدر;
+                        وإلا إذا (*e == '+')
+                                state = ALTERNATE_قدر;
+                        وإلا {
+                                state = لفظ_2;
+                                اكسر;
                         }
 
-                        test_value = e+1;
-                        break;
+                        test_قدر = e+1;
+                        اكسر;
 
-                case DEFAULT_VALUE: /* fall through */
-                case ALTERNATE_VALUE:
-                        assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
+                حالة DEFAULT_قدر: /* fall through */
+                حالة ALTERNATE_قدر:
+                        أكد(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
-                        if (*e == '{') {
+                        إذا (*e == '{') {
                                 nest++;
-                                break;
+                                اكسر;
                         }
 
-                        if (*e != '}')
-                                break;
+                        إذا (*e != '}')
+                                اكسر;
 
                         nest--;
-                        if (nest == 0) {
-                                _cleanup_strv_free_ char **u = NULL, **b = NULL;
-                                _cleanup_free_ char *v = NULL;
-                                char *t = NULL;
+                        إذا (nest == 0) {
+                                _cleanup_strv_free_ حرف **u = عدم, **b = عدم;
+                                _cleanup_free_ حرف *v = عدم;
+                                حرف *t = عدم;
 
-                                r = strv_env_get_n_validated(env, word+2, len, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                r = strv_env_get_n_validated(env, لفظ+2, len, flags, &t, pu, pb);
+                                إذا (r < 0)
+                                        أرجع r;
 
-                                if (t && state == ALTERNATE_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                إذا (t && state == ALTERNATE_قدر) {
+                                        r = replace_env_بھریا(test_قدر, e-test_قدر, env, flags, &v, pu ? &u : عدم, pb ? &b : عدم);
+                                        إذا (r < 0)
+                                                أرجع r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                } وإلا إذا (!t && state == DEFAULT_قدر) {
+                                        r = replace_env_بھریا(test_قدر, e-test_قدر, env, flags, &v, pu ? &u : عدم, pb ? &b : عدم);
+                                        إذا (r < 0)
+                                                أرجع r;
 
                                         t = v;
                                 }
 
                                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                إذا (r < 0)
+                                        أرجع r;
                                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                إذا (r < 0)
+                                        أرجع r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                إذا (!strextend(&s, t))
+                                        أرجع -ENOMEM;
 
-                                word = e+1;
-                                state = WORD;
+                                لفظ = e+1;
+                                state = لفظ_2;
                         }
-                        break;
+                        اكسر;
 
-                case VARIABLE_RAW:
-                        assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                حالة VARIABLE_RAW:
+                        أكد(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                        if (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                char *t = NULL;
+                        إذا (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                حرف *t = عدم;
 
-                                r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                                if (r < 0)
-                                        return r;
+                                r = strv_env_get_n_validated(env, لفظ+1, e-لفظ-1, flags, &t, &unset_variables, &bad_variables);
+                                إذا (r < 0)
+                                        أرجع r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                إذا (!strextend(&s, t))
+                                        أرجع -ENOMEM;
 
-                                word = e--;
+                                لفظ = e--;
                                 i--;
-                                state = WORD;
+                                state = لفظ_2;
                         }
-                        break;
+                        اكسر;
                 }
 
-        if (state == VARIABLE_RAW) {
-                char *t;
+        إذا (state == VARIABLE_RAW) {
+                حرف *t;
 
-                assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                أكد(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                if (r < 0)
-                        return r;
+                r = strv_env_get_n_validated(env, لفظ+1, e-لفظ-1, flags, &t, &unset_variables, &bad_variables);
+                إذا (r < 0)
+                        أرجع r;
 
-                if (!strextend(&s, t))
-                        return -ENOMEM;
+                إذا (!strextend(&s, t))
+                        أرجع -ENOMEM;
 
-        } else if (!strextendn(&s, word, e-word))
-                return -ENOMEM;
+        } وإلا إذا (!strextendn(&s, لفظ, e-لفظ))
+                أرجع -ENOMEM;
 
-        if (ret_unset_variables)
+        إذا (ret_unset_variables)
                 *ret_unset_variables = TAKE_PTR(unset_variables);
-        if (ret_bad_variables)
+        إذا (ret_bad_variables)
                 *ret_bad_variables = TAKE_PTR(bad_variables);
 
-        if (ret)
+        إذا (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        أرجع 0;
 }
 
-int replace_env_argv(
-                char **argv,
-                char **env,
-                char ***ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+صحيح replace_env_argv(
+                حرف **argv,
+                حرف **env,
+                حرف ***ret,
+                حرف ***ret_unset_variables,
+                حرف ***ret_bad_variables) {
 
-        _cleanup_strv_free_ char **n = NULL, **unset_variables = NULL, **bad_variables = NULL;
+        _cleanup_strv_free_ حرف **n = عدم, **unset_variables = عدم, **bad_variables = عدم;
         size_t k = 0, l;
-        int r;
+        صحيح r;
 
-        assert(!strv_isempty(argv));
-        assert(ret);
+        أكد(!strv_isempty(argv));
+        أكد(ret);
 
-        l = strv_length(argv);
+        l = strv_لمائی(argv);
 
-        n = new(char*, l+1);
-        if (!n)
-                return -ENOMEM;
+        n = new(حرف*, l+1);
+        إذا (!n)
+                أرجع -ENOMEM;
 
         STRV_FOREACH(i, argv) {
-                const char *word = *i;
+                ثابت حرف *لفظ = *i;
 
                 /* If $FOO appears as single word, replace it by the split up variable */
-                if (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
-                        _cleanup_strv_free_ char **m = NULL;
-                        const char *name = word + 1;
-                        char *e, **w;
+                إذا (لفظ[0] == '$' && !وچ_سیٹ(لفظ[1], '{', '$')) {
+                        _cleanup_strv_free_ حرف **m = عدم;
+                        ثابت حرف *name = لفظ + 1;
+                        حرف *e, **w;
                         size_t q;
 
-                        if (env_name_is_valid(name)) {
+                        إذا (env_name_is_valid(name)) {
                                 e = strv_env_get(env, name);
-                                if (e)
-                                        r = strv_split_full(&m, e, WHITESPACE, EXTRACT_RELAX|EXTRACT_UNQUOTE);
-                                else if (ret_unset_variables)
+                                إذا (e)
+                                        r = strv_ونڈو_بھریا(&m, e, WHITESPACE, کڈھو_RELAX|کڈھو_UNQUOTE);
+                                وإلا إذا (ret_unset_variables)
                                         r = strv_extend(&unset_variables, name);
-                                else
+                                وإلا
                                         r = 0;
-                        } else if (ret_bad_variables)
+                        } وإلا إذا (ret_bad_variables)
                                 r = strv_extend(&bad_variables, name);
-                        else
+                        وإلا
                                 r = 0;
-                        if (r < 0)
-                                return r;
+                        إذا (r < 0)
+                                أرجع r;
 
-                        q = strv_length(m);
+                        q = strv_لمائی(m);
                         l = l + q - 1;
 
-                        w = reallocarray(n, l + 1, sizeof(char*));
-                        if (!w)
-                                return -ENOMEM;
+                        w = reallocarray(n, l + 1, حجم(حرف*));
+                        إذا (!w)
+                                أرجع -ENOMEM;
 
                         n = w;
-                        if (m) {
-                                memcpy(n + k, m, (q + 1) * sizeof(char*));
+                        إذا (m) {
+                                حافظہ_نقل(n + k, m, (q + 1) * حجم(حرف*));
                                 m = mfree(m);
                         }
 
                         k += q;
                         /* reallocarray() does not zero-initialize the grown tail, add NUL termination */
-                        n[k] = NULL;
-                        continue;
+                        n[k] = عدم;
+                        استمر;
                 }
 
-                _cleanup_strv_free_ char **u = NULL, **b = NULL;
+                _cleanup_strv_free_ حرف **u = عدم, **b = عدم;
 
                 /* If ${FOO} appears as part of a word, replace it by the variable as-is */
-                r = replace_env_full(
-                                word,
+                r = replace_env_بھریا(
+                                لفظ,
                                 /* length= */ SIZE_MAX,
                                 env,
                                 /* flags= */ 0,
                                 n + k,
-                                ret_unset_variables ? &u : NULL,
-                                ret_bad_variables ? &b : NULL);
-                if (r < 0)
-                        return r;
-                n[++k] = NULL;
+                                ret_unset_variables ? &u : عدم,
+                                ret_bad_variables ? &b : عدم);
+                إذا (r < 0)
+                        أرجع r;
+                n[++k] = عدم;
 
                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (ret_unset_variables) {
-                strv_sort_uniq(unset_variables);
+        إذا (ret_unset_variables) {
+                strv_ترتیب_دیو_uniq(unset_variables);
                 *ret_unset_variables = TAKE_PTR(unset_variables);
         }
-        if (ret_bad_variables) {
-                strv_sort_uniq(bad_variables);
+        إذا (ret_bad_variables) {
+                strv_ترتیب_دیو_uniq(bad_variables);
                 *ret_bad_variables = TAKE_PTR(bad_variables);
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        أرجع 0;
 }
 
-int getenv_bool(const char *p) {
-        const char *e;
+صحيح getenv_bool(ثابت حرف *p) {
+        ثابت حرف *e;
 
         e = getenv(p);
-        if (!e)
-                return -ENXIO;
+        إذا (!e)
+                أرجع -ENXIO;
 
-        return parse_boolean(e);
+        أرجع parse_boolean(e);
 }
 
-int secure_getenv_bool(const char *p) {
-        const char *e;
+صحيح secure_getenv_bool(ثابت حرف *p) {
+        ثابت حرف *e;
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        إذا (!e)
+                أرجع -ENXIO;
 
-        return parse_boolean(e);
+        أرجع parse_boolean(e);
 }
 
-int secure_getenv_uint64(const char *p, uint64_t *ret) {
-        const char *e;
+صحيح secure_getenv_uint64(ثابت حرف *p, uint64_t *ret) {
+        ثابت حرف *e;
 
-        assert(p);
+        أكد(p);
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        إذا (!e)
+                أرجع -ENXIO;
 
-        return safe_atou64(e, ret);
+        أرجع محفوظ_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
-        assert(name);
+صحيح سیٹ_unset_env(ثابت حرف *name, ثابت حرف *قدر, bool overwrite) {
+        أكد(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        إذا (قدر)
+                أرجع RET_NERRNO(setenv(name, قدر, overwrite));
 
-        return RET_NERRNO(unsetenv(name));
+        أرجع RET_NERRNO(unsetenv(name));
 }
 
-int putenv_dup(const char *assignment, bool override) {
-        const char *e, *n;
+صحيح putenv_dup(ثابت حرف *assignment, bool override) {
+        ثابت حرف *e, *n;
 
         e = strchr(assignment, '=');
-        if (!e)
-                return -EINVAL;
+        إذا (!e)
+                أرجع -EINVAL;
 
-        n = strndupa_safe(assignment, e - assignment);
+        n = strndupa_محفوظ(assignment, e - assignment);
 
         /* This is like putenv(), but uses setenv() so that our memory doesn't become part of environ[]. */
-        return RET_NERRNO(setenv(n, e + 1, override));
+        أرجع RET_NERRNO(setenv(n, e + 1, override));
 }
 
-int setenv_systemd_exec_pid(bool update_only) {
-        const char *e;
-        int r;
+صحيح setenv_systemd_exec_pid(bool update_only) {
+        ثابت حرف *e;
+        صحيح r;
 
         /* Update $SYSTEMD_EXEC_PID=pid except when '*' is set for the variable. */
 
         e = secure_getenv("SYSTEMD_EXEC_PID");
-        if (!e && update_only)
-                return 0;
+        إذا (!e && update_only)
+                أرجع 0;
 
-        if (streq_ptr(e, "*"))
-                return 0;
+        إذا (streq_ptr(e, "*"))
+                أرجع 0;
 
         r = setenvf("SYSTEMD_EXEC_PID", /* overwrite= */ 1, PID_FMT, getpid_cached());
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return 1;
+        أرجع 1;
 }
 
-int setenv_systemd_log_level(void) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+صحيح setenv_systemd_log_level(فراغ) {
+        _cleanup_free_ حرف *val = عدم;
+        صحيح r;
 
-        r = log_level_to_string_alloc(log_get_max_level(), &val);
-        if (r < 0)
-                return r;
+        r = log_level_منزل_string_alloc(log_get_max_level(), &val);
+        إذا (r < 0)
+                أرجع r;
 
-        return RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
+        أرجع RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
 }
 
-int getenv_path_list(const char *name, char ***ret_paths) {
-        _cleanup_strv_free_ char **l = NULL;
-        const char *e;
-        int r;
+صحيح getenv_رستہ_list(ثابت حرف *name, حرف ***ret_paths) {
+        _cleanup_strv_free_ حرف **l = عدم;
+        ثابت حرف *e;
+        صحيح r;
 
-        assert(name);
-        assert(ret_paths);
+        أكد(name);
+        أكد(ret_paths);
 
         e = secure_getenv(name);
-        if (!e)
-                return -ENXIO;
+        إذا (!e)
+                أرجع -ENXIO;
 
-        r = strv_split_full(&l, e, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse $%s: %m", name);
+        r = strv_ونڈو_بھریا(&l, e, ":", کڈھو_DONT_COALESCE_SEPARATORS);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to parse $%s: %m", name);
 
         STRV_FOREACH(p, l) {
-                if (!path_is_absolute(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                إذا (!رستہ_is_absolute(*p))
+                        أرجع log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not absolute, refusing.", *p);
 
-                if (!path_is_normalized(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                إذا (!رستہ_is_normalized(*p))
+                        أرجع log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not normalized, refusing.", *p);
 
-                if (path_equal(*p, "/"))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                إذا (رستہ_equal(*p, "/"))
+                        أرجع log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is the root fs, refusing.", *p);
         }
 
-        if (strv_isempty(l))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        إذا (strv_isempty(l))
+                أرجع log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "No paths specified, refusing.");
 
         *ret_paths = TAKE_PTR(l);
-        return 1;
+        أرجع 1;
 }
 
-int getenv_steal_erase(const char *name, char **ret) {
-        _cleanup_(erase_and_freep) char *a = NULL;
-        char *e;
+صحيح getenv_steal_erase(ثابت حرف *name, حرف **ret) {
+        _cleanup_(erase_and_freep) حرف *a = عدم;
+        حرف *e;
 
-        assert(name);
+        أكد(name);
 
         /* Reads an environment variable, makes a copy of it, erases its memory in the environment block and removes
          * it from there. Usecase: reading passwords from the env block (which is a bad idea, but useful for
          * testing, and given that people are likely going to misuse this, be thorough) */
 
         e = secure_getenv(name);
-        if (!e) {
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        إذا (!e) {
+                إذا (ret)
+                        *ret = عدم;
+                أرجع 0;
         }
 
-        if (ret) {
+        إذا (ret) {
                 a = strdup(e);
-                if (!a)
-                        return -ENOMEM;
+                إذا (!a)
+                        أرجع -ENOMEM;
         }
 
         string_erase(e);
 
-        if (unsetenv(name) < 0)
-                return -errno;
+        إذا (unsetenv(name) < 0)
+                أرجع -errno;
 
-        if (ret)
+        إذا (ret)
                 *ret = TAKE_PTR(a);
 
-        return 1;
+        أرجع 1;
 }
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
-        _cleanup_free_ char *value = NULL;
+صحيح setenvf(ثابت حرف *name, bool overwrite, ثابت حرف *valuef, ...) {
+        _cleanup_free_ حرف *قدر = عدم;
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(name);
+        أكد(name);
 
-        if (!valuef)
-                return RET_NERRNO(unsetenv(name));
+        إذا (!valuef)
+                أرجع RET_NERRNO(unsetenv(name));
 
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&قدر, valuef, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        إذا (r < 0)
+                أرجع -ENOMEM;
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
-                return 0;
+        إذا (streq_ptr(getenv(name), قدر))
+                أرجع 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        أرجع RET_NERRNO(setenv(name, قدر, overwrite));
 }
