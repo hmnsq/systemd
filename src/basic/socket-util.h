@@ -1,145 +1,145 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <linux/if_packet.h>
-#include <linux/netlink.h>
-#include <linux/vm_sockets.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/un.h>
+#अन्तर्भाव <linux/if_packet.h>
+#अन्तर्भाव <linux/netlink.h>
+#अन्तर्भाव <linux/vm_sockets.h>
+#अन्तर्भाव <netinet/in.h>
+#अन्तर्भाव <sys/socket.h>
+#अन्तर्भाव <sys/un.h>
 
-#include "forward.h"
-#include "memory-util.h"
-#include "missing-network.h"
+#अन्तर्भाव "forward.h"
+#अन्तर्भाव "memory-util.h"
+#अन्तर्भाव "missing-network.h"
 
-union sockaddr_union {
+सङ्घ sockaddr_union {
         /* The minimal, abstract version */
-        struct sockaddr sa;
+        संरचना sockaddr sa;
 
         /* The libc provided version that allocates "enough room" for every protocol */
-        struct sockaddr_storage storage;
+        संरचना sockaddr_storage storage;
 
         /* Protocol-specific implementations */
-        struct sockaddr_in in;
-        struct sockaddr_in6 in6;
-        struct sockaddr_un un;
-        struct sockaddr_nl nl;
-        struct sockaddr_ll ll;
-        struct sockaddr_vm vm;
+        संरचना sockaddr_in in;
+        संरचना sockaddr_in6 in6;
+        संरचना sockaddr_un un;
+        संरचना sockaddr_nl nl;
+        संरचना sockaddr_ll ll;
+        संरचना sockaddr_vm vm;
 
         /* Ensure there is enough space to store an arbitrary hardware address, e.g. Infiniband */
-        uint8_t ll_buffer[offsetof(struct sockaddr_ll, sll_addr) + HW_ADDR_MAX_SIZE];
+        uint8_t ll_buffer[offsetof(संरचना sockaddr_ll, sll_addr) + HW_ADDR_MAX_SIZE];
 
         /* Ensure there is enough space after the AF_UNIX sun_path for one more NUL byte, just to be sure that the path
          * component is always followed by at least one NUL byte. */
-        uint8_t un_buffer[sizeof(struct sockaddr_un) + 1];
+        uint8_t un_buffer[परिमाण(संरचना sockaddr_un) + 1];
 };
 
-#define SUN_PATH_LEN (sizeof(((struct sockaddr_un){}).sun_path))
+#define SUN_PATH_LEN (परिमाण(((संरचना sockaddr_un){}).sun_path))
 
-typedef struct SocketAddress {
-        union sockaddr_union sockaddr;
+प्रकारनिर्देश संरचना SocketAddress {
+        सङ्घ sockaddr_union sockaddr;
 
         /* We store the size here explicitly due to the weird
          * sockaddr_un semantics for abstract sockets */
         socklen_t size;
 
         /* Socket type, i.e. SOCK_STREAM, SOCK_DGRAM, ... */
-        int type;
+        पूर्णाङ्क type;
 
         /* Socket protocol, IPPROTO_xxx, usually 0, except for netlink */
-        int protocol;
+        पूर्णाङ्क protocol;
 } SocketAddress;
 
 #define socket_address_family(a) ((a)->sockaddr.sa.sa_family)
 
-DECLARE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DECLARE_STRING_TABLE_LOOKUP(socket_address_type, पूर्णाङ्क);
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa);
+पूर्णाङ्क sockaddr_un_unlink(ध्रुव संरचना sockaddr_un *sa);
 
-static inline int socket_address_unlink(const SocketAddress *a) {
-        return socket_address_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
+स्थिर अन्तःस्थ पूर्णाङ्क socket_address_unlink(ध्रुव SocketAddress *a) {
+        प्रत्यागम socket_address_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
 }
 
-bool socket_address_can_accept(const SocketAddress *a) _pure_;
+bool socket_address_can_accept(ध्रुव SocketAddress *a) _pure_;
 
-int socket_address_verify(const SocketAddress *a, bool strict) _pure_;
-int socket_address_print(const SocketAddress *a, char **ret);
-bool socket_address_matches_fd(const SocketAddress *a, int fd);
+पूर्णाङ्क socket_address_verify(ध्रुव SocketAddress *a, bool strict) _pure_;
+पूर्णाङ्क socket_address_print(ध्रुव SocketAddress *a, वर्ण **ret);
+bool socket_address_matches_fd(ध्रुव SocketAddress *a, पूर्णाङ्क fd);
 
-bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) _pure_;
+bool socket_address_equal(ध्रुव SocketAddress *a, ध्रुव SocketAddress *b) _pure_;
 
-const char* socket_address_get_path(const SocketAddress *a);
+ध्रुव वर्ण* socket_address_get_path(ध्रुव SocketAddress *a);
 
-bool socket_ipv6_is_supported(void);
-bool socket_ipv6_is_enabled(void);
+bool socket_ipv6_is_supported(शून्य);
+bool socket_ipv6_is_enabled(शून्य);
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *port);
-const union in_addr_union *sockaddr_in_addr(const struct sockaddr *sa);
-int sockaddr_set_in_addr(union sockaddr_union *u, int family, const union in_addr_union *a, uint16_t port);
+पूर्णाङ्क sockaddr_port(ध्रुव संरचना sockaddr *_sa, unsigned *port);
+ध्रुव सङ्घ in_addr_union *sockaddr_in_addr(ध्रुव संरचना sockaddr *sa);
+पूर्णाङ्क sockaddr_set_in_addr(सङ्घ sockaddr_union *u, पूर्णाङ्क family, ध्रुव सङ्घ in_addr_union *a, uint16_t port);
 
-int sockaddr_pretty(const struct sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_port, char **ret);
-int getpeername_pretty(int fd, bool include_port, char **ret);
-int getsockname_pretty(int fd, char **ret);
+पूर्णाङ्क sockaddr_pretty(ध्रुव संरचना sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_port, वर्ण **ret);
+पूर्णाङ्क getpeername_pretty(पूर्णाङ्क fd, bool include_port, वर्ण **ret);
+पूर्णाङ्क getsockname_pretty(पूर्णाङ्क fd, वर्ण **ret);
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **_ret);
+पूर्णाङ्क socknameinfo_pretty(ध्रुव संरचना sockaddr *sa, socklen_t salen, वर्ण **_ret);
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, पूर्णाङ्क);
 
-bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b);
+bool sockaddr_equal(ध्रुव सङ्घ sockaddr_union *a, ध्रुव सङ्घ sockaddr_union *b);
 
-int fd_set_sndbuf(int fd, size_t n, bool increase);
-static inline int fd_inc_sndbuf(int fd, size_t n) {
-        return fd_set_sndbuf(fd, n, true);
+पूर्णाङ्क fd_set_sndbuf(पूर्णाङ्क fd, size_t n, bool increase);
+स्थिर अन्तःस्थ पूर्णाङ्क fd_inc_sndbuf(पूर्णाङ्क fd, size_t n) {
+        प्रत्यागम fd_set_sndbuf(fd, n, true);
 }
-int fd_set_rcvbuf(int fd, size_t n, bool increase);
-static inline int fd_increase_rxbuf(int fd, size_t n) {
-        return fd_set_rcvbuf(fd, n, true);
+पूर्णाङ्क fd_set_rcvbuf(पूर्णाङ्क fd, size_t n, bool increase);
+स्थिर अन्तःस्थ पूर्णाङ्क fd_increase_rxbuf(पूर्णाङ्क fd, size_t n) {
+        प्रत्यागम fd_set_rcvbuf(fd, n, true);
 }
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, पूर्णाङ्क);
 
-typedef enum {
+प्रकारनिर्देश गणना {
         IFNAME_VALID_ALTERNATIVE = 1 << 0, /* Allow "altnames" too */
         IFNAME_VALID_NUMERIC     = 1 << 1, /* Allow decimal formatted ifindexes too */
         IFNAME_VALID_SPECIAL     = 1 << 2, /* Allow the special names "all" and "default" */
         _IFNAME_VALID_ALL        = IFNAME_VALID_ALTERNATIVE | IFNAME_VALID_NUMERIC | IFNAME_VALID_SPECIAL,
 } IfnameValidFlags;
-bool ifname_valid_char(char a) _const_;
-bool ifname_valid_full(const char *p, IfnameValidFlags flags) _pure_;
-static inline bool ifname_valid(const char *p) {
-        return ifname_valid_full(p, 0);
+bool ifname_valid_char(वर्ण a) _const_;
+bool ifname_valid_full(ध्रुव वर्ण *p, IfnameValidFlags flags) _pure_;
+स्थिर अन्तःस्थ bool ifname_valid(ध्रुव वर्ण *p) {
+        प्रत्यागम ifname_valid_full(p, 0);
 }
-bool address_label_valid(const char *p) _pure_;
+bool address_label_valid(ध्रुव वर्ण *p) _pure_;
 
-int getpeercred(int fd, struct ucred *ucred);
-int getpeersec(int fd, char **ret);
-int getpeergroups(int fd, gid_t **ret);
-int getpeerpidfd(int fd);
-int getpeerpidref(int fd, PidRef *ret);
+पूर्णाङ्क getpeercred(पूर्णाङ्क fd, संरचना ucred *ucred);
+पूर्णाङ्क getpeersec(पूर्णाङ्क fd, वर्ण **ret);
+पूर्णाङ्क getpeergroups(पूर्णाङ्क fd, gid_t **ret);
+पूर्णाङ्क getpeerpidfd(पूर्णाङ्क fd);
+पूर्णाङ्क getpeerpidref(पूर्णाङ्क fd, PidRef *ret);
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
-                const struct iovec *iov, size_t iovlen,
-                const struct sockaddr *sa, socklen_t len,
-                int flags);
-int send_one_fd_sa(int transport_fd,
-                   int fd,
-                   const struct sockaddr *sa, socklen_t len,
-                   int flags);
-#define send_one_fd_iov(transport_fd, fd, iov, iovlen, flags) send_one_fd_iov_sa(transport_fd, fd, iov, iovlen, NULL, 0, flags)
-#define send_one_fd(transport_fd, fd, flags) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, NULL, 0, flags)
-ssize_t receive_one_fd_iov(int transport_fd, struct iovec *iov, size_t iovlen, int flags, int *ret_fd);
-int receive_one_fd(int transport_fd, int flags);
+                पूर्णाङ्क transport_fd,
+                पूर्णाङ्क fd,
+                ध्रुव संरचना iovec *iov, size_t iovlen,
+                ध्रुव संरचना sockaddr *sa, socklen_t len,
+                पूर्णाङ्क flags);
+पूर्णाङ्क send_one_fd_sa(पूर्णाङ्क transport_fd,
+                   पूर्णाङ्क fd,
+                   ध्रुव संरचना sockaddr *sa, socklen_t len,
+                   पूर्णाङ्क flags);
+#define send_one_fd_iov(transport_fd, fd, iov, iovlen, flags) send_one_fd_iov_sa(transport_fd, fd, iov, iovlen, रिक्त, 0, flags)
+#define send_one_fd(transport_fd, fd, flags) send_one_fd_iov_sa(transport_fd, fd, रिक्त, 0, रिक्त, 0, flags)
+ssize_t receive_one_fd_iov(पूर्णाङ्क transport_fd, संरचना iovec *iov, size_t iovlen, पूर्णाङ्क flags, पूर्णाङ्क *ret_fd);
+पूर्णाङ्क receive_one_fd(पूर्णाङ्क transport_fd, पूर्णाङ्क flags);
 
-ssize_t next_datagram_size_fd(int fd);
+ssize_t next_datagram_size_fd(पूर्णाङ्क fd);
 
-int flush_accept(int fd);
-ssize_t flush_mqueue(int fd);
+पूर्णाङ्क flush_accept(पूर्णाङ्क fd);
+ssize_t flush_mqueue(पूर्णाङ्क fd);
 
 #define CMSG_FOREACH(cmsg, mh)                                          \
-        for ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
+        प्रति ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
 
 /* Returns the cmsghdr's data pointer, but safely cast to the specified type. Does two alignment checks: one
  * at compile time, that the requested type has a smaller or same alignment as 'struct cmsghdr', and one
@@ -149,114 +149,114 @@ ssize_t flush_mqueue(int fd);
  * riscv32. */
 #define CMSG_TYPED_DATA(cmsg, type)                                     \
         ({                                                              \
-                struct cmsghdr *_cmsg = (cmsg);                         \
-                assert_cc(alignof(type) <= alignof(struct cmsghdr));    \
-                _cmsg ? CAST_ALIGN_PTR(type, CMSG_DATA(_cmsg)) : (type*) NULL; \
+                संरचना cmsghdr *_cmsg = (cmsg);                         \
+                assert_cc(alignof(type) <= alignof(संरचना cmsghdr));    \
+                _cmsg ? CAST_ALIGN_PTR(type, CMSG_DATA(_cmsg)) : (type*) रिक्त; \
         })
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length);
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len);
+संरचना cmsghdr* cmsg_find(संरचना msghdr *mh, पूर्णाङ्क level, पूर्णाङ्क type, socklen_t length);
+शून्य* cmsg_find_and_copy_data(संरचना msghdr *mh, पूर्णाङ्क level, पूर्णाङ्क type, शून्य *buf, size_t buf_len);
 
 /* Type-safe, dereferencing version of cmsg_find() */
 #define CMSG_FIND_DATA(mh, level, type, ctype)                          \
-        CMSG_TYPED_DATA(cmsg_find(mh, level, type, CMSG_LEN(sizeof(ctype))), ctype)
+        CMSG_TYPED_DATA(cmsg_find(mh, level, type, CMSG_LEN(परिमाण(ctype))), ctype)
 
 /* Type-safe version of cmsg_find_and_copy_data() */
 #define CMSG_FIND_AND_COPY_DATA(mh, level, type, ctype)             \
-        (ctype*) cmsg_find_and_copy_data(mh, level, type, &(ctype){}, sizeof(ctype))
+        (ctype*) cmsg_find_and_copy_data(mh, level, type, &(ctype){}, परिमाण(ctype))
 
 /* Resolves to a type that can carry cmsghdr structures. Make sure things are properly aligned, i.e. the type
  * itself is placed properly in memory and the size is also aligned to what's appropriate for "cmsghdr"
  * structures. */
 #define CMSG_BUFFER_TYPE(size)                                          \
-        union {                                                         \
-                struct cmsghdr cmsghdr;                                 \
+        सङ्घ {                                                         \
+                संरचना cmsghdr cmsghdr;                                 \
                 uint8_t buf[size];                                      \
                 uint8_t align_check[(size) >= CMSG_SPACE(0) &&          \
                                     (size) == CMSG_ALIGN(size) ? 1 : -1]; \
         }
 
-size_t sockaddr_ll_len(const struct sockaddr_ll *sa);
-size_t sockaddr_un_len(const struct sockaddr_un *sa);
-size_t sockaddr_len(const union sockaddr_union *sa);
+size_t sockaddr_ll_len(ध्रुव संरचना sockaddr_ll *sa);
+size_t sockaddr_un_len(ध्रुव संरचना sockaddr_un *sa);
+size_t sockaddr_len(ध्रुव सङ्घ sockaddr_union *sa);
 
-int socket_ioctl_fd(void);
+पूर्णाङ्क socket_ioctl_fd(शून्य);
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path);
+पूर्णाङ्क sockaddr_un_set_path(संरचना sockaddr_un *ret, ध्रुव वर्ण *path);
 
-static inline int setsockopt_int(int fd, int level, int optname, int value) {
-        if (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
-                return -errno;
+स्थिर अन्तःस्थ पूर्णाङ्क setsockopt_int(पूर्णाङ्क fd, पूर्णाङ्क level, पूर्णाङ्क optname, पूर्णाङ्क मूल्य) {
+        यदि (setsockopt(fd, level, optname, &मूल्य, परिमाण(मूल्य)) < 0)
+                प्रत्यागम -errno;
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret);
+पूर्णाङ्क getsockopt_int(पूर्णाङ्क fd, पूर्णाङ्क level, पूर्णाङ्क optname, पूर्णाङ्क *ret);
 
-int socket_bind_to_ifname(int fd, const char *ifname);
-int socket_bind_to_ifindex(int fd, int ifindex);
+पूर्णाङ्क socket_bind_to_ifname(पूर्णाङ्क fd, ध्रुव वर्ण *ifname);
+पूर्णाङ्क socket_bind_to_ifindex(पूर्णाङ्क fd, पूर्णाङ्क ifindex);
 
-int socket_autobind(int fd, char **ret_name);
+पूर्णाङ्क socket_autobind(पूर्णाङ्क fd, वर्ण **ret_name);
 
 /* glibc duplicates timespec/timeval on certain 32-bit arches, once in 32-bit and once in 64-bit.
  * See __convert_scm_timestamps() in glibc source code. Hence, we need additional buffer space for them
  * to prevent truncating control msg (recvmsg() MSG_CTRUNC). */
 #define CMSG_SPACE_TIMEVAL                                              \
-        (CMSG_SPACE(sizeof(struct timeval)) + CMSG_SPACE(2 * sizeof(uint64_t)))
+        (CMSG_SPACE(परिमाण(संरचना timeval)) + CMSG_SPACE(2 * परिमाण(uint64_t)))
 #define CMSG_SPACE_TIMESPEC                                             \
-        (CMSG_SPACE(sizeof(struct timespec)) + CMSG_SPACE(2 * sizeof(uint64_t)))
+        (CMSG_SPACE(परिमाण(संरचना timespec)) + CMSG_SPACE(2 * परिमाण(uint64_t)))
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags);
+ssize_t recvmsg_safe(पूर्णाङ्क sockfd, संरचना msghdr *msg, पूर्णाङ्क flags);
 
-int socket_get_family(int fd);
-int socket_set_recvpktinfo(int fd, int af, bool b);
-int socket_set_unicast_if(int fd, int af, int ifi);
+पूर्णाङ्क socket_get_family(पूर्णाङ्क fd);
+पूर्णाङ्क socket_set_recvpktinfo(पूर्णाङ्क fd, पूर्णाङ्क af, bool b);
+पूर्णाङ्क socket_set_unicast_if(पूर्णाङ्क fd, पूर्णाङ्क af, पूर्णाङ्क ifi);
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val);
-static inline int socket_set_recverr(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
+पूर्णाङ्क socket_set_option(पूर्णाङ्क fd, पूर्णाङ्क af, पूर्णाङ्क opt_ipv4, पूर्णाङ्क opt_ipv6, पूर्णाङ्क val);
+स्थिर अन्तःस्थ पूर्णाङ्क socket_set_recverr(पूर्णाङ्क fd, पूर्णाङ्क af, bool b) {
+        प्रत्यागम socket_set_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
 }
-static inline int socket_set_recvttl(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
+स्थिर अन्तःस्थ पूर्णाङ्क socket_set_recvttl(पूर्णाङ्क fd, पूर्णाङ्क af, bool b) {
+        प्रत्यागम socket_set_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
 }
-static inline int socket_set_ttl(int fd, int af, int ttl) {
-        return socket_set_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
+स्थिर अन्तःस्थ पूर्णाङ्क socket_set_ttl(पूर्णाङ्क fd, पूर्णाङ्क af, पूर्णाङ्क ttl) {
+        प्रत्यागम socket_set_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
 }
-static inline int socket_set_freebind(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
+स्थिर अन्तःस्थ पूर्णाङ्क socket_set_freebind(पूर्णाङ्क fd, पूर्णाङ्क af, bool b) {
+        प्रत्यागम socket_set_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
 }
-static inline int socket_set_transparent(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
+स्थिर अन्तःस्थ पूर्णाङ्क socket_set_transparent(पूर्णाङ्क fd, पूर्णाङ्क af, bool b) {
+        प्रत्यागम socket_set_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
 }
-static inline int socket_set_recvfragsize(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
+स्थिर अन्तःस्थ पूर्णाङ्क socket_set_recvfragsize(पूर्णाङ्क fd, पूर्णाङ्क af, bool b) {
+        प्रत्यागम socket_set_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret);
+पूर्णाङ्क socket_get_mtu(पूर्णाङ्क fd, पूर्णाङ्क af, size_t *ret);
 
 /* an initializer for struct ucred that initialized all fields to the invalid value appropriate for each */
 #define UCRED_INVALID { .pid = 0, .uid = UID_INVALID, .gid = GID_INVALID }
 
-int connect_unix_path(int fd, int dir_fd, const char *path);
+पूर्णाङ्क connect_unix_path(पूर्णाङ्क fd, पूर्णाङ्क dir_fd, ध्रुव वर्ण *path);
 
-static inline bool VSOCK_CID_IS_REGULAR(unsigned cid) {
+स्थिर अन्तःस्थ bool VSOCK_CID_IS_REGULAR(unsigned cid) {
         /* Refuse special CID values */
-        return !IN_SET(cid,
+        प्रत्यागम !IN_SET(cid,
                        VMADDR_CID_HYPERVISOR,
                        VMADDR_CID_LOCAL,
                        VMADDR_CID_HOST,
                        VMADDR_CID_ANY);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret);
-int vsock_parse_cid(const char *s, unsigned *ret);
+पूर्णाङ्क vsock_parse_port(ध्रुव वर्ण *s, unsigned *ret);
+पूर्णाङ्क vsock_parse_cid(ध्रुव वर्ण *s, unsigned *ret);
 
 /* Parses AF_UNIX and AF_VSOCK addresses. AF_INET[6] require some netlink calls, so it cannot be in
  * src/basic/ and is done from 'socket_local_address from src/shared/. Return -EPROTO in case of
  * protocol mismatch. */
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s);
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s);
-int socket_address_equal_unix(const char *a, const char *b);
+पूर्णाङ्क socket_address_parse_unix(SocketAddress *ret_address, ध्रुव वर्ण *s);
+पूर्णाङ्क socket_address_parse_vsock(SocketAddress *ret_address, ध्रुव वर्ण *s);
+पूर्णाङ्क socket_address_equal_unix(ध्रुव वर्ण *a, ध्रुव वर्ण *b);
 
 /* libc's SOMAXCONN is defined to 128 or 4096 (at least on glibc). But actually, the value can be much
  * larger. In our codebase we want to set it to the max usually, since nowadays socket memory is properly
@@ -265,12 +265,12 @@ int socket_address_equal_unix(const char *a, const char *b);
  * authoritative. */
 #define SOMAXCONN_DELUXE INT_MAX
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups);
+पूर्णाङ्क netlink_socket_get_multicast_groups(पूर्णाङ्क fd, size_t *ret_len, uint32_t **ret_groups);
 
-int socket_get_cookie(int fd, uint64_t *ret);
+पूर्णाङ्क socket_get_cookie(पूर्णाङ्क fd, uint64_t *ret);
 
-void cmsg_close_all(struct msghdr *mh);
+शून्य cmsg_close_all(संरचना msghdr *mh);
 
-int tos_to_priority(uint8_t tos);
+पूर्णाङ्क tos_to_priority(uint8_t tos);
 
-int socket_xattr_supported(void);
+पूर्णाङ्क socket_xattr_supported(शून्य);
