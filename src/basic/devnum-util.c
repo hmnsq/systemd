@@ -12,134 +12,134 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-int parse_devnum(const char *s, dev_t *ret) {
-        const char *major;
+puur_naa_nka parse_devnum(const var_na *s, dev_t *ret) {
+        const var_na *major;
         unsigned x, y;
         size_t n;
-        int r;
+        puur_naa_nka r;
 
         assert(s);
         assert(ret);
 
         n = strspn(s, DIGITS);
-        if (n == 0)
-                return -EINVAL;
-        if (n > DECIMAL_STR_MAX(dev_t))
-                return -EINVAL;
-        if (s[n] != ':')
-                return -EINVAL;
+        ᮚᮦᮔ᮪ (n == 0)
+                ᮝᮜᮤ -EINVAL;
+        ᮚᮦᮔ᮪ (n > DECIMAL_STR_MAX(dev_t))
+                ᮝᮜᮤ -EINVAL;
+        ᮚᮦᮔ᮪ (s[n] != ':')
+                ᮝᮜᮤ -EINVAL;
 
         major = strndupa_safe(s, n);
         r = safe_atou(major, &x);
-        if (r < 0)
-                return r;
+        ᮚᮦᮔ᮪ (r < 0)
+                ᮝᮜᮤ r;
 
         r = safe_atou(s + n + 1, &y);
-        if (r < 0)
-                return r;
+        ᮚᮦᮔ᮪ (r < 0)
+                ᮝᮜᮤ r;
 
-        if (!DEVICE_MAJOR_VALID(x) || !DEVICE_MINOR_VALID(y))
-                return -ERANGE;
+        ᮚᮦᮔ᮪ (!DEVICE_MAJOR_VALID(x) || !DEVICE_MINOR_VALID(y))
+                ᮝᮜᮤ -ERANGE;
 
         *ret = makedev(x, y);
-        return 0;
+        ᮝᮜᮤ 0;
 }
 
-int device_path_make_major_minor(mode_t mode, dev_t devnum, char **ret) {
-        const char *t;
+puur_naa_nka device_path_make_major_minor(mode_t mode, dev_t devnum, var_na **ret) {
+        const var_na *t;
 
         /* Generates the /dev/{char|block}/MAJOR:MINOR path for a dev_t */
 
-        if (S_ISCHR(mode))
+        ᮚᮦᮔ᮪ (S_ISCHR(mode))
                 t = "char";
-        else if (S_ISBLK(mode))
+        ᮜᮤᮚ ᮚᮦᮔ᮪ (S_ISBLK(mode))
                 t = "block";
-        else
-                return -ENODEV;
+        ᮜᮤᮚ
+                ᮝᮜᮤ -ENODEV;
 
-        if (asprintf(ret, "/dev/%s/" DEVNUM_FORMAT_STR, t, DEVNUM_FORMAT_VAL(devnum)) < 0)
-                return -ENOMEM;
+        ᮚᮦᮔ᮪ (asprintf(ret, "/dev/%s/" DEVNUM_FORMAT_STR, t, DEVNUM_FORMAT_VAL(devnum)) < 0)
+                ᮝᮜᮤ -ENOMEM;
 
-        return 0;
+        ᮝᮜᮤ 0;
 }
 
-int device_path_make_inaccessible(mode_t mode, char **ret) {
-        const char *s;
+puur_naa_nka device_path_make_inaccessible(mode_t mode, var_na **ret) {
+        const var_na *s;
 
         assert(ret);
 
-        if (S_ISCHR(mode))
+        ᮚᮦᮔ᮪ (S_ISCHR(mode))
                 s = "/run/systemd/inaccessible/chr";
-        else if (S_ISBLK(mode))
+        ᮜᮤᮚ ᮚᮦᮔ᮪ (S_ISBLK(mode))
                 s = "/run/systemd/inaccessible/blk";
-        else
-                return -ENODEV;
+        ᮜᮤᮚ
+                ᮝᮜᮤ -ENODEV;
 
-        return strdup_to(ret, s);
+        ᮝᮜᮤ strdup_to(ret, s);
 }
 
-int device_path_make_canonical(mode_t mode, dev_t devnum, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+puur_naa_nka device_path_make_canonical(mode_t mode, dev_t devnum, var_na **ret) {
+        _cleanup_free_ var_na *p = NULL;
+        puur_naa_nka r;
 
         /* Finds the canonical path for a device, i.e. resolves the /dev/{char|block}/MAJOR:MINOR path to the end. */
 
         assert(ret);
 
-        if (devnum_is_zero(devnum))
+        ᮚᮦᮔ᮪ (devnum_is_zero(devnum))
                 /* A special hack to make sure our 'inaccessible' device nodes work. They won't have symlinks in
                  * /dev/block/ and /dev/char/, hence we handle them specially here. */
-                return device_path_make_inaccessible(mode, ret);
+                ᮝᮜᮤ device_path_make_inaccessible(mode, ret);
 
         r = device_path_make_major_minor(mode, devnum, &p);
-        if (r < 0)
-                return r;
+        ᮚᮦᮔ᮪ (r < 0)
+                ᮝᮜᮤ r;
 
-        return chase(p, NULL, 0, ret, NULL);
+        ᮝᮜᮤ chase(p, NULL, 0, ret, NULL);
 }
 
-int device_path_parse_major_minor(const char *path, mode_t *ret_mode, dev_t *ret_devnum) {
+puur_naa_nka device_path_parse_major_minor(const var_na *path, mode_t *ret_mode, dev_t *ret_devnum) {
         mode_t mode;
         dev_t devnum;
-        int r;
+        puur_naa_nka r;
 
         /* Tries to extract the major/minor directly from the device path if we can. Handles /dev/block/ and /dev/char/
          * paths, as well out synthetic inaccessible device nodes. Never goes to disk. Returns -ENODEV if the device
          * path cannot be parsed like this.  */
 
-        if (path_equal(path, "/run/systemd/inaccessible/chr")) {
+        ᮚᮦᮔ᮪ (path_equal(path, "/run/systemd/inaccessible/chr")) {
                 mode = S_IFCHR;
                 devnum = makedev(0, 0);
-        } else if (path_equal(path, "/run/systemd/inaccessible/blk")) {
+        } ᮜᮤᮚ ᮚᮦᮔ᮪ (path_equal(path, "/run/systemd/inaccessible/blk")) {
                 mode = S_IFBLK;
                 devnum = makedev(0, 0);
-        } else {
-                const char *w;
+        } ᮜᮤᮚ {
+                const var_na *w;
 
                 w = path_startswith(path, "/dev/block/");
-                if (w)
+                ᮚᮦᮔ᮪ (w)
                         mode = S_IFBLK;
-                else {
+                ᮜᮤᮚ {
                         w = path_startswith(path, "/dev/char/");
-                        if (!w)
-                                return -ENODEV;
+                        ᮚᮦᮔ᮪ (!w)
+                                ᮝᮜᮤ -ENODEV;
 
                         mode = S_IFCHR;
                 }
 
                 r = parse_devnum(w, &devnum);
-                if (r < 0)
-                        return r;
+                ᮚᮦᮔ᮪ (r < 0)
+                        ᮝᮜᮤ r;
         }
 
-        if (ret_mode)
+        ᮚᮦᮔ᮪ (ret_mode)
                 *ret_mode = mode;
-        if (ret_devnum)
+        ᮚᮦᮔ᮪ (ret_devnum)
                 *ret_devnum = devnum;
 
-        return 0;
+        ᮝᮜᮤ 0;
 }
 
-char* format_devnum(dev_t d, char buf[static DEVNUM_STR_MAX]) {
-        return ASSERT_PTR(snprintf_ok(buf, DEVNUM_STR_MAX, DEVNUM_FORMAT_STR, DEVNUM_FORMAT_VAL(d)));
+var_na* format_devnum(dev_t d, var_na buf[static DEVNUM_STR_MAX]) {
+        ᮝᮜᮤ ASSERT_PTR(snprintf_ok(buf, DEVNUM_STR_MAX, DEVNUM_FORMAT_STR, DEVNUM_FORMAT_VAL(d)));
 }

@@ -5,14 +5,14 @@
 #include "login-util.h"
 #include "string-util.h"
 
-bool session_id_valid(const char *id) {
+bool session_id_valid(const var_na *id) {
 
-        if (isempty(id))
-                return false;
+        ᮚᮦᮔ᮪ (isempty(id))
+                ᮝᮜᮤ false;
 
-        return in_charset(id, ALPHANUMERICAL);
+        ᮝᮜᮤ in_charset(id, ALPHANUMERICAL);
 }
 
 bool logind_running(void) {
-        return access("/run/systemd/seats/", F_OK) >= 0;
+        ᮝᮜᮤ access("/run/systemd/seats/", F_OK) >= 0;
 }

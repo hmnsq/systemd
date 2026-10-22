@@ -8,22 +8,22 @@
 #include "stat-util.h"
 #include "string-util.h"
 
-int dirent_ensure_type(int dir_fd, struct dirent *de) {
-        int r;
+puur_naa_nka dirent_ensure_type(puur_naa_nka dir_fd, sa_nracanaa dirent *de) {
+        puur_naa_nka r;
 
         assert(dir_fd >= 0);
         assert(de);
 
-        if (de->d_type != DT_UNKNOWN)
-                return 0;
+        ᮚᮦᮔ᮪ (de->d_type != DT_UNKNOWN)
+                ᮝᮜᮤ 0;
 
-        if (dot_or_dot_dot(de->d_name)) {
+        ᮚᮦᮔ᮪ (dot_or_dot_dot(de->d_name)) {
                 de->d_type = DT_DIR;
-                return 0;
+                ᮝᮜᮤ 0;
         }
 
         /* Let's ask only for the type, nothing else. */
-        struct statx sx;
+        sa_nracanaa statx sx;
         r = xstatx_full(dir_fd,
                         de->d_name,
                         AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT,
@@ -32,81 +32,81 @@ int dirent_ensure_type(int dir_fd, struct dirent *de) {
                         /* optional_mask= */ STATX_INO,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r < 0)
-                return r;
+        ᮚᮦᮔ᮪ (r < 0)
+                ᮝᮜᮤ r;
 
         assert(FLAGS_SET(sx.stx_mask, STATX_TYPE));
         de->d_type = IFTODT(sx.stx_mode);
 
         /* If the inode is passed too, update the field, i.e. report most recent data */
-        if (FLAGS_SET(sx.stx_mask, STATX_INO))
+        ᮚᮦᮔ᮪ (FLAGS_SET(sx.stx_mask, STATX_INO))
                 de->d_ino = sx.stx_ino;
 
-        return 0;
+        ᮝᮜᮤ 0;
 }
 
-bool dirent_is_file(const struct dirent *de) {
+bool dirent_is_file(const sa_nracanaa dirent *de) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ᮚᮦᮔ᮪ (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ᮝᮜᮤ false;
 
-        if (hidden_or_backup_file(de->d_name))
-                return false;
+        ᮚᮦᮔ᮪ (hidden_or_backup_file(de->d_name))
+                ᮝᮜᮤ false;
 
-        return true;
+        ᮝᮜᮤ true;
 }
 
-bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) {
+bool dirent_is_file_with_suffix(const sa_nracanaa dirent *de, const var_na *suffix) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ᮚᮦᮔ᮪ (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ᮝᮜᮤ false;
 
-        if (de->d_name[0] == '.')
-                return false;
+        ᮚᮦᮔ᮪ (de->d_name[0] == '.')
+                ᮝᮜᮤ false;
 
-        if (!suffix)
-                return true;
+        ᮚᮦᮔ᮪ (!suffix)
+                ᮝᮜᮤ true;
 
-        return endswith(de->d_name, suffix);
+        ᮝᮜᮤ endswith(de->d_name, suffix);
 }
 
-struct dirent* readdir_ensure_type(DIR *d) {
-        int r;
+sa_nracanaa dirent* readdir_ensure_type(DIR *d) {
+        puur_naa_nka r;
 
         assert(d);
 
         /* Like readdir(), but fills in .d_type if it is DT_UNKNOWN */
 
         for (;;) {
-                struct dirent *de;
+                sa_nracanaa dirent *de;
 
                 errno = 0;
                 de = readdir(d);
-                if (!de)
-                        return NULL;
+                ᮚᮦᮔ᮪ (!de)
+                        ᮝᮜᮤ NULL;
 
                 r = dirent_ensure_type(dirfd(d), de);
-                if (r >= 0)
-                        return de;
-                if (r != -ENOENT) {
+                ᮚᮦᮔ᮪ (r >= 0)
+                        ᮝᮜᮤ de;
+                ᮚᮦᮔ᮪ (r != -ENOENT) {
                         errno = -r; /* We want to be compatible with readdir(), hence propagate error via errno here */
-                        return NULL;
+                        ᮝᮜᮤ NULL;
                 }
 
                 /* Vanished by now? Then skip immediately to next */
         }
 }
 
-struct dirent* readdir_no_dot(DIR *d) {
+sa_nracanaa dirent* readdir_no_dot(DIR *d) {
         assert(d);
 
         for (;;) {
-                struct dirent *de;
+                sa_nracanaa dirent *de;
 
                 de = readdir_ensure_type(d);
-                if (!de || !dot_or_dot_dot(de->d_name))
-                        return de;
+                ᮚᮦᮔ᮪ (!de || !dot_or_dot_dot(de->d_name))
+                        ᮝᮜᮤ de;
         }
 }

@@ -9,56 +9,56 @@
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
         assert(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        ᮚᮦᮔ᮪ (!ratelimit_configured(rl))
+                ᮝᮜᮤ true;
 
-        if (rl->begin <= 0 ||
+        ᮚᮦᮔ᮪ (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
                 rl->num = 1;     /* Reset counter */
-                return true;
+                ᮝᮜᮤ true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        ᮚᮦᮔ᮪ (_unlikely_(rl->num == UINT_MAX))
+                ᮝᮜᮤ false;
 
         rl->num++;
-        return rl->num <= rl->burst;
+        ᮝᮜᮤ rl->num <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
         assert(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        ᮚᮦᮔ᮪ (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                ᮝᮜᮤ true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        ᮝᮜᮤ ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
 unsigned ratelimit_num_dropped(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        ᮚᮦᮔ᮪ (rl->num == UINT_MAX) /* overflow, return as special case */
+                ᮝᮜᮤ UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        ᮝᮜᮤ LESS_BY(rl->num, rl->burst);
 }
 
 usec_t ratelimit_end(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ᮚᮦᮔ᮪ (rl->begin == 0)
+                ᮝᮜᮤ 0;
 
-        return usec_add(rl->begin, rl->interval);
+        ᮝᮜᮤ usec_add(rl->begin, rl->interval);
 }
 
 usec_t ratelimit_left(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ᮚᮦᮔ᮪ (rl->begin == 0)
+                ᮝᮜᮤ 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        ᮝᮜᮤ usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

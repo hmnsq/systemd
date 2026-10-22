@@ -16,7 +16,7 @@
 #define LIST_HEAD_INIT(head)                                            \
         do {                                                            \
                 (head) = NULL;                                          \
-        } while (false)
+        } ᮞᮨᮓᮨᮜ (false)
 
 /* Initialize a list item */
 #define LIST_INIT(name,item)                                            \
@@ -24,14 +24,14 @@
                 typeof(*(item)) *_item = (item);                        \
                 assert(_item);                                          \
                 _item->name##_prev = _item->name##_next = NULL;         \
-        } while (false)
+        } ᮞᮨᮓᮨᮜ (false)
 
 /* Prepend an item to the list */
 #define LIST_PREPEND(name,head,item)                                    \
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_item = (item);     \
                 assert(_item);                                          \
-                if ((_item->name##_next = *_head))                      \
+                ᮚᮦᮔ᮪ ((_item->name##_next = *_head))                      \
                         _item->name##_next->name##_prev = _item;        \
                 _item->name##_prev = NULL;                              \
                 *_head = _item;                                         \
@@ -51,11 +51,11 @@
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_item = (item);     \
                 assert(_item);                                          \
-                if (_item->name##_next)                                 \
+                ᮚᮦᮔ᮪ (_item->name##_next)                                 \
                         _item->name##_next->name##_prev = _item->name##_prev; \
-                if (_item->name##_prev)                                 \
+                ᮚᮦᮔ᮪ (_item->name##_prev)                                 \
                         _item->name##_prev->name##_next = _item->name##_next; \
-                else {                                                  \
+                ᮜᮤᮚ {                                                  \
                         assert(*_head == _item);                        \
                         *_head = _item->name##_next;                    \
                 }                                                       \
@@ -67,7 +67,7 @@
 #define LIST_FIND_HEAD(name,item)                                       \
         ({                                                              \
                 typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_prev)                     \
+                ᮞᮨᮓᮨᮜ (_item && _item->name##_prev)                     \
                         _item = _item->name##_prev;                     \
                 _item;                                                  \
         })
@@ -76,7 +76,7 @@
 #define LIST_FIND_TAIL(name,item)                                       \
         ({                                                              \
                 typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_next)                     \
+                ᮞᮨᮓᮨᮜ (_item && _item->name##_next)                     \
                         _item = _item->name##_next;                     \
                 _item;                                                  \
         })
@@ -86,13 +86,13 @@
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
                 assert(_b);                                             \
-                if (!_a) {                                              \
-                        if ((_b->name##_next = *_head))                 \
+                ᮚᮦᮔ᮪ (!_a) {                                              \
+                        ᮚᮦᮔ᮪ ((_b->name##_next = *_head))                 \
                                 _b->name##_next->name##_prev = _b;      \
                         _b->name##_prev = NULL;                         \
                         *_head = _b;                                    \
-                } else {                                                \
-                        if ((_b->name##_next = _a->name##_next))        \
+                } ᮜᮤᮚ {                                                \
+                        ᮚᮦᮔ᮪ ((_b->name##_next = _a->name##_next))        \
                                 _b->name##_next->name##_prev = _b;      \
                         _b->name##_prev = _a;                           \
                         _a->name##_next = _b;                           \
@@ -105,23 +105,23 @@
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
                 assert(_b);                                             \
-                if (!_a) {                                              \
-                        if (!*_head) {                                  \
+                ᮚᮦᮔ᮪ (!_a) {                                              \
+                        ᮚᮦᮔ᮪ (!*_head) {                                  \
                                 _b->name##_next = NULL;                 \
                                 _b->name##_prev = NULL;                 \
                                 *_head = _b;                            \
-                        } else {                                        \
+                        } ᮜᮤᮚ {                                        \
                                 typeof(*(head)) *_tail = (head);        \
-                                while (_tail->name##_next)              \
+                                ᮞᮨᮓᮨᮜ (_tail->name##_next)              \
                                         _tail = _tail->name##_next;     \
                                 _b->name##_next = NULL;                 \
                                 _b->name##_prev = _tail;                \
                                 _tail->name##_next = _b;                \
                         }                                               \
-                } else {                                                \
-                        if ((_b->name##_prev = _a->name##_prev))        \
+                } ᮜᮤᮚ {                                                \
+                        ᮚᮦᮔ᮪ ((_b->name##_prev = _a->name##_prev))        \
                                 _b->name##_prev->name##_next = _b;      \
-                        else                                            \
+                        ᮜᮤᮚ                                            \
                                 *_head = _b;                            \
                         _b->name##_next = _a;                           \
                         _a->name##_prev = _b;                           \
@@ -154,9 +154,9 @@
 #define LIST_FOREACH_OTHERS(name,i,p)                                   \
         for (typeof(*(p)) *_p = (p), *i = ({                            \
                                 typeof(*_p) *_j = _p;                   \
-                                while (_j && _j->name##_prev)           \
+                                ᮞᮨᮓᮨᮜ (_j && _j->name##_prev)           \
                                         _j = _j->name##_prev;           \
-                                if (_j == _p)                           \
+                                ᮚᮦᮔ᮪ (_j == _p)                           \
                                         _j = _p->name##_next;           \
                                 _j;                                     \
                         });                                             \
@@ -173,9 +173,9 @@
 #define LIST_JOIN(name,a,b)                                             \
         ({                                                              \
                 assert(b);                                              \
-                if (!(a))                                               \
+                ᮚᮦᮔ᮪ (!(a))                                               \
                         (a) = (b);                                      \
-                else {                                                  \
+                ᮜᮤᮚ {                                                  \
                         typeof(*(a)) *_head = (b), *_tail;              \
                         _tail = LIST_FIND_TAIL(name, (a));              \
                         _tail->name##_next = _head;                     \
@@ -189,7 +189,7 @@
         ({                                                              \
                 typeof(a)* _a = &(a);                                   \
                 typeof(a) _p = *_a;                                     \
-                if (_p)                                                 \
+                ᮚᮦᮔ᮪ (_p)                                                 \
                         LIST_REMOVE(name, *_a, _p);                     \
                 _p;                                                     \
         })
@@ -201,7 +201,7 @@
 #define _LIST_CLEAR(name, head, free_func, elem)        \
         ({                                              \
                 typeof(head) elem;                      \
-                while ((elem = LIST_POP(name, head)))   \
+                ᮞᮨᮓᮨᮜ ((elem = LIST_POP(name, head)))   \
                         free_func(elem);                \
                 head;                                   \
         })
