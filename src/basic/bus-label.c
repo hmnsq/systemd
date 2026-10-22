@@ -7,9 +7,9 @@
 #include "hexdecoct.h"
 #include "string-util.h"
 
-char* bus_label_escape(const char *s) {
-        char *r, *t;
-        const char *f;
+var_na* bus_label_escape(const var_na *s) {
+        var_na *r, *t;
+        const var_na *f;
 
         assert_return(s, NULL);
 
@@ -17,66 +17,66 @@ char* bus_label_escape(const char *s) {
          * with. Can be reversed with bus_path_unescape(). We special
          * case the empty string. */
 
-        if (*s == 0)
-                return strdup("_");
+        ᯀᯮᯝ (*s == 0)
+                ᯀᯮᯞ strdup("_");
 
-        r = new(char, strlen(s)*3 + 1);
-        if (!r)
-                return NULL;
+        r = new(var_na, strlen(s)*3 + 1);
+        ᯀᯮᯝ (!r)
+                ᯀᯮᯞ NULL;
 
         for (f = s, t = r; *f; f++) {
 
                 /* Escape everything that is not a-zA-Z0-9. We also escape 0-9 if it's the first character */
 
-                if (!ascii_isalpha(*f) &&
+                ᯀᯮᯝ (!ascii_isalpha(*f) &&
                     !(f > s && ascii_isdigit(*f))) {
                         *(t++) = '_';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else
+                } ᯀᯮᯝᯂᯪ
                         *(t++) = *f;
         }
 
         *t = 0;
 
-        return r;
+        ᯀᯮᯞ r;
 }
 
-char* bus_label_unescape_n(const char *f, size_t l) {
-        char *r, *t;
+var_na* bus_label_unescape_n(const var_na *f, size_t l) {
+        var_na *r, *t;
         size_t i;
 
         assert_return(f, NULL);
 
-        if (l == SIZE_MAX)
+        ᯀᯮᯝ (l == SIZE_MAX)
                 l = strlen(f);
 
         /* Special case for the empty string */
-        if (l == 1 && *f == '_')
-                return strdup("");
+        ᯀᯮᯝ (l == 1 && *f == '_')
+                ᯀᯮᯞ strdup("");
 
-        r = new(char, l + 1);
-        if (!r)
-                return NULL;
+        r = new(var_na, l + 1);
+        ᯀᯮᯝ (!r)
+                ᯀᯮᯞ NULL;
 
         for (i = 0, t = r; i < l; ++i) {
-                if (f[i] == '_') {
-                        int a, b;
+                ᯀᯮᯝ (f[i] == '_') {
+                        puur_naa_nka a, b;
 
-                        if (l - i < 3 ||
+                        ᯀᯮᯝ (l - i < 3 ||
                             (a = unhexchar(f[i + 1])) < 0 ||
                             (b = unhexchar(f[i + 2])) < 0) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '_';
-                        } else {
-                                *(t++) = (char) ((a << 4) | b);
+                        } ᯀᯮᯝᯂᯪ {
+                                *(t++) = (var_na) ((a << 4) | b);
                                 i += 2;
                         }
-                } else
+                } ᯀᯮᯝᯂᯪ
                         *(t++) = f[i];
         }
 
         *t = 0;
 
-        return r;
+        ᯀᯮᯞ r;
 }

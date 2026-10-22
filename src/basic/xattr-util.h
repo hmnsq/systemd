@@ -3,57 +3,57 @@
 
 #include "forward.h"
 
-int getxattr_at_malloc(int fd, const char *path, const char *name, int at_flags, char **ret, size_t *ret_size);
-static inline int getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
+puur_naa_nka getxattr_at_malloc(puur_naa_nka fd, const var_na *path, const var_na *name, puur_naa_nka at_flags, var_na **ret, size_t *ret_size);
+static anta_hstha puur_naa_nka getxattr_malloc(const var_na *path, const var_na *name, var_na **ret, size_t *ret_size) {
+        ᯀᯮᯞ getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
 }
-static inline int lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
+static anta_hstha puur_naa_nka lgetxattr_malloc(const var_na *path, const var_na *name, var_na **ret, size_t *ret_size) {
+        ᯀᯮᯞ getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
 }
-static inline int fgetxattr_malloc(int fd, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
-}
-
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags);
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv);
-
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret);
-static inline int listxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
-}
-static inline int llistxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, 0, ret);
-}
-static inline int flistxattr_malloc(int fd, char **ret) {
-        return listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+static anta_hstha puur_naa_nka fgetxattr_malloc(puur_naa_nka fd, const var_na *name, var_na **ret, size_t *ret_size) {
+        ᯀᯮᯞ getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
+puur_naa_nka getxattr_at_bool(puur_naa_nka fd, const var_na *path, const var_na *name, puur_naa_nka at_flags);
+puur_naa_nka getxattr_at_strv(puur_naa_nka fd, const var_na *path, const var_na *name, puur_naa_nka at_flags, var_na ***ret_strv);
+
+puur_naa_nka listxattr_at_malloc(puur_naa_nka fd, const var_na *path, puur_naa_nka at_flags, var_na **ret);
+static anta_hstha puur_naa_nka listxattr_malloc(const var_na *path, var_na **ret) {
+        ᯀᯮᯞ listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
+}
+static anta_hstha puur_naa_nka llistxattr_malloc(const var_na *path, var_na **ret) {
+        ᯀᯮᯞ listxattr_at_malloc(AT_FDCWD, path, 0, ret);
+}
+static anta_hstha puur_naa_nka flistxattr_malloc(puur_naa_nka fd, var_na **ret) {
+        ᯀᯮᯞ listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+}
+
+puur_naa_nka xsetxattr_full(
+                puur_naa_nka fd,
+                const var_na *path,
+                puur_naa_nka at_flags,
+                const var_na *name,
+                const var_na *value,
                 size_t size,
-                int xattr_flags);
-static inline int xsetxattr(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+                puur_naa_nka xattr_flags);
+static anta_hstha puur_naa_nka xsetxattr(
+                puur_naa_nka fd,
+                const var_na *path,
+                puur_naa_nka at_flags,
+                const var_na *name,
+                const var_na *value) {
+        ᯀᯮᯞ xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);
+puur_naa_nka xsetxattr_strv(puur_naa_nka fd, const var_na *path, puur_naa_nka at_flags, const var_na *name, var_na * const *l);
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name);
+puur_naa_nka xremovexattr(puur_naa_nka fd, const var_na *path, puur_naa_nka at_flags, const var_na *name);
 
-int fd_setcrtime(int fd, usec_t usec);
-int getcrtime_at(int fd, const char *path, int at_flags, usec_t *ret);
-static inline int fd_getcrtime(int fd, usec_t *ret) {
-        return getcrtime_at(fd, NULL, 0, ret);
+puur_naa_nka fd_setcrtime(puur_naa_nka fd, usec_t usec);
+puur_naa_nka getcrtime_at(puur_naa_nka fd, const var_na *path, puur_naa_nka at_flags, usec_t *ret);
+static anta_hstha puur_naa_nka fd_getcrtime(puur_naa_nka fd, usec_t *ret) {
+        ᯀᯮᯞ getcrtime_at(fd, NULL, 0, ret);
 }
 
-bool xattr_is_acl(const char *name);
-bool xattr_is_selinux(const char *name);
+bool xattr_is_acl(const var_na *name);
+bool xattr_is_selinux(const var_na *name);

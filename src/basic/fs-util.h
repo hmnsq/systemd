@@ -6,112 +6,112 @@
 
 /* The following macros add 1 when converting things, since 0 is a valid mode, while the pointer
  * NULL is special */
-static inline mode_t PTR_TO_MODE(void *p) {
-        return p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
+static anta_hstha mode_t PTR_TO_MODE(void *p) {
+        ᯀᯮᯞ p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
 }
-static inline void* MODE_TO_PTR(mode_t m) {
-        return m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
-}
-
-int rmdir_parents(const char *path, const char *stop);
-
-int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-
-int readlinkat_malloc(int fd, const char *p, char **ret);
-static inline int readlink_malloc(const char *p, char **ret) {
-        return readlinkat_malloc(AT_FDCWD, p, ret);
-}
-int readlink_value(const char *p, char **ret);
-int readlink_and_make_absolute(const char *p, char **ret);
-
-int chmod_and_chown_at(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int chmod_and_chown(const char *path, mode_t mode, uid_t uid, gid_t gid) {
-        return chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
-}
-int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int fchmod_and_chown(int fd, mode_t mode, uid_t uid, gid_t gid) {
-        return fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
+static anta_hstha void* MODE_TO_PTR(mode_t m) {
+        ᯀᯮᯞ m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
 }
 
-int fchmod_umask(int fd, mode_t mode);
-int fchmod_opath(int fd, mode_t m);
+puur_naa_nka rmdir_parents(const var_na *path, const var_na *stop);
 
-int futimens_opath(int fd, const struct timespec ts[2]);
+puur_naa_nka rename_noreplace(puur_naa_nka olddirfd, const var_na *oldpath, puur_naa_nka newdirfd, const var_na *newpath);
 
-int fd_warn_permissions(const char *path, int fd);
-int stat_warn_permissions(const char *path, const struct stat *st);
+puur_naa_nka readlinkat_malloc(puur_naa_nka fd, const var_na *p, var_na **ret);
+static anta_hstha puur_naa_nka readlink_malloc(const var_na *p, var_na **ret) {
+        ᯀᯮᯞ readlinkat_malloc(AT_FDCWD, p, ret);
+}
+puur_naa_nka readlink_value(const var_na *p, var_na **ret);
+puur_naa_nka readlink_and_make_absolute(const var_na *p, var_na **ret);
 
-int access_nofollow(const char *path, int mode);
-int access_fd(int fd, int mode);
-
-int touch_fd(int fd, usec_t stamp);
-int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
-int touch(const char *path);
-
-int symlinkat_idempotent(const char *target, int atfd, const char *linkpath, bool make_relative);
-static inline int symlink_idempotent(const char *target, const char *linkpath, bool make_relative) {
-        return symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+puur_naa_nka chmod_and_chown_at(puur_naa_nka dir_fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid);
+static anta_hstha puur_naa_nka chmod_and_chown(const var_na *path, mode_t mode, uid_t uid, gid_t gid) {
+        ᯀᯮᯞ chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
+}
+puur_naa_nka fchmod_and_chown_with_fallback(puur_naa_nka fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid);
+static anta_hstha puur_naa_nka fchmod_and_chown(puur_naa_nka fd, mode_t mode, uid_t uid, gid_t gid) {
+        ᯀᯮᯞ fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
 }
 
-typedef enum SymlinkFlags {
+puur_naa_nka fchmod_umask(puur_naa_nka fd, mode_t mode);
+puur_naa_nka fchmod_opath(puur_naa_nka fd, mode_t m);
+
+puur_naa_nka futimens_opath(puur_naa_nka fd, const sa_nracanaa timespec ts[2]);
+
+puur_naa_nka fd_warn_permissions(const var_na *path, puur_naa_nka fd);
+puur_naa_nka stat_warn_permissions(const var_na *path, const sa_nracanaa stat *st);
+
+puur_naa_nka access_nofollow(const var_na *path, puur_naa_nka mode);
+puur_naa_nka access_fd(puur_naa_nka fd, puur_naa_nka mode);
+
+puur_naa_nka touch_fd(puur_naa_nka fd, usec_t stamp);
+puur_naa_nka touch_file(const var_na *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
+puur_naa_nka touch(const var_na *path);
+
+puur_naa_nka symlinkat_idempotent(const var_na *target, puur_naa_nka atfd, const var_na *linkpath, bool make_relative);
+static anta_hstha puur_naa_nka symlink_idempotent(const var_na *target, const var_na *linkpath, bool make_relative) {
+        ᯀᯮᯞ symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+}
+
+typedef ga_nanaa SymlinkFlags {
         SYMLINK_MAKE_RELATIVE = 1 << 0,
         SYMLINK_LABEL         = 1 << 1,
 } SymlinkFlags;
 
-int symlinkat_atomic_full_label(const char *target, int atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context);
-static inline int symlinkat_atomic_full(const char *target, int atfd, const char *linkpath, SymlinkFlags flags) {
-        return symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
+puur_naa_nka symlinkat_atomic_full_label(const var_na *target, puur_naa_nka atfd, const var_na *linkpath, SymlinkFlags flags, LabelContext *label_context);
+static anta_hstha puur_naa_nka symlinkat_atomic_full(const var_na *target, puur_naa_nka atfd, const var_na *linkpath, SymlinkFlags flags) {
+        ᯀᯮᯞ symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
 }
-static inline int symlink_atomic(const char *target, const char *linkpath) {
-        return symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
-}
-
-int mknodat_atomic(int atfd, const char *path, mode_t mode, dev_t dev);
-static inline int mknod_atomic(const char *path, mode_t mode, dev_t dev) {
-        return mknodat_atomic(AT_FDCWD, path, mode, dev);
+static anta_hstha puur_naa_nka symlink_atomic(const var_na *target, const var_na *linkpath) {
+        ᯀᯮᯞ symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
 }
 
-int mkfifoat_atomic(int dir_fd, const char *path, mode_t mode);
-static inline int mkfifo_atomic(const char *path, mode_t mode) {
-        return mkfifoat_atomic(AT_FDCWD, path, mode);
+puur_naa_nka mknodat_atomic(puur_naa_nka atfd, const var_na *path, mode_t mode, dev_t dev);
+static anta_hstha puur_naa_nka mknod_atomic(const var_na *path, mode_t mode, dev_t dev) {
+        ᯀᯮᯞ mknodat_atomic(AT_FDCWD, path, mode, dev);
 }
 
-int get_files_in_directory(const char *path, char ***list);
+puur_naa_nka mkfifoat_atomic(puur_naa_nka dir_fd, const var_na *path, mode_t mode);
+static anta_hstha puur_naa_nka mkfifo_atomic(const var_na *path, mode_t mode) {
+        ᯀᯮᯞ mkfifoat_atomic(AT_FDCWD, path, mode);
+}
 
-int tmp_dir(const char **ret);
-int var_tmp_dir(const char **ret);
+puur_naa_nka get_files_in_directory(const var_na *path, var_na ***list);
 
-int unlink_or_warn(const char *filename);
+puur_naa_nka tmp_dir(const var_na **ret);
+puur_naa_nka var_tmp_dir(const var_na **ret);
+
+puur_naa_nka unlink_or_warn(const var_na *filename);
 
 /* Useful for usage with _cleanup_(), removes a directory and frees the pointer */
-char *rmdir_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, rmdir_and_free);
+var_na *rmdir_and_free(var_na *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(var_na*, rmdir_and_free);
 
-char* unlink_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, unlink_and_free);
+var_na* unlink_and_free(var_na *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(var_na*, unlink_and_free);
 
-typedef enum UnlinkDeallocateFlags {
+typedef ga_nanaa UnlinkDeallocateFlags {
         UNLINK_REMOVEDIR = 1 << 0,
         UNLINK_ERASE     = 1 << 1,
 } UnlinkDeallocateFlags;
 
-int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags);
+puur_naa_nka unlinkat_deallocate(puur_naa_nka fd, const var_na *name, UnlinkDeallocateFlags flags);
 
-int open_parent_at(int dir_fd, const char *path, int flags, mode_t mode);
-static inline int open_parent(const char *path, int flags, mode_t mode) {
-        return open_parent_at(AT_FDCWD, path, flags, mode);
+puur_naa_nka open_parent_at(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka flags, mode_t mode);
+static anta_hstha puur_naa_nka open_parent(const var_na *path, puur_naa_nka flags, mode_t mode) {
+        ᯀᯮᯞ open_parent_at(AT_FDCWD, path, flags, mode);
 }
 
-int conservative_renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-static inline int conservative_rename(const char *oldpath, const char *newpath) {
-        return conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
+puur_naa_nka conservative_renameat(puur_naa_nka olddirfd, const var_na *oldpath, puur_naa_nka newdirfd, const var_na *newpath);
+static anta_hstha puur_naa_nka conservative_rename(const var_na *oldpath, const var_na *newpath) {
+        ᯀᯮᯞ conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
 }
 
-int posix_fallocate_loop(int fd, uint64_t offset, uint64_t size);
+puur_naa_nka posix_fallocate_loop(puur_naa_nka fd, uint64_t offset, uint64_t size);
 
-int parse_cifs_service(const char *s, char **ret_host, char **ret_service, char **ret_path);
+puur_naa_nka parse_cifs_service(const var_na *s, var_na **ret_host, var_na **ret_service, var_na **ret_path);
 
-typedef enum XOpenFlags {
+typedef ga_nanaa XOpenFlags {
         XO_LABEL             = 1 << 0, /* When creating: relabel */
         XO_SUBVOLUME         = 1 << 1, /* When creating as directory: make it a subvolume */
         XO_NOCOW             = 1 << 2, /* Enable NOCOW mode after opening */
@@ -122,53 +122,53 @@ typedef enum XOpenFlags {
         XO_AUTO_RW_RO        = 1 << 7, /* Open in O_RDWR mode if possible, O_RDONLY if not */
 } XOpenFlags;
 
-int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int open_mkdir_at_full(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode) {
-        return open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
+puur_naa_nka open_mkdir_at_full_label(puur_naa_nka dirfd, const var_na *path, puur_naa_nka flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+static anta_hstha puur_naa_nka open_mkdir_at_full(puur_naa_nka dirfd, const var_na *path, puur_naa_nka flags, XOpenFlags xopen_flags, mode_t mode) {
+        ᯀᯮᯞ open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
 }
-static inline int open_mkdir_at(int dirfd, const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(dirfd, path, flags, 0, mode);
+static anta_hstha puur_naa_nka open_mkdir_at(puur_naa_nka dirfd, const var_na *path, puur_naa_nka flags, mode_t mode) {
+        ᯀᯮᯞ open_mkdir_at_full(dirfd, path, flags, 0, mode);
 }
-static inline int open_mkdir(const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
-}
-
-int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, bool *ret_newly_created);
-
-int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int xopenat_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode) {
-        return xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
-}
-static inline int xopenat(int dir_fd, const char *path, int open_flags) {
-        return xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
+static anta_hstha puur_naa_nka open_mkdir(const var_na *path, puur_naa_nka flags, mode_t mode) {
+        ᯀᯮᯞ open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
 }
 
-int xopenat_lock_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation, LabelContext *label_context);
-static inline int xopenat_lock_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation) {
-        return xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+puur_naa_nka openat_report_new(puur_naa_nka dirfd, const var_na *pathname, puur_naa_nka flags, mode_t mode, bool *ret_newly_created);
+
+puur_naa_nka xopenat_full_label(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+static anta_hstha puur_naa_nka xopenat_full(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka open_flags, XOpenFlags xopen_flags, mode_t mode) {
+        ᯀᯮᯞ xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
 }
-static inline int xopenat_lock(int dir_fd, const char *path, int open_flags, LockType locktype, int operation) {
-        return xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+static anta_hstha puur_naa_nka xopenat(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka open_flags) {
+        ᯀᯮᯞ xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
 }
 
-int link_fd(int fd, int newdirfd, const char *newpath);
+puur_naa_nka xopenat_lock_full_label(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, puur_naa_nka operation, LabelContext *label_context);
+static anta_hstha puur_naa_nka xopenat_lock_full(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, puur_naa_nka operation) {
+        ᯀᯮᯞ xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+}
+static anta_hstha puur_naa_nka xopenat_lock(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka open_flags, LockType locktype, puur_naa_nka operation) {
+        ᯀᯮᯞ xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+}
 
-int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
+puur_naa_nka link_fd(puur_naa_nka fd, puur_naa_nka newdirfd, const var_na *newpath);
 
-static inline int at_flags_normalize_nofollow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
+puur_naa_nka linkat_replace(puur_naa_nka olddirfd, const var_na *oldpath, puur_naa_nka newdirfd, const var_na *newpath);
+
+static anta_hstha puur_naa_nka at_flags_normalize_nofollow(puur_naa_nka flags) {
+        ᯀᯮᯝ (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
                 assert(!FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW));
                 flags &= ~AT_SYMLINK_FOLLOW;
-        } else
+        } ᯀᯮᯝᯂᯪ
                 flags |= AT_SYMLINK_NOFOLLOW;
-        return flags;
+        ᯀᯮᯞ flags;
 }
 
-static inline int at_flags_normalize_follow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
+static anta_hstha puur_naa_nka at_flags_normalize_follow(puur_naa_nka flags) {
+        ᯀᯮᯝ (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
                 assert(!FLAGS_SET(flags, AT_SYMLINK_FOLLOW));
                 flags &= ~AT_SYMLINK_NOFOLLOW;
-        } else
+        } ᯀᯮᯝᯂᯪ
                 flags |= AT_SYMLINK_FOLLOW;
-        return flags;
+        ᯀᯮᯞ flags;
 }

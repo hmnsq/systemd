@@ -4,35 +4,35 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(puur_naa_nka) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+puur_naa_nka format_ifname_full(puur_naa_nka ifindex, FormatIfnameFlag flag, var_na buf[static IF_NAMESIZE]) {
+        ᯀᯮᯝ (ifindex <= 0)
+                ᯀᯮᯞ -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        ᯀᯮᯝ (if_indextoname(ifindex, buf))
+                ᯀᯮᯞ 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        ᯀᯮᯝ (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                ᯀᯮᯞ -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        ᯀᯮᯝ (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        ᯀᯮᯝᯂᯪ
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        ᯀᯮᯞ 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
-        char buf[IF_NAMESIZE];
-        int r;
+puur_naa_nka format_ifname_full_alloc(puur_naa_nka ifindex, FormatIfnameFlag flag, var_na **ret) {
+        var_na buf[IF_NAMESIZE];
+        puur_naa_nka r;
 
         assert(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        ᯀᯮᯝ (r < 0)
+                ᯀᯮᯞ r;
 
-        return strdup_to(ret, buf);
+        ᯀᯮᯞ strdup_to(ret, buf);
 }

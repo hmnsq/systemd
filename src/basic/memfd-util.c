@@ -12,9 +12,9 @@
 #include "process-util.h"
 #include "string-util.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode) {
+puur_naa_nka memfd_create_wrapper(const var_na *name, unsigned mode) {
         unsigned mode_compat;
-        int mfd;
+        puur_naa_nka mfd;
 
         assert(name);
 
@@ -22,142 +22,142 @@ int memfd_create_wrapper(const char *name, unsigned mode) {
          * support MFD_EXEC/MFD_NOEXEC_SEAL. (kernel 6.3+) */
 
         mfd = RET_NERRNO(memfd_create(name, mode));
-        if (mfd != -EINVAL)
-                return mfd;
+        ᯀᯮᯝ (mfd != -EINVAL)
+                ᯀᯮᯞ mfd;
 
         mode_compat = mode & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
 
-        if (mode == mode_compat)
-                return mfd;
+        ᯀᯮᯝ (mode == mode_compat)
+                ᯀᯮᯞ mfd;
 
-        return RET_NERRNO(memfd_create(name, mode_compat));
+        ᯀᯮᯞ RET_NERRNO(memfd_create(name, mode_compat));
 }
 
-int memfd_new_full(const char *name, unsigned extra_flags) {
-        _cleanup_free_ char *g = NULL;
-        int r;
+puur_naa_nka memfd_new_full(const var_na *name, unsigned extra_flags) {
+        _cleanup_free_ var_na *g = NULL;
+        puur_naa_nka r;
 
-        if (!name) {
+        ᯀᯮᯝ (!name) {
 
                 /* If no name is specified we generate one. We include
                  * a hint indicating our library implementation, and
                  * add the thread name to it */
 
-                _cleanup_free_ char *comm = NULL;
+                _cleanup_free_ var_na *comm = NULL;
                 r = pid_get_comm(/* pid= */ 0, &comm);
-                if (r < 0)
-                        return r;
+                ᯀᯮᯝ (r < 0)
+                        ᯀᯮᯞ r;
 
-                if (isempty(comm))
+                ᯀᯮᯝ (isempty(comm))
                         name = "sd";
-                else {
+                ᯀᯮᯝᯂᯪ {
                         g = strjoin("sd-", comm);
-                        if (!g)
-                                return -ENOMEM;
+                        ᯀᯮᯝ (!g)
+                                ᯀᯮᯞ -ENOMEM;
 
                         name = g;
                 }
         }
 
-        return memfd_create_wrapper(
+        ᯀᯮᯞ memfd_create_wrapper(
                         name,
                         MFD_CLOEXEC | MFD_NOEXEC_SEAL | extra_flags);
 }
 
-static int memfd_add_seals(int fd, unsigned seals) {
+static puur_naa_nka memfd_add_seals(puur_naa_nka fd, unsigned seals) {
         assert(fd >= 0);
 
-        return RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
+        ᯀᯮᯞ RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
 }
 
-static int memfd_get_seals(int fd, unsigned *ret_seals) {
-        int r;
+static puur_naa_nka memfd_get_seals(puur_naa_nka fd, unsigned *ret_seals) {
+        puur_naa_nka r;
 
         assert(fd >= 0);
 
         r = RET_NERRNO(fcntl(fd, F_GET_SEALS));
-        if (r < 0)
-                return r;
+        ᯀᯮᯝ (r < 0)
+                ᯀᯮᯞ r;
 
-        if (ret_seals)
+        ᯀᯮᯝ (ret_seals)
                 *ret_seals = r;
-        return 0;
+        ᯀᯮᯞ 0;
 }
 
-int memfd_set_sealed(int fd) {
-        return memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+puur_naa_nka memfd_set_sealed(puur_naa_nka fd) {
+        ᯀᯮᯞ memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_get_sealed(int fd) {
+puur_naa_nka memfd_get_sealed(puur_naa_nka fd) {
         unsigned seals;
-        int r;
+        puur_naa_nka r;
 
         r = memfd_get_seals(fd, &seals);
-        if (r < 0)
-                return r;
+        ᯀᯮᯝ (r < 0)
+                ᯀᯮᯞ r;
 
         /* We ignore F_SEAL_EXEC here to support older kernels.
          * It is supported since kernel v6.3 (6fd7353829cafc4067aad9eea0dc95da67e7df16). */
-        return FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+        ᯀᯮᯞ FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_set_sealed_gracefully(int fd) {
-        int r;
+puur_naa_nka memfd_set_sealed_gracefully(puur_naa_nka fd) {
+        puur_naa_nka r;
 
         r = memfd_set_sealed(fd);
-        if (r != -EPERM)
-                return r;
+        ᯀᯮᯝ (r != -EPERM)
+                ᯀᯮᯞ r;
 
         /* Already sealed? Check if required seals are set. */
         r = memfd_get_sealed(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM; /* Propagate the original error. */
-        return 0;
+        ᯀᯮᯝ (r < 0)
+                ᯀᯮᯞ r;
+        ᯀᯮᯝ (r == 0)
+                ᯀᯮᯞ -EPERM; /* Propagate the original error. */
+        ᯀᯮᯞ 0;
 }
 
-int memfd_get_size(int fd, uint64_t *ret) {
-        struct stat stat;
+puur_naa_nka memfd_get_size(puur_naa_nka fd, uint64_t *ret) {
+        sa_nracanaa stat stat;
 
         assert(fd >= 0);
         assert(ret);
 
-        if (fstat(fd, &stat) < 0)
-                return -errno;
+        ᯀᯮᯝ (fstat(fd, &stat) < 0)
+                ᯀᯮᯞ -errno;
 
         *ret = stat.st_size;
-        return 0;
+        ᯀᯮᯞ 0;
 }
 
-int memfd_set_size(int fd, uint64_t sz) {
+puur_naa_nka memfd_set_size(puur_naa_nka fd, uint64_t sz) {
         assert(fd >= 0);
 
-        return RET_NERRNO(ftruncate(fd, sz));
+        ᯀᯮᯞ RET_NERRNO(ftruncate(fd, sz));
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+puur_naa_nka memfd_new_and_seal(const var_na *name, const void *data, size_t sz) {
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
+        puur_naa_nka r;
 
         assert(data || sz == 0);
 
-        if (sz == SIZE_MAX)
+        ᯀᯮᯝ (sz == SIZE_MAX)
                 sz = strlen(data);
 
         fd = memfd_new_full(name, MFD_ALLOW_SEALING);
-        if (fd < 0)
-                return fd;
+        ᯀᯮᯝ (fd < 0)
+                ᯀᯮᯞ fd;
 
-        if (sz > 0) {
+        ᯀᯮᯝ (sz > 0) {
                 r = pwrite_full(fd, data, sz, 0);
-                if (r < 0)
-                        return r;
+                ᯀᯮᯝ (r < 0)
+                        ᯀᯮᯞ r;
         }
 
         r = memfd_set_sealed(fd);
-        if (r < 0)
-                return r;
+        ᯀᯮᯝ (r < 0)
+                ᯀᯮᯞ r;
 
-        return TAKE_FD(fd);
+        ᯀᯮᯞ TAKE_FD(fd);
 }
